@@ -70,3 +70,7 @@ confirm preferred first relation extraction dataset
 run phase-1 demo and tests from the latest main branch
 report environment issues
 ```
+
+## Runner Guide
+
+Detailed run commands and reporting templates live in [experiment_runner_guide.md](experiment_runner_guide.md).

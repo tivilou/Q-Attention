@@ -75,6 +75,12 @@ biomedical entity mentions
 4. Multi-task evaluation on span-centric information extraction
 ```
 
+## Project Docs
+
+- Experiment runner guide: [docs/experiment_runner_guide.md](docs/experiment_runner_guide.md)
+- Collaboration plan: [docs/collaboration_plan.md](docs/collaboration_plan.md)
+- NLP task plan: [docs/nlp_task_plan.md](docs/nlp_task_plan.md)
+
 ## Current Status
 
 ```text
