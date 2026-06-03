@@ -8,7 +8,8 @@ The experiment runner should not modify core source code during a run. The expec
 
 ```text
 pull latest main
-check environment
+activate your own experiment environment
+install the project in editable mode
 run the provided command
 save logs and metrics
 report success or failure with exact details
@@ -20,32 +21,47 @@ report success or failure with exact details
 https://github.com/tivilou/Q-Attention
 ```
 
-Server working copy currently used by the coding side:
+## Environment Policy
 
-```text
-/home/Q-Attention/Q-Attention-public
-```
+Do not assume that your environment matches the coding server environment.
 
-## Conda Environment
+Use your own conda or virtualenv environment. After activation, all commands should use the environment-local `python`.
 
-The current server validation uses:
-
-```text
-conda env: py310
-python: 3.10
-```
-
-Check environment:
+Recommended setup:
 
 ```bash
-/usr/local/miniconda3/bin/conda run -n py310 python --version
-/usr/local/miniconda3/bin/conda run -n py310 python -c "import torch; print(torch.__version__)"
+conda create -n q-attention python=3.10 -y
+conda activate q-attention
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+```
+
+If you already have a suitable environment, activate it and run:
+
+```bash
+python -m pip install -e ".[dev]"
+```
+
+Record your environment:
+
+```bash
+which python
+python --version
+python -c "import torch; print(torch.__version__)"
+python -m pytest --version
 ```
 
 ## Pull Latest Code
 
 ```bash
-cd /home/Q-Attention/Q-Attention-public
+git clone https://github.com/tivilou/Q-Attention.git
+cd Q-Attention
+```
+
+If you already cloned it:
+
+```bash
+cd Q-Attention
 git pull
 ```
 
@@ -60,10 +76,9 @@ git rev-parse HEAD
 Run these after every pull:
 
 ```bash
-cd /home/Q-Attention/Q-Attention-public
-/usr/local/miniconda3/bin/conda run -n py310 env PYTHONPATH=src python examples/minimal_key_steering.py
-/usr/local/miniconda3/bin/conda run -n py310 env PYTHONPATH=src python examples/encoder_adapter_demo.py
-/usr/local/miniconda3/bin/conda run -n py310 env PYTHONPATH=src python -m pytest -q
+python examples/minimal_key_steering.py
+python examples/encoder_adapter_demo.py
+python -m pytest -q
 ```
 
 Expected result:
@@ -85,16 +100,12 @@ Current expected pytest count:
 Create a log directory for each run:
 
 ```bash
-mkdir -p runs/$(date +%Y%m%d_%H%M%S)
-```
-
-Recommended pattern:
-
-```bash
 RUN_DIR=runs/$(date +%Y%m%d_%H%M%S)
 mkdir -p "$RUN_DIR"
 git rev-parse HEAD > "$RUN_DIR/commit.txt"
-/usr/local/miniconda3/bin/conda run -n py310 env PYTHONPATH=src python -m pytest -q 2>&1 | tee "$RUN_DIR/pytest.log"
+python --version > "$RUN_DIR/python.txt"
+python -c "import torch; print(torch.__version__)" > "$RUN_DIR/torch.txt"
+python -m pytest -q 2>&1 | tee "$RUN_DIR/pytest.log"
 ```
 
 ## Experiment Report Template
@@ -103,7 +114,8 @@ Every report should include:
 
 ```text
 Git commit:
-Conda env:
+Conda/venv name:
+Python executable:
 Python version:
 Torch version:
 GPU model:
@@ -147,8 +159,10 @@ do not rerun with changed parameters without recording the exact command
 
 ## Current Immediate Tasks for dzy958
 
-1. Confirm the conda environment can run the three smoke-test commands.
-2. Report the exact commit hash and pytest output.
-3. Confirm GPU model using `nvidia-smi`.
-4. Confirm which relation extraction dataset should be prepared first.
-5. Send any failure logs back to the coding side for fixes.
+1. Create or activate a suitable Python environment.
+2. Install the project with `python -m pip install -e ".[dev]"`.
+3. Run the three smoke-test commands.
+4. Report the exact commit hash and pytest output.
+5. Confirm GPU model using `nvidia-smi` if available.
+6. Confirm which relation extraction dataset should be prepared first.
+7. Send any failure logs back to the coding side for fixes.
