@@ -2,7 +2,7 @@
 
 ## Project Goal
 
-This repository is for an original quantum machine learning attention-steering project. The method should inherit the principle of spectral key steering while keeping all public source code clean-slate.
+This repository is for an original quantum machine learning attention-steering project for span-centric NLP information extraction. The method should inherit the principle of spectral key steering while keeping all public source code clean-slate.
 
 ## Core Principle
 
@@ -21,7 +21,7 @@ The project should not become a generic quantum-attention paper detached from th
 - Do not copy external project source code into this repository.
 - Write the implementation from scratch.
 - Keep the public repository focused on original code, design notes, and application experiments.
-- Use real application metrics, not only attention visualization.
+- Use real NLP task metrics, not only attention visualization.
 - Keep first prototypes lightweight and torch-only unless a quantum framework is explicitly required.
 
 ## Research Themes
@@ -29,27 +29,36 @@ The project should not become a generic quantum-attention paper detached from th
 1. Quantum-kernel projector learning.
 2. QSVT-inspired spectral projector filtering.
 3. Quantum adaptive expert routing for key steering.
-4. Practical deployment in attention-based time-series models.
+4. Practical deployment in span-centric NLP information extraction.
 
 ## Preferred Application Track
 
-Start with multivariate time-series anomaly detection or fault prediction because:
+Focus on span-centric information extraction:
 
 ```text
-attention is useful for long-range sensor dependencies
-data is practical and application-facing
-metrics are concrete
-models are much cheaper than large language models
+Relation Extraction
+Event Argument Extraction
+Aspect-Based Sentiment Analysis
+Biomedical Relation Extraction
 ```
+
+These tasks are appropriate because they require attention models to focus on anchor and evidence spans while making structured predictions.
 
 ## First Implementation Target
 
-Start with a minimal tensor-level key steering module under `src/q_attention/`:
+Start with relation extraction as the first task because it has a clear anchor structure:
+
+```text
+text + entity pair -> relation label
+```
+
+Then generalize the same mechanism to event arguments, aspect sentiment, and biomedical relations.
+
+Initial modules should include:
 
 ```text
 build_projector(...)
 apply_key_steering(...)
 quantum_kernel_projector(...)
+span_anchor_adapter(...)
 ```
-
-Then add model adapters and experiments.

@@ -2,7 +2,7 @@
 
 ## Goal
 
-Build Q-Attention as a quantum-enhanced spectral key steering framework for practical attention-based models.
+Build Q-Attention as a quantum-enhanced spectral key steering framework for span-centric NLP information extraction.
 
 The project should inherit the key mechanism:
 
@@ -28,7 +28,32 @@ python examples/minimal_demo.py
 python -m pytest
 ```
 
-## Phase 2: Quantum Projector Learning
+## Phase 2: NLP Encoder Adapter
+
+Deliverables:
+
+- Adapter for Transformer encoder attention layers.
+- Span mask utilities for entity, trigger, argument, and aspect spans.
+- Frozen-backbone key steering path.
+
+The adapter should modify key representations, not model weights.
+
+## Phase 3: First Task - Relation Extraction
+
+Deliverables:
+
+- Relation extraction data adapter.
+- Entity-pair anchor representation.
+- Projector builder using positive and negative relation examples.
+- Baseline encoder model and key-steered model.
+
+Core form:
+
+```text
+text + entity pair -> relation label
+```
+
+## Phase 4: Quantum Projector Learning
 
 Deliverables:
 
@@ -43,7 +68,7 @@ Core form:
 K_q(x, y) = |<Phi_q(x), Phi_q(y)>|^2
 ```
 
-## Phase 3: Spectral Filtering
+## Phase 5: Spectral Filtering
 
 Deliverables:
 
@@ -58,7 +83,26 @@ Core form:
 P = U diag(f(S)) U^T
 ```
 
-## Phase 4: Adaptive Expert Routing
+## Phase 6: Multi-Task Expansion
+
+Add related NLP tasks:
+
+```text
+Event Argument Extraction
+Aspect-Based Sentiment Analysis
+Biomedical Relation Extraction
+```
+
+Each task should define:
+
+```text
+anchor spans
+evidence spans
+positive/negative projector-building examples
+structured prediction metric
+```
+
+## Phase 7: Adaptive Expert Routing
 
 Deliverables:
 
@@ -73,28 +117,12 @@ Core form:
 P_dynamic = sum_m alpha_m P_m
 ```
 
-## Phase 5: Attention-Model Adapter
-
-Deliverables:
-
-- Adapter for a small Transformer-style time-series model.
-- Hook or module-level key editing.
-- Frozen-backbone evaluation path.
-
-The adapter should modify key representations, not model weights.
-
-## Phase 6: Practical Application Experiment
-
-Initial target:
-
-```text
-multivariate time-series anomaly detection / fault prediction
-```
+## Phase 8: Experimental Suite
 
 Compare:
 
 ```text
-base attention model
+base encoder
 linear spectral key steering
 quantum projector learning
 spectral filtering only
@@ -105,23 +133,29 @@ full Q-Attention
 Report:
 
 ```text
-F1
-AUROC
-AUPRC
-false alarm rate
-early warning time
+Micro-F1
+Macro-F1
+Precision
+Recall
+Accuracy where appropriate
+low-resource performance
+robustness under distractors
 latency
 memory
 projector norm stability
 routing entropy
 ```
 
-## Phase 7: Paper Assets
+## Phase 9: Paper Assets
 
 Deliverables:
 
 - Method diagram.
+- Algorithm pseudocode.
+- Multi-task results table.
 - Ablation table.
+- Low-resource table.
+- Robustness table.
 - Runtime table.
 - Sensitivity analysis.
-- Attention/key-space visualization as secondary evidence.
+- Key-space visualization as secondary evidence.

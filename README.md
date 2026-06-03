@@ -1,6 +1,6 @@
 # Q-Attention
 
-Q-Attention is a public research scaffold for developing **quantum-enhanced spectral key steering** methods for attention-based models.
+Q-Attention is a public research scaffold for developing **quantum-enhanced spectral key steering** methods for span-centric NLP information extraction.
 
 The project is not a generic quantum-attention rewrite. Its core mechanism is inherited from spectral key steering:
 
@@ -14,15 +14,28 @@ The source code in this repository will be written from scratch. Reference imple
 
 ## Research Positioning
 
-The planned method generalizes spectral key steering from prompt-focused language-model experiments to practical attention-based applications.
+The planned method generalizes spectral key steering from prompt-focused experiments to practical NLP tasks where models must focus on entity, event, aspect, or evidence spans.
 
-Initial target application:
+Target task family:
 
 ```text
-multivariate time-series anomaly detection / fault prediction
+Span-Centric Information Extraction
 ```
 
-This keeps the attention mechanism central while evaluating the method on real application metrics instead of only attention-probing tasks.
+Representative tasks:
+
+```text
+Relation Extraction
+Event Argument Extraction
+Aspect-Based Sentiment Analysis
+Biomedical Relation Extraction
+```
+
+These tasks share a common structure:
+
+```text
+text + anchor spans + evidence spans -> structured prediction
+```
 
 ## Core Mechanism
 
@@ -41,13 +54,25 @@ g  = steering strength
 k' = steered key representation
 ```
 
+For NLP information extraction, the steered keys usually correspond to:
+
+```text
+entity spans
+relation evidence spans
+event triggers
+candidate arguments
+aspect terms
+opinion clues
+biomedical entity mentions
+```
+
 ## Planned Contributions
 
 ```text
-1. Quantum-kernel projector learning
+1. Quantum-kernel projector learning for span-evidence relevance
 2. QSVT-inspired spectral projector filtering
-3. Quantum adaptive key-steering expert routing
-4. Practical attention-model application and ablations
+3. Quantum adaptive expert routing across related NLP tasks
+4. Multi-task evaluation on span-centric information extraction
 ```
 
 ## Current Status
@@ -68,4 +93,4 @@ docs/                 # research notes and design records
 
 ## First Milestone
 
-Build a minimal tensor-level prototype for spectral key steering, then add quantum-kernel projector learning and application adapters.
+Build a minimal tensor-level prototype for spectral key steering, then add an NLP encoder adapter for relation extraction as the first task before extending to event, aspect, and biomedical extraction.
