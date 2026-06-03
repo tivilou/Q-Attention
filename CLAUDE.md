@@ -44,6 +44,11 @@ Biomedical Relation Extraction
 
 These tasks are appropriate because they require attention models to focus on anchor and evidence spans while making structured predictions.
 
+
+## Collaboration Workflow
+
+The coding side prepares implementation, tests, scripts, and reproducible commands. The collaborator `dzy958` runs experiments, records logs, collects metrics, and reports failures with full tracebacks. Keep experiment commands simple enough to run without editing source code.
+
 ## First Implementation Target
 
 Start with relation extraction as the first task because it has a clear anchor structure:

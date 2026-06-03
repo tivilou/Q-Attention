@@ -79,7 +79,7 @@ biomedical entity mentions
 
 ```text
 Stage: research design
-Code: phase-1 tensor prototype scaffolded
+Code: phase-2 encoder adapter scaffolded
 Visibility: public
 ```
 
@@ -93,4 +93,4 @@ docs/                 # research notes and design records
 
 ## First Milestone
 
-Run the minimal tensor-level key steering demo, then add an NLP encoder adapter for relation extraction as the first task before extending to event, aspect, and biomedical extraction.
+Run the minimal tensor demo and encoder adapter demo, then add the first relation extraction baseline before extending to event, aspect, and biomedical extraction.
