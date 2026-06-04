@@ -1,0 +1,72 @@
+{
+  "name": "retacred_full_gpu",
+  "task": "relation_extraction",
+  "description": "First full Re-TACRED GPU validation config for Q-Attention prototype comparison.",
+  "train_path": "data/relation/retacred/train.jsonl",
+  "valid_path": "data/relation/retacred/valid.jsonl",
+  "test_path": "data/relation/retacred/test.jsonl",
+  "output_dir": "runs/retacred_full_gpu",
+  "seed": 13,
+  "baseline": {
+    "epochs": 12,
+    "batch_size": 128,
+    "dim": 128,
+    "num_layers": 4,
+    "num_heads": 8,
+    "ff_dim": 256,
+    "dropout": 0.1,
+    "lr": 0.0005,
+    "seed": 13
+  },
+  "classical_projector": {
+    "batch_size": 256,
+    "rank": 16,
+    "max_vectors": 20000,
+    "center": true,
+    "seed": 13
+  },
+  "classical_steering": {
+    "batch_size": 256,
+    "gain": 0.25
+  },
+  "quantum_projector": {
+    "batch_size": 256,
+    "rank": 16,
+    "num_qubits": 6,
+    "angle_scale": 1.25,
+    "max_vectors": 4096,
+    "center": true,
+    "seed": 13
+  },
+  "quantum_steering": {
+    "batch_size": 256,
+    "gain": 0.25
+  },
+  "spectral_sweep": {
+    "batch_size": 256,
+    "families": "classical,quantum",
+    "modes": "hard_topk,high_pass,band_pass,soft_energy",
+    "ranks": "8,16",
+    "thresholds": "0.5",
+    "sharpnesses": "8.0",
+    "gains": "0.1,0.25,0.5",
+    "num_qubits": 6,
+    "angle_scale": 1.25,
+    "max_vectors": 4096,
+    "center": true,
+    "seed": 13
+  },
+  "routing": {
+    "batch_size": 256,
+    "gain": 0.25,
+    "temperature": 0.5,
+    "rank": 16,
+    "threshold": 0.5,
+    "sharpness": 8.0,
+    "num_qubits": 6,
+    "angle_scale": 1.25,
+    "max_vectors": 4096,
+    "center": true,
+    "seed": 13
+  }
+}

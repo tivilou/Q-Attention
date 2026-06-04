@@ -1,0 +1,72 @@
+{
+  "name": "retacred_low_resource_gpu",
+  "task": "relation_extraction",
+  "description": "Low-resource Re-TACRED config for early ablation of projector benefits under limited labels.",
+  "train_path": "data/relation/retacred/train.jsonl",
+  "valid_path": "data/relation/retacred/valid.jsonl",
+  "test_path": "data/relation/retacred/test.jsonl",
+  "output_dir": "runs/retacred_low_resource_gpu",
+  "max_train_records": 2048,
+  "max_valid_records": 8192,
+  "seed": 13,
+  "baseline": {
+    "epochs": 10,
+    "batch_size": 64,
+    "dim": 128,
+    "num_layers": 3,
+    "num_heads": 8,
+    "ff_dim": 256,
+    "dropout": 0.1,
+    "lr": 0.0007,
+    "seed": 13
+  },
+  "classical_projector": {
+    "batch_size": 128,
+    "rank": 16,
+    "max_vectors": 4096,
+    "center": true,
+    "seed": 13
+  },
+  "classical_steering": {
+    "batch_size": 128,
+    "gain": 0.25
+  },
+  "quantum_projector": {
+    "batch_size": 128,
+    "rank": 16,
+    "num_qubits": 6,
+    "angle_scale": 1.25,
+    "max_vectors": 4096,
+    "center": true,
+    "seed": 13
+  },
+  "quantum_steering": {
+    "batch_size": 128,
+    "gain": 0.25
+  },
+  "spectral_sweep": {
+    "batch_size": 128,
+    "families": "classical,quantum",
+    "modes": "hard_topk,soft_energy",
+    "ranks": "8,16",
+    "thresholds": "0.5",
+    "sharpnesses": "8.0",
+    "gains": "0.1,0.25,0.5",
+    "num_qubits": 6,
+    "angle_scale": 1.25,
+    "max_vectors": 4096,
+    "center": true,
+    "seed": 13
+  },
+  "routing": {
+    "batch_size": 128,
+    "gain": 0.25,
+    "temperature": 0.5,
+    "rank": 16,
+    "num_qubits": 6,
+    "angle_scale": 1.25,
+    "max_vectors": 4096,
+    "center": true,
+    "seed": 13
+  }
+}

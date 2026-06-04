@@ -344,6 +344,10 @@ do not report only screenshots; include plain-text logs
 do not rerun with changed parameters without recording the exact command
 ```
 
+## Re-TACRED Handoff
+
+The concrete Re-TACRED GPU debug, low-resource, and full validation commands live in [retacred_experiment_handoff.md](retacred_experiment_handoff.md). Run them only after the coding side confirms the target commit and dataset location.
+
 ## Current Immediate Tasks for dzy958
 
 1. Create or activate a suitable Python environment.

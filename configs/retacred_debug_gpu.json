@@ -1,0 +1,72 @@
+{
+  "name": "retacred_debug_gpu",
+  "task": "relation_extraction",
+  "description": "Debug GPU run for Re-TACRED handoff. Uses stratified subsets to verify the runner environment before full training.",
+  "train_path": "data/relation/retacred/train.jsonl",
+  "valid_path": "data/relation/retacred/valid.jsonl",
+  "test_path": "data/relation/retacred/test.jsonl",
+  "output_dir": "runs/retacred_debug_gpu",
+  "max_train_records": 4096,
+  "max_valid_records": 2048,
+  "seed": 13,
+  "baseline": {
+    "epochs": 4,
+    "batch_size": 64,
+    "dim": 64,
+    "num_layers": 2,
+    "num_heads": 4,
+    "ff_dim": 128,
+    "dropout": 0.1,
+    "lr": 0.001,
+    "seed": 13
+  },
+  "classical_projector": {
+    "batch_size": 128,
+    "rank": 8,
+    "max_vectors": 2048,
+    "center": true,
+    "seed": 13
+  },
+  "classical_steering": {
+    "batch_size": 128,
+    "gain": 0.25
+  },
+  "quantum_projector": {
+    "batch_size": 128,
+    "rank": 8,
+    "num_qubits": 4,
+    "angle_scale": 1.25,
+    "max_vectors": 2048,
+    "center": true,
+    "seed": 13
+  },
+  "quantum_steering": {
+    "batch_size": 128,
+    "gain": 0.25
+  },
+  "spectral_sweep": {
+    "batch_size": 128,
+    "families": "classical,quantum",
+    "modes": "hard_topk,soft_energy",
+    "ranks": "4,8",
+    "thresholds": "0.5",
+    "sharpnesses": "8.0",
+    "gains": "0.1,0.25",
+    "num_qubits": 4,
+    "angle_scale": 1.25,
+    "max_vectors": 2048,
+    "center": true,
+    "seed": 13
+  },
+  "routing": {
+    "batch_size": 128,
+    "gain": 0.25,
+    "temperature": 0.5,
+    "rank": 8,
+    "num_qubits": 4,
+    "angle_scale": 1.25,
+    "max_vectors": 2048,
+    "center": true,
+    "seed": 13
+  }
+}
