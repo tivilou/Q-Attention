@@ -85,7 +85,7 @@ biomedical entity mentions
 
 ```text
 Stage: research design
-Code: phase-2 encoder adapter scaffolded
+Code: relation extraction baseline scaffolded
 Visibility: public
 ```
 
@@ -95,6 +95,12 @@ Visibility: public
 src/q_attention/      # original implementation
 experiments/          # benchmark and ablation scripts
 docs/                 # research notes and design records
+```
+
+## Current Baseline Command
+
+```bash
+python experiments/train_relation_baseline.py --epochs 5 --output_dir runs/relation_toy
 ```
 
 ## First Milestone
