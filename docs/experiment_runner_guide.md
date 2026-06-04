@@ -95,6 +95,26 @@ Current expected pytest count:
 9 passed
 ```
 
+
+## Current Relation Baseline Dry Run
+
+After smoke tests pass, run the toy relation extraction baseline:
+
+```bash
+python experiments/train_relation_baseline.py --epochs 2 --batch_size 4 --output_dir runs/relation_toy --device cpu
+```
+
+Expected outputs:
+
+```text
+runs/relation_toy/model.pt
+runs/relation_toy/metrics.json
+runs/relation_toy/vocab.json
+runs/relation_toy/labels.json
+```
+
+This is not a formal benchmark. It only verifies that the relation extraction training/evaluation pipeline works end to end.
+
 ## Logging
 
 Create a log directory for each run:

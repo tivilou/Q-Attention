@@ -67,7 +67,7 @@ dzy958:
 ```text
 confirm available GPU and conda environment
 confirm preferred first relation extraction dataset
-run phase-1 demo and tests from the latest main branch
+run smoke tests and the relation baseline dry run from the latest main branch
 report environment issues
 ```
 
