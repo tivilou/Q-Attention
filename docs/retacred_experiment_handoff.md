@@ -22,7 +22,44 @@ data/relation/retacred/test.jsonl
 data/relation/retacred/data_config.json
 ```
 
-If they do not exist, build them from licensed TACRED plus the public Re-TACRED patches:
+### Option A: Use The Prepared Data Package
+
+If you receive `retacred_q_attention_data.tar.gz`, place it at the Q-Attention repository root and verify the checksum if `retacred_q_attention_data.sha256` is provided:
+
+```bash
+sha256sum retacred_q_attention_data.tar.gz
+cat retacred_q_attention_data.sha256
+```
+
+Expected SHA256:
+
+```text
+c06b9647b5977a3a06fd2a4f338b50931567def231d77a37c8fe6bf93a36a64c
+```
+
+Then extract it from the repository root:
+
+```bash
+tar -xzf retacred_q_attention_data.tar.gz
+```
+
+After extraction, verify the canonical files:
+
+```bash
+ls -lh data/relation/retacred
+python - <<'PY'
+from pathlib import Path
+for name in ['train.jsonl', 'valid.jsonl', 'test.jsonl', 'data_config.json']:
+    path = Path('data/relation/retacred') / name
+    print(name, path.exists(), path.stat().st_size if path.exists() else 'missing')
+PY
+```
+
+Do not commit the package or extracted `data/` directory; `data/` is intentionally ignored.
+
+### Option B: Rebuild From Licensed TACRED
+
+If the prepared package is not available, build the data from licensed TACRED plus the public Re-TACRED patches:
 
 ```bash
 python experiments/build_retacred_from_tacred.py \
