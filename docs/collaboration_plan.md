@@ -57,18 +57,28 @@ error traceback if failed
 Coding side:
 
 ```text
-finish NLP encoder adapter
-add relation extraction data schema
-prepare first baseline command
+finish the toy-data classical steering loop
+verify baseline -> projector -> steering eval commands
+add tests and reproducibility docs
+prepare the next real-data task adapters before formal GPU handoff
 ```
 
 dzy958:
 
 ```text
-confirm available GPU and conda environment
-confirm preferred first relation extraction dataset
-run smoke tests and the relation baseline dry run from the latest main branch
-report environment issues
+confirm available GPU and Python environment
+keep environment details ready for future runs
+help identify candidate real datasets for relation/event/aspect extraction
+run only smoke or toy commands when explicitly asked
+wait for real-data commands before large GPU experiments
+```
+
+## Current Code Handoff Status
+
+```text
+prototype status: toy-data verification only
+formal experiment handoff: not yet
+next gate: real dataset loader + config + command must pass a small real-data smoke run
 ```
 
 ## Runner Guide

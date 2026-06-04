@@ -24,8 +24,9 @@ Deliverables:
 Acceptance checks:
 
 ```text
-python examples/minimal_demo.py
-python -m pytest
+python examples/minimal_key_steering.py
+python examples/encoder_adapter_demo.py
+python -m pytest -q
 ```
 
 ## Phase 2: NLP Encoder Adapter
@@ -44,8 +45,10 @@ Deliverables:
 
 - Relation extraction data adapter.
 - Entity-pair anchor representation.
-- Projector builder using positive and negative relation examples.
-- Baseline encoder model and key-steered model.
+- Baseline encoder model.
+- Offline anchor-key projector builder.
+- Frozen-backbone key-steered evaluator.
+- Later extension: positive/negative evidence-aware projector construction.
 
 Core form:
 

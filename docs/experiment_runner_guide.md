@@ -92,9 +92,8 @@ pytest reports all tests passed
 Current expected pytest count:
 
 ```text
-9 passed
+14 passed
 ```
-
 
 ## Current Relation Baseline Dry Run
 
@@ -114,6 +113,37 @@ runs/relation_toy/labels.json
 ```
 
 This is not a formal benchmark. It only verifies that the relation extraction training/evaluation pipeline works end to end.
+
+## Current Classical Steering Dry Run
+
+After the baseline dry run succeeds, build the offline spectral projector from anchor-span keys:
+
+```bash
+python experiments/build_relation_projector.py --model_dir runs/relation_toy --batch_size 4 --device cpu --rank 4
+```
+
+Expected outputs:
+
+```text
+runs/relation_toy/relation_projector.pt
+runs/relation_toy/relation_projector_metadata.json
+```
+
+Then evaluate frozen-backbone key steering:
+
+```bash
+python experiments/eval_relation_steering.py --model_dir runs/relation_toy --batch_size 4 --device cpu --gain 0.25 --output_dir runs/relation_toy/steering_eval
+```
+
+Expected outputs:
+
+```text
+runs/relation_toy/steering_eval/metrics.json
+runs/relation_toy/steering_eval/predictions.jsonl
+runs/relation_toy/steering_eval/run_info.json
+```
+
+This is still a toy-data prototype check. Do not treat these numbers as paper results.
 
 ## Logging
 
@@ -181,8 +211,8 @@ do not rerun with changed parameters without recording the exact command
 
 1. Create or activate a suitable Python environment.
 2. Install the project with `python -m pip install -e ".[dev]"`.
-3. Run the three smoke-test commands.
-4. Report the exact commit hash and pytest output.
+3. Run smoke tests only when asked by the coding side.
+4. Report the exact commit hash and pytest output for any smoke test.
 5. Confirm GPU model using `nvidia-smi` if available.
-6. Confirm which relation extraction dataset should be prepared first.
-7. Send any failure logs back to the coding side for fixes.
+6. Help identify and prepare candidate real datasets for relation/event/aspect extraction.
+7. Do not start large GPU experiments until the coding side provides a real-data command and config.

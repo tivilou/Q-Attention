@@ -2,7 +2,7 @@
 
 Q-Attention is a public research scaffold for developing **quantum-enhanced spectral key steering** methods for span-centric NLP information extraction.
 
-The project is not a generic quantum-attention rewrite. Its core mechanism is inherited from spectral key steering:
+The project is not a generic quantum-attention rewrite. Its core mechanism is spectral key steering:
 
 ```text
 learn a task-specific key-space projector offline
@@ -10,11 +10,11 @@ learn a task-specific key-space projector offline
         -> steer attention without changing model weights
 ```
 
-The source code in this repository will be written from scratch. Reference implementations may be studied locally, but third-party source code should not be copied into this repository.
+The source code in this repository is written from scratch.
 
 ## Research Positioning
 
-The planned method generalizes spectral key steering from prompt-focused experiments to practical NLP tasks where models must focus on entity, event, aspect, or evidence spans.
+The planned method generalizes spectral key steering from controlled attention experiments to practical NLP tasks where models must focus on entity, event, aspect, or evidence spans.
 
 Target task family:
 
@@ -75,34 +75,55 @@ biomedical entity mentions
 4. Multi-task evaluation on span-centric information extraction
 ```
 
+## Current Status
+
+```text
+Stage: toy-data classical steering prototype
+Code: tensor steering, encoder adapter, relation baseline, offline projector builder, steered evaluator
+Validation: baseline -> projector -> steering eval runs end to end on toy relation data
+Visibility: public
+```
+
+This repository is not ready for formal large-scale GPU benchmarking yet. The next gate is adding real dataset adapters and configs.
+
 ## Project Docs
 
 - Experiment runner guide: [docs/experiment_runner_guide.md](docs/experiment_runner_guide.md)
 - Collaboration plan: [docs/collaboration_plan.md](docs/collaboration_plan.md)
 - NLP task plan: [docs/nlp_task_plan.md](docs/nlp_task_plan.md)
 
-## Current Status
-
-```text
-Stage: research design
-Code: relation extraction baseline scaffolded
-Visibility: public
-```
-
-## Planned Structure
+## Project Structure
 
 ```text
 src/q_attention/      # original implementation
-experiments/          # benchmark and ablation scripts
-docs/                 # research notes and design records
+experiments/          # training, projector-building, and evaluation scripts
+examples/             # minimal demos and toy data
+tests/                # unit tests
+docs/                 # research notes and run guides
 ```
 
-## Current Baseline Command
+## Quick Check
+
+Install the project in an active Python environment:
 
 ```bash
-python experiments/train_relation_baseline.py --epochs 5 --output_dir runs/relation_toy
+python -m pip install -e ".[dev]"
 ```
 
-## First Milestone
+Run smoke tests:
 
-Run the minimal tensor demo and encoder adapter demo, then add the first relation extraction baseline before extending to event, aspect, and biomedical extraction.
+```bash
+python examples/minimal_key_steering.py
+python examples/encoder_adapter_demo.py
+python -m pytest -q
+```
+
+Run the current toy relation loop:
+
+```bash
+python experiments/train_relation_baseline.py --epochs 2 --batch_size 4 --output_dir runs/relation_toy --device cpu
+python experiments/build_relation_projector.py --model_dir runs/relation_toy --batch_size 4 --device cpu --rank 4
+python experiments/eval_relation_steering.py --model_dir runs/relation_toy --batch_size 4 --device cpu --gain 0.25 --output_dir runs/relation_toy/steering_eval
+```
+
+These commands are prototype checks, not paper-result benchmarks.
