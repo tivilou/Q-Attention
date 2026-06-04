@@ -79,8 +79,8 @@ biomedical entity mentions
 
 ```text
 Stage: toy-data classical steering prototype
-Code: tensor steering, encoder adapter, relation baseline, offline classical/quantum projector builders, steered evaluator
-Validation: baseline -> classical/quantum projector -> steering eval runs end to end on toy relation data
+Code: tensor steering, encoder adapter, relation baseline, offline classical/quantum projector builders, spectral filter sweep, steered evaluator
+Validation: baseline -> classical/quantum projector -> spectral filter sweep -> steering eval runs end to end on toy relation data
 Visibility: public
 ```
 
@@ -116,6 +116,7 @@ Run smoke tests:
 python examples/minimal_key_steering.py
 python examples/encoder_adapter_demo.py
 python examples/quantum_projector_demo.py
+python examples/spectral_filter_demo.py
 python -m pytest -q
 ```
 
@@ -127,6 +128,8 @@ python experiments/build_relation_projector.py --model_dir runs/relation_toy --b
 python experiments/eval_relation_steering.py --model_dir runs/relation_toy --batch_size 4 --device cpu --gain 0.25 --output_dir runs/relation_toy/steering_eval
 python experiments/build_relation_quantum_projector.py --model_dir runs/relation_toy --batch_size 4 --device cpu --rank 4 --num_qubits 4
 python experiments/eval_relation_steering.py --model_dir runs/relation_toy --projector_path runs/relation_toy/relation_quantum_projector.pt --batch_size 4 --device cpu --gain 0.25 --output_dir runs/relation_toy/quantum_steering_eval
+python experiments/sweep_relation_spectral_filters.py --model_dir runs/relation_toy --batch_size 4 --device cpu --families classical,quantum --modes hard_topk,high_pass,band_pass,soft_energy --ranks 2,4 --thresholds 0.5 --gains 0.25 --num_qubits 4 --output_dir runs/relation_toy/spectral_filter_sweep
+python experiments/sweep_relation_spectral_filters.py --model_dir runs/relation_toy --batch_size 4 --device cpu --families classical,quantum --modes hard_topk,high_pass,band_pass,soft_energy --ranks 2,4 --gains 0.25 --num_qubits 4 --output_dir runs/relation_toy/spectral_filter_sweep
 ```
 
 These commands are prototype checks, not paper-result benchmarks.

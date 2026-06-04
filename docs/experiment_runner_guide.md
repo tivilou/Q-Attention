@@ -79,6 +79,7 @@ Run these after every pull:
 python examples/minimal_key_steering.py
 python examples/encoder_adapter_demo.py
 python examples/quantum_projector_demo.py
+python examples/spectral_filter_demo.py
 python -m pytest -q
 ```
 
@@ -88,13 +89,14 @@ Expected result:
 minimal_key_steering demo passes
 encoder_adapter demo passes
 quantum_projector demo passes
+spectral_filter demo passes
 pytest reports all tests passed
 ```
 
 Current expected pytest count:
 
 ```text
-20 passed
+25 passed
 ```
 
 ## Current Relation Baseline Dry Run
@@ -177,6 +179,35 @@ runs/relation_toy/quantum_steering_eval/run_info.json
 ```
 
 This is a toy quantum-inspired prototype check, not evidence for the final paper claim.
+
+## Current Toy Spectral Filtering Sweep
+
+After the baseline dry run succeeds, run a toy sweep over spectral filters for both classical and quantum projectors:
+
+```bash
+python experiments/sweep_relation_spectral_filters.py --model_dir runs/relation_toy --batch_size 4 --device cpu --families classical,quantum --modes hard_topk,high_pass,band_pass,soft_energy --ranks 2,4 --thresholds 0.5 --sharpnesses 8.0 --gains 0.25 --num_qubits 4 --angle_scale 1.25 --output_dir runs/relation_toy/spectral_filter_sweep
+```
+
+Expected outputs:
+
+```text
+runs/relation_toy/spectral_filter_sweep/results.jsonl
+runs/relation_toy/spectral_filter_sweep/summary.json
+```
+
+Each JSONL row contains:
+
+```text
+projector family
+filter mode and parameters
+steered metrics
+delta versus baseline
+projector norm/trace diagnostics
+singular-value filter diagnostics
+quantum kernel diagnostics where applicable
+```
+
+This is still a toy spectral-filtering prototype check, not a formal ablation result.
 
 ## Logging
 

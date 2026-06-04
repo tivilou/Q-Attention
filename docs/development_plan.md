@@ -93,6 +93,13 @@ Core form:
 P = U diag(f(S)) U^T
 ```
 
+Toy acceptance checks:
+
+```text
+python examples/spectral_filter_demo.py
+python experiments/sweep_relation_spectral_filters.py --model_dir runs/relation_toy --batch_size 4 --device cpu --families classical,quantum --modes hard_topk,high_pass,band_pass,soft_energy --ranks 2,4 --gains 0.25
+```
+
 ## Phase 6: Multi-Task Expansion
 
 Add related NLP tasks:

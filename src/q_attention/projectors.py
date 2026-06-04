@@ -8,6 +8,7 @@ modules will extend. The main output is a projector ``P`` used by
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 import torch
 
@@ -88,6 +89,51 @@ def singular_weights(singular_values: torch.Tensor, config: SpectralProjectorCon
         return s_norm / s_norm.sum().clamp_min(config.eps)
 
     raise ValueError(f"unknown projector filter mode: {config.mode}")
+
+
+def spectral_effective_rank(singular_values: torch.Tensor, eps: float = 1e-8) -> float:
+    """Compute entropy-based effective rank from non-negative singular values."""
+    if singular_values.ndim != 1:
+        raise ValueError("singular_values must be a 1D tensor")
+    if singular_values.numel() == 0:
+        raise ValueError("singular_values cannot be empty")
+    values = singular_values.float().clamp_min(0.0)
+    probs = values / values.sum().clamp_min(eps)
+    entropy = -(probs * torch.log(probs.clamp_min(eps))).sum()
+    return float(torch.exp(entropy).item())
+
+
+def spectral_filter_diagnostics(
+    singular_values: torch.Tensor,
+    config: SpectralProjectorConfig,
+    *,
+    active_eps: float = 1e-6,
+    head: int = 8,
+) -> dict[str, Any]:
+    """Summarize how a spectral filter weights singular directions."""
+    if singular_values.ndim != 1:
+        raise ValueError("singular_values must be a 1D tensor")
+    if singular_values.numel() == 0:
+        raise ValueError("singular_values cannot be empty")
+    values = singular_values.float()
+    weights = singular_weights(values, config)
+    return {
+        "mode": config.mode,
+        "rank": config.rank,
+        "energy": config.energy,
+        "threshold": config.threshold,
+        "sharpness": config.sharpness,
+        "num_singular_values": int(values.numel()),
+        "active_directions": int((weights > active_eps).sum().item()),
+        "weight_sum": float(weights.sum().item()),
+        "weight_max": float(weights.max().item()),
+        "weight_min": float(weights.min().item()),
+        "effective_rank": spectral_effective_rank(values, eps=config.eps),
+        "max_singular_value": float(values.max().item()),
+        "min_singular_value": float(values.min().item()),
+        "top_singular_values": [float(value) for value in values[: min(head, values.numel())].tolist()],
+        "top_filter_weights": [float(value) for value in weights[: min(head, weights.numel())].tolist()],
+    }
 
 
 def build_projector(

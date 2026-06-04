@@ -1,6 +1,13 @@
 """Q-Attention: spectral key steering utilities for attention models."""
 
-from .projectors import SpectralProjectorConfig, build_projector, cross_covariance
+from .projectors import (
+    SpectralProjectorConfig,
+    build_projector,
+    cross_covariance,
+    singular_weights,
+    spectral_effective_rank,
+    spectral_filter_diagnostics,
+)
 from .quantum import (
     QuantumFeatureMapConfig,
     QuantumProjectorResult,
@@ -27,5 +34,8 @@ __all__ = [
     "deterministic_projection",
     "fidelity_kernel",
     "quantum_weighted_covariance",
+    "singular_weights",
     "span_mask",
+    "spectral_effective_rank",
+    "spectral_filter_diagnostics",
 ]

@@ -14,7 +14,7 @@ from typing import Any
 import torch
 import torch.nn.functional as F
 
-from q_attention.projectors import SpectralProjectorConfig, build_projector
+from q_attention.projectors import SpectralProjectorConfig, build_projector, spectral_filter_diagnostics
 
 
 @dataclass(frozen=True)
@@ -137,6 +137,7 @@ def build_quantum_projector(
         "kernel_trace": float(torch.trace(kernel).item()),
         "kernel_mean": float(kernel.mean().item()),
         "top_singular_values": [float(value) for value in singular_values[: min(8, singular_values.numel())].tolist()],
+        "filter_diagnostics": spectral_filter_diagnostics(singular_values, projector_config),
     }
     return QuantumProjectorResult(
         projector=projector,
