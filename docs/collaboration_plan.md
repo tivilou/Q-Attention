@@ -57,8 +57,8 @@ error traceback if failed
 Coding side:
 
 ```text
-finish the toy-data classical, quantum, and spectral-filtering loops
-verify baseline -> classical/quantum projector -> spectral sweep -> steering eval commands
+finish the toy-data classical, quantum, spectral-filtering, and adaptive-routing loops
+verify baseline -> projector bank -> spectral sweep -> routed steering eval commands
 add tests and reproducibility docs
 prepare the next real-data task adapters before formal GPU handoff
 ```
@@ -76,7 +76,7 @@ wait for real-data commands before large GPU experiments
 ## Current Code Handoff Status
 
 ```text
-prototype status: toy-data classical, quantum, and spectral-filter verification only
+prototype status: toy-data classical, quantum, spectral-filter, and adaptive-routing verification only
 formal experiment handoff: not yet
 next gate: real dataset loader + config + command must pass a small real-data smoke run
 ```

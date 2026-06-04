@@ -134,6 +134,13 @@ Core form:
 P_dynamic = sum_m alpha_m P_m
 ```
 
+Toy acceptance checks:
+
+```text
+python examples/routing_demo.py
+python experiments/eval_relation_routing.py --model_dir runs/relation_toy --batch_size 4 --device cpu --gain 0.25 --temperature 0.5 --rank 2 --num_qubits 4
+```
+
 ## Phase 8: Experimental Suite
 
 Compare:

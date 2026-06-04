@@ -17,12 +17,23 @@ from .quantum import (
     fidelity_kernel,
     quantum_weighted_covariance,
 )
+from .routing import (
+    ProjectorBank,
+    RouterConfig,
+    RoutingResult,
+    projector_prototype,
+    route_projectors,
+    stack_projector_bank,
+)
 from .spans import batched_span_mask, span_mask
 from .steering import SteeringResult, apply_key_steering
 
 __all__ = [
+    "ProjectorBank",
     "QuantumFeatureMapConfig",
     "QuantumProjectorResult",
+    "RouterConfig",
+    "RoutingResult",
     "SpectralProjectorConfig",
     "SteeringResult",
     "angle_feature_map",
@@ -33,9 +44,12 @@ __all__ = [
     "cross_covariance",
     "deterministic_projection",
     "fidelity_kernel",
+    "projector_prototype",
     "quantum_weighted_covariance",
+    "route_projectors",
     "singular_weights",
     "span_mask",
     "spectral_effective_rank",
     "spectral_filter_diagnostics",
+    "stack_projector_bank",
 ]

@@ -80,6 +80,7 @@ python examples/minimal_key_steering.py
 python examples/encoder_adapter_demo.py
 python examples/quantum_projector_demo.py
 python examples/spectral_filter_demo.py
+python examples/routing_demo.py
 python -m pytest -q
 ```
 
@@ -90,13 +91,14 @@ minimal_key_steering demo passes
 encoder_adapter demo passes
 quantum_projector demo passes
 spectral_filter demo passes
+routing demo passes
 pytest reports all tests passed
 ```
 
 Current expected pytest count:
 
 ```text
-25 passed
+29 passed
 ```
 
 ## Current Relation Baseline Dry Run
@@ -208,6 +210,25 @@ quantum kernel diagnostics where applicable
 ```
 
 This is still a toy spectral-filtering prototype check, not a formal ablation result.
+
+## Current Toy Adaptive Routing Eval
+
+After the baseline dry run succeeds, evaluate the toy adaptive projector router:
+
+```bash
+python experiments/eval_relation_routing.py --model_dir runs/relation_toy --batch_size 4 --device cpu --gain 0.25 --temperature 0.5 --rank 2 --num_qubits 4 --angle_scale 1.25 --output_dir runs/relation_toy/relation_routing_eval
+```
+
+Expected outputs:
+
+```text
+runs/relation_toy/relation_routing_eval/metrics.json
+runs/relation_toy/relation_routing_eval/run_info.json
+runs/relation_toy/relation_routing_eval/routing.jsonl
+runs/relation_toy/relation_routing_eval/predictions.jsonl
+```
+
+The router builds a small expert bank, computes soft expert weights from anchor representations, and applies a batch-wise dynamic projector. This is a toy routing prototype check, not a real routing benchmark.
 
 ## Logging
 
