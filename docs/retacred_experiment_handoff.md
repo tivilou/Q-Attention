@@ -2,6 +2,8 @@
 
 This handoff is for `dzy958`. The coding side has already verified that Re-TACRED can be built from licensed TACRED, converted to Q-Attention JSONL, and run through the full prototype chain on a small real-data subset.
 
+If you need a Chinese overview of the project background and how this differs from the previous reference-paper experiments, read [retacred_collaborator_overview_zh.md](retacred_collaborator_overview_zh.md) first.
+
 ## Current Gate Status
 
 ```text

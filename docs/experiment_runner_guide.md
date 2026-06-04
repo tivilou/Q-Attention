@@ -348,6 +348,8 @@ do not rerun with changed parameters without recording the exact command
 
 The concrete Re-TACRED GPU debug, low-resource, and full validation commands live in [retacred_experiment_handoff.md](retacred_experiment_handoff.md). Run them only after the coding side confirms the target commit and dataset location.
 
+For a Chinese project-level explanation of how this differs from the previous reference-paper experiments, read [retacred_collaborator_overview_zh.md](retacred_collaborator_overview_zh.md).
+
 If you receive `retacred_q_attention_data.tar.gz`, put it at the repository root and extract it with `tar -xzf retacred_q_attention_data.tar.gz` before running the Re-TACRED commands. The archive should create `data/relation/retacred/`.
 
 ## Current Immediate Tasks for dzy958
