@@ -141,7 +141,31 @@ python examples/routing_demo.py
 python experiments/eval_relation_routing.py --model_dir runs/relation_toy --batch_size 4 --device cpu --gain 0.25 --temperature 0.5 --rank 2 --num_qubits 4
 ```
 
-## Phase 8: Experimental Suite
+## Phase 8: Real-Data Pre-Handoff Gate
+
+Deliverables:
+
+- Real relation extraction format adapters.
+- Canonical JSONL converter for TACRED/Re-TACRED style data and SemEval-2010 Task 8.
+- Config template for small real-data smoke runs.
+- End-to-end smoke pipeline script that runs baseline, classical steering, quantum steering, spectral sweep, and routing.
+- Documentation that separates coding-side smoke validation from formal GPU benchmarking.
+
+Acceptance checks:
+
+```text
+python experiments/prepare_relation_data.py --format tacred_json --dataset_name <dataset> --train_path <raw_train.json> --valid_path <raw_dev.json> --output_dir data/relation/<dataset>
+python experiments/run_relation_smoke_pipeline.py --config data/relation/<dataset>/data_config.json --output_dir runs/<dataset>_real_smoke --device cpu --max_train_records 256 --max_valid_records 128
+python -m pytest -q
+```
+
+Handoff rule:
+
+```text
+only give dzy958 large GPU commands after the selected real-data smoke run has completed and all output files are present
+```
+
+## Phase 9: Experimental Suite
 
 Compare:
 
@@ -170,7 +194,7 @@ projector norm stability
 routing entropy
 ```
 
-## Phase 9: Paper Assets
+## Phase 10: Paper Assets
 
 Deliverables:
 

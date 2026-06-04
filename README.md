@@ -78,17 +78,18 @@ biomedical entity mentions
 ## Current Status
 
 ```text
-Stage: toy-data classical steering prototype
-Code: tensor steering, encoder adapter, relation baseline, offline classical/quantum projector builders, spectral filter sweep, adaptive routing, steered evaluator
-Validation: baseline -> classical/quantum projector -> spectral filter sweep -> adaptive routing -> steering eval runs end to end on toy relation data
+Stage: real-data pre-handoff scaffold
+Code: tensor steering, encoder adapter, relation baseline, real-data converters, smoke pipeline, offline classical/quantum projector builders, spectral filter sweep, adaptive routing, steered evaluator
+Validation: toy loop passes; real-data converter and pipeline entry points are being validated before GPU handoff
 Visibility: public
 ```
 
-This repository is not ready for formal large-scale GPU benchmarking yet. The next gate is adding real dataset adapters and configs.
+This repository is not ready for formal large-scale GPU benchmarking yet. The next gate is completing a small selected-real-dataset smoke run and then freezing a handoff command for dzy958.
 
 ## Project Docs
 
 - Experiment runner guide: [docs/experiment_runner_guide.md](docs/experiment_runner_guide.md)
+- Real-data smoke plan: [docs/real_data_smoke_plan.md](docs/real_data_smoke_plan.md)
 - Collaboration plan: [docs/collaboration_plan.md](docs/collaboration_plan.md)
 - NLP task plan: [docs/nlp_task_plan.md](docs/nlp_task_plan.md)
 
@@ -96,7 +97,8 @@ This repository is not ready for formal large-scale GPU benchmarking yet. The ne
 
 ```text
 src/q_attention/      # original implementation
-experiments/          # training, projector-building, and evaluation scripts
+experiments/          # training, data preparation, smoke pipeline, projector-building, and evaluation scripts
+configs/              # experiment and smoke-run config templates
 examples/             # minimal demos and toy data
 tests/                # unit tests
 docs/                 # research notes and run guides
@@ -131,7 +133,18 @@ python experiments/build_relation_quantum_projector.py --model_dir runs/relation
 python experiments/eval_relation_steering.py --model_dir runs/relation_toy --projector_path runs/relation_toy/relation_quantum_projector.pt --batch_size 4 --device cpu --gain 0.25 --output_dir runs/relation_toy/quantum_steering_eval
 python experiments/sweep_relation_spectral_filters.py --model_dir runs/relation_toy --batch_size 4 --device cpu --families classical,quantum --modes hard_topk,high_pass,band_pass,soft_energy --ranks 2,4 --thresholds 0.5 --gains 0.25 --num_qubits 4 --output_dir runs/relation_toy/spectral_filter_sweep
 python experiments/eval_relation_routing.py --model_dir runs/relation_toy --batch_size 4 --device cpu --gain 0.25 --temperature 0.5 --rank 2 --num_qubits 4 --output_dir runs/relation_toy/relation_routing_eval
-python experiments/sweep_relation_spectral_filters.py --model_dir runs/relation_toy --batch_size 4 --device cpu --families classical,quantum --modes hard_topk,high_pass,band_pass,soft_energy --ranks 2,4 --gains 0.25 --num_qubits 4 --output_dir runs/relation_toy/spectral_filter_sweep
 ```
 
 These commands are prototype checks, not paper-result benchmarks.
+
+Prepare canonical real relation data:
+
+```bash
+python experiments/prepare_relation_data.py --format tacred_json --dataset_name retacred --train_path data/raw/retacred/train.json --valid_path data/raw/retacred/dev.json --test_path data/raw/retacred/test.json --output_dir data/relation/retacred
+```
+
+Run a tiny real-data smoke chain after conversion:
+
+```bash
+python experiments/run_relation_smoke_pipeline.py --config data/relation/retacred/data_config.json --output_dir runs/retacred_real_smoke --device cpu --max_train_records 256 --max_valid_records 128
+```

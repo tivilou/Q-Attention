@@ -19,6 +19,7 @@ training and evaluation scripts
 configuration files
 result directory conventions
 bug fixes based on experiment logs
+real-data adapters and smoke-run gates before GPU handoff
 ```
 
 ## Experiment Responsibilities for dzy958
@@ -57,10 +58,10 @@ error traceback if failed
 Coding side:
 
 ```text
-finish the toy-data classical, quantum, spectral-filtering, and adaptive-routing loops
-verify baseline -> projector bank -> spectral sweep -> routed steering eval commands
+finish real relation dataset adapters for TACRED/Re-TACRED style data and SemEval-2010 Task 8
+verify converter -> small real-data smoke pipeline -> baseline/projector/sweep/routing outputs
 add tests and reproducibility docs
-prepare the next real-data task adapters before formal GPU handoff
+freeze a specific handoff command only after the real-data smoke gate passes
 ```
 
 dzy958:
@@ -68,19 +69,24 @@ dzy958:
 ```text
 confirm available GPU and Python environment
 keep environment details ready for future runs
-help identify candidate real datasets for relation/event/aspect extraction
+help identify and prepare candidate real datasets for relation/event/aspect extraction
 run only smoke or toy commands when explicitly asked
-wait for real-data commands before large GPU experiments
+wait for a frozen real-data command before large GPU experiments
 ```
 
 ## Current Code Handoff Status
 
 ```text
-prototype status: toy-data classical, quantum, spectral-filter, and adaptive-routing verification only
+prototype status: toy-data classical, quantum, spectral-filter, and adaptive-routing verification complete
+real-data status: converter/config/smoke-pipeline scaffold in progress
 formal experiment handoff: not yet
-next gate: real dataset loader + config + command must pass a small real-data smoke run
+next gate: selected real dataset must pass a small smoke run with pipeline_summary.json and all expected result files
 ```
 
 ## Runner Guide
 
 Detailed run commands and reporting templates live in [experiment_runner_guide.md](experiment_runner_guide.md).
+
+## Real-Data Smoke Plan
+
+The real-data gate and converter commands live in [real_data_smoke_plan.md](real_data_smoke_plan.md).

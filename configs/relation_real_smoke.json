@@ -1,0 +1,67 @@
+{
+  "name": "relation_real_smoke",
+  "task": "relation_extraction",
+  "description": "Template for a tiny real-data smoke run after converting TACRED/Re-TACRED/SemEval data to canonical Q-Attention JSONL.",
+  "train_path": "data/relation/<dataset>/train.jsonl",
+  "valid_path": "data/relation/<dataset>/valid.jsonl",
+  "output_dir": "runs/relation_real_smoke",
+  "max_train_records": 256,
+  "max_valid_records": 128,
+  "seed": 13,
+  "baseline": {
+    "epochs": 2,
+    "batch_size": 16,
+    "dim": 64,
+    "num_layers": 2,
+    "num_heads": 4,
+    "ff_dim": 128,
+    "dropout": 0.1,
+    "lr": 0.001,
+    "seed": 13
+  },
+  "classical_projector": {
+    "batch_size": 32,
+    "rank": 4,
+    "max_vectors": 512,
+    "seed": 13
+  },
+  "classical_steering": {
+    "batch_size": 32,
+    "gain": 0.25
+  },
+  "quantum_projector": {
+    "batch_size": 32,
+    "rank": 4,
+    "num_qubits": 4,
+    "angle_scale": 1.25,
+    "max_vectors": 512,
+    "seed": 13
+  },
+  "quantum_steering": {
+    "batch_size": 32,
+    "gain": 0.25
+  },
+  "spectral_sweep": {
+    "batch_size": 32,
+    "families": "classical,quantum",
+    "modes": "hard_topk,soft_energy",
+    "ranks": "2,4",
+    "thresholds": "0.5",
+    "sharpnesses": "8.0",
+    "gains": "0.25",
+    "num_qubits": 4,
+    "angle_scale": 1.25,
+    "max_vectors": 512,
+    "seed": 13
+  },
+  "routing": {
+    "batch_size": 32,
+    "gain": 0.25,
+    "temperature": 0.5,
+    "rank": 2,
+    "num_qubits": 4,
+    "angle_scale": 1.25,
+    "max_vectors": 512,
+    "seed": 13
+  }
+}

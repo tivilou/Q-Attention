@@ -98,7 +98,7 @@ pytest reports all tests passed
 Current expected pytest count:
 
 ```text
-29 passed
+33 passed
 ```
 
 ## Current Relation Baseline Dry Run
@@ -197,19 +197,7 @@ runs/relation_toy/spectral_filter_sweep/results.jsonl
 runs/relation_toy/spectral_filter_sweep/summary.json
 ```
 
-Each JSONL row contains:
-
-```text
-projector family
-filter mode and parameters
-steered metrics
-delta versus baseline
-projector norm/trace diagnostics
-singular-value filter diagnostics
-quantum kernel diagnostics where applicable
-```
-
-This is still a toy spectral-filtering prototype check, not a formal ablation result.
+Each JSONL row contains projector family, filter parameters, steered metrics, delta versus baseline, projector diagnostics, and quantum kernel diagnostics where applicable.
 
 ## Current Toy Adaptive Routing Eval
 
@@ -229,6 +217,70 @@ runs/relation_toy/relation_routing_eval/predictions.jsonl
 ```
 
 The router builds a small expert bank, computes soft expert weights from anchor representations, and applies a batch-wise dynamic projector. This is a toy routing prototype check, not a real routing benchmark.
+
+## Real-Data Preparation Draft
+
+The coding side has added real relation extraction format adapters. Supported formats are:
+
+```text
+project_jsonl
+tacred_json
+tacred_jsonl
+semeval2010_task8
+```
+
+Convert a TACRED/Re-TACRED style dataset to canonical JSONL:
+
+```bash
+python experiments/prepare_relation_data.py \
+  --format tacred_json \
+  --dataset_name retacred \
+  --train_path data/raw/retacred/train.json \
+  --valid_path data/raw/retacred/dev.json \
+  --test_path data/raw/retacred/test.json \
+  --output_dir data/relation/retacred
+```
+
+Convert SemEval-2010 Task 8:
+
+```bash
+python experiments/prepare_relation_data.py \
+  --format semeval2010_task8 \
+  --dataset_name semeval2010_task8 \
+  --train_path data/raw/semeval2010/TRAIN_FILE.TXT \
+  --valid_path data/raw/semeval2010/TEST_FILE_FULL.TXT \
+  --output_dir data/relation/semeval2010_task8
+```
+
+The converter writes canonical `train.jsonl`, `valid.jsonl`, optional `test.jsonl`, and `data_config.json`.
+
+## Real-Data Smoke Gate
+
+Before any full GPU benchmark, the coding side must first complete a tiny real-data smoke run:
+
+```bash
+python experiments/run_relation_smoke_pipeline.py \
+  --config data/relation/retacred/data_config.json \
+  --output_dir runs/retacred_real_smoke \
+  --device cpu \
+  --max_train_records 256 \
+  --max_valid_records 128
+```
+
+Expected outputs:
+
+```text
+runs/retacred_real_smoke/baseline/model.pt
+runs/retacred_real_smoke/baseline/relation_projector.pt
+runs/retacred_real_smoke/baseline/relation_quantum_projector.pt
+runs/retacred_real_smoke/classical_steering_eval/metrics.json
+runs/retacred_real_smoke/quantum_steering_eval/metrics.json
+runs/retacred_real_smoke/spectral_filter_sweep/results.jsonl
+runs/retacred_real_smoke/relation_routing_eval/metrics.json
+runs/retacred_real_smoke/pipeline_summary.json
+```
+
+For now, dzy958 should not start large real-data GPU runs until the coding side provides a specific commit, dataset, and command.
 
 ## Logging
 

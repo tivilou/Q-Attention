@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from collections import Counter
+from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 import json
 from pathlib import Path
-from typing import Iterable, Mapping
+import random
+from typing import Iterable, Mapping, Sequence
 
 import torch
 from torch.utils.data import Dataset
@@ -19,30 +20,40 @@ UNK_TOKEN = "<unk>"
 class RelationRecord:
     """A tokenized relation extraction example.
 
-    The JSONL format is:
+    The canonical JSONL format is:
 
     ```json
     {"tokens": ["Steve", "Jobs", "founded", "Apple"],
      "subject": [0, 2], "object": [3, 4], "label": "founded_by"}
     ```
+
+    Subject/object spans are zero-based and end-exclusive.
     """
 
     tokens: tuple[str, ...]
     subject: tuple[int, int]
     object: tuple[int, int]
     label: str
-    metadata: Mapping[str, str] = field(default_factory=dict)
+    metadata: Mapping[str, object] = field(default_factory=dict)
 
     def validate(self) -> None:
         length = len(self.tokens)
+        if length == 0:
+            raise ValueError("tokens must not be empty")
         for name, span in {"subject": self.subject, "object": self.object}.items():
             start, end = span
             if start < 0 or end <= start or end > length:
                 raise ValueError(f"invalid {name} span {span} for {length} tokens")
 
 
+def _as_span(value: object, *, field_name: str) -> tuple[int, int]:
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes)) or len(value) != 2:
+        raise ValueError(f"{field_name} must be a two-item span")
+    return int(value[0]), int(value[1])
+
+
 def load_relation_jsonl(path: str | Path) -> list[RelationRecord]:
-    """Load relation examples from JSONL."""
+    """Load canonical relation examples from JSONL."""
     records: list[RelationRecord] = []
     with Path(path).open("r", encoding="utf-8") as handle:
         for line_no, line in enumerate(handle, start=1):
@@ -51,9 +62,9 @@ def load_relation_jsonl(path: str | Path) -> list[RelationRecord]:
                 continue
             obj = json.loads(line)
             record = RelationRecord(
-                tokens=tuple(obj["tokens"]),
-                subject=tuple(obj["subject"]),  # type: ignore[arg-type]
-                object=tuple(obj["object"]),  # type: ignore[arg-type]
+                tokens=tuple(str(token) for token in obj["tokens"]),
+                subject=_as_span(obj["subject"], field_name="subject"),
+                object=_as_span(obj["object"], field_name="object"),
                 label=str(obj["label"]),
                 metadata=obj.get("metadata", {}),
             )
@@ -65,6 +76,69 @@ def load_relation_jsonl(path: str | Path) -> list[RelationRecord]:
     if not records:
         raise ValueError(f"no relation records found in {path}")
     return records
+
+
+def write_relation_jsonl(records: Iterable[RelationRecord], path: str | Path) -> int:
+    """Write canonical relation examples to JSONL and return the count."""
+    output_path = Path(path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    count = 0
+    with output_path.open("w", encoding="utf-8") as handle:
+        for record in records:
+            record.validate()
+            item = {
+                "tokens": list(record.tokens),
+                "subject": list(record.subject),
+                "object": list(record.object),
+                "label": record.label,
+            }
+            if record.metadata:
+                item["metadata"] = dict(record.metadata)
+            handle.write(json.dumps(item, ensure_ascii=False, sort_keys=True) + "\n")
+            count += 1
+    if count == 0:
+        raise ValueError(f"no relation records were written to {path}")
+    return count
+
+
+def sample_relation_records(
+    records: Sequence[RelationRecord],
+    limit: int | None,
+    *,
+    seed: int = 13,
+    stratified: bool = True,
+) -> list[RelationRecord]:
+    """Return a deterministic small subset for smoke/debug runs.
+
+    Stratified sampling keeps rare labels visible in tiny real-data smoke runs.
+    """
+    source = list(records)
+    if limit is None or limit <= 0 or len(source) <= limit:
+        return source
+
+    rng = random.Random(seed)
+    if not stratified:
+        indices = sorted(rng.sample(range(len(source)), limit))
+        return [source[index] for index in indices]
+
+    by_label: dict[str, list[int]] = defaultdict(list)
+    for index, record in enumerate(source):
+        by_label[record.label].append(index)
+    for indices in by_label.values():
+        rng.shuffle(indices)
+
+    selected: list[int] = []
+    label_order = sorted(by_label)
+    while len(selected) < limit and label_order:
+        next_labels: list[str] = []
+        for label in label_order:
+            if by_label[label] and len(selected) < limit:
+                selected.append(by_label[label].pop())
+            if by_label[label]:
+                next_labels.append(label)
+        label_order = next_labels
+
+    return [source[index] for index in sorted(selected)]
 
 
 def build_vocab(records: Iterable[RelationRecord], min_freq: int = 1) -> dict[str, int]:
