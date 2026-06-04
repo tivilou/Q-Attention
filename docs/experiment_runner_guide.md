@@ -78,6 +78,7 @@ Run these after every pull:
 ```bash
 python examples/minimal_key_steering.py
 python examples/encoder_adapter_demo.py
+python examples/quantum_projector_demo.py
 python -m pytest -q
 ```
 
@@ -86,13 +87,14 @@ Expected result:
 ```text
 minimal_key_steering demo passes
 encoder_adapter demo passes
+quantum_projector demo passes
 pytest reports all tests passed
 ```
 
 Current expected pytest count:
 
 ```text
-14 passed
+20 passed
 ```
 
 ## Current Relation Baseline Dry Run
@@ -144,6 +146,37 @@ runs/relation_toy/steering_eval/run_info.json
 ```
 
 This is still a toy-data prototype check. Do not treat these numbers as paper results.
+
+## Current Toy Quantum Projector Dry Run
+
+After the baseline dry run succeeds, build the toy quantum-inspired projector:
+
+```bash
+python experiments/build_relation_quantum_projector.py --model_dir runs/relation_toy --batch_size 4 --device cpu --rank 4 --num_qubits 4 --angle_scale 1.25
+```
+
+Expected outputs:
+
+```text
+runs/relation_toy/relation_quantum_projector.pt
+runs/relation_toy/relation_quantum_projector_metadata.json
+```
+
+Then evaluate the same frozen-backbone steering path with the quantum projector:
+
+```bash
+python experiments/eval_relation_steering.py --model_dir runs/relation_toy --projector_path runs/relation_toy/relation_quantum_projector.pt --batch_size 4 --device cpu --gain 0.25 --output_dir runs/relation_toy/quantum_steering_eval
+```
+
+Expected outputs:
+
+```text
+runs/relation_toy/quantum_steering_eval/metrics.json
+runs/relation_toy/quantum_steering_eval/predictions.jsonl
+runs/relation_toy/quantum_steering_eval/run_info.json
+```
+
+This is a toy quantum-inspired prototype check, not evidence for the final paper claim.
 
 ## Logging
 

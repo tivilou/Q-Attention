@@ -71,6 +71,13 @@ Core form:
 K_q(x, y) = |<Phi_q(x), Phi_q(y)>|^2
 ```
 
+Toy acceptance checks:
+
+```text
+python examples/quantum_projector_demo.py
+python experiments/build_relation_quantum_projector.py --model_dir runs/relation_toy --batch_size 4 --device cpu --rank 4 --num_qubits 4
+```
+
 ## Phase 5: Spectral Filtering
 
 Deliverables:

@@ -57,8 +57,8 @@ error traceback if failed
 Coding side:
 
 ```text
-finish the toy-data classical steering loop
-verify baseline -> projector -> steering eval commands
+finish the toy-data classical and quantum steering loops
+verify baseline -> classical/quantum projector -> steering eval commands
 add tests and reproducibility docs
 prepare the next real-data task adapters before formal GPU handoff
 ```
@@ -76,7 +76,7 @@ wait for real-data commands before large GPU experiments
 ## Current Code Handoff Status
 
 ```text
-prototype status: toy-data verification only
+prototype status: toy-data classical and quantum projector verification only
 formal experiment handoff: not yet
 next gate: real dataset loader + config + command must pass a small real-data smoke run
 ```
