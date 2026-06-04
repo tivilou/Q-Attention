@@ -353,3 +353,23 @@ do not rerun with changed parameters without recording the exact command
 5. Confirm GPU model using `nvidia-smi` if available.
 6. Help identify and prepare candidate real datasets for relation/event/aspect extraction.
 7. Do not start large GPU experiments until the coding side provides a real-data command and config.
+## Re-TACRED Build Command
+
+When the coding side confirms that licensed TACRED files are available on the machine, build Re-TACRED with:
+
+```bash
+python experiments/build_retacred_from_tacred.py \
+  --tacred_dir data/raw/tacred/data/json \
+  --patch_dir data/raw/Re-TACRED-source/Re-TACRED \
+  --output_dir data/raw/Re-TACRED-patched-jsonl
+
+python experiments/prepare_relation_data.py \
+  --format tacred_jsonl \
+  --dataset_name retacred \
+  --train_path data/raw/Re-TACRED-patched-jsonl/train.jsonl \
+  --valid_path data/raw/Re-TACRED-patched-jsonl/dev.jsonl \
+  --test_path data/raw/Re-TACRED-patched-jsonl/test.jsonl \
+  --output_dir data/relation/retacred
+```
+
+Do not commit any files under `data/`; the directory is intentionally ignored.

@@ -121,3 +121,35 @@ Experiment runner:
 ```text
 prepare candidate datasets, record environment/GPU details, and run only the exact commands provided after the handoff gate is met
 ```
+## Building Re-TACRED From Licensed TACRED
+
+If licensed TACRED is available locally, first unpack it under `data/raw/`. The expected JSON split directory is:
+
+```text
+data/raw/tacred/data/json/train.json
+data/raw/tacred/data/json/dev.json
+data/raw/tacred/data/json/test.json
+```
+
+Build patched TACRED-style JSONL with the public Re-TACRED label patches:
+
+```bash
+python experiments/build_retacred_from_tacred.py \
+  --tacred_dir data/raw/tacred/data/json \
+  --patch_dir data/raw/Re-TACRED-source/Re-TACRED \
+  --output_dir data/raw/Re-TACRED-patched-jsonl
+```
+
+Then convert to Q-Attention canonical JSONL:
+
+```bash
+python experiments/prepare_relation_data.py \
+  --format tacred_jsonl \
+  --dataset_name retacred \
+  --train_path data/raw/Re-TACRED-patched-jsonl/train.jsonl \
+  --valid_path data/raw/Re-TACRED-patched-jsonl/dev.jsonl \
+  --test_path data/raw/Re-TACRED-patched-jsonl/test.jsonl \
+  --output_dir data/relation/retacred
+```
+
+The Re-TACRED builder is streaming and does not load the full TACRED train JSON into memory.
