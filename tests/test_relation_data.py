@@ -13,7 +13,7 @@ def test_load_relation_jsonl_and_collate() -> None:
     batch = collate_relation_batch([dataset[0], dataset[1]], pad_id=vocab["<pad>"])
 
     assert batch["input_ids"].shape[0] == 2
-    assert batch["attention_mask"].dtype.name == "bool"
+    assert batch["attention_mask"].dtype is __import__("torch").bool
     assert batch["subject_mask"].sum().item() > 0
     assert batch["object_mask"].sum().item() > 0
     assert len(labels) == 4
