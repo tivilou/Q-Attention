@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 import torch
 
-from q_attention import RouterConfig, apply_key_steering, projector_prototype, route_projectors, stack_projector_bank
+from q_attention import RouterConfig, apply_key_steering, projector_energy_scores, projector_prototype, route_projectors, stack_projector_bank
 
 
 def test_apply_key_steering_supports_batch_wise_projectors() -> None:
@@ -48,3 +48,24 @@ def test_projector_prototype_uses_projected_anchor_mean() -> None:
 def test_projector_bank_rejects_mismatched_lengths() -> None:
     with pytest.raises(ValueError):
         stack_projector_bank(["one"], [torch.eye(2), torch.eye(2)], [torch.ones(2)])
+
+def test_energy_router_prefers_matching_projector_subspace() -> None:
+    names = ["x_subspace", "y_subspace"]
+    projectors = [torch.diag(torch.tensor([1.0, 0.0])), torch.diag(torch.tensor([0.0, 1.0]))]
+    prototypes = [torch.tensor([1.0, 0.0]), torch.tensor([0.0, 1.0])]
+    bank = stack_projector_bank(names, projectors, prototypes)
+    anchors = torch.tensor([[1.0, 0.0], [0.0, 1.0]])
+
+    routed = route_projectors(anchors, bank, RouterConfig(score_mode="energy", temperature=0.25))
+
+    assert routed.weights[0, 0] > routed.weights[0, 1]
+    assert routed.weights[1, 1] > routed.weights[1, 0]
+
+
+def test_projector_energy_scores_are_projector_scale_normalized() -> None:
+    anchors = torch.tensor([[1.0, 0.0]])
+    projectors = torch.stack([torch.eye(2), 2.0 * torch.eye(2)], dim=0)
+
+    scores = projector_energy_scores(anchors, projectors)
+
+    assert torch.allclose(scores[0, 0], scores[0, 1], atol=1e-6)

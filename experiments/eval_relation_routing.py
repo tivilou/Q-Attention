@@ -29,8 +29,15 @@ from q_attention.experiments import (  # noqa: E402
 )
 from q_attention.metrics import classification_metrics  # noqa: E402
 from q_attention.projectors import SpectralProjectorConfig  # noqa: E402
-from q_attention.quantum import QuantumFeatureMapConfig, build_quantum_projector  # noqa: E402
-from q_attention.routing import ProjectorBank, RouterConfig, projector_prototype, route_projectors, stack_projector_bank  # noqa: E402
+from q_attention.quantum import QUANTUM_KERNEL_MODES, QuantumFeatureMapConfig, build_quantum_projector  # noqa: E402
+from q_attention.routing import (  # noqa: E402
+    ROUTER_SCORE_MODES,
+    ProjectorBank,
+    RouterConfig,
+    projector_prototype,
+    route_projectors,
+    stack_projector_bank,
+)
 from q_attention.tasks.relation import load_relation_jsonl  # noqa: E402
 
 
@@ -45,6 +52,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--anchor", default="subject_object", choices=ANCHOR_CHOICES)
     parser.add_argument("--gain", type=float, default=0.25)
     parser.add_argument("--temperature", type=float, default=0.5)
+    parser.add_argument("--router_score_mode", default="hybrid", choices=ROUTER_SCORE_MODES)
+    parser.add_argument("--router_prototype_weight", type=float, default=1.0)
+    parser.add_argument("--router_energy_weight", type=float, default=1.0)
+    parser.add_argument("--no_router_score_norm", action="store_true")
     parser.add_argument("--rank", type=int, default=2)
     parser.add_argument("--threshold", type=float, default=0.5)
     parser.add_argument("--sharpness", type=float, default=8.0)
@@ -55,6 +66,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--angle_scale", type=float, default=1.25)
     parser.add_argument("--feature_seed", type=int, default=17)
     parser.add_argument("--max_state_dim", type=int, default=1024)
+    parser.add_argument("--kernel_mode", default="centered_fidelity", choices=QUANTUM_KERNEL_MODES)
+    parser.add_argument("--kernel_temperature", type=float, default=1.0)
     return parser.parse_args()
 
 
@@ -81,16 +94,22 @@ def make_expert_bank(keys: torch.Tensor, args: argparse.Namespace) -> tuple[Proj
         angle_scale=args.angle_scale,
         seed=args.feature_seed,
         max_state_dim=args.max_state_dim,
+        kernel_mode=args.kernel_mode,
+        kernel_temperature=args.kernel_temperature,
     )
     expert_specs = [
         ("classical_hard_topk", "classical", SpectralProjectorConfig(mode="hard_topk", rank=args.rank)),
         (
-            "classical_high_pass",
+            "classical_band_pass",
             "classical",
-            SpectralProjectorConfig(mode="high_pass", threshold=args.threshold, sharpness=args.sharpness),
+            SpectralProjectorConfig(mode="band_pass", threshold=args.threshold, sharpness=args.sharpness),
         ),
         ("quantum_hard_topk", "quantum", SpectralProjectorConfig(mode="hard_topk", rank=args.rank)),
-        ("quantum_soft_energy", "quantum", SpectralProjectorConfig(mode="soft_energy")),
+        (
+            "quantum_high_pass",
+            "quantum",
+            SpectralProjectorConfig(mode="high_pass", threshold=args.threshold, sharpness=args.sharpness),
+        ),
     ]
 
     names: list[str] = []
@@ -147,7 +166,7 @@ def evaluate_routed_model(
     *,
     anchor: str,
     gain: float,
-    temperature: float,
+    router_config: RouterConfig,
 ) -> tuple[dict[str, float], list[int], list[int], list[dict[str, Any]], dict[str, Any]]:
     model = artifacts.model
     model.eval()
@@ -165,7 +184,7 @@ def evaluate_routed_model(
         for batch in loader:
             batch = move_batch(batch, device)
             anchors = batch_anchor_embeddings(model, batch, anchor)
-            routed = route_projectors(anchors, bank, RouterConfig(temperature=temperature))
+            routed = route_projectors(anchors, bank, router_config)
             mask = anchor_mask_from_batch(batch, anchor)
             hook_config = KeySteeringHookConfig(projector=routed.projectors, mask=mask, gain=gain)
             with adapter.steering(hook_config):
@@ -233,6 +252,13 @@ def main() -> None:
         seed=args.seed,
     )
     bank, expert_metadata = make_expert_bank(collection.keys, args)
+    router_config = RouterConfig(
+        temperature=args.temperature,
+        score_mode=args.router_score_mode,
+        prototype_weight=args.router_prototype_weight,
+        energy_weight=args.router_energy_weight,
+        normalize_scores=not args.no_router_score_norm,
+    )
 
     eval_records = load_relation_jsonl(eval_path)
     eval_loader = make_relation_loader(eval_records, artifacts.vocab, artifacts.label_to_id, batch_size=args.batch_size, shuffle=False)
@@ -244,7 +270,7 @@ def main() -> None:
         bank,
         anchor=args.anchor,
         gain=args.gain,
-        temperature=args.temperature,
+        router_config=router_config,
     )
 
     metrics_payload = {
@@ -261,6 +287,7 @@ def main() -> None:
         "anchor": args.anchor,
         "gain": args.gain,
         "temperature": args.temperature,
+        "router_config": asdict(router_config),
         "key_collection": {
             "num_vectors": int(collection.keys.shape[0]),
             "sampled_from": collection.sampled_from,

@@ -21,7 +21,7 @@ from q_attention.experiments import (  # noqa: E402
     make_relation_loader,
 )
 from q_attention.projectors import SpectralProjectorConfig  # noqa: E402
-from q_attention.quantum import QuantumFeatureMapConfig, build_quantum_projector  # noqa: E402
+from q_attention.quantum import QUANTUM_KERNEL_MODES, QuantumFeatureMapConfig, build_quantum_projector  # noqa: E402
 from q_attention.tasks.relation import load_relation_jsonl  # noqa: E402
 
 PROJECTOR_MODES = ("hard_topk", "high_pass", "band_pass", "soft_energy")
@@ -47,6 +47,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--angle_scale", type=float, default=1.0)
     parser.add_argument("--feature_seed", type=int, default=17)
     parser.add_argument("--max_state_dim", type=int, default=1024)
+    parser.add_argument("--kernel_mode", default="centered_fidelity", choices=QUANTUM_KERNEL_MODES)
+    parser.add_argument("--kernel_temperature", type=float, default=1.0)
     return parser.parse_args()
 
 
@@ -96,6 +98,8 @@ def main() -> None:
         angle_scale=args.angle_scale,
         seed=args.feature_seed,
         max_state_dim=args.max_state_dim,
+        kernel_mode=args.kernel_mode,
+        kernel_temperature=args.kernel_temperature,
     )
     result = build_quantum_projector(
         collection.keys,

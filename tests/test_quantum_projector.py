@@ -11,6 +11,7 @@ from q_attention.quantum import (
     deterministic_projection,
     fidelity_kernel,
     quantum_weighted_covariance,
+    transform_quantum_kernel,
 )
 
 
@@ -64,10 +65,25 @@ def test_build_quantum_projector_returns_steering_compatible_projector() -> None
 
     assert result.projector.shape == (7, 7)
     assert torch.allclose(result.projector, result.projector.transpose(0, 1), atol=1e-5)
-    assert result.metadata["projector_family"] == "toy_quantum"
+    assert result.metadata["projector_family"] == "quantum_contrastive"
+    assert result.metadata["kernel_mode"] == "centered_fidelity"
     assert result.metadata["state_dim"] == 8
 
 
 def test_angle_feature_map_rejects_overlarge_state_dimension() -> None:
     with pytest.raises(ValueError):
         angle_feature_map(torch.randn(2, 3), QuantumFeatureMapConfig(num_qubits=6, max_state_dim=16))
+
+def test_centered_quantum_kernel_removes_uniform_component() -> None:
+    torch.manual_seed(59)
+    features = angle_feature_map(torch.randn(6, 5), QuantumFeatureMapConfig(num_qubits=3, seed=5))
+    raw_kernel = fidelity_kernel(features)
+    centered = transform_quantum_kernel(raw_kernel, mode="centered_fidelity")
+
+    assert torch.allclose(centered, centered.transpose(0, 1), atol=1e-6)
+    assert abs(float(centered.mean().item())) < 1e-6
+
+
+def test_quantum_feature_map_rejects_unknown_kernel_mode() -> None:
+    with pytest.raises(ValueError):
+        QuantumFeatureMapConfig(kernel_mode="unknown")

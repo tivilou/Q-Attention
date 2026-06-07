@@ -9,6 +9,7 @@ from .projectors import (
     spectral_filter_diagnostics,
 )
 from .quantum import (
+    QUANTUM_KERNEL_MODES,
     QuantumFeatureMapConfig,
     QuantumProjectorResult,
     angle_feature_map,
@@ -16,11 +17,14 @@ from .quantum import (
     deterministic_projection,
     fidelity_kernel,
     quantum_weighted_covariance,
+    transform_quantum_kernel,
 )
 from .routing import (
+    ROUTER_SCORE_MODES,
     ProjectorBank,
     RouterConfig,
     RoutingResult,
+    projector_energy_scores,
     projector_prototype,
     route_projectors,
     stack_projector_bank,
@@ -30,8 +34,10 @@ from .steering import SteeringResult, apply_key_steering
 
 __all__ = [
     "ProjectorBank",
+    "QUANTUM_KERNEL_MODES",
     "QuantumFeatureMapConfig",
     "QuantumProjectorResult",
+    "ROUTER_SCORE_MODES",
     "RouterConfig",
     "RoutingResult",
     "SpectralProjectorConfig",
@@ -44,6 +50,7 @@ __all__ = [
     "cross_covariance",
     "deterministic_projection",
     "fidelity_kernel",
+    "projector_energy_scores",
     "projector_prototype",
     "quantum_weighted_covariance",
     "route_projectors",
@@ -52,4 +59,5 @@ __all__ = [
     "spectral_effective_rank",
     "spectral_filter_diagnostics",
     "stack_projector_bank",
+    "transform_quantum_kernel",
 ]

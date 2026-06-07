@@ -1,4 +1,4 @@
-"""Toy adaptive projector routing utilities."""
+"""Adaptive projector routing utilities."""
 
 from __future__ import annotations
 
@@ -8,6 +8,8 @@ from typing import Sequence
 import torch
 import torch.nn.functional as F
 
+ROUTER_SCORE_MODES = ("prototype", "energy", "hybrid")
+
 
 @dataclass(frozen=True)
 class RouterConfig:
@@ -15,6 +17,16 @@ class RouterConfig:
 
     temperature: float = 1.0
     eps: float = 1e-8
+    score_mode: str = "hybrid"
+    prototype_weight: float = 1.0
+    energy_weight: float = 1.0
+    normalize_scores: bool = True
+
+    def __post_init__(self) -> None:
+        if self.temperature <= 0:
+            raise ValueError("temperature must be positive")
+        if self.score_mode not in ROUTER_SCORE_MODES:
+            raise ValueError(f"unknown router score mode: {self.score_mode}")
 
 
 @dataclass(frozen=True)
@@ -76,11 +88,25 @@ def projector_prototype(keys: torch.Tensor, projector: torch.Tensor, *, eps: flo
     return F.normalize(prototype, p=2, dim=0, eps=eps)
 
 
+def projector_energy_scores(anchors: torch.Tensor, projectors: torch.Tensor, *, eps: float = 1e-8) -> torch.Tensor:
+    """Score how strongly each anchor lies in each projector's active subspace."""
+    projected = torch.einsum("bd,edh->beh", anchors, projectors)
+    energy = projected.pow(2).sum(dim=-1)
+    scale = projectors.flatten(1).pow(2).sum(dim=-1).clamp_min(eps)
+    return energy / scale.unsqueeze(0)
+
+
+def _normalize_router_scores(scores: torch.Tensor, eps: float) -> torch.Tensor:
+    if scores.shape[-1] <= 1:
+        return scores
+    centered = scores - scores.mean(dim=-1, keepdim=True)
+    spread = centered.std(dim=-1, keepdim=True, unbiased=False).clamp_min(eps)
+    return centered / spread
+
+
 def route_projectors(anchor_representations: torch.Tensor, bank: ProjectorBank, config: RouterConfig | None = None) -> RoutingResult:
     """Route each example to a soft mixture of projector experts."""
     config = config or RouterConfig()
-    if config.temperature <= 0:
-        raise ValueError("temperature must be positive")
     if anchor_representations.ndim != 2:
         raise ValueError("anchor_representations must have shape (batch, dim)")
     if anchor_representations.shape[-1] != bank.prototypes.shape[-1]:
@@ -88,9 +114,21 @@ def route_projectors(anchor_representations: torch.Tensor, bank: ProjectorBank, 
 
     anchors = F.normalize(anchor_representations.float(), p=2, dim=-1, eps=config.eps)
     prototypes = F.normalize(bank.prototypes.to(device=anchors.device), p=2, dim=-1, eps=config.eps)
-    scores = torch.matmul(anchors, prototypes.transpose(0, 1)) / config.temperature
-    weights = torch.softmax(scores, dim=-1)
     bank_projectors = bank.projectors.to(device=anchors.device, dtype=anchors.dtype)
+
+    prototype_scores = torch.matmul(anchors, prototypes.transpose(0, 1))
+    energy_scores = projector_energy_scores(anchors, bank_projectors, eps=config.eps)
+    if config.score_mode == "prototype":
+        raw_scores = prototype_scores
+    elif config.score_mode == "energy":
+        raw_scores = energy_scores
+    else:
+        raw_scores = config.prototype_weight * prototype_scores + config.energy_weight * energy_scores
+
+    if config.normalize_scores:
+        raw_scores = _normalize_router_scores(raw_scores, config.eps)
+    scores = raw_scores / config.temperature
+    weights = torch.softmax(scores, dim=-1)
     dynamic_projectors = torch.einsum("be,edh->bdh", weights, bank_projectors)
     entropy = -(weights * torch.log(weights.clamp_min(config.eps))).sum(dim=-1)
     return RoutingResult(weights=weights, projectors=dynamic_projectors, scores=scores, entropy=entropy)

@@ -1,7 +1,7 @@
 """Torch-only quantum-inspired projector utilities.
 
 The functions in this module are intentionally lightweight. They do not require
-quantum simulators; instead, they provide a toy angle-encoding feature map and a
+quantum simulators; instead, they provide an angle-encoding feature map and a
 fidelity-style kernel that can build a key-space projector compatible with
 ``k' = k + gPk``.
 """
@@ -16,16 +16,26 @@ import torch.nn.functional as F
 
 from q_attention.projectors import SpectralProjectorConfig, build_projector, spectral_filter_diagnostics
 
+QUANTUM_KERNEL_MODES = ("fidelity", "centered_fidelity", "softmax_fidelity")
+
 
 @dataclass(frozen=True)
 class QuantumFeatureMapConfig:
-    """Configuration for the toy quantum-inspired feature map."""
+    """Configuration for the quantum-inspired feature map."""
 
     num_qubits: int = 4
     angle_scale: float = 1.0
     seed: int = 17
     max_state_dim: int = 1024
     eps: float = 1e-8
+    kernel_mode: str = "centered_fidelity"
+    kernel_temperature: float = 1.0
+
+    def __post_init__(self) -> None:
+        if self.kernel_mode not in QUANTUM_KERNEL_MODES:
+            raise ValueError(f"unknown quantum kernel mode: {self.kernel_mode}")
+        if self.kernel_temperature <= 0:
+            raise ValueError("kernel_temperature must be positive")
 
 
 @dataclass(frozen=True)
@@ -61,7 +71,7 @@ def deterministic_projection(input_dim: int, num_qubits: int, *, seed: int, devi
 
 
 def angle_feature_map(keys: torch.Tensor, config: QuantumFeatureMapConfig | None = None) -> torch.Tensor:
-    """Map key vectors to a toy tensor-product angle-encoded state."""
+    """Map key vectors to a tensor-product angle-encoded state."""
     config = config or QuantumFeatureMapConfig()
     state_dim = 2 ** config.num_qubits
     if state_dim > config.max_state_dim:
@@ -91,6 +101,43 @@ def fidelity_kernel(features_a: torch.Tensor, features_b: torch.Tensor | None = 
     return torch.matmul(a, b.transpose(0, 1)).pow(2).clamp_min(0.0)
 
 
+def transform_quantum_kernel(
+    kernel: torch.Tensor,
+    *,
+    mode: str = "centered_fidelity",
+    temperature: float = 1.0,
+    eps: float = 1e-8,
+) -> torch.Tensor:
+    """Transform a raw fidelity kernel before lifting it back into key space.
+
+    ``centered_fidelity`` removes the near-constant component that made the first
+    GPU run's quantum kernel almost uniform. ``softmax_fidelity`` keeps weights
+    positive but sharpens row-wise neighborhood contrast.
+    """
+    if kernel.ndim != 2:
+        raise ValueError("kernel must be a 2D tensor")
+    if mode not in QUANTUM_KERNEL_MODES:
+        raise ValueError(f"unknown quantum kernel mode: {mode}")
+    if temperature <= 0:
+        raise ValueError("temperature must be positive")
+
+    k = kernel.float()
+    if mode == "fidelity":
+        return k
+
+    if k.shape[0] != k.shape[1]:
+        raise ValueError(f"{mode} requires a square self-kernel")
+
+    if mode == "centered_fidelity":
+        centered = k - k.mean(dim=0, keepdim=True) - k.mean(dim=1, keepdim=True) + k.mean()
+        return 0.5 * (centered + centered.transpose(0, 1))
+
+    scores = (k - k.mean(dim=-1, keepdim=True)) / temperature
+    weights = torch.softmax(scores, dim=-1)
+    symmetrized = 0.5 * (weights + weights.transpose(0, 1))
+    return symmetrized.clamp_min(eps)
+
+
 def quantum_weighted_covariance(
     keys: torch.Tensor,
     kernel: torch.Tensor,
@@ -105,7 +152,7 @@ def quantum_weighted_covariance(
     if center:
         x = x - x.mean(dim=0, keepdim=True)
     k = kernel.to(device=x.device, dtype=x.dtype)
-    normalizer = k.sum().clamp_min(eps)
+    normalizer = k.abs().sum().clamp_min(eps)
     omega = torch.matmul(x.transpose(0, 1), torch.matmul(k, x)) / normalizer
     return 0.5 * (omega + omega.transpose(0, 1))
 
@@ -117,25 +164,35 @@ def build_quantum_projector(
     projector_config: SpectralProjectorConfig | None = None,
     center: bool = False,
 ) -> QuantumProjectorResult:
-    """Build a key-space projector using a toy quantum-inspired kernel."""
+    """Build a key-space projector using a quantum-inspired kernel."""
     quantum_config = quantum_config or QuantumFeatureMapConfig()
     projector_config = projector_config or SpectralProjectorConfig()
     x = _as_key_matrix(keys)
     features = angle_feature_map(x, quantum_config)
-    kernel = fidelity_kernel(features, eps=quantum_config.eps)
+    raw_kernel = fidelity_kernel(features, eps=quantum_config.eps)
+    kernel = transform_quantum_kernel(
+        raw_kernel,
+        mode=quantum_config.kernel_mode,
+        temperature=quantum_config.kernel_temperature,
+        eps=quantum_config.eps,
+    )
     omega = quantum_weighted_covariance(x, kernel, center=center, eps=quantum_config.eps)
     basis, singular_values, _ = torch.linalg.svd(omega, full_matrices=False)
     projector = build_projector(basis=basis, singular_values=singular_values, config=projector_config)
     metadata: dict[str, Any] = {
-        "projector_family": "toy_quantum",
+        "projector_family": "quantum_contrastive",
         "num_vectors": int(x.shape[0]),
         "key_dim": int(x.shape[1]),
         "state_dim": int(features.shape[1]),
         "center": center,
         "quantum_config": asdict(quantum_config),
         "projector_config": asdict(projector_config),
+        "kernel_mode": quantum_config.kernel_mode,
         "kernel_trace": float(torch.trace(kernel).item()),
         "kernel_mean": float(kernel.mean().item()),
+        "kernel_abs_mean": float(kernel.abs().mean().item()),
+        "raw_kernel_trace": float(torch.trace(raw_kernel).item()),
+        "raw_kernel_mean": float(raw_kernel.mean().item()),
         "top_singular_values": [float(value) for value in singular_values[: min(8, singular_values.numel())].tolist()],
         "filter_diagnostics": spectral_filter_diagnostics(singular_values, projector_config),
     }
