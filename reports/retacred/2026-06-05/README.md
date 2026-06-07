@@ -1,15 +1,15 @@
 # Re-TACRED GPU Result Snapshot (2026-06-05)
 
-Source branch: origin/1.0 (43f0677, submitted by dzy958).
+Source branch: `origin/1.0` (`43f0677`, submitted by dzy958).
 
 This directory contains sanitized experiment summaries only. Raw data, checkpoints,
 projector weights, predictions, and full run directories are intentionally excluded.
 
 ## Layout
 
-- low_resource/: sampled low-resource Re-TACRED run summaries.
-- ull/: full Re-TACRED run summaries.
-- logs/: tail-style JSON logs copied from the collaborator run.
+- `low_resource/`: sampled low-resource Re-TACRED run summaries.
+- `full/`: full Re-TACRED run summaries.
+- `logs/`: tail-style JSON logs copied from the collaborator run.
 
 ## Main Metrics
 
