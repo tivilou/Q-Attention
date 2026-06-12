@@ -56,6 +56,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--router_prototype_weight", type=float, default=1.0)
     parser.add_argument("--router_energy_weight", type=float, default=1.0)
     parser.add_argument("--no_router_score_norm", action="store_true")
+    parser.add_argument(
+        "--expert_gain_scales",
+        default=None,
+        help="Optional comma-separated per-expert steering scales aligned with the expert bank.",
+    )
+    parser.add_argument(
+        "--expert_logit_biases",
+        default=None,
+        help="Optional comma-separated per-expert routing logit biases aligned with the expert bank.",
+    )
     parser.add_argument("--rank", type=int, default=2)
     parser.add_argument("--threshold", type=float, default=0.5)
     parser.add_argument("--sharpness", type=float, default=8.0)
@@ -88,6 +98,15 @@ def projector_stats(projector: torch.Tensor) -> dict[str, float]:
     }
 
 
+def parse_optional_float_csv(value: str | None, *, expected: int, name: str) -> list[float] | None:
+    if value is None or value.strip() == "":
+        return None
+    parsed = [float(item.strip()) for item in value.split(",") if item.strip()]
+    if len(parsed) != expected:
+        raise ValueError(f"{name} must contain {expected} comma-separated values")
+    return parsed
+
+
 def make_expert_bank(keys: torch.Tensor, args: argparse.Namespace) -> tuple[ProjectorBank, list[dict[str, Any]]]:
     quantum_config = QuantumFeatureMapConfig(
         num_qubits=args.num_qubits,
@@ -112,6 +131,9 @@ def make_expert_bank(keys: torch.Tensor, args: argparse.Namespace) -> tuple[Proj
         ),
     ]
 
+    gain_scales = parse_optional_float_csv(args.expert_gain_scales, expected=len(expert_specs), name="expert_gain_scales")
+    logit_biases = parse_optional_float_csv(args.expert_logit_biases, expected=len(expert_specs), name="expert_logit_biases")
+
     names: list[str] = []
     projectors: list[torch.Tensor] = []
     prototypes: list[torch.Tensor] = []
@@ -134,9 +156,18 @@ def make_expert_bank(keys: torch.Tensor, args: argparse.Namespace) -> tuple[Proj
         names.append(name)
         projectors.append(projector.cpu())
         prototypes.append(projector_prototype(keys.cpu(), projector.cpu()))
-        metadata.append({"name": name, **expert_meta, "projector_stats": projector_stats(projector.cpu())})
+        expert_idx = len(metadata)
+        metadata.append(
+            {
+                "name": name,
+                **expert_meta,
+                "gain_scale": 1.0 if gain_scales is None else gain_scales[expert_idx],
+                "logit_bias": 0.0 if logit_biases is None else logit_biases[expert_idx],
+                "projector_stats": projector_stats(projector.cpu()),
+            }
+        )
 
-    return stack_projector_bank(names, projectors, prototypes), metadata
+    return stack_projector_bank(names, projectors, prototypes, gain_scales=gain_scales, logit_biases=logit_biases), metadata
 
 
 def batch_anchor_embeddings(model: torch.nn.Module, batch: dict[str, torch.Tensor], anchor: str) -> torch.Tensor:

@@ -69,3 +69,28 @@ def test_projector_energy_scores_are_projector_scale_normalized() -> None:
     scores = projector_energy_scores(anchors, projectors)
 
     assert torch.allclose(scores[0, 0], scores[0, 1], atol=1e-6)
+
+
+def test_projector_bank_applies_gain_scales_to_dynamic_projector() -> None:
+    names = ["identity", "double"]
+    projectors = [torch.eye(2), torch.eye(2)]
+    prototypes = [torch.tensor([1.0, 0.0]), torch.tensor([0.0, 1.0])]
+    bank = stack_projector_bank(names, projectors, prototypes, gain_scales=[1.0, 0.25])
+    anchors = torch.tensor([[0.0, 1.0]])
+
+    routed = route_projectors(anchors, bank, RouterConfig(score_mode="prototype", temperature=0.1, normalize_scores=False))
+
+    assert routed.weights[0, 1] > 0.9
+    assert torch.allclose(routed.projectors[0], 0.25 * torch.eye(2), atol=0.05)
+
+
+def test_projector_bank_logit_biases_shift_routing_weights() -> None:
+    names = ["identity", "biased"]
+    projectors = [torch.eye(2), torch.eye(2)]
+    prototypes = [torch.tensor([1.0, 0.0]), torch.tensor([1.0, 0.0])]
+    bank = stack_projector_bank(names, projectors, prototypes, logit_biases=[0.0, 2.0])
+    anchors = torch.tensor([[1.0, 0.0]])
+
+    routed = route_projectors(anchors, bank, RouterConfig(score_mode="prototype", normalize_scores=False))
+
+    assert routed.weights[0, 1] > routed.weights[0, 0]

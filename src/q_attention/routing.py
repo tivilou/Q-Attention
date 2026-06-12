@@ -36,6 +36,8 @@ class ProjectorBank:
     names: tuple[str, ...]
     projectors: torch.Tensor
     prototypes: torch.Tensor
+    gain_scales: torch.Tensor | None = None
+    logit_biases: torch.Tensor | None = None
 
     def __post_init__(self) -> None:
         if self.projectors.ndim != 3:
@@ -50,6 +52,14 @@ class ProjectorBank:
             raise ValueError("number of prototypes must match number of projectors")
         if self.prototypes.shape[1] != self.projectors.shape[1]:
             raise ValueError("prototype dim must match projector dim")
+        if self.gain_scales is None:
+            object.__setattr__(self, "gain_scales", torch.ones(len(self.names), dtype=self.projectors.dtype))
+        elif self.gain_scales.ndim != 1 or self.gain_scales.shape[0] != len(self.names):
+            raise ValueError("gain_scales must have shape (experts,)")
+        if self.logit_biases is None:
+            object.__setattr__(self, "logit_biases", torch.zeros(len(self.names), dtype=self.projectors.dtype))
+        elif self.logit_biases.ndim != 1 or self.logit_biases.shape[0] != len(self.names):
+            raise ValueError("logit_biases must have shape (experts,)")
 
 
 @dataclass(frozen=True)
@@ -62,7 +72,22 @@ class RoutingResult:
     entropy: torch.Tensor
 
 
-def stack_projector_bank(names: Sequence[str], projectors: Sequence[torch.Tensor], prototypes: Sequence[torch.Tensor]) -> ProjectorBank:
+def _optional_float_vector(values: Sequence[float] | torch.Tensor | None) -> torch.Tensor | None:
+    if values is None:
+        return None
+    if isinstance(values, torch.Tensor):
+        return values.float()
+    return torch.tensor([float(value) for value in values], dtype=torch.float32)
+
+
+def stack_projector_bank(
+    names: Sequence[str],
+    projectors: Sequence[torch.Tensor],
+    prototypes: Sequence[torch.Tensor],
+    *,
+    gain_scales: Sequence[float] | torch.Tensor | None = None,
+    logit_biases: Sequence[float] | torch.Tensor | None = None,
+) -> ProjectorBank:
     """Create a validated projector bank from Python sequences."""
     if not names:
         raise ValueError("at least one projector expert is required")
@@ -70,7 +95,13 @@ def stack_projector_bank(names: Sequence[str], projectors: Sequence[torch.Tensor
         raise ValueError("names, projectors, and prototypes must have the same length")
     stacked_projectors = torch.stack([projector.float() for projector in projectors], dim=0)
     stacked_prototypes = torch.stack([prototype.float() for prototype in prototypes], dim=0)
-    return ProjectorBank(names=tuple(str(name) for name in names), projectors=stacked_projectors, prototypes=stacked_prototypes)
+    return ProjectorBank(
+        names=tuple(str(name) for name in names),
+        projectors=stacked_projectors,
+        prototypes=stacked_prototypes,
+        gain_scales=_optional_float_vector(gain_scales),
+        logit_biases=_optional_float_vector(logit_biases),
+    )
 
 
 def projector_prototype(keys: torch.Tensor, projector: torch.Tensor, *, eps: float = 1e-8) -> torch.Tensor:
@@ -127,8 +158,11 @@ def route_projectors(anchor_representations: torch.Tensor, bank: ProjectorBank, 
 
     if config.normalize_scores:
         raw_scores = _normalize_router_scores(raw_scores, config.eps)
-    scores = raw_scores / config.temperature
+    logit_biases = bank.logit_biases.to(device=anchors.device, dtype=anchors.dtype)
+    scores = raw_scores / config.temperature + logit_biases.unsqueeze(0)
     weights = torch.softmax(scores, dim=-1)
-    dynamic_projectors = torch.einsum("be,edh->bdh", weights, bank_projectors)
+    gain_scales = bank.gain_scales.to(device=anchors.device, dtype=anchors.dtype)
+    scaled_projectors = bank_projectors * gain_scales.view(-1, 1, 1)
+    dynamic_projectors = torch.einsum("be,edh->bdh", weights, scaled_projectors)
     entropy = -(weights * torch.log(weights.clamp_min(config.eps))).sum(dim=-1)
     return RoutingResult(weights=weights, projectors=dynamic_projectors, scores=scores, entropy=entropy)
