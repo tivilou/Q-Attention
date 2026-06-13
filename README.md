@@ -92,6 +92,7 @@ This repository is not ready for formal large-scale GPU benchmarking yet. The ne
 - Real-data smoke plan: [docs/real_data_smoke_plan.md](docs/real_data_smoke_plan.md)
 - Re-TACRED experiment handoff: [docs/retacred_experiment_handoff.md](docs/retacred_experiment_handoff.md)
 - Re-TACRED collaborator overview (ZH): [docs/retacred_collaborator_overview_zh.md](docs/retacred_collaborator_overview_zh.md)
+- Collaborator Git workflow (ZH): [docs/collaborator_git_workflow_zh.md](docs/collaborator_git_workflow_zh.md)
 - Collaboration plan: [docs/collaboration_plan.md](docs/collaboration_plan.md)
 - NLP task plan: [docs/nlp_task_plan.md](docs/nlp_task_plan.md)
 
