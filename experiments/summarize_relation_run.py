@@ -55,30 +55,53 @@ def summarize_run(run_dir: str | Path) -> dict[str, Any]:
 
     pipeline = read_json_if_exists(run_path / "pipeline_summary.json")
     baseline = read_json_if_exists(run_path / "baseline" / "metrics.json")
-    if baseline is not None:
-        rows.append(metric_row("baseline", baseline.get("best_valid"), note="best validation checkpoint"))
-
     classical = read_json_if_exists(run_path / "classical_steering_eval" / "metrics.json")
+    quantum = read_json_if_exists(run_path / "quantum_steering_eval" / "metrics.json")
+    spectral = read_json_if_exists(run_path / "spectral_filter_sweep" / "summary.json")
+    routing = read_json_if_exists(run_path / "relation_routing_eval" / "metrics.json")
+
+    protocol = pipeline.get("evaluation_protocol", {}) if isinstance(pipeline, Mapping) else {}
+    final_split = protocol.get("final_split", "valid") if isinstance(protocol, Mapping) else "valid"
+    final_baseline = None
+    baseline_split = "valid"
+    for candidate in (
+        None if classical is None else classical.get("baseline"),
+        None if quantum is None else quantum.get("baseline"),
+        None if routing is None else routing.get("baseline"),
+        None if spectral is None else spectral.get("test_baseline"),
+    ):
+        if isinstance(candidate, Mapping):
+            final_baseline = candidate
+            baseline_split = str(final_split)
+            break
+    if final_baseline is None and baseline is not None and isinstance(baseline.get("best_valid"), Mapping):
+        final_baseline = baseline["best_valid"]
+    if final_baseline is not None:
+        note = "held-out test split" if baseline_split == "test" else "best validation checkpoint"
+        rows.append(metric_row("baseline", final_baseline, note=note))
+
     if classical is not None:
         rows.append(metric_row("classical_steering", classical.get("steered"), delta=classical.get("delta_vs_baseline")))
 
-    quantum = read_json_if_exists(run_path / "quantum_steering_eval" / "metrics.json")
     if quantum is not None:
         rows.append(metric_row("quantum_steering", quantum.get("steered"), delta=quantum.get("delta_vs_baseline")))
 
-    spectral = read_json_if_exists(run_path / "spectral_filter_sweep" / "summary.json")
-    spectral_best = None if spectral is None else spectral.get("best_by_macro_f1")
+    spectral_selection = None if spectral is None else spectral.get("best_by_macro_f1")
+    spectral_test = None if spectral is None else spectral.get("best_on_test")
+    spectral_best = spectral_test if isinstance(spectral_test, Mapping) else spectral_selection
     if isinstance(spectral_best, Mapping):
+        note = filter_note(spectral_best)
+        if isinstance(spectral_test, Mapping):
+            note = f"{note}, selected on validation"
         rows.append(
             metric_row(
                 "spectral_sweep_best",
                 spectral_best.get("metrics"),
                 delta=spectral_best.get("delta_vs_baseline"),
-                note=filter_note(spectral_best),
+                note=note,
             )
         )
 
-    routing = read_json_if_exists(run_path / "relation_routing_eval" / "metrics.json")
     if routing is not None:
         summary = routing.get("routing_summary", {})
         note = ""
@@ -90,16 +113,29 @@ def summarize_run(run_dir: str | Path) -> dict[str, Any]:
     return {
         "run_dir": str(run_path),
         "pipeline": pipeline,
+        "evaluation_protocol": protocol,
         "rows": rows,
         "spectral_best": spectral_best,
+        "spectral_selection": spectral_selection,
         "routing_summary": None if routing is None else routing.get("routing_summary"),
     }
 
 
 def markdown_table(summary: Mapping[str, Any]) -> str:
     rows = summary.get("rows", [])
+    protocol = summary.get("evaluation_protocol", {})
+    final_split = protocol.get("final_split", "valid") if isinstance(protocol, Mapping) else "valid"
     header = ["variant", "macro_f1", "accuracy", "macro_precision", "macro_recall", "loss", "delta_macro_f1", "note"]
-    lines = ["# Relation Run Summary", "", f"Run directory: `{summary.get('run_dir')}`", "", "| " + " | ".join(header) + " |", "| " + " | ".join(["---"] * len(header)) + " |"]
+    lines = [
+        "# Relation Run Summary",
+        "",
+        f"Run directory: `{summary.get('run_dir')}`",
+        "",
+        f"Reported split: `{final_split}`",
+        "",
+        "| " + " | ".join(header) + " |",
+        "| " + " | ".join(["---"] * len(header)) + " |",
+    ]
     for row in rows if isinstance(rows, list) else []:
         if not isinstance(row, Mapping):
             continue

@@ -36,7 +36,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Sweep toy spectral filters for relation key steering.")
     parser.add_argument("--model_dir", required=True, help="Output directory produced by train_relation_baseline.py")
     parser.add_argument("--projector_data_path", default=None, help="JSONL data used to collect anchor keys; defaults to baseline train_path")
-    parser.add_argument("--eval_path", default=None, help="JSONL data used for evaluation; defaults to baseline valid_path")
+    parser.add_argument("--eval_path", default=None, help="Validation JSONL used only to select the best filter")
+    parser.add_argument("--test_path", default=None, help="Optional held-out JSONL used once after validation selection")
     parser.add_argument("--output_dir", default=None, help="Sweep output directory; defaults to <model_dir>/spectral_filter_sweep")
     parser.add_argument("--batch_size", type=int, default=16)
     parser.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda"])
@@ -155,6 +156,34 @@ def projector_stats(projector: torch.Tensor) -> dict[str, float]:
     }
 
 
+def select_best_row(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
+    return max(rows, key=lambda row: row["metrics"].get("macro_f1", 0.0)) if rows else None
+
+
+def write_test_predictions(
+    path: Path,
+    records: list[Any],
+    labels: list[int],
+    baseline_predictions: list[int],
+    steered_predictions: list[int],
+) -> None:
+    with path.open("w", encoding="utf-8") as handle:
+        for index, record in enumerate(records):
+            handle.write(
+                json.dumps(
+                    {
+                        "index": index,
+                        "gold_id": int(labels[index]),
+                        "baseline_prediction_id": int(baseline_predictions[index]),
+                        "steered_prediction_id": int(steered_predictions[index]),
+                        "metadata": dict(record.metadata),
+                    },
+                    sort_keys=True,
+                )
+                + "\n"
+            )
+
+
 def main() -> None:
     args = parse_args()
     families = parse_csv(args.families)
@@ -228,13 +257,66 @@ def main() -> None:
                     handle.write(json.dumps(row, sort_keys=True) + "\n")
                     print(json.dumps(row, sort_keys=True))
 
-    best = max(rows, key=lambda row: row["metrics"].get("macro_f1", 0.0)) if rows else None
+    best = select_best_row(rows)
+    best_on_test: dict[str, Any] | None = None
+    test_baseline_metrics: dict[str, float] | None = None
+    test_path: Path | None = None
+    if args.test_path is not None:
+        if best is None:
+            raise ValueError("cannot evaluate a held-out test split because the sweep produced no candidates")
+        test_path = resolve_project_path(args.test_path)
+        test_records = load_relation_jsonl(test_path)
+        test_loader = make_relation_loader(
+            test_records,
+            artifacts.vocab,
+            artifacts.label_to_id,
+            batch_size=args.batch_size,
+            shuffle=False,
+        )
+        test_baseline = evaluate_relation_model(artifacts.model, test_loader, device, len(artifacts.label_to_id))
+        selected_config = SpectralProjectorConfig(**best["filter"])
+        selected_projector, _ = build_sweep_projector(best["family"], collection.keys, selected_config, args)
+        test_result = evaluate_relation_model(
+            artifacts.model,
+            test_loader,
+            device,
+            len(artifacts.label_to_id),
+            projector=selected_projector,
+            key_module_paths=artifacts.key_module_paths,
+            gain=float(best["gain"]),
+            anchor=args.anchor,
+        )
+        test_baseline_metrics = test_baseline.metrics
+        best_on_test = {
+            "family": best["family"],
+            "gain": best["gain"],
+            "filter": best["filter"],
+            "metrics": test_result.metrics,
+            "delta_vs_baseline": metric_delta(test_result.metrics, test_baseline.metrics),
+            "selected_on": str(eval_path),
+            "selection_metrics": best["metrics"],
+            "projector_stats": projector_stats(selected_projector),
+            "filter_diagnostics": best.get("filter_diagnostics", {}),
+            "quantum": best.get("quantum", {}),
+        }
+        write_test_predictions(
+            output_dir / "test_predictions.jsonl",
+            test_records,
+            test_result.labels,
+            test_baseline.predictions,
+            test_result.predictions,
+        )
+
     summary = {
         "model_dir": str(model_dir),
         "projector_data_path": str(projector_data_path),
         "eval_path": str(eval_path),
+        "selection_path": str(eval_path),
+        "test_path": None if test_path is None else str(test_path),
         "output_dir": str(output_dir),
         "baseline": baseline.metrics,
+        "selection_baseline": baseline.metrics,
+        "test_baseline": test_baseline_metrics,
         "num_rows": len(rows),
         "anchor": args.anchor,
         "key_collection": {
@@ -244,6 +326,7 @@ def main() -> None:
             "num_batches": collection.num_batches,
         },
         "best_by_macro_f1": best,
+        "best_on_test": best_on_test,
     }
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
     print(json.dumps({"output_dir": str(output_dir), "num_rows": len(rows), "best_by_macro_f1": best}, sort_keys=True))

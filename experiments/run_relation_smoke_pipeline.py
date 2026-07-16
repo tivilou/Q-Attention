@@ -1,11 +1,17 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
+import hashlib
 import json
 from pathlib import Path
+import platform
 import subprocess
 import sys
+import time
 from typing import Any, Iterable, Mapping
+
+import torch
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
@@ -46,6 +52,7 @@ DEFAULT_STAGE_OPTIONS: dict[str, dict[str, Any]] = {
         "angle_scale": 1.25,
         "max_vectors": 512,
         "seed": 13,
+        "feature_seed": 17,
     },
     "quantum_steering": {"batch_size": 16, "gain": 0.25},
     "spectral_sweep": {
@@ -60,6 +67,7 @@ DEFAULT_STAGE_OPTIONS: dict[str, dict[str, Any]] = {
         "angle_scale": 1.25,
         "max_vectors": 512,
         "seed": 13,
+        "feature_seed": 17,
     },
     "routing": {
         "batch_size": 16,
@@ -70,6 +78,7 @@ DEFAULT_STAGE_OPTIONS: dict[str, dict[str, Any]] = {
         "angle_scale": 1.25,
         "max_vectors": 512,
         "seed": 13,
+        "feature_seed": 17,
     },
 }
 
@@ -79,12 +88,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--config", required=True, help="data_config.json or smoke config with train_path/valid_path")
     parser.add_argument("--train_path", default=None, help="Override canonical train JSONL path")
     parser.add_argument("--valid_path", default=None, help="Override canonical validation JSONL path")
+    parser.add_argument("--test_path", default=None, help="Override canonical final-test JSONL path")
     parser.add_argument("--output_dir", default=None, help="Override run directory")
     parser.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda"])
     parser.add_argument("--stages", default=",".join(STAGE_CHOICES), help="Comma-separated stage names")
     parser.add_argument("--max_train_records", type=int, default=None, help="Optional train subset for smoke runs")
     parser.add_argument("--max_valid_records", type=int, default=None, help="Optional validation subset for smoke runs")
-    parser.add_argument("--seed", type=int, default=None, help="Subset sampling seed override")
+    parser.add_argument("--max_test_records", type=int, default=None, help="Optional test subset for smoke runs")
+    parser.add_argument("--seed", type=int, default=None, help="Global seed override for sampling and seeded stages")
     parser.add_argument("--dry_run", action="store_true", help="Print commands and write summary without executing")
     return parser.parse_args()
 
@@ -118,11 +129,15 @@ def parse_stage_list(value: str) -> list[str]:
     return stages
 
 
-def merged_stage_options(config: Mapping[str, Any], stage: str) -> dict[str, Any]:
+def merged_stage_options(config: Mapping[str, Any], stage: str, *, seed_override: int | None = None) -> dict[str, Any]:
     options = dict(DEFAULT_STAGE_OPTIONS.get(stage, {}))
     configured = config.get(stage, {})
     if isinstance(configured, Mapping):
         options.update(configured)
+    if seed_override is not None:
+        for key in ("seed", "feature_seed"):
+            if key in options:
+                options[key] = seed_override
     return options
 
 
@@ -152,12 +167,18 @@ def materialize_split(
 ) -> tuple[Path, dict[str, Any]]:
     records = load_relation_jsonl(source_path)
     if limit is None or limit <= 0 or len(records) <= limit:
-        return source_path, {"path": str(source_path), "summary": relation_record_summary(records), "subset": False}
+        return source_path, {
+            "path": str(source_path),
+            "sha256": file_sha256(source_path),
+            "summary": relation_record_summary(records),
+            "subset": False,
+        }
     selected = sample_relation_records(records, limit, seed=seed, stratified=True)
     output_path = output_dir / f"{name}.jsonl"
     write_relation_jsonl(selected, output_path)
     return output_path, {
         "path": str(output_path),
+        "sha256": file_sha256(output_path),
         "source_path": str(source_path),
         "summary": relation_record_summary(selected),
         "source_summary": relation_record_summary(records),
@@ -165,15 +186,75 @@ def materialize_split(
     }
 
 
+def file_sha256(path: str | Path) -> str:
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def git_metadata() -> dict[str, Any]:
+    def git_output(*args: str) -> str | None:
+        try:
+            result = subprocess.run(
+                ["git", *args],
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+        except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+            return None
+        return result.stdout.strip()
+
+    status = git_output("status", "--porcelain")
+    return {
+        "commit": git_output("rev-parse", "HEAD"),
+        "branch": git_output("branch", "--show-current"),
+        "dirty": None if status is None else bool(status),
+    }
+
+
+def runtime_metadata(global_seed: int) -> dict[str, Any]:
+    cuda_available = torch.cuda.is_available()
+    return {
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "global_seed": global_seed,
+        "git": git_metadata(),
+        "python": sys.version,
+        "platform": platform.platform(),
+        "torch": torch.__version__,
+        "cuda_available": cuda_available,
+        "cuda_version": torch.version.cuda,
+        "cuda_device": torch.cuda.get_device_name(0) if cuda_available else None,
+    }
+
+
 def run_command(cmd: list[str], *, dry_run: bool, records: list[dict[str, Any]]) -> None:
     printable = " ".join(cmd)
     print(json.dumps({"command": printable, "dry_run": dry_run}, sort_keys=True))
-    record: dict[str, Any] = {"command": cmd, "dry_run": dry_run}
+    record: dict[str, Any] = {
+        "command": cmd,
+        "dry_run": dry_run,
+        "started_at_utc": datetime.now(timezone.utc).isoformat(),
+    }
+    started = time.perf_counter()
     if dry_run:
         record["returncode"] = None
     else:
-        result = subprocess.run(cmd, cwd=ROOT, check=True)
-        record["returncode"] = int(result.returncode)
+        try:
+            result = subprocess.run(cmd, cwd=ROOT, check=True)
+            record["returncode"] = int(result.returncode)
+        except subprocess.CalledProcessError as exc:
+            record["returncode"] = int(exc.returncode)
+            raise
+        finally:
+            record["duration_seconds"] = time.perf_counter() - started
+            records.append(record)
+        return
+    record["duration_seconds"] = time.perf_counter() - started
     records.append(record)
 
 
@@ -190,12 +271,15 @@ def main() -> None:
 
     train_value = args.train_path or split_path_from_config(config, "train")
     valid_value = args.valid_path or split_path_from_config(config, "valid")
+    test_value = args.test_path or split_path_from_config(config, "test")
     if train_value is None or valid_value is None:
         raise ValueError("provide train/valid paths in config or via --train_path/--valid_path")
 
     subset_seed = args.seed if args.seed is not None else int(config.get("seed", 13))
+    stage_seed_override = args.seed
     max_train = args.max_train_records if args.max_train_records is not None else config.get("max_train_records")
     max_valid = args.max_valid_records if args.max_valid_records is not None else config.get("max_valid_records")
+    max_test = args.max_test_records if args.max_test_records is not None else config.get("max_test_records")
     data_dir = output_dir / "smoke_data"
     data_dir.mkdir(parents=True, exist_ok=True)
     train_path, train_info = materialize_split(
@@ -204,6 +288,13 @@ def main() -> None:
     valid_path, valid_info = materialize_split(
         name="valid", source_path=resolve_project_path(valid_value), output_dir=data_dir, limit=max_valid, seed=subset_seed
     )
+    test_path: Path | None = None
+    test_info: dict[str, Any] | None = None
+    if test_value is not None:
+        test_path, test_info = materialize_split(
+            name="test", source_path=resolve_project_path(test_value), output_dir=data_dir, limit=max_test, seed=subset_seed
+        )
+    final_eval_path = test_path or valid_path
 
     model_dir = output_dir / "baseline"
     commands: list[dict[str, Any]] = []
@@ -221,7 +312,11 @@ def main() -> None:
             "--device",
             args.device,
         ]
-        run_command(add_cli_options(cmd, merged_stage_options(config, "baseline"), skip={"device"}), dry_run=args.dry_run, records=commands)
+        run_command(
+            add_cli_options(cmd, merged_stage_options(config, "baseline", seed_override=stage_seed_override), skip={"device"}),
+            dry_run=args.dry_run,
+            records=commands,
+        )
 
     if "classical_projector" in stages:
         cmd = [
@@ -236,7 +331,11 @@ def main() -> None:
             "--device",
             args.device,
         ]
-        run_command(add_cli_options(cmd, merged_stage_options(config, "classical_projector"), skip={"device"}), dry_run=args.dry_run, records=commands)
+        run_command(
+            add_cli_options(cmd, merged_stage_options(config, "classical_projector", seed_override=stage_seed_override), skip={"device"}),
+            dry_run=args.dry_run,
+            records=commands,
+        )
 
     if "classical_steering" in stages:
         cmd = [
@@ -247,13 +346,17 @@ def main() -> None:
             "--projector_path",
             str(model_dir / "relation_projector.pt"),
             "--data_path",
-            str(valid_path),
+            str(final_eval_path),
             "--output_dir",
             str(output_dir / "classical_steering_eval"),
             "--device",
             args.device,
         ]
-        run_command(add_cli_options(cmd, merged_stage_options(config, "classical_steering"), skip={"device"}), dry_run=args.dry_run, records=commands)
+        run_command(
+            add_cli_options(cmd, merged_stage_options(config, "classical_steering", seed_override=stage_seed_override), skip={"device"}),
+            dry_run=args.dry_run,
+            records=commands,
+        )
 
     if "quantum_projector" in stages:
         cmd = [
@@ -268,7 +371,11 @@ def main() -> None:
             "--device",
             args.device,
         ]
-        run_command(add_cli_options(cmd, merged_stage_options(config, "quantum_projector"), skip={"device"}), dry_run=args.dry_run, records=commands)
+        run_command(
+            add_cli_options(cmd, merged_stage_options(config, "quantum_projector", seed_override=stage_seed_override), skip={"device"}),
+            dry_run=args.dry_run,
+            records=commands,
+        )
 
     if "quantum_steering" in stages:
         cmd = [
@@ -279,13 +386,17 @@ def main() -> None:
             "--projector_path",
             str(model_dir / "relation_quantum_projector.pt"),
             "--data_path",
-            str(valid_path),
+            str(final_eval_path),
             "--output_dir",
             str(output_dir / "quantum_steering_eval"),
             "--device",
             args.device,
         ]
-        run_command(add_cli_options(cmd, merged_stage_options(config, "quantum_steering"), skip={"device"}), dry_run=args.dry_run, records=commands)
+        run_command(
+            add_cli_options(cmd, merged_stage_options(config, "quantum_steering", seed_override=stage_seed_override), skip={"device"}),
+            dry_run=args.dry_run,
+            records=commands,
+        )
 
     if "spectral_sweep" in stages:
         cmd = [
@@ -302,7 +413,13 @@ def main() -> None:
             "--device",
             args.device,
         ]
-        run_command(add_cli_options(cmd, merged_stage_options(config, "spectral_sweep"), skip={"device"}), dry_run=args.dry_run, records=commands)
+        if test_path is not None:
+            cmd.extend(["--test_path", str(test_path)])
+        run_command(
+            add_cli_options(cmd, merged_stage_options(config, "spectral_sweep", seed_override=stage_seed_override), skip={"device"}),
+            dry_run=args.dry_run,
+            records=commands,
+        )
 
     if "routing" in stages:
         cmd = [
@@ -313,13 +430,17 @@ def main() -> None:
             "--projector_data_path",
             str(train_path),
             "--eval_path",
-            str(valid_path),
+            str(final_eval_path),
             "--output_dir",
             str(output_dir / "relation_routing_eval"),
             "--device",
             args.device,
         ]
-        run_command(add_cli_options(cmd, merged_stage_options(config, "routing"), skip={"device"}), dry_run=args.dry_run, records=commands)
+        run_command(
+            add_cli_options(cmd, merged_stage_options(config, "routing", seed_override=stage_seed_override), skip={"device"}),
+            dry_run=args.dry_run,
+            records=commands,
+        )
 
     summary = {
         "config": str(resolve_project_path(args.config)),
@@ -328,10 +449,27 @@ def main() -> None:
         "stages": stages,
         "train": train_info,
         "valid": valid_info,
+        "test": test_info,
+        "evaluation_protocol": {
+            "selection_split": "valid",
+            "final_split": "test" if test_path is not None else "valid",
+            "final_path": str(final_eval_path),
+            "test_isolated": test_path is not None,
+        },
+        "reproducibility": {
+            **runtime_metadata(subset_seed),
+            "config_sha256": file_sha256(resolve_project_path(args.config)),
+        },
         "commands": commands,
     }
     summary_path = output_dir / "pipeline_summary.json"
     summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
+    if not args.dry_run:
+        subprocess.run(
+            [sys.executable, script("summarize_relation_run.py"), "--run_dir", str(output_dir)],
+            cwd=ROOT,
+            check=True,
+        )
     print(json.dumps({"summary_path": str(summary_path), "output_dir": str(output_dir), "num_commands": len(commands)}, sort_keys=True))
 
 

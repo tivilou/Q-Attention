@@ -78,13 +78,13 @@ biomedical entity mentions
 ## Current Status
 
 ```text
-Stage: real-data pre-handoff scaffold
-Code: tensor steering, encoder adapter, relation baseline, real-data converters, smoke pipeline, offline classical/quantum projector builders, spectral filter sweep, adaptive routing, steered evaluator
-Validation: toy loop passes; real-data converter and pipeline entry points are being validated before GPU handoff
+Stage: reproducible real-data ablation
+Code: tensor steering, encoder adapter, relation baseline, real-data converters, dev/test-isolated pipeline, multi-seed aggregation, offline classical/quantum projector builders, spectral filter sweep, adaptive routing, steered evaluator
+Validation: toy loop and single-seed Re-TACRED runs pass; formal multi-seed held-out evaluation is the current gate
 Visibility: public
 ```
 
-This repository is not ready for formal large-scale GPU benchmarking yet. The next gate is completing a small selected-real-dataset smoke run and then freezing a handoff command for dzy958.
+The next gate is a five-seed Re-TACRED evaluation with validation-only filter selection and held-out test reporting.
 
 ## Project Docs
 
@@ -93,6 +93,7 @@ This repository is not ready for formal large-scale GPU benchmarking yet. The ne
 - Re-TACRED experiment handoff: [docs/retacred_experiment_handoff.md](docs/retacred_experiment_handoff.md)
 - Re-TACRED collaborator overview (ZH): [docs/retacred_collaborator_overview_zh.md](docs/retacred_collaborator_overview_zh.md)
 - Collaborator Git workflow (ZH): [docs/collaborator_git_workflow_zh.md](docs/collaborator_git_workflow_zh.md)
+- Re-TACRED experiment protocol v2 (ZH): [docs/experiment_protocol_v2_zh.md](docs/experiment_protocol_v2_zh.md)
 - Collaboration plan: [docs/collaboration_plan.md](docs/collaboration_plan.md)
 - NLP task plan: [docs/nlp_task_plan.md](docs/nlp_task_plan.md)
 
@@ -150,4 +151,10 @@ Run a tiny real-data smoke chain after conversion:
 
 ```bash
 python experiments/run_relation_smoke_pipeline.py --config data/relation/retacred/data_config.json --output_dir runs/retacred_real_smoke --device cpu --max_train_records 256 --max_valid_records 128
+```
+
+Run the formal seed matrix after the smoke chain passes:
+
+```bash
+python experiments/run_relation_seed_matrix.py --config configs/retacred_full_gpu.json --seeds 13,17,23,29,31 --output_root runs/retacred_full_multiseed --device cuda
 ```
