@@ -1,0 +1,97 @@
+{
+  "anchor": "subject_object",
+  "baseline": {
+    "accuracy": 0.2490234375,
+    "loss": 3.6830465644598007,
+    "macro_f1": 0.18645906326326273,
+    "macro_precision": 0.21815685424427217,
+    "macro_recall": 0.21647782601786703
+  },
+  "best_by_macro_f1": {
+    "delta_vs_baseline": {
+      "accuracy": 0.00048828125,
+      "loss": 0.01910918578505516,
+      "macro_f1": 0.0031941921181063426,
+      "macro_precision": 0.0038456592277791024,
+      "macro_recall": 0.0030379287879081784
+    },
+    "family": "classical",
+    "filter": {
+      "energy": 0.9,
+      "eps": 1e-08,
+      "mode": "hard_topk",
+      "rank": 8,
+      "sharpness": 8.0,
+      "threshold": 0.5
+    },
+    "filter_diagnostics": {
+      "active_directions": 8,
+      "effective_rank": 80.2927017211914,
+      "energy": 0.9,
+      "max_singular_value": 4.475199222564697,
+      "min_singular_value": 0.06749460101127625,
+      "mode": "hard_topk",
+      "num_singular_values": 128,
+      "rank": 8,
+      "sharpness": 8.0,
+      "threshold": 0.5,
+      "top_filter_weights": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "top_singular_values": [
+        4.475199222564697,
+        4.111364364624023,
+        3.4833626747131348,
+        3.3053042888641357,
+        3.12626314163208,
+        2.77032208442688,
+        2.6618459224700928,
+        2.5355582237243652
+      ],
+      "weight_max": 1.0,
+      "weight_min": 0.0,
+      "weight_sum": 8.0
+    },
+    "gain": 0.5,
+    "metrics": {
+      "accuracy": 0.24951171875,
+      "loss": 3.702155750244856,
+      "macro_f1": 0.18965325538136907,
+      "macro_precision": 0.22200251347205127,
+      "macro_recall": 0.2195157548057752
+    },
+    "projector_stats": {
+      "fro_norm": 2.82842755317688,
+      "max_abs": 0.1580650955438614,
+      "trace": 8.0
+    },
+    "quantum": {
+      "kernel_mean": null,
+      "kernel_trace": null,
+      "quantum_config": null,
+      "state_dim": null
+    }
+  },
+  "eval_path": "/root/Q-Attention-main/runs/retacred_low_resource_gpu/smoke_data/valid.jsonl",
+  "key_collection": {
+    "layer_counts": {
+      "encoder.layers.0.attn.key_proj": 7038,
+      "encoder.layers.1.attn.key_proj": 7038,
+      "encoder.layers.2.attn.key_proj": 7038
+    },
+    "num_batches": 16,
+    "num_vectors": 4096,
+    "sampled_from": 21114
+  },
+  "model_dir": "/root/Q-Attention-main/runs/retacred_low_resource_gpu/baseline",
+  "num_rows": 18,
+  "output_dir": "/root/Q-Attention-main/runs/retacred_low_resource_gpu/spectral_filter_sweep",
+  "projector_data_path": "/root/Q-Attention-main/runs/retacred_low_resource_gpu/smoke_data/train.jsonl"
+}
