@@ -112,3 +112,37 @@ def test_encoder_adapter_rejects_incomplete_layer_projector_mapping() -> None:
 
     with pytest.raises(ValueError, match="missing"):
         adapter.attach(config)
+
+
+def test_encoder_adapter_applies_path_specific_gains() -> None:
+    torch.manual_seed(29)
+    model = ToyEncoder(4, num_layers=2)
+    hidden = torch.randn(1, 3, 4)
+    mask = torch.ones(1, 3, dtype=torch.bool)
+    paths = ["layers.0.key_proj", "layers.1.key_proj"]
+    adapter = EncoderKeySteeringAdapter(model, paths)
+    baseline = model(hidden)
+
+    config = KeySteeringHookConfig(
+        projector={path: torch.eye(4) for path in paths},
+        mask=mask,
+        gain={paths[0]: 0.0, paths[1]: 0.5},
+    )
+    with adapter.steering(config):
+        steered = model(hidden)
+
+    assert torch.allclose(steered, 1.5 * baseline, atol=1e-6)
+
+
+def test_encoder_adapter_rejects_incomplete_layer_gain_mapping() -> None:
+    model = ToyEncoder(4, num_layers=2)
+    paths = ["layers.0.key_proj", "layers.1.key_proj"]
+    adapter = EncoderKeySteeringAdapter(model, paths)
+    config = KeySteeringHookConfig(
+        projector={path: torch.eye(4) for path in paths},
+        mask=torch.ones(1, 2, dtype=torch.bool),
+        gain={paths[0]: 0.1},
+    )
+
+    with pytest.raises(ValueError, match="layer gain paths"):
+        adapter.attach(config)

@@ -108,6 +108,13 @@ def summarize_run(run_dir: str | Path) -> dict[str, Any]:
             selected_gain = supervised_quantum_selection.get("selected_gain")
             if isinstance(selected_gain, (int, float)):
                 note = f"{note}, gain={float(selected_gain):g} selected on validation"
+            selected_gains = supervised_quantum_selection.get("selected_gains")
+            strategy = supervised_quantum_selection.get("selection_strategy")
+            if isinstance(selected_gains, Mapping):
+                nonzero_layers = sum(1 for value in selected_gains.values() if isinstance(value, (int, float)) and abs(float(value)) > 0.0)
+                note = f"{note}, {strategy or 'layerwise'} gains selected on validation, active_layers={nonzero_layers}"
+            if supervised_quantum_selection.get("selection_accepted") is False:
+                note = f"{note}, validation CI rejected proposed steering"
         rows.append(
             metric_row(
                 "supervised_quantum_steering",

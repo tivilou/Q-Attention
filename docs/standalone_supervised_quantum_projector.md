@@ -70,9 +70,13 @@ projector remains supported for backward-compatible ablations.
 ## Gain Selection
 
 The formal steering stage never tunes on the test split. Candidate gains are
-evaluated on `valid.jsonl`, the best macro-F1 candidate is frozen, and that
-single gain is evaluated once on `test.jsonl`. Gain `0.0` is included so the
-selection stage can reject steering when it does not improve validation.
+evaluated on `valid.jsonl`, then frozen before one evaluation on `test.jsonl`.
+The formal `coordinate` strategy selects a gain for each layer while all other
+layers are held at zero. The legacy `shared` strategy remains an ablation.
+Gain `0.0` is included. The validation split is internally divided into a
+selection subset and an acceptance subset; the formal configuration requires
+the positive paired-bootstrap interval on the acceptance subset before
+accepting any nonzero steering.
 
 ## Toy Command
 
