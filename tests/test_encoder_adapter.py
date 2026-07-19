@@ -21,12 +21,14 @@ class ToyEncoderLayer(nn.Module):
 
 
 class ToyEncoder(nn.Module):
-    def __init__(self, dim: int) -> None:
+    def __init__(self, dim: int, num_layers: int = 1) -> None:
         super().__init__()
-        self.layers = nn.ModuleList([ToyEncoderLayer(dim)])
+        self.layers = nn.ModuleList([ToyEncoderLayer(dim) for _ in range(num_layers)])
 
     def forward(self, hidden: torch.Tensor) -> torch.Tensor:
-        return self.layers[0](hidden)
+        for layer in self.layers:
+            hidden = layer(hidden)
+        return hidden
 
 
 def test_resolve_module_supports_module_list_index() -> None:
@@ -78,3 +80,35 @@ def test_adapter_remove_restores_model_output() -> None:
 
     assert not torch.allclose(changed, baseline)
     assert torch.allclose(restored, baseline)
+
+
+def test_encoder_adapter_applies_path_specific_projectors() -> None:
+    torch.manual_seed(23)
+    model = ToyEncoder(4, num_layers=2)
+    hidden = torch.randn(1, 3, 4)
+    mask = torch.ones(1, 3, dtype=torch.bool)
+    paths = ["layers.0.key_proj", "layers.1.key_proj"]
+    adapter = EncoderKeySteeringAdapter(model, paths)
+    baseline = model(hidden)
+
+    config = KeySteeringHookConfig(
+        projector={paths[0]: torch.zeros(4, 4), paths[1]: torch.eye(4)},
+        mask=mask,
+        gain=0.5,
+    )
+    with adapter.steering(config):
+        steered = model(hidden)
+
+    assert torch.allclose(steered, 1.5 * baseline, atol=1e-6)
+
+
+def test_encoder_adapter_rejects_incomplete_layer_projector_mapping() -> None:
+    model = ToyEncoder(4, num_layers=2)
+    adapter = EncoderKeySteeringAdapter(model, ["layers.0.key_proj", "layers.1.key_proj"])
+    config = KeySteeringHookConfig(
+        projector={"layers.0.key_proj": torch.eye(4)},
+        mask=torch.ones(1, 2, dtype=torch.bool),
+    )
+
+    with pytest.raises(ValueError, match="missing"):
+        adapter.attach(config)

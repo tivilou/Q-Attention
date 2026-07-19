@@ -115,3 +115,34 @@ def test_summarize_relation_run_includes_supervised_quantum_variant(tmp_path) ->
     assert [row["variant"] for row in summary["rows"]] == ["baseline", "supervised_quantum_steering"]
     assert summary["rows"][1]["delta_macro_f1"] == 0.04
     assert "alignment=0.720000" in summary["rows"][1]["note"]
+
+
+def test_summarize_relation_run_prefers_validation_selected_layerwise_quantum(tmp_path) -> None:
+    module = load_summary_module()
+    run_dir = tmp_path / "run"
+    write_json(
+        run_dir / "pipeline_summary.json",
+        {"evaluation_protocol": {"selection_split": "valid", "final_split": "test", "test_isolated": True}},
+    )
+    write_json(
+        run_dir / "supervised_quantum_gain_selection" / "metrics.json",
+        {
+            "baseline": {"macro_f1": 0.30},
+            "steered": {"macro_f1": 0.34},
+            "delta_vs_baseline": {"macro_f1": 0.04},
+        },
+    )
+    write_json(
+        run_dir / "supervised_quantum_gain_selection" / "run_info.json",
+        {"projector_metadata": {"standalone": True, "layerwise": True}},
+    )
+    write_json(
+        run_dir / "supervised_quantum_gain_selection" / "gain_selection.json",
+        {"selected_gain": 0.1, "selection_metric": "macro_f1"},
+    )
+
+    summary = module.summarize_run(run_dir)
+
+    assert [row["variant"] for row in summary["rows"]] == ["baseline", "supervised_quantum_steering"]
+    assert "layer-specific" in summary["rows"][1]["note"]
+    assert "gain=0.1 selected on validation" in summary["rows"][1]["note"]

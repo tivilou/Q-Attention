@@ -80,11 +80,11 @@ biomedical entity mentions
 ```text
 Stage: reproducible real-data ablation
 Code: tensor steering, encoder adapter, relation baseline, dev/test-isolated pipeline, multi-seed aggregation, untrained and standalone supervised quantum projector builders, spectral filter sweep, adaptive routing, steered evaluator
-Validation: standalone supervised quantum projector passes unit and toy end-to-end checks; Re-TACRED debug validation is the current gate
+Validation: layer-specific standalone supervised quantum projector and validation-only gain selection are implemented; Re-TACRED debug validation is the current gate
 Visibility: public
 ```
 
-The next gate is a five-seed Re-TACRED evaluation with validation-only filter selection and held-out test reporting.
+The next gate is a five-seed Re-TACRED evaluation with layer-specific quantum projectors, validation-only gain/filter selection, and held-out test reporting.
 
 ## Project Docs
 
@@ -95,6 +95,7 @@ The next gate is a five-seed Re-TACRED evaluation with validation-only filter se
 - Collaborator Git workflow (ZH): [docs/collaborator_git_workflow_zh.md](docs/collaborator_git_workflow_zh.md)
 - Re-TACRED experiment protocol v2 (ZH): [docs/experiment_protocol_v2_zh.md](docs/experiment_protocol_v2_zh.md)
 - Standalone supervised quantum projector: [docs/standalone_supervised_quantum_projector.md](docs/standalone_supervised_quantum_projector.md)
+- Layerwise quantum projector and gain-selection protocol (ZH): [docs/quantum_projector_v3_protocol_zh.md](docs/quantum_projector_v3_protocol_zh.md)
 - Collaboration plan: [docs/collaboration_plan.md](docs/collaboration_plan.md)
 - NLP task plan: [docs/nlp_task_plan.md](docs/nlp_task_plan.md)
 

@@ -7,6 +7,7 @@ model-agnostic: callers provide module paths such as ``layers.0.key_proj``.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Iterator, Sequence
@@ -21,7 +22,7 @@ from q_attention.steering import apply_key_steering
 class KeySteeringHookConfig:
     """Runtime key-steering configuration."""
 
-    projector: torch.Tensor
+    projector: torch.Tensor | Mapping[str, torch.Tensor]
     mask: torch.Tensor
     gain: float = 1.0
 
@@ -69,16 +70,31 @@ class EncoderKeySteeringAdapter:
     def attach(self, config: KeySteeringHookConfig) -> None:
         """Attach hooks using the provided projector, mask, and gain."""
         self.remove()
-        projector = config.projector
         mask = config.mask
         gain = config.gain
 
-        def hook(_module: nn.Module, _inputs: tuple[object, ...], output: object) -> object:
-            return self._steer_output(output, projector=projector, mask=mask, gain=gain)
+        if isinstance(config.projector, torch.Tensor):
+            projectors = {path: config.projector for path in self.key_module_paths}
+        elif isinstance(config.projector, Mapping):
+            missing = sorted(set(self.key_module_paths) - set(config.projector))
+            unexpected = sorted(set(config.projector) - set(self.key_module_paths))
+            if missing or unexpected:
+                raise ValueError(f"layer projector paths do not match adapter paths; missing={missing}, unexpected={unexpected}")
+            projectors = dict(config.projector)
+            if any(not isinstance(projector, torch.Tensor) for projector in projectors.values()):
+                raise TypeError("every layer projector must be a tensor")
+        else:
+            raise TypeError("projector must be a tensor or a mapping from module path to tensor")
+
+        def make_hook(projector: torch.Tensor):
+            def hook(_module: nn.Module, _inputs: tuple[object, ...], output: object) -> object:
+                return self._steer_output(output, projector=projector, mask=mask, gain=gain)
+
+            return hook
 
         for path in self.key_module_paths:
             module = resolve_module(self.model, path)
-            self._handles.append(module.register_forward_hook(hook))
+            self._handles.append(module.register_forward_hook(make_hook(projectors[path])))
 
     def remove(self) -> None:
         """Remove all active hooks."""

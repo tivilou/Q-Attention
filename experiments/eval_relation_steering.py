@@ -18,6 +18,7 @@ from q_attention.experiments import (  # noqa: E402
     load_projector,
     load_relation_run,
     make_relation_loader,
+    projector_shape_summary,
 )
 from q_attention.tasks.relation import load_relation_jsonl  # noqa: E402
 
@@ -130,7 +131,7 @@ def main() -> None:
         "anchor": args.anchor,
         "num_records": len(records),
         "key_module_paths": list(artifacts.key_module_paths),
-        "projector_shape": list(projector.shape),
+        "projector_shape": projector_shape_summary(projector),
         "projector_metadata": dict(projector_metadata),
     }
 

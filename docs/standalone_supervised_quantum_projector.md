@@ -54,6 +54,26 @@ P_q = U_q f(Sigma_q) U_q^T
 
 No classical covariance projector appears in this construction.
 
+## Layer-Specific Projectors
+
+The default formal configuration trains one standalone quantum projector per
+steerable key layer. Each layer receives its own relation-key samples, quantum
+feature-map parameters, kernel alignment diagnostic, and spectral projector:
+
+```text
+P_q^(l) = U_l f(Sigma_l) U_l^T
+```
+
+The adapter applies `P_q^(l)` only to the matching key module. A single shared
+projector remains supported for backward-compatible ablations.
+
+## Gain Selection
+
+The formal steering stage never tunes on the test split. Candidate gains are
+evaluated on `valid.jsonl`, the best macro-F1 candidate is frozen, and that
+single gain is evaluated once on `test.jsonl`. Gain `0.0` is included so the
+selection stage can reject steering when it does not improve validation.
+
 ## Toy Command
 
 ```bash
@@ -61,10 +81,10 @@ python experiments/run_relation_smoke_pipeline.py \
   --config configs/relation_real_smoke.json \
   --train_path examples/relation_toy_train.jsonl \
   --valid_path examples/relation_toy_valid.jsonl \
-  --test_path examples/relation_toy_valid.jsonl \
+  --test_path examples/relation_toy_test.jsonl \
   --output_dir runs/qlass_toy \
   --device cpu \
-  --stages baseline,supervised_quantum_projector,supervised_quantum_steering
+  --stages baseline,supervised_quantum_projector,supervised_quantum_gain_selection
 ```
 
 ## Re-TACRED Debug Command
@@ -74,7 +94,7 @@ python experiments/run_relation_smoke_pipeline.py \
   --config configs/retacred_debug_gpu.json \
   --output_dir runs/retacred_qlass_debug \
   --device cuda \
-  --stages baseline,supervised_quantum_projector,supervised_quantum_steering
+  --stages baseline,supervised_quantum_projector,supervised_quantum_gain_selection
 ```
 
 ## Required Ablations

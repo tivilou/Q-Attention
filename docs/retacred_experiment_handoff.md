@@ -150,6 +150,10 @@ runs/<run_name>/pipeline_summary.json
 runs/<run_name>/baseline/metrics.json
 runs/<run_name>/classical_steering_eval/metrics.json
 runs/<run_name>/quantum_steering_eval/metrics.json
+runs/<run_name>/supervised_quantum_gain_selection/gain_selection.json
+runs/<run_name>/supervised_quantum_gain_selection/metrics.json
+runs/<run_name>/supervised_quantum_gain_selection/run_info.json
+runs/<run_name>/supervised_quantum_gain_selection/predictions.jsonl
 runs/<run_name>/spectral_filter_sweep/summary.json
 runs/<run_name>/relation_routing_eval/metrics.json
 runs/<run_name>/run_summary.md

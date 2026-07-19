@@ -8,6 +8,7 @@ from q_attention.experiments import (
     collect_anchor_key_vectors,
     collect_relation_key_samples,
     evaluate_relation_model,
+    load_projector,
     make_relation_loader,
     relation_pair_features,
 )
@@ -101,9 +102,38 @@ def test_collect_relation_key_samples_aligns_labels_across_layers() -> None:
     model = RelationExtractionModel(config)
     loader = make_relation_loader(records, vocab, label_to_id, batch_size=2)
 
-    collection = collect_relation_key_samples(model, loader, torch.device("cpu"), model.key_module_paths)
+    collection = collect_relation_key_samples(
+        model,
+        loader,
+        torch.device("cpu"),
+        model.key_module_paths,
+        collect_by_layer=True,
+        max_vectors_per_layer=1,
+    )
 
     assert collection.keys.shape == (4, 8)
     assert collection.relation_features.shape == (4, 32)
     assert collection.labels.shape == (4,)
     assert collection.layer_counts == {path: 2 for path in model.key_module_paths}
+    assert set(collection.layer_samples) == set(model.key_module_paths)
+    assert all(samples.keys.shape == (1, 8) for samples in collection.layer_samples.values())
+    assert all(samples.sampled_from == 2 for samples in collection.layer_samples.values())
+
+
+def test_load_projector_supports_layer_specific_payload(tmp_path) -> None:
+    path = tmp_path / "layerwise.pt"
+    module_paths = ("encoder.layers.0.attn.key_proj", "encoder.layers.1.attn.key_proj")
+    torch.save(
+        {
+            "projectors": {module_paths[0]: torch.eye(3), module_paths[1]: 2.0 * torch.eye(3)},
+            "metadata": {"layerwise": True},
+        },
+        path,
+    )
+
+    projectors, metadata = load_projector(path, torch.device("cpu"))
+
+    assert isinstance(projectors, dict)
+    assert set(projectors) == set(module_paths)
+    assert torch.allclose(projectors[module_paths[1]], 2.0 * torch.eye(3))
+    assert metadata["layerwise"] is True

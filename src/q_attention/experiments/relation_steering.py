@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import json
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -45,6 +45,16 @@ class KeyCollection:
 
 
 @dataclass(frozen=True)
+class RelationLayerSamples:
+    """Label-aligned key samples collected from one steerable layer."""
+
+    keys: torch.Tensor
+    relation_features: torch.Tensor
+    labels: torch.Tensor
+    sampled_from: int | None = None
+
+
+@dataclass(frozen=True)
 class RelationKeyCollection:
     """Per-example relation features aligned with steerable key vectors."""
 
@@ -54,6 +64,7 @@ class RelationKeyCollection:
     layer_counts: dict[str, int]
     num_batches: int
     sampled_from: int | None = None
+    layer_samples: dict[str, RelationLayerSamples] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -281,6 +292,8 @@ def collect_relation_key_samples(
     *,
     max_vectors: int | None = None,
     seed: int = 13,
+    collect_by_layer: bool = False,
+    max_vectors_per_layer: int | None = None,
 ) -> RelationKeyCollection:
     """Collect label-aligned relation features from every steerable key layer."""
     if not key_module_paths:
@@ -291,6 +304,9 @@ def collect_relation_key_samples(
     key_vectors: list[torch.Tensor] = []
     pair_features: list[torch.Tensor] = []
     labels: list[torch.Tensor] = []
+    layer_key_vectors: dict[str, list[torch.Tensor]] = {path: [] for path in key_module_paths}
+    layer_pair_features: dict[str, list[torch.Tensor]] = {path: [] for path in key_module_paths}
+    layer_labels: dict[str, list[torch.Tensor]] = {path: [] for path in key_module_paths}
     handles = []
     num_batches = 0
 
@@ -323,6 +339,10 @@ def collect_relation_key_samples(
                     key_vectors.append(relation_keys)
                     pair_features.append(relation_z)
                     labels.append(batch_labels)
+                    if collect_by_layer:
+                        layer_key_vectors[path].append(relation_keys)
+                        layer_pair_features[path].append(relation_z)
+                        layer_labels[path].append(batch_labels)
                     layer_counts[path] += int(batch_labels.shape[0])
     finally:
         for handle in handles:
@@ -340,6 +360,26 @@ def collect_relation_key_samples(
         keys, features, target = keys[indices], features[indices], target[indices]
     else:
         sampled_from = None
+    per_layer: dict[str, RelationLayerSamples] = {}
+    if collect_by_layer:
+        for layer_index, path in enumerate(key_module_paths):
+            layer_keys = torch.cat(layer_key_vectors[path], dim=0)
+            layer_features = torch.cat(layer_pair_features[path], dim=0)
+            layer_target = torch.cat(layer_labels[path], dim=0)
+            layer_sampled_from: int | None = None
+            if max_vectors_per_layer is not None and max_vectors_per_layer > 0 and layer_keys.shape[0] > max_vectors_per_layer:
+                generator = torch.Generator(device="cpu").manual_seed(seed + layer_index)
+                indices = torch.randperm(layer_keys.shape[0], generator=generator)[:max_vectors_per_layer]
+                layer_sampled_from = int(layer_keys.shape[0])
+                layer_keys = layer_keys[indices]
+                layer_features = layer_features[indices]
+                layer_target = layer_target[indices]
+            per_layer[path] = RelationLayerSamples(
+                keys=layer_keys,
+                relation_features=layer_features,
+                labels=layer_target,
+                sampled_from=layer_sampled_from,
+            )
     return RelationKeyCollection(
         keys=keys,
         relation_features=features,
@@ -347,6 +387,7 @@ def collect_relation_key_samples(
         layer_counts=layer_counts,
         num_batches=num_batches,
         sampled_from=sampled_from,
+        layer_samples=per_layer,
     )
 
 
@@ -366,8 +407,11 @@ def build_anchor_projector(
     return build_projector(keys, keys, config=config)
 
 
-def load_projector(path: str | Path, device: torch.device) -> tuple[torch.Tensor, Mapping[str, Any]]:
-    """Load a projector tensor saved by the projector build script."""
+def load_projector(
+    path: str | Path,
+    device: torch.device,
+) -> tuple[torch.Tensor | dict[str, torch.Tensor], Mapping[str, Any]]:
+    """Load a shared or layer-specific projector payload."""
     payload = torch_load_weights(Path(path), map_location="cpu")
     if isinstance(payload, torch.Tensor):
         return payload.to(device), {}
@@ -377,7 +421,27 @@ def load_projector(path: str | Path, device: torch.device) -> tuple[torch.Tensor
             raise TypeError("projector payload field must be a tensor")
         metadata = payload.get("metadata", {})
         return projector.to(device), metadata if isinstance(metadata, Mapping) else {}
+    if isinstance(payload, Mapping) and "projectors" in payload:
+        raw_projectors = payload["projectors"]
+        if not isinstance(raw_projectors, Mapping) or not raw_projectors:
+            raise TypeError("projectors payload field must be a non-empty mapping")
+        projectors: dict[str, torch.Tensor] = {}
+        for module_path, projector in raw_projectors.items():
+            if not isinstance(module_path, str) or not isinstance(projector, torch.Tensor):
+                raise TypeError("projectors must map module-path strings to tensors")
+            projectors[module_path] = projector.to(device)
+        metadata = payload.get("metadata", {})
+        return projectors, metadata if isinstance(metadata, Mapping) else {}
     raise ValueError(f"unsupported projector payload in {path}")
+
+
+def projector_shape_summary(
+    projector: torch.Tensor | Mapping[str, torch.Tensor],
+) -> list[int] | dict[str, list[int]]:
+    """Return JSON-safe shapes for shared or layer-specific projectors."""
+    if isinstance(projector, torch.Tensor):
+        return list(projector.shape)
+    return {path: list(layer_projector.shape) for path, layer_projector in projector.items()}
 
 
 def evaluate_relation_model(
@@ -386,7 +450,7 @@ def evaluate_relation_model(
     device: torch.device,
     num_labels: int,
     *,
-    projector: torch.Tensor | None = None,
+    projector: torch.Tensor | Mapping[str, torch.Tensor] | None = None,
     key_module_paths: Sequence[str] = (),
     gain: float = 1.0,
     anchor: str = "subject_object",

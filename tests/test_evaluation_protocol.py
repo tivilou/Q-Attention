@@ -55,5 +55,19 @@ def test_supervised_quantum_stages_are_explicit_opt_in() -> None:
 
     assert "supervised_quantum_projector" in module.STAGE_CHOICES
     assert "supervised_quantum_steering" in module.STAGE_CHOICES
+    assert "supervised_quantum_gain_selection" in module.STAGE_CHOICES
     assert "supervised_quantum_projector" not in module.DEFAULT_STAGES
     assert "supervised_quantum_steering" not in module.DEFAULT_STAGES
+    assert "supervised_quantum_gain_selection" not in module.DEFAULT_STAGES
+
+
+def test_gain_selection_prefers_validation_metric_then_smaller_intervention() -> None:
+    module = load_experiment("select_relation_steering_gain.py")
+    rows = [
+        {"gain": 0.25, "metrics": {"macro_f1": 0.40}},
+        {"gain": 0.10, "metrics": {"macro_f1": 0.40}},
+        {"gain": 0.05, "metrics": {"macro_f1": 0.39}},
+    ]
+
+    assert module.parse_gain_values("0.0,0.1,0.1,0.25") == [0.0, 0.1, 0.25]
+    assert module.select_best_gain(rows, "macro_f1")["gain"] == 0.10

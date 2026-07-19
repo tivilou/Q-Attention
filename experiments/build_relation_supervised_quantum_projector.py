@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import replace
 import json
 from pathlib import Path
 import sys
@@ -56,6 +57,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--training_steps", type=int, default=80)
     parser.add_argument("--kernel_mode", default="centered_fidelity", choices=QUANTUM_KERNEL_MODES)
     parser.add_argument("--kernel_temperature", type=float, default=1.0)
+    parser.add_argument("--layerwise", action="store_true", help="Train an independent quantum projector for each key layer")
     return parser.parse_args()
 
 
@@ -88,8 +90,10 @@ def main() -> None:
         loader,
         device,
         artifacts.key_module_paths,
-        max_vectors=collection_limit,
+        max_vectors=None if args.layerwise else collection_limit,
         seed=args.seed,
+        collect_by_layer=args.layerwise,
+        max_vectors_per_layer=collection_limit,
     )
 
     projector_config = SpectralProjectorConfig(
@@ -111,37 +115,90 @@ def main() -> None:
         kernel_mode=args.kernel_mode,
         kernel_temperature=args.kernel_temperature,
     )
-    result = build_supervised_quantum_projector(
-        collection.keys,
-        collection.relation_features,
-        collection.labels,
-        quantum_config=quantum_config,
-        projector_config=projector_config,
-        center=args.center,
-        max_vectors=args.max_vectors,
-    )
-
-    metadata: dict[str, Any] = {
-        **result.metadata,
-        "model_dir": str(model_dir),
-        "data_path": str(data_path),
-        "key_module_paths": list(artifacts.key_module_paths),
-        "key_collection": {
-            "num_vectors": int(collection.keys.shape[0]),
-            "collection_limit": collection_limit,
-            "sampled_from": collection.sampled_from,
-            "layer_counts": collection.layer_counts,
-            "num_batches": collection.num_batches,
-        },
-    }
-    torch.save(
-        {
-            "projector": result.projector.cpu(),
-            "parameters": result.parameters,
-            "metadata": metadata,
-        },
-        output_path,
-    )
+    if args.layerwise:
+        projectors: dict[str, torch.Tensor] = {}
+        parameters: dict[str, dict[str, torch.Tensor]] = {}
+        layer_results: dict[str, dict[str, Any]] = {}
+        for layer_index, module_path in enumerate(artifacts.key_module_paths):
+            samples = collection.layer_samples[module_path]
+            layer_quantum_config = replace(quantum_config, seed=quantum_config.seed + layer_index)
+            result = build_supervised_quantum_projector(
+                samples.keys.to(device),
+                samples.relation_features.to(device),
+                samples.labels.to(device),
+                quantum_config=layer_quantum_config,
+                projector_config=projector_config,
+                center=args.center,
+                max_vectors=args.max_vectors,
+            )
+            projectors[module_path] = result.projector.cpu()
+            parameters[module_path] = result.parameters
+            layer_results[module_path] = {
+                **result.metadata,
+                "layer_index": layer_index,
+                "module_path": module_path,
+                "collection_num_vectors": int(samples.keys.shape[0]),
+                "collection_sampled_from": samples.sampled_from,
+            }
+        metadata = {
+            "projector_family": "quantum_label_aligned",
+            "standalone": True,
+            "layerwise": True,
+            "num_layers": len(projectors),
+            "model_dir": str(model_dir),
+            "data_path": str(data_path),
+            "key_module_paths": list(artifacts.key_module_paths),
+            "layer_results": layer_results,
+            "key_collection": {
+                "collection_limit_per_layer": collection_limit,
+                "layer_counts": collection.layer_counts,
+                "num_batches": collection.num_batches,
+            },
+        }
+        torch.save({"projectors": projectors, "parameters": parameters, "metadata": metadata}, output_path)
+        console_summary: dict[str, Any] = {
+            "projector_shapes": {path: list(projector.shape) for path, projector in projectors.items()},
+            "alignment_by_layer": {
+                path: {
+                    "initial": layer_metadata["training"]["initial_alignment"],
+                    "final": layer_metadata["training"]["final_alignment"],
+                }
+                for path, layer_metadata in layer_results.items()
+            },
+        }
+    else:
+        result = build_supervised_quantum_projector(
+            collection.keys.to(device),
+            collection.relation_features.to(device),
+            collection.labels.to(device),
+            quantum_config=quantum_config,
+            projector_config=projector_config,
+            center=args.center,
+            max_vectors=args.max_vectors,
+        )
+        metadata = {
+            **result.metadata,
+            "model_dir": str(model_dir),
+            "data_path": str(data_path),
+            "key_module_paths": list(artifacts.key_module_paths),
+            "layerwise": False,
+            "key_collection": {
+                "num_vectors": int(collection.keys.shape[0]),
+                "collection_limit": collection_limit,
+                "sampled_from": collection.sampled_from,
+                "layer_counts": collection.layer_counts,
+                "num_batches": collection.num_batches,
+            },
+        }
+        torch.save(
+            {"projector": result.projector.cpu(), "parameters": result.parameters, "metadata": metadata},
+            output_path,
+        )
+        console_summary = {
+            "projector_shape": list(result.projector.shape),
+            "initial_alignment": metadata["training"]["initial_alignment"],
+            "final_alignment": metadata["training"]["final_alignment"],
+        }
     metadata_path = metadata_path_for(output_path)
     metadata_path.write_text(json.dumps(metadata, indent=2, sort_keys=True), encoding="utf-8")
     print(
@@ -149,12 +206,9 @@ def main() -> None:
             {
                 "projector_path": str(output_path),
                 "metadata_path": str(metadata_path),
-                "projector_shape": list(result.projector.shape),
-                "num_key_vectors": int(collection.keys.shape[0]),
-                "state_dim": int(result.states.shape[1]),
-                "initial_alignment": metadata["training"]["initial_alignment"],
-                "final_alignment": metadata["training"]["final_alignment"],
+                "layerwise": args.layerwise,
                 "device": str(device),
+                **console_summary,
             },
             sort_keys=True,
         )

@@ -6,6 +6,7 @@
   "valid_path": "data/relation/retacred/valid.jsonl",
   "test_path": "data/relation/retacred/test.jsonl",
   "output_dir": "runs/retacred_debug_gpu",
+  "stages": "baseline,classical_projector,classical_steering,quantum_projector,quantum_steering,supervised_quantum_projector,supervised_quantum_gain_selection,spectral_sweep,routing",
   "max_train_records": 4096,
   "max_valid_records": 2048,
   "seed": 13,
@@ -54,6 +55,7 @@
     "max_train_samples": 256,
     "learning_rate": 0.03,
     "training_steps": 60,
+    "layerwise": true,
     "center": true,
     "seed": 13,
     "feature_seed": 17
@@ -61,6 +63,11 @@
   "supervised_quantum_steering": {
     "batch_size": 128,
     "gain": 0.1
+  },
+  "supervised_quantum_gain_selection": {
+    "batch_size": 128,
+    "gains": "0.0,0.05,0.1,0.25,0.5",
+    "selection_metric": "macro_f1"
   },
   "spectral_sweep": {
     "batch_size": 128,

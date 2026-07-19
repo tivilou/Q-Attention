@@ -57,8 +57,12 @@ def summarize_run(run_dir: str | Path) -> dict[str, Any]:
     baseline = read_json_if_exists(run_path / "baseline" / "metrics.json")
     classical = read_json_if_exists(run_path / "classical_steering_eval" / "metrics.json")
     quantum = read_json_if_exists(run_path / "quantum_steering_eval" / "metrics.json")
-    supervised_quantum = read_json_if_exists(run_path / "supervised_quantum_steering_eval" / "metrics.json")
-    supervised_quantum_info = read_json_if_exists(run_path / "supervised_quantum_steering_eval" / "run_info.json")
+    supervised_quantum = read_json_if_exists(run_path / "supervised_quantum_gain_selection" / "metrics.json")
+    supervised_quantum_info = read_json_if_exists(run_path / "supervised_quantum_gain_selection" / "run_info.json")
+    supervised_quantum_selection = read_json_if_exists(run_path / "supervised_quantum_gain_selection" / "gain_selection.json")
+    if supervised_quantum is None:
+        supervised_quantum = read_json_if_exists(run_path / "supervised_quantum_steering_eval" / "metrics.json")
+        supervised_quantum_info = read_json_if_exists(run_path / "supervised_quantum_steering_eval" / "run_info.json")
     spectral = read_json_if_exists(run_path / "spectral_filter_sweep" / "summary.json")
     routing = read_json_if_exists(run_path / "relation_routing_eval" / "metrics.json")
 
@@ -93,10 +97,17 @@ def summarize_run(run_dir: str | Path) -> dict[str, Any]:
         note = "standalone label-aligned quantum projector"
         if isinstance(supervised_quantum_info, Mapping):
             projector_metadata = supervised_quantum_info.get("projector_metadata", {})
-            training = projector_metadata.get("training", {}) if isinstance(projector_metadata, Mapping) else {}
-            final_alignment = training.get("final_alignment") if isinstance(training, Mapping) else None
-            if isinstance(final_alignment, (int, float)):
-                note = f"{note}, alignment={float(final_alignment):.6f}"
+            if isinstance(projector_metadata, Mapping) and projector_metadata.get("layerwise") is True:
+                note = f"{note}, layer-specific"
+            else:
+                training = projector_metadata.get("training", {}) if isinstance(projector_metadata, Mapping) else {}
+                final_alignment = training.get("final_alignment") if isinstance(training, Mapping) else None
+                if isinstance(final_alignment, (int, float)):
+                    note = f"{note}, alignment={float(final_alignment):.6f}"
+        if isinstance(supervised_quantum_selection, Mapping):
+            selected_gain = supervised_quantum_selection.get("selected_gain")
+            if isinstance(selected_gain, (int, float)):
+                note = f"{note}, gain={float(selected_gain):g} selected on validation"
         rows.append(
             metric_row(
                 "supervised_quantum_steering",
@@ -137,6 +148,7 @@ def summarize_run(run_dir: str | Path) -> dict[str, Any]:
         "rows": rows,
         "spectral_best": spectral_best,
         "spectral_selection": spectral_selection,
+        "supervised_quantum_gain_selection": supervised_quantum_selection,
         "routing_summary": None if routing is None else routing.get("routing_summary"),
     }
 

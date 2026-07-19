@@ -29,12 +29,20 @@ STAGE_CHOICES = (
     "quantum_steering",
     "supervised_quantum_projector",
     "supervised_quantum_steering",
+    "supervised_quantum_gain_selection",
     "spectral_sweep",
     "routing",
 )
 
 DEFAULT_STAGES = tuple(
-    stage for stage in STAGE_CHOICES if stage not in {"supervised_quantum_projector", "supervised_quantum_steering"}
+    stage
+    for stage in STAGE_CHOICES
+    if stage
+    not in {
+        "supervised_quantum_projector",
+        "supervised_quantum_steering",
+        "supervised_quantum_gain_selection",
+    }
 )
 
 DEFAULT_STAGE_OPTIONS: dict[str, dict[str, Any]] = {
@@ -76,6 +84,11 @@ DEFAULT_STAGE_OPTIONS: dict[str, dict[str, Any]] = {
         "center": True,
     },
     "supervised_quantum_steering": {"batch_size": 16, "gain": 0.25},
+    "supervised_quantum_gain_selection": {
+        "batch_size": 16,
+        "gains": "0.0,0.05,0.1,0.25,0.5",
+        "selection_metric": "macro_f1",
+    },
     "spectral_sweep": {
         "batch_size": 16,
         "families": "classical,quantum",
@@ -112,7 +125,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--test_path", default=None, help="Override canonical final-test JSONL path")
     parser.add_argument("--output_dir", default=None, help="Override run directory")
     parser.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda"])
-    parser.add_argument("--stages", default=",".join(DEFAULT_STAGES), help="Comma-separated stage names")
+    parser.add_argument("--stages", default=None, help="Comma-separated stage names; otherwise use config or the legacy defaults")
     parser.add_argument("--max_train_records", type=int, default=None, help="Optional train subset for smoke runs")
     parser.add_argument("--max_valid_records", type=int, default=None, help="Optional validation subset for smoke runs")
     parser.add_argument("--max_test_records", type=int, default=None, help="Optional test subset for smoke runs")
@@ -286,7 +299,10 @@ def script(name: str) -> str:
 def main() -> None:
     args = parse_args()
     config = read_config(args.config)
-    stages = parse_stage_list(args.stages)
+    configured_stages = args.stages if args.stages is not None else config.get("stages", DEFAULT_STAGES)
+    if isinstance(configured_stages, (list, tuple)):
+        configured_stages = ",".join(str(item) for item in configured_stages)
+    stages = parse_stage_list(str(configured_stages))
     output_dir = resolve_project_path(args.output_dir or config.get("output_dir", "runs/relation_real_smoke"))
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -467,6 +483,35 @@ def main() -> None:
             records=commands,
         )
 
+    if "supervised_quantum_gain_selection" in stages:
+        if test_path is None:
+            raise ValueError("supervised_quantum_gain_selection requires a test split distinct from validation")
+        cmd = [
+            sys.executable,
+            script("select_relation_steering_gain.py"),
+            "--model_dir",
+            str(model_dir),
+            "--projector_path",
+            str(model_dir / "relation_supervised_quantum_projector.pt"),
+            "--validation_path",
+            str(valid_path),
+            "--test_path",
+            str(test_path),
+            "--output_dir",
+            str(output_dir / "supervised_quantum_gain_selection"),
+            "--device",
+            args.device,
+        ]
+        run_command(
+            add_cli_options(
+                cmd,
+                merged_stage_options(config, "supervised_quantum_gain_selection", seed_override=stage_seed_override),
+                skip={"device"},
+            ),
+            dry_run=args.dry_run,
+            records=commands,
+        )
+
     if "spectral_sweep" in stages:
         cmd = [
             sys.executable,
@@ -524,6 +569,7 @@ def main() -> None:
             "final_split": "test" if test_path is not None else "valid",
             "final_path": str(final_eval_path),
             "test_isolated": test_path is not None,
+            "supervised_quantum_gain_selected_on_valid": "supervised_quantum_gain_selection" in stages,
         },
         "reproducibility": {
             **runtime_metadata(subset_seed),

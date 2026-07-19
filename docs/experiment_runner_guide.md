@@ -98,8 +98,12 @@ pytest reports all tests passed
 Current expected pytest count:
 
 ```text
-33 passed
+the exact count reported by the checked-out commit
 ```
+
+The formal Re-TACRED configs now include the layer-specific standalone
+supervised quantum projector and validation-only gain selection stages. The
+config's `stages` field is used unless `--stages` is supplied explicitly.
 
 ## Current Relation Baseline Dry Run
 

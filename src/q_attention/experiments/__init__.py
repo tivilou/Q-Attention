@@ -5,6 +5,7 @@ from .relation_steering import (
     EvaluationResult,
     KeyCollection,
     RelationKeyCollection,
+    RelationLayerSamples,
     RelationRunArtifacts,
     anchor_mask_from_batch,
     build_anchor_projector,
@@ -16,6 +17,7 @@ from .relation_steering import (
     load_relation_run,
     make_relation_loader,
     move_batch,
+    projector_shape_summary,
     read_json,
     relation_pair_features,
 )
@@ -25,6 +27,7 @@ __all__ = [
     "EvaluationResult",
     "KeyCollection",
     "RelationKeyCollection",
+    "RelationLayerSamples",
     "RelationRunArtifacts",
     "anchor_mask_from_batch",
     "build_anchor_projector",
@@ -36,6 +39,7 @@ __all__ = [
     "load_relation_run",
     "make_relation_loader",
     "move_batch",
+    "projector_shape_summary",
     "read_json",
     "relation_pair_features",
 ]
