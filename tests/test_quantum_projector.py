@@ -6,10 +6,15 @@ import torch
 from q_attention.projectors import SpectralProjectorConfig
 from q_attention.quantum import (
     QuantumFeatureMapConfig,
+    SupervisedQuantumProjectorConfig,
     angle_feature_map,
     build_quantum_projector,
+    build_quantum_residual_projector,
+    build_supervised_quantum_projector,
     deterministic_projection,
     fidelity_kernel,
+    fit_supervised_quantum_feature_map,
+    parameterized_quantum_feature_map,
     quantum_weighted_covariance,
     transform_quantum_kernel,
 )
@@ -87,3 +92,85 @@ def test_centered_quantum_kernel_removes_uniform_component() -> None:
 def test_quantum_feature_map_rejects_unknown_kernel_mode() -> None:
     with pytest.raises(ValueError):
         QuantumFeatureMapConfig(kernel_mode="unknown")
+
+
+def test_parameterized_quantum_feature_map_is_normalized_and_entangled() -> None:
+    features = torch.tensor([[1.0, 0.0, 0.5], [0.0, 1.0, -0.5]])
+    config = SupervisedQuantumProjectorConfig(num_qubits=2, depth=2, training_steps=2, max_train_samples=2)
+    parameters = {
+        "ry_scale": torch.ones(2, 2),
+        "ry_bias": torch.zeros(2, 2),
+        "rz_scale": 0.5 * torch.ones(2, 2),
+        "rz_bias": torch.zeros(2, 2),
+    }
+
+    states = parameterized_quantum_feature_map(features, config, parameters=parameters)
+
+    assert states.shape == (2, 4)
+    assert states.is_complex()
+    assert torch.allclose(states.abs().pow(2).sum(dim=-1), torch.ones(2), atol=1e-5)
+
+
+def test_supervised_quantum_training_preserves_best_kernel_alignment() -> None:
+    features = torch.tensor(
+        [
+            [1.0, 0.0, 0.1],
+            [0.9, 0.1, 0.0],
+            [1.1, -0.1, 0.1],
+            [-1.0, 0.0, -0.1],
+            [-0.9, -0.1, 0.0],
+            [-1.1, 0.1, -0.1],
+        ]
+    )
+    labels = torch.tensor([0, 0, 0, 1, 1, 1])
+    config = SupervisedQuantumProjectorConfig(
+        num_qubits=2,
+        depth=2,
+        training_steps=20,
+        learning_rate=0.08,
+        max_train_samples=6,
+        seed=5,
+    )
+
+    parameters, diagnostics = fit_supervised_quantum_feature_map(features, labels, config)
+
+    assert set(parameters) == {"ry_scale", "ry_bias", "rz_scale", "rz_bias"}
+    assert diagnostics["final_alignment"] >= diagnostics["initial_alignment"] - 1e-6
+    assert diagnostics["num_train_samples"] == 6
+
+
+def test_build_supervised_quantum_projector_is_standalone_and_symmetric() -> None:
+    torch.manual_seed(71)
+    keys = torch.randn(12, 5)
+    relation_features = torch.cat((keys, keys.square()), dim=-1)
+    labels = torch.tensor([0] * 6 + [1] * 6)
+    result = build_supervised_quantum_projector(
+        keys,
+        relation_features,
+        labels,
+        quantum_config=SupervisedQuantumProjectorConfig(
+            num_qubits=2,
+            depth=1,
+            training_steps=10,
+            max_train_samples=12,
+            seed=7,
+        ),
+        projector_config=SpectralProjectorConfig(rank=2),
+        max_vectors=12,
+    )
+
+    assert result.projector.shape == (5, 5)
+    assert torch.allclose(result.projector, result.projector.transpose(0, 1), atol=1e-5)
+    assert result.metadata["projector_family"] == "quantum_label_aligned"
+    assert result.metadata["standalone"] is True
+    assert result.metadata["circuit"]["entanglement"] == "ring_cnot"
+    assert result.metadata["training"]["final_alignment"] >= result.metadata["training"]["initial_alignment"] - 1e-6
+
+
+def test_quantum_residual_projector_only_adds_complementary_directions() -> None:
+    classical = torch.diag(torch.tensor([1.0, 0.0, 0.0]))
+    quantum = torch.diag(torch.tensor([1.0, 1.0, 0.0]))
+
+    hybrid = build_quantum_residual_projector(classical, quantum, alpha=0.5)
+
+    assert torch.allclose(hybrid, torch.diag(torch.tensor([1.0, 0.5, 0.0])))

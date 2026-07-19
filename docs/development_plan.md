@@ -65,6 +65,15 @@ Deliverables:
 - Projector construction from quantum-feature correlations.
 - Linear-vs-quantum projector ablation.
 
+The current mainline extends this prototype with:
+
+- Subject-object relation features collected from contextual attention keys.
+- Parameterized RY/RZ data re-uploading circuits.
+- Ring-CNOT entanglement.
+- Supervised quantum kernel-target alignment.
+- A standalone quantum-weighted key operator and projector.
+- A classical-plus-quantum residual projector used only as an ablation.
+
 Core form:
 
 ```text
@@ -76,6 +85,7 @@ Toy acceptance checks:
 ```text
 python examples/quantum_projector_demo.py
 python experiments/build_relation_quantum_projector.py --model_dir runs/relation_toy --batch_size 4 --device cpu --rank 4 --num_qubits 4
+python experiments/run_relation_smoke_pipeline.py --config configs/relation_real_smoke.json --train_path examples/relation_toy_train.jsonl --valid_path examples/relation_toy_valid.jsonl --test_path examples/relation_toy_valid.jsonl --output_dir runs/qlass_toy --device cpu --stages baseline,supervised_quantum_projector,supervised_quantum_steering
 ```
 
 ## Phase 5: Spectral Filtering

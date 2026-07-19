@@ -6,8 +6,10 @@ from q_attention.experiments import (
     anchor_mask_from_batch,
     build_anchor_projector,
     collect_anchor_key_vectors,
+    collect_relation_key_samples,
     evaluate_relation_model,
     make_relation_loader,
+    relation_pair_features,
 )
 from q_attention.models import RelationExtractionModel, RelationTransformerConfig
 from q_attention.projectors import SpectralProjectorConfig
@@ -74,3 +76,34 @@ def test_evaluate_relation_model_runs_with_key_steering_adapter() -> None:
     assert len(result.predictions) == len(records)
     assert len(result.labels) == len(records)
     assert "macro_f1" in result.metrics
+
+
+def test_relation_pair_features_preserve_key_dimension_and_pair_structure() -> None:
+    keys = torch.tensor([[[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]])
+    subject_mask = torch.tensor([[True, False, False]])
+    object_mask = torch.tensor([[False, False, True]])
+
+    relation_keys, features = relation_pair_features(keys, subject_mask, object_mask)
+
+    assert relation_keys.shape == (1, 2)
+    assert features.shape == (1, 8)
+    assert torch.allclose(relation_keys, torch.tensor([[3.0, 4.0]]))
+    assert torch.allclose(features[0, :2], torch.tensor([1.0, 2.0]))
+    assert torch.allclose(features[0, 2:4], torch.tensor([5.0, 6.0]))
+
+
+def test_collect_relation_key_samples_aligns_labels_across_layers() -> None:
+    torch.manual_seed(73)
+    records = _records()
+    vocab = build_vocab(records)
+    label_to_id = build_label_map(records)
+    config = RelationTransformerConfig(vocab_size=len(vocab), num_labels=len(label_to_id), dim=8, num_layers=2, num_heads=2, ff_dim=16, dropout=0.0)
+    model = RelationExtractionModel(config)
+    loader = make_relation_loader(records, vocab, label_to_id, batch_size=2)
+
+    collection = collect_relation_key_samples(model, loader, torch.device("cpu"), model.key_module_paths)
+
+    assert collection.keys.shape == (4, 8)
+    assert collection.relation_features.shape == (4, 32)
+    assert collection.labels.shape == (4,)
+    assert collection.layer_counts == {path: 2 for path in model.key_module_paths}

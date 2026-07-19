@@ -91,3 +91,27 @@ def test_summarize_relation_run_prefers_held_out_metrics(tmp_path) -> None:
     assert summary["rows"][0]["note"] == "held-out test split"
     assert summary["rows"][2]["macro_f1"] == 0.42
     assert "selected on validation" in summary["rows"][2]["note"]
+
+
+def test_summarize_relation_run_includes_supervised_quantum_variant(tmp_path) -> None:
+    module = load_summary_module()
+    run_dir = tmp_path / "run"
+    write_json(run_dir / "baseline" / "metrics.json", {"best_valid": {"macro_f1": 0.2}})
+    write_json(
+        run_dir / "supervised_quantum_steering_eval" / "metrics.json",
+        {
+            "baseline": {"macro_f1": 0.2},
+            "steered": {"macro_f1": 0.24},
+            "delta_vs_baseline": {"macro_f1": 0.04},
+        },
+    )
+    write_json(
+        run_dir / "supervised_quantum_steering_eval" / "run_info.json",
+        {"projector_metadata": {"training": {"final_alignment": 0.72}}},
+    )
+
+    summary = module.summarize_run(run_dir)
+
+    assert [row["variant"] for row in summary["rows"]] == ["baseline", "supervised_quantum_steering"]
+    assert summary["rows"][1]["delta_macro_f1"] == 0.04
+    assert "alignment=0.720000" in summary["rows"][1]["note"]

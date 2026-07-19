@@ -45,6 +45,18 @@ class KeyCollection:
 
 
 @dataclass(frozen=True)
+class RelationKeyCollection:
+    """Per-example relation features aligned with steerable key vectors."""
+
+    keys: torch.Tensor
+    relation_features: torch.Tensor
+    labels: torch.Tensor
+    layer_counts: dict[str, int]
+    num_batches: int
+    sampled_from: int | None = None
+
+
+@dataclass(frozen=True)
 class EvaluationResult:
     """Classification metrics and per-example outputs."""
 
@@ -238,6 +250,104 @@ def collect_anchor_key_vectors(
     keys = torch.cat(vectors, dim=0)
     keys, sampled_from = _sample_keys(keys, max_vectors=max_vectors, seed=seed)
     return KeyCollection(keys=keys, layer_counts=layer_counts, num_batches=num_batches, sampled_from=sampled_from)
+
+
+def relation_pair_features(
+    keys: torch.Tensor,
+    subject_mask: torch.Tensor,
+    object_mask: torch.Tensor,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Build one key vector and a subject-object feature per example."""
+    if keys.ndim != 3:
+        raise ValueError("keys must have shape (batch, sequence, dim)")
+    if subject_mask.shape != keys.shape[:2] or object_mask.shape != keys.shape[:2]:
+        raise ValueError("subject/object masks must match key batch and sequence dimensions")
+    subject_mask = subject_mask.to(device=keys.device, dtype=keys.dtype)
+    object_mask = object_mask.to(device=keys.device, dtype=keys.dtype)
+    subject_denominator = subject_mask.sum(dim=1, keepdim=True).clamp_min(1.0)
+    object_denominator = object_mask.sum(dim=1, keepdim=True).clamp_min(1.0)
+    subject = torch.sum(keys * subject_mask.unsqueeze(-1), dim=1) / subject_denominator
+    object_ = torch.sum(keys * object_mask.unsqueeze(-1), dim=1) / object_denominator
+    pair_features = torch.cat((subject, object_, subject - object_, subject * object_), dim=-1)
+    key_vectors = 0.5 * (subject + object_)
+    return key_vectors.float(), pair_features.float()
+
+
+def collect_relation_key_samples(
+    model: RelationExtractionModel,
+    loader: DataLoader,
+    device: torch.device,
+    key_module_paths: Sequence[str],
+    *,
+    max_vectors: int | None = None,
+    seed: int = 13,
+) -> RelationKeyCollection:
+    """Collect label-aligned relation features from every steerable key layer."""
+    if not key_module_paths:
+        raise ValueError("at least one key module path is required")
+
+    captured: dict[str, torch.Tensor] = {}
+    layer_counts = {path: 0 for path in key_module_paths}
+    key_vectors: list[torch.Tensor] = []
+    pair_features: list[torch.Tensor] = []
+    labels: list[torch.Tensor] = []
+    handles = []
+    num_batches = 0
+
+    def make_hook(path: str):
+        def hook(_module: torch.nn.Module, _inputs: tuple[object, ...], output: object) -> None:
+            captured[path] = _tensor_from_hook_output(output, path).detach().cpu()
+
+        return hook
+
+    try:
+        for path in key_module_paths:
+            handles.append(resolve_module(model, path).register_forward_hook(make_hook(path)))
+        model.eval()
+        with torch.no_grad():
+            for batch in loader:
+                num_batches += 1
+                batch = move_batch(batch, device)
+                captured.clear()
+                _ = model(batch["input_ids"], batch["attention_mask"], batch["subject_mask"], batch["object_mask"])
+                subject_mask = batch["subject_mask"].detach().cpu()
+                object_mask = batch["object_mask"].detach().cpu()
+                batch_labels = batch["labels"].detach().cpu().long()
+                for path in key_module_paths:
+                    if path not in captured:
+                        raise RuntimeError(f"hook for '{path}' did not capture any tensor")
+                    keys = captured[path]
+                    if keys.shape[:-1] != subject_mask.shape:
+                        raise ValueError(f"captured keys {keys.shape} do not match relation masks {subject_mask.shape}")
+                    relation_keys, relation_z = relation_pair_features(keys, subject_mask, object_mask)
+                    key_vectors.append(relation_keys)
+                    pair_features.append(relation_z)
+                    labels.append(batch_labels)
+                    layer_counts[path] += int(batch_labels.shape[0])
+    finally:
+        for handle in handles:
+            handle.remove()
+
+    if not key_vectors:
+        raise ValueError("no relation key samples were collected")
+    keys = torch.cat(key_vectors, dim=0)
+    features = torch.cat(pair_features, dim=0)
+    target = torch.cat(labels, dim=0)
+    if max_vectors is not None and max_vectors > 0 and keys.shape[0] > max_vectors:
+        generator = torch.Generator(device="cpu").manual_seed(seed)
+        indices = torch.randperm(keys.shape[0], generator=generator)[:max_vectors]
+        sampled_from: int | None = int(keys.shape[0])
+        keys, features, target = keys[indices], features[indices], target[indices]
+    else:
+        sampled_from = None
+    return RelationKeyCollection(
+        keys=keys,
+        relation_features=features,
+        labels=target,
+        layer_counts=layer_counts,
+        num_batches=num_batches,
+        sampled_from=sampled_from,
+    )
 
 
 def build_anchor_projector(

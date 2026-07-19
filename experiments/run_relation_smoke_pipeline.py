@@ -27,8 +27,14 @@ STAGE_CHOICES = (
     "classical_steering",
     "quantum_projector",
     "quantum_steering",
+    "supervised_quantum_projector",
+    "supervised_quantum_steering",
     "spectral_sweep",
     "routing",
+)
+
+DEFAULT_STAGES = tuple(
+    stage for stage in STAGE_CHOICES if stage not in {"supervised_quantum_projector", "supervised_quantum_steering"}
 )
 
 DEFAULT_STAGE_OPTIONS: dict[str, dict[str, Any]] = {
@@ -55,6 +61,21 @@ DEFAULT_STAGE_OPTIONS: dict[str, dict[str, Any]] = {
         "feature_seed": 17,
     },
     "quantum_steering": {"batch_size": 16, "gain": 0.25},
+    "supervised_quantum_projector": {
+        "batch_size": 16,
+        "rank": 4,
+        "num_qubits": 4,
+        "depth": 2,
+        "angle_scale": 1.0,
+        "max_vectors": 512,
+        "max_train_samples": 256,
+        "learning_rate": 0.05,
+        "training_steps": 80,
+        "seed": 13,
+        "feature_seed": 17,
+        "center": True,
+    },
+    "supervised_quantum_steering": {"batch_size": 16, "gain": 0.25},
     "spectral_sweep": {
         "batch_size": 16,
         "families": "classical,quantum",
@@ -91,7 +112,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--test_path", default=None, help="Override canonical final-test JSONL path")
     parser.add_argument("--output_dir", default=None, help="Override run directory")
     parser.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda"])
-    parser.add_argument("--stages", default=",".join(STAGE_CHOICES), help="Comma-separated stage names")
+    parser.add_argument("--stages", default=",".join(DEFAULT_STAGES), help="Comma-separated stage names")
     parser.add_argument("--max_train_records", type=int, default=None, help="Optional train subset for smoke runs")
     parser.add_argument("--max_valid_records", type=int, default=None, help="Optional validation subset for smoke runs")
     parser.add_argument("--max_test_records", type=int, default=None, help="Optional test subset for smoke runs")
@@ -394,6 +415,54 @@ def main() -> None:
         ]
         run_command(
             add_cli_options(cmd, merged_stage_options(config, "quantum_steering", seed_override=stage_seed_override), skip={"device"}),
+            dry_run=args.dry_run,
+            records=commands,
+        )
+
+    if "supervised_quantum_projector" in stages:
+        cmd = [
+            sys.executable,
+            script("build_relation_supervised_quantum_projector.py"),
+            "--model_dir",
+            str(model_dir),
+            "--data_path",
+            str(train_path),
+            "--output_path",
+            str(model_dir / "relation_supervised_quantum_projector.pt"),
+            "--device",
+            args.device,
+        ]
+        run_command(
+            add_cli_options(
+                cmd,
+                merged_stage_options(config, "supervised_quantum_projector", seed_override=stage_seed_override),
+                skip={"device"},
+            ),
+            dry_run=args.dry_run,
+            records=commands,
+        )
+
+    if "supervised_quantum_steering" in stages:
+        cmd = [
+            sys.executable,
+            script("eval_relation_steering.py"),
+            "--model_dir",
+            str(model_dir),
+            "--projector_path",
+            str(model_dir / "relation_supervised_quantum_projector.pt"),
+            "--data_path",
+            str(final_eval_path),
+            "--output_dir",
+            str(output_dir / "supervised_quantum_steering_eval"),
+            "--device",
+            args.device,
+        ]
+        run_command(
+            add_cli_options(
+                cmd,
+                merged_stage_options(config, "supervised_quantum_steering", seed_override=stage_seed_override),
+                skip={"device"},
+            ),
             dry_run=args.dry_run,
             records=commands,
         )

@@ -31,6 +31,14 @@ The project should not become a generic quantum-attention paper detached from th
 3. Quantum adaptive expert routing for key steering.
 4. Practical deployment in span-centric NLP information extraction.
 
+## Current Mainline
+
+- The primary method is a standalone supervised quantum projector.
+- It must generate `P_q` without requiring a classical projector.
+- Use parameterized entangling quantum features and relation-label kernel alignment.
+- Keep classical-plus-quantum residual projectors as ablations only.
+- Preserve `k' = k + gP_qk` as the injection mechanism.
+
 ## Preferred Application Track
 
 Focus on span-centric information extraction:

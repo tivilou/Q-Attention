@@ -57,6 +57,8 @@ def summarize_run(run_dir: str | Path) -> dict[str, Any]:
     baseline = read_json_if_exists(run_path / "baseline" / "metrics.json")
     classical = read_json_if_exists(run_path / "classical_steering_eval" / "metrics.json")
     quantum = read_json_if_exists(run_path / "quantum_steering_eval" / "metrics.json")
+    supervised_quantum = read_json_if_exists(run_path / "supervised_quantum_steering_eval" / "metrics.json")
+    supervised_quantum_info = read_json_if_exists(run_path / "supervised_quantum_steering_eval" / "run_info.json")
     spectral = read_json_if_exists(run_path / "spectral_filter_sweep" / "summary.json")
     routing = read_json_if_exists(run_path / "relation_routing_eval" / "metrics.json")
 
@@ -67,6 +69,7 @@ def summarize_run(run_dir: str | Path) -> dict[str, Any]:
     for candidate in (
         None if classical is None else classical.get("baseline"),
         None if quantum is None else quantum.get("baseline"),
+        None if supervised_quantum is None else supervised_quantum.get("baseline"),
         None if routing is None else routing.get("baseline"),
         None if spectral is None else spectral.get("test_baseline"),
     ):
@@ -85,6 +88,23 @@ def summarize_run(run_dir: str | Path) -> dict[str, Any]:
 
     if quantum is not None:
         rows.append(metric_row("quantum_steering", quantum.get("steered"), delta=quantum.get("delta_vs_baseline")))
+
+    if supervised_quantum is not None:
+        note = "standalone label-aligned quantum projector"
+        if isinstance(supervised_quantum_info, Mapping):
+            projector_metadata = supervised_quantum_info.get("projector_metadata", {})
+            training = projector_metadata.get("training", {}) if isinstance(projector_metadata, Mapping) else {}
+            final_alignment = training.get("final_alignment") if isinstance(training, Mapping) else None
+            if isinstance(final_alignment, (int, float)):
+                note = f"{note}, alignment={float(final_alignment):.6f}"
+        rows.append(
+            metric_row(
+                "supervised_quantum_steering",
+                supervised_quantum.get("steered"),
+                delta=supervised_quantum.get("delta_vs_baseline"),
+                note=note,
+            )
+        )
 
     spectral_selection = None if spectral is None else spectral.get("best_by_macro_f1")
     spectral_test = None if spectral is None else spectral.get("best_on_test")

@@ -48,3 +48,12 @@ def test_spectral_selection_uses_macro_f1() -> None:
 
     assert module.select_best_row(rows)["family"] == "quantum"
     assert module.select_best_row([]) is None
+
+
+def test_supervised_quantum_stages_are_explicit_opt_in() -> None:
+    module = load_experiment("run_relation_smoke_pipeline.py")
+
+    assert "supervised_quantum_projector" in module.STAGE_CHOICES
+    assert "supervised_quantum_steering" in module.STAGE_CHOICES
+    assert "supervised_quantum_projector" not in module.DEFAULT_STAGES
+    assert "supervised_quantum_steering" not in module.DEFAULT_STAGES
