@@ -452,7 +452,7 @@ def evaluate_relation_model(
     *,
     projector: torch.Tensor | Mapping[str, torch.Tensor] | None = None,
     key_module_paths: Sequence[str] = (),
-    gain: float = 1.0,
+    gain: float | Mapping[str, float] = 1.0,
     anchor: str = "subject_object",
 ) -> EvaluationResult:
     """Evaluate the relation model, optionally with frozen-backbone key steering."""

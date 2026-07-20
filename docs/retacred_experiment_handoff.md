@@ -154,6 +154,7 @@ runs/<run_name>/supervised_quantum_gain_selection/gain_selection.json
 runs/<run_name>/supervised_quantum_gain_selection/metrics.json
 runs/<run_name>/supervised_quantum_gain_selection/run_info.json
 runs/<run_name>/supervised_quantum_gain_selection/predictions.jsonl
+runs/<run_name>/baseline/relation_supervised_quantum_projector_metadata.json
 runs/<run_name>/spectral_filter_sweep/summary.json
 runs/<run_name>/relation_routing_eval/metrics.json
 runs/<run_name>/run_summary.md
@@ -172,5 +173,11 @@ last 100 lines of the log
 full traceback
 whether the failure happens again after rerun
 ```
+
+For a valid diagnostic result, `pipeline_summary.json` must report the target
+commit with `git.dirty` false. The gain-selection directory and projector
+metadata above are required; do not submit only `run_summary.md`.
+The gain-selection record must also show nonzero `acceptance_num_records` and
+the configured `acceptance_fraction` when CI gating is enabled.
 
 Do not change source code or configs while debugging the experiment environment. Report the failure to the coding side instead.

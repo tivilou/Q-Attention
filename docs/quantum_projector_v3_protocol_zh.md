@@ -18,9 +18,13 @@ k'_l = k_l + g P_q^(l) k_l
 
 ## 严格的数据划分
 
-`train` 只用于训练 baseline 和收集量子 projector 样本；`valid` 只用于选择 steering gain；`test` 只在 gain 冻结后做一次最终评估。
+`train` 只用于训练 baseline 和收集量子 projector 样本；`valid` 内部固定拆成 selection 和 acceptance 两部分，前者选择 steering gain，后者做 bootstrap 接受检验；`test` 只在 gain 冻结后做一次最终评估。
 
 候选 gain 默认包含 `0.0`。如果所有 steering 都不能改善 validation macro-F1，流程可以选择零干预，避免为了得到正增益而人为调参。
+
+新版正式配置使用 `strategy=coordinate`：按 key layer 逐层扫描 gain，未被选中的层使用 0 gain。`strategy=shared` 是旧的所有层共享一个 gain 的对照，`strategy=best_layer` 是只启用一个 validation 最优层的对照。
+
+为避免 validation 上极小的偶然提升被当成有效信号，正式配置还使用 paired bootstrap。只有 acceptance 子集上的 macro-F1 增益 95% 置信区间下界大于 0，才接受非零 layer gain；否则 `selection_accepted=false`，最终测试自动回退为零干预。该判断不读取 test 标签。
 
 正式阶段由配置中的 `stages` 自动启用；手动传入 `--stages` 时，以命令行参数为准。正式配置会运行：
 
@@ -45,7 +49,7 @@ supervised_quantum_gain_selection/run_info.json
 supervised_quantum_gain_selection/predictions.jsonl
 ```
 
-`gain_selection.json` 必须记录候选 gain、validation 指标、最终选中的 gain 和选择指标。`metrics.json` 只记录冻结 gain 在 test 上的 baseline、steered 和 delta 指标。
+`gain_selection.json` 必须记录候选 gain、每层 gain、validation 指标、bootstrap 区间、接受/拒绝状态和选择指标。`metrics.json` 只记录冻结 gain 在 test 上的 baseline、steered 和 delta 指标。
 
 ## 运行命令
 

@@ -80,11 +80,11 @@ biomedical entity mentions
 ```text
 Stage: reproducible real-data ablation
 Code: tensor steering, encoder adapter, relation baseline, dev/test-isolated pipeline, multi-seed aggregation, untrained and standalone supervised quantum projector builders, spectral filter sweep, adaptive routing, steered evaluator
-Validation: layer-specific standalone supervised quantum projector and validation-only gain selection are implemented; Re-TACRED debug validation is the current gate
+Validation: layer-specific standalone supervised quantum projector, validation-only layer-gain selection, and bootstrap acceptance gating are implemented; Re-TACRED diagnostic validation is the current gate
 Visibility: public
 ```
 
-The next gate is a five-seed Re-TACRED evaluation with layer-specific quantum projectors, validation-only gain/filter selection, and held-out test reporting.
+The next gate is a diagnostic Re-TACRED evaluation with validation-selected layer gains, bootstrap acceptance gating, and held-out test reporting; a five-seed matrix follows only if the diagnostic signal survives.
 
 ## Project Docs
 

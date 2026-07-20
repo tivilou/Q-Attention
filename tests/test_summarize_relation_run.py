@@ -146,3 +146,37 @@ def test_summarize_relation_run_prefers_validation_selected_layerwise_quantum(tm
     assert [row["variant"] for row in summary["rows"]] == ["baseline", "supervised_quantum_steering"]
     assert "layer-specific" in summary["rows"][1]["note"]
     assert "gain=0.1 selected on validation" in summary["rows"][1]["note"]
+
+
+def test_summarize_relation_run_reports_coordinate_gains_and_ci_rejection(tmp_path) -> None:
+    module = load_summary_module()
+    run_dir = tmp_path / "run"
+    write_json(run_dir / "baseline" / "metrics.json", {"best_valid": {"macro_f1": 0.30}})
+    write_json(
+        run_dir / "supervised_quantum_gain_selection" / "metrics.json",
+        {
+            "baseline": {"macro_f1": 0.30},
+            "steered": {"macro_f1": 0.30},
+            "delta_vs_baseline": {"macro_f1": 0.0},
+        },
+    )
+    write_json(
+        run_dir / "supervised_quantum_gain_selection" / "run_info.json",
+        {"projector_metadata": {"standalone": True, "layerwise": True}},
+    )
+    write_json(
+        run_dir / "supervised_quantum_gain_selection" / "gain_selection.json",
+        {
+            "selection_strategy": "coordinate",
+            "selection_accepted": False,
+            "selected_gain": None,
+            "selected_gains": {"layer.0": 0.0, "layer.1": 0.0},
+        },
+    )
+
+    summary = module.summarize_run(run_dir)
+    note = summary["rows"][1]["note"]
+
+    assert "coordinate gains selected on validation" in note
+    assert "active_layers=0" in note
+    assert "validation CI rejected" in note

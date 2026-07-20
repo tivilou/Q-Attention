@@ -88,6 +88,14 @@ DEFAULT_STAGE_OPTIONS: dict[str, dict[str, Any]] = {
         "batch_size": 16,
         "gains": "0.0,0.05,0.1,0.25,0.5",
         "selection_metric": "macro_f1",
+        "strategy": "shared",
+        "coordinate_passes": 1,
+        "require_positive_ci": False,
+        "bootstrap_samples": 200,
+        "bootstrap_confidence": 0.95,
+        "bootstrap_seed": 13,
+        "acceptance_fraction": 0.0,
+        "acceptance_seed": 13,
     },
     "spectral_sweep": {
         "batch_size": 16,
@@ -169,7 +177,7 @@ def merged_stage_options(config: Mapping[str, Any], stage: str, *, seed_override
     if isinstance(configured, Mapping):
         options.update(configured)
     if seed_override is not None:
-        for key in ("seed", "feature_seed"):
+        for key in ("seed", "feature_seed", "bootstrap_seed", "acceptance_seed"):
             if key in options:
                 options[key] = seed_override
     return options

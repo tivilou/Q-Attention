@@ -10,6 +10,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
+import math
 from typing import Iterator, Sequence
 
 import torch
@@ -24,7 +25,7 @@ class KeySteeringHookConfig:
 
     projector: torch.Tensor | Mapping[str, torch.Tensor]
     mask: torch.Tensor
-    gain: float = 1.0
+    gain: float | Mapping[str, float] = 1.0
 
 
 def resolve_module(model: nn.Module, path: str) -> nn.Module:
@@ -71,11 +72,12 @@ class EncoderKeySteeringAdapter:
         """Attach hooks using the provided projector, mask, and gain."""
         self.remove()
         mask = config.mask
-        gain = config.gain
 
         if isinstance(config.projector, torch.Tensor):
             projectors = {path: config.projector for path in self.key_module_paths}
         elif isinstance(config.projector, Mapping):
+            if any(not isinstance(path, str) for path in config.projector):
+                raise TypeError("layer projector paths must be strings")
             missing = sorted(set(self.key_module_paths) - set(config.projector))
             unexpected = sorted(set(config.projector) - set(self.key_module_paths))
             if missing or unexpected:
@@ -86,7 +88,22 @@ class EncoderKeySteeringAdapter:
         else:
             raise TypeError("projector must be a tensor or a mapping from module path to tensor")
 
-        def make_hook(projector: torch.Tensor):
+        if isinstance(config.gain, Mapping):
+            if any(not isinstance(path, str) for path in config.gain):
+                raise TypeError("layer gain paths must be strings")
+            missing = sorted(set(self.key_module_paths) - set(config.gain))
+            unexpected = sorted(set(config.gain) - set(self.key_module_paths))
+            if missing or unexpected:
+                raise ValueError(f"layer gain paths do not match adapter paths; missing={missing}, unexpected={unexpected}")
+            gains = {path: float(config.gain[path]) for path in self.key_module_paths}
+        elif isinstance(config.gain, (int, float)):
+            gains = {path: float(config.gain) for path in self.key_module_paths}
+        else:
+            raise TypeError("gain must be a number or a mapping from module path to number")
+        if any(not math.isfinite(gain) for gain in gains.values()):
+            raise ValueError("steering gains must be finite")
+
+        def make_hook(projector: torch.Tensor, gain: float):
             def hook(_module: nn.Module, _inputs: tuple[object, ...], output: object) -> object:
                 return self._steer_output(output, projector=projector, mask=mask, gain=gain)
 
@@ -94,7 +111,7 @@ class EncoderKeySteeringAdapter:
 
         for path in self.key_module_paths:
             module = resolve_module(self.model, path)
-            self._handles.append(module.register_forward_hook(make_hook(projectors[path])))
+            self._handles.append(module.register_forward_hook(make_hook(projectors[path], gains[path])))
 
     def remove(self) -> None:
         """Remove all active hooks."""
