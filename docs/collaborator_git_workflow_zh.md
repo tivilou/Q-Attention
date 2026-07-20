@@ -1,6 +1,6 @@
-# 合作者 Git 实验工作流（1.1 分支）
+﻿# 合作者 Git 实验工作流（1.1 分支）
 
-本文面向负责 GPU 实验的合作者。目标是把实验流程从“下载 GitHub zip、手动上传下载结果”改成可追踪的 Git 工作流：代码从 `main` 来，实验结果提交到 `1.1` 分支，负责人再把结果合并回 `main`。
+本文面向负责 GPU 实验的合作者。运行时以最新 `origin/main` 为准，并确保代码至少包含 `20bc225` 的 validation sampling 修复。目标是把实验流程从“下载 GitHub zip、手动上传下载结果”改成可追踪的 Git 工作流：代码从 `main` 来，实验结果提交到 `1.1` 分支，负责人再把结果合并回 `main`。
 
 请优先遵守下面三条规则：
 
@@ -55,7 +55,7 @@ git status --short --branch
 
 ## 3. 第一次把本地 1.1 对齐到 main
 
-这一步只在“第一次规范化工作流”时做。它的作用是让本地 `1.1` 从干净的 `main` 开始。
+这一步只在“第一次规范化工作流”时做。不要用 reset 或 force push 覆盖远端已有的报告。
 
 请先确认没有需要保留的本地改动：
 
@@ -66,8 +66,16 @@ git status --short
 如果输出为空，再执行：
 
 ```bash
-git fetch origin
-git switch -C 1.1 origin/main
+git fetch origin --prune
+git switch 1.1
+git merge origin/main
+```
+
+如果本地还没有 `1.1` 分支，执行：
+
+```bash
+git switch --track -c 1.1 origin/1.1
+git merge origin/main
 ```
 
 此时检查：
@@ -83,13 +91,13 @@ git log --oneline -3
 1.1
 ```
 
-如果负责人明确要求把 GitHub 上的 `1.1` 也同步成当前状态，再执行：
+如果 merge 出现冲突，停止并把冲突文件列表发给负责人，不要删除文件或 force push。后续同步代码统一使用：
 
 ```bash
-git push --force-with-lease origin 1.1
+git fetch origin --prune
+git switch 1.1
+git merge origin/main
 ```
-
-注意：`--force-with-lease` 只用于这一次分支对齐。后续不要反复 reset 或 force push；后续同步代码用 `git merge origin/main`。
 
 ## 4. 准备 Python 环境和数据
 
@@ -109,6 +117,23 @@ python --version
 python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 nvidia-smi
 ```
+
+当前正式实验必须使用 CUDA；实验前还要确认：
+
+```bash
+git rev-parse HEAD
+git status --short
+```
+
+`git status --short` 必须为空。不要手动修改源码或配置后直接跑正式实验。
+
+`git.dirty=false` 的含义是：实验运行时 Git 管理的源码和配置没有未提交修改，当前 commit 可以复现本次运行。运行目录中的 ignored 文件不影响这个字段。检查方式：
+
+```bash
+git status --short
+```
+
+没有输出时才是 clean；如果有输出，先停止并处理，不要继续提交该实验结果。
 
 安装项目为 editable 包：
 
@@ -145,6 +170,7 @@ git status --short --branch
 
 ```bash
 mkdir -p runs/handoff_logs
+set -o pipefail
 ```
 
 ### 5.1 Debug run
@@ -167,6 +193,7 @@ python experiments/summarize_relation_run.py \
 runs/retacred_debug_gpu/pipeline_summary.json
 runs/retacred_debug_gpu/run_summary.json
 runs/retacred_debug_gpu/run_summary.md
+runs/retacred_debug_gpu/supervised_quantum_gain_selection/gain_selection.json
 ```
 
 ### 5.2 Low-resource run
@@ -202,8 +229,10 @@ python experiments/summarize_relation_run.py \
 `summarize_relation_run.py` 正常执行成功时，会打印类似：
 
 ```json
-{"output_json": "runs/retacred_full_gpu/run_summary.json", "output_markdown": "runs/retacred_full_gpu/run_summary.md", "rows": 5}
+{"output_json": "runs/retacred_full_gpu/run_summary.json", "output_markdown": "runs/retacred_full_gpu/run_summary.md", "rows": 6}
 ```
+
+`rows` 数量应与实际运行阶段一致，不要把固定的旧数量当作成功条件。
 
 如果目录里没有 `run_summary.json` 或 `run_summary.md`，先不要重新下载 zip，先检查路径：
 
@@ -224,37 +253,101 @@ find . -path '*retacred_full_gpu/run_summary.*' -print
 建议按日期建目录，例如：
 
 ```bash
-DATE=2026-06-13
+DATE=2026-07-20-corrected
 mkdir -p reports/retacred/${DATE}/full
 mkdir -p reports/retacred/${DATE}/low_resource
 mkdir -p reports/retacred/${DATE}/debug
+mkdir -p reports/retacred/${DATE}/configs
 mkdir -p reports/retacred/${DATE}/logs
 ```
 
-以 full run 为例，复制 summary 和核心 metrics：
+复制本次实际使用的配置并验证 JSON：
+
+```bash
+cp configs/retacred_full_gpu.json reports/retacred/${DATE}/configs/
+cp configs/retacred_low_resource_gpu.json reports/retacred/${DATE}/configs/
+python -m json.tool reports/retacred/${DATE}/configs/retacred_full_gpu.json >/dev/null
+python -m json.tool reports/retacred/${DATE}/configs/retacred_low_resource_gpu.json >/dev/null
+```
+
+不要把日志内容复制到 `configs/`；日志只能放到 `logs/`。
+
+公开提交的 full 文件清单：
 
 ```bash
 RUN=runs/retacred_full_gpu
 OUT=reports/retacred/${DATE}/full
 
-mkdir -p ${OUT}/baseline
-mkdir -p ${OUT}/classical_steering_eval
-mkdir -p ${OUT}/quantum_steering_eval
-mkdir -p ${OUT}/spectral_filter_sweep
-mkdir -p ${OUT}/relation_routing_eval
+cp ${RUN}/pipeline_summary.json ${OUT}/
+cp ${RUN}/run_summary.json ${OUT}/
+cp ${RUN}/run_summary.md ${OUT}/
+cp ${RUN}/baseline/metrics.json ${OUT}/baseline_metrics.json
+cp ${RUN}/classical_steering_eval/metrics.json ${OUT}/classical_steering_metrics.json
+cp ${RUN}/quantum_steering_eval/metrics.json ${OUT}/quantum_steering_metrics.json
+cp ${RUN}/spectral_filter_sweep/summary.json ${OUT}/spectral_filter_summary.json
+cp ${RUN}/relation_routing_eval/metrics.json ${OUT}/routing_metrics.json
+tail -n 1000 runs/handoff_logs/retacred_full_gpu.log > reports/retacred/${DATE}/logs/retacred_full_gpu.tail.txt
+```
+
+公开提交的 low-resource 文件清单：
+
+```bash
+RUN=runs/retacred_low_resource_gpu
+OUT=reports/retacred/${DATE}/low_resource
 
 cp ${RUN}/pipeline_summary.json ${OUT}/
 cp ${RUN}/run_summary.json ${OUT}/
 cp ${RUN}/run_summary.md ${OUT}/
-cp ${RUN}/baseline/metrics.json ${OUT}/baseline/
-cp ${RUN}/classical_steering_eval/metrics.json ${OUT}/classical_steering_eval/
-cp ${RUN}/quantum_steering_eval/metrics.json ${OUT}/quantum_steering_eval/
-cp ${RUN}/spectral_filter_sweep/summary.json ${OUT}/spectral_filter_sweep/
-cp ${RUN}/relation_routing_eval/metrics.json ${OUT}/relation_routing_eval/
-cp runs/handoff_logs/retacred_full_gpu.log reports/retacred/${DATE}/logs/
+cp ${RUN}/baseline/metrics.json ${OUT}/baseline_metrics.json
+cp ${RUN}/classical_steering_eval/metrics.json ${OUT}/classical_steering_metrics.json
+cp ${RUN}/quantum_steering_eval/metrics.json ${OUT}/quantum_steering_metrics.json
+cp ${RUN}/spectral_filter_sweep/summary.json ${OUT}/spectral_filter_summary.json
+cp ${RUN}/relation_routing_eval/metrics.json ${OUT}/routing_metrics.json
+tail -n 1000 runs/handoff_logs/retacred_low_resource_gpu.log > reports/retacred/${DATE}/logs/retacred_low_resource_gpu.tail.txt
 ```
 
-Low-resource 和 debug 按同样方式复制到对应目录。
+Debug 结果通常不需要提交；如果 debug 失败，只提交失败日志和环境信息，不提交 `runs/`。
+
+公开提交的完整清单是：
+
+```text
+reports/retacred/<date>/configs/retacred_full_gpu.json
+reports/retacred/<date>/configs/retacred_low_resource_gpu.json
+reports/retacred/<date>/full/pipeline_summary.json
+reports/retacred/<date>/full/run_summary.json
+reports/retacred/<date>/full/run_summary.md
+reports/retacred/<date>/full/baseline_metrics.json
+reports/retacred/<date>/full/classical_steering_metrics.json
+reports/retacred/<date>/full/quantum_steering_metrics.json
+reports/retacred/<date>/full/spectral_filter_summary.json
+reports/retacred/<date>/full/routing_metrics.json
+reports/retacred/<date>/low_resource/pipeline_summary.json
+reports/retacred/<date>/low_resource/run_summary.json
+reports/retacred/<date>/low_resource/run_summary.md
+reports/retacred/<date>/low_resource/baseline_metrics.json
+reports/retacred/<date>/low_resource/classical_steering_metrics.json
+reports/retacred/<date>/low_resource/quantum_steering_metrics.json
+reports/retacred/<date>/low_resource/spectral_filter_summary.json
+reports/retacred/<date>/low_resource/routing_metrics.json
+reports/retacred/<date>/logs/retacred_full_gpu.tail.txt
+reports/retacred/<date>/logs/retacred_low_resource_gpu.tail.txt
+```
+
+`supervised_quantum_gain_selection/` 的原始文件、projector metadata、权重、predictions 和完整日志不提交公开仓库，只在需要复现或排错时私下提供。
+
+私有复核包必须至少保留：
+
+```text
+runs/<run_name>/supervised_quantum_gain_selection/gain_selection.json
+runs/<run_name>/supervised_quantum_gain_selection/metrics.json
+runs/<run_name>/supervised_quantum_gain_selection/run_info.json
+runs/<run_name>/baseline/relation_supervised_quantum_projector_metadata.json
+runs/<run_name>/baseline/relation_supervised_quantum_projector.pt
+runs/<run_name>/supervised_quantum_gain_selection/predictions.jsonl
+runs/handoff_logs/<run_name>.log
+```
+
+这些文件不需要上传 GitHub；日常结果诊断以公开 `reports/` 为准，需要复现或排错时再使用私有复核包。
 
 不要提交这些文件：
 
@@ -266,6 +359,7 @@ runs/
 *.ckpt
 predictions.jsonl
 routing.jsonl
+*.jsonl
 原始 TACRED/Re-TACRED 数据
 ```
 
@@ -283,6 +377,7 @@ git status --short
 
 ```bash
 git add reports/retacred/${DATE}
+git diff --cached --check
 git diff --cached --name-only
 ```
 
@@ -301,7 +396,7 @@ git push origin 1.1
 
 ```bash
 cd ~/projects/Q-Attention
-git fetch origin
+git fetch origin --prune
 git switch 1.1
 git status --short
 git merge origin/main
@@ -344,6 +439,7 @@ python experiments/summarize_relation_run.py --run_dir runs/retacred_full_gpu
 ```bash
 git branch --show-current
 git status --short
+git diff --check
 git diff --cached --name-only
 ```
 
@@ -354,6 +450,8 @@ git diff --cached --name-only
 staged 文件只在 reports/ 下
 没有 data/、runs/、模型权重或原始数据
 run_summary.json 和 run_summary.md 已生成
+pipeline_summary.json 中 `git.dirty` 为 false
+pipeline_summary.json 中 validation/test 使用 proportional sampling 或 source
 ```
 
 这套流程的核心是让实验可复现、结果可追踪、代码更新可同步。只要固定使用 `git clone` + `1.1` 分支，后续每轮实验都不需要再靠 zip 手动搬项目。
