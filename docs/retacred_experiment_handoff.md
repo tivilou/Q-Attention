@@ -59,6 +59,22 @@ PY
 
 Do not commit the package or extracted `data/` directory; `data/` is intentionally ignored.
 
+## Validation Sampling Invariants
+
+The runner intentionally uses different sampling policies for different splits:
+
+```text
+train subset: balanced stratified sampling may be used to keep rare labels visible
+valid/test subset: proportional stratified sampling must preserve the source label distribution
+gain selection/acceptance: proportional validation partition with disjoint records
+```
+
+Do not use the balanced training sampler for validation or test. The low-resource
+configuration intentionally leaves `max_valid_records` unset so its validation
+split remains the full Re-TACRED distribution. Check `pipeline_summary.json`:
+each materialized split records `sampling` as `balanced_stratified`,
+`proportional_stratified`, or `source`.
+
 ### Option B: Rebuild From Licensed TACRED
 
 If the prepared package is not available, build the data from licensed TACRED plus the public Re-TACRED patches:
@@ -179,5 +195,12 @@ commit with `git.dirty` false. The gain-selection directory and projector
 metadata above are required; do not submit only `run_summary.md`.
 The gain-selection record must also show nonzero `acceptance_num_records` and
 the configured `acceptance_fraction` when CI gating is enabled.
+
+When creating a public report directory, copy the actual JSON configs from
+`configs/retacred_full_gpu.json` and `configs/retacred_low_resource_gpu.json`.
+Keep log tails only under `reports/.../logs/`; never name a log file as a
+config file. Verify both copied configs with `python -m json.tool` before
+committing the report. Raw model weights, predictions, and the complete run
+folder remain private artifacts and must not be pushed to the public repository.
 
 Do not change source code or configs while debugging the experiment environment. Report the failure to the coding side instead.

@@ -1,8 +1,17 @@
 from __future__ import annotations
 
+from collections import Counter
 from pathlib import Path
 
-from q_attention.tasks.relation import RelationDataset, build_label_map, build_vocab, collate_relation_batch, load_relation_jsonl
+from q_attention.tasks.relation import (
+    RelationDataset,
+    RelationRecord,
+    build_label_map,
+    build_vocab,
+    collate_relation_batch,
+    load_relation_jsonl,
+    sample_relation_records_proportional,
+)
 
 
 def test_load_relation_jsonl_and_collate() -> None:
@@ -17,3 +26,19 @@ def test_load_relation_jsonl_and_collate() -> None:
     assert batch["subject_mask"].sum().item() > 0
     assert batch["object_mask"].sum().item() > 0
     assert len(labels) == 4
+
+
+def test_proportional_sampling_preserves_label_ratios_and_is_deterministic() -> None:
+    records = [
+        RelationRecord(tokens=(f"common-{index}",), subject=(0, 1), object=(0, 1), label="common")
+        for index in range(80)
+    ] + [
+        RelationRecord(tokens=(f"rare-{index}",), subject=(0, 1), object=(0, 1), label="rare")
+        for index in range(20)
+    ]
+
+    first = sample_relation_records_proportional(records, 50, seed=17)
+    second = sample_relation_records_proportional(records, 50, seed=17)
+
+    assert first == second
+    assert Counter(record.label for record in first) == {"common": 40, "rare": 10}

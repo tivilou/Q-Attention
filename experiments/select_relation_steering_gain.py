@@ -24,7 +24,11 @@ from q_attention.experiments import (  # noqa: E402
     make_relation_loader,
     projector_shape_summary,
 )
-from q_attention.tasks.relation import RelationRecord, load_relation_jsonl, sample_relation_records  # noqa: E402
+from q_attention.tasks.relation import (
+    RelationRecord,
+    load_relation_jsonl,
+    sample_relation_records_proportional,
+)  # noqa: E402
 
 SELECTION_STRATEGIES = ("shared", "best_layer", "coordinate")
 
@@ -109,7 +113,7 @@ def split_validation_records(
     if len(records) < 2:
         raise ValueError("validation splitting requires at least two records")
     acceptance_count = max(1, min(len(records) - 1, round(len(records) * acceptance_fraction)))
-    acceptance = sample_relation_records(records, acceptance_count, seed=seed, stratified=True)
+    acceptance = sample_relation_records_proportional(records, acceptance_count, seed=seed)
     acceptance_ids = {id(record) for record in acceptance}
     selection = [record for record in records if id(record) not in acceptance_ids]
     return selection, acceptance

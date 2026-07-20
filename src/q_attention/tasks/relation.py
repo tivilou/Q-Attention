@@ -141,6 +141,50 @@ def sample_relation_records(
     return [source[index] for index in sorted(selected)]
 
 
+def sample_relation_records_proportional(
+    records: Sequence[RelationRecord],
+    limit: int | None,
+    *,
+    seed: int = 13,
+) -> list[RelationRecord]:
+    """Return a deterministic subset that preserves label proportions.
+
+    Allocation uses the largest-remainder method, so each label receives a
+    count close to its share of the source data. This is appropriate for
+    validation and test subsets; use ``sample_relation_records`` when a
+    balanced training smoke subset is intentional.
+    """
+    source = list(records)
+    if limit is None or limit <= 0 or len(source) <= limit:
+        return source
+
+    by_label: dict[str, list[int]] = defaultdict(list)
+    for index, record in enumerate(source):
+        by_label[record.label].append(index)
+
+    total = len(source)
+    allocations: dict[str, int] = {}
+    remainders: list[tuple[int, str]] = []
+    allocated = 0
+    for label in sorted(by_label):
+        numerator = limit * len(by_label[label])
+        count, remainder = divmod(numerator, total)
+        allocations[label] = count
+        allocated += count
+        remainders.append((remainder, label))
+
+    for _, label in sorted(remainders, key=lambda item: (-item[0], item[1]))[: limit - allocated]:
+        allocations[label] += 1
+
+    rng = random.Random(seed)
+    selected: list[int] = []
+    for label in sorted(by_label):
+        indices = list(by_label[label])
+        rng.shuffle(indices)
+        selected.extend(indices[: allocations[label]])
+    return [source[index] for index in sorted(selected)]
+
+
 def build_vocab(records: Iterable[RelationRecord], min_freq: int = 1) -> dict[str, int]:
     """Build a token vocabulary."""
     counter: Counter[str] = Counter()

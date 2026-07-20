@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+from collections import Counter
 from pathlib import Path
 
 from q_attention.tasks.relation import RelationRecord
@@ -109,6 +110,22 @@ def test_validation_split_is_deterministic_and_non_overlapping() -> None:
     assert len(first_selection) == 6
     assert len(first_acceptance) == 4
     assert {id(record) for record in first_selection}.isdisjoint({id(record) for record in first_acceptance})
+
+
+def test_validation_split_preserves_label_proportions() -> None:
+    module = load_experiment("select_relation_steering_gain.py")
+    records = [
+        RelationRecord(tokens=(f"common-{index}",), subject=(0, 1), object=(0, 1), label="common")
+        for index in range(80)
+    ] + [
+        RelationRecord(tokens=(f"rare-{index}",), subject=(0, 1), object=(0, 1), label="rare")
+        for index in range(20)
+    ]
+
+    selection, acceptance = module.split_validation_records(records, acceptance_fraction=0.5, seed=17)
+
+    assert Counter(record.label for record in selection) == {"common": 40, "rare": 10}
+    assert Counter(record.label for record in acceptance) == {"common": 40, "rare": 10}
 
 
 def test_paired_bootstrap_accepts_stable_macro_f1_gain_and_rejects_no_change() -> None:

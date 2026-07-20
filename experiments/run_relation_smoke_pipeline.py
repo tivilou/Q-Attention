@@ -18,7 +18,12 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from q_attention.tasks.relation import load_relation_jsonl, sample_relation_records, write_relation_jsonl  # noqa: E402
+from q_attention.tasks.relation import (
+    load_relation_jsonl,
+    sample_relation_records,
+    sample_relation_records_proportional,
+    write_relation_jsonl,
+)  # noqa: E402
 from q_attention.tasks.relation_formats import relation_record_summary  # noqa: E402
 
 STAGE_CHOICES = (
@@ -214,8 +219,11 @@ def materialize_split(
             "sha256": file_sha256(source_path),
             "summary": relation_record_summary(records),
             "subset": False,
+            "sampling": "source",
         }
-    selected = sample_relation_records(records, limit, seed=seed, stratified=True)
+    sampler = sample_relation_records if name == "train" else sample_relation_records_proportional
+    sampling = "balanced_stratified" if name == "train" else "proportional_stratified"
+    selected = sampler(records, limit, seed=seed)
     output_path = output_dir / f"{name}.jsonl"
     write_relation_jsonl(selected, output_path)
     return output_path, {
@@ -225,6 +233,7 @@ def materialize_split(
         "summary": relation_record_summary(selected),
         "source_summary": relation_record_summary(records),
         "subset": True,
+        "sampling": sampling,
     }
 
 
