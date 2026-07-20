@@ -1,0 +1,106 @@
+{
+  "name": "retacred_full_gpu",
+  "task": "relation_extraction",
+  "description": "First full Re-TACRED GPU validation config for Q-Attention prototype comparison.",
+  "train_path": "data/relation/retacred/train.jsonl",
+  "valid_path": "data/relation/retacred/valid.jsonl",
+  "test_path": "data/relation/retacred/test.jsonl",
+  "output_dir": "runs/retacred_full_gpu",
+  "stages": "baseline,classical_projector,classical_steering,quantum_projector,quantum_steering,supervised_quantum_projector,supervised_quantum_gain_selection,spectral_sweep,routing",
+  "seed": 13,
+  "baseline": {
+    "epochs": 12,
+    "batch_size": 128,
+    "dim": 128,
+    "num_layers": 4,
+    "num_heads": 8,
+    "ff_dim": 256,
+    "dropout": 0.1,
+    "lr": 0.0005,
+    "seed": 13
+  },
+  "classical_projector": {
+    "batch_size": 256,
+    "rank": 16,
+    "max_vectors": 20000,
+    "center": true,
+    "seed": 13
+  },
+  "classical_steering": {
+    "batch_size": 256,
+    "gain": 0.25
+  },
+  "quantum_projector": {
+    "batch_size": 256,
+    "rank": 16,
+    "num_qubits": 6,
+    "angle_scale": 1.25,
+    "max_vectors": 4096,
+    "center": true,
+    "seed": 13
+  },
+  "quantum_steering": {
+    "batch_size": 256,
+    "gain": 0.25
+  },
+  "supervised_quantum_projector": {
+    "batch_size": 256,
+    "rank": 16,
+    "num_qubits": 6,
+    "depth": 2,
+    "angle_scale": 1.0,
+    "max_vectors": 4096,
+    "max_train_samples": 512,
+    "learning_rate": 0.03,
+    "training_steps": 100,
+    "layerwise": true,
+    "center": true,
+    "seed": 13,
+    "feature_seed": 17
+  },
+  "supervised_quantum_steering": {
+    "batch_size": 256,
+    "gain": 0.1
+  },
+  "supervised_quantum_gain_selection": {
+    "batch_size": 256,
+    "gains": "0.0,0.01,0.025,0.05,0.1,0.25",
+    "selection_metric": "macro_f1",
+    "strategy": "coordinate",
+    "coordinate_passes": 1,
+    "require_positive_ci": true,
+    "bootstrap_samples": 200,
+    "bootstrap_confidence": 0.95,
+    "bootstrap_seed": 13,
+    "acceptance_fraction": 0.5,
+    "acceptance_seed": 13
+  },
+  "spectral_sweep": {
+    "batch_size": 256,
+    "families": "classical,quantum",
+    "modes": "hard_topk,high_pass,band_pass,soft_energy",
+    "ranks": "8,16",
+    "thresholds": "0.5",
+    "sharpnesses": "8.0",
+    "gains": "0.1,0.25,0.5",
+    "num_qubits": 6,
+    "angle_scale": 1.25,
+    "max_vectors": 4096,
+    "center": true,
+    "seed": 13
+  },
+  "routing": {
+    "batch_size": 256,
+    "gain": 0.25,
+    "temperature": 0.5,
+    "rank": 16,
+    "threshold": 0.5,
+    "sharpness": 8.0,
+    "num_qubits": 6,
+    "angle_scale": 1.25,
+    "max_vectors": 4096,
+    "center": true,
+    "seed": 13,
+    "expert_gain_scales": "1.0,1.0,0.5,0.5"
+  }
+}

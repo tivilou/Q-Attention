@@ -1,0 +1,1394 @@
+{
+  "evaluation_protocol": {
+    "final_path": "/root/projects/Q-Attention/data/relation/retacred/test.jsonl",
+    "final_split": "test",
+    "selection_split": "valid",
+    "supervised_quantum_gain_selected_on_valid": true,
+    "test_isolated": true
+  },
+  "pipeline": {
+    "commands": [
+      {
+        "command": [
+          "/root/miniconda3/envs/myconda/bin/python",
+          "/root/projects/Q-Attention/experiments/train_relation_baseline.py",
+          "--train_path",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/smoke_data/train.jsonl",
+          "--valid_path",
+          "/root/projects/Q-Attention/data/relation/retacred/valid.jsonl",
+          "--output_dir",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/baseline",
+          "--device",
+          "cuda",
+          "--epochs",
+          "10",
+          "--batch_size",
+          "64",
+          "--lr",
+          "0.0007",
+          "--dim",
+          "128",
+          "--num_layers",
+          "3",
+          "--num_heads",
+          "8",
+          "--ff_dim",
+          "256",
+          "--dropout",
+          "0.1",
+          "--seed",
+          "13"
+        ],
+        "dry_run": false,
+        "duration_seconds": 55.331105411052704,
+        "returncode": 0,
+        "started_at_utc": "2026-07-20T14:27:34.018813+00:00"
+      },
+      {
+        "command": [
+          "/root/miniconda3/envs/myconda/bin/python",
+          "/root/projects/Q-Attention/experiments/build_relation_projector.py",
+          "--model_dir",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/baseline",
+          "--data_path",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/smoke_data/train.jsonl",
+          "--output_path",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/baseline/relation_projector.pt",
+          "--device",
+          "cuda",
+          "--batch_size",
+          "128",
+          "--rank",
+          "16",
+          "--max_vectors",
+          "4096",
+          "--seed",
+          "13",
+          "--center"
+        ],
+        "dry_run": false,
+        "duration_seconds": 3.5206679180264473,
+        "returncode": 0,
+        "started_at_utc": "2026-07-20T14:28:29.350219+00:00"
+      },
+      {
+        "command": [
+          "/root/miniconda3/envs/myconda/bin/python",
+          "/root/projects/Q-Attention/experiments/eval_relation_steering.py",
+          "--model_dir",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/baseline",
+          "--projector_path",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/baseline/relation_projector.pt",
+          "--data_path",
+          "/root/projects/Q-Attention/data/relation/retacred/test.jsonl",
+          "--output_dir",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/classical_steering_eval",
+          "--device",
+          "cuda",
+          "--batch_size",
+          "128",
+          "--gain",
+          "0.25"
+        ],
+        "dry_run": false,
+        "duration_seconds": 9.469518810510635,
+        "returncode": 0,
+        "started_at_utc": "2026-07-20T14:28:32.871203+00:00"
+      },
+      {
+        "command": [
+          "/root/miniconda3/envs/myconda/bin/python",
+          "/root/projects/Q-Attention/experiments/build_relation_quantum_projector.py",
+          "--model_dir",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/baseline",
+          "--data_path",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/smoke_data/train.jsonl",
+          "--output_path",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/baseline/relation_quantum_projector.pt",
+          "--device",
+          "cuda",
+          "--batch_size",
+          "128",
+          "--rank",
+          "16",
+          "--num_qubits",
+          "6",
+          "--angle_scale",
+          "1.25",
+          "--max_vectors",
+          "4096",
+          "--seed",
+          "13",
+          "--feature_seed",
+          "17",
+          "--center"
+        ],
+        "dry_run": false,
+        "duration_seconds": 3.3895919546484947,
+        "returncode": 0,
+        "started_at_utc": "2026-07-20T14:28:42.341056+00:00"
+      },
+      {
+        "command": [
+          "/root/miniconda3/envs/myconda/bin/python",
+          "/root/projects/Q-Attention/experiments/eval_relation_steering.py",
+          "--model_dir",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/baseline",
+          "--projector_path",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/baseline/relation_quantum_projector.pt",
+          "--data_path",
+          "/root/projects/Q-Attention/data/relation/retacred/test.jsonl",
+          "--output_dir",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/quantum_steering_eval",
+          "--device",
+          "cuda",
+          "--batch_size",
+          "128",
+          "--gain",
+          "0.25"
+        ],
+        "dry_run": false,
+        "duration_seconds": 9.759831711649895,
+        "returncode": 0,
+        "started_at_utc": "2026-07-20T14:28:45.730942+00:00"
+      },
+      {
+        "command": [
+          "/root/miniconda3/envs/myconda/bin/python",
+          "/root/projects/Q-Attention/experiments/build_relation_supervised_quantum_projector.py",
+          "--model_dir",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/baseline",
+          "--data_path",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/smoke_data/train.jsonl",
+          "--output_path",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/baseline/relation_supervised_quantum_projector.pt",
+          "--device",
+          "cuda",
+          "--batch_size",
+          "128",
+          "--rank",
+          "16",
+          "--num_qubits",
+          "6",
+          "--depth",
+          "2",
+          "--angle_scale",
+          "1.0",
+          "--max_vectors",
+          "2048",
+          "--max_train_samples",
+          "512",
+          "--learning_rate",
+          "0.03",
+          "--training_steps",
+          "100",
+          "--seed",
+          "13",
+          "--feature_seed",
+          "17",
+          "--center",
+          "--layerwise"
+        ],
+        "dry_run": false,
+        "duration_seconds": 23.335902579128742,
+        "returncode": 0,
+        "started_at_utc": "2026-07-20T14:28:55.491025+00:00"
+      },
+      {
+        "command": [
+          "/root/miniconda3/envs/myconda/bin/python",
+          "/root/projects/Q-Attention/experiments/select_relation_steering_gain.py",
+          "--model_dir",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/baseline",
+          "--projector_path",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/baseline/relation_supervised_quantum_projector.pt",
+          "--validation_path",
+          "/root/projects/Q-Attention/data/relation/retacred/valid.jsonl",
+          "--test_path",
+          "/root/projects/Q-Attention/data/relation/retacred/test.jsonl",
+          "--output_dir",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/supervised_quantum_gain_selection",
+          "--device",
+          "cuda",
+          "--batch_size",
+          "128",
+          "--gains",
+          "0.0,0.01,0.025,0.05,0.1,0.25",
+          "--selection_metric",
+          "macro_f1",
+          "--strategy",
+          "coordinate",
+          "--coordinate_passes",
+          "1",
+          "--require_positive_ci",
+          "--bootstrap_samples",
+          "200",
+          "--bootstrap_confidence",
+          "0.95",
+          "--bootstrap_seed",
+          "13",
+          "--acceptance_fraction",
+          "0.5",
+          "--acceptance_seed",
+          "13"
+        ],
+        "dry_run": false,
+        "duration_seconds": 62.27525947988033,
+        "returncode": 0,
+        "started_at_utc": "2026-07-20T14:29:18.827268+00:00"
+      },
+      {
+        "command": [
+          "/root/miniconda3/envs/myconda/bin/python",
+          "/root/projects/Q-Attention/experiments/sweep_relation_spectral_filters.py",
+          "--model_dir",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/baseline",
+          "--projector_data_path",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/smoke_data/train.jsonl",
+          "--eval_path",
+          "/root/projects/Q-Attention/data/relation/retacred/valid.jsonl",
+          "--output_dir",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/spectral_filter_sweep",
+          "--device",
+          "cuda",
+          "--test_path",
+          "/root/projects/Q-Attention/data/relation/retacred/test.jsonl",
+          "--batch_size",
+          "128",
+          "--families",
+          "classical,quantum",
+          "--modes",
+          "hard_topk,soft_energy",
+          "--ranks",
+          "8,16",
+          "--thresholds",
+          "0.5",
+          "--sharpnesses",
+          "8.0",
+          "--gains",
+          "0.1,0.25,0.5",
+          "--num_qubits",
+          "6",
+          "--angle_scale",
+          "1.25",
+          "--max_vectors",
+          "4096",
+          "--seed",
+          "13",
+          "--feature_seed",
+          "17",
+          "--center"
+        ],
+        "dry_run": false,
+        "duration_seconds": 94.55887065827847,
+        "returncode": 0,
+        "started_at_utc": "2026-07-20T14:30:21.102875+00:00"
+      },
+      {
+        "command": [
+          "/root/miniconda3/envs/myconda/bin/python",
+          "/root/projects/Q-Attention/experiments/eval_relation_routing.py",
+          "--model_dir",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/baseline",
+          "--projector_data_path",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/smoke_data/train.jsonl",
+          "--eval_path",
+          "/root/projects/Q-Attention/data/relation/retacred/test.jsonl",
+          "--output_dir",
+          "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/relation_routing_eval",
+          "--device",
+          "cuda",
+          "--batch_size",
+          "128",
+          "--gain",
+          "0.25",
+          "--temperature",
+          "0.5",
+          "--rank",
+          "16",
+          "--num_qubits",
+          "6",
+          "--angle_scale",
+          "1.25",
+          "--max_vectors",
+          "4096",
+          "--seed",
+          "13",
+          "--feature_seed",
+          "17",
+          "--center",
+          "--expert_gain_scales",
+          "1.0,1.0,0.75,0.75"
+        ],
+        "dry_run": false,
+        "duration_seconds": 11.43302507698536,
+        "returncode": 0,
+        "started_at_utc": "2026-07-20T14:31:55.662052+00:00"
+      }
+    ],
+    "config": "/root/projects/Q-Attention/configs/retacred_low_resource_gpu.json",
+    "device": "cuda",
+    "evaluation_protocol": {
+      "final_path": "/root/projects/Q-Attention/data/relation/retacred/test.jsonl",
+      "final_split": "test",
+      "selection_split": "valid",
+      "supervised_quantum_gain_selected_on_valid": true,
+      "test_isolated": true
+    },
+    "output_dir": "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730",
+    "reproducibility": {
+      "config_sha256": "3f9b1c74b7abd68dd5315fb2fe5728f3ed358cbac96d0ff5e8b54fdf9f0d5eec",
+      "created_at_utc": "2026-07-20T14:32:07.131789+00:00",
+      "cuda_available": true,
+      "cuda_device": "NVIDIA RTX A2000 12GB",
+      "cuda_version": "11.8",
+      "git": {
+        "branch": "1.1",
+        "commit": "184692f73053b8ce338d463744bd49af322acb1c",
+        "dirty": true
+      },
+      "global_seed": 13,
+      "platform": "Linux-4.19.0-19-amd64-x86_64-with-glibc2.31",
+      "python": "3.10.12 (main, Jul  5 2023, 18:54:27) [GCC 11.2.0]",
+      "torch": "2.4.0+cu118"
+    },
+    "stages": [
+      "baseline",
+      "classical_projector",
+      "classical_steering",
+      "quantum_projector",
+      "quantum_steering",
+      "supervised_quantum_projector",
+      "supervised_quantum_gain_selection",
+      "spectral_sweep",
+      "routing"
+    ],
+    "test": {
+      "path": "/root/projects/Q-Attention/data/relation/retacred/test.jsonl",
+      "sampling": "source",
+      "sha256": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40",
+      "subset": false,
+      "summary": {
+        "label_counts": {
+          "no_relation": 7770,
+          "org:alternate_names": 337,
+          "org:city_of_branch": 129,
+          "org:country_of_branch": 166,
+          "org:dissolved": 5,
+          "org:founded": 34,
+          "org:founded_by": 84,
+          "org:member_of": 64,
+          "org:members": 63,
+          "org:number_of_employees/members": 13,
+          "org:political/religious_affiliation": 29,
+          "org:shareholders": 12,
+          "org:stateorprovince_of_branch": 57,
+          "org:top_members/employees": 295,
+          "org:website": 30,
+          "per:age": 208,
+          "per:cause_of_death": 50,
+          "per:charges": 126,
+          "per:children": 55,
+          "per:cities_of_residence": 125,
+          "per:city_of_birth": 15,
+          "per:city_of_death": 26,
+          "per:countries_of_residence": 148,
+          "per:country_of_death": 14,
+          "per:date_of_birth": 7,
+          "per:date_of_death": 63,
+          "per:employee_of": 332,
+          "per:identity": 2036,
+          "per:origin": 115,
+          "per:other_family": 52,
+          "per:parents": 106,
+          "per:religion": 59,
+          "per:schools_attended": 33,
+          "per:siblings": 66,
+          "per:spouse": 73,
+          "per:stateorprovince_of_birth": 9,
+          "per:stateorprovince_of_death": 16,
+          "per:stateorprovinces_of_residence": 73,
+          "per:title": 523
+        },
+        "max_length": 96,
+        "mean_length": 34.61372782829036,
+        "num_labels": 39,
+        "num_records": 13418
+      }
+    },
+    "train": {
+      "path": "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730/smoke_data/train.jsonl",
+      "sampling": "balanced_stratified",
+      "sha256": "a0575522caf8ce6644df646c91a841d6188b008a726bdabf0187e5ea955bbbde",
+      "source_path": "/root/projects/Q-Attention/data/relation/retacred/train.jsonl",
+      "source_summary": {
+        "label_counts": {
+          "no_relation": 38761,
+          "org:alternate_names": 1319,
+          "org:city_of_branch": 622,
+          "org:country_of_branch": 891,
+          "org:dissolved": 23,
+          "org:founded": 80,
+          "org:founded_by": 107,
+          "org:member_of": 365,
+          "org:members": 560,
+          "org:number_of_employees/members": 54,
+          "org:political/religious_affiliation": 190,
+          "org:shareholders": 93,
+          "org:stateorprovince_of_branch": 315,
+          "org:top_members/employees": 1475,
+          "org:website": 119,
+          "per:age": 421,
+          "per:cause_of_death": 114,
+          "per:charges": 87,
+          "per:children": 275,
+          "per:cities_of_residence": 188,
+          "per:city_of_birth": 88,
+          "per:city_of_death": 120,
+          "per:countries_of_residence": 201,
+          "per:country_of_birth": 25,
+          "per:country_of_death": 6,
+          "per:date_of_birth": 69,
+          "per:date_of_death": 172,
+          "per:employee_of": 2136,
+          "per:identity": 5320,
+          "per:origin": 295,
+          "per:other_family": 105,
+          "per:parents": 182,
+          "per:religion": 74,
+          "per:schools_attended": 142,
+          "per:siblings": 211,
+          "per:spouse": 271,
+          "per:stateorprovince_of_birth": 44,
+          "per:stateorprovince_of_death": 58,
+          "per:stateorprovinces_of_residence": 261,
+          "per:title": 2626
+        },
+        "max_length": 96,
+        "mean_length": 37.017634482168816,
+        "num_labels": 40,
+        "num_records": 58465
+      },
+      "subset": true,
+      "summary": {
+        "label_counts": {
+          "no_relation": 55,
+          "org:alternate_names": 55,
+          "org:city_of_branch": 55,
+          "org:country_of_branch": 55,
+          "org:dissolved": 23,
+          "org:founded": 55,
+          "org:founded_by": 55,
+          "org:member_of": 54,
+          "org:members": 54,
+          "org:number_of_employees/members": 54,
+          "org:political/religious_affiliation": 54,
+          "org:shareholders": 54,
+          "org:stateorprovince_of_branch": 54,
+          "org:top_members/employees": 54,
+          "org:website": 54,
+          "per:age": 54,
+          "per:cause_of_death": 54,
+          "per:charges": 54,
+          "per:children": 54,
+          "per:cities_of_residence": 54,
+          "per:city_of_birth": 54,
+          "per:city_of_death": 54,
+          "per:countries_of_residence": 54,
+          "per:country_of_birth": 25,
+          "per:country_of_death": 6,
+          "per:date_of_birth": 54,
+          "per:date_of_death": 54,
+          "per:employee_of": 54,
+          "per:identity": 54,
+          "per:origin": 54,
+          "per:other_family": 54,
+          "per:parents": 54,
+          "per:religion": 54,
+          "per:schools_attended": 54,
+          "per:siblings": 54,
+          "per:spouse": 54,
+          "per:stateorprovince_of_birth": 44,
+          "per:stateorprovince_of_death": 54,
+          "per:stateorprovinces_of_residence": 54,
+          "per:title": 54
+        },
+        "max_length": 94,
+        "mean_length": 34.20458984375,
+        "num_labels": 40,
+        "num_records": 2048
+      }
+    },
+    "valid": {
+      "path": "/root/projects/Q-Attention/data/relation/retacred/valid.jsonl",
+      "sampling": "source",
+      "sha256": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+      "subset": false,
+      "summary": {
+        "label_counts": {
+          "no_relation": 11246,
+          "org:alternate_names": 440,
+          "org:city_of_branch": 191,
+          "org:country_of_branch": 338,
+          "org:dissolved": 7,
+          "org:founded": 36,
+          "org:founded_by": 76,
+          "org:member_of": 88,
+          "org:members": 194,
+          "org:number_of_employees/members": 27,
+          "org:political/religious_affiliation": 34,
+          "org:shareholders": 80,
+          "org:stateorprovince_of_branch": 98,
+          "org:top_members/employees": 462,
+          "org:website": 94,
+          "per:age": 256,
+          "per:cause_of_death": 193,
+          "per:charges": 130,
+          "per:children": 114,
+          "per:cities_of_residence": 98,
+          "per:city_of_birth": 43,
+          "per:city_of_death": 148,
+          "per:countries_of_residence": 192,
+          "per:country_of_birth": 24,
+          "per:country_of_death": 55,
+          "per:date_of_birth": 31,
+          "per:date_of_death": 234,
+          "per:employee_of": 576,
+          "per:identity": 2293,
+          "per:origin": 222,
+          "per:other_family": 34,
+          "per:parents": 69,
+          "per:religion": 80,
+          "per:schools_attended": 46,
+          "per:siblings": 33,
+          "per:spouse": 189,
+          "per:stateorprovince_of_birth": 34,
+          "per:stateorprovince_of_death": 44,
+          "per:stateorprovinces_of_residence": 37,
+          "per:title": 998
+        },
+        "max_length": 95,
+        "mean_length": 35.325827205882355,
+        "num_labels": 40,
+        "num_records": 19584
+      }
+    }
+  },
+  "routing_summary": {
+    "dominant_counts": {
+      "classical_band_pass": 903,
+      "classical_hard_topk": 1968,
+      "quantum_hard_topk": 7771,
+      "quantum_high_pass": 2776
+    },
+    "max_entropy": 1.1158459186553955,
+    "mean_entropy": 0.530685544013977,
+    "mean_weights": {
+      "classical_band_pass": 0.0791756808757782,
+      "classical_hard_topk": 0.16182778775691986,
+      "quantum_hard_topk": 0.5583622455596924,
+      "quantum_high_pass": 0.20063431560993195
+    }
+  },
+  "rows": [
+    {
+      "accuracy": 0.14823371590400955,
+      "delta_accuracy": null,
+      "delta_loss": null,
+      "delta_macro_f1": null,
+      "delta_macro_precision": null,
+      "delta_macro_recall": null,
+      "loss": 4.748732230723357,
+      "macro_f1": 0.12192264061509331,
+      "macro_precision": 0.12390753662719396,
+      "macro_recall": 0.21080614113796065,
+      "note": "held-out test split",
+      "variant": "baseline"
+    },
+    {
+      "accuracy": 0.1462960202712774,
+      "delta_accuracy": -0.0019376956327321615,
+      "delta_loss": 0.00873944620418765,
+      "delta_macro_f1": -0.0031152454932122098,
+      "delta_macro_precision": -0.002830691201405028,
+      "delta_macro_recall": -0.005295994489355665,
+      "loss": 4.757471676927545,
+      "macro_f1": 0.1188073951218811,
+      "macro_precision": 0.12107684542578893,
+      "macro_recall": 0.20551014664860498,
+      "note": "",
+      "variant": "classical_steering"
+    },
+    {
+      "accuracy": 0.14689223431211806,
+      "delta_accuracy": -0.0013414815918914857,
+      "delta_loss": 0.004824888548067285,
+      "delta_macro_f1": -0.0027243536950839475,
+      "delta_macro_precision": -0.002540779493237763,
+      "delta_macro_recall": -0.003974733033448918,
+      "loss": 4.7535571192714245,
+      "macro_f1": 0.11919828692000936,
+      "macro_precision": 0.1213667571339562,
+      "macro_recall": 0.20683140810451173,
+      "note": "",
+      "variant": "quantum_steering"
+    },
+    {
+      "accuracy": 0.14823371590400955,
+      "delta_accuracy": 0.0,
+      "delta_loss": 0.0,
+      "delta_macro_f1": 0.0,
+      "delta_macro_precision": 0.0,
+      "delta_macro_recall": 0.0,
+      "loss": 4.748732230723357,
+      "macro_f1": 0.12192264061509331,
+      "macro_precision": 0.12390753662719396,
+      "macro_recall": 0.21080614113796065,
+      "note": "standalone label-aligned quantum projector, layer-specific, coordinate gains selected on validation, active_layers=0, validation CI rejected proposed steering",
+      "variant": "supervised_quantum_steering"
+    },
+    {
+      "accuracy": 0.14689223431211806,
+      "delta_accuracy": -0.0013414815918914857,
+      "delta_loss": 0.004824888548067285,
+      "delta_macro_f1": -0.0027243536950839475,
+      "delta_macro_precision": -0.002540779493237763,
+      "delta_macro_recall": -0.003974733033448918,
+      "loss": 4.7535571192714245,
+      "macro_f1": 0.11919828692000936,
+      "macro_precision": 0.1213667571339562,
+      "macro_recall": 0.20683140810451173,
+      "note": "quantum, hard_topk, rank=16, threshold=0.5, sharpness=8.0, gain=0.25, selected on validation",
+      "variant": "spectral_sweep_best"
+    },
+    {
+      "accuracy": 0.1480846623937994,
+      "delta_accuracy": -0.000149053510210162,
+      "delta_loss": 0.004011012665968927,
+      "delta_macro_f1": -0.0015886859366952139,
+      "delta_macro_precision": -0.0017092694078571224,
+      "delta_macro_recall": -0.0020186782144409054,
+      "loss": 4.752743243389326,
+      "macro_f1": 0.1203339546783981,
+      "macro_precision": 0.12219826721933684,
+      "macro_recall": 0.20878746292351974,
+      "note": "mean_entropy=0.530686",
+      "variant": "adaptive_routing"
+    }
+  ],
+  "run_dir": "/root/projects/Q-Attention/runs/retacred_low_resource_gpu/20260720-222730",
+  "spectral_best": {
+    "delta_vs_baseline": {
+      "accuracy": -0.0013414815918914857,
+      "loss": 0.004824888548067285,
+      "macro_f1": -0.0027243536950839475,
+      "macro_precision": -0.002540779493237763,
+      "macro_recall": -0.003974733033448918
+    },
+    "family": "quantum",
+    "filter": {
+      "energy": 0.9,
+      "eps": 1e-08,
+      "mode": "hard_topk",
+      "rank": 16,
+      "sharpness": 8.0,
+      "threshold": 0.5
+    },
+    "filter_diagnostics": {
+      "active_directions": 16,
+      "effective_rank": 5.679704189300537,
+      "energy": 0.9,
+      "max_singular_value": 1.6616860628128052,
+      "min_singular_value": 1.4111027013541388e-08,
+      "mode": "hard_topk",
+      "num_singular_values": 128,
+      "rank": 16,
+      "sharpness": 8.0,
+      "threshold": 0.5,
+      "top_filter_weights": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "top_singular_values": [
+        1.6616860628128052,
+        0.9792647957801819,
+        0.8889561891555786,
+        0.8086823225021362,
+        0.4903423488140106,
+        0.3969629406929016,
+        0.008410874754190445,
+        0.007525232154875994
+      ],
+      "weight_max": 1.0,
+      "weight_min": 0.0,
+      "weight_sum": 16.0
+    },
+    "gain": 0.25,
+    "metrics": {
+      "accuracy": 0.14689223431211806,
+      "loss": 4.7535571192714245,
+      "macro_f1": 0.11919828692000936,
+      "macro_precision": 0.1213667571339562,
+      "macro_recall": 0.20683140810451173
+    },
+    "projector_stats": {
+      "fro_norm": 4.000000476837158,
+      "max_abs": 0.23852486908435822,
+      "trace": 16.000001907348633
+    },
+    "quantum": {
+      "kernel_mean": 4.413595888763666e-08,
+      "kernel_trace": 586.499755859375,
+      "quantum_config": {
+        "angle_scale": 1.25,
+        "eps": 1e-08,
+        "kernel_mode": "centered_fidelity",
+        "kernel_temperature": 1.0,
+        "max_state_dim": 1024,
+        "num_qubits": 6,
+        "seed": 17
+      },
+      "state_dim": 64
+    },
+    "selected_on": "/root/projects/Q-Attention/data/relation/retacred/valid.jsonl",
+    "selection_metrics": {
+      "accuracy": 0.1422079248366013,
+      "loss": 4.631340188917771,
+      "macro_f1": 0.1240719701563697,
+      "macro_precision": 0.12906892035035647,
+      "macro_recall": 0.2164303255813564
+    }
+  },
+  "spectral_selection": {
+    "delta_vs_baseline": {
+      "accuracy": -0.00025531045751633896,
+      "loss": 0.005805186976015619,
+      "macro_f1": 0.0007681769724520587,
+      "macro_precision": 0.0010768688134417115,
+      "macro_recall": 0.00017843196067074407
+    },
+    "family": "quantum",
+    "filter": {
+      "energy": 0.9,
+      "eps": 1e-08,
+      "mode": "hard_topk",
+      "rank": 16,
+      "sharpness": 8.0,
+      "threshold": 0.5
+    },
+    "filter_diagnostics": {
+      "active_directions": 16,
+      "effective_rank": 5.679704189300537,
+      "energy": 0.9,
+      "max_singular_value": 1.6616860628128052,
+      "min_singular_value": 1.4111027013541388e-08,
+      "mode": "hard_topk",
+      "num_singular_values": 128,
+      "rank": 16,
+      "sharpness": 8.0,
+      "threshold": 0.5,
+      "top_filter_weights": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "top_singular_values": [
+        1.6616860628128052,
+        0.9792647957801819,
+        0.8889561891555786,
+        0.8086823225021362,
+        0.4903423488140106,
+        0.3969629406929016,
+        0.008410874754190445,
+        0.007525232154875994
+      ],
+      "weight_max": 1.0,
+      "weight_min": 0.0,
+      "weight_sum": 16.0
+    },
+    "gain": 0.25,
+    "metrics": {
+      "accuracy": 0.1422079248366013,
+      "loss": 4.631340188917771,
+      "macro_f1": 0.1240719701563697,
+      "macro_precision": 0.12906892035035647,
+      "macro_recall": 0.2164303255813564
+    },
+    "projector_stats": {
+      "fro_norm": 4.000000476837158,
+      "max_abs": 0.23852486908435822,
+      "trace": 16.000001907348633
+    },
+    "quantum": {
+      "kernel_mean": 4.413595888763666e-08,
+      "kernel_trace": 586.499755859375,
+      "quantum_config": {
+        "angle_scale": 1.25,
+        "eps": 1e-08,
+        "kernel_mode": "centered_fidelity",
+        "kernel_temperature": 1.0,
+        "max_state_dim": 1024,
+        "num_qubits": 6,
+        "seed": 17
+      },
+      "state_dim": 64
+    }
+  },
+  "supervised_quantum_gain_selection": {
+    "acceptance_baseline": {
+      "accuracy": 0.14328022875816993,
+      "loss": 4.615430071462993,
+      "macro_f1": 0.12213427265091262,
+      "macro_precision": 0.12876929509008112,
+      "macro_recall": 0.21580630145219032
+    },
+    "acceptance_fraction": 0.5,
+    "acceptance_num_records": 9792,
+    "acceptance_seed": 13,
+    "candidates": [
+      {
+        "delta_vs_baseline": {
+          "accuracy": 0.0,
+          "loss": 0.0,
+          "macro_f1": 0.0,
+          "macro_precision": 0.0,
+          "macro_recall": 0.0
+        },
+        "gain": 0.0,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.0,
+          "encoder.layers.1.attn.key_proj": 0.0,
+          "encoder.layers.2.attn.key_proj": 0.0
+        },
+        "layer_path": "encoder.layers.0.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.14164624183006536,
+          "loss": 4.635639926187353,
+          "macro_f1": 0.12465274294556476,
+          "macro_precision": 0.12763961397361018,
+          "macro_recall": 0.215811658182882
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": 0.0,
+          "loss": 0.0003651076672124276,
+          "macro_f1": -9.863370510121428e-06,
+          "macro_precision": -4.064216050153613e-05,
+          "macro_recall": -5.405531943930564e-05
+        },
+        "gain": 0.01,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.01,
+          "encoder.layers.1.attn.key_proj": 0.0,
+          "encoder.layers.2.attn.key_proj": 0.0
+        },
+        "layer_path": "encoder.layers.0.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.14164624183006536,
+          "loss": 4.636005033854565,
+          "macro_f1": 0.12464287957505464,
+          "macro_precision": 0.12759897181310864,
+          "macro_recall": 0.2157576028634427
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": -0.0005106209150326779,
+          "loss": 0.00092164831223851,
+          "macro_f1": -0.0006100701405421655,
+          "macro_precision": -0.0006496752991055066,
+          "macro_recall": -0.0011546729796009514
+        },
+        "gain": 0.025,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.025,
+          "encoder.layers.1.attn.key_proj": 0.0,
+          "encoder.layers.2.attn.key_proj": 0.0
+        },
+        "layer_path": "encoder.layers.0.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.14113562091503268,
+          "loss": 4.636561574499591,
+          "macro_f1": 0.1240426728050226,
+          "macro_precision": 0.12698993867450467,
+          "macro_recall": 0.21465698520328105
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": -0.0006127450980392135,
+          "loss": 0.0018724990046887768,
+          "macro_f1": -0.0006358712026236502,
+          "macro_precision": -0.0005526468729534773,
+          "macro_recall": -0.0016648770612335828
+        },
+        "gain": 0.05,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.05,
+          "encoder.layers.1.attn.key_proj": 0.0,
+          "encoder.layers.2.attn.key_proj": 0.0
+        },
+        "layer_path": "encoder.layers.0.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.14103349673202614,
+          "loss": 4.637512425192042,
+          "macro_f1": 0.12401687174294111,
+          "macro_precision": 0.1270869671006567,
+          "macro_recall": 0.21414678112164842
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": -0.0007148692810457491,
+          "loss": 0.0038652388878119837,
+          "macro_f1": -0.0011146896802304296,
+          "macro_precision": -0.000778768111857342,
+          "macro_recall": -0.002598112655170459
+        },
+        "gain": 0.1,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.1,
+          "encoder.layers.1.attn.key_proj": 0.0,
+          "encoder.layers.2.attn.key_proj": 0.0
+        },
+        "layer_path": "encoder.layers.0.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.1409313725490196,
+          "loss": 4.639505165075165,
+          "macro_f1": 0.12353805326533433,
+          "macro_precision": 0.12686084586175284,
+          "macro_recall": 0.21321354552771155
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": -0.00030637254901960675,
+          "loss": 0.010622114917032022,
+          "macro_f1": -0.0006669641700518536,
+          "macro_precision": -0.0004801201175142489,
+          "macro_recall": -0.0007798270153694387
+        },
+        "gain": 0.25,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.25,
+          "encoder.layers.1.attn.key_proj": 0.0,
+          "encoder.layers.2.attn.key_proj": 0.0
+        },
+        "layer_path": "encoder.layers.0.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.14133986928104575,
+          "loss": 4.646262041104385,
+          "macro_f1": 0.12398577877551291,
+          "macro_precision": 0.12715949385609593,
+          "macro_recall": 0.21503183116751257
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": 0.0,
+          "loss": 0.0,
+          "macro_f1": 0.0,
+          "macro_precision": 0.0,
+          "macro_recall": 0.0
+        },
+        "gain": 0.0,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.0,
+          "encoder.layers.1.attn.key_proj": 0.0,
+          "encoder.layers.2.attn.key_proj": 0.0
+        },
+        "layer_path": "encoder.layers.1.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.14164624183006536,
+          "loss": 4.635639926187353,
+          "macro_f1": 0.12465274294556476,
+          "macro_precision": 0.12763961397361018,
+          "macro_recall": 0.215811658182882
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": 0.0,
+          "loss": 2.7192184348656667e-05,
+          "macro_f1": 1.2446818363764933e-06,
+          "macro_precision": 9.738590937835578e-07,
+          "macro_recall": 0.0
+        },
+        "gain": 0.01,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.0,
+          "encoder.layers.1.attn.key_proj": 0.01,
+          "encoder.layers.2.attn.key_proj": 0.0
+        },
+        "layer_path": "encoder.layers.1.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.14164624183006536,
+          "loss": 4.6356671183717015,
+          "macro_f1": 0.12465398762740114,
+          "macro_precision": 0.12764058783270396,
+          "macro_recall": 0.215811658182882
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": -0.00010212418300653558,
+          "loss": 6.891387740015631e-05,
+          "macro_f1": -6.463206697353285e-05,
+          "macro_precision": -0.00017607117040310816,
+          "macro_recall": -2.1795989537942706e-05
+        },
+        "gain": 0.025,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.0,
+          "encoder.layers.1.attn.key_proj": 0.025,
+          "encoder.layers.2.attn.key_proj": 0.0
+        },
+        "layer_path": "encoder.layers.1.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.14154411764705882,
+          "loss": 4.635708840064753,
+          "macro_f1": 0.12458811087859123,
+          "macro_precision": 0.12746354280320707,
+          "macro_recall": 0.21578986219334406
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": -0.00010212418300653558,
+          "loss": 0.0001406357958426696,
+          "macro_f1": -3.512863366403329e-05,
+          "macro_precision": -0.00018576210140522353,
+          "macro_recall": 2.3858185609432203e-05
+        },
+        "gain": 0.05,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.0,
+          "encoder.layers.1.attn.key_proj": 0.05,
+          "encoder.layers.2.attn.key_proj": 0.0
+        },
+        "layer_path": "encoder.layers.1.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.14154411764705882,
+          "loss": 4.6357805619831955,
+          "macro_f1": 0.12461761431190073,
+          "macro_precision": 0.12745385187220495,
+          "macro_recall": 0.21583551636849144
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": 0.00010212418300653558,
+          "loss": 0.00029309590657611295,
+          "macro_f1": 0.0004129427190927709,
+          "macro_precision": 0.00032000723707151235,
+          "macro_recall": 0.0006687260489242897
+        },
+        "gain": 0.1,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.0,
+          "encoder.layers.1.attn.key_proj": 0.1,
+          "encoder.layers.2.attn.key_proj": 0.0
+        },
+        "layer_path": "encoder.layers.1.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.1417483660130719,
+          "loss": 4.635933022093929,
+          "macro_f1": 0.12506568566465753,
+          "macro_precision": 0.1279596212106817,
+          "macro_recall": 0.2164803842318063
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": -0.00010212418300653558,
+          "loss": 0.0008337980781512044,
+          "macro_f1": -7.206314823716975e-05,
+          "macro_precision": -0.0001400739429400777,
+          "macro_recall": 0.00036518844069921563
+        },
+        "gain": 0.25,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.0,
+          "encoder.layers.1.attn.key_proj": 0.25,
+          "encoder.layers.2.attn.key_proj": 0.0
+        },
+        "layer_path": "encoder.layers.1.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.14154411764705882,
+          "loss": 4.636473724265504,
+          "macro_f1": 0.12458067979732759,
+          "macro_precision": 0.1274995400306701,
+          "macro_recall": 0.21617684662358122
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": 0.00010212418300653558,
+          "loss": 0.00029309590657611295,
+          "macro_f1": 0.0004129427190927709,
+          "macro_precision": 0.00032000723707151235,
+          "macro_recall": 0.0006687260489242897
+        },
+        "gain": 0.0,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.0,
+          "encoder.layers.1.attn.key_proj": 0.1,
+          "encoder.layers.2.attn.key_proj": 0.0
+        },
+        "layer_path": "encoder.layers.2.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.1417483660130719,
+          "loss": 4.635933022093929,
+          "macro_f1": 0.12506568566465753,
+          "macro_precision": 0.1279596212106817,
+          "macro_recall": 0.2164803842318063
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": 0.00010212418300653558,
+          "loss": 0.00031026827743652063,
+          "macro_f1": 0.0004158890670191845,
+          "macro_precision": 0.0003219374045926593,
+          "macro_recall": 0.0006687260489242897
+        },
+        "gain": 0.01,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.0,
+          "encoder.layers.1.attn.key_proj": 0.1,
+          "encoder.layers.2.attn.key_proj": 0.01
+        },
+        "layer_path": "encoder.layers.2.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.1417483660130719,
+          "loss": 4.635950194464789,
+          "macro_f1": 0.12506863201258395,
+          "macro_precision": 0.12796155137820284,
+          "macro_recall": 0.2164803842318063
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": 0.00010212418300653558,
+          "loss": 0.00033674053117405123,
+          "macro_f1": 0.0004122487226127375,
+          "macro_precision": 0.0002391134208572787,
+          "macro_recall": 0.0006687260489242897
+        },
+        "gain": 0.025,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.0,
+          "encoder.layers.1.attn.key_proj": 0.1,
+          "encoder.layers.2.attn.key_proj": 0.025
+        },
+        "layer_path": "encoder.layers.2.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.1417483660130719,
+          "loss": 4.635976666718527,
+          "macro_f1": 0.1250649916681775,
+          "macro_precision": 0.12787872739446746,
+          "macro_recall": 0.2164803842318063
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": 0.00010212418300653558,
+          "loss": 0.0003824981988644893,
+          "macro_f1": 0.00039472769757255277,
+          "macro_precision": 0.00021893811828330167,
+          "macro_recall": 0.0006687260489242897
+        },
+        "gain": 0.05,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.0,
+          "encoder.layers.1.attn.key_proj": 0.1,
+          "encoder.layers.2.attn.key_proj": 0.05
+        },
+        "layer_path": "encoder.layers.2.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.1417483660130719,
+          "loss": 4.636022424386217,
+          "macro_f1": 0.12504747064313732,
+          "macro_precision": 0.12785855209189348,
+          "macro_recall": 0.2164803842318063
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": 0.00020424836601307117,
+          "loss": 0.00047976051280773646,
+          "macro_f1": 0.0005593571382418866,
+          "macro_precision": 0.00042700303383946814,
+          "macro_recall": 0.0007769511571494025
+        },
+        "gain": 0.1,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.0,
+          "encoder.layers.1.attn.key_proj": 0.1,
+          "encoder.layers.2.attn.key_proj": 0.1
+        },
+        "layer_path": "encoder.layers.2.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.14185049019607843,
+          "loss": 4.636119686700161,
+          "macro_f1": 0.12521210008380665,
+          "macro_precision": 0.12806661700744965,
+          "macro_recall": 0.2165886093400314
+        },
+        "pass_index": 0
+      },
+      {
+        "delta_vs_baseline": {
+          "accuracy": 0.00030637254901960675,
+          "loss": 0.0008182432137289197,
+          "macro_f1": 0.0005669610987901336,
+          "macro_precision": 0.00014019075351506816,
+          "macro_recall": 0.0012700965338124093
+        },
+        "gain": 0.25,
+        "layer_gains": {
+          "encoder.layers.0.attn.key_proj": 0.0,
+          "encoder.layers.1.attn.key_proj": 0.1,
+          "encoder.layers.2.attn.key_proj": 0.25
+        },
+        "layer_path": "encoder.layers.2.attn.key_proj",
+        "metrics": {
+          "accuracy": 0.14195261437908496,
+          "loss": 4.636458169401082,
+          "macro_f1": 0.1252197040443549,
+          "macro_precision": 0.12777980472712525,
+          "macro_recall": 0.21708175471669441
+        },
+        "pass_index": 0
+      }
+    ],
+    "confidence_diagnostics": {
+      "confidence": 0.95,
+      "lower": -0.0007902474973680743,
+      "num_samples": 200,
+      "observed_delta": -6.13183235880499e-05,
+      "seed": 13,
+      "upper": 0.0007556084891261011
+    },
+    "coordinate_passes": 1,
+    "coordinate_steps": [
+      {
+        "layer_path": "encoder.layers.0.attn.key_proj",
+        "pass_index": 0,
+        "selected_gain": 0.0,
+        "selected_gains": {
+          "encoder.layers.0.attn.key_proj": 0.0,
+          "encoder.layers.1.attn.key_proj": 0.0,
+          "encoder.layers.2.attn.key_proj": 0.0
+        },
+        "selected_metric": 0.12465274294556476
+      },
+      {
+        "layer_path": "encoder.layers.1.attn.key_proj",
+        "pass_index": 0,
+        "selected_gain": 0.1,
+        "selected_gains": {
+          "encoder.layers.0.attn.key_proj": 0.0,
+          "encoder.layers.1.attn.key_proj": 0.1,
+          "encoder.layers.2.attn.key_proj": 0.0
+        },
+        "selected_metric": 0.12506568566465753
+      },
+      {
+        "layer_path": "encoder.layers.2.attn.key_proj",
+        "pass_index": 0,
+        "selected_gain": 0.25,
+        "selected_gains": {
+          "encoder.layers.0.attn.key_proj": 0.0,
+          "encoder.layers.1.attn.key_proj": 0.1,
+          "encoder.layers.2.attn.key_proj": 0.25
+        },
+        "selected_metric": 0.1252197040443549
+      }
+    ],
+    "proposed_acceptance_metrics": {
+      "accuracy": 0.14307598039215685,
+      "loss": 4.615750630696614,
+      "macro_f1": 0.12207295432732461,
+      "macro_precision": 0.129155614583884,
+      "macro_recall": 0.21539306485379509
+    },
+    "proposed_gain": null,
+    "proposed_gains": {
+      "encoder.layers.0.attn.key_proj": 0.0,
+      "encoder.layers.1.attn.key_proj": 0.1,
+      "encoder.layers.2.attn.key_proj": 0.25
+    },
+    "proposed_layer": null,
+    "proposed_validation_metrics": {
+      "accuracy": 0.14195261437908496,
+      "loss": 4.636458169401082,
+      "macro_f1": 0.1252197040443549,
+      "macro_precision": 0.12777980472712525,
+      "macro_recall": 0.21708175471669441
+    },
+    "selected_acceptance_metrics": {
+      "accuracy": 0.14328022875816993,
+      "loss": 4.615430071462993,
+      "macro_f1": 0.12213427265091262,
+      "macro_precision": 0.12876929509008112,
+      "macro_recall": 0.21580630145219032
+    },
+    "selected_gain": null,
+    "selected_gains": {
+      "encoder.layers.0.attn.key_proj": 0.0,
+      "encoder.layers.1.attn.key_proj": 0.0,
+      "encoder.layers.2.attn.key_proj": 0.0
+    },
+    "selected_layer": null,
+    "selected_validation_metrics": {
+      "accuracy": 0.14164624183006536,
+      "loss": 4.635639926187353,
+      "macro_f1": 0.12465274294556476,
+      "macro_precision": 0.12763961397361018,
+      "macro_recall": 0.215811658182882
+    },
+    "selection_accepted": false,
+    "selection_metric": "macro_f1",
+    "selection_num_records": 9792,
+    "selection_path": "/root/projects/Q-Attention/data/relation/retacred/valid.jsonl",
+    "selection_split": "validation",
+    "selection_strategy": "coordinate",
+    "tie_break": "higher_metric_then_smaller_absolute_gain_then_earlier_candidate",
+    "validation_baseline": {
+      "accuracy": 0.14164624183006536,
+      "loss": 4.635639926187353,
+      "macro_f1": 0.12465274294556476,
+      "macro_precision": 0.12763961397361018,
+      "macro_recall": 0.215811658182882
+    }
+  }
+}
