@@ -36,17 +36,18 @@ set -o pipefail
 ```bash
 python experiments/run_relation_smoke_pipeline.py \
   --config configs/retacred_debug_gpu.json \
-  --device cuda 2>&1 | tee runs/handoff_logs/retacred_debug_gpu.log
-python experiments/summarize_relation_run.py --run_dir runs/retacred_debug_gpu
+  --device cuda 2>&1 | tee runs/handoff_logs/retacred_debug_gpu_$(date +%Y%m%d-%H%M%S).log
 ```
 
 ### Low-resource
 
 ```bash
+LOW_LOG=runs/handoff_logs/retacred_low_resource_gpu_$(date +%Y%m%d-%H%M%S).log
 python experiments/run_relation_smoke_pipeline.py \
   --config configs/retacred_low_resource_gpu.json \
-  --device cuda 2>&1 | tee runs/handoff_logs/retacred_low_resource_gpu.log
-python experiments/summarize_relation_run.py --run_dir runs/retacred_low_resource_gpu
+  --device cuda 2>&1 | tee "${LOW_LOG}"
+LOW_RUN=$(ls -dt runs/retacred_low_resource_gpu/*/ | head -n 1)
+echo "LOW_RUN=${LOW_RUN}"
 ```
 
 不要手动增加 low-resource 的 `max_valid_records`。
@@ -54,11 +55,15 @@ python experiments/summarize_relation_run.py --run_dir runs/retacred_low_resourc
 ### Full
 
 ```bash
+FULL_LOG=runs/handoff_logs/retacred_full_gpu_$(date +%Y%m%d-%H%M%S).log
 python experiments/run_relation_smoke_pipeline.py \
   --config configs/retacred_full_gpu.json \
-  --device cuda 2>&1 | tee runs/handoff_logs/retacred_full_gpu.log
-python experiments/summarize_relation_run.py --run_dir runs/retacred_full_gpu
+  --device cuda 2>&1 | tee "${FULL_LOG}"
+FULL_RUN=$(ls -dt runs/retacred_full_gpu/*/ | head -n 1)
+echo "FULL_RUN=${FULL_RUN}"
 ```
+
+不传 `--output_dir` 时，脚本会自动创建 `runs/<配置名>/<日期-时间>/`，并在成功结束时自动生成 `pipeline_summary.json`、`run_summary.json` 和 `run_summary.md`。只有 summary 缺失时，才手动运行 `summarize_relation_run.py`。
 
 ## 4. 提交到 GitHub 的文件
 

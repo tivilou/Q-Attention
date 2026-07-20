@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 from collections import Counter
+from datetime import datetime, timezone
 from pathlib import Path
 
 from q_attention.tasks.relation import RelationRecord
@@ -44,6 +45,31 @@ def test_split_path_supports_direct_and_nested_configs() -> None:
 
     assert module.split_path_from_config({"test_path": "direct.jsonl"}, "test") == "direct.jsonl"
     assert module.split_path_from_config({"splits": {"test": {"path": "nested.jsonl"}}}, "test") == "nested.jsonl"
+
+
+def test_pipeline_creates_timestamped_run_directories(tmp_path) -> None:
+    module = load_experiment("run_relation_smoke_pipeline.py")
+    fixed_time = datetime(2026, 7, 20, 9, 30, 45, tzinfo=timezone.utc)
+    output_root = tmp_path / "runs" / "retacred_full_gpu"
+    config = {"output_dir": str(output_root)}
+
+    first = module.create_run_output_dir(None, config, now=fixed_time)
+    second = module.create_run_output_dir(None, config, now=fixed_time)
+
+    assert first == output_root / "20260720-093045"
+    assert second == output_root / "20260720-093045-01"
+    assert first.is_dir()
+    assert second.is_dir()
+
+
+def test_pipeline_explicit_output_directory_remains_exact(tmp_path) -> None:
+    module = load_experiment("run_relation_smoke_pipeline.py")
+    explicit = tmp_path / "manual-run"
+
+    output_dir = module.create_run_output_dir(explicit, {"output_dir": str(tmp_path / "ignored")})
+
+    assert output_dir == explicit
+    assert output_dir.is_dir()
 
 
 def test_spectral_selection_uses_macro_f1() -> None:

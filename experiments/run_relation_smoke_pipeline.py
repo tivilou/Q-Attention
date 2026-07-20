@@ -136,7 +136,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--train_path", default=None, help="Override canonical train JSONL path")
     parser.add_argument("--valid_path", default=None, help="Override canonical validation JSONL path")
     parser.add_argument("--test_path", default=None, help="Override canonical final-test JSONL path")
-    parser.add_argument("--output_dir", default=None, help="Override run directory")
+    parser.add_argument(
+        "--output_dir",
+        default=None,
+        help="Use this exact run directory instead of creating a timestamped child under the configured output_dir",
+    )
     parser.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda"])
     parser.add_argument("--stages", default=None, help="Comma-separated stage names; otherwise use config or the legacy defaults")
     parser.add_argument("--max_train_records", type=int, default=None, help="Optional train subset for smoke runs")
@@ -150,6 +154,34 @@ def parse_args() -> argparse.Namespace:
 def resolve_project_path(path_value: str | Path) -> Path:
     path = Path(path_value)
     return path if path.is_absolute() else ROOT / path
+
+
+def create_run_output_dir(
+    explicit_output_dir: str | Path | None,
+    config: Mapping[str, Any],
+    *,
+    now: datetime | None = None,
+) -> Path:
+    if explicit_output_dir is not None:
+        output_dir = resolve_project_path(explicit_output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        return output_dir
+
+    configured_root = config.get("output_dir")
+    if configured_root is None:
+        configured_root = Path("runs") / str(config.get("name", "relation_real_smoke"))
+    output_root = resolve_project_path(configured_root)
+    timestamp = (now or datetime.now().astimezone()).strftime("%Y%m%d-%H%M%S")
+
+    for duplicate_index in range(1000):
+        suffix = "" if duplicate_index == 0 else f"-{duplicate_index:02d}"
+        output_dir = output_root / f"{timestamp}{suffix}"
+        try:
+            output_dir.mkdir(parents=True, exist_ok=False)
+        except FileExistsError:
+            continue
+        return output_dir
+    raise RuntimeError(f"could not create a unique timestamped run directory under {output_root}")
 
 
 def read_config(path: str | Path) -> dict[str, Any]:
@@ -320,8 +352,8 @@ def main() -> None:
     if isinstance(configured_stages, (list, tuple)):
         configured_stages = ",".join(str(item) for item in configured_stages)
     stages = parse_stage_list(str(configured_stages))
-    output_dir = resolve_project_path(args.output_dir or config.get("output_dir", "runs/relation_real_smoke"))
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir = create_run_output_dir(args.output_dir, config)
+    print(json.dumps({"event": "run_started", "output_dir": str(output_dir)}, sort_keys=True), flush=True)
 
     train_value = args.train_path or split_path_from_config(config, "train")
     valid_value = args.valid_path or split_path_from_config(config, "valid")

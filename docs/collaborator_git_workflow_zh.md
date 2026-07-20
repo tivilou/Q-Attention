@@ -181,19 +181,16 @@ set -o pipefail
 python experiments/run_relation_smoke_pipeline.py \
   --config configs/retacred_debug_gpu.json \
   --device cuda \
-  2>&1 | tee runs/handoff_logs/retacred_debug_gpu.log
-
-python experiments/summarize_relation_run.py \
-  --run_dir runs/retacred_debug_gpu
+  2>&1 | tee runs/handoff_logs/retacred_debug_gpu_$(date +%Y%m%d-%H%M%S).log
 ```
 
-期望生成：
+脚本会自动创建带时间戳的目录，期望生成：
 
 ```text
-runs/retacred_debug_gpu/pipeline_summary.json
-runs/retacred_debug_gpu/run_summary.json
-runs/retacred_debug_gpu/run_summary.md
-runs/retacred_debug_gpu/supervised_quantum_gain_selection/gain_selection.json
+runs/retacred_debug_gpu/<日期-时间>/pipeline_summary.json
+runs/retacred_debug_gpu/<日期-时间>/run_summary.json
+runs/retacred_debug_gpu/<日期-时间>/run_summary.md
+runs/retacred_debug_gpu/<日期-时间>/supervised_quantum_gain_selection/gain_selection.json
 ```
 
 ### 5.2 Low-resource run
@@ -201,35 +198,43 @@ runs/retacred_debug_gpu/supervised_quantum_gain_selection/gain_selection.json
 Debug 通过后再跑：
 
 ```bash
+LOW_LOG=runs/handoff_logs/retacred_low_resource_gpu_$(date +%Y%m%d-%H%M%S).log
+
 python experiments/run_relation_smoke_pipeline.py \
   --config configs/retacred_low_resource_gpu.json \
   --device cuda \
-  2>&1 | tee runs/handoff_logs/retacred_low_resource_gpu.log
+  2>&1 | tee "${LOW_LOG}"
 
-python experiments/summarize_relation_run.py \
-  --run_dir runs/retacred_low_resource_gpu
+LOW_RUN=$(ls -dt runs/retacred_low_resource_gpu/*/ | head -n 1)
+echo "LOW_RUN=${LOW_RUN}"
 ```
+
+不要添加 `--output_dir` 或 `--max_valid_records`。
 
 ### 5.3 Full run
 
 最后跑 full：
 
 ```bash
+FULL_LOG=runs/handoff_logs/retacred_full_gpu_$(date +%Y%m%d-%H%M%S).log
+
 python experiments/run_relation_smoke_pipeline.py \
   --config configs/retacred_full_gpu.json \
   --device cuda \
-  2>&1 | tee runs/handoff_logs/retacred_full_gpu.log
+  2>&1 | tee "${FULL_LOG}"
 
-python experiments/summarize_relation_run.py \
-  --run_dir runs/retacred_full_gpu
+FULL_RUN=$(ls -dt runs/retacred_full_gpu/*/ | head -n 1)
+echo "FULL_RUN=${FULL_RUN}"
 ```
+
+不传 `--output_dir` 时，每次运行都会自动创建 `runs/<配置名>/<日期-时间>/`，不会覆盖之前的正式结果。
 
 ## 6. 如果 run_summary 没有生成
 
-`summarize_relation_run.py` 正常执行成功时，会打印类似：
+pipeline 正常完成时会自动调用 `summarize_relation_run.py`，不需要再手动执行。汇总成功时会打印类似：
 
 ```json
-{"output_json": "runs/retacred_full_gpu/run_summary.json", "output_markdown": "runs/retacred_full_gpu/run_summary.md", "rows": 6}
+{"output_json": "runs/retacred_full_gpu/<日期-时间>/run_summary.json", "output_markdown": "runs/retacred_full_gpu/<日期-时间>/run_summary.md", "rows": 6}
 ```
 
 `rows` 数量应与实际运行阶段一致，不要把固定的旧数量当作成功条件。
@@ -239,9 +244,10 @@ python experiments/summarize_relation_run.py \
 ```bash
 pwd
 git branch --show-current
-ls -la runs/retacred_full_gpu
-python experiments/summarize_relation_run.py --run_dir runs/retacred_full_gpu
-find . -path '*retacred_full_gpu/run_summary.*' -print
+FULL_RUN=$(ls -dt runs/retacred_full_gpu/*/ | head -n 1)
+echo "FULL_RUN=${FULL_RUN}"
+ls -la "${FULL_RUN}"
+python experiments/summarize_relation_run.py --run_dir "${FULL_RUN}"
 ```
 
 常见原因是：命令不是在项目根目录执行，或者查看的是另一个旧目录。
@@ -250,10 +256,14 @@ find . -path '*retacred_full_gpu/run_summary.*' -print
 
 不要直接提交 `runs/`。`runs/` 里面有模型权重、中间文件和可能很大的日志。请把需要交付的结果复制到 `reports/`。
 
-建议按日期建目录，例如：
+先定位本次结果和日志，再创建新的报告目录：
 
 ```bash
-DATE=2026-07-20-corrected
+FULL_RUN=$(ls -dt runs/retacred_full_gpu/*/ | head -n 1)
+LOW_RUN=$(ls -dt runs/retacred_low_resource_gpu/*/ | head -n 1)
+FULL_LOG=$(ls -t runs/handoff_logs/retacred_full_gpu_*.log | head -n 1)
+LOW_LOG=$(ls -t runs/handoff_logs/retacred_low_resource_gpu_*.log | head -n 1)
+DATE=$(date +%Y%m%d-%H%M%S)-corrected
 mkdir -p reports/retacred/${DATE}/full
 mkdir -p reports/retacred/${DATE}/low_resource
 mkdir -p reports/retacred/${DATE}/debug
@@ -275,7 +285,7 @@ python -m json.tool reports/retacred/${DATE}/configs/retacred_low_resource_gpu.j
 公开提交的 full 文件清单：
 
 ```bash
-RUN=runs/retacred_full_gpu
+RUN=${FULL_RUN}
 OUT=reports/retacred/${DATE}/full
 
 cp ${RUN}/pipeline_summary.json ${OUT}/
@@ -286,13 +296,13 @@ cp ${RUN}/classical_steering_eval/metrics.json ${OUT}/classical_steering_metrics
 cp ${RUN}/quantum_steering_eval/metrics.json ${OUT}/quantum_steering_metrics.json
 cp ${RUN}/spectral_filter_sweep/summary.json ${OUT}/spectral_filter_summary.json
 cp ${RUN}/relation_routing_eval/metrics.json ${OUT}/routing_metrics.json
-tail -n 1000 runs/handoff_logs/retacred_full_gpu.log > reports/retacred/${DATE}/logs/retacred_full_gpu.tail.txt
+tail -n 1000 "${FULL_LOG}" > reports/retacred/${DATE}/logs/retacred_full_gpu.tail.txt
 ```
 
 公开提交的 low-resource 文件清单：
 
 ```bash
-RUN=runs/retacred_low_resource_gpu
+RUN=${LOW_RUN}
 OUT=reports/retacred/${DATE}/low_resource
 
 cp ${RUN}/pipeline_summary.json ${OUT}/
@@ -303,7 +313,7 @@ cp ${RUN}/classical_steering_eval/metrics.json ${OUT}/classical_steering_metrics
 cp ${RUN}/quantum_steering_eval/metrics.json ${OUT}/quantum_steering_metrics.json
 cp ${RUN}/spectral_filter_sweep/summary.json ${OUT}/spectral_filter_summary.json
 cp ${RUN}/relation_routing_eval/metrics.json ${OUT}/routing_metrics.json
-tail -n 1000 runs/handoff_logs/retacred_low_resource_gpu.log > reports/retacred/${DATE}/logs/retacred_low_resource_gpu.tail.txt
+tail -n 1000 "${LOW_LOG}" > reports/retacred/${DATE}/logs/retacred_low_resource_gpu.tail.txt
 ```
 
 Debug 结果通常不需要提交；如果 debug 失败，只提交失败日志和环境信息，不提交 `runs/`。
@@ -338,12 +348,12 @@ reports/retacred/<date>/logs/retacred_low_resource_gpu.tail.txt
 私有复核包必须至少保留：
 
 ```text
-runs/<run_name>/supervised_quantum_gain_selection/gain_selection.json
-runs/<run_name>/supervised_quantum_gain_selection/metrics.json
-runs/<run_name>/supervised_quantum_gain_selection/run_info.json
-runs/<run_name>/baseline/relation_supervised_quantum_projector_metadata.json
-runs/<run_name>/baseline/relation_supervised_quantum_projector.pt
-runs/<run_name>/supervised_quantum_gain_selection/predictions.jsonl
+runs/<配置名>/<日期-时间>/supervised_quantum_gain_selection/gain_selection.json
+runs/<配置名>/<日期-时间>/supervised_quantum_gain_selection/metrics.json
+runs/<配置名>/<日期-时间>/supervised_quantum_gain_selection/run_info.json
+runs/<配置名>/<日期-时间>/baseline/relation_supervised_quantum_projector_metadata.json
+runs/<配置名>/<日期-时间>/baseline/relation_supervised_quantum_projector.pt
+runs/<配置名>/<日期-时间>/supervised_quantum_gain_selection/predictions.jsonl
 runs/handoff_logs/<run_name>.log
 ```
 
