@@ -254,151 +254,59 @@ python experiments/summarize_relation_run.py --run_dir "${FULL_RUN}"
 
 ## 7. 整理要提交的结果
 
-不要直接提交 `runs/`。`runs/` 里面有模型权重、中间文件和可能很大的日志。请把需要交付的结果复制到 `reports/`。
-
-先定位本次结果和日志，再创建新的报告目录：
+不要再使用个人 `copy.sh`，也不要手工逐项复制。full 和 low-resource 都成功后，确认下面四个变量仍指向本轮运行：
 
 ```bash
-FULL_RUN=$(ls -dt runs/retacred_full_gpu/*/ | head -n 1)
-LOW_RUN=$(ls -dt runs/retacred_low_resource_gpu/*/ | head -n 1)
-FULL_LOG=$(ls -t runs/handoff_logs/retacred_full_gpu_*.log | head -n 1)
-LOW_LOG=$(ls -t runs/handoff_logs/retacred_low_resource_gpu_*.log | head -n 1)
-DATE=$(date +%Y%m%d-%H%M%S)-corrected
-mkdir -p reports/retacred/${DATE}/full
-mkdir -p reports/retacred/${DATE}/low_resource
-mkdir -p reports/retacred/${DATE}/debug
-mkdir -p reports/retacred/${DATE}/configs
-mkdir -p reports/retacred/${DATE}/logs
-```
-
-复制本次实际使用的配置并验证 JSON：
-
-```bash
-cp configs/retacred_full_gpu.json reports/retacred/${DATE}/configs/
-cp configs/retacred_low_resource_gpu.json reports/retacred/${DATE}/configs/
-python -m json.tool reports/retacred/${DATE}/configs/retacred_full_gpu.json >/dev/null
-python -m json.tool reports/retacred/${DATE}/configs/retacred_low_resource_gpu.json >/dev/null
-```
-
-不要把日志内容复制到 `configs/`；日志只能放到 `logs/`。
-
-公开提交的 full 文件清单：
-
-```bash
-RUN=${FULL_RUN}
-OUT=reports/retacred/${DATE}/full
-
-cp ${RUN}/pipeline_summary.json ${OUT}/
-cp ${RUN}/run_summary.json ${OUT}/
-cp ${RUN}/run_summary.md ${OUT}/
-cp ${RUN}/baseline/metrics.json ${OUT}/baseline_metrics.json
-cp ${RUN}/classical_steering_eval/metrics.json ${OUT}/classical_steering_metrics.json
-cp ${RUN}/quantum_steering_eval/metrics.json ${OUT}/quantum_steering_metrics.json
-cp ${RUN}/spectral_filter_sweep/summary.json ${OUT}/spectral_filter_summary.json
-cp ${RUN}/relation_routing_eval/metrics.json ${OUT}/routing_metrics.json
-tail -n 1000 "${FULL_LOG}" > reports/retacred/${DATE}/logs/retacred_full_gpu.tail.txt
-```
-
-公开提交的 low-resource 文件清单：
-
-```bash
-RUN=${LOW_RUN}
-OUT=reports/retacred/${DATE}/low_resource
-
-cp ${RUN}/pipeline_summary.json ${OUT}/
-cp ${RUN}/run_summary.json ${OUT}/
-cp ${RUN}/run_summary.md ${OUT}/
-cp ${RUN}/baseline/metrics.json ${OUT}/baseline_metrics.json
-cp ${RUN}/classical_steering_eval/metrics.json ${OUT}/classical_steering_metrics.json
-cp ${RUN}/quantum_steering_eval/metrics.json ${OUT}/quantum_steering_metrics.json
-cp ${RUN}/spectral_filter_sweep/summary.json ${OUT}/spectral_filter_summary.json
-cp ${RUN}/relation_routing_eval/metrics.json ${OUT}/routing_metrics.json
-tail -n 1000 "${LOW_LOG}" > reports/retacred/${DATE}/logs/retacred_low_resource_gpu.tail.txt
-```
-
-Debug 结果通常不需要提交；如果 debug 失败，只提交失败日志和环境信息，不提交 `runs/`。
-
-公开提交的完整清单是：
-
-```text
-reports/retacred/<date>/configs/retacred_full_gpu.json
-reports/retacred/<date>/configs/retacred_low_resource_gpu.json
-reports/retacred/<date>/full/pipeline_summary.json
-reports/retacred/<date>/full/run_summary.json
-reports/retacred/<date>/full/run_summary.md
-reports/retacred/<date>/full/baseline_metrics.json
-reports/retacred/<date>/full/classical_steering_metrics.json
-reports/retacred/<date>/full/quantum_steering_metrics.json
-reports/retacred/<date>/full/spectral_filter_summary.json
-reports/retacred/<date>/full/routing_metrics.json
-reports/retacred/<date>/low_resource/pipeline_summary.json
-reports/retacred/<date>/low_resource/run_summary.json
-reports/retacred/<date>/low_resource/run_summary.md
-reports/retacred/<date>/low_resource/baseline_metrics.json
-reports/retacred/<date>/low_resource/classical_steering_metrics.json
-reports/retacred/<date>/low_resource/quantum_steering_metrics.json
-reports/retacred/<date>/low_resource/spectral_filter_summary.json
-reports/retacred/<date>/low_resource/routing_metrics.json
-reports/retacred/<date>/logs/retacred_full_gpu.tail.txt
-reports/retacred/<date>/logs/retacred_low_resource_gpu.tail.txt
-```
-
-`supervised_quantum_gain_selection/` 的原始文件、projector metadata、权重、predictions 和完整日志不提交公开仓库，只在需要复现或排错时私下提供。
-
-私有复核包必须至少保留：
-
-```text
-runs/<配置名>/<日期-时间>/supervised_quantum_gain_selection/gain_selection.json
-runs/<配置名>/<日期-时间>/supervised_quantum_gain_selection/metrics.json
-runs/<配置名>/<日期-时间>/supervised_quantum_gain_selection/run_info.json
-runs/<配置名>/<日期-时间>/baseline/relation_supervised_quantum_projector_metadata.json
-runs/<配置名>/<日期-时间>/baseline/relation_supervised_quantum_projector.pt
-runs/<配置名>/<日期-时间>/supervised_quantum_gain_selection/predictions.jsonl
-runs/handoff_logs/<run_name>.log
-```
-
-这些文件不需要上传 GitHub；日常结果诊断以公开 `reports/` 为准，需要复现或排错时再使用私有复核包。
-
-不要提交这些文件：
-
-```text
-data/
-runs/
-*.pt
-*.pth
-*.ckpt
-predictions.jsonl
-routing.jsonl
-*.jsonl
-原始 TACRED/Re-TACRED 数据
-```
-
-## 8. 提交结果到 1.1
-
-提交前先检查状态：
-
-```bash
+echo "FULL_RUN=${FULL_RUN}"
+echo "LOW_RUN=${LOW_RUN}"
+echo "FULL_LOG=${FULL_LOG}"
+echo "LOW_LOG=${LOW_LOG}"
 git status --short
 ```
 
-理想情况下，只应该看到 `reports/retacred/<日期>/...`。如果看到 `data/`、`runs/`、`*.pt`，不要提交。
-
-只 add 报告目录，不要用 `git add .`：
+此时 `git status --short` 必须为空。然后运行仓库内正式导出脚本：
 
 ```bash
-git add reports/retacred/${DATE}
+REPORT_TAG=$(date +%Y%m%d-%H%M%S)
+REPORT_DIR=reports/retacred/${REPORT_TAG}
+
+python scripts/export_retacred_report.py \
+  --full-run "${FULL_RUN}" \
+  --low-resource-run "${LOW_RUN}" \
+  --full-log "${FULL_LOG}" \
+  --low-resource-log "${LOW_LOG}" \
+  --report-tag "${REPORT_TAG}"
+```
+
+成功时应输出：
+
+```text
+Report exported: reports/retacred/<日期-时间>
+Files exported: 20
+```
+
+脚本会检查工作树、运行 commit、`git.dirty=false`、CUDA、配置哈希、test 隔离、阶段返回码和必需文件，并且只导出 20 个允许公开提交的配置、摘要、指标和日志尾部。任何检查失败都不要手工绕过，直接把报错发给负责人。
+
+不要提交 `data/`、`runs/`、模型权重、predictions、JSONL 或完整日志。`supervised_quantum_gain_selection/` 和 projector metadata 只在负责人明确要求排错时私下提供。
+
+## 8. 提交结果到 1.1
+
+```bash
+git add "${REPORT_DIR}"
 git diff --cached --check
 git diff --cached --name-only
+git status --short
 ```
 
-确认 staged 文件都在 `reports/` 下，再 commit：
+确认暂存区只有本次 `reports/retacred/${REPORT_TAG}/` 下的 20 个文件，再执行：
 
 ```bash
-git commit -m "Add Re-TACRED ${DATE} results"
+git commit -m "Add Re-TACRED ${REPORT_TAG} results"
 git push origin 1.1
+git rev-parse HEAD
 ```
 
-推送后，把 GitHub 上 `1.1` 分支链接或 commit hash 发给负责人。负责人会检查结果，并决定是否合并到 `main`。
+把最后输出的 commit hash 发给负责人。不要使用 `git add .`。
 
 ## 9. 负责人更新 main 后，下一轮如何继续
 
