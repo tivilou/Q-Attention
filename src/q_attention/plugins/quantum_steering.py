@@ -638,27 +638,48 @@ def build_quantum_steering(
     head_dim: int,
     operator_reduction: str = "mean",
     identity_gain: float = 0.05,
+    seed: int | None = None,
 ) -> ComposableQuantumSteering:
-    """Build a composable stack using the default plugin architectures."""
+    """Build a composable stack using the default plugin architectures.
+
+    A caller-provided seed controls plugin initialization while fixed offsets
+    keep the three plugin families reproducible but independent.
+    """
     names = normalize_plugin_names(plugin_names)
+    base_seed = None if seed is None else int(seed)
     plugins: list[QuantumSteeringPlugin] = []
     for name in names:
         if name == "headwise_projector":
             plugins.append(
                 HeadwiseQuantumProjectorPlugin(
-                    HeadwiseQuantumProjectorConfig(num_layers, num_heads, head_dim)
+                    HeadwiseQuantumProjectorConfig(
+                        num_layers,
+                        num_heads,
+                        head_dim,
+                        seed=31 if base_seed is None else base_seed,
+                    )
                 )
             )
         elif name == "evidence_gate":
             plugins.append(
                 QuantumEvidenceGatePlugin(
-                    QuantumEvidenceGateConfig(num_layers, num_heads, head_dim)
+                    QuantumEvidenceGateConfig(
+                        num_layers,
+                        num_heads,
+                        head_dim,
+                        seed=37 if base_seed is None else base_seed + 1,
+                    )
                 )
             )
         elif name == "expert_bank":
             plugins.append(
                 QuantumExpertBankPlugin(
-                    QuantumExpertBankConfig(num_layers, num_heads, head_dim)
+                    QuantumExpertBankConfig(
+                        num_layers,
+                        num_heads,
+                        head_dim,
+                        seed=41 if base_seed is None else base_seed + 2,
+                    )
                 )
             )
     return ComposableQuantumSteering(

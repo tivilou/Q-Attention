@@ -176,6 +176,33 @@ def test_every_plugin_combination_is_finite_and_differentiable(plugin_names) -> 
         assert torch.equal(output, keys)
 
 
+def test_builder_seed_controls_plugin_initialization_and_metadata() -> None:
+    first = build_quantum_steering(
+        "headwise_projector,evidence_gate,expert_bank",
+        num_layers=1,
+        num_heads=2,
+        head_dim=8,
+        seed=13,
+    )
+    second = build_quantum_steering(
+        "headwise_projector,evidence_gate,expert_bank",
+        num_layers=1,
+        num_heads=2,
+        head_dim=8,
+        seed=29,
+    )
+
+    assert not torch.equal(first.plugins[0].angles, second.plugins[0].angles)
+    assert not torch.equal(
+        first.plugins[1].feature_projection,
+        second.plugins[1].feature_projection,
+    )
+    first_seeds = [item["config"]["seed"] for item in first.metadata()["plugins"]]
+    second_seeds = [item["config"]["seed"] for item in second.metadata()["plugins"]]
+    assert first_seeds == [13, 14, 15]
+    assert second_seeds == [29, 30, 31]
+
+
 def test_composer_changes_only_selected_tokens() -> None:
     torch.manual_seed(17)
     keys = torch.randn(1, 4, 8)

@@ -115,6 +115,7 @@ def main() -> None:
         head_dim=model_config.dim // model_config.num_heads,
         operator_reduction=args.operator_reduction,
         identity_gain=args.identity_gain,
+        seed=args.seed,
     ).to(device)
     adapter = QuantumPluginSteeringAdapter(model, artifacts.key_module_paths, steering)
     optimizer = torch.optim.AdamW(steering.parameters(), lr=args.lr)
