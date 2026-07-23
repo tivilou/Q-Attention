@@ -13,6 +13,7 @@ import torch.nn.functional as F
 
 
 PLUGIN_NAMES = ("headwise_projector", "evidence_gate", "expert_bank")
+CHECKPOINT_FORMAT_VERSION = 2
 
 
 @dataclass(frozen=True)
@@ -204,7 +205,9 @@ def _data_reuploading_state(
     num_qubits = projection.shape[1]
     normalized = F.normalize(features.float(), p=2, dim=-1, eps=eps)
     angles = angle_scale * torch.matmul(normalized, projection.to(features.device))
-    state = _product_state(angles)
+    # A balanced |+> initialization prevents small encoded angles from
+    # collapsing Pauli measurements and Born routing onto |0...0>.
+    state = _product_state(angles + math.pi / 2)
     for depth_index in range(scales.shape[0]):
         layer_angles = angles * scales[depth_index] + biases[depth_index]
         for qubit in range(num_qubits):
@@ -413,7 +416,16 @@ class QuantumEvidenceGatePlugin(QuantumSteeringPlugin):
                 eps=self.config.eps,
             )
             expectation = torch.matmul(states.square(), self.z_observable.to(states.device))
-            head_gates.append(expectation.reshape(batch, tokens))
+            scores = expectation.reshape(batch, tokens)
+            if context.attention_mask is None:
+                weights = torch.ones_like(scores)
+            else:
+                weights = context.attention_mask.to(device=scores.device, dtype=scores.dtype)
+            denominator = weights.sum(dim=1, keepdim=True).clamp_min(1.0)
+            centered = scores - (scores * weights).sum(dim=1, keepdim=True) / denominator
+            variance = (centered.square() * weights).sum(dim=1, keepdim=True) / denominator
+            normalized = centered / variance.add(self.config.eps).sqrt()
+            head_gates.append(torch.tanh(normalized) * weights)
         gates = torch.stack(head_gates, dim=2)
         return gates.unsqueeze(-1).expand(-1, -1, -1, self.config.head_dim).reshape_as(context.keys)
 
@@ -446,6 +458,11 @@ class QuantumExpertBankPlugin(QuantumSteeringPlugin):
             "router_projection",
             _seeded_projection(4 * config.head_dim, config.router_qubits, config.seed + 1),
         )
+        state_indices = torch.arange(2**config.router_qubits)
+        expert_indices = state_indices.remainder(config.num_experts)
+        measurement = F.one_hot(expert_indices, num_classes=config.num_experts).float()
+        measurement = measurement / measurement.sum(dim=0, keepdim=True).clamp_min(1.0)
+        self.register_buffer("router_measurement", measurement)
         self.router_scales = nn.Parameter(
             torch.ones(
                 config.num_layers,
@@ -504,7 +521,8 @@ class QuantumExpertBankPlugin(QuantumSteeringPlugin):
                 angle_scale=self.config.angle_scale,
                 eps=self.config.eps,
             )
-            probabilities = states.square()[:, : self.config.num_experts] + self.config.eps
+            probabilities = torch.matmul(states.square(), self.router_measurement)
+            probabilities = probabilities + self.config.eps
             weights.append(probabilities / probabilities.sum(dim=-1, keepdim=True))
         return torch.stack(weights, dim=1)
 
@@ -606,13 +624,14 @@ class ComposableQuantumSteering(nn.Module):
             combined_delta = torch.stack(deltas, dim=0).sum(dim=0)
             if self.operator_reduction == "mean":
                 combined_delta = combined_delta / len(deltas)
+            for gate in gates:
+                combined_delta = combined_delta * (1.0 + gate)
         elif gates:
             combined_delta = self.identity_gain * keys
+            for gate in gates:
+                combined_delta = combined_delta * gate
         else:
             return keys
-
-        for gate in gates:
-            combined_delta = combined_delta * gate
 
         mask = steering_mask if steering_mask is not None else attention_mask
         if mask is not None:
@@ -735,7 +754,7 @@ def save_quantum_steering_checkpoint(
 ) -> None:
     """Save plugin parameters independently from the frozen base model."""
     payload = {
-        "format_version": 1,
+        "format_version": CHECKPOINT_FORMAT_VERSION,
         "plugin_metadata": steering.metadata(),
         "state_dict": steering.state_dict(),
         "extra_metadata": dict(extra_metadata or {}),
@@ -753,7 +772,10 @@ def load_quantum_steering_checkpoint(
         payload = torch.load(Path(path), map_location=map_location, weights_only=True)
     except TypeError:  # pragma: no cover - compatibility with older torch
         payload = torch.load(Path(path), map_location=map_location)
-    if not isinstance(payload, Mapping) or payload.get("format_version") != 1:
+    if (
+        not isinstance(payload, Mapping)
+        or payload.get("format_version") != CHECKPOINT_FORMAT_VERSION
+    ):
         raise ValueError("unsupported quantum steering checkpoint")
     plugin_metadata = payload.get("plugin_metadata")
     state_dict = payload.get("state_dict")

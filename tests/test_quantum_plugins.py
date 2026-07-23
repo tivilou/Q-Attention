@@ -17,6 +17,8 @@ from q_attention.plugins import (
     QuantumExpertBankConfig,
     QuantumExpertBankPlugin,
     QuantumSteeringContext,
+    QuantumSteeringPlugin,
+    SteeringContribution,
     build_quantum_steering,
     load_quantum_steering_checkpoint,
     save_quantum_steering_checkpoint,
@@ -89,6 +91,9 @@ def test_evidence_gate_is_bounded_and_token_specific() -> None:
     assert torch.all(gates <= 1.0 + 1e-6)
     assert torch.all(gates >= -1.0 - 1e-6)
     assert not torch.allclose(gates[:, 0], gates[:, 1])
+    head_gates = gates.reshape(2, 5, 2, 4)[..., 0]
+    assert torch.all(head_gates.mean(dim=1).abs() < 0.25)
+    assert head_gates.abs().mean() < 0.9
 
 
 def test_evidence_gate_supports_non_power_of_two_head_dimensions() -> None:
@@ -130,6 +135,43 @@ def test_expert_bank_projectors_and_router_are_quantum_normalized() -> None:
     assert weights.shape == (3, 2, 3)
     assert torch.allclose(weights.sum(dim=-1), torch.ones(3, 2), atol=1e-6)
     assert torch.all(weights > 0)
+    assert weights.max(dim=-1).values.mean() < 0.75
+    routing_entropy = -(weights * weights.log()).sum(dim=-1)
+    assert routing_entropy.mean() > 0.5
+
+
+class ConstantContributionPlugin(QuantumSteeringPlugin):
+    def __init__(
+        self,
+        plugin_name: str,
+        *,
+        delta: float | None = None,
+        gate: float | None = None,
+    ) -> None:
+        super().__init__()
+        self.plugin_name = plugin_name
+        self.config = HeadwiseQuantumProjectorConfig(1, 2, 4, rank=2)
+        self.delta_value = delta
+        self.gate_value = gate
+
+    def forward(self, context: QuantumSteeringContext) -> SteeringContribution:
+        delta = None if self.delta_value is None else torch.full_like(context.keys, self.delta_value)
+        gate = None if self.gate_value is None else torch.full_like(context.keys, self.gate_value)
+        return SteeringContribution(self.plugin_name, delta=delta, gate=gate)
+
+
+def test_zero_evidence_gate_preserves_operator_delta() -> None:
+    keys = torch.randn(1, 3, 8)
+    operator = ConstantContributionPlugin("operator", delta=0.25)
+    evidence = ConstantContributionPlugin("evidence", gate=0.0)
+
+    combined = ComposableQuantumSteering([operator, evidence])(keys, layer_index=0)
+    gate_only = ComposableQuantumSteering(
+        [ConstantContributionPlugin("evidence_only", gate=0.0)]
+    )(keys, layer_index=0)
+
+    assert torch.allclose(combined, keys + 0.25)
+    assert torch.equal(gate_only, keys)
 
 
 @pytest.mark.parametrize(

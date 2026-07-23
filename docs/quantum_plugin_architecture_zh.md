@@ -26,13 +26,13 @@ P_{l,h}=U_{l,h}(\theta)D_rU_{l,h}(\theta)^T
 
 ### Quantum Evidence Gate
 
-`QuantumEvidenceGatePlugin` 使用有序 subject-object 和当前 token 的联合特征进行量子数据重上传，通过 Pauli-Z 期望值得到 \([-1,1]\) 内的 token/head gate。
+`QuantumEvidenceGatePlugin` 使用有序 subject-object 和当前 token 的联合特征进行量子数据重上传。线路从平衡的 \(|+\rangle^{\otimes n}\) 状态开始，避免小角度编码让 Pauli-Z 期望值塌缩到常数。测量结果在每个样本和 attention head 内进行对比标准化，得到 \([-1,1]\) 内的 token/head gate。
 
-与 operator 插件组合时，它调制 operator delta；单独启用时，以 identity operator 形成量子 token scaling 插件。
+与 operator 插件组合时，它以 \(1+e_q\) 调制 operator delta，因此零证据保持原 operator，正证据增强、负证据抑制；单独启用时，以 identity operator 形成有符号量子 token scaling 插件。
 
 ### Quantum Expert Bank
 
-`QuantumExpertBankPlugin` 包含多个严格量子 projector。量子 router 根据有序 subject-object 表征生成 Born probability，并对 projector 专家进行输入相关的软路由。
+`QuantumExpertBankPlugin` 包含多个严格量子 projector。量子 router 根据有序 subject-object 表征生成 Born probability，并使用全部量子基态概率进行平衡粗粒化测量，而不是只截取前几个基态，从而对 projector 专家进行输入相关的软路由并避免单专家塌缩。
 
 每个专家仍是严格 projector；动态混合用于处理不同关系模式对 key 子空间的不同需求。
 
@@ -65,6 +65,7 @@ python experiments/train_relation_quantum_plugins.py \
   --output_dir <plugin_output_dir> \
   --plugins headwise_projector,evidence_gate,expert_bank \
   --steering_anchor all_tokens \
+  --seed 13 \
   --device cuda
 ```
 
