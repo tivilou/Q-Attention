@@ -65,64 +65,38 @@ echo "FULL_RUN=${FULL_RUN}"
 
 不传 `--output_dir` 时，脚本会自动创建 `runs/<配置名>/<日期-时间>/`，并在成功结束时自动生成 `pipeline_summary.json`、`run_summary.json` 和 `run_summary.md`。只有 summary 缺失时，才手动运行 `summarize_relation_run.py`。
 
-## 4. 提交到 GitHub 的文件
+## 4. 使用正式脚本整理报告
 
-每次使用新的日期目录，例如：
-
-```text
-reports/retacred/2026-07-20-corrected/
-├── configs/retacred_full_gpu.json
-├── configs/retacred_low_resource_gpu.json
-├── full/pipeline_summary.json
-├── full/run_summary.json
-├── full/run_summary.md
-├── full/baseline_metrics.json
-├── full/classical_steering_metrics.json
-├── full/quantum_steering_metrics.json
-├── full/spectral_filter_summary.json
-├── full/routing_metrics.json
-├── low_resource/pipeline_summary.json
-├── low_resource/run_summary.json
-├── low_resource/run_summary.md
-├── low_resource/baseline_metrics.json
-├── low_resource/classical_steering_metrics.json
-├── low_resource/quantum_steering_metrics.json
-├── low_resource/spectral_filter_summary.json
-├── low_resource/routing_metrics.json
-└── logs/retacred_*.tail.txt
-```
-
-配置文件必须从 `configs/` 目录复制，并确认是合法 JSON：
+不要使用个人 `copy.sh`，也不要手工复制文件。保持第 3 节生成的 `FULL_RUN`、`LOW_RUN`、`FULL_LOG` 和 `LOW_LOG` 变量，然后执行：
 
 ```bash
-python -m json.tool reports/retacred/<date>/configs/retacred_full_gpu.json >/dev/null
-python -m json.tool reports/retacred/<date>/configs/retacred_low_resource_gpu.json >/dev/null
+git status --short
+REPORT_TAG=$(date +%Y%m%d-%H%M%S)
+REPORT_DIR=reports/retacred/${REPORT_TAG}
+
+python scripts/export_retacred_report.py \
+  --full-run "${FULL_RUN}" \
+  --low-resource-run "${LOW_RUN}" \
+  --full-log "${FULL_LOG}" \
+  --low-resource-log "${LOW_LOG}" \
+  --report-tag "${REPORT_TAG}"
 ```
+
+运行前 `git status --short` 必须为空。脚本成功后会生成本次唯一报告目录，并输出 `Files exported: 20`。报错时停止，不要手工绕过。
 
 ## 5. 提交命令
 
 ```bash
-git add reports/retacred/<date>
+git add "${REPORT_DIR}"
 git diff --cached --check
+git diff --cached --name-only
 git status --short
-git commit -m "Add Re-TACRED <date> results"
+git commit -m "Add Re-TACRED ${REPORT_TAG} results"
 git push origin 1.1
+git rev-parse HEAD
 ```
 
-只提交新的 `reports/` 目录。不要提交：
-
-```text
-data/
-runs/
-*.pt
-*.pth
-*.ckpt
-*.jsonl
-predictions.jsonl
-源码或配置源码修改
-```
-
-代码侧审核后再把 `1.1` 合并到 `main`。
+暂存区只能包含本次报告目录中的 20 个文件。不要使用 `git add .`，也不要提交 `data/`、`runs/`、权重、predictions、JSONL、源码或配置修改。
 
 ## 6. 诊断说明
 

@@ -82,40 +82,22 @@ python experiments/summarize_relation_run.py --run_dir "${LOW_RUN}"
 
 ## 3. 整理报告
 
+不要使用个人 `copy.sh`。full 和 low-resource 都成功后执行：
+
 ```bash
-REPORT_TAG=$(date +%Y%m%d-%H%M%S)-corrected
+git status --short
+REPORT_TAG=$(date +%Y%m%d-%H%M%S)
 REPORT_DIR=reports/retacred/${REPORT_TAG}
-mkdir -p "${REPORT_DIR}"/{configs,full,low_resource,logs}
 
-cp configs/retacred_full_gpu.json "${REPORT_DIR}/configs/"
-cp configs/retacred_low_resource_gpu.json "${REPORT_DIR}/configs/"
-python -m json.tool "${REPORT_DIR}/configs/retacred_full_gpu.json" >/dev/null
-python -m json.tool "${REPORT_DIR}/configs/retacred_low_resource_gpu.json" >/dev/null
+python scripts/export_retacred_report.py \
+  --full-run "${FULL_RUN}" \
+  --low-resource-run "${LOW_RUN}" \
+  --full-log "${FULL_LOG}" \
+  --low-resource-log "${LOW_LOG}" \
+  --report-tag "${REPORT_TAG}"
 ```
 
-```bash
-cp "${FULL_RUN}/pipeline_summary.json" "${REPORT_DIR}/full/"
-cp "${FULL_RUN}/run_summary.json" "${REPORT_DIR}/full/"
-cp "${FULL_RUN}/run_summary.md" "${REPORT_DIR}/full/"
-cp "${FULL_RUN}/baseline/metrics.json" "${REPORT_DIR}/full/baseline_metrics.json"
-cp "${FULL_RUN}/classical_steering_eval/metrics.json" "${REPORT_DIR}/full/classical_steering_metrics.json"
-cp "${FULL_RUN}/quantum_steering_eval/metrics.json" "${REPORT_DIR}/full/quantum_steering_metrics.json"
-cp "${FULL_RUN}/spectral_filter_sweep/summary.json" "${REPORT_DIR}/full/spectral_filter_summary.json"
-cp "${FULL_RUN}/relation_routing_eval/metrics.json" "${REPORT_DIR}/full/routing_metrics.json"
-tail -n 1000 "${FULL_LOG}" > "${REPORT_DIR}/logs/retacred_full_gpu.tail.txt"
-```
-
-```bash
-cp "${LOW_RUN}/pipeline_summary.json" "${REPORT_DIR}/low_resource/"
-cp "${LOW_RUN}/run_summary.json" "${REPORT_DIR}/low_resource/"
-cp "${LOW_RUN}/run_summary.md" "${REPORT_DIR}/low_resource/"
-cp "${LOW_RUN}/baseline/metrics.json" "${REPORT_DIR}/low_resource/baseline_metrics.json"
-cp "${LOW_RUN}/classical_steering_eval/metrics.json" "${REPORT_DIR}/low_resource/classical_steering_metrics.json"
-cp "${LOW_RUN}/quantum_steering_eval/metrics.json" "${REPORT_DIR}/low_resource/quantum_steering_metrics.json"
-cp "${LOW_RUN}/spectral_filter_sweep/summary.json" "${REPORT_DIR}/low_resource/spectral_filter_summary.json"
-cp "${LOW_RUN}/relation_routing_eval/metrics.json" "${REPORT_DIR}/low_resource/routing_metrics.json"
-tail -n 1000 "${LOW_LOG}" > "${REPORT_DIR}/logs/retacred_low_resource_gpu.tail.txt"
-```
+运行前 `git status --short` 必须为空；成功时应输出 `Files exported: 20`。脚本报错时停止并把报错发回，不要手工绕过。
 
 ## 4. 提交到 1.1
 
@@ -123,8 +105,10 @@ tail -n 1000 "${LOW_LOG}" > "${REPORT_DIR}/logs/retacred_low_resource_gpu.tail.t
 git add "${REPORT_DIR}"
 git diff --cached --check
 git diff --cached --name-only
-git commit -m "Add corrected Re-TACRED results ${REPORT_TAG}"
+git status --short
+git commit -m "Add Re-TACRED ${REPORT_TAG} results"
 git push origin 1.1
+git rev-parse HEAD
 ```
 
-暂存区只能包含本次 `reports/retacred/${REPORT_TAG}/`。不要提交 `data/`、`runs/`、模型权重、predictions、JSONL 或完整日志。推送后把 commit hash 发回。
+只提交本次报告目录中的 20 个文件，不要使用 `git add .`。不要提交 `data/`、`runs/`、模型权重、predictions、JSONL 或完整日志。
