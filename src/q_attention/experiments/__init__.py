@@ -1,5 +1,9 @@
 """Experiment utilities for Q-Attention."""
 
+from .quantum_plugin_training import (
+    evaluate_relation_quantum_plugins,
+    quantum_plugin_hook_config,
+)
 from .relation_steering import (
     ANCHOR_CHOICES,
     EvaluationResult,
@@ -35,11 +39,13 @@ __all__ = [
     "collect_anchor_key_vectors",
     "collect_relation_key_samples",
     "evaluate_relation_model",
+    "evaluate_relation_quantum_plugins",
     "load_projector",
     "load_relation_run",
     "make_relation_loader",
     "move_batch",
     "projector_shape_summary",
+    "quantum_plugin_hook_config",
     "read_json",
     "relation_pair_features",
 ]
