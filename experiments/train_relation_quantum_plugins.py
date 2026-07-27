@@ -26,6 +26,7 @@ from q_attention.experiments import (  # noqa: E402
     quantum_plugin_hook_config,
 )
 from q_attention.plugins import (  # noqa: E402
+    KEY_STEERING_CIRCUIT_CHOICES,
     PLUGIN_NAMES,
     build_quantum_steering,
     normalize_plugin_names,
@@ -46,6 +47,12 @@ def parse_args() -> argparse.Namespace:
         "--plugins",
         default="headwise_projector",
         help=f"Comma-separated subset of: {','.join(PLUGIN_NAMES)}",
+    )
+    parser.add_argument(
+        "--key_circuit",
+        choices=KEY_STEERING_CIRCUIT_CHOICES,
+        default="entangled",
+        help="Circuit used by headwise/quantum_key_steer plugins.",
     )
     parser.add_argument("--steering_anchor", default="all_tokens", choices=ANCHOR_CHOICES)
     parser.add_argument("--operator_reduction", default="mean", choices=["sum", "mean"])
@@ -116,6 +123,7 @@ def main() -> None:
         operator_reduction=args.operator_reduction,
         identity_gain=args.identity_gain,
         seed=args.seed,
+        key_circuit=args.key_circuit,
     ).to(device)
     adapter = QuantumPluginSteeringAdapter(model, artifacts.key_module_paths, steering)
     optimizer = torch.optim.AdamW(steering.parameters(), lr=args.lr)

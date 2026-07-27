@@ -12,8 +12,15 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-PLUGIN_NAMES = ("headwise_projector", "evidence_gate", "expert_bank")
+PLUGIN_NAMES = (
+    "headwise_projector",
+    "quantum_key_steer",
+    "classical_key_steer",
+    "evidence_gate",
+    "expert_bank",
+)
 CHECKPOINT_FORMAT_VERSION = 2
+KEY_STEERING_CIRCUIT_CHOICES = ("entangled", "product")
 
 
 @dataclass(frozen=True)
@@ -47,6 +54,7 @@ class HeadwiseQuantumProjectorConfig:
     max_gain: float = 0.5
     initial_gain: float = 0.05
     seed: int = 31
+    circuit_type: str = "entangled"
 
     def __post_init__(self) -> None:
         _validate_dimensions(
@@ -59,7 +67,16 @@ class HeadwiseQuantumProjectorConfig:
             raise ValueError("depth must be positive")
         if not 0 < self.rank <= self.head_dim:
             raise ValueError("rank must be between 1 and head_dim")
+        if self.circuit_type not in KEY_STEERING_CIRCUIT_CHOICES:
+            raise ValueError(
+                f"circuit_type must be one of {KEY_STEERING_CIRCUIT_CHOICES}"
+            )
         _validate_gain(self.initial_gain, self.max_gain)
+
+
+@dataclass(frozen=True)
+class QuantumKeySteeringConfig(HeadwiseQuantumProjectorConfig):
+    """Configuration for the standalone quantum key-steering plugin."""
 
 
 @dataclass(frozen=True)
@@ -216,7 +233,12 @@ def _data_reuploading_state(
     return F.normalize(state, p=2, dim=-1, eps=eps)
 
 
-def _unitary_projector(angles: torch.Tensor, rank: int) -> torch.Tensor:
+def _unitary_projector(
+    angles: torch.Tensor,
+    rank: int,
+    *,
+    entangle: bool = True,
+) -> torch.Tensor:
     if angles.ndim != 2:
         raise ValueError("unitary circuit angles must have shape (depth, num_qubits)")
     num_qubits = angles.shape[1]
@@ -226,10 +248,33 @@ def _unitary_projector(angles: torch.Tensor, rank: int) -> torch.Tensor:
         for qubit in range(num_qubits):
             shared_angle = angles[depth_index, qubit].expand(state_dim)
             evolved_basis = _apply_ry(evolved_basis, shared_angle, qubit, num_qubits)
-        evolved_basis = _entangle_ring(evolved_basis, num_qubits)
+        if entangle:
+            evolved_basis = _entangle_ring(evolved_basis, num_qubits)
     basis = evolved_basis[:rank].transpose(0, 1)
     projector = torch.matmul(basis, basis.transpose(0, 1))
     return 0.5 * (projector + projector.transpose(0, 1))
+
+
+def _classical_projector_bank(
+    *,
+    num_layers: int,
+    num_heads: int,
+    head_dim: int,
+    num_candidates: int,
+    rank: int,
+    seed: int,
+) -> torch.Tensor:
+    generator = torch.Generator(device="cpu").manual_seed(seed)
+    candidates = torch.randn(
+        num_layers,
+        num_heads,
+        num_candidates,
+        head_dim,
+        rank,
+        generator=generator,
+    )
+    orthonormal, _ = torch.linalg.qr(candidates, mode="reduced")
+    return torch.matmul(orthonormal, orthonormal.transpose(-1, -2))
 
 
 def _split_heads(keys: torch.Tensor, num_heads: int, head_dim: int) -> torch.Tensor:
@@ -344,10 +389,83 @@ class HeadwiseQuantumProjectorPlugin(QuantumSteeringPlugin):
     def projectors(self, layer_index: int) -> torch.Tensor:
         return torch.stack(
             [
-                _unitary_projector(self.angles[layer_index, head_index], self.config.rank)
+                _unitary_projector(
+                    self.angles[layer_index, head_index],
+                    self.config.rank,
+                    entangle=self.config.circuit_type == "entangled",
+                )
                 for head_index in range(self.config.num_heads)
             ],
             dim=0,
+        )
+
+    def forward(self, context: QuantumSteeringContext) -> SteeringContribution:
+        keys = _validate_context(
+            context,
+            num_layers=self.config.num_layers,
+            num_heads=self.config.num_heads,
+            head_dim=self.config.head_dim,
+        )
+        projectors = self.projectors(context.layer_index)
+        projected = torch.einsum("bthd,hde->bthe", keys, projectors)
+        gains = self.config.max_gain * torch.tanh(self.raw_gains[context.layer_index])
+        delta = projected * gains.view(1, 1, -1, 1)
+        return SteeringContribution(self.plugin_name, delta=delta.reshape_as(context.keys))
+
+
+class QuantumKeySteeringPlugin(HeadwiseQuantumProjectorPlugin):
+    """Standalone quantum key steering via a trainable low-rank projector."""
+
+    plugin_name = "quantum_key_steer"
+
+
+class ClassicalKeySteeringPlugin(QuantumSteeringPlugin):
+    """Parameter-matched classical low-rank projector control.
+
+    The control learns a mixture over a fixed bank of classical rank-r
+    projectors. Its trainable coefficient and gain tensors have exactly the
+    same shape as the quantum circuit angles and gains.
+    """
+
+    plugin_name = "classical_key_steer"
+
+    def __init__(self, config: HeadwiseQuantumProjectorConfig) -> None:
+        super().__init__()
+        self.config = config
+        num_qubits = _num_qubits(config.head_dim)
+        num_candidates = config.depth * num_qubits
+        self.register_buffer(
+            "projector_bank",
+            _classical_projector_bank(
+                num_layers=config.num_layers,
+                num_heads=config.num_heads,
+                head_dim=config.head_dim,
+                num_candidates=num_candidates,
+                rank=config.rank,
+                seed=config.seed + 1009,
+            ),
+        )
+        self.projector_logits = nn.Parameter(
+            torch.zeros(
+                config.num_layers,
+                config.num_heads,
+                num_candidates,
+            )
+        )
+        self.raw_gains = nn.Parameter(
+            _raw_gain(
+                config.initial_gain,
+                config.max_gain,
+                (config.num_layers, config.num_heads),
+            )
+        )
+
+    def projectors(self, layer_index: int) -> torch.Tensor:
+        weights = torch.softmax(self.projector_logits[layer_index], dim=-1)
+        return torch.einsum(
+            "hc,hcij->hij",
+            weights,
+            self.projector_bank[layer_index],
         )
 
     def forward(self, context: QuantumSteeringContext) -> SteeringContribution:
@@ -658,6 +776,7 @@ def build_quantum_steering(
     operator_reduction: str = "mean",
     identity_gain: float = 0.05,
     seed: int | None = None,
+    key_circuit: str = "entangled",
 ) -> ComposableQuantumSteering:
     """Build a composable stack using the default plugin architectures.
 
@@ -665,17 +784,44 @@ def build_quantum_steering(
     keep the three plugin families reproducible but independent.
     """
     names = normalize_plugin_names(plugin_names)
+    if key_circuit not in KEY_STEERING_CIRCUIT_CHOICES:
+        raise ValueError(
+            f"key_circuit must be one of {KEY_STEERING_CIRCUIT_CHOICES}"
+        )
     base_seed = None if seed is None else int(seed)
     plugins: list[QuantumSteeringPlugin] = []
     for name in names:
-        if name == "headwise_projector":
+        if name in {"headwise_projector", "quantum_key_steer"}:
+            config_type = (
+                QuantumKeySteeringConfig
+                if name == "quantum_key_steer"
+                else HeadwiseQuantumProjectorConfig
+            )
+            plugin_type = (
+                QuantumKeySteeringPlugin
+                if name == "quantum_key_steer"
+                else HeadwiseQuantumProjectorPlugin
+            )
             plugins.append(
-                HeadwiseQuantumProjectorPlugin(
+                plugin_type(
+                    config_type(
+                        num_layers,
+                        num_heads,
+                        head_dim,
+                        seed=31 if base_seed is None else base_seed,
+                        circuit_type=key_circuit,
+                    )
+                )
+            )
+        elif name == "classical_key_steer":
+            plugins.append(
+                ClassicalKeySteeringPlugin(
                     HeadwiseQuantumProjectorConfig(
                         num_layers,
                         num_heads,
                         head_dim,
                         seed=31 if base_seed is None else base_seed,
+                        circuit_type=key_circuit,
                     )
                 )
             )
@@ -720,6 +866,14 @@ def build_quantum_steering_from_metadata(
         "headwise_projector": (
             HeadwiseQuantumProjectorConfig,
             HeadwiseQuantumProjectorPlugin,
+        ),
+        "quantum_key_steer": (
+            QuantumKeySteeringConfig,
+            QuantumKeySteeringPlugin,
+        ),
+        "classical_key_steer": (
+            HeadwiseQuantumProjectorConfig,
+            ClassicalKeySteeringPlugin,
         ),
         "evidence_gate": (
             QuantumEvidenceGateConfig,

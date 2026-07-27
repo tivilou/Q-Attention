@@ -1,5 +1,28 @@
 """Experiment utilities for Q-Attention."""
 
+from .attention_evidence_training import (
+    COUNTERFACTUAL_OBJECTIVE_CHOICES,
+    correct_label_margin,
+    counterfactual_evidence_objective,
+    diagnose_relation_counterfactual_evidence,
+    diagnose_relation_evidence_measurement_frames,
+    diagnose_relation_evidence_task_alignment,
+)
+from .attention_routing_training import (
+    diagnose_relation_expert_direction_alignment,
+    diagnose_relation_expert_routing,
+    diagnose_relation_routing_task_alignment,
+    expert_routing_objective,
+)
+from .attention_score_training import (
+    RELATION_SELECTION_CHOICES,
+    GradientNormTracker,
+    attention_score_hook_config,
+    diagnose_relation_attention_score_kernel,
+    diagnose_relation_attention_score_task_alignment,
+    evaluate_relation_attention_score_kernel,
+    relation_selection_score,
+)
 from .quantum_plugin_training import (
     evaluate_relation_quantum_plugins,
     quantum_plugin_hook_config,
@@ -25,21 +48,38 @@ from .relation_steering import (
     read_json,
     relation_pair_features,
 )
+from .relation_transfer_screen import metric_gains, summarize_transfer_screen
 
 __all__ = [
     "ANCHOR_CHOICES",
+    "COUNTERFACTUAL_OBJECTIVE_CHOICES",
     "EvaluationResult",
     "KeyCollection",
     "RelationKeyCollection",
     "RelationLayerSamples",
     "RelationRunArtifacts",
+    "RELATION_SELECTION_CHOICES",
+    "GradientNormTracker",
+    "attention_score_hook_config",
     "anchor_mask_from_batch",
     "build_anchor_projector",
     "choose_device",
+    "correct_label_margin",
+    "counterfactual_evidence_objective",
     "collect_anchor_key_vectors",
     "collect_relation_key_samples",
+    "diagnose_relation_attention_score_kernel",
+    "diagnose_relation_attention_score_task_alignment",
+    "diagnose_relation_counterfactual_evidence",
+    "diagnose_relation_evidence_measurement_frames",
+    "diagnose_relation_evidence_task_alignment",
+    "diagnose_relation_expert_direction_alignment",
+    "diagnose_relation_expert_routing",
+    "diagnose_relation_routing_task_alignment",
     "evaluate_relation_model",
+    "evaluate_relation_attention_score_kernel",
     "evaluate_relation_quantum_plugins",
+    "expert_routing_objective",
     "load_projector",
     "load_relation_run",
     "make_relation_loader",
@@ -48,4 +88,7 @@ __all__ = [
     "quantum_plugin_hook_config",
     "read_json",
     "relation_pair_features",
+    "relation_selection_score",
+    "metric_gains",
+    "summarize_transfer_screen",
 ]

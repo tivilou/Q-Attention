@@ -18,4 +18,9 @@ def test_relation_model_forward_and_key_paths() -> None:
 
     assert logits.shape == (2, 3)
     assert model.key_module_paths == ("encoder.layers.0.attn.key_proj", "encoder.layers.1.attn.key_proj")
+    assert model.score_module_paths == (
+        "encoder.layers.0.attn.score_intervention",
+        "encoder.layers.1.attn.score_intervention",
+    )
     assert resolve_module(model, model.key_module_paths[0]) is model.encoder.layers[0].attn.key_proj
+    assert resolve_module(model, model.score_module_paths[0]) is model.encoder.layers[0].attn.score_intervention

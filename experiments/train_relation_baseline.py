@@ -16,8 +16,9 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from q_attention.metrics import classification_metrics
+from q_attention.metrics import classification_metrics, correct_label_margin
 from q_attention.models import RelationExtractionModel, RelationTransformerConfig
+from q_attention.experiments import RELATION_SELECTION_CHOICES, relation_selection_score
 from q_attention.tasks.relation import (
     PAD_TOKEN,
     RelationDataset,
@@ -41,7 +42,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--num_heads", type=int, default=4)
     parser.add_argument("--ff_dim", type=int, default=128)
     parser.add_argument("--dropout", type=float, default=0.1)
+    parser.add_argument(
+        "--max_length",
+        type=int,
+        default=None,
+        help="Fixed position-embedding capacity; defaults to observed train/valid length plus four.",
+    )
     parser.add_argument("--seed", type=int, default=13)
+    parser.add_argument(
+        "--selection_metric",
+        choices=RELATION_SELECTION_CHOICES,
+        default="macro_f1_then_loss",
+    )
     parser.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda"])
     return parser.parse_args()
 
@@ -70,6 +82,7 @@ def evaluate(model: RelationExtractionModel, loader: DataLoader, device: torch.d
     predictions: list[int] = []
     labels: list[int] = []
     total_loss = 0.0
+    total_margin = 0.0
     total_items = 0
     with torch.no_grad():
         for batch in loader:
@@ -77,16 +90,20 @@ def evaluate(model: RelationExtractionModel, loader: DataLoader, device: torch.d
             logits = model(batch["input_ids"], batch["attention_mask"], batch["subject_mask"], batch["object_mask"])
             loss = F.cross_entropy(logits, batch["labels"])
             total_loss += float(loss.item()) * batch["labels"].shape[0]
+            total_margin += float(correct_label_margin(logits, batch["labels"]).sum().item())
             total_items += batch["labels"].shape[0]
             predictions.extend(torch.argmax(logits, dim=-1).detach().cpu().tolist())
             labels.extend(batch["labels"].detach().cpu().tolist())
     metrics = classification_metrics(predictions, labels, num_labels)
     metrics["loss"] = total_loss / max(total_items, 1)
+    metrics["correct_label_margin"] = total_margin / max(total_items, 1)
     return metrics
 
 
 def main() -> None:
     args = parse_args()
+    if args.max_length is not None and args.max_length <= 0:
+        raise ValueError("max_length must be positive when provided")
     set_seed(args.seed)
     device = choose_device(args.device)
     output_dir = Path(args.output_dir)
@@ -112,7 +129,13 @@ def main() -> None:
         collate_fn=lambda batch: collate_relation_batch(batch, pad_id=vocab[PAD_TOKEN]),
     )
 
-    max_length = max(max(len(record.tokens) for record in train_records), max(len(record.tokens) for record in valid_records))
+    observed_max_length = max(
+        max(len(record.tokens) for record in train_records),
+        max(len(record.tokens) for record in valid_records),
+    )
+    max_length = args.max_length or max(8, observed_max_length + 4)
+    if max_length < observed_max_length:
+        raise ValueError("max_length is smaller than an observed train/valid sequence")
     config = RelationTransformerConfig(
         vocab_size=len(vocab),
         num_labels=len(label_to_id),
@@ -121,14 +144,15 @@ def main() -> None:
         num_heads=args.num_heads,
         ff_dim=args.ff_dim,
         dropout=args.dropout,
-        max_length=max(8, max_length + 4),
+        max_length=max_length,
     )
     model = RelationExtractionModel(config).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
 
     history: list[dict[str, Any]] = []
     best_metrics: dict[str, float] | None = None
-    best_score = -1.0
+    best_epoch: int | None = None
+    best_score = (float("-inf"), float("-inf"))
     for epoch in range(1, args.epochs + 1):
         model.train()
         total_loss = 0.0
@@ -151,9 +175,11 @@ def main() -> None:
         }
         history.append(epoch_record)
         print(json.dumps(epoch_record, sort_keys=True))
-        if valid_metrics["macro_f1"] > best_score:
-            best_score = valid_metrics["macro_f1"]
+        score = relation_selection_score(valid_metrics, args.selection_metric)
+        if score > best_score:
+            best_score = score
             best_metrics = valid_metrics
+            best_epoch = epoch
             torch.save(model.state_dict(), output_dir / "model.pt")
 
     payload = {
@@ -161,6 +187,8 @@ def main() -> None:
         "vocab": vocab,
         "label_to_id": label_to_id,
         "best_valid": best_metrics,
+        "best_epoch": best_epoch,
+        "selection_metric": args.selection_metric,
         "history": history,
         "key_module_paths": model.key_module_paths,
     }

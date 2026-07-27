@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import torch
+
 
 def classification_metrics(predictions: list[int], labels: list[int], num_labels: int) -> dict[str, float]:
     """Compute accuracy and macro precision/recall/F1 without external deps."""
@@ -33,3 +35,11 @@ def classification_metrics(predictions: list[int], labels: list[int], num_labels
         "macro_recall": sum(recalls) / num_labels,
         "macro_f1": sum(f1s) / num_labels,
     }
+
+
+def correct_label_margin(logits: torch.Tensor, labels: torch.Tensor) -> torch.Tensor:
+    """Return the gold logit minus the strongest competing logit per example."""
+    correct = logits.gather(1, labels[:, None]).squeeze(1)
+    competitors = logits.clone()
+    competitors.scatter_(1, labels[:, None], torch.finfo(logits.dtype).min)
+    return correct - competitors.max(dim=-1).values
