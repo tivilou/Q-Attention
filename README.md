@@ -1,162 +1,80 @@
 # Q-Attention
 
-Q-Attention is a public research scaffold for developing **quantum-enhanced spectral key steering** methods for span-centric NLP information extraction.
+Q-Attention is a public research codebase for standalone quantum attention intervention in span-centric NLP. The current primary task is Re-TACRED relation extraction.
 
-The project is not a generic quantum-attention rewrite. Its core mechanism is spectral key steering:
+The project remains grounded in the reference paper's attention-steering principle, but the active method can intervene directly on attention scores instead of depending only on an offline key-space projector.
 
-```text
-learn a task-specific key-space projector offline
-        -> inject it into attention keys at inference time
-        -> steer attention without changing model weights
-```
-
-The source code in this repository is written from scratch.
-
-## Research Positioning
-
-The planned method generalizes spectral key steering from controlled attention experiments to practical NLP tasks where models must focus on entity, event, aspect, or evidence spans.
-
-Target task family:
+## Current Method
 
 ```text
-Span-Centric Information Extraction
+frozen relation baseline
+        -> relation-conditioned quantum attention-score kernel
+        -> dual Q-RES evidence selector
+        -> signed steering + positive sufficiency readout
 ```
 
-Representative tasks:
+The dual readout reuses one parameterized quantum state preparation:
+
+- a signed phase-sensitive readout steers attention;
+- a positive connected-projector readout measures counterfactual sufficiency;
+- `context_budget` fixes the sufficiency evidence mass;
+- matched local and strong classical selectors provide controlled comparisons.
+
+The score residual also has an exact query-aligned key-update interpretation, preserving the conceptual link to key steering.
+
+## Current Experiment
+
+The current gate is a full Re-TACRED train/valid run with:
+
+1. frozen baseline;
+2. quantum and classical score cores;
+3. quantum, local classical, and strong classical dual Q-RES selectors;
+4. fixed mechanism diagnostics;
+5. no access to blind test during training or selection.
+
+Seed 13 is the full-pipeline pre-run. The formal comparison uses seeds `7, 11, 13, 17, 23`, followed by a single frozen blind-test evaluation.
+
+No quantum-advantage claim is made from the toy or proportional-subset results alone.
+
+## Documentation
+
+- Documentation index: [docs/README.md](docs/README.md)
+- Current method overview: [docs/current/method_overview_zh.md](docs/current/method_overview_zh.md)
+- Collaborator Git workflow: [docs/current/collaborator_git_workflow_zh.md](docs/current/collaborator_git_workflow_zh.md)
+- Full seed-13 run guide: [docs/current/retacred_dual_qres_full_run_zh.md](docs/current/retacred_dual_qres_full_run_zh.md)
+- Formal experiment protocol: [docs/current/experiment_protocol_zh.md](docs/current/experiment_protocol_zh.md)
+
+Historical projector, smoke-pipeline, and early plugin documents are preserved under [docs/archive/](docs/archive/README.md) and are not current run instructions.
+
+## Code Map
 
 ```text
-Relation Extraction
-Event Argument Extraction
-Aspect-Based Sentiment Analysis
-Biomedical Relation Extraction
+src/q_attention/models/relation_transformer.py       # explicit attention-score hook
+src/q_attention/adapters/attention_scores.py         # score intervention adapter
+src/q_attention/plugins/attention_score_kernel.py    # quantum/classical score cores
+src/q_attention/plugins/attention_evidence.py        # dual Q-RES selectors
+src/q_attention/plugins/attention_routing.py         # optional expert routing
+experiments/train_relation_attention_score_kernel.py # core training
+experiments/train_relation_counterfactual_evidence.py# selector training
+tests/                                               # mechanism and regression tests
+docs/                                                # current and archived documentation
 ```
 
-These tasks share a common structure:
+## Installation And Check
 
-```text
-text + anchor spans + evidence spans -> structured prediction
-```
-
-## Core Mechanism
-
-The basic intervention is:
-
-```text
-k' = k + gPk
-```
-
-where:
-
-```text
-k  = key representation inside an attention layer
-P  = task-specific spectral projector
-g  = steering strength
-k' = steered key representation
-```
-
-For NLP information extraction, the steered keys usually correspond to:
-
-```text
-entity spans
-relation evidence spans
-event triggers
-candidate arguments
-aspect terms
-opinion clues
-biomedical entity mentions
-```
-
-## Planned Contributions
-
-```text
-1. Quantum-kernel projector learning for span-evidence relevance
-2. QSVT-inspired spectral projector filtering
-3. Quantum adaptive expert routing across related NLP tasks
-4. Multi-task evaluation on span-centric information extraction
-```
-
-## Current Status
-
-```text
-Stage: reproducible real-data ablation
-Code: tensor steering, encoder adapter, relation baseline, dev/test-isolated pipeline, multi-seed aggregation, untrained and standalone supervised quantum projector builders, spectral filter sweep, adaptive routing, steered evaluator
-Validation: layer-specific standalone supervised quantum projector, validation-only layer-gain selection, and bootstrap acceptance gating are implemented; Re-TACRED diagnostic validation is the current gate
-Visibility: public
-```
-
-The next gate is a diagnostic Re-TACRED evaluation with validation-selected layer gains, bootstrap acceptance gating, and held-out test reporting; a five-seed matrix follows only if the diagnostic signal survives.
-
-## Project Docs
-
-- Experiment runner guide: [docs/experiment_runner_guide.md](docs/experiment_runner_guide.md)
-- Real-data smoke plan: [docs/real_data_smoke_plan.md](docs/real_data_smoke_plan.md)
-- Re-TACRED experiment handoff: [docs/retacred_experiment_handoff.md](docs/retacred_experiment_handoff.md)
-- Re-TACRED collaborator overview (ZH): [docs/retacred_collaborator_overview_zh.md](docs/retacred_collaborator_overview_zh.md)
-- Collaborator Git workflow (ZH): [docs/collaborator_git_workflow_zh.md](docs/collaborator_git_workflow_zh.md)
-- Re-TACRED experiment protocol v2 (ZH): [docs/experiment_protocol_v2_zh.md](docs/experiment_protocol_v2_zh.md)
-- Standalone supervised quantum projector: [docs/standalone_supervised_quantum_projector.md](docs/standalone_supervised_quantum_projector.md)
-- Layerwise quantum projector and gain-selection protocol (ZH): [docs/quantum_projector_v3_protocol_zh.md](docs/quantum_projector_v3_protocol_zh.md)
-- Collaboration plan: [docs/collaboration_plan.md](docs/collaboration_plan.md)
-- NLP task plan: [docs/nlp_task_plan.md](docs/nlp_task_plan.md)
-
-## Project Structure
-
-```text
-src/q_attention/      # original implementation
-experiments/          # training, data preparation, smoke pipeline, projector-building, and evaluation scripts
-configs/              # experiment and smoke-run config templates
-examples/             # minimal demos and toy data
-tests/                # unit tests
-docs/                 # research notes and run guides
-```
-
-## Quick Check
-
-Install the project in an active Python environment:
+Use an existing Python environment with PyTorch:
 
 ```bash
 python -m pip install -e ".[dev]"
-```
-
-Run smoke tests:
-
-```bash
-python examples/minimal_key_steering.py
-python examples/encoder_adapter_demo.py
-python examples/quantum_projector_demo.py
-python examples/spectral_filter_demo.py
-python examples/routing_demo.py
 python -m pytest -q
 ```
 
-Run the current toy relation loop:
+The active regression suite currently contains 174 tests.
 
-```bash
-python experiments/train_relation_baseline.py --epochs 2 --batch_size 4 --output_dir runs/relation_toy --device cpu
-python experiments/build_relation_projector.py --model_dir runs/relation_toy --batch_size 4 --device cpu --rank 4
-python experiments/eval_relation_steering.py --model_dir runs/relation_toy --batch_size 4 --device cpu --gain 0.25 --output_dir runs/relation_toy/steering_eval
-python experiments/build_relation_quantum_projector.py --model_dir runs/relation_toy --batch_size 4 --device cpu --rank 4 --num_qubits 4
-python experiments/eval_relation_steering.py --model_dir runs/relation_toy --projector_path runs/relation_toy/relation_quantum_projector.pt --batch_size 4 --device cpu --gain 0.25 --output_dir runs/relation_toy/quantum_steering_eval
-python experiments/sweep_relation_spectral_filters.py --model_dir runs/relation_toy --batch_size 4 --device cpu --families classical,quantum --modes hard_topk,high_pass,band_pass,soft_energy --ranks 2,4 --thresholds 0.5 --gains 0.25 --num_qubits 4 --output_dir runs/relation_toy/spectral_filter_sweep
-python experiments/eval_relation_routing.py --model_dir runs/relation_toy --batch_size 4 --device cpu --gain 0.25 --temperature 0.5 --rank 2 --num_qubits 4 --output_dir runs/relation_toy/relation_routing_eval
-```
+## Data Policy
 
-These commands are prototype checks, not paper-result benchmarks.
+Re-TACRED/TACRED data, `runs/`, checkpoints, predictions, credentials, and private operational files must not be committed to this public repository. Only compact experiment reports belong under `reports/`.
 
-Prepare canonical real relation data:
+## Legacy Compatibility
 
-```bash
-python experiments/prepare_relation_data.py --format tacred_json --dataset_name retacred --train_path data/raw/retacred/train.json --valid_path data/raw/retacred/dev.json --test_path data/raw/retacred/test.json --output_dir data/relation/retacred
-```
-
-Run a tiny real-data smoke chain after conversion:
-
-```bash
-python experiments/run_relation_smoke_pipeline.py --config data/relation/retacred/data_config.json --output_dir runs/retacred_real_smoke --device cpu --max_train_records 256 --max_valid_records 128
-```
-
-Run the formal seed matrix after the smoke chain passes:
-
-```bash
-python experiments/run_relation_seed_matrix.py --config configs/retacred_full_gpu.json --seeds 13,17,23,29,31 --output_root runs/retacred_full_multiseed --device cuda
-```
+Legacy key steering, projector learning, spectral filtering, and expert-routing prototypes remain in the repository for ablation and historical comparison. Their old run guides are archived and do not define the active main experiment.
