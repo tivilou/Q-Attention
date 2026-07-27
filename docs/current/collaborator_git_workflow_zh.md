@@ -37,7 +37,7 @@ git merge-base --is-ancestor b8d794f HEAD && echo "code version OK"
 `git status --short` 必须没有输出。然后激活自己的 Conda 环境：
 
 ```bash
-conda activate <你的实验环境>
+conda activate YOUR_ENV_NAME
 python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 nvidia-smi
 python -m pytest -q

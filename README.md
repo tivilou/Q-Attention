@@ -56,6 +56,8 @@ src/q_attention/plugins/attention_evidence.py        # dual Q-RES selectors
 src/q_attention/plugins/attention_routing.py         # optional expert routing
 experiments/train_relation_attention_score_kernel.py # core training
 experiments/train_relation_counterfactual_evidence.py# selector training
+scripts/run_retacred_dual_qres_full.sh                # full seed runner
+scripts/export_retacred_dual_qres_report.sh           # public report exporter
 tests/                                               # mechanism and regression tests
 docs/                                                # current and archived documentation
 ```
