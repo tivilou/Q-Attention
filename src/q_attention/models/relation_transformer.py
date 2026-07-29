@@ -21,6 +21,18 @@ class RelationTransformerConfig:
     max_length: int = 256
 
 
+class AttentionScorePassThrough(nn.Module):
+    """Explicit hook point for behavior-preserving score interventions."""
+
+    def forward(
+        self,
+        scores: torch.Tensor,
+        _query: torch.Tensor,
+        _key: torch.Tensor,
+    ) -> torch.Tensor:
+        return scores
+
+
 class SteerableSelfAttention(nn.Module):
     """Self-attention layer with an explicit key projection module."""
 
@@ -35,6 +47,7 @@ class SteerableSelfAttention(nn.Module):
         self.key_proj = nn.Linear(dim, dim)
         self.value_proj = nn.Linear(dim, dim)
         self.out_proj = nn.Linear(dim, dim)
+        self.score_intervention = AttentionScorePassThrough()
         self.dropout = nn.Dropout(dropout)
 
     def _split_heads(self, tensor: torch.Tensor) -> torch.Tensor:
@@ -47,6 +60,7 @@ class SteerableSelfAttention(nn.Module):
         value = self._split_heads(self.value_proj(hidden))
 
         scores = torch.matmul(query, key.transpose(-1, -2)) / math.sqrt(self.head_dim)
+        scores = self.score_intervention(scores, query, key)
         if attention_mask is not None:
             key_mask = attention_mask[:, None, None, :].to(dtype=torch.bool)
             scores = scores.masked_fill(~key_mask, torch.finfo(scores.dtype).min)
@@ -113,6 +127,13 @@ class RelationExtractionModel(nn.Module):
     @property
     def key_module_paths(self) -> tuple[str, ...]:
         return tuple(f"encoder.layers.{idx}.attn.key_proj" for idx in range(self.config.num_layers))
+
+    @property
+    def score_module_paths(self) -> tuple[str, ...]:
+        return tuple(
+            f"encoder.layers.{idx}.attn.score_intervention"
+            for idx in range(self.config.num_layers)
+        )
 
     @staticmethod
     def _masked_mean(hidden: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
