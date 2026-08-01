@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import json
-from itertools import islice
 from pathlib import Path
 import random
 import sys
@@ -39,6 +38,10 @@ from q_attention.plugins import (  # noqa: E402
     load_relation_attention_score_kernel_checkpoint,
     save_relation_attention_score_kernel_checkpoint,
 )
+from q_attention.experiments.progress import (  # noqa: E402
+    tracked_batches,
+    tracked_limited_batches,
+)
 from q_attention.tasks.relation import load_relation_jsonl  # noqa: E402
 
 
@@ -74,6 +77,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--epochs", type=int, default=12)
     parser.add_argument("--batch_size", type=int, default=64)
+    parser.add_argument("--log_every_batches", type=int, default=50)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--diversity_weight", type=float, default=0.0)
     parser.add_argument("--diagnostic_batches", type=int, default=0)
@@ -102,10 +106,6 @@ def resolve_data_path(value: str | None, fallback: Any, name: str) -> Path:
     return path if path.is_absolute() else ROOT / path
 
 
-def diagnostic_loader(loader: Any, max_batches: int) -> Any:
-    return loader if max_batches <= 0 else islice(loader, max_batches)
-
-
 def main() -> None:
     args = parse_args()
     if args.epochs <= 0 or args.batch_size <= 0 or args.lr <= 0:
@@ -114,6 +114,9 @@ def main() -> None:
         raise ValueError("diversity_weight must be non-negative")
     if args.diagnostic_batches < 0:
         raise ValueError("diagnostic_batches must be non-negative")
+    if args.log_every_batches <= 0:
+        raise ValueError("log_every_batches must be positive")
+    stage = f"core_{args.kernel_type}"
     set_seed(args.seed)
     device = choose_device(args.device)
     output_dir = Path(args.output_dir)
@@ -173,21 +176,39 @@ def main() -> None:
     gradient_tracker = GradientNormTracker(kernel.named_parameters())
     baseline_valid = evaluate_relation_attention_score_kernel(
         model,
-        valid_loader,
+        tracked_batches(
+            valid_loader,
+            total_batches=len(valid_loader),
+            stage=stage,
+            phase="baseline_validation",
+            log_every_batches=args.log_every_batches,
+        ),
         device,
         len(artifacts.label_to_id),
         adapter=None,
     )
     initial_diagnostics = diagnose_relation_attention_score_kernel(
         model,
-        diagnostic_loader(valid_loader, args.diagnostic_batches),
+        tracked_limited_batches(
+            valid_loader,
+            args.diagnostic_batches,
+            stage=stage,
+            phase="initial_diagnostics",
+            log_every_batches=args.log_every_batches,
+        ),
         device,
         score_module_paths=model.score_module_paths,
         score_kernel=kernel,
     )
     initial_alignment = diagnose_relation_attention_score_task_alignment(
         model,
-        diagnostic_loader(valid_loader, args.diagnostic_batches),
+        tracked_limited_batches(
+            valid_loader,
+            args.diagnostic_batches,
+            stage=stage,
+            phase="initial_alignment",
+            log_every_batches=args.log_every_batches,
+        ),
         device,
         score_module_paths=model.score_module_paths,
         score_kernel=kernel,
@@ -214,7 +235,15 @@ def main() -> None:
         total_objective = 0.0
         total_diversity = 0.0
         total_items = 0
-        for batch in train_loader:
+        for batch in tracked_batches(
+            train_loader,
+            total_batches=len(train_loader),
+            stage=stage,
+            phase="train",
+            log_every_batches=args.log_every_batches,
+            epoch=epoch,
+            epochs=args.epochs,
+        ):
             batch = move_batch(batch, device)
             optimizer.zero_grad(set_to_none=True)
             if args.diversity_weight > 0.0:
@@ -251,7 +280,15 @@ def main() -> None:
 
         valid = evaluate_relation_attention_score_kernel(
             model,
-            valid_loader,
+            tracked_batches(
+                valid_loader,
+                total_batches=len(valid_loader),
+                stage=stage,
+                phase="validation",
+                log_every_batches=args.log_every_batches,
+                epoch=epoch,
+                epochs=args.epochs,
+            ),
             device,
             len(artifacts.label_to_id),
             adapter=adapter,
@@ -264,7 +301,7 @@ def main() -> None:
             "valid": valid,
         }
         history.append(row)
-        print(json.dumps(row, sort_keys=True))
+        print(json.dumps(row, sort_keys=True), flush=True)
         score = relation_selection_score(valid, args.selection_metric)
         if score > best_score:
             best_score = score
@@ -283,7 +320,13 @@ def main() -> None:
     )
     final_diagnostics = diagnose_relation_attention_score_kernel(
         model,
-        diagnostic_loader(valid_loader, args.diagnostic_batches),
+        tracked_limited_batches(
+            valid_loader,
+            args.diagnostic_batches,
+            stage=stage,
+            phase="final_diagnostics",
+            log_every_batches=args.log_every_batches,
+        ),
         device,
         score_module_paths=model.score_module_paths,
         score_kernel=kernel,
@@ -291,14 +334,26 @@ def main() -> None:
     final_alignment = {
         "train": diagnose_relation_attention_score_task_alignment(
             model,
-            diagnostic_loader(train_diagnostic_loader, args.diagnostic_batches),
+            tracked_limited_batches(
+                train_diagnostic_loader,
+                args.diagnostic_batches,
+                stage=stage,
+                phase="final_train_alignment",
+                log_every_batches=args.log_every_batches,
+            ),
             device,
             score_module_paths=model.score_module_paths,
             score_kernel=kernel,
         ),
         "valid": diagnose_relation_attention_score_task_alignment(
             model,
-            valid_loader,
+            tracked_limited_batches(
+                valid_loader,
+                args.diagnostic_batches,
+                stage=stage,
+                phase="final_valid_alignment",
+                log_every_batches=args.log_every_batches,
+            ),
             device,
             score_module_paths=model.score_module_paths,
             score_kernel=kernel,
@@ -311,7 +366,13 @@ def main() -> None:
     best_kernel.to(device)
     best_diagnostics = diagnose_relation_attention_score_kernel(
         model,
-        diagnostic_loader(valid_loader, args.diagnostic_batches),
+        tracked_limited_batches(
+            valid_loader,
+            args.diagnostic_batches,
+            stage=stage,
+            phase="best_diagnostics",
+            log_every_batches=args.log_every_batches,
+        ),
         device,
         score_module_paths=model.score_module_paths,
         score_kernel=best_kernel,
@@ -319,14 +380,26 @@ def main() -> None:
     best_alignment = {
         "train": diagnose_relation_attention_score_task_alignment(
             model,
-            diagnostic_loader(train_diagnostic_loader, args.diagnostic_batches),
+            tracked_limited_batches(
+                train_diagnostic_loader,
+                args.diagnostic_batches,
+                stage=stage,
+                phase="best_train_alignment",
+                log_every_batches=args.log_every_batches,
+            ),
             device,
             score_module_paths=model.score_module_paths,
             score_kernel=best_kernel,
         ),
         "valid": diagnose_relation_attention_score_task_alignment(
             model,
-            valid_loader,
+            tracked_limited_batches(
+                valid_loader,
+                args.diagnostic_batches,
+                stage=stage,
+                phase="best_valid_alignment",
+                log_every_batches=args.log_every_batches,
+            ),
             device,
             score_module_paths=model.score_module_paths,
             score_kernel=best_kernel,
@@ -374,7 +447,8 @@ def main() -> None:
                 "best_valid": best_valid,
             },
             sort_keys=True,
-        )
+        ),
+        flush=True,
     )
 
 

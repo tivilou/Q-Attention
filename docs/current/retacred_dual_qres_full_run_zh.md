@@ -46,6 +46,14 @@ tmux new -s qattention_full_seed13
 bash scripts/run_retacred_dual_qres_full.sh --seed 13
 ```
 
+训练日志默认每 50 个 batch 写入一次当前 phase、epoch、完成比例、已用时间和 ETA。需要更频繁的进度时可以执行：
+
+```bash
+bash scripts/run_retacred_dual_qres_full.sh --seed 13 --log-every-batches 25
+```
+
+完整 valid task metric 始终使用全部验证集；`diagnostic_batches=64` 只限制 selectivity 和 alignment 等诊断，不缩减主指标评估。
+
 脚本会自动完成：
 
 1. 再次运行预检；
@@ -64,6 +72,14 @@ bash scripts/run_retacred_dual_qres_full.sh --seed 13 --dry-run
 ```
 
 ## 4. 获取运行目录
+
+训练过程中查看最新目录和当前阶段：
+
+```bash
+RUN_DIR=$(ls -dt runs/retacred_dual_projector_full_*_seed*/ | head -n 1)
+ls -lht "${RUN_DIR}/logs"
+tail -f "${RUN_DIR}/logs/selector_quantum.log"
+```
 
 训练完成后：
 

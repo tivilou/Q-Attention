@@ -3,7 +3,10 @@ set -euo pipefail
 
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 PYTHON_BIN=${PYTHON_BIN:-python}
+PYTHONUNBUFFERED=${PYTHONUNBUFFERED:-1}
+export PYTHONUNBUFFERED
 SEED=13
+LOG_EVERY_BATCHES=50
 OUTPUT_DIR=
 DRY_RUN=0
 SKIP_PREFLIGHT=0
@@ -15,6 +18,7 @@ Usage: bash scripts/run_retacred_dual_qres_full.sh [options]
 
 Options:
   --seed N             Random seed (default: 13)
+  --log-every-batches N  Progress interval (default: 50)
   --output-dir PATH    Explicit new output directory
   --skip-preflight     Skip environment/data/tests preflight
   --dry-run            Print commands without running training
@@ -25,6 +29,7 @@ EOF
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --seed) SEED=$2; shift ;;
+    --log-every-batches) LOG_EVERY_BATCHES=$2; shift ;;
     --output-dir) OUTPUT_DIR=$2; shift ;;
     --skip-preflight) SKIP_PREFLIGHT=1 ;;
     --dry-run) DRY_RUN=1 ;;
@@ -35,6 +40,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ "${SEED}" =~ ^[0-9]+$ ]] || { echo "Seed must be a non-negative integer." >&2; exit 2; }
+[[ "${LOG_EVERY_BATCHES}" =~ ^[1-9][0-9]*$ ]] || {
+  echo "Log interval must be a positive integer." >&2
+  exit 2
+}
 
 cd "${ROOT}"
 STAMP=$(date +%Y%m%d_%H%M%S)
@@ -55,15 +64,19 @@ print_command() {
 
 run_stage() {
   local name=$1
+  local log_file
   shift
   CURRENT_STAGE=${name}
-  echo "[$(date -Iseconds)] START ${name}"
   if [[ ${DRY_RUN} -eq 1 ]]; then
+    echo "[$(date -Iseconds)] START ${name}"
     print_command "$@"
+    echo "[$(date -Iseconds)] END ${name}"
   else
-    "$@" 2>&1 | tee "${RUN_DIR}/logs/${name}.log"
+    log_file="${RUN_DIR}/logs/${name}.log"
+    echo "[$(date -Iseconds)] START ${name}" | tee "${log_file}"
+    "$@" 2>&1 | tee -a "${log_file}"
+    echo "[$(date -Iseconds)] END ${name}" | tee -a "${log_file}"
   fi
-  echo "[$(date -Iseconds)] END ${name}"
 }
 
 require_file() {
@@ -80,6 +93,7 @@ if [[ ${DRY_RUN} -eq 0 ]]; then
   fi
   {
     echo "SEED=${SEED}"
+    echo "LOG_EVERY_BATCHES=${LOG_EVERY_BATCHES}"
     echo "GIT_COMMIT=$(git rev-parse HEAD)"
     echo "STARTED_AT=$(date -Iseconds)"
     echo "PYTHON_BIN=$(command -v "${PYTHON_BIN}")"
@@ -98,6 +112,7 @@ run_stage baseline \
   --valid_path data/relation/retacred/valid.jsonl \
   --output_dir "${RUN_DIR}/baseline" \
   --epochs 12 --batch_size 128 --lr 0.0005 \
+  --log_every_batches "${LOG_EVERY_BATCHES}" \
   --dim 128 --num_layers 4 --num_heads 8 --ff_dim 256 \
   --dropout 0.1 --max_length 128 \
   --selection_metric valid_loss --seed "${SEED}" --device cuda
@@ -115,6 +130,7 @@ for FAMILY in quantum classical; do
     --num_qubits 4 --depth 2 --angle_scale 1.0 \
     --score_readout observable --input_encoding factorized_shared \
     --query_scope all --epochs 4 --batch_size 128 --lr 0.001 \
+    --log_every_batches "${LOG_EVERY_BATCHES}" \
     --selection_metric valid_loss --diagnostic_batches 64 \
     --seed "${SEED}" --device cuda
   require_file "${RUN_DIR}/core/${FAMILY}/metrics.json"
@@ -143,6 +159,7 @@ for METHOD in quantum classical classical_strong; do
     --intervention_mode direct_bias --direct_bias_mode centered \
     --evidence_budget 0.35 --diagnostic_batches 64 \
     --epochs 10 --batch_size 64 --lr 0.01 \
+    --log_every_batches "${LOG_EVERY_BATCHES}" \
     --seed "${SEED}" --device cuda
   require_file "${RUN_DIR}/selector/${METHOD}/metrics.json"
   require_file "${RUN_DIR}/selector/${METHOD}/diagnostics.json"

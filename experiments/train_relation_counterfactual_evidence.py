@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import json
-from itertools import islice
 from pathlib import Path
 import random
 import sys
@@ -44,6 +43,10 @@ from q_attention.plugins import (  # noqa: E402
     build_relation_evidence_selector,
     load_relation_attention_score_kernel_checkpoint,
     save_relation_attention_score_kernel_checkpoint,
+)
+from q_attention.experiments.progress import (  # noqa: E402
+    tracked_batches,
+    tracked_limited_batches,
 )
 from q_attention.tasks.relation import load_relation_jsonl  # noqa: E402
 
@@ -145,6 +148,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--diagnostic_batches", type=int, default=0)
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--batch_size", type=int, default=64)
+    parser.add_argument("--log_every_batches", type=int, default=50)
     parser.add_argument("--lr", type=float, default=1e-2)
     parser.add_argument("--seed", type=int, default=13)
     parser.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda"])
@@ -164,10 +168,6 @@ def resolve_data_path(value: str | None, fallback: Any, name: str) -> Path:
         raise ValueError(f"{name} must be provided or recorded by the baseline")
     path = Path(str(selected))
     return path if path.is_absolute() else ROOT / path
-
-
-def diagnostic_loader(loader: Any, max_batches: int) -> Any:
-    return loader if max_batches <= 0 else islice(loader, max_batches)
 
 
 def _diagnostic_mean(diagnostics: dict[str, Any], name: str) -> float:
@@ -197,6 +197,9 @@ def main() -> None:
         raise ValueError("random_repeats must be positive")
     if args.diagnostic_batches < 0:
         raise ValueError("diagnostic_batches must be non-negative")
+    if args.log_every_batches <= 0:
+        raise ValueError("log_every_batches must be positive")
+    stage = f"selector_{args.evidence_type}"
     set_seed(args.seed)
     device = choose_device(args.device)
     output_dir = Path(args.output_dir)
@@ -248,7 +251,13 @@ def main() -> None:
     core_adapter = AttentionScoreKernelAdapter(model, model.score_module_paths, kernel)
     core_valid = evaluate_relation_attention_score_kernel(
         model,
-        valid_loader,
+        tracked_batches(
+            valid_loader,
+            total_batches=len(valid_loader),
+            stage=stage,
+            phase="core_validation",
+            log_every_batches=args.log_every_batches,
+        ),
         device,
         len(artifacts.label_to_id),
         adapter=core_adapter,
@@ -297,14 +306,26 @@ def main() -> None:
     gradient_tracker = GradientNormTracker(selector.named_parameters())
     initial_valid = evaluate_relation_attention_score_kernel(
         model,
-        valid_loader,
+        tracked_batches(
+            valid_loader,
+            total_batches=len(valid_loader),
+            stage=stage,
+            phase="initial_validation",
+            log_every_batches=args.log_every_batches,
+        ),
         device,
         len(artifacts.label_to_id),
         adapter=adapter,
     )
     initial_diagnostics = diagnose_relation_counterfactual_evidence(
         model,
-        diagnostic_loader(valid_loader, args.diagnostic_batches),
+        tracked_limited_batches(
+            valid_loader,
+            args.diagnostic_batches,
+            stage=stage,
+            phase="initial_selectivity",
+            log_every_batches=args.log_every_batches,
+        ),
         device,
         adapter=adapter,
         random_repeats=args.random_repeats,
@@ -354,7 +375,17 @@ def main() -> None:
         selector.train()
         totals: dict[str, float] = {"objective": 0.0}
         total_items = 0
-        for batch_index, raw_batch in enumerate(train_loader):
+        for batch_index, raw_batch in enumerate(
+            tracked_batches(
+                train_loader,
+                total_batches=len(train_loader),
+                stage=stage,
+                phase="train",
+                log_every_batches=args.log_every_batches,
+                epoch=epoch,
+                epochs=args.epochs,
+            )
+        ):
             batch = move_batch(raw_batch, device)
             optimizer.zero_grad(set_to_none=True)
             objective, components = counterfactual_evidence_objective(
@@ -383,14 +414,30 @@ def main() -> None:
         selector.eval()
         valid = evaluate_relation_attention_score_kernel(
             model,
-            valid_loader,
+            tracked_batches(
+                valid_loader,
+                total_batches=len(valid_loader),
+                stage=stage,
+                phase="validation",
+                log_every_batches=args.log_every_batches,
+                epoch=epoch,
+                epochs=args.epochs,
+            ),
             device,
             len(artifacts.label_to_id),
             adapter=adapter,
         )
         selectivity = diagnose_relation_counterfactual_evidence(
             model,
-            valid_loader,
+            tracked_limited_batches(
+                valid_loader,
+                args.diagnostic_batches,
+                stage=stage,
+                phase="selectivity",
+                log_every_batches=args.log_every_batches,
+                epoch=epoch,
+                epochs=args.epochs,
+            ),
             device,
             adapter=adapter,
             random_repeats=args.random_repeats,
@@ -406,7 +453,7 @@ def main() -> None:
             "selectivity": selectivity,
         }
         history.append(row)
-        print(json.dumps(row, sort_keys=True))
+        print(json.dumps(row, sort_keys=True), flush=True)
         score = evidence_selection_score(valid, selectivity)
         if score > best_score:
             best_score = score
@@ -455,7 +502,13 @@ def main() -> None:
     )
     best_alignment = diagnose_relation_evidence_task_alignment(
         model,
-        diagnostic_loader(valid_loader, args.diagnostic_batches),
+        tracked_limited_batches(
+            valid_loader,
+            args.diagnostic_batches,
+            stage=stage,
+            phase="best_alignment",
+            log_every_batches=args.log_every_batches,
+        ),
         device,
         adapter=best_adapter,
     )
@@ -475,7 +528,13 @@ def main() -> None:
         )
         best_task_alignment = diagnose_relation_evidence_task_alignment(
             model,
-            valid_loader,
+            tracked_limited_batches(
+                valid_loader,
+                args.diagnostic_batches,
+                stage=stage,
+                phase="task_best_alignment",
+                log_every_batches=args.log_every_batches,
+            ),
             device,
             adapter=task_adapter,
         )
@@ -548,7 +607,8 @@ def main() -> None:
                 ),
             },
             sort_keys=True,
-        )
+        ),
+        flush=True,
     )
 
 
