@@ -10,7 +10,7 @@
 
 ```bash
 git status --short
-git merge-base --is-ancestor b8d794f HEAD && echo "code version OK"
+git merge-base --is-ancestor f604583 HEAD && echo "code version OK"
 ```
 
 `git status --short` 必须没有输出。
@@ -54,16 +54,23 @@ bash scripts/run_retacred_dual_qres_full.sh --seed 13 --log-every-batches 25
 
 完整 valid task metric 始终使用全部验证集；`diagnostic_batches=64` 只限制 selectivity 和 alignment 等诊断，不缩减主指标评估。
 
+只验证真实数据和量子路径、不启动正式全量训练时执行：
+
+```bash
+bash scripts/run_retacred_dual_qres_full.sh --seed 13 --canary-only
+```
+
 脚本会自动完成：
 
 1. 再次运行预检；
 2. 创建带日期时间的 `runs/retacred_dual_projector_full_*_seed13/`；
-3. 训练 baseline；
-4. 训练 quantum/classical core；
-5. 训练 quantum、classical、classical_strong selector；
-6. 保存每个阶段的日志；
-7. 检查所有 metrics、diagnostics 和 checkpoint；
-8. 写入 `RUN_COMPLETE` 和最新运行目录记录。
+3. 先用真实 Re-TACRED 的 256 条 train、128 条 valid 做量子路径 canary；
+4. canary 通过后训练正式 baseline、quantum/classical core 和三个 selector；
+5. 每个阶段保存日志、心跳和状态文件；
+6. 检查所有 metrics、diagnostics 和 checkpoint；
+7. 成功写入 `RUN_COMPLETE`，异常写入 `RUN_FAILED`。
+
+canary 只检查真实数据上的前向、反向和量子路径数值是否有限，不作为正式结果，也不会改变正式实验数据。
 
 只查看命令、不启动训练时执行：
 
@@ -79,6 +86,10 @@ bash scripts/run_retacred_dual_qres_full.sh --seed 13 --dry-run
 RUN_DIR=$(ls -dt runs/retacred_dual_projector_full_*_seed*/ | head -n 1)
 ls -lht "${RUN_DIR}/logs"
 tail -f "${RUN_DIR}/logs/selector_quantum.log"
+
+# 查看阶段状态和最近一次心跳
+cat "${RUN_DIR}/status/selector_quantum.env"
+cat "${RUN_DIR}/status/selector_quantum.heartbeat"
 ```
 
 训练完成后：
@@ -87,6 +98,9 @@ tail -f "${RUN_DIR}/logs/selector_quantum.log"
 RUN_DIR=$(cat runs/latest_dual_qres_full_run.txt)
 echo "${RUN_DIR}"
 test -f "${RUN_DIR}/RUN_COMPLETE"
+
+# 若中途失败，查看失败阶段
+cat "${RUN_DIR}/RUN_FAILED"
 ```
 
 ## 5. 导出提交报告

@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 PYTHON_BIN=${PYTHON_BIN:-python}
-MIN_COMMIT=${MIN_COMMIT:-b8d794f}
+MIN_COMMIT=${MIN_COMMIT:-f604583}
 RUN_TESTS=1
 ALLOW_DIRTY=0
 
@@ -26,6 +26,10 @@ cd "${ROOT}"
 command -v "${PYTHON_BIN}" >/dev/null
 command -v git >/dev/null
 command -v nvidia-smi >/dev/null
+[[ -f scripts/run_with_health_watchdog.py ]] || {
+  echo "Missing scripts/run_with_health_watchdog.py" >&2
+  exit 1
+}
 
 if ! git merge-base --is-ancestor "${MIN_COMMIT}" HEAD; then
   echo "Current code does not contain required commit ${MIN_COMMIT}." >&2
@@ -50,6 +54,7 @@ VALID_COUNT=$(wc -l < "${VALID_PATH}")
 [[ "${VALID_COUNT}" -eq 19584 ]] || { echo "Unexpected valid count: ${VALID_COUNT}" >&2; exit 1; }
 
 "${PYTHON_BIN}" -c "import torch; print('torch=' + torch.__version__); print('cuda=' + str(torch.cuda.is_available())); raise SystemExit(0 if torch.cuda.is_available() else 1)"
+PYTHONPATH="${ROOT}/src${PYTHONPATH:+:${PYTHONPATH}}" "${PYTHON_BIN}" -c "from q_attention.experiments.health import EpochHealthMonitor; print('training health checks=OK')"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 
 if [[ ${RUN_TESTS} -eq 1 ]]; then

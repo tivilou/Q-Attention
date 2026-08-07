@@ -62,8 +62,19 @@ for METHOD in quantum classical classical_strong; do
   cp "${RUN_DIR}/selector/${METHOD}/metrics.json" "${REPORT_DIR}/selector/${METHOD}/"
   cp "${RUN_DIR}/selector/${METHOD}/diagnostics.json" "${REPORT_DIR}/selector/${METHOD}/"
 done
-for LOG in "${RUN_DIR}"/logs/*.log; do
-  tail -n 1000 "${LOG}" > "${REPORT_DIR}/logs/$(basename "${LOG}").tail.txt"
+FORMAL_LOGS=(
+  preflight
+  baseline
+  core_quantum
+  core_classical
+  selector_quantum
+  selector_classical
+  selector_classical_strong
+)
+for NAME in "${FORMAL_LOGS[@]}"; do
+  LOG="${RUN_DIR}/logs/${NAME}.log"
+  [[ -f "${LOG}" ]] || { echo "Missing formal stage log: ${LOG}" >&2; exit 1; }
+  tail -n 1000 "${LOG}" > "${REPORT_DIR}/logs/${NAME}.log.tail.txt"
 done
 
 if find "${REPORT_DIR}" -type f \( -name '*.pt' -o -name '*.pth' -o -name '*.ckpt' -o -name '*.jsonl' \) | grep -q .; then

@@ -29,6 +29,13 @@ from q_attention.experiments import (  # noqa: E402
     move_batch,
     relation_selection_score,
 )
+from q_attention.experiments.health import (  # noqa: E402
+    EpochHealthMonitor,
+    require_finite_gradients,
+    require_finite_parameters,
+    require_finite_tensor,
+    require_finite_values,
+)
 from q_attention.plugins import (  # noqa: E402
     SCORE_INPUT_ENCODING_CHOICES,
     SCORE_QUERY_SCOPE_CHOICES,
@@ -78,6 +85,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--epochs", type=int, default=12)
     parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--log_every_batches", type=int, default=50)
+    parser.add_argument("--health_warning_patience", type=int, default=3)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--diversity_weight", type=float, default=0.0)
     parser.add_argument("--diagnostic_batches", type=int, default=0)
@@ -116,6 +124,8 @@ def main() -> None:
         raise ValueError("diagnostic_batches must be non-negative")
     if args.log_every_batches <= 0:
         raise ValueError("log_every_batches must be positive")
+    if args.health_warning_patience <= 0:
+        raise ValueError("health_warning_patience must be positive")
     stage = f"core_{args.kernel_type}"
     set_seed(args.seed)
     device = choose_device(args.device)
@@ -174,6 +184,10 @@ def main() -> None:
     adapter = AttentionScoreKernelAdapter(model, model.score_module_paths, kernel)
     optimizer = torch.optim.AdamW(kernel.parameters(), lr=args.lr)
     gradient_tracker = GradientNormTracker(kernel.named_parameters())
+    health_monitor = EpochHealthMonitor(
+        stage,
+        patience=args.health_warning_patience,
+    )
     baseline_valid = evaluate_relation_attention_score_kernel(
         model,
         tracked_batches(
@@ -213,6 +227,9 @@ def main() -> None:
         score_module_paths=model.score_module_paths,
         score_kernel=kernel,
     )
+    require_finite_values(baseline_valid, f"{stage}.baseline_valid")
+    require_finite_values(initial_diagnostics, f"{stage}.initial_diagnostics")
+    require_finite_values(initial_alignment, f"{stage}.initial_alignment")
     checkpoint = output_dir / "attention_score_kernel.pt"
     final_checkpoint = output_dir / "attention_score_kernel_final.pt"
     checkpoint_metadata = {
@@ -235,7 +252,7 @@ def main() -> None:
         total_objective = 0.0
         total_diversity = 0.0
         total_items = 0
-        for batch in tracked_batches(
+        for batch_index, batch in enumerate(tracked_batches(
             train_loader,
             total_batches=len(train_loader),
             stage=stage,
@@ -243,7 +260,7 @@ def main() -> None:
             log_every_batches=args.log_every_batches,
             epoch=epoch,
             epochs=args.epochs,
-        ):
+        ), start=0):
             batch = move_batch(batch, device)
             optimizer.zero_grad(set_to_none=True)
             if args.diversity_weight > 0.0:
@@ -255,10 +272,17 @@ def main() -> None:
                             batch["subject_mask"],
                             batch["object_mask"],
                         )
-                    task_loss = F.cross_entropy(logits, batch["labels"])
-                    diversity_loss = kernel.functional_diversity_loss()
-                    objective = task_loss + args.diversity_weight * diversity_loss
-                    objective.backward()
+                task_loss = F.cross_entropy(logits, batch["labels"])
+                diversity_loss = kernel.functional_diversity_loss()
+                objective = task_loss + args.diversity_weight * diversity_loss
+                require_finite_tensor(
+                    objective,
+                    "objective",
+                    stage=stage,
+                    epoch=epoch,
+                    batch_index=batch_index,
+                )
+                objective.backward()
             else:
                 with adapter.steering(attention_score_hook_config(batch)):
                     logits = model(
@@ -270,9 +294,28 @@ def main() -> None:
                 task_loss = F.cross_entropy(logits, batch["labels"])
                 diversity_loss = task_loss.detach() * 0.0
                 objective = task_loss
+                require_finite_tensor(
+                    objective,
+                    "objective",
+                    stage=stage,
+                    epoch=epoch,
+                    batch_index=batch_index,
+                )
                 objective.backward()
+            require_finite_gradients(
+                kernel,
+                stage=stage,
+                epoch=epoch,
+                batch_index=batch_index,
+            )
             gradient_tracker.update()
             optimizer.step()
+            require_finite_parameters(
+                kernel,
+                stage=stage,
+                epoch=epoch,
+                batch_index=batch_index,
+            )
             total_loss += float(task_loss.detach().item()) * batch["labels"].shape[0]
             total_objective += float(objective.detach().item()) * batch["labels"].shape[0]
             total_diversity += float(diversity_loss.detach().item()) * batch["labels"].shape[0]
@@ -293,12 +336,15 @@ def main() -> None:
             len(artifacts.label_to_id),
             adapter=adapter,
         )
+        require_finite_values(valid, f"{stage}.valid.epoch_{epoch}")
+        health = health_monitor.observe(epoch=epoch, valid_loss=valid["loss"])
         row = {
             "epoch": epoch,
             "train_loss": total_loss / max(total_items, 1),
             "train_objective": total_objective / max(total_items, 1),
             "diversity_loss": total_diversity / max(total_items, 1),
             "valid": valid,
+            "health": health,
         }
         history.append(row)
         print(json.dumps(row, sort_keys=True), flush=True)
@@ -359,6 +405,8 @@ def main() -> None:
             score_kernel=kernel,
         ),
     }
+    require_finite_values(final_diagnostics, f"{stage}.final_diagnostics")
+    require_finite_values(final_alignment, f"{stage}.final_alignment")
     best_kernel, _ = load_relation_attention_score_kernel_checkpoint(
         checkpoint,
         map_location=device,
@@ -405,6 +453,8 @@ def main() -> None:
             score_kernel=best_kernel,
         ),
     }
+    require_finite_values(best_diagnostics, f"{stage}.best_diagnostics")
+    require_finite_values(best_alignment, f"{stage}.best_alignment")
     diagnostics = {
         "initial": initial_diagnostics,
         "best": best_diagnostics,
@@ -415,6 +465,7 @@ def main() -> None:
             "best": best_alignment,
             "final": final_alignment,
         },
+        "health": health_monitor.summary(),
     }
     payload = {
         "args": vars(args),
@@ -429,6 +480,7 @@ def main() -> None:
         "checkpoint": str(checkpoint),
         "final_checkpoint": str(final_checkpoint),
         "diagnostics": diagnostics,
+        "health": health_monitor.summary(),
     }
     (output_dir / "metrics.json").write_text(
         json.dumps(payload, indent=2, sort_keys=True),

@@ -20,6 +20,13 @@ if str(SRC) not in sys.path:
 from q_attention.metrics import classification_metrics, correct_label_margin
 from q_attention.models import RelationExtractionModel, RelationTransformerConfig
 from q_attention.experiments import RELATION_SELECTION_CHOICES, relation_selection_score
+from q_attention.experiments.health import (
+    EpochHealthMonitor,
+    require_finite_gradients,
+    require_finite_parameters,
+    require_finite_tensor,
+    require_finite_values,
+)
 from q_attention.experiments.progress import tracked_batches
 from q_attention.tasks.relation import (
     PAD_TOKEN,
@@ -39,6 +46,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--batch_size", type=int, default=8)
     parser.add_argument("--log_every_batches", type=int, default=50)
+    parser.add_argument("--health_warning_patience", type=int, default=3)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--dim", type=int, default=64)
     parser.add_argument("--num_layers", type=int, default=2)
@@ -114,6 +122,8 @@ def main() -> None:
         raise ValueError("max_length must be positive when provided")
     if args.log_every_batches <= 0:
         raise ValueError("log_every_batches must be positive")
+    if args.health_warning_patience <= 0:
+        raise ValueError("health_warning_patience must be positive")
     set_seed(args.seed)
     device = choose_device(args.device)
     output_dir = Path(args.output_dir)
@@ -160,6 +170,7 @@ def main() -> None:
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
 
     history: list[dict[str, Any]] = []
+    health_monitor = EpochHealthMonitor("baseline", patience=args.health_warning_patience)
     best_metrics: dict[str, float] | None = None
     best_epoch: int | None = None
     best_score = (float("-inf"), float("-inf"))
@@ -167,7 +178,7 @@ def main() -> None:
         model.train()
         total_loss = 0.0
         total_items = 0
-        for batch in tracked_batches(
+        for batch_index, batch in enumerate(tracked_batches(
             train_loader,
             total_batches=len(train_loader),
             stage="baseline",
@@ -175,13 +186,32 @@ def main() -> None:
             log_every_batches=args.log_every_batches,
             epoch=epoch,
             epochs=args.epochs,
-        ):
+        ), start=0):
             batch = move_batch(batch, device)
             optimizer.zero_grad(set_to_none=True)
             logits = model(batch["input_ids"], batch["attention_mask"], batch["subject_mask"], batch["object_mask"])
             loss = F.cross_entropy(logits, batch["labels"])
+            require_finite_tensor(
+                loss,
+                "objective",
+                stage="baseline",
+                epoch=epoch,
+                batch_index=batch_index,
+            )
             loss.backward()
+            require_finite_gradients(
+                model,
+                stage="baseline",
+                epoch=epoch,
+                batch_index=batch_index,
+            )
             optimizer.step()
+            require_finite_parameters(
+                model,
+                stage="baseline",
+                epoch=epoch,
+                batch_index=batch_index,
+            )
             total_loss += float(loss.item()) * batch["labels"].shape[0]
             total_items += batch["labels"].shape[0]
 
@@ -199,10 +229,13 @@ def main() -> None:
             device,
             len(label_to_id),
         )
+        require_finite_values(valid_metrics, f"baseline.valid.epoch_{epoch}")
+        health = health_monitor.observe(epoch=epoch, valid_loss=valid_metrics["loss"])
         epoch_record = {
             "epoch": epoch,
             "train_loss": total_loss / max(total_items, 1),
             "valid": valid_metrics,
+            "health": health,
         }
         history.append(epoch_record)
         print(json.dumps(epoch_record, sort_keys=True), flush=True)
@@ -221,6 +254,7 @@ def main() -> None:
         "best_epoch": best_epoch,
         "selection_metric": args.selection_metric,
         "history": history,
+        "health": health_monitor.summary(),
         "key_module_paths": model.key_module_paths,
     }
     (output_dir / "metrics.json").write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")

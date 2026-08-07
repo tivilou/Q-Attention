@@ -4,6 +4,8 @@ from collections.abc import Iterable, Iterator, Sized
 from datetime import datetime
 from itertools import islice
 import json
+import os
+from pathlib import Path
 import time
 from typing import Any, TypeVar
 
@@ -17,6 +19,13 @@ def log_event(event: str, **fields: Any) -> None:
         "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
         **fields,
     }
+    heartbeat_value = os.environ.get("Q_ATTENTION_HEARTBEAT_FILE")
+    if heartbeat_value:
+        heartbeat = Path(heartbeat_value)
+        heartbeat.parent.mkdir(parents=True, exist_ok=True)
+        temporary = heartbeat.with_name(f".{heartbeat.name}.tmp")
+        temporary.write_text(json.dumps(payload, sort_keys=True) + "\n", encoding="utf-8")
+        os.replace(temporary, heartbeat)
     print(json.dumps(payload, sort_keys=True), flush=True)
 
 

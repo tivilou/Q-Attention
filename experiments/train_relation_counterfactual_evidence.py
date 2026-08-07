@@ -48,6 +48,13 @@ from q_attention.experiments.progress import (  # noqa: E402
     tracked_batches,
     tracked_limited_batches,
 )
+from q_attention.experiments.health import (  # noqa: E402
+    EpochHealthMonitor,
+    require_finite_gradients as _require_finite_gradients,
+    require_finite_parameters as _require_finite_parameters,
+    require_finite_tensor as _require_finite_tensor,
+    require_finite_values,
+)
 from q_attention.tasks.relation import load_relation_jsonl  # noqa: E402
 
 
@@ -149,6 +156,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--log_every_batches", type=int, default=50)
+    parser.add_argument("--health_warning_patience", type=int, default=3)
     parser.add_argument("--lr", type=float, default=1e-2)
     parser.add_argument("--seed", type=int, default=13)
     parser.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda"])
@@ -189,61 +197,6 @@ def evidence_selection_score(
     )
 
 
-def _require_finite_tensor(
-    tensor: torch.Tensor,
-    name: str,
-    *,
-    stage: str,
-    epoch: int,
-    batch_index: int,
-) -> None:
-    if not torch.isfinite(tensor).all():
-        raise FloatingPointError(
-            f"non-finite {name} at stage={stage} epoch={epoch} "
-            f"batch={batch_index}"
-        )
-
-
-def _require_finite_gradients(
-    module: torch.nn.Module,
-    *,
-    stage: str,
-    epoch: int,
-    batch_index: int,
-) -> None:
-    invalid = [
-        name
-        for name, parameter in module.named_parameters()
-        if parameter.grad is not None and not torch.isfinite(parameter.grad).all()
-    ]
-    if invalid:
-        names = ", ".join(invalid)
-        raise FloatingPointError(
-            f"non-finite gradients at stage={stage} epoch={epoch} "
-            f"batch={batch_index}: {names}"
-        )
-
-
-def _require_finite_parameters(
-    module: torch.nn.Module,
-    *,
-    stage: str,
-    epoch: int,
-    batch_index: int,
-) -> None:
-    invalid = [
-        name
-        for name, parameter in module.named_parameters()
-        if not torch.isfinite(parameter).all()
-    ]
-    if invalid:
-        names = ", ".join(invalid)
-        raise FloatingPointError(
-            f"non-finite parameters at stage={stage} epoch={epoch} "
-            f"batch={batch_index}: {names}"
-        )
-
-
 def main() -> None:
     args = parse_args()
     if args.epochs <= 0 or args.batch_size <= 0 or args.lr <= 0:
@@ -254,6 +207,8 @@ def main() -> None:
         raise ValueError("diagnostic_batches must be non-negative")
     if args.log_every_batches <= 0:
         raise ValueError("log_every_batches must be positive")
+    if args.health_warning_patience <= 0:
+        raise ValueError("health_warning_patience must be positive")
     stage = f"selector_{args.evidence_type}"
     set_seed(args.seed)
     device = choose_device(args.device)
@@ -359,6 +314,10 @@ def main() -> None:
     adapter = AttentionScoreKernelAdapter(model, model.score_module_paths, kernel)
     optimizer = torch.optim.AdamW(selector.parameters(), lr=args.lr)
     gradient_tracker = GradientNormTracker(selector.named_parameters())
+    health_monitor = EpochHealthMonitor(
+        stage,
+        patience=args.health_warning_patience,
+    )
     initial_valid = evaluate_relation_attention_score_kernel(
         model,
         tracked_batches(
@@ -386,6 +345,8 @@ def main() -> None:
         random_repeats=args.random_repeats,
         random_seed=args.seed + 8009,
     )
+    require_finite_values(initial_valid, f"{stage}.initial_valid")
+    require_finite_values(initial_diagnostics, f"{stage}.initial_selectivity")
 
     checkpoint = output_dir / "counterfactual_evidence.pt"
     task_checkpoint = output_dir / "counterfactual_evidence_task.pt"
@@ -517,6 +478,13 @@ def main() -> None:
             random_repeats=args.random_repeats,
             random_seed=args.seed + 8009,
         )
+        require_finite_values(valid, f"{stage}.valid.epoch_{epoch}")
+        require_finite_values(selectivity, f"{stage}.selectivity.epoch_{epoch}")
+        health = health_monitor.observe(
+            epoch=epoch,
+            valid_loss=valid["loss"],
+            mechanism_pass=bool(selectivity["selectivity_pass"]),
+        )
         row = {
             "epoch": epoch,
             "train": {
@@ -525,6 +493,7 @@ def main() -> None:
             },
             "valid": valid,
             "selectivity": selectivity,
+            "health": health,
         }
         history.append(row)
         print(json.dumps(row, sort_keys=True), flush=True)
@@ -586,6 +555,8 @@ def main() -> None:
         device,
         adapter=best_adapter,
     )
+    require_finite_values(best_selectivity, f"{stage}.best_selectivity")
+    require_finite_values(best_alignment, f"{stage}.best_alignment")
     best_task_alignment: dict[str, Any] | None = None
     task_kernel_metadata: dict[str, Any] | None = None
     if best_task_epoch is not None:
@@ -612,6 +583,7 @@ def main() -> None:
             device,
             adapter=task_adapter,
         )
+        require_finite_values(best_task_alignment, f"{stage}.task_best_alignment")
     payload = {
         "args": vars(args),
         "kernel_metadata": best_kernel.metadata(),
@@ -637,6 +609,7 @@ def main() -> None:
             if not name.startswith("evidence_selector.")
         ),
         "gradients": gradient_tracker.summary(),
+        "health": health_monitor.summary(),
         "checkpoint": str(checkpoint),
         "task_checkpoint": (
             str(task_checkpoint) if best_task_epoch is not None else None
@@ -656,6 +629,7 @@ def main() -> None:
                 "task_best": best_task_selectivity,
                 "task_best_alignment": best_task_alignment,
                 "gradients": gradient_tracker.summary(),
+                "health": health_monitor.summary(),
             },
             indent=2,
             sort_keys=True,

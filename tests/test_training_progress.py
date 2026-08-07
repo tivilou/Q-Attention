@@ -8,6 +8,7 @@ import pytest
 import torch
 
 from q_attention.experiments import progress
+from q_attention.experiments.health import EpochHealthMonitor, require_finite_values
 
 
 def _counterfactual_training_module():
@@ -82,6 +83,43 @@ def test_tracked_batches_rejects_invalid_log_interval() -> None:
                 log_every_batches=0,
             )
         )
+
+
+def test_log_event_updates_configured_heartbeat(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    heartbeat = tmp_path / "status" / "selector.heartbeat"
+    monkeypatch.setenv("Q_ATTENTION_HEARTBEAT_FILE", str(heartbeat))
+
+    progress.log_event("phase_start", stage="selector_quantum", phase="train")
+
+    assert heartbeat.is_file()
+    payload = json.loads(heartbeat.read_text(encoding="utf-8"))
+    assert payload["event"] == "phase_start"
+    assert json.loads(capsys.readouterr().out)["event"] == "phase_start"
+
+
+def test_health_monitor_warns_without_stopping_training(capsys: pytest.CaptureFixture[str]) -> None:
+    monitor = EpochHealthMonitor("selector_quantum", patience=3)
+    for epoch in range(1, 4):
+        monitor.observe(epoch=epoch, valid_loss=1.0, mechanism_pass=False)
+
+    summary = monitor.summary()
+    assert summary["no_improvement_epochs"] == 2
+    assert summary["consecutive_mechanism_failures"] == 3
+    assert [item["warning"] for item in summary["warnings"]] == [
+        "mechanism_selectivity_failure",
+    ]
+    events = [json.loads(line) for line in capsys.readouterr().out.splitlines()]
+    assert events[0]["event"] == "health_warning"
+
+
+def test_finite_value_guard_checks_nested_metrics() -> None:
+    require_finite_values({"valid": {"loss": 1.0}, "history": [0, 2.5]}, "run")
+    with pytest.raises(FloatingPointError, match="run.valid.loss"):
+        require_finite_values({"valid": {"loss": float("inf")}}, "run")
 
 
 def test_counterfactual_training_guards_fail_fast_on_nonfinite_values() -> None:
