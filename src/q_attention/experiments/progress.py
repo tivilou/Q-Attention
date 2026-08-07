@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Iterator, Sized
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import islice
 import json
 import os
@@ -11,6 +11,49 @@ from typing import Any, TypeVar
 
 
 T = TypeVar("T")
+
+
+def _format_duration(seconds: float | int | None) -> str:
+    if seconds is None:
+        return "unknown"
+    total = max(int(round(float(seconds))), 0)
+    hours, remainder = divmod(total, 3600)
+    minutes, secs = divmod(remainder, 60)
+    if hours:
+        return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+    return f"{minutes:02d}:{secs:02d}"
+
+
+def _progress_text(payload: dict[str, Any]) -> str | None:
+    event = payload["event"]
+    stage = payload.get("stage", "run")
+    phase = payload.get("phase")
+    label = f"[{stage}]" + (f"[{phase}]" if phase else "")
+    epoch = payload.get("epoch")
+    epochs = payload.get("epochs")
+    epoch_text = f" epoch {epoch}/{epochs}" if epoch is not None and epochs is not None else ""
+
+    if event == "phase_start":
+        return f"{label}{epoch_text} started | batches={payload.get('batches', '?')}"
+    if event == "batch_progress":
+        percent = float(payload.get("percent", 0.0))
+        width = 20
+        filled = min(max(int(round(width * percent / 100.0)), 0), width)
+        bar = "#" * filled + "-" * (width - filled)
+        finish = payload.get("estimated_completion_time", "unknown")
+        return (
+            f"{label}{epoch_text} [{bar}] {percent:6.2f}% "
+            f"batch {payload.get('batch', '?')}/{payload.get('batches', '?')} | "
+            f"elapsed {_format_duration(payload.get('elapsed_seconds'))} | "
+            f"ETA {_format_duration(payload.get('eta_seconds'))} | "
+            f"finish {finish} | {payload.get('batches_per_second', 0.0)} batch/s"
+        )
+    if event == "phase_complete":
+        return (
+            f"{label}{epoch_text} complete | batches={payload.get('completed_batches', '?')} | "
+            f"elapsed {_format_duration(payload.get('elapsed_seconds'))}"
+        )
+    return None
 
 
 def log_event(event: str, **fields: Any) -> None:
@@ -27,6 +70,10 @@ def log_event(event: str, **fields: Any) -> None:
         temporary.write_text(json.dumps(payload, sort_keys=True) + "\n", encoding="utf-8")
         os.replace(temporary, heartbeat)
     print(json.dumps(payload, sort_keys=True), flush=True)
+    if os.environ.get("Q_ATTENTION_PROGRESS_FORMAT", "json") == "both":
+        progress_text = _progress_text(payload)
+        if progress_text is not None:
+            print(progress_text, flush=True)
 
 
 def limit_batches(loader: Iterable[T] | Sized, max_batches: int) -> tuple[Iterable[T], int]:
@@ -77,6 +124,11 @@ def tracked_batches(
             rate = completed / elapsed if elapsed > 0.0 else 0.0
             remaining = max(total_batches - completed, 0)
             eta = remaining / rate if rate > 0.0 else None
+            estimated_completion = (
+                datetime.now().astimezone() + timedelta(seconds=eta)
+                if eta is not None
+                else None
+            )
             log_event(
                 "batch_progress",
                 **context,
@@ -84,6 +136,11 @@ def tracked_batches(
                 percent=round(100.0 * completed / total_batches, 2),
                 elapsed_seconds=round(elapsed, 1),
                 eta_seconds=round(eta, 1) if eta is not None else None,
+                estimated_completion_time=(
+                    estimated_completion.isoformat(timespec="seconds")
+                    if estimated_completion is not None
+                    else None
+                ),
                 batches_per_second=round(rate, 4),
             )
 

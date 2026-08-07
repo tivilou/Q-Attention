@@ -68,8 +68,41 @@ def test_tracked_batches_reports_interval_final_batch_and_eta(
     ]
     assert [event["batch"] for event in events[1:4]] == [1, 2, 3]
     assert events[1]["eta_seconds"] == 4.0
+    assert events[1]["estimated_completion_time"] is not None
     assert events[3]["percent"] == 100.0
     assert events[4]["completed_batches"] == 3
+
+
+def test_tracked_batches_can_emit_human_readable_progress(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    readings = iter((0.0, 2.0, 2.0))
+    monkeypatch.setattr(progress.time, "monotonic", lambda: next(readings))
+    monkeypatch.setenv("Q_ATTENTION_PROGRESS_FORMAT", "both")
+
+    assert list(
+        progress.tracked_batches(
+            ["a"],
+            total_batches=1,
+            stage="selector_quantum",
+            phase="train",
+            log_every_batches=1,
+            epoch=1,
+            epochs=10,
+        )
+    ) == ["a"]
+
+    lines = capsys.readouterr().out.splitlines()
+    json_events = [json.loads(line) for line in lines if line.startswith("{")]
+    text_events = [line for line in lines if line.startswith("[")]
+    assert [event["event"] for event in json_events] == [
+        "phase_start",
+        "batch_progress",
+        "phase_complete",
+    ]
+    assert any("[####################]" in line for line in text_events)
+    assert any("ETA 00:00" in line and "finish " in line for line in text_events)
 
 
 def test_tracked_batches_rejects_invalid_log_interval() -> None:
