@@ -1,10 +1,22 @@
 from __future__ import annotations
 
+import importlib.util
 import json
+from pathlib import Path
 
 import pytest
+import torch
 
 from q_attention.experiments import progress
+
+
+def _counterfactual_training_module():
+    path = Path(__file__).parents[1] / "experiments/train_relation_counterfactual_evidence.py"
+    spec = importlib.util.spec_from_file_location("counterfactual_training", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def test_limit_batches_caps_iterable_without_consuming_the_source() -> None:
@@ -69,4 +81,46 @@ def test_tracked_batches_rejects_invalid_log_interval() -> None:
                 phase="train",
                 log_every_batches=0,
             )
+        )
+
+
+def test_counterfactual_training_guards_fail_fast_on_nonfinite_values() -> None:
+    training = _counterfactual_training_module()
+    training._require_finite_tensor(
+        torch.ones(()),
+        "objective",
+        stage="selector_quantum",
+        epoch=1,
+        batch_index=0,
+    )
+
+    with pytest.raises(FloatingPointError, match="non-finite objective"):
+        training._require_finite_tensor(
+            torch.tensor(float("nan")),
+            "objective",
+            stage="selector_quantum",
+            epoch=1,
+            batch_index=0,
+        )
+
+    module = torch.nn.Module()
+    parameter = torch.nn.Parameter(torch.ones(()))
+    module.register_parameter("weight", parameter)
+    parameter.grad = torch.tensor(float("nan"))
+    with pytest.raises(FloatingPointError, match="non-finite gradients"):
+        training._require_finite_gradients(
+            module,
+            stage="selector_quantum",
+            epoch=1,
+            batch_index=0,
+        )
+
+    parameter.grad = None
+    parameter.data.fill_(float("nan"))
+    with pytest.raises(FloatingPointError, match="non-finite parameters"):
+        training._require_finite_parameters(
+            module,
+            stage="selector_quantum",
+            epoch=1,
+            batch_index=0,
         )

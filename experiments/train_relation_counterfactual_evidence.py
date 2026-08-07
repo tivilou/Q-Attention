@@ -189,6 +189,61 @@ def evidence_selection_score(
     )
 
 
+def _require_finite_tensor(
+    tensor: torch.Tensor,
+    name: str,
+    *,
+    stage: str,
+    epoch: int,
+    batch_index: int,
+) -> None:
+    if not torch.isfinite(tensor).all():
+        raise FloatingPointError(
+            f"non-finite {name} at stage={stage} epoch={epoch} "
+            f"batch={batch_index}"
+        )
+
+
+def _require_finite_gradients(
+    module: torch.nn.Module,
+    *,
+    stage: str,
+    epoch: int,
+    batch_index: int,
+) -> None:
+    invalid = [
+        name
+        for name, parameter in module.named_parameters()
+        if parameter.grad is not None and not torch.isfinite(parameter.grad).all()
+    ]
+    if invalid:
+        names = ", ".join(invalid)
+        raise FloatingPointError(
+            f"non-finite gradients at stage={stage} epoch={epoch} "
+            f"batch={batch_index}: {names}"
+        )
+
+
+def _require_finite_parameters(
+    module: torch.nn.Module,
+    *,
+    stage: str,
+    epoch: int,
+    batch_index: int,
+) -> None:
+    invalid = [
+        name
+        for name, parameter in module.named_parameters()
+        if not torch.isfinite(parameter).all()
+    ]
+    if invalid:
+        names = ", ".join(invalid)
+        raise FloatingPointError(
+            f"non-finite parameters at stage={stage} epoch={epoch} "
+            f"batch={batch_index}: {names}"
+        )
+
+
 def main() -> None:
     args = parse_args()
     if args.epochs <= 0 or args.batch_size <= 0 or args.lr <= 0:
@@ -402,9 +457,28 @@ def main() -> None:
                 objective_mode=args.objective_mode,
                 task_alignment_weight=args.task_alignment_weight,
             )
+            _require_finite_tensor(
+                objective,
+                "objective",
+                stage=stage,
+                epoch=epoch,
+                batch_index=batch_index,
+            )
             objective.backward()
+            _require_finite_gradients(
+                selector,
+                stage=stage,
+                epoch=epoch,
+                batch_index=batch_index,
+            )
             gradient_tracker.update()
             optimizer.step()
+            _require_finite_parameters(
+                selector,
+                stage=stage,
+                epoch=epoch,
+                batch_index=batch_index,
+            )
             items = batch["labels"].shape[0]
             totals["objective"] += float(objective.detach().item()) * items
             for name, value in components.items():

@@ -1958,12 +1958,13 @@ class QuantumRelationEvidenceSelector(RelationEvidenceSelector):
                 0.0
             )
             token_variance = (1.0 - token_expectations.square()).clamp_min(0.0)
+            correlation_variance = (
+                relation_variance.unsqueeze(-1) * token_variance.unsqueeze(-2)
+            ).reshape_as(connected)
+            # Clamp before sqrt so zero-variance states have a finite gradient.
             correlation_scale = torch.sqrt(
-                (
-                    relation_variance.unsqueeze(-1)
-                    * token_variance.unsqueeze(-2)
-                ).reshape_as(connected)
-            ).clamp_min(math.sqrt(self.config.eps))
+                correlation_variance.clamp_min(self.config.eps)
+            )
             if self.config.cross_entanglement:
                 standardized_connected = (connected / correlation_scale).clamp(
                     min=-1.0,
