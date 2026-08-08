@@ -940,6 +940,39 @@ def test_qres_coherent_frames_are_independent_gated_and_strongly_controlled() ->
     assert torch.isfinite(quantum.raw_frame_fusion_gains.grad).all()
 
 
+def test_qres_zero_variance_states_have_finite_backward() -> None:
+    config = RelationEvidenceSelectorConfig(
+        num_layers=1,
+        num_heads=1,
+        head_dim=4,
+        num_qubits=4,
+        evidence_readout="connected_relation_token",
+        evidence_correlation_mode="phase_selective",
+        evidence_weight_mode="signed_centered_l1",
+        evidence_measurement_mode="entanglement_phase_offset",
+        intervention_mode="direct_bias",
+        seed=73,
+    )
+    quantum = QuantumRelationEvidenceSelector(config)
+    token_states = torch.zeros(1, 4, requires_grad=True)
+    relation_states = torch.zeros(1, 4, requires_grad=True)
+    token_states.data[0, 0] = 1.0
+    relation_states.data[0, 0] = 1.0
+
+    _features, channels = quantum._relation_token_observable_features(
+        token_states,
+        relation_states,
+    )
+    assert torch.isfinite(channels["standardized_connected"]).all()
+    assert torch.isfinite(channels["phase_selective"]).all()
+    channels["phase_selective"].sum().backward()
+
+    assert token_states.grad is not None
+    assert relation_states.grad is not None
+    assert torch.isfinite(token_states.grad).all()
+    assert torch.isfinite(relation_states.grad).all()
+
+
 def test_qres_total_correlation_preserves_product_and_connected_channels() -> None:
     config = RelationEvidenceSelectorConfig(
         num_layers=1,
