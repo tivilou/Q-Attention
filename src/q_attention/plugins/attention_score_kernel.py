@@ -761,6 +761,7 @@ class RelationAttentionScoreKernel(nn.Module):
         object_mask: torch.Tensor,
         routing_mode: str = "learned",
         steering_evidence: torch.Tensor | None = None,
+        sufficiency_evidence: torch.Tensor | None = None,
     ) -> torch.Tensor:
         """Return centered scores after optional bounded evidence modulation."""
         centered = self.unmodulated_centered_kernel(
@@ -787,20 +788,23 @@ class RelationAttentionScoreKernel(nn.Module):
                 object_mask=object_mask,
             )
             evidence = None if readouts is None else readouts[0]
+            sufficiency_evidence = None if readouts is None else readouts[1]
         if evidence is None:
             return centered
-
-        key_mask = attention_mask[:, None, None, :].to(centered.dtype)
-        modulated = centered * (2.0 * evidence[:, :, None, :])
-        key_count = key_mask.sum(dim=-1, keepdim=True).clamp_min(1.0)
-        modulated = modulated - (
-            (modulated * key_mask).sum(dim=-1, keepdim=True) / key_count
-        )
+        if sufficiency_evidence is None:
+            sufficiency_evidence = evidence
         active_queries = attention_mask
         if self.config.query_scope == "entities":
             active_queries = active_queries & (subject_mask | object_mask)
-        query_mask = active_queries[:, None, :, None].to(centered.dtype)
-        return modulated * query_mask * key_mask
+        return self.evidence_selector.steering_residual(
+            centered,
+            evidence,
+            sufficiency_evidence,
+            attention_mask=attention_mask,
+            subject_mask=subject_mask,
+            object_mask=object_mask,
+            query_mask=active_queries,
+        )
 
     def direct_evidence_attention_bias(
         self,
@@ -811,6 +815,7 @@ class RelationAttentionScoreKernel(nn.Module):
         subject_mask: torch.Tensor,
         object_mask: torch.Tensor,
         evidence: torch.Tensor | None = None,
+        sufficiency_evidence: torch.Tensor | None = None,
     ) -> torch.Tensor:
         selector = self.evidence_selector
         if selector is None or selector.config.intervention_mode != "direct_bias":
@@ -829,6 +834,7 @@ class RelationAttentionScoreKernel(nn.Module):
                 object_mask=object_mask,
             )
             evidence = None if readouts is None else readouts[0]
+            sufficiency_evidence = None if readouts is None else readouts[1]
         if evidence is None:
             raise RuntimeError("direct evidence bias requires evidence scores")
         key_bias = selector.direct_key_bias(
@@ -837,6 +843,7 @@ class RelationAttentionScoreKernel(nn.Module):
             attention_mask=attention_mask,
             subject_mask=subject_mask,
             object_mask=object_mask,
+            sufficiency_scores=sufficiency_evidence,
         )
         active_queries = attention_mask
         if self.config.query_scope == "entities":
@@ -856,6 +863,7 @@ class RelationAttentionScoreKernel(nn.Module):
         random_seed: int,
         detach_random: bool,
         evidence: torch.Tensor | None = None,
+        steering_evidence: torch.Tensor | None = None,
     ) -> torch.Tensor:
         if evidence_view not in EVIDENCE_VIEW_CHOICES:
             raise ValueError(f"evidence_view must be one of {EVIDENCE_VIEW_CHOICES}")
@@ -874,6 +882,7 @@ class RelationAttentionScoreKernel(nn.Module):
                 subject_mask=subject_mask,
                 object_mask=object_mask,
             )
+            steering_evidence = None if readouts is None else readouts[0]
             evidence = None if readouts is None else readouts[1]
         if evidence is None or self.evidence_selector is None:
             raise RuntimeError("counterfactual views require an evidence selector")
@@ -885,6 +894,7 @@ class RelationAttentionScoreKernel(nn.Module):
             object_mask=object_mask,
             random_seed=random_seed,
             detach_random=detach_random,
+            steering_scores=steering_evidence,
         )
         bias = weights.clamp_min(self.config.eps).log()[:, :, None, :]
         query_mask = attention_mask[:, None, :, None].to(bias.dtype)
@@ -924,6 +934,9 @@ class RelationAttentionScoreKernel(nn.Module):
             steering_evidence=(
                 None if evidence_readouts is None else evidence_readouts[0]
             ),
+            sufficiency_evidence=(
+                None if evidence_readouts is None else evidence_readouts[1]
+            ),
         )
         if self._capture_centered:
             self._captured_centered.append(centered)
@@ -939,6 +952,9 @@ class RelationAttentionScoreKernel(nn.Module):
                 subject_mask=subject_mask,
                 object_mask=object_mask,
                 evidence=(None if evidence_readouts is None else evidence_readouts[0]),
+                sufficiency_evidence=(
+                    None if evidence_readouts is None else evidence_readouts[1]
+                ),
             )
         if evidence_view != "full":
             residual = residual + self.counterfactual_attention_bias(
@@ -951,6 +967,9 @@ class RelationAttentionScoreKernel(nn.Module):
                 random_seed=random_seed,
                 detach_random=detach_random,
                 evidence=(None if evidence_readouts is None else evidence_readouts[1]),
+                steering_evidence=(
+                    None if evidence_readouts is None else evidence_readouts[0]
+                ),
             )
         return residual
 

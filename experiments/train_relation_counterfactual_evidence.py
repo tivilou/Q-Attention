@@ -153,6 +153,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--random_repeats", type=int, default=4)
     parser.add_argument("--diagnostic_batches", type=int, default=0)
+    parser.add_argument("--quantum_diagnostic_limit", type=int, default=64)
     parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--log_every_batches", type=int, default=50)
@@ -303,6 +304,7 @@ def main() -> None:
             max_direct_gain=args.max_direct_gain,
             initial_direct_gain=args.initial_direct_gain,
             cross_entanglement=not args.disable_cross_entanglement,
+            quantum_diagnostic_limit=args.quantum_diagnostic_limit,
             seed=args.seed + 4001,
         ),
     ).to(device)

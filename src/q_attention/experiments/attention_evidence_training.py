@@ -356,7 +356,13 @@ def diagnose_relation_counterfactual_evidence(
             "context_steering",
             "steering_sufficiency_delta",
             "steering_sufficiency_cosine",
+            "necessity_sufficiency_overlap",
+            "complement_error",
             "gate_entropy",
+            "effective_support",
+            "off_diagonal_density_norm",
+            "mutual_information",
+            "observable_commutator_norm",
             "full_margin",
             "keep_kl",
             "random_keep_kl",
@@ -384,6 +390,16 @@ def diagnose_relation_counterfactual_evidence(
     layer_relation_frame_angle = [
         _ScalarAccumulator() for _ in range(selector.config.num_layers)
     ]
+    quantum_resource_names = (
+        "off_diagonal_density_norm",
+        "mutual_information",
+        "observable_commutator_norm",
+        "entangled_state",
+    )
+    layer_quantum_resources = [
+        {name: _ScalarAccumulator() for name in quantum_resource_names}
+        for _ in range(selector.config.num_layers)
+    ]
     num_batches = 0
 
     with torch.no_grad():
@@ -406,6 +422,9 @@ def diagnose_relation_counterfactual_evidence(
                 captured_relation_frame_angles = (
                     selector.captured_relation_frame_angles()
                 )
+                captured_quantum_diagnostics = (
+                    selector.captured_quantum_diagnostics()
+                )
                 for layer_index, (scores, steering_scores) in enumerate(
                     zip(captured, captured_steering, strict=True)
                 ):
@@ -417,6 +436,9 @@ def diagnose_relation_counterfactual_evidence(
                     accumulators["context_steering"].update(steering_values)
                     accumulators["steering_sufficiency_delta"].update(
                         steering_values - values
+                    )
+                    accumulators["complement_error"].update(
+                        (steering_values + values - 1.0).abs()
                     )
                     context_mask = (
                         batch["attention_mask"]
@@ -452,6 +474,15 @@ def diagnose_relation_counterfactual_evidence(
                         )
                         layer_readout_cosine[layer_index].update(cosine)
                         accumulators["steering_sufficiency_cosine"].update(cosine)
+                        accumulators["necessity_sufficiency_overlap"].update(cosine)
+                    evidence_mass = scores * context_mask
+                    normalized_mass = evidence_mass / evidence_mass.sum(
+                        dim=-1, keepdim=True
+                    ).clamp_min(selector.config.eps)
+                    effective_support = 1.0 / normalized_mass.square().sum(
+                        dim=-1
+                    ).clamp_min(selector.config.eps)
+                    accumulators["effective_support"].update(effective_support)
                     values = values.clamp(1e-6, 1.0 - 1e-6)
                     entropy = -(
                         values * values.log()
@@ -477,6 +508,16 @@ def diagnose_relation_counterfactual_evidence(
                         )
                 for layer_index, _head_index, angles in captured_relation_frame_angles:
                     layer_relation_frame_angle[layer_index].update(angles[context])
+                for layer_index, _head_index, diagnostics in (
+                    captured_quantum_diagnostics
+                ):
+                    for name, values in diagnostics.items():
+                        if name not in layer_quantum_resources[layer_index]:
+                            continue
+                        selected = values.masked_select(context)
+                        layer_quantum_resources[layer_index][name].update(selected)
+                        if name in accumulators:
+                            accumulators[name].update(selected)
 
             keep_logits = _view_logits(
                 model,
@@ -616,6 +657,10 @@ def diagnose_relation_counterfactual_evidence(
                 "relation_frame_angle": layer_relation_frame_angle[
                     layer_index
                 ].summary(),
+                "quantum_resources": {
+                    name: values.summary()
+                    for name, values in layer_quantum_resources[layer_index].items()
+                },
                 "sharpness": selector.sharpness(layer_index).detach().cpu().tolist(),
                 "sufficiency_observable_weights": (
                     selector.sufficiency_observable_weights(layer_index)
