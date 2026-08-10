@@ -1,15 +1,17 @@
 # Q-NESS 比例实验
 
-在项目根目录、激活自己的 conda 环境后执行。代码版本必须是 GitHub `main` 的最新提交。
+在项目根目录、激活自己的 conda 环境后执行。代码由 `main` 维护，实验在 `1.1` 分支进行。
 
 ## 运行
 
 先确认工作树干净：
 
 ```bash
-git switch main
-git pull --ff-only origin main
+git fetch origin --prune
+git switch 1.1
+git merge origin/main
 git status --short
+git log -1 --oneline
 ```
 
 执行比例 gate。脚本会自动在 `runs/` 下创建新的时间戳目录，不复用旧结果：
@@ -49,9 +51,21 @@ tail -n 50 "${RUN_DIR}/logs/selector_qness.log"
 训练结束后导出可提交报告：
 
 ```bash
-bash scripts/export_retacred_qness_proportional_report.sh "${RUN_DIR}"
+REPORT_DIR=$(bash scripts/export_retacred_qness_proportional_report.sh "${RUN_DIR}" \
+  | sed -n 's/^REPORT_DIR=//p')
+echo "REPORT_DIR=${REPORT_DIR}"
 ```
 
 脚本会打印 `REPORT_DIR`。只提交该 `reports/retacred/...` 目录；不要提交 `private_subsets/`、完整 `logs/`、checkpoint 或整个 `runs/` 目录。导出的报告已经包含 summary、各阶段 metrics/diagnostics 和日志尾部，可以直接用于诊断。
+
+提交到 `1.1`：
+
+```bash
+git add "${REPORT_DIR}"
+git diff --cached --check
+git diff --cached --name-only
+git commit -m "Add Q-NESS proportional gate results"
+git push origin 1.1
+```
 
 比例 gate 只用于筛选路线，不代表显著性、任务最终提升或量子优势。只有 gate 通过后，才进入 full 多 seed 实验。

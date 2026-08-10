@@ -12,6 +12,7 @@ LOG_EVERY_BATCHES=25
 SKIP_PREFLIGHT=0
 DRY_RUN=0
 RUN_CONTROLS=always
+MIN_COMMIT=f6e2bc5
 
 usage() {
   cat <<'EOF'
@@ -67,7 +68,7 @@ HEARTBEAT="${RUN_DIR}.heartbeat"
 
 if [[ ${DRY_RUN} -eq 0 && ${SKIP_PREFLIGHT} -eq 0 ]]; then
   mkdir -p "$(dirname "${RUN_DIR}")"
-  bash scripts/check_retacred_dual_qres_full.sh 2>&1 | tee "${RUN_DIR}.preflight.log"
+  MIN_COMMIT="${MIN_COMMIT}" bash scripts/check_retacred_dual_qres_full.sh 2>&1 | tee "${RUN_DIR}.preflight.log"
 fi
 
 echo "RUN_DIR=${RUN_DIR}"
