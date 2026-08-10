@@ -40,6 +40,7 @@ The five-seed Q-NESS toy mechanism gate has passed. It does not establish task-l
 
 - Documentation index: [docs/README.md](docs/README.md)
 - Current method overview: [docs/current/method_overview_zh.md](docs/current/method_overview_zh.md)
+- Q-NESS proportional gate: [docs/current/retacred_qness_proportional_gate_zh.md](docs/current/retacred_qness_proportional_gate_zh.md)
 - Collaborator Git workflow: [docs/current/collaborator_git_workflow_zh.md](docs/current/collaborator_git_workflow_zh.md)
 - Full seed-13 run guide: [docs/current/retacred_dual_qres_full_run_zh.md](docs/current/retacred_dual_qres_full_run_zh.md)
 - Formal experiment protocol: [docs/current/experiment_protocol_zh.md](docs/current/experiment_protocol_zh.md)

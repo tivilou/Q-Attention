@@ -10,6 +10,7 @@
 | [Q-NESS Toy Gate](current/qness_toy_gate_zh.md) | 运行五 seed 机制原型测试 |
 | [合作者 Git 工作流](current/collaborator_git_workflow_zh.md) | clone、同步 `main`、维护 `1.1`、提交报告 |
 | [Re-TACRED full 运行指南](current/retacred_dual_qres_full_run_zh.md) | 在完整 train/valid 上运行 seed 13 主实验预跑 |
+| [Q-NESS 比例实验](current/retacred_qness_proportional_gate_zh.md) | 先在受限 train/valid 上筛选 Q-NESS 和机制控制 |
 | [正式实验协议](current/experiment_protocol_zh.md) | 五 seed、消融、指标和 blind test 规则 |
 
 ## 历史文档
