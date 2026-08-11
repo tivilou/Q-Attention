@@ -34,9 +34,16 @@ copy_file() {
   cp "${source}" "${REPORT_DIR}/${relative}"
 }
 
-for filename in run_summary.json run_summary.md run_manifest.json run_config.json; do
+for filename in run_summary.json run_summary.md run_manifest.json run_config.json gpu_assignments.json; do
   copy_file "${RUN_DIR}/${filename}" "${filename}"
 done
+
+if compgen -G "${RUN_DIR}/status/*.env" >/dev/null; then
+  mkdir -p "${REPORT_DIR}/status"
+  for status_file in "${RUN_DIR}"/status/*.env; do
+    cp "${status_file}" "${REPORT_DIR}/status/$(basename "${status_file}")"
+  done
+fi
 
 STAGES=(
   baseline
@@ -64,4 +71,4 @@ printf '%s\n' "$(basename "${RUN_DIR}")" > "${REPORT_DIR}/source_run.txt"
 find "${REPORT_DIR}" -type f -printf '%P\n' | sort > "${REPORT_DIR}/REPORT_MANIFEST.txt"
 
 echo "REPORT_DIR=${REPORT_DIR}"
-echo "Only whitelist summaries, metrics, diagnostics, and log tails were exported."
+echo "Only whitelist summaries, GPU assignments, stage status, metrics, diagnostics, and log tails were exported."

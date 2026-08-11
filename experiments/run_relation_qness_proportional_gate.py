@@ -5,15 +5,19 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 import hashlib
 import json
 import math
 import os
 from pathlib import Path
+from queue import Empty, Queue
 import subprocess
 import sys
-from typing import Any
+import threading
+import time
+from typing import Any, Callable
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT / "src") not in sys.path:
@@ -33,6 +37,7 @@ CONTROL_SELECTORS = (
     "qness_phase_scrambled",
     "qness_dephased",
 )
+_CONSOLE_BROKEN = threading.Event()
 
 
 def parse_args() -> argparse.Namespace:
@@ -54,6 +59,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--log_every_batches", type=int, default=25)
     parser.add_argument("--seed", type=int, default=13)
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
+    parser.add_argument(
+        "--gpus",
+        default="0",
+        help="Physical GPU indexes separated by commas, or auto to query nvidia-smi.",
+    )
     parser.add_argument("--min_baseline_macro_f1", type=float, default=0.10)
     parser.add_argument("--min_loss_gain", type=float, default=1e-4)
     parser.add_argument("--max_f1_drop", type=float, default=0.005)
@@ -71,6 +81,46 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--fail_on_gate", action="store_true")
     return parser.parse_args()
+
+
+def _resolve_gpus(spec: str) -> list[int]:
+    value = str(spec).strip()
+    if not value:
+        raise ValueError("--gpus must contain at least one GPU index")
+    if value.lower() == "auto":
+        try:
+            result = subprocess.run(
+                [
+                    "nvidia-smi",
+                    "--query-gpu=index",
+                    "--format=csv,noheader,nounits",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        except OSError as exc:
+            raise RuntimeError("--gpus auto requires nvidia-smi") from exc
+        if result.returncode != 0:
+            raise RuntimeError(
+                "--gpus auto requires nvidia-smi: "
+                + (result.stderr.strip() or "command failed")
+            )
+        tokens = result.stdout.splitlines()
+    else:
+        tokens = value.split(",")
+    gpus: list[int] = []
+    for token in tokens:
+        token = token.strip()
+        if not token or not token.isdigit():
+            raise ValueError(f"GPU indexes must be non-negative integers: {token!r}")
+        gpu_id = int(token)
+        if gpu_id in gpus:
+            raise ValueError(f"GPU index appears more than once: {gpu_id}")
+        gpus.append(gpu_id)
+    if not gpus:
+        raise ValueError("--gpus resolved to no GPU")
+    return gpus
 
 
 def _resolve(path_value: str | Path) -> Path:
@@ -103,52 +153,335 @@ def _git_revision() -> str:
     return result.stdout.strip() if result.returncode == 0 else "unknown"
 
 
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _write_status(path: Path, fields: dict[str, Any]) -> None:
+    lines = []
+    for key, value in fields.items():
+        text = str(value).replace("\n", " ")
+        lines.append(f"{key}={text}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _selector_names(run_controls: str) -> list[str]:
+    names = ["qness", "qness_classical"]
+    if run_controls == "always":
+        names.extend(CONTROL_SELECTORS)
+    return names
+
+
+def _gpu_assignment_manifest(
+    requested: str, gpus: list[int], selector_names: list[str]
+) -> dict[str, Any]:
+    stage_names = ["baseline", "core_quantum"] + [
+        f"selector_{selector}" for selector in selector_names
+    ]
+    stages = {
+        name: {
+            "status": "pending",
+            "gpu_id": None,
+            "started_at": None,
+            "completed_at": None,
+            "duration_seconds": None,
+            "exit_code": None,
+        }
+        for name in stage_names
+    }
+    stages["baseline"]["gpu_id"] = gpus[0]
+    stages["core_quantum"]["gpu_id"] = gpus[0]
+    return {
+        "schema_version": "retacred-qness-gpu-assignments.v1",
+        "scheduler": "dynamic_selector_workers",
+        "ddp": False,
+        "requested_gpus": requested,
+        "resolved_gpus": gpus,
+        "selector_stages": [f"selector_{selector}" for selector in selector_names],
+        "stages": stages,
+    }
+
+
+def _assignment_update(
+    payload: dict[str, Any],
+    path: Path,
+    lock: threading.Lock,
+    stage: str,
+    **fields: Any,
+) -> None:
+    with lock:
+        payload["stages"][stage].update(fields)
+        _write_json(path, payload)
+
+
+def _console_print(value: str, lock: threading.Lock | None) -> None:
+    if _CONSOLE_BROKEN.is_set():
+        return
+    try:
+        if lock is None:
+            print(value, end="", flush=True)
+            return
+        with lock:
+            print(value, end="", flush=True)
+    except BrokenPipeError:
+        _CONSOLE_BROKEN.set()
+
+
 def _run_stage(
     name: str,
     command: list[str],
     output_dir: Path,
     heartbeat: Path | None,
+    gpu_id: int,
+    assignments: dict[str, Any] | None = None,
+    assignments_path: Path | None = None,
+    assignments_lock: threading.Lock | None = None,
+    console_lock: threading.Lock | None = None,
+    required_paths: tuple[Path, ...] = (),
 ) -> None:
     log_path = output_dir / "logs" / f"{name}.log"
     log_path.parent.mkdir(parents=True, exist_ok=True)
+    status_dir = output_dir / "status"
+    status_path = status_dir / f"{name}.env"
+    stage_heartbeat = status_dir / f"{name}.heartbeat"
+    started_at = _utc_now()
+    started_monotonic = time.monotonic()
+    status_dir.mkdir(parents=True, exist_ok=True)
+    stage_heartbeat.touch()
     environment = os.environ.copy()
     environment["PYTHONHASHSEED"] = environment.get("PYTHONHASHSEED", "0")
+    environment["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    environment["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+    environment["Q_ATTENTION_HEARTBEAT_FILE"] = str(stage_heartbeat)
     if heartbeat is not None:
         heartbeat.parent.mkdir(parents=True, exist_ok=True)
         heartbeat.touch()
-        environment["Q_ATTENTION_HEARTBEAT_FILE"] = str(heartbeat)
+    _write_status(
+        status_path,
+        {
+            "STATUS": "running",
+            "GPU_ID": gpu_id,
+            "STARTED_AT": started_at,
+            "HEARTBEAT_FILE": stage_heartbeat,
+            "LOG_FILE": log_path,
+        },
+    )
+    if assignments is not None and assignments_path is not None and assignments_lock is not None:
+        _assignment_update(
+            assignments,
+            assignments_path,
+            assignments_lock,
+            name,
+            status="running",
+            gpu_id=gpu_id,
+            started_at=started_at,
+        )
     _write_json(
         output_dir / "logs" / f"{name}.command.json",
-        {"command": command, "cwd": str(ROOT)},
+        {
+            "command": command,
+            "cwd": str(ROOT),
+            "gpu_id": gpu_id,
+            "cuda_visible_devices": str(gpu_id),
+        },
     )
-    print(
-        json.dumps({"event": "stage_started", "stage": name, "log": str(log_path)}),
-        flush=True,
-    )
-    with log_path.open("w", encoding="utf-8") as handle:
-        process = subprocess.Popen(
-            command,
-            cwd=ROOT,
-            env=environment,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
+    _console_print(
+        json.dumps(
+            {
+                "event": "stage_started",
+                "stage": name,
+                "gpu_id": gpu_id,
+                "log": str(log_path),
+            }
         )
-        assert process.stdout is not None
-        for line in process.stdout:
-            print(line, end="", flush=True)
-            handle.write(line)
-            handle.flush()
-        status = process.wait()
-    if heartbeat is not None:
-        heartbeat.touch()
+        + "\n",
+        console_lock,
+    )
+    status = None
+    process_error: BaseException | None = None
+    with log_path.open("w", encoding="utf-8") as handle:
+        try:
+            process = subprocess.Popen(
+                command,
+                cwd=ROOT,
+                env=environment,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+            )
+            _write_status(
+                status_path,
+                {
+                    "STATUS": "running",
+                    "GPU_ID": gpu_id,
+                    "PID": process.pid,
+                    "STARTED_AT": started_at,
+                    "HEARTBEAT_FILE": stage_heartbeat,
+                    "LOG_FILE": log_path,
+                },
+            )
+            assert process.stdout is not None
+            for line in process.stdout:
+                _console_print(f"[{name}][gpu={gpu_id}] {line}", console_lock)
+                handle.write(line)
+                handle.flush()
+                if heartbeat is not None:
+                    heartbeat.touch()
+            status = process.wait()
+        except BaseException as exc:
+            process_error = exc
+    duration = round(max(time.monotonic() - started_monotonic, 0.0), 3)
+    completed_at = _utc_now()
+    if process_error is not None:
+        error_text = str(process_error)
+        _write_status(
+            status_path,
+            {
+                "STATUS": "failed",
+                "GPU_ID": gpu_id,
+                "EXIT_CODE": -1,
+                "STARTED_AT": started_at,
+                "FAILED_AT": completed_at,
+                "DURATION_SECONDS": duration,
+                "HEARTBEAT_FILE": stage_heartbeat,
+                "LOG_FILE": log_path,
+                "ERROR": error_text,
+            },
+        )
+        if assignments is not None and assignments_path is not None and assignments_lock is not None:
+            _assignment_update(
+                assignments,
+                assignments_path,
+                assignments_lock,
+                name,
+                status="failed",
+                completed_at=completed_at,
+                duration_seconds=duration,
+                exit_code=-1,
+                error=error_text,
+            )
+        raise process_error
+    missing_paths = [str(path) for path in required_paths if not path.is_file()]
+    output_error = ""
+    if status == 0 and missing_paths:
+        status = 1
+        output_error = "missing expected outputs: " + ", ".join(missing_paths)
     if status != 0:
         tail = log_path.read_text(encoding="utf-8").splitlines()[-40:]
-        raise RuntimeError(
-            f"stage {name} failed with exit code {status}:\n" + "\n".join(tail)
+        error_text = output_error or (f"exit code {status}: " + "\n".join(tail))
+        _write_status(
+            status_path,
+            {
+                "STATUS": "failed",
+                "GPU_ID": gpu_id,
+                "EXIT_CODE": status,
+                "STARTED_AT": started_at,
+                "FAILED_AT": completed_at,
+                "DURATION_SECONDS": duration,
+                "HEARTBEAT_FILE": stage_heartbeat,
+                "LOG_FILE": log_path,
+                "ERROR": error_text,
+            },
         )
-    print(json.dumps({"event": "stage_completed", "stage": name}), flush=True)
+        if assignments is not None and assignments_path is not None and assignments_lock is not None:
+            _assignment_update(
+                assignments,
+                assignments_path,
+                assignments_lock,
+                name,
+                status="failed",
+                completed_at=completed_at,
+                duration_seconds=duration,
+                exit_code=status,
+                error=error_text,
+            )
+        raise RuntimeError(
+            f"stage {name} failed with exit code {status}:\n{error_text}"
+        )
+    _write_status(
+        status_path,
+        {
+            "STATUS": "complete",
+            "GPU_ID": gpu_id,
+            "EXIT_CODE": 0,
+            "STARTED_AT": started_at,
+            "COMPLETED_AT": completed_at,
+            "DURATION_SECONDS": duration,
+            "HEARTBEAT_FILE": stage_heartbeat,
+            "LOG_FILE": log_path,
+        },
+    )
+    if assignments is not None and assignments_path is not None and assignments_lock is not None:
+        _assignment_update(
+            assignments,
+            assignments_path,
+            assignments_lock,
+            name,
+            status="complete",
+            completed_at=completed_at,
+            duration_seconds=duration,
+            exit_code=0,
+        )
+    _console_print(
+        json.dumps(
+            {
+                "event": "stage_completed",
+                "stage": name,
+                "gpu_id": gpu_id,
+                "duration_seconds": duration,
+            }
+        )
+        + "\n",
+        console_lock,
+    )
+
+
+def _run_selector_workers(
+    selector_names: list[str],
+    gpu_ids: list[int],
+    run_selector: Callable[[str, int], None],
+) -> list[dict[str, Any]]:
+    """Run selector jobs with one queue-consuming worker per physical GPU."""
+    jobs: Queue[str] = Queue()
+    for selector in selector_names:
+        jobs.put(selector)
+    outcomes: list[dict[str, Any]] = []
+    outcomes_lock = threading.Lock()
+
+    def worker(gpu_id: int) -> None:
+        while True:
+            try:
+                selector = jobs.get_nowait()
+            except Empty:
+                return
+            stage = f"selector_{selector}"
+            try:
+                run_selector(selector, gpu_id)
+            except Exception as exc:
+                outcome = {
+                    "stage": stage,
+                    "selector": selector,
+                    "gpu_id": gpu_id,
+                    "status": "failed",
+                    "error": str(exc),
+                }
+            else:
+                outcome = {
+                    "stage": stage,
+                    "selector": selector,
+                    "gpu_id": gpu_id,
+                    "status": "complete",
+                }
+            finally:
+                jobs.task_done()
+            with outcomes_lock:
+                outcomes.append(outcome)
+
+    with ThreadPoolExecutor(max_workers=len(gpu_ids)) as executor:
+        list(executor.map(worker, gpu_ids))
+    return outcomes
 
 
 def _subset_manifest(records: list[Any], source_path: Path, sampler: str) -> dict[str, Any]:
@@ -605,6 +938,11 @@ def summarize_existing_run(output_dir: Path) -> dict[str, Any]:
         "revision": config.get("revision", _git_revision()),
         "config": config,
         "subset_manifest": manifest["subset_manifest"],
+        "gpu_assignments": (
+            _read_json(output_dir / "gpu_assignments.json")
+            if (output_dir / "gpu_assignments.json").is_file()
+            else None
+        ),
         "stages": stage_summaries,
         "decision": decision,
     }
@@ -657,6 +995,8 @@ def main() -> None:
         return
     if output_dir.exists():
         raise FileExistsError(f"refusing to reuse proportional output directory: {output_dir}")
+    resolved_gpus = _resolve_gpus(args.gpus)
+    selector_names = _selector_names(args.run_controls)
     if args.dry_run:
         paths = {
             "baseline_train": output_dir / "private_subsets" / "baseline_train.jsonl",
@@ -667,13 +1007,25 @@ def main() -> None:
             "baseline": _baseline_command(args, paths, output_dir / "baseline"),
             "core_quantum": _core_command(args, paths, output_dir / "core" / "quantum"),
         }
-        for selector in ("qness", "qness_classical", *CONTROL_SELECTORS):
+        for selector in selector_names:
             commands[f"selector_{selector}"] = _selector_command(
                 args, selector, paths, output_dir / "selector" / selector
             )
         print(
             json.dumps(
-                {"dry_run": True, "output_dir": str(output_dir), "commands": commands},
+                {
+                    "dry_run": True,
+                    "output_dir": str(output_dir),
+                    "requested_gpus": args.gpus,
+                    "resolved_gpus": resolved_gpus,
+                    "baseline_gpu": resolved_gpus[0],
+                    "core_quantum_gpu": resolved_gpus[0],
+                    "selector_scheduler": "dynamic_selector_workers",
+                    "selector_stages": [
+                        f"selector_{selector}" for selector in selector_names
+                    ],
+                    "commands": commands,
+                },
                 indent=2,
             )
         )
@@ -682,6 +1034,10 @@ def main() -> None:
     output_dir.mkdir(parents=True, exist_ok=False)
     heartbeat_value = os.environ.get("Q_ATTENTION_HEARTBEAT_FILE")
     heartbeat = Path(heartbeat_value) if heartbeat_value else None
+    assignments_path = output_dir / "gpu_assignments.json"
+    assignments_lock = threading.Lock()
+    console_lock = threading.Lock()
+    assignments = _gpu_assignment_manifest(args.gpus, resolved_gpus, selector_names)
     current_stage = "subset_preparation"
     try:
         paths, subset_manifest = _prepare_subsets(args, output_dir / "private_subsets")
@@ -690,43 +1046,89 @@ def main() -> None:
             "output_dir": str(output_dir),
             "revision": _git_revision(),
             "test_used": False,
+            "resolved_gpus": resolved_gpus,
+            "baseline_gpu": resolved_gpus[0],
+            "core_quantum_gpu": resolved_gpus[0],
+            "selector_scheduler": "dynamic_selector_workers",
+            "ddp": False,
         }
         _write_json(output_dir / "run_config.json", config)
+        _write_json(assignments_path, assignments)
         _write_json(
             output_dir / "run_manifest.json",
-            {"config": config, "subset_manifest": subset_manifest},
+            {
+                "config": config,
+                "subset_manifest": subset_manifest,
+                "gpu_assignments_file": "gpu_assignments.json",
+            },
         )
 
         current_stage = "baseline"
         _run_stage(
-            "baseline", _baseline_command(args, paths, output_dir / "baseline"), output_dir, heartbeat
+            "baseline",
+            _baseline_command(args, paths, output_dir / "baseline"),
+            output_dir,
+            heartbeat,
+            resolved_gpus[0],
+            assignments,
+            assignments_path,
+            assignments_lock,
+            console_lock,
+            required_paths=(
+                output_dir / "baseline" / "metrics.json",
+                output_dir / "baseline" / "model.pt",
+            ),
         )
-        if not (output_dir / "baseline" / "metrics.json").is_file():
-            raise FileNotFoundError("baseline metrics.json was not produced")
         current_stage = "core_quantum"
         _run_stage(
             "core_quantum",
             _core_command(args, paths, output_dir / "core" / "quantum"),
             output_dir,
             heartbeat,
+            resolved_gpus[0],
+            assignments,
+            assignments_path,
+            assignments_lock,
+            console_lock,
+            required_paths=(
+                output_dir / "core" / "quantum" / "metrics.json",
+                output_dir / "core" / "quantum" / "diagnostics.json",
+                output_dir / "core" / "quantum" / "attention_score_kernel.pt",
+            ),
         )
-        if not (output_dir / "core" / "quantum" / "attention_score_kernel.pt").is_file():
-            raise FileNotFoundError("quantum core checkpoint was not produced")
 
-        selector_names = ["qness", "qness_classical"]
-        if args.run_controls == "always":
-            selector_names.extend(CONTROL_SELECTORS)
-        for selector in selector_names:
-            current_stage = f"selector_{selector}"
+        current_stage = "selector_workers"
+
+        def run_selector(selector: str, gpu_id: int) -> None:
+            stage_name = f"selector_{selector}"
             _run_stage(
-                current_stage,
+                stage_name,
                 _selector_command(args, selector, paths, output_dir / "selector" / selector),
                 output_dir,
                 heartbeat,
+                gpu_id,
+                assignments,
+                assignments_path,
+                assignments_lock,
+                console_lock,
+                required_paths=(
+                    output_dir / "selector" / selector / "metrics.json",
+                    output_dir / "selector" / selector / "diagnostics.json",
+                ),
             )
-            for filename in ("metrics.json", "diagnostics.json"):
-                if not (output_dir / "selector" / selector / filename).is_file():
-                    raise FileNotFoundError(f"{selector} did not produce {filename}")
+
+        selector_outcomes = _run_selector_workers(
+            selector_names, resolved_gpus, run_selector
+        )
+        failed_selectors = [
+            outcome for outcome in selector_outcomes if outcome["status"] == "failed"
+        ]
+        if failed_selectors:
+            details = "; ".join(
+                f"{item['stage']} gpu={item['gpu_id']}: {item['error']}"
+                for item in failed_selectors
+            )
+            raise RuntimeError(f"selector worker failures: {details}")
 
         summary = summarize_existing_run(output_dir)
         decision = summary["decision"]
