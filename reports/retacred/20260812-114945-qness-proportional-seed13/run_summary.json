@@ -1,0 +1,2449 @@
+{
+  "config": {
+    "baseline_batch_size": 128,
+    "baseline_epochs": 6,
+    "baseline_gpu": 0,
+    "baseline_train_limit": 8192,
+    "core_epochs": 4,
+    "core_quantum_gpu": 0,
+    "ddp": false,
+    "device": "cuda",
+    "diagnostic_batches": 16,
+    "dry_run": false,
+    "fail_on_gate": false,
+    "gpus": "0,1,2",
+    "log_every_batches": 25,
+    "max_f1_drop": 0.005,
+    "min_baseline_macro_f1": 0.1,
+    "min_loss_gain": 0.0001,
+    "output_dir": "/root/projects/Q-Attention/runs/retacred_qness_proportional_20260812T070719Z_seed13",
+    "plugin_batch_size": 64,
+    "quantum_diagnostic_limit": 64,
+    "random_repeats": 1,
+    "resolved_gpus": [
+      0,
+      1,
+      2
+    ],
+    "revision": "2ef4fc7e775496f87de1d9e8f48b15d19ccf598d",
+    "run_controls": "always",
+    "seed": 13,
+    "selector_epochs": 5,
+    "selector_scheduler": "dynamic_selector_workers",
+    "summarize_only": false,
+    "test_used": false,
+    "train_limit": 8192,
+    "train_path": "data/relation/retacred/train.jsonl",
+    "valid_limit": 2048,
+    "valid_path": "data/relation/retacred/valid.jsonl"
+  },
+  "decision": {
+    "controls_requested": true,
+    "gains": {
+      "qness_over_classical_control_loss": 0.027533266693353653,
+      "qness_over_classical_control_macro_f1": -0.005471004265232421,
+      "qness_over_quantum_core_loss": 0.0612080879509449,
+      "qness_over_quantum_core_macro_f1": 0.0019554165324002504
+    },
+    "gate_pass": true,
+    "resource_checks": {
+      "commuting_commutator_removed": true,
+      "dephased_off_diagonal_removed": true,
+      "qness_commutator_nonzero": true,
+      "qness_mutual_information_nonzero": true,
+      "qness_off_diagonal_nonzero": true,
+      "separable_mutual_information_removed": true
+    },
+    "task_checks": {
+      "baseline_usable": true,
+      "qness_f1_guardrail": true,
+      "qness_has_task_checkpoint": true,
+      "qness_improves_over_classical_control": true,
+      "qness_improves_over_quantum_core": true
+    },
+    "technical_finite": true,
+    "thresholds": {
+      "max_f1_drop": 0.005,
+      "min_baseline_macro_f1": 0.1,
+      "min_loss_gain": 0.0001
+    }
+  },
+  "gpu_assignments": {
+    "ddp": false,
+    "requested_gpus": "0,1,2",
+    "resolved_gpus": [
+      0,
+      1,
+      2
+    ],
+    "scheduler": "dynamic_selector_workers",
+    "schema_version": "retacred-qness-gpu-assignments.v1",
+    "selector_stages": [
+      "selector_qness",
+      "selector_qness_classical",
+      "selector_qness_commuting",
+      "selector_qness_separable",
+      "selector_qness_phase_scrambled",
+      "selector_qness_dephased"
+    ],
+    "stages": {
+      "baseline": {
+        "completed_at": "2026-08-12T07:08:16.750052+00:00",
+        "duration_seconds": 37.413,
+        "exit_code": 0,
+        "gpu_id": 0,
+        "started_at": "2026-08-12T07:07:39.337004+00:00",
+        "status": "complete"
+      },
+      "core_quantum": {
+        "completed_at": "2026-08-12T07:20:49.384787+00:00",
+        "duration_seconds": 752.632,
+        "exit_code": 0,
+        "gpu_id": 0,
+        "started_at": "2026-08-12T07:08:16.752282+00:00",
+        "status": "complete"
+      },
+      "selector_qness": {
+        "completed_at": "2026-08-12T08:44:57.427767+00:00",
+        "duration_seconds": 5048.039,
+        "exit_code": 0,
+        "gpu_id": 0,
+        "started_at": "2026-08-12T07:20:49.388393+00:00",
+        "status": "complete"
+      },
+      "selector_qness_classical": {
+        "completed_at": "2026-08-12T08:26:12.929613+00:00",
+        "duration_seconds": 3923.539,
+        "exit_code": 0,
+        "gpu_id": 1,
+        "started_at": "2026-08-12T07:20:49.390304+00:00",
+        "status": "complete"
+      },
+      "selector_qness_commuting": {
+        "completed_at": "2026-08-12T08:49:25.100631+00:00",
+        "duration_seconds": 5315.709,
+        "exit_code": 0,
+        "gpu_id": 2,
+        "started_at": "2026-08-12T07:20:49.391327+00:00",
+        "status": "complete"
+      },
+      "selector_qness_dephased": {
+        "completed_at": "2026-08-12T10:07:17.988559+00:00",
+        "duration_seconds": 4672.886,
+        "exit_code": 0,
+        "gpu_id": 2,
+        "started_at": "2026-08-12T08:49:25.102837+00:00",
+        "status": "complete"
+      },
+      "selector_qness_phase_scrambled": {
+        "completed_at": "2026-08-12T10:12:31.704675+00:00",
+        "duration_seconds": 5254.275,
+        "exit_code": 0,
+        "gpu_id": 0,
+        "started_at": "2026-08-12T08:44:57.429871+00:00",
+        "status": "complete"
+      },
+      "selector_qness_separable": {
+        "completed_at": "2026-08-12T09:47:52.841262+00:00",
+        "duration_seconds": 4899.909,
+        "exit_code": 0,
+        "gpu_id": 1,
+        "started_at": "2026-08-12T08:26:12.931770+00:00",
+        "status": "complete"
+      }
+    }
+  },
+  "revision": "2ef4fc7e775496f87de1d9e8f48b15d19ccf598d",
+  "schema_version": "retacred-qness-proportional-gate.v1",
+  "stages": {
+    "baseline": {
+      "best_epoch": 5,
+      "best_task_epoch": null,
+      "diagnostic_means": {
+        "complement_error": null,
+        "drop_advantage": null,
+        "keep_advantage": null,
+        "mutual_information": null,
+        "observable_commutator_norm": null,
+        "off_diagonal_density_norm": null
+      },
+      "diagnostics_path": null,
+      "diagnostics_schema": null,
+      "gradients": null,
+      "health": {
+        "best_loss": 2.395112782716751,
+        "consecutive_mechanism_failures": 0,
+        "min_delta": 1e-06,
+        "no_improvement_epochs": 1,
+        "patience": 3,
+        "warnings": []
+      },
+      "metrics_path": "/root/projects/Q-Attention/runs/retacred_qness_proportional_20260812T070719Z_seed13/baseline/metrics.json",
+      "selectivity_pass": false,
+      "validation_metrics": {
+        "correct_label_margin": -1.0243771709501743,
+        "loss": 2.395112782716751,
+        "macro_f1": 0.18735028547612365
+      }
+    },
+    "core_quantum": {
+      "best_epoch": 4,
+      "best_task_epoch": null,
+      "diagnostic_means": {
+        "complement_error": null,
+        "drop_advantage": null,
+        "keep_advantage": null,
+        "mutual_information": null,
+        "observable_commutator_norm": null,
+        "off_diagonal_density_norm": null
+      },
+      "diagnostics_path": "/root/projects/Q-Attention/runs/retacred_qness_proportional_20260812T070719Z_seed13/core/quantum/diagnostics.json",
+      "diagnostics_schema": null,
+      "gradients": null,
+      "health": {
+        "best_loss": 2.389278680086136,
+        "consecutive_mechanism_failures": 0,
+        "min_delta": 1e-06,
+        "no_improvement_epochs": 0,
+        "patience": 3,
+        "warnings": []
+      },
+      "metrics_path": "/root/projects/Q-Attention/runs/retacred_qness_proportional_20260812T070719Z_seed13/core/quantum/metrics.json",
+      "selectivity_pass": false,
+      "validation_metrics": {
+        "correct_label_margin": -1.017601741477847,
+        "loss": 2.389278680086136,
+        "macro_f1": 0.1870948026613412
+      }
+    },
+    "selector_qness": {
+      "best_epoch": 2,
+      "best_task_epoch": 2,
+      "diagnostic_means": {
+        "complement_error": 0.5833704632010152,
+        "drop_advantage": 0.00598911358974874,
+        "keep_advantage": 1.1911721074397974e-05,
+        "mutual_information": 0.02639362656386433,
+        "observable_commutator_norm": 2.0,
+        "off_diagonal_density_norm": 0.012332834184578643
+      },
+      "diagnostics_path": "/root/projects/Q-Attention/runs/retacred_qness_proportional_20260812T070719Z_seed13/selector/qness/diagnostics.json",
+      "diagnostics_schema": null,
+      "gradients": {
+        "optimizer_steps": 640,
+        "parameters": {
+          "data_biases": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.20650090277194977,
+              "mean": 0.04222894880076637,
+              "mean_abs": 0.04222894880076637,
+              "min": 0.00669775390997529,
+              "rms": 0.05017500552058118,
+              "std": 0.02709699360026134
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.14442352950572968,
+              "mean": 0.02157790795827168,
+              "mean_abs": 0.02157790795827168,
+              "min": 0.00222636666148901,
+              "rms": 0.027419665758031057,
+              "std": 0.016918391129965533
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.004107153974473476,
+              "mean": 0.0015657215742521657,
+              "mean_abs": 0.0015657215742521657,
+              "min": 0.0003798518446274102,
+              "rms": 0.0017164898011938006,
+              "std": 0.0007034580225739512
+            },
+            "steps_with_gradient": 640
+          },
+          "data_scales": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.037200555205345154,
+              "mean": 0.011883419144032814,
+              "mean_abs": 0.011883419144032814,
+              "min": 0.0017119196709245443,
+              "rms": 0.01390466350432948,
+              "std": 0.007219696435160318
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.033553559333086014,
+              "mean": 0.006921653435256303,
+              "mean_abs": 0.006921653435256303,
+              "min": 0.0005065290606580675,
+              "rms": 0.008614527334785274,
+              "std": 0.005128430064256245
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0010096667101606727,
+              "mean": 0.00042983674203469493,
+              "mean_abs": 0.00042983674203469493,
+              "min": 9.587461681803688e-05,
+              "rms": 0.00047502724766713256,
+              "std": 0.00020221587777227194
+            },
+            "steps_with_gradient": 640
+          },
+          "observable_logits": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.12220489978790283,
+              "mean": 0.03800320270020165,
+              "mean_abs": 0.03800320270020165,
+              "min": 0.006606703624129295,
+              "rms": 0.042945376481004265,
+              "std": 0.020001548580611945
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.07839472591876984,
+              "mean": 0.01830013953622256,
+              "mean_abs": 0.01830013953622256,
+              "min": 0.0019724066369235516,
+              "rms": 0.02228867749133808,
+              "std": 0.01272360158397239
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.004329309798777103,
+              "mean": 0.001654688256121517,
+              "mean_abs": 0.001654688256121517,
+              "min": 0.0003805617452599108,
+              "rms": 0.0018358306120580211,
+              "std": 0.0007951608712850884
+            },
+            "steps_with_gradient": 640
+          },
+          "offsets": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.054335255175828934,
+              "mean": 0.012591497267567319,
+              "mean_abs": 0.012591497267567319,
+              "min": 0.002047225832939148,
+              "rms": 0.01533736059530469,
+              "std": 0.00875721568714907
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.03634143993258476,
+              "mean": 0.006882497600417992,
+              "mean_abs": 0.006882497600417992,
+              "min": 0.0008558250265195966,
+              "rms": 0.008416718787181495,
+              "std": 0.004844830432815429
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.005925624631345272,
+              "mean": 0.001555208689023857,
+              "mean_abs": 0.001555208689023857,
+              "min": 0.00022965442622080445,
+              "rms": 0.001909694382693202,
+              "std": 0.001108268274775862
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_direct_gains": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.015720872208476067,
+              "mean": 0.00428475329590583,
+              "mean_abs": 0.00428475329590583,
+              "min": 0.0015020977007225156,
+              "rms": 0.00482752827657487,
+              "std": 0.0022239420977970773
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.013675656169652939,
+              "mean": 0.0024992777981424296,
+              "mean_abs": 0.0024992777981424296,
+              "min": 0.000621227954979986,
+              "rms": 0.0029545765386676083,
+              "std": 0.0015757959926835051
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0014745970256626606,
+              "mean": 0.0005041001551944646,
+              "mean_abs": 0.0005041001551944646,
+              "min": 0.0001943225652212277,
+              "rms": 0.0005600851605773214,
+              "std": 0.00024408691204536257
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_sharpness": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.026932163164019585,
+              "mean": 0.009990368106628011,
+              "mean_abs": 0.009990368106628011,
+              "min": 0.0015058800345286727,
+              "rms": 0.011110180039118029,
+              "std": 0.0048609305277576755
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.02012510783970356,
+              "mean": 0.00624536163331868,
+              "mean_abs": 0.00624536163331868,
+              "min": 0.0006690216832794249,
+              "rms": 0.0069549290221691375,
+              "std": 0.00306047312886122
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0034022710751742125,
+              "mean": 0.0010939241472897264,
+              "mean_abs": 0.0010939241472897264,
+              "min": 0.00020372225844766945,
+              "rms": 0.0012576181523996912,
+              "std": 0.0006204299938120801
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_sufficiency_sharpness": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.001953297760337591,
+              "mean": 0.0009688395921330084,
+              "mean_abs": 0.0009688395921330084,
+              "min": 0.00037260513636283576,
+              "rms": 0.0010150474806516151,
+              "std": 0.0003027725758597316
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.0015031211078166962,
+              "mean": 0.00047530048179851293,
+              "mean_abs": 0.00047530048179851293,
+              "min": 0.00016816621064208448,
+              "rms": 0.0005253014137488475,
+              "std": 0.00022367616611664148
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0003415902319829911,
+              "mean": 0.0001311655120616706,
+              "mean_abs": 0.0001311655120616706,
+              "min": 4.895910751656629e-05,
+              "rms": 0.00014321864177309078,
+              "std": 5.7508154177721993e-05
+            },
+            "steps_with_gradient": 640
+          },
+          "relation_biases": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.031182831153273582,
+              "mean": 0.008536579102292307,
+              "mean_abs": 0.008536579102292307,
+              "min": 0.0018539892043918371,
+              "rms": 0.010218154137488347,
+              "std": 0.005615825069192992
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.025267116725444794,
+              "mean": 0.0040553150939558694,
+              "mean_abs": 0.0040553150939558694,
+              "min": 0.0006625843234360218,
+              "rms": 0.004942802623615841,
+              "std": 0.0028259011420708503
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0013481141068041325,
+              "mean": 0.0004212757185996452,
+              "mean_abs": 0.0004212757185996452,
+              "min": 8.826979319564998e-05,
+              "rms": 0.0005233719435365304,
+              "std": 0.0003105558890112338
+            },
+            "steps_with_gradient": 640
+          },
+          "relation_scales": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.005224011372774839,
+              "mean": 0.0013017957875490539,
+              "mean_abs": 0.0013017957875490539,
+              "min": 0.0003010387299582362,
+              "rms": 0.0015293145948466695,
+              "std": 0.000802577633335599
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.0027137501165270805,
+              "mean": 0.0006630946922086878,
+              "mean_abs": 0.0006630946922086878,
+              "min": 0.00011422538955230266,
+              "rms": 0.0008081108736430115,
+              "std": 0.0004618967560664796
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0001942249946296215,
+              "mean": 6.278431265371864e-05,
+              "mean_abs": 6.278431265371864e-05,
+              "min": 1.3693899745703675e-05,
+              "rms": 7.513034847200781e-05,
+              "std": 4.1263777652142206e-05
+            },
+            "steps_with_gradient": 640
+          },
+          "sufficiency_observable_logits": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.0016093114390969276,
+              "mean": 0.0005295881568144978,
+              "mean_abs": 0.0005295881568144978,
+              "min": 0.00012129925016779453,
+              "rms": 0.000568418374728905,
+              "std": 0.00020648446162186822
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.0013375506969168782,
+              "mean": 0.0003219622841470482,
+              "mean_abs": 0.0003219622841470482,
+              "min": 5.130572753841989e-05,
+              "rms": 0.00036702263952718327,
+              "std": 0.0001761984832860831
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 2.2745532987755723e-05,
+              "mean": 1.0163447204192266e-05,
+              "mean_abs": 1.0163447204192266e-05,
+              "min": 2.3871018584031845e-06,
+              "rms": 1.064099760141867e-05,
+              "std": 3.152010609276927e-06
+            },
+            "steps_with_gradient": 640
+          }
+        }
+      },
+      "health": {
+        "best_loss": 2.328070592135191,
+        "consecutive_mechanism_failures": 3,
+        "min_delta": 1e-06,
+        "no_improvement_epochs": 3,
+        "patience": 3,
+        "warnings": [
+          {
+            "consecutive_epochs": 3,
+            "epoch": 5,
+            "message": "validation loss did not improve",
+            "stage": "selector_qness",
+            "warning": "no_task_improvement"
+          },
+          {
+            "consecutive_epochs": 3,
+            "epoch": 5,
+            "message": "mechanism selectivity did not pass",
+            "stage": "selector_qness",
+            "warning": "mechanism_selectivity_failure"
+          }
+        ]
+      },
+      "metrics_path": "/root/projects/Q-Attention/runs/retacred_qness_proportional_20260812T070719Z_seed13/selector/qness/metrics.json",
+      "selectivity_pass": true,
+      "validation_metrics": {
+        "correct_label_margin": -0.9366645431146026,
+        "loss": 2.328070592135191,
+        "macro_f1": 0.18905021919374146
+      }
+    },
+    "selector_qness_classical": {
+      "best_epoch": 2,
+      "best_task_epoch": 5,
+      "diagnostic_means": {
+        "complement_error": 0.40593707209702856,
+        "drop_advantage": 0.01406095753191039,
+        "keep_advantage": 2.2946908684318146e-05,
+        "mutual_information": 0.0,
+        "observable_commutator_norm": 0.0,
+        "off_diagonal_density_norm": 0.0
+      },
+      "diagnostics_path": "/root/projects/Q-Attention/runs/retacred_qness_proportional_20260812T070719Z_seed13/selector/qness_classical/diagnostics.json",
+      "diagnostics_schema": null,
+      "gradients": {
+        "optimizer_steps": 640,
+        "parameters": {
+          "data_biases": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.14823201298713684,
+              "mean": 0.02528067449493392,
+              "mean_abs": 0.02528067449493392,
+              "min": 0.0029547507874667645,
+              "rms": 0.03192436792903374,
+              "std": 0.01949494202990908
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.10659487545490265,
+              "mean": 0.014376707087467366,
+              "mean_abs": 0.014376707087467366,
+              "min": 0.0009255425538867712,
+              "rms": 0.02019000911029591,
+              "std": 0.014175569166527228
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.00272396975196898,
+              "mean": 0.0008686827543215259,
+              "mean_abs": 0.0008686827543215259,
+              "min": 0.000164060911629349,
+              "rms": 0.0009640355077168874,
+              "std": 0.0004180367597273289
+            },
+            "steps_with_gradient": 640
+          },
+          "data_scales": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.021706974133849144,
+              "mean": 0.004917323187601142,
+              "mean_abs": 0.004917323187601142,
+              "min": 0.0004891779972240329,
+              "rms": 0.005939110780530935,
+              "std": 0.003330610984804277
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.013905624859035015,
+              "mean": 0.0026998456983164942,
+              "mean_abs": 0.0026998456983164942,
+              "min": 0.00013736177061218768,
+              "rms": 0.0035053408231568157,
+              "std": 0.002235676070402782
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0005373165477067232,
+              "mean": 0.00018036068911158053,
+              "mean_abs": 0.00018036068911158053,
+              "min": 3.0300905564217828e-05,
+              "rms": 0.00019979973563754178,
+              "std": 8.596485435355183e-05
+            },
+            "steps_with_gradient": 640
+          },
+          "observable_logits": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.04357757791876793,
+              "mean": 0.01257284441817319,
+              "mean_abs": 0.01257284441817319,
+              "min": 0.001827605301514268,
+              "rms": 0.014365208405105552,
+              "std": 0.00694858228407252
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.029615061357617378,
+              "mean": 0.006639140645893349,
+              "mean_abs": 0.006639140645893349,
+              "min": 0.0005163686000742018,
+              "rms": 0.008079916790864419,
+              "std": 0.004605091403147131
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.001382947782985866,
+              "mean": 0.0005344668988868761,
+              "mean_abs": 0.0005344668988868761,
+              "min": 0.00010083377856062725,
+              "rms": 0.000586826723979249,
+              "std": 0.00024230298795199253
+            },
+            "steps_with_gradient": 640
+          },
+          "offsets": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.05253159999847412,
+              "mean": 0.01940296714528813,
+              "mean_abs": 0.01940296714528813,
+              "min": 0.005469991359859705,
+              "rms": 0.020850838236113584,
+              "std": 0.007634285893745773
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.035050131380558014,
+              "mean": 0.010231392685091123,
+              "mean_abs": 0.010231392685091123,
+              "min": 0.002544894115999341,
+              "rms": 0.01121251700175752,
+              "std": 0.004586844366028271
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.006376300007104874,
+              "mean": 0.002442805793180014,
+              "mean_abs": 0.002442805793180014,
+              "min": 0.0007801376632414758,
+              "rms": 0.002612854997606915,
+              "std": 0.0009272060695042899
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_direct_gains": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.006461815908551216,
+              "mean": 0.0022540786156241667,
+              "mean_abs": 0.0022540786156241667,
+              "min": 0.0003417205298319459,
+              "rms": 0.0026201526611614877,
+              "std": 0.0013357879930503435
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.005602606106549501,
+              "mean": 0.0013980830318359948,
+              "mean_abs": 0.0013980830318359948,
+              "min": 0.00020298257004469633,
+              "rms": 0.0016569609920987583,
+              "std": 0.0008893163472180044
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0007070601568557322,
+              "mean": 0.0002420401484357626,
+              "mean_abs": 0.0002420401484357626,
+              "min": 3.6245422961656004e-05,
+              "rms": 0.00028728434214985924,
+              "std": 0.00015475419150921696
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_sharpness": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.009158225730061531,
+              "mean": 0.003050692949682343,
+              "mean_abs": 0.003050692949682343,
+              "min": 0.00035664031747728586,
+              "rms": 0.0033721298416264896,
+              "std": 0.0014368480071136052
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.005802515894174576,
+              "mean": 0.0017446061616738008,
+              "mean_abs": 0.0017446061616738008,
+              "min": 0.000167881662491709,
+              "rms": 0.0019701779769506628,
+              "std": 0.0009153964176853729
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0010599950328469276,
+              "mean": 0.0003631094634783949,
+              "mean_abs": 0.0003631094634783949,
+              "min": 4.3971922423224896e-05,
+              "rms": 0.0004014754547667118,
+              "std": 0.0001712718841858472
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_sufficiency_sharpness": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.00396149093285203,
+              "mean": 0.0014979663061239989,
+              "mean_abs": 0.0014979663061239989,
+              "min": 0.0004167236329521984,
+              "rms": 0.0015834682755160594,
+              "std": 0.0005132920467755419
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.0038812931161373854,
+              "mean": 0.0009933166121527393,
+              "mean_abs": 0.0009933166121527393,
+              "min": 0.0002252149861305952,
+              "rms": 0.0011601844952548637,
+              "std": 0.000599458231281536
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0003380114503670484,
+              "mean": 0.00016013720255614317,
+              "mean_abs": 0.00016013720255614317,
+              "min": 5.176604463486001e-05,
+              "rms": 0.00016780725242226117,
+              "std": 5.0153268318238775e-05
+            },
+            "steps_with_gradient": 640
+          },
+          "relation_biases": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.011380970478057861,
+              "mean": 0.00391834223009937,
+              "mean_abs": 0.00391834223009937,
+              "min": 0.0005269873072393239,
+              "rms": 0.004251536329208095,
+              "std": 0.001649895550147385
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.005206272937357426,
+              "mean": 0.0017406563854819978,
+              "mean_abs": 0.0017406563854819978,
+              "min": 0.0002777132031042129,
+              "rms": 0.0019153843211385411,
+              "std": 0.0007992574337121278
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0004986688727512956,
+              "mean": 0.0001804936320922934,
+              "mean_abs": 0.0001804936320922934,
+              "min": 1.98127563635353e-05,
+              "rms": 0.0002079217797580803,
+              "std": 0.00010321586734557573
+            },
+            "steps_with_gradient": 640
+          },
+          "relation_scales": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.002074061194434762,
+              "mean": 0.000600693465941049,
+              "mean_abs": 0.000600693465941049,
+              "min": 4.912137592327781e-05,
+              "rms": 0.0006704427357922682,
+              "std": 0.00029775967146736146
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.0013318286510184407,
+              "mean": 0.00026834658814891557,
+              "mean_abs": 0.00026834658814891557,
+              "min": 1.9318642443977296e-05,
+              "rms": 0.00030277785207419777,
+              "std": 0.0001402302974948748
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 8.189110667444766e-05,
+              "mean": 2.777701505181085e-05,
+              "mean_abs": 2.777701505181085e-05,
+              "min": 2.558643018346629e-06,
+              "rms": 3.249393531567409e-05,
+              "std": 1.6860998401953706e-05
+            },
+            "steps_with_gradient": 640
+          },
+          "sufficiency_observable_logits": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.002021863590925932,
+              "mean": 0.0006661378450417033,
+              "mean_abs": 0.0006661378450417033,
+              "min": 0.00017718999879434705,
+              "rms": 0.0007296057774376323,
+              "std": 0.00029763225946386856
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.0016540003707632422,
+              "mean": 0.00040584035899655647,
+              "mean_abs": 0.00040584035899655647,
+              "min": 4.510000144364312e-05,
+              "rms": 0.0004682808836710536,
+              "std": 0.0002336248895586448
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 3.1998864869819954e-05,
+              "mean": 1.2990846418858836e-05,
+              "mean_abs": 1.2990846418858836e-05,
+              "min": 3.4238164516864344e-06,
+              "rms": 1.4155264242610795e-05,
+              "std": 5.6222251021956e-06
+            },
+            "steps_with_gradient": 640
+          }
+        }
+      },
+      "health": {
+        "best_loss": 2.318848293274641,
+        "consecutive_mechanism_failures": 0,
+        "min_delta": 1e-06,
+        "no_improvement_epochs": 0,
+        "patience": 3,
+        "warnings": []
+      },
+      "metrics_path": "/root/projects/Q-Attention/runs/retacred_qness_proportional_20260812T070719Z_seed13/selector/qness_classical/metrics.json",
+      "selectivity_pass": true,
+      "validation_metrics": {
+        "correct_label_margin": -0.9833834543824196,
+        "loss": 2.3556038588285446,
+        "macro_f1": 0.19452122345897388
+      }
+    },
+    "selector_qness_commuting": {
+      "best_epoch": 2,
+      "best_task_epoch": 2,
+      "diagnostic_means": {
+        "complement_error": 0.5344410516331881,
+        "drop_advantage": 0.015791443758644164,
+        "keep_advantage": 0.0005510992074739818,
+        "mutual_information": 0.0265462087966479,
+        "observable_commutator_norm": 0.0,
+        "off_diagonal_density_norm": 0.01234449545182742
+      },
+      "diagnostics_path": "/root/projects/Q-Attention/runs/retacred_qness_proportional_20260812T070719Z_seed13/selector/qness_commuting/diagnostics.json",
+      "diagnostics_schema": null,
+      "gradients": {
+        "optimizer_steps": 640,
+        "parameters": {
+          "data_biases": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.33716922998428345,
+              "mean": 0.06428593845339492,
+              "mean_abs": 0.06428593845339492,
+              "min": 0.00658312626183033,
+              "rms": 0.07906707823263155,
+              "std": 0.04603173880499627
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.23594437539577484,
+              "mean": 0.03403799922125472,
+              "mean_abs": 0.03403799922125472,
+              "min": 0.00220197974704206,
+              "rms": 0.044819222376382216,
+              "std": 0.02915780004454148
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.006464219186455011,
+              "mean": 0.0022197558047537314,
+              "mean_abs": 0.0022197558047537314,
+              "min": 0.0003740015672519803,
+              "rms": 0.0025090996365255227,
+              "std": 0.0011697286665182758
+            },
+            "steps_with_gradient": 640
+          },
+          "data_scales": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.06895168870687485,
+              "mean": 0.021107917845984047,
+              "mean_abs": 0.021107917845984047,
+              "min": 0.001730560208670795,
+              "rms": 0.02592151163657165,
+              "std": 0.015045948615228878
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.05790121108293533,
+              "mean": 0.013408569063813047,
+              "mean_abs": 0.013408569063813047,
+              "min": 0.0005531024653464556,
+              "rms": 0.01773116885964519,
+              "std": 0.011601923322889488
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0017463082913309336,
+              "mean": 0.0006698801360130347,
+              "mean_abs": 0.0006698801360130347,
+              "min": 9.792541823117062e-05,
+              "rms": 0.0007710171774400293,
+              "std": 0.00038174348885442394
+            },
+            "steps_with_gradient": 640
+          },
+          "observable_logits": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.09481504559516907,
+              "mean": 0.032809424153674625,
+              "mean_abs": 0.032809424153674625,
+              "min": 0.006519441958516836,
+              "rms": 0.036031366079044294,
+              "std": 0.014892985873436397
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.055668264627456665,
+              "mean": 0.015319921308400809,
+              "mean_abs": 0.015319921308400809,
+              "min": 0.0018535442650318146,
+              "rms": 0.01771456951680016,
+              "std": 0.008894154500004615
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.004200000315904617,
+              "mean": 0.0014723128276273201,
+              "mean_abs": 0.0014723128276273201,
+              "min": 0.00038002230576239526,
+              "rms": 0.0015987816654980606,
+              "std": 0.0006232156541172548
+            },
+            "steps_with_gradient": 640
+          },
+          "offsets": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.053786683827638626,
+              "mean": 0.012081985905388138,
+              "mean_abs": 0.012081985905388138,
+              "min": 0.0013724348973482847,
+              "rms": 0.014750343328471048,
+              "std": 0.008461574610542219
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.02954929508268833,
+              "mean": 0.006872654743256134,
+              "mean_abs": 0.006872654743256134,
+              "min": 0.0006358406972140074,
+              "rms": 0.00843858473897784,
+              "std": 0.004896562996317789
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.00655836658552289,
+              "mean": 0.0014701356893510819,
+              "mean_abs": 0.0014701356893510819,
+              "min": 0.00017972791101783514,
+              "rms": 0.001808863094632502,
+              "std": 0.001053891242026278
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_direct_gains": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.017608674243092537,
+              "mean": 0.00568046861262701,
+              "mean_abs": 0.00568046861262701,
+              "min": 0.0015347949229180813,
+              "rms": 0.006398866036537178,
+              "std": 0.002945804286524885
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.015446021221578121,
+              "mean": 0.003506569578348717,
+              "mean_abs": 0.003506569578348717,
+              "min": 0.0006767287850379944,
+              "rms": 0.0041654554952694255,
+              "std": 0.0022483303305496634
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.001693335478194058,
+              "mean": 0.0006247697721391887,
+              "mean_abs": 0.0006247697721391887,
+              "min": 0.00019591269665397704,
+              "rms": 0.0006890186920024639,
+              "std": 0.0002905331130007946
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_sharpness": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.029416508972644806,
+              "mean": 0.00925028427682264,
+              "mean_abs": 0.00925028427682264,
+              "min": 0.0014985940651968122,
+              "rms": 0.01026009789600583,
+              "std": 0.00443867656330027
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.02059544250369072,
+              "mean": 0.005975334402137378,
+              "mean_abs": 0.005975334402137378,
+              "min": 0.0005161692388355732,
+              "rms": 0.006750434637050873,
+              "std": 0.003140660212714787
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0035984772257506847,
+              "mean": 0.001002803885216963,
+              "mean_abs": 0.001002803885216963,
+              "min": 0.00020266935462132096,
+              "rms": 0.0011347214625128418,
+              "std": 0.0005310152213270792
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_sufficiency_sharpness": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.01487426646053791,
+              "mean": 0.004315658726045513,
+              "mean_abs": 0.004315658726045513,
+              "min": 0.0008521913550794125,
+              "rms": 0.005064230373277141,
+              "std": 0.002649814905598117
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.013180161826312542,
+              "mean": 0.003404208760503025,
+              "mean_abs": 0.003404208760503025,
+              "min": 0.0002500628470443189,
+              "rms": 0.004227828205958601,
+              "std": 0.002507168533228985
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0008320491178892553,
+              "mean": 0.00029143731453586954,
+              "mean_abs": 0.00029143731453586954,
+              "min": 7.759944855934009e-05,
+              "rms": 0.0003137472714251107,
+              "std": 0.00011619656631253241
+            },
+            "steps_with_gradient": 640
+          },
+          "relation_biases": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.03866906091570854,
+              "mean": 0.012816712223502691,
+              "mean_abs": 0.012816712223502691,
+              "min": 0.002433921443298459,
+              "rms": 0.014071735462418767,
+              "std": 0.005809098613744702
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.022987524047493935,
+              "mean": 0.006632826150962501,
+              "mean_abs": 0.006632826150962501,
+              "min": 0.0009294033516198397,
+              "rms": 0.007517601082396146,
+              "std": 0.003538353188299847
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0016066854586824775,
+              "mean": 0.0005332628126552663,
+              "mean_abs": 0.0005332628126552663,
+              "min": 0.0001238463883055374,
+              "rms": 0.0006079167327346603,
+              "std": 0.0002918793013863415
+            },
+            "steps_with_gradient": 640
+          },
+          "relation_scales": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.0065604872070252895,
+              "mean": 0.0019077210075010953,
+              "mean_abs": 0.0019077210075010953,
+              "min": 0.0004041643114760518,
+              "rms": 0.00210210368974849,
+              "std": 0.0008828592639788186
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.004819801077246666,
+              "mean": 0.001083577545659864,
+              "mean_abs": 0.001083577545659864,
+              "min": 0.00018296530470252037,
+              "rms": 0.0012518796131268314,
+              "std": 0.0006269467826732432
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0002371152804698795,
+              "mean": 7.794394988138719e-05,
+              "mean_abs": 7.794394988138719e-05,
+              "min": 1.750567025737837e-05,
+              "rms": 8.74992316765869e-05,
+              "std": 3.975998265694832e-05
+            },
+            "steps_with_gradient": 640
+          },
+          "sufficiency_observable_logits": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.00460964348167181,
+              "mean": 0.001151260553388056,
+              "mean_abs": 0.001151260553388056,
+              "min": 0.0002689430257305503,
+              "rms": 0.0013163627288457528,
+              "std": 0.0006382867475569769
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.003992400132119656,
+              "mean": 0.0007509308785188295,
+              "mean_abs": 0.0007509308785188295,
+              "min": 0.0001092242673621513,
+              "rms": 0.0009391012636225841,
+              "std": 0.0005639272994140938
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 7.530367292929441e-05,
+              "mean": 2.479154751142687e-05,
+              "mean_abs": 2.479154751142687e-05,
+              "min": 6.486818165285513e-06,
+              "rms": 2.7356135737643202e-05,
+              "std": 1.1564485915293586e-05
+            },
+            "steps_with_gradient": 640
+          }
+        }
+      },
+      "health": {
+        "best_loss": 2.322715412825346,
+        "consecutive_mechanism_failures": 3,
+        "min_delta": 1e-06,
+        "no_improvement_epochs": 3,
+        "patience": 3,
+        "warnings": [
+          {
+            "consecutive_epochs": 3,
+            "epoch": 5,
+            "message": "validation loss did not improve",
+            "stage": "selector_qness_commuting",
+            "warning": "no_task_improvement"
+          },
+          {
+            "consecutive_epochs": 3,
+            "epoch": 5,
+            "message": "mechanism selectivity did not pass",
+            "stage": "selector_qness_commuting",
+            "warning": "mechanism_selectivity_failure"
+          }
+        ]
+      },
+      "metrics_path": "/root/projects/Q-Attention/runs/retacred_qness_proportional_20260812T070719Z_seed13/selector/qness_commuting/metrics.json",
+      "selectivity_pass": true,
+      "validation_metrics": {
+        "correct_label_margin": -0.944025494158268,
+        "loss": 2.322715412825346,
+        "macro_f1": 0.17652689380769057
+      }
+    },
+    "selector_qness_dephased": {
+      "best_epoch": 1,
+      "best_task_epoch": null,
+      "diagnostic_means": {
+        "complement_error": 0.4352466061807283,
+        "drop_advantage": 0.017620450002141297,
+        "keep_advantage": 0.0,
+        "mutual_information": 0.0,
+        "observable_commutator_norm": 2.0,
+        "off_diagonal_density_norm": 0.0
+      },
+      "diagnostics_path": "/root/projects/Q-Attention/runs/retacred_qness_proportional_20260812T070719Z_seed13/selector/qness_dephased/diagnostics.json",
+      "diagnostics_schema": null,
+      "gradients": {
+        "optimizer_steps": 640,
+        "parameters": {
+          "data_biases": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.21258340775966644,
+              "mean": 0.042168871655303516,
+              "mean_abs": 0.042168871655303516,
+              "min": 0.006692277733236551,
+              "rms": 0.05009534085530568,
+              "std": 0.0270431033486876
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.14907100796699524,
+              "mean": 0.021219256724361913,
+              "mean_abs": 0.021219256724361913,
+              "min": 0.0022257326636463404,
+              "rms": 0.02696077950728021,
+              "std": 0.01663210076045123
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.00410341564565897,
+              "mean": 0.001564248850399963,
+              "mean_abs": 0.001564248850399963,
+              "min": 0.0003789767506532371,
+              "rms": 0.0017144818822252305,
+              "std": 0.0007018359199278439
+            },
+            "steps_with_gradient": 640
+          },
+          "data_scales": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.036089953035116196,
+              "mean": 0.012016794006194686,
+              "mean_abs": 0.012016794006194686,
+              "min": 0.0017143128206953406,
+              "rms": 0.014073131875520466,
+              "std": 0.00732459572935419
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.032079022377729416,
+              "mean": 0.006982930210324412,
+              "mean_abs": 0.006982930210324412,
+              "min": 0.00048315984895452857,
+              "rms": 0.008686347002127484,
+              "std": 0.005166363316599772
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0010455941082909703,
+              "mean": 0.0004281321929056503,
+              "mean_abs": 0.0004281321929056503,
+              "min": 9.399630653206259e-05,
+              "rms": 0.00047331168736908116,
+              "std": 0.0002018087678916995
+            },
+            "steps_with_gradient": 640
+          },
+          "observable_logits": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.12423549592494965,
+              "mean": 0.037651028231630336,
+              "mean_abs": 0.037651028231630336,
+              "min": 0.006540317088365555,
+              "rms": 0.04224568513944224,
+              "std": 0.01915980130382009
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.07190460711717606,
+              "mean": 0.01754499513517658,
+              "mean_abs": 0.01754499513517658,
+              "min": 0.0020481906831264496,
+              "rms": 0.020873647483104028,
+              "std": 0.011308505867510758
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.00460014957934618,
+              "mean": 0.0016717488267659064,
+              "mean_abs": 0.0016717488267659064,
+              "min": 0.0003807728353422135,
+              "rms": 0.0018494159030973142,
+              "std": 0.0007909456636432555
+            },
+            "steps_with_gradient": 640
+          },
+          "offsets": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.0544961541891098,
+              "mean": 0.012720943859676481,
+              "mean_abs": 0.012720943859676481,
+              "min": 0.0023069914896041155,
+              "rms": 0.015371493314957105,
+              "std": 0.008629043634768007
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.03757143393158913,
+              "mean": 0.006942572929438029,
+              "mean_abs": 0.006942572929438029,
+              "min": 0.0009074393892660737,
+              "rms": 0.008484056427136177,
+              "std": 0.004876463326865581
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.005927868653088808,
+              "mean": 0.001573872368408047,
+              "mean_abs": 0.001573872368408047,
+              "min": 0.0002621699823066592,
+              "rms": 0.001912480375142841,
+              "std": 0.0010865113682185508
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_direct_gains": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.01579301804304123,
+              "mean": 0.004212351283968019,
+              "mean_abs": 0.004212351283968019,
+              "min": 0.0013902396894991398,
+              "rms": 0.004782631301159365,
+              "std": 0.002264875012728584
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.013692572712898254,
+              "mean": 0.0025030246814822022,
+              "mean_abs": 0.0025030246814822022,
+              "min": 0.0005409172736108303,
+              "rms": 0.0029743079340309756,
+              "std": 0.0016066658427720839
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0015006463509052992,
+              "mean": 0.0004852497611864237,
+              "mean_abs": 0.0004852497611864237,
+              "min": 0.0001883479708340019,
+              "rms": 0.0005460306224759745,
+              "std": 0.0002503639549735923
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_sharpness": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.026875898241996765,
+              "mean": 0.009932100025071122,
+              "mean_abs": 0.009932100025071122,
+              "min": 0.001504417508840561,
+              "rms": 0.011022079443308314,
+              "std": 0.004779081956462137
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.01934618502855301,
+              "mean": 0.006190586800585152,
+              "mean_abs": 0.006190586800585152,
+              "min": 0.0007212368655018508,
+              "rms": 0.006902484636823874,
+              "std": 0.0030530196897515277
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.003422018140554428,
+              "mean": 0.0010936614209640539,
+              "mean_abs": 0.0010936614209640539,
+              "min": 0.00020328356185927987,
+              "rms": 0.0012509457254482447,
+              "std": 0.0006072642788046416
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_sufficiency_sharpness": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.001954046543687582,
+              "mean": 0.0007173927731173535,
+              "mean_abs": 0.0007173927731173535,
+              "min": 0.00021128669322934002,
+              "rms": 0.0008208948853943535,
+              "std": 0.0003990188240491945
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.0006928873481228948,
+              "mean": 0.00024935402727805923,
+              "mean_abs": 0.00024935402727805923,
+              "min": 9.525100176688284e-05,
+              "rms": 0.00026485298880047975,
+              "std": 8.927303488041583e-05
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0003420214634388685,
+              "mean": 0.00011145934083174324,
+              "mean_abs": 0.00011145934083174324,
+              "min": 3.049514998565428e-05,
+              "rms": 0.00013215459292582706,
+              "std": 7.100458980054988e-05
+            },
+            "steps_with_gradient": 640
+          },
+          "relation_biases": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.030903460457921028,
+              "mean": 0.008627515155967557,
+              "mean_abs": 0.008627515155967557,
+              "min": 0.0016341489972546697,
+              "rms": 0.010328849337750707,
+              "std": 0.005679006152092398
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.024496152997016907,
+              "mean": 0.004215045705677767,
+              "mean_abs": 0.004215045705677767,
+              "min": 0.0005972203216515481,
+              "rms": 0.005077311627725525,
+              "std": 0.0028306329794030587
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.001331911887973547,
+              "mean": 0.0004176432358690363,
+              "mean_abs": 0.0004176432358690363,
+              "min": 7.965044642332941e-05,
+              "rms": 0.0005225591742691802,
+              "std": 0.0003140735871507311
+            },
+            "steps_with_gradient": 640
+          },
+          "relation_scales": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.005369249731302261,
+              "mean": 0.0013164404564122377,
+              "mean_abs": 0.0013164404564122377,
+              "min": 0.00033366703428328037,
+              "rms": 0.001532597939001399,
+              "std": 0.0007847553550963987
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.002815632615238428,
+              "mean": 0.0006858862107947062,
+              "mean_abs": 0.0006858862107947062,
+              "min": 0.00012286572018638253,
+              "rms": 0.0008171479656200858,
+              "std": 0.00044417440669035043
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0001991757017094642,
+              "mean": 6.233487091265034e-05,
+              "mean_abs": 6.233487091265034e-05,
+              "min": 1.446925125492271e-05,
+              "rms": 7.473803113529099e-05,
+              "std": 4.123271960813335e-05
+            },
+            "steps_with_gradient": 640
+          },
+          "sufficiency_observable_logits": {
+            "l2_norm": {
+              "count": 640,
+              "max": 1.3334440496226563e-10,
+              "mean": 5.178642485540244e-11,
+              "mean_abs": 5.178642485540244e-11,
+              "min": 2.2430777721349493e-11,
+              "rms": 5.489421566701501e-11,
+              "std": 1.820827049427025e-11
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 5.127514385305787e-11,
+              "mean": 2.1098824000854306e-11,
+              "mean_abs": 2.1098824000854306e-11,
+              "min": 7.70860285326247e-12,
+              "rms": 2.257942964476132e-11,
+              "std": 8.0417826918974e-12
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 5.949321764397997e-12,
+              "mean": 1.961009929066877e-12,
+              "mean_abs": 1.961009929066877e-12,
+              "min": 8.526542102579859e-13,
+              "rms": 2.150022682460284e-12,
+              "std": 8.814973585864209e-13
+            },
+            "steps_with_gradient": 640
+          }
+        }
+      },
+      "health": {
+        "best_loss": 2.327302809804678,
+        "consecutive_mechanism_failures": 5,
+        "min_delta": 1e-06,
+        "no_improvement_epochs": 3,
+        "patience": 3,
+        "warnings": [
+          {
+            "consecutive_epochs": 3,
+            "epoch": 3,
+            "message": "mechanism selectivity did not pass",
+            "stage": "selector_qness_dephased",
+            "warning": "mechanism_selectivity_failure"
+          },
+          {
+            "consecutive_epochs": 3,
+            "epoch": 5,
+            "message": "validation loss did not improve",
+            "stage": "selector_qness_dephased",
+            "warning": "no_task_improvement"
+          }
+        ]
+      },
+      "metrics_path": "/root/projects/Q-Attention/runs/retacred_qness_proportional_20260812T070719Z_seed13/selector/qness_dephased/metrics.json",
+      "selectivity_pass": false,
+      "validation_metrics": {
+        "correct_label_margin": -0.9782928954809904,
+        "loss": 2.3607079423964024,
+        "macro_f1": 0.19090469268350416
+      }
+    },
+    "selector_qness_phase_scrambled": {
+      "best_epoch": 2,
+      "best_task_epoch": 2,
+      "diagnostic_means": {
+        "complement_error": 0.5779208919376976,
+        "drop_advantage": 0.018868549552280456,
+        "keep_advantage": 0.0001961208776029011,
+        "mutual_information": 0.026798312851205104,
+        "observable_commutator_norm": 2.0,
+        "off_diagonal_density_norm": 0.012538004274843488
+      },
+      "diagnostics_path": "/root/projects/Q-Attention/runs/retacred_qness_proportional_20260812T070719Z_seed13/selector/qness_phase_scrambled/diagnostics.json",
+      "diagnostics_schema": null,
+      "gradients": {
+        "optimizer_steps": 640,
+        "parameters": {
+          "data_biases": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.13062550127506256,
+              "mean": 0.03855344032344874,
+              "mean_abs": 0.03855344032344874,
+              "min": 0.00672114035114646,
+              "rms": 0.044174138235607625,
+              "std": 0.021563550915488117
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.0870654508471489,
+              "mean": 0.02004093236537301,
+              "mean_abs": 0.02004093236537301,
+              "min": 0.0021452507935464382,
+              "rms": 0.02422116572555389,
+              "std": 0.013602422542741828
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.003526930697262287,
+              "mean": 0.0014736802269908367,
+              "mean_abs": 0.0014736802269908367,
+              "min": 0.000383820035494864,
+              "rms": 0.0015976483724176422,
+              "std": 0.0006170469272794231
+            },
+            "steps_with_gradient": 640
+          },
+          "data_scales": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.030592748895287514,
+              "mean": 0.010339562280387326,
+              "mean_abs": 0.010339562280387326,
+              "min": 0.0016044367803260684,
+              "rms": 0.011887434718073063,
+              "std": 0.005865539704617166
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.021580282598733902,
+              "mean": 0.005709082146586298,
+              "mean_abs": 0.005709082146586298,
+              "min": 0.0005025418940931559,
+              "rms": 0.006843915214111324,
+              "std": 0.00377432861598908
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0009761335677467287,
+              "mean": 0.0003923497316236535,
+              "mean_abs": 0.0003923497316236535,
+              "min": 9.458600106881931e-05,
+              "rms": 0.000431530353790904,
+              "std": 0.0001796667313047963
+            },
+            "steps_with_gradient": 640
+          },
+          "observable_logits": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.11873161792755127,
+              "mean": 0.034525883550668365,
+              "mean_abs": 0.034525883550668365,
+              "min": 0.006566501222550869,
+              "rms": 0.03983777253818961,
+              "std": 0.01987489587017305
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.08765581995248795,
+              "mean": 0.01790630424475239,
+              "mean_abs": 0.01790630424475239,
+              "min": 0.0020017612259835005,
+              "rms": 0.023239621743159095,
+              "std": 0.014813652050033967
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.004109060391783714,
+              "mean": 0.0014302121326636552,
+              "mean_abs": 0.0014302121326636552,
+              "min": 0.00037324574077501893,
+              "rms": 0.001572281822360177,
+              "std": 0.000653118201021774
+            },
+            "steps_with_gradient": 640
+          },
+          "offsets": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.050726234912872314,
+              "mean": 0.013943058758741245,
+              "mean_abs": 0.013943058758741245,
+              "min": 0.0028283025603741407,
+              "rms": 0.015911389892228574,
+              "std": 0.00766573158627425
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.03086322918534279,
+              "mean": 0.00897666534056043,
+              "mean_abs": 0.00897666534056043,
+              "min": 0.0013803207548335195,
+              "rms": 0.010015018801427533,
+              "std": 0.0044407297774721735
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.00628100847825408,
+              "mean": 0.001550714427821731,
+              "mean_abs": 0.001550714427821731,
+              "min": 0.0003160946362186223,
+              "rms": 0.001869878201820812,
+              "std": 0.001044858484671563
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_direct_gains": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.016183646395802498,
+              "mean": 0.004244675245899998,
+              "mean_abs": 0.004244675245899998,
+              "min": 0.0014686885988339782,
+              "rms": 0.004751194939919173,
+              "std": 0.0021346159874687867
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.014255865477025509,
+              "mean": 0.0025606218460779927,
+              "mean_abs": 0.0025606218460779927,
+              "min": 0.0005938248941674829,
+              "rms": 0.0029793939335099264,
+              "std": 0.0015231559251842487
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0014981863787397742,
+              "mean": 0.0004854086841078242,
+              "mean_abs": 0.0004854086841078242,
+              "min": 0.00019780446018557996,
+              "rms": 0.0005417291996590455,
+              "std": 0.00024051805577947889
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_sharpness": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.029602689668536186,
+              "mean": 0.009315443697414594,
+              "mean_abs": 0.009315443697414594,
+              "min": 0.001501582795754075,
+              "rms": 0.010316676122497067,
+              "std": 0.0044335442860988575
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.019250646233558655,
+              "mean": 0.0062047376343798534,
+              "mean_abs": 0.0062047376343798534,
+              "min": 0.0007067747064866126,
+              "rms": 0.007085801487082797,
+              "std": 0.0034219604911300584
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.003718385938555002,
+              "mean": 0.000972623275197293,
+              "mean_abs": 0.000972623275197293,
+              "min": 0.0002030737668974325,
+              "rms": 0.001113352636408759,
+              "std": 0.0005418099828748317
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_sufficiency_sharpness": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.012013187631964684,
+              "mean": 0.0021099861713537393,
+              "mean_abs": 0.0021099861713537393,
+              "min": 0.00045806533307768404,
+              "rms": 0.0026576756615150085,
+              "std": 0.001615920257471026
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.011974413879215717,
+              "mean": 0.0016707667195305475,
+              "mean_abs": 0.0016707667195305475,
+              "min": 0.00018876002286560833,
+              "rms": 0.002432060865938215,
+              "std": 0.0017673309323772027
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0005277901072986424,
+              "mean": 0.00017977097631955986,
+              "mean_abs": 0.00017977097631955986,
+              "min": 6.285891868174076e-05,
+              "rms": 0.00019127911866454947,
+              "std": 6.534598159182431e-05
+            },
+            "steps_with_gradient": 640
+          },
+          "relation_biases": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.10072319209575653,
+              "mean": 0.016854167529891127,
+              "mean_abs": 0.016854167529891127,
+              "min": 0.0020713619887828827,
+              "rms": 0.020057070705301817,
+              "std": 0.010873045670456827
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.07125870138406754,
+              "mean": 0.010179584100842475,
+              "mean_abs": 0.010179584100842475,
+              "min": 0.000898284837603569,
+              "rms": 0.013115523934838141,
+              "std": 0.008270008199463122
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0013819445157423615,
+              "mean": 0.0005316336829423562,
+              "mean_abs": 0.0005316336829423562,
+              "min": 9.782138658920303e-05,
+              "rms": 0.000596926094114513,
+              "std": 0.00027145236966354645
+            },
+            "steps_with_gradient": 640
+          },
+          "relation_scales": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.010064935311675072,
+              "mean": 0.0021797956979753507,
+              "mean_abs": 0.0021797956979753507,
+              "min": 0.0005595731199719012,
+              "rms": 0.0024318470384904795,
+              "std": 0.0010781329851660547
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.00910397432744503,
+              "mean": 0.0014869719381749747,
+              "mean_abs": 0.0014869719381749747,
+              "min": 0.00025940529303625226,
+              "rms": 0.0018429093832650345,
+              "std": 0.0010886824376311346
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.00020102260168641806,
+              "mean": 7.339402608010914e-05,
+              "mean_abs": 7.339402608010914e-05,
+              "min": 2.2796350094722584e-05,
+              "rms": 8.124022149452558e-05,
+              "std": 3.4832320109803696e-05
+            },
+            "steps_with_gradient": 640
+          },
+          "sufficiency_observable_logits": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.004720046650618315,
+              "mean": 0.0011391437549264083,
+              "mean_abs": 0.0011391437549264083,
+              "min": 0.0002717222960200161,
+              "rms": 0.0013217056374876925,
+              "std": 0.0006702665870971866
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.0037888726219534874,
+              "mean": 0.0007351248290660805,
+              "mean_abs": 0.0007351248290660805,
+              "min": 7.405100768664852e-05,
+              "rms": 0.0009331274493200687,
+              "std": 0.0005747332619269076
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 4.952196832164191e-05,
+              "mean": 1.9477443957072182e-05,
+              "mean_abs": 1.9477443957072182e-05,
+              "min": 5.5101745601859875e-06,
+              "rms": 2.0471941835342702e-05,
+              "std": 6.303140440190675e-06
+            },
+            "steps_with_gradient": 640
+          }
+        }
+      },
+      "health": {
+        "best_loss": 2.325296651571989,
+        "consecutive_mechanism_failures": 1,
+        "min_delta": 1e-06,
+        "no_improvement_epochs": 3,
+        "patience": 3,
+        "warnings": [
+          {
+            "consecutive_epochs": 3,
+            "epoch": 5,
+            "message": "validation loss did not improve",
+            "stage": "selector_qness_phase_scrambled",
+            "warning": "no_task_improvement"
+          }
+        ]
+      },
+      "metrics_path": "/root/projects/Q-Attention/runs/retacred_qness_proportional_20260812T070719Z_seed13/selector/qness_phase_scrambled/metrics.json",
+      "selectivity_pass": true,
+      "validation_metrics": {
+        "correct_label_margin": -0.9305533217266202,
+        "loss": 2.325296651571989,
+        "macro_f1": 0.1830358150874178
+      }
+    },
+    "selector_qness_separable": {
+      "best_epoch": 3,
+      "best_task_epoch": null,
+      "diagnostic_means": {
+        "complement_error": 0.5550777040457171,
+        "drop_advantage": 1.280568540096283e-09,
+        "keep_advantage": 0.00017255498946155967,
+        "mutual_information": 9.096840621268836e-09,
+        "observable_commutator_norm": 2.0,
+        "off_diagonal_density_norm": 0.014285124781507454
+      },
+      "diagnostics_path": "/root/projects/Q-Attention/runs/retacred_qness_proportional_20260812T070719Z_seed13/selector/qness_separable/diagnostics.json",
+      "diagnostics_schema": null,
+      "gradients": {
+        "optimizer_steps": 640,
+        "parameters": {
+          "data_biases": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.06771926581859589,
+              "mean": 0.01724600609704794,
+              "mean_abs": 0.01724600609704794,
+              "min": 0.0004692724614869803,
+              "rms": 0.021157281266232415,
+              "std": 0.012255848574417616
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.04934209957718849,
+              "mean": 0.009882842035653993,
+              "mean_abs": 0.009882842035653993,
+              "min": 0.00012307960423640907,
+              "rms": 0.012697852637023542,
+              "std": 0.007972759552995198
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0017080225516110659,
+              "mean": 0.0006198651955571677,
+              "mean_abs": 0.0006198651955571677,
+              "min": 3.039904186152853e-05,
+              "rms": 0.0007206391409309051,
+              "std": 0.0003675430733648876
+            },
+            "steps_with_gradient": 640
+          },
+          "data_scales": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.017099592834711075,
+              "mean": 0.0051209195303840715,
+              "mean_abs": 0.0051209195303840715,
+              "min": 0.00010202153498539701,
+              "rms": 0.00592756474814879,
+              "std": 0.0029853319759831076
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.013059728778898716,
+              "mean": 0.0029802994934641446,
+              "mean_abs": 0.0029802994934641446,
+              "min": 4.337036079959944e-05,
+              "rms": 0.003631573416338979,
+              "std": 0.0020751241908660133
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.00044410349801182747,
+              "mean": 0.00018509080771238472,
+              "mean_abs": 0.00018509080771238472,
+              "min": 5.43350961379474e-06,
+              "rms": 0.00020695464731979474,
+              "std": 9.258303812058474e-05
+            },
+            "steps_with_gradient": 640
+          },
+          "observable_logits": {
+            "l2_norm": {
+              "count": 640,
+              "max": 5.658856494505926e-09,
+              "mean": 2.318248066776607e-09,
+              "mean_abs": 2.318248066776607e-09,
+              "min": 9.870962935920602e-10,
+              "rms": 2.4108922938262705e-09,
+              "std": 6.619120434902368e-10
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 3.859256025862123e-09,
+              "mean": 1.0825805127779448e-09,
+              "mean_abs": 1.0825805127779448e-09,
+              "min": 3.5087360794605615e-10,
+              "rms": 1.1928479514105535e-09,
+              "std": 5.009048497846636e-10
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 1.8978735250030354e-10,
+              "mean": 1.0967487830458936e-10,
+              "mean_abs": 1.0967487830458936e-10,
+              "min": 5.396504423882398e-11,
+              "rms": 1.1195391520594546e-10,
+              "std": 2.247443433801034e-11
+            },
+            "steps_with_gradient": 640
+          },
+          "offsets": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.0849137157201767,
+              "mean": 0.03527515753521584,
+              "mean_abs": 0.03527515753521584,
+              "min": 0.010012156330049038,
+              "rms": 0.03876797817838863,
+              "std": 0.016081647704937526
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.046607766300439835,
+              "mean": 0.017020475940807956,
+              "mean_abs": 0.017020475940807956,
+              "min": 0.0041414899751544,
+              "rms": 0.01895058720744417,
+              "std": 0.008332355864659417
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.011622291058301926,
+              "mean": 0.004629893895616988,
+              "mean_abs": 0.004629893895616988,
+              "min": 0.0013232006458565593,
+              "rms": 0.005077489330490022,
+              "std": 0.0020844616610934735
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_direct_gains": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.01630941778421402,
+              "mean": 0.004267782788338082,
+              "mean_abs": 0.004267782788338082,
+              "min": 0.0011428887955844402,
+              "rms": 0.004688769178421125,
+              "std": 0.0019417998043251366
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.013318009674549103,
+              "mean": 0.002813161591166136,
+              "mean_abs": 0.002813161591166136,
+              "min": 0.0005302275530993938,
+              "rms": 0.0032446546733137524,
+              "std": 0.001616757808406809
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.001173804048448801,
+              "mean": 0.0004299042281445509,
+              "mean_abs": 0.0004299042281445509,
+              "min": 0.00014150359493214637,
+              "rms": 0.0004629828494367144,
+              "std": 0.0001718588766865922
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_sharpness": {
+            "l2_norm": {
+              "count": 640,
+              "max": 1.3522775121899144e-09,
+              "mean": 5.645032316592414e-10,
+              "mean_abs": 5.645032316592414e-10,
+              "min": 2.1966153895824903e-10,
+              "rms": 5.867269247099154e-10,
+              "std": 1.5995182282746127e-10
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 1.0834360075762106e-09,
+              "mean": 3.496474221265089e-10,
+              "mean_abs": 3.496474221265089e-10,
+              "min": 9.206603535094615e-11,
+              "rms": 3.8208732164076716e-10,
+              "std": 1.540694699117964e-10
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 1.1784483111565436e-10,
+              "mean": 6.331352046373002e-11,
+              "mean_abs": 6.331352046373002e-11,
+              "min": 2.8850945937852757e-11,
+              "rms": 6.466469992966633e-11,
+              "std": 1.3149963630467944e-11
+            },
+            "steps_with_gradient": 640
+          },
+          "raw_sufficiency_sharpness": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.02179483324289322,
+              "mean": 0.0062206355903981604,
+              "mean_abs": 0.0062206355903981604,
+              "min": 0.0007940761861391366,
+              "rms": 0.007182886045495998,
+              "std": 0.0035913151900178394
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.020265916362404823,
+              "mean": 0.004574971217380153,
+              "mean_abs": 0.004574971217380153,
+              "min": 0.00028487489908002317,
+              "rms": 0.005591343587902164,
+              "std": 0.0032144613044984387
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.0015264344401657581,
+              "mean": 0.0005354148771971268,
+              "mean_abs": 0.0005354148771971268,
+              "min": 0.00011248819646425545,
+              "rms": 0.0005857888842113393,
+              "std": 0.0002376542154929122
+            },
+            "steps_with_gradient": 640
+          },
+          "relation_biases": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.01685410924255848,
+              "mean": 0.0043020022769269415,
+              "mean_abs": 0.0043020022769269415,
+              "min": 0.00021132771507836878,
+              "rms": 0.005243016688442968,
+              "std": 0.0029969985660001372
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.010885444469749928,
+              "mean": 0.002178647404139156,
+              "mean_abs": 0.002178647404139156,
+              "min": 7.098563946783543e-05,
+              "rms": 0.0027680237424700473,
+              "std": 0.0017074691585254485
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.000408821739256382,
+              "mean": 0.00014782539171420694,
+              "mean_abs": 0.00014782539171420694,
+              "min": 1.2801692719222046e-05,
+              "rms": 0.00017104014875792586,
+              "std": 8.603712019631227e-05
+            },
+            "steps_with_gradient": 640
+          },
+          "relation_scales": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.001688141142949462,
+              "mean": 0.0005785051886647352,
+              "mean_abs": 0.0005785051886647352,
+              "min": 2.7023537768400274e-05,
+              "rms": 0.0006696882783841381,
+              "std": 0.00033736350853803083
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.0010684069711714983,
+              "mean": 0.00033288978168997117,
+              "mean_abs": 0.00033288978168997117,
+              "min": 1.1665458259813022e-05,
+              "rms": 0.0003992346255489319,
+              "std": 0.00022039210395020776
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 4.965478365193121e-05,
+              "mean": 1.9871668667725827e-05,
+              "mean_abs": 1.9871668667725827e-05,
+              "min": 1.4357628970174119e-06,
+              "rms": 2.220115689605433e-05,
+              "std": 9.899906660334947e-06
+            },
+            "steps_with_gradient": 640
+          },
+          "sufficiency_observable_logits": {
+            "l2_norm": {
+              "count": 640,
+              "max": 0.005109003745019436,
+              "mean": 0.0018398853288090322,
+              "mean_abs": 0.0018398853288090322,
+              "min": 0.0004916150355711579,
+              "rms": 0.001959369593235349,
+              "std": 0.0006737589923173846
+            },
+            "max_abs": {
+              "count": 640,
+              "max": 0.0033031203784048557,
+              "mean": 0.0009230698714873143,
+              "mean_abs": 0.0009230698714873143,
+              "min": 0.0001331792736891657,
+              "rms": 0.0010334201890148016,
+              "std": 0.00046464965233580167
+            },
+            "mean_abs": {
+              "count": 640,
+              "max": 0.000122145313071087,
+              "mean": 5.225865046440958e-05,
+              "mean_abs": 5.225865046440958e-05,
+              "min": 2.1705414837924764e-05,
+              "rms": 5.4257534573310184e-05,
+              "std": 1.4591556106619126e-05
+            },
+            "steps_with_gradient": 640
+          }
+        }
+      },
+      "health": {
+        "best_loss": 2.4051019102334976,
+        "consecutive_mechanism_failures": 5,
+        "min_delta": 1e-06,
+        "no_improvement_epochs": 4,
+        "patience": 3,
+        "warnings": [
+          {
+            "consecutive_epochs": 3,
+            "epoch": 3,
+            "message": "mechanism selectivity did not pass",
+            "stage": "selector_qness_separable",
+            "warning": "mechanism_selectivity_failure"
+          },
+          {
+            "consecutive_epochs": 3,
+            "epoch": 4,
+            "message": "validation loss did not improve",
+            "stage": "selector_qness_separable",
+            "warning": "no_task_improvement"
+          }
+        ]
+      },
+      "metrics_path": "/root/projects/Q-Attention/runs/retacred_qness_proportional_20260812T070719Z_seed13/selector/qness_separable/metrics.json",
+      "selectivity_pass": false,
+      "validation_metrics": {
+        "correct_label_margin": -1.0687882527709007,
+        "loss": 2.4090922623872757,
+        "macro_f1": 0.18284804787484008
+      }
+    }
+  },
+  "subset_manifest": {
+    "seed": 13,
+    "source": {
+      "train": "/root/projects/Q-Attention/data/relation/retacred/train.jsonl",
+      "train_record_count": 58465,
+      "train_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+      "valid": "/root/projects/Q-Attention/data/relation/retacred/valid.jsonl",
+      "valid_record_count": 19584,
+      "valid_sha256": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55"
+    },
+    "splits": {
+      "baseline_train": {
+        "sampler": "balanced_round_robin",
+        "selected_label_counts": {
+          "no_relation": 386,
+          "org:alternate_names": 386,
+          "org:city_of_branch": 386,
+          "org:country_of_branch": 386,
+          "org:dissolved": 23,
+          "org:founded": 80,
+          "org:founded_by": 107,
+          "org:member_of": 365,
+          "org:members": 386,
+          "org:number_of_employees/members": 54,
+          "org:political/religious_affiliation": 190,
+          "org:shareholders": 93,
+          "org:stateorprovince_of_branch": 315,
+          "org:top_members/employees": 386,
+          "org:website": 119,
+          "per:age": 386,
+          "per:cause_of_death": 114,
+          "per:charges": 87,
+          "per:children": 275,
+          "per:cities_of_residence": 188,
+          "per:city_of_birth": 88,
+          "per:city_of_death": 120,
+          "per:countries_of_residence": 201,
+          "per:country_of_birth": 25,
+          "per:country_of_death": 6,
+          "per:date_of_birth": 69,
+          "per:date_of_death": 172,
+          "per:employee_of": 386,
+          "per:identity": 385,
+          "per:origin": 295,
+          "per:other_family": 105,
+          "per:parents": 182,
+          "per:religion": 74,
+          "per:schools_attended": 142,
+          "per:siblings": 211,
+          "per:spouse": 271,
+          "per:stateorprovince_of_birth": 44,
+          "per:stateorprovince_of_death": 58,
+          "per:stateorprovinces_of_residence": 261,
+          "per:title": 385
+        },
+        "selected_record_count": 8192,
+        "source_record_count": 58465,
+        "source_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f"
+      },
+      "train": {
+        "sampler": "balanced_round_robin",
+        "selected_label_counts": {
+          "no_relation": 386,
+          "org:alternate_names": 386,
+          "org:city_of_branch": 386,
+          "org:country_of_branch": 386,
+          "org:dissolved": 23,
+          "org:founded": 80,
+          "org:founded_by": 107,
+          "org:member_of": 365,
+          "org:members": 386,
+          "org:number_of_employees/members": 54,
+          "org:political/religious_affiliation": 190,
+          "org:shareholders": 93,
+          "org:stateorprovince_of_branch": 315,
+          "org:top_members/employees": 386,
+          "org:website": 119,
+          "per:age": 386,
+          "per:cause_of_death": 114,
+          "per:charges": 87,
+          "per:children": 275,
+          "per:cities_of_residence": 188,
+          "per:city_of_birth": 88,
+          "per:city_of_death": 120,
+          "per:countries_of_residence": 201,
+          "per:country_of_birth": 25,
+          "per:country_of_death": 6,
+          "per:date_of_birth": 69,
+          "per:date_of_death": 172,
+          "per:employee_of": 386,
+          "per:identity": 385,
+          "per:origin": 295,
+          "per:other_family": 105,
+          "per:parents": 182,
+          "per:religion": 74,
+          "per:schools_attended": 142,
+          "per:siblings": 211,
+          "per:spouse": 271,
+          "per:stateorprovince_of_birth": 44,
+          "per:stateorprovince_of_death": 58,
+          "per:stateorprovinces_of_residence": 261,
+          "per:title": 385
+        },
+        "selected_record_count": 8192,
+        "source_record_count": 58465,
+        "source_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f"
+      },
+      "valid": {
+        "sampler": "proportional_largest_remainder",
+        "selected_label_counts": {
+          "no_relation": 1176,
+          "org:alternate_names": 46,
+          "org:city_of_branch": 20,
+          "org:country_of_branch": 35,
+          "org:dissolved": 1,
+          "org:founded": 4,
+          "org:founded_by": 8,
+          "org:member_of": 9,
+          "org:members": 20,
+          "org:number_of_employees/members": 3,
+          "org:political/religious_affiliation": 4,
+          "org:shareholders": 8,
+          "org:stateorprovince_of_branch": 10,
+          "org:top_members/employees": 48,
+          "org:website": 10,
+          "per:age": 27,
+          "per:cause_of_death": 20,
+          "per:charges": 14,
+          "per:children": 12,
+          "per:cities_of_residence": 10,
+          "per:city_of_birth": 5,
+          "per:city_of_death": 15,
+          "per:countries_of_residence": 20,
+          "per:country_of_birth": 3,
+          "per:country_of_death": 6,
+          "per:date_of_birth": 3,
+          "per:date_of_death": 24,
+          "per:employee_of": 60,
+          "per:identity": 240,
+          "per:origin": 23,
+          "per:other_family": 4,
+          "per:parents": 7,
+          "per:religion": 8,
+          "per:schools_attended": 5,
+          "per:siblings": 3,
+          "per:spouse": 20,
+          "per:stateorprovince_of_birth": 4,
+          "per:stateorprovince_of_death": 5,
+          "per:stateorprovinces_of_residence": 4,
+          "per:title": 104
+        },
+        "selected_record_count": 2048,
+        "source_record_count": 19584,
+        "source_sha256": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55"
+      }
+    }
+  }
+}
