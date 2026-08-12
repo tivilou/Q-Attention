@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 import math
 from typing import Any, Iterator
 
@@ -20,7 +20,17 @@ from .quantum_steering import (
 )
 
 
-EVIDENCE_SELECTOR_TYPES = ("quantum", "classical", "classical_strong")
+EVIDENCE_SELECTOR_TYPES = (
+    "quantum",
+    "qness",
+    "qness_commuting",
+    "qness_separable",
+    "qness_phase_scrambled",
+    "qness_dephased",
+    "qness_classical",
+    "classical",
+    "classical_strong",
+)
 EVIDENCE_VIEW_CHOICES = ("full", "keep", "drop", "random_keep", "random_drop")
 EVIDENCE_READOUT_CHOICES = (
     "joint_observable",
@@ -77,6 +87,13 @@ EVIDENCE_MEASUREMENT_MODES = (
 )
 EVIDENCE_MEASUREMENT_FRAME_VIEWS = ("full", "z", "x")
 RELATION_EVIDENCE_ANCHOR_MODES = ("entity_pair", "leave_one_out_context")
+QNESS_CONTROL_MODES = (
+    "none",
+    "commuting",
+    "separable",
+    "phase_scrambled",
+    "dephased",
+)
 
 
 @dataclass(frozen=True)
@@ -108,6 +125,8 @@ class RelationEvidenceSelectorConfig:
     max_direct_gain: float = 1.0
     initial_direct_gain: float = 0.1
     cross_entanglement: bool = True
+    qness_control: str = "none"
+    quantum_diagnostic_limit: int = 64
     seed: int = 71
     eps: float = 1e-8
 
@@ -279,6 +298,12 @@ class RelationEvidenceSelectorConfig:
             )
         if self.eps <= 0:
             raise ValueError("eps must be positive")
+        if self.qness_control not in QNESS_CONTROL_MODES:
+            raise ValueError(
+                f"qness_control must be one of {QNESS_CONTROL_MODES}"
+            )
+        if self.quantum_diagnostic_limit < 0:
+            raise ValueError("quantum_diagnostic_limit must be non-negative")
 
 
 def _masked_head_mean(
@@ -384,6 +409,67 @@ def _relation_token_z_statistics(
         relation_expectations,
         token_expectations,
     )
+
+
+def _x_expectation(
+    state: torch.Tensor,
+    qubit: int,
+    total_qubits: int,
+) -> torch.Tensor:
+    basis = torch.arange(state.shape[-1], device=state.device)
+    bit = 1 << (total_qubits - qubit - 1)
+    return (state * state[:, basis.bitwise_xor(bit)]).sum(dim=-1)
+
+
+def _relation_x_token_z_correlations(
+    state: torch.Tensor,
+    register_qubits: int,
+) -> torch.Tensor:
+    """Measure X_relation Z_token observables on a real joint state."""
+    total_qubits = 2 * register_qubits
+    basis = torch.arange(state.shape[-1], device=state.device)
+    expectations: list[torch.Tensor] = []
+    for relation_qubit in range(register_qubits):
+        relation_bit = 1 << (total_qubits - relation_qubit - 1)
+        flipped = basis.bitwise_xor(relation_bit)
+        for token_qubit in range(register_qubits):
+            token_sign = _z_signs(
+                basis,
+                (register_qubits + token_qubit,),
+                total_qubits,
+            ).to(device=state.device, dtype=state.dtype)
+            expectations.append(
+                (state * state[:, flipped] * token_sign).sum(dim=-1)
+            )
+    return torch.stack(expectations, dim=-1)
+
+
+def _pure_state_off_diagonal_norm(state: torch.Tensor) -> torch.Tensor:
+    probabilities = state.square()
+    return torch.sqrt(
+        (1.0 - probabilities.square().sum(dim=-1)).clamp_min(0.0)
+    )
+
+
+def _pure_state_register_mutual_information(
+    state: torch.Tensor,
+    register_qubits: int,
+    eps: float,
+) -> torch.Tensor:
+    register_dim = 2**register_qubits
+    amplitudes = state.reshape(state.shape[0], register_dim, register_dim)
+    reduced = torch.matmul(amplitudes, amplitudes.transpose(-1, -2))
+    eigenvalues = torch.linalg.eigvalsh(reduced).clamp_min(0.0)
+    normalized = eigenvalues / eigenvalues.sum(dim=-1, keepdim=True).clamp_min(eps)
+    entropy = -(
+        normalized
+        * torch.where(
+            normalized > eps,
+            normalized.clamp_min(eps).log(),
+            torch.zeros_like(normalized),
+        )
+    ).sum(dim=-1)
+    return 2.0 * entropy
 
 
 def _connected_z_correlations(
@@ -709,6 +795,9 @@ class RelationEvidenceSelector(nn.Module):
         ] = []
         self._captured_reliability_gates: list[
             tuple[int, int, torch.Tensor]
+        ] = []
+        self._captured_quantum_diagnostics: list[
+            tuple[int, int, dict[str, torch.Tensor]]
         ] = []
         self._measurement_frame_view = "full"
 
@@ -1132,8 +1221,10 @@ class RelationEvidenceSelector(nn.Module):
         attention_mask: torch.Tensor,
         subject_mask: torch.Tensor,
         object_mask: torch.Tensor,
+        sufficiency_scores: torch.Tensor | None = None,
     ) -> torch.Tensor:
         """Center context evidence into a direct per-head attention bias."""
+        del sufficiency_scores
         if self.config.intervention_mode != "direct_bias":
             raise RuntimeError("direct_key_bias requires intervention_mode='direct_bias'")
         context = attention_mask & ~(subject_mask | object_mask)
@@ -1348,6 +1439,7 @@ class RelationEvidenceSelector(nn.Module):
         self._captured_correlation_channel_contributions.clear()
         self._captured_coherence_gates.clear()
         self._captured_reliability_gates.clear()
+        self._captured_quantum_diagnostics.clear()
         self._capture_scores = True
         try:
             yield
@@ -1361,6 +1453,7 @@ class RelationEvidenceSelector(nn.Module):
             self._captured_correlation_channel_contributions.clear()
             self._captured_coherence_gates.clear()
             self._captured_reliability_gates.clear()
+            self._captured_quantum_diagnostics.clear()
 
     def captured_token_scores(self) -> tuple[torch.Tensor, ...]:
         if not self._capture_scores:
@@ -1413,6 +1506,13 @@ class RelationEvidenceSelector(nn.Module):
         if not self._capture_scores:
             raise RuntimeError("token-evidence capture is not active")
         return tuple(self._captured_reliability_gates)
+
+    def captured_quantum_diagnostics(
+        self,
+    ) -> tuple[tuple[int, int, dict[str, torch.Tensor]], ...]:
+        if not self._capture_scores:
+            raise RuntimeError("token-evidence capture is not active")
+        return tuple(self._captured_quantum_diagnostics)
 
     def _sufficiency_observable_features(
         self,
@@ -1796,6 +1896,30 @@ class RelationEvidenceSelector(nn.Module):
             object_mask=object_mask,
         )[1]
 
+    def steering_residual(
+        self,
+        centered: torch.Tensor,
+        steering_evidence: torch.Tensor,
+        sufficiency_evidence: torch.Tensor,
+        *,
+        attention_mask: torch.Tensor,
+        subject_mask: torch.Tensor,
+        object_mask: torch.Tensor,
+        query_mask: torch.Tensor | None = None,
+    ) -> torch.Tensor:
+        """Apply the legacy bounded multiplicative evidence modulation."""
+        del sufficiency_evidence, subject_mask, object_mask
+        key_mask = attention_mask[:, None, None, :].to(centered.dtype)
+        modulated = centered * (2.0 * steering_evidence[:, :, None, :])
+        key_count = key_mask.sum(dim=-1, keepdim=True).clamp_min(1.0)
+        modulated = modulated - (
+            (modulated * key_mask).sum(dim=-1, keepdim=True) / key_count
+        )
+        if query_mask is None:
+            query_mask = attention_mask
+        active_queries = query_mask[:, None, :, None].to(centered.dtype)
+        return modulated * active_queries * key_mask
+
     def permuted_context_scores(
         self,
         scores: torch.Tensor,
@@ -1856,7 +1980,9 @@ class RelationEvidenceSelector(nn.Module):
         object_mask: torch.Tensor,
         random_seed: int = 0,
         detach_random: bool = False,
+        steering_scores: torch.Tensor | None = None,
     ) -> torch.Tensor:
+        del steering_scores
         if view not in EVIDENCE_VIEW_CHOICES:
             raise ValueError(f"view must be one of {EVIDENCE_VIEW_CHOICES}")
         if view == "full":
@@ -2218,6 +2344,410 @@ class QuantumRelationEvidenceSelector(RelationEvidenceSelector):
         )
 
 
+class QuantumNESSRelationEvidenceSelector(QuantumRelationEvidenceSelector):
+    """Quantum necessity/sufficiency evidence with non-complementary readouts."""
+
+    selector_type = "qness"
+
+    def __init__(self, config: RelationEvidenceSelectorConfig) -> None:
+        if config.evidence_readout != "connected_relation_token":
+            raise ValueError("Q-NESS requires connected_relation_token readout")
+        if config.evidence_task_readout != "dual":
+            raise ValueError("Q-NESS requires evidence_task_readout='dual'")
+        if config.evidence_measurement_mode != "fixed":
+            raise ValueError("Q-NESS uses its own fixed noncommuting observable pair")
+        if config.evidence_gate_calibration != "none":
+            raise ValueError("Q-NESS does not use complementary budget calibration")
+        if config.num_qubits != 4:
+            raise ValueError("Q-NESS currently requires exactly four qubits")
+        super().__init__(config)
+        generator = torch.Generator(device="cpu").manual_seed(config.seed + 9001)
+        phase_signs = torch.randint(
+            0,
+            2,
+            (2**config.num_qubits,),
+            generator=generator,
+            dtype=torch.long,
+        ).mul(2).sub(1).to(dtype=torch.float32)
+        self.register_buffer("phase_scramble_signs", phase_signs)
+
+    def metadata(self) -> dict[str, Any]:
+        metadata = super().metadata()
+        metadata["qness"] = {
+            "control": self.config.qness_control,
+            "necessity_observable": "connected_Z_relation_Z_token",
+            "sufficiency_observable": "X_relation_Z_token",
+            "commutator": "[Z_r Z_t, X_r Z_t] != 0",
+            "non_complementary_readouts": True,
+            "drop_signal": "sigmoid(-logit(necessity))",
+            "phase_scramble_seed": self.config.seed + 9001,
+        }
+        metadata["task_readout"] = {
+            "mode": "qness",
+            "shared_state_preparation": True,
+            "necessity_bank": "signed_connected_ZZ",
+            "sufficiency_bank": "positive_XZ_projectors",
+            "complement_calibration": False,
+        }
+        return metadata
+
+    def _qness_observable_features(
+        self,
+        token_states: torch.Tensor,
+        relation_states: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor, dict[str, torch.Tensor]]:
+        product_state = _join_register_states(relation_states, token_states)
+        state = product_state
+        entangled = self.config.cross_entanglement and (
+            self.config.qness_control != "separable"
+        )
+        if entangled:
+            state = _cross_register_entangle(state, self.register_qubits)
+        if self.config.qness_control == "phase_scrambled":
+            state = state * self.phase_scramble_signs.to(
+                device=state.device,
+                dtype=state.dtype,
+            )
+
+        _joint, _product, necessity, _relation, _token = (
+            _relation_token_z_statistics(state, self.register_qubits)
+        )
+        if self.config.qness_control == "commuting":
+            sufficiency = necessity
+        elif self.config.qness_control == "dephased":
+            sufficiency = torch.zeros_like(necessity)
+        else:
+            sufficiency = _relation_x_token_z_correlations(
+                state,
+                self.register_qubits,
+            )
+
+        diagnostic_state = state.detach()
+        if self._capture_scores and self.config.quantum_diagnostic_limit > 0:
+            diagnostic_state = diagnostic_state[: self.config.quantum_diagnostic_limit]
+        with torch.no_grad():
+            if self.config.qness_control == "dephased":
+                off_diagonal = torch.zeros(
+                    diagnostic_state.shape[0],
+                    device=state.device,
+                    dtype=state.dtype,
+                )
+                mutual_information = torch.zeros_like(off_diagonal)
+            else:
+                off_diagonal = _pure_state_off_diagonal_norm(diagnostic_state)
+                mutual_information = _pure_state_register_mutual_information(
+                    diagnostic_state,
+                    self.register_qubits,
+                    self.config.eps,
+                )
+        def expand(values: torch.Tensor) -> torch.Tensor:
+            expanded = state.new_zeros((state.shape[0],))
+            expanded[: values.shape[0]] = values.to(device=state.device, dtype=state.dtype)
+            return expanded
+
+        commutator_norm = state.new_full(
+            (state.shape[0],),
+            0.0 if self.config.qness_control == "commuting" else 2.0,
+        )
+        diagnostics = {
+            "off_diagonal_density_norm": expand(off_diagonal),
+            "mutual_information": expand(mutual_information),
+            "observable_commutator_norm": commutator_norm,
+            "entangled_state": state.new_full(
+                (state.shape[0],),
+                1.0 if entangled else 0.0,
+            ),
+        }
+        return necessity, sufficiency, diagnostics
+
+    def _qness_delta_from_readouts(
+        self,
+        base_scores: torch.Tensor,
+        necessity_scores: torch.Tensor,
+        sufficiency_scores: torch.Tensor,
+        key_mask: torch.Tensor,
+    ) -> torch.Tensor:
+        """Implement delta_j = tau_N(n_j-E_a[n]) + tau_S(s_j-E_a[s])."""
+        if necessity_scores.shape != sufficiency_scores.shape:
+            raise ValueError("Q-NESS readouts must have matching shapes")
+        safe_necessity = necessity_scores.clamp(self.config.eps, 1.0 - self.config.eps)
+        safe_sufficiency = sufficiency_scores.clamp(
+            self.config.eps,
+            1.0 - self.config.eps,
+        )
+        necessity_logits = torch.logit(safe_necessity)
+        sufficiency_logits = torch.logit(safe_sufficiency)
+        if base_scores.ndim == 4:
+            valid = key_mask[:, None, None, :]
+            attention = torch.softmax(
+                base_scores.masked_fill(~valid, -torch.inf),
+                dim=-1,
+            )
+            necessity = necessity_logits[:, :, None, :]
+            sufficiency = sufficiency_logits[:, :, None, :]
+            delta = (
+                necessity - (attention * necessity).sum(dim=-1, keepdim=True)
+                + sufficiency
+                - (attention * sufficiency).sum(dim=-1, keepdim=True)
+            )
+            return delta * valid.to(delta.dtype)
+        if base_scores.ndim == 3:
+            valid = key_mask[:, None, :].to(base_scores.dtype)
+            attention = valid / valid.sum(dim=-1, keepdim=True).clamp_min(1.0)
+            return (
+                necessity_logits
+                - (attention * necessity_logits).sum(dim=-1, keepdim=True)
+                + sufficiency_logits
+                - (attention * sufficiency_logits).sum(dim=-1, keepdim=True)
+            ) * valid
+        raise ValueError("base_scores must have shape (B,H,Q,T) or (B,H,T)")
+
+    def steering_residual(
+        self,
+        centered: torch.Tensor,
+        steering_evidence: torch.Tensor,
+        sufficiency_evidence: torch.Tensor,
+        *,
+        attention_mask: torch.Tensor,
+        subject_mask: torch.Tensor,
+        object_mask: torch.Tensor,
+        query_mask: torch.Tensor | None = None,
+    ) -> torch.Tensor:
+        delta = self._qness_delta_from_readouts(
+            centered,
+            steering_evidence,
+            sufficiency_evidence,
+            attention_mask,
+        )
+        if query_mask is None:
+            query_mask = attention_mask
+        del subject_mask, object_mask
+        return delta * query_mask[:, None, :, None].to(delta.dtype)
+
+    def direct_key_bias(
+        self,
+        scores: torch.Tensor,
+        *,
+        layer_index: int,
+        attention_mask: torch.Tensor,
+        subject_mask: torch.Tensor,
+        object_mask: torch.Tensor,
+        sufficiency_scores: torch.Tensor | None = None,
+    ) -> torch.Tensor:
+        if sufficiency_scores is None:
+            raise ValueError("Q-NESS direct bias requires both independent readouts")
+        context = attention_mask & ~(subject_mask | object_mask)
+        delta = self._qness_delta_from_readouts(
+            torch.zeros_like(scores),
+            scores,
+            sufficiency_scores,
+            context,
+        )
+        return delta * self.direct_gains(layer_index).view(1, -1, 1)
+
+    def view_weights(
+        self,
+        scores: torch.Tensor,
+        *,
+        view: str,
+        attention_mask: torch.Tensor,
+        subject_mask: torch.Tensor,
+        object_mask: torch.Tensor,
+        random_seed: int = 0,
+        detach_random: bool = False,
+        steering_scores: torch.Tensor | None = None,
+    ) -> torch.Tensor:
+        if steering_scores is None:
+            raise ValueError("Q-NESS views require necessity and sufficiency readouts")
+        if view not in EVIDENCE_VIEW_CHOICES:
+            raise ValueError(f"view must be one of {EVIDENCE_VIEW_CHOICES}")
+        if view == "full":
+            return torch.ones_like(scores)
+        gate = scores if view.endswith("keep") else torch.sigmoid(
+            -torch.logit(
+                steering_scores.clamp(self.config.eps, 1.0 - self.config.eps)
+            )
+        )
+        gate = self._view_scores(
+            gate,
+            attention_mask=attention_mask,
+            subject_mask=subject_mask,
+            object_mask=object_mask,
+        )
+        if view.startswith("random_"):
+            gate = self.permuted_context_scores(
+                gate,
+                attention_mask=attention_mask,
+                subject_mask=subject_mask,
+                object_mask=object_mask,
+                seed=random_seed,
+                detach=detach_random,
+            )
+        soft_context = self.config.mask_floor + (1.0 - self.config.mask_floor) * gate
+        entity = subject_mask | object_mask
+        context = attention_mask & ~entity
+        return torch.where(
+            entity[:, None, :],
+            torch.ones_like(scores),
+            torch.where(context[:, None, :], soft_context, torch.ones_like(scores)),
+        )
+
+    def token_readouts(
+        self,
+        key: torch.Tensor,
+        *,
+        layer_index: int,
+        attention_mask: torch.Tensor,
+        subject_mask: torch.Tensor,
+        object_mask: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        self._validate_layer(layer_index)
+        self._validate_inputs(key, attention_mask, subject_mask, object_mask)
+        batch, _heads, tokens, _dim = key.shape
+        necessity_logits: list[torch.Tensor] = []
+        sufficiency_logits: list[torch.Tensor] = []
+        necessity_weights = self.observable_weights(layer_index)
+        sufficiency_weights = self.sufficiency_observable_weights(layer_index)
+        for head_index in range(self.config.num_heads):
+            local, anchor = self._encoding_inputs(
+                key,
+                attention_mask,
+                subject_mask,
+                object_mask,
+                head_index,
+            )
+            token_states = self._feature_states(
+                local.reshape(batch * tokens, -1),
+                self.token_projections[head_index],
+                layer_index=layer_index,
+                head_index=head_index,
+                branch="token",
+            )
+            relation_states = self._feature_states(
+                anchor.reshape(batch * tokens, -1),
+                self.relation_projections[head_index],
+                layer_index=layer_index,
+                head_index=head_index,
+                branch="relation",
+            )
+            necessity, sufficiency, diagnostics = self._qness_observable_features(
+                token_states,
+                relation_states,
+            )
+            n_expectation = torch.sum(
+                necessity * necessity_weights[head_index], dim=-1
+            )
+            positive_sufficiency = torch.cat(
+                (0.5 * (1.0 + sufficiency), 0.5 * (1.0 - sufficiency)),
+                dim=-1,
+            )
+            s_expectation = torch.sum(
+                positive_sufficiency * sufficiency_weights[head_index], dim=-1
+            )
+            necessity_logits.append(
+                (
+                    self.sharpness(layer_index)[head_index] * n_expectation
+                    + self.offsets[layer_index, head_index]
+                ).reshape(batch, tokens)
+            )
+            sufficiency_logits.append(
+                (
+                    self.sufficiency_sharpness(layer_index)[head_index]
+                    * s_expectation
+                ).reshape(batch, tokens)
+            )
+            if self._capture_scores:
+                self._captured_quantum_diagnostics.append(
+                    (
+                        layer_index,
+                        head_index,
+                        {
+                            name: value.reshape(batch, tokens)
+                            for name, value in diagnostics.items()
+                        },
+                    )
+                )
+        necessity_scores = torch.sigmoid(torch.stack(necessity_logits, dim=1))
+        sufficiency_scores = torch.sigmoid(torch.stack(sufficiency_logits, dim=1))
+        attention = attention_mask[:, None, :].to(necessity_scores.dtype)
+        necessity_scores = necessity_scores * attention
+        sufficiency_scores = sufficiency_scores * attention
+        if self._capture_scores:
+            self._captured_steering_scores.append(necessity_scores)
+            self._captured_scores.append(sufficiency_scores)
+        return necessity_scores, sufficiency_scores
+
+
+class ClassicalNESSRelationEvidenceSelector(QuantumNESSRelationEvidenceSelector):
+    """Parameter-matched shared-trunk classical dual-head Q-NESS control."""
+
+    selector_type = "qness_classical"
+
+    def metadata(self) -> dict[str, Any]:
+        metadata = super().metadata()
+        metadata["qness"]["classical_control"] = "shared_trunk_dual_head"
+        metadata["qness"]["commutator"] = "not_applicable_classical_control"
+        return metadata
+
+    def _feature_states(
+        self,
+        features: torch.Tensor,
+        projection: torch.Tensor,
+        *,
+        layer_index: int,
+        head_index: int,
+        branch: str,
+    ) -> torch.Tensor:
+        if branch in {"joint", "token"}:
+            scales = self.data_scales[layer_index, head_index]
+            biases = self.data_biases[layer_index, head_index]
+        elif branch == "relation":
+            if self.relation_scales is None or self.relation_biases is None:
+                raise RuntimeError("factorized relation parameters are unavailable")
+            scales = self.relation_scales[layer_index, head_index]
+            biases = self.relation_biases[layer_index, head_index]
+        else:
+            raise ValueError("branch must be 'joint', 'token', or 'relation'")
+        normalized = F.normalize(features.float(), p=2, dim=-1, eps=self.config.eps)
+        angles = self.config.angle_scale * torch.matmul(normalized, projection)
+        phase = angles
+        for depth_index in range(self.config.depth):
+            phase = torch.sin(
+                phase + angles * scales[depth_index] + biases[depth_index]
+            )
+        state = torch.cat((torch.cos(phase), torch.sin(phase)), dim=-1)
+        return F.normalize(state, p=2, dim=-1, eps=self.config.eps)
+
+    def _qness_observable_features(
+        self,
+        token_states: torch.Tensor,
+        relation_states: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor, dict[str, torch.Tensor]]:
+        qubits = self.register_qubits
+        token_z = token_states[..., :qubits].square() - token_states[..., qubits:].square()
+        relation_z = (
+            relation_states[..., :qubits].square()
+            - relation_states[..., qubits:].square()
+        )
+        relation_x = 2.0 * (
+            relation_states[..., :qubits] * relation_states[..., qubits:]
+        )
+        necessity = (
+            relation_z.unsqueeze(-1) * token_z.unsqueeze(-2)
+        ).reshape(token_states.shape[0], -1)
+        sufficiency = (
+            relation_x.unsqueeze(-1) * token_z.unsqueeze(-2)
+        ).reshape(token_states.shape[0], -1)
+        zero = token_states.new_zeros(token_states.shape[0])
+        diagnostics = {
+            "off_diagonal_density_norm": zero,
+            "mutual_information": zero,
+            "observable_commutator_norm": zero,
+            "entangled_state": zero,
+        }
+        return necessity, sufficiency, diagnostics
+
+
 class ClassicalRelationEvidenceSelector(RelationEvidenceSelector):
     """Parameter-matched separable trigonometric evidence control."""
 
@@ -2445,6 +2975,40 @@ def build_relation_evidence_selector(
 ) -> RelationEvidenceSelector:
     if selector_type == "quantum":
         return QuantumRelationEvidenceSelector(config)
+    qness_controls = {
+        "qness": "none",
+        "qness_commuting": "commuting",
+        "qness_separable": "separable",
+        "qness_phase_scrambled": "phase_scrambled",
+        "qness_dephased": "dephased",
+    }
+    if selector_type == "qness_classical":
+        qness_config = replace(
+            config,
+            evidence_readout="connected_relation_token",
+            evidence_task_readout="dual",
+            evidence_weight_mode="signed_centered_l1",
+            evidence_measurement_mode="fixed",
+            evidence_gate_calibration="none",
+            qness_control="none",
+        )
+        return ClassicalNESSRelationEvidenceSelector(qness_config)
+    if selector_type in qness_controls:
+        requested_control = (
+            config.qness_control
+            if selector_type == "qness"
+            else qness_controls[selector_type]
+        )
+        qness_config = replace(
+            config,
+            evidence_readout="connected_relation_token",
+            evidence_task_readout="dual",
+            evidence_weight_mode="signed_centered_l1",
+            evidence_measurement_mode="fixed",
+            evidence_gate_calibration="none",
+            qness_control=requested_control,
+        )
+        return QuantumNESSRelationEvidenceSelector(qness_config)
     if selector_type == "classical":
         return ClassicalRelationEvidenceSelector(config)
     if selector_type == "classical_strong":
