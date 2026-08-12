@@ -32,6 +32,15 @@ bash scripts/run_retacred_qness_proportional.sh --gpus 0,1,2 --seed 13
 bash scripts/run_retacred_qness_proportional.sh --gpus auto --seed 13
 ```
 
+运行时主终端每 10 秒打印一次六个 selector 的统一进度：完成数、运行数、待分配数、失败数，以及每个 GPU 当前运行的 selector、epoch、batch 和 ETA。完整子进程日志仍写入 `logs/<stage>.log`。如需调整刷新间隔，可加：
+
+```bash
+bash scripts/run_retacred_qness_proportional.sh \
+  --gpus auto --seed 13 --dashboard-interval-seconds 30
+```
+
+正常情况下，启动脚本只有在所有 stage 完成、所有 selector 的 `metrics.json` 和 `diagnostics.json` 存在、summary 生成且 `RUN_COMPLETE` 写入后才会退出。中断或 watchdog 超时会清理整个子进程组；失败时终端会列出失败或未完成的 stage，并返回非零状态。
+
 需要先检查命令但不创建文件时：
 
 ```bash
@@ -62,7 +71,14 @@ cat "${RUN_DIR}/gpu_assignments.json"
 cat "${RUN_DIR}/status/selector_qness.env"
 ```
 
-并行时终端输出会带有 `[stage][gpu=N]` 前缀，阶段日志仍分别保存在 `logs/<stage>.log`。`gpu_assignments.json` 记录实际 GPU、状态和耗时，`status/*.env` 记录每个阶段的 GPU、开始时间、结束时间和 heartbeat 路径。
+需要单独查看 selector 状态时：
+
+```bash
+grep -H -E 'STATUS=|GPU_ID=|PID=|COMPLETED_AT=|FAILED_AT=|EXIT_CODE=' \
+  "${RUN_DIR}"/status/selector_*.env
+```
+
+并行 selector 的终端输出由统一 dashboard 负责，阶段日志仍分别保存在 `logs/<stage>.log`。`gpu_assignments.json` 记录实际 GPU、状态和耗时，`status/*.env` 记录每个阶段的 GPU、PID、开始时间、结束时间和 heartbeat 路径。
 
 训练结束后导出可提交报告：
 

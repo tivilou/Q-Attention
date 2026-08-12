@@ -12,9 +12,12 @@ from experiments.run_relation_qness_proportional_gate import (
     _CONSOLE_BROKEN,
     _console_print,
     _gpu_assignment_manifest,
+    _render_selector_dashboard,
+    _run_completion_errors,
     _resolve_gpus,
     _run_stage,
     _run_selector_workers,
+    _selector_dashboard_snapshot,
     _selector_command,
     _stage_summary,
     proportional_gate_decision,
@@ -224,3 +227,93 @@ def test_broken_console_pipe_does_not_fail_training(monkeypatch):
     _console_print("progress\n", threading.Lock())
     assert _CONSOLE_BROKEN.is_set()
     _CONSOLE_BROKEN.clear()
+
+
+def test_selector_dashboard_reads_status_and_heartbeat(tmp_path):
+    assignments = _gpu_assignment_manifest(
+        "0,1,2",
+        [0, 1, 2],
+        ["qness", "qness_classical", "qness_commuting", "qness_separable"],
+    )
+    status_dir = tmp_path / "status"
+    status_dir.mkdir()
+    (status_dir / "selector_qness.env").write_text(
+        "STATUS=running\nGPU_ID=1\n", encoding="utf-8"
+    )
+    (status_dir / "selector_qness.heartbeat").write_text(
+        json.dumps(
+            {
+                "event": "batch_progress",
+                "phase": "train",
+                "epoch": 2,
+                "epochs": 5,
+                "batch": 64,
+                "batches": 128,
+                "eta_seconds": 2120,
+                "batches_per_second": 0.5,
+            }
+        ),
+        encoding="utf-8",
+    )
+    (status_dir / "selector_qness_classical.env").write_text(
+        "STATUS=complete\nGPU_ID=0\n", encoding="utf-8"
+    )
+    (status_dir / "selector_qness_commuting.env").write_text(
+        "STATUS=failed\nGPU_ID=2\n", encoding="utf-8"
+    )
+
+    snapshot = _selector_dashboard_snapshot(
+        tmp_path,
+        ["qness", "qness_classical", "qness_commuting", "qness_separable"],
+        assignments,
+    )
+    rendered = _render_selector_dashboard(snapshot)
+
+    assert snapshot["counts"] == {
+        "complete": 1,
+        "running": 1,
+        "pending": 1,
+        "failed": 1,
+    }
+    assert "GPU 1 | selector_qness | train | epoch 2/5 | batch 64/128" in rendered
+    assert "ETA 35:20" in rendered
+    assert "Completed: selector_qness_classical" in rendered
+    assert "Pending: selector_qness_separable" in rendered
+    assert "Failed: selector_qness_commuting" in rendered
+
+
+def test_completion_gate_requires_all_outputs_and_markers(tmp_path):
+    selectors = ["qness", "qness_classical"]
+    assignments = _gpu_assignment_manifest("0", [0], selectors)
+    (tmp_path / "gpu_assignments.json").write_text(
+        json.dumps(assignments), encoding="utf-8"
+    )
+    for stage in ["baseline", "core_quantum", *[f"selector_{s}" for s in selectors]]:
+        status_dir = tmp_path / "status"
+        status_dir.mkdir(exist_ok=True)
+        (status_dir / f"{stage}.env").write_text(
+            "STATUS=complete\n", encoding="utf-8"
+        )
+        assignments["stages"][stage]["status"] = "complete"
+    for selector in selectors:
+        selector_dir = tmp_path / "selector" / selector
+        selector_dir.mkdir(parents=True)
+        (selector_dir / "metrics.json").write_text("{}", encoding="utf-8")
+        (selector_dir / "diagnostics.json").write_text("{}", encoding="utf-8")
+    (tmp_path / "gpu_assignments.json").write_text(
+        json.dumps(assignments), encoding="utf-8"
+    )
+
+    errors = _run_completion_errors(
+        tmp_path, selectors, require_summary=True, require_marker=True
+    )
+    assert "missing run_summary.json" in errors
+    assert "missing run_summary.md" in errors
+    assert "missing RUN_COMPLETE" in errors
+
+    (tmp_path / "run_summary.json").write_text("{}", encoding="utf-8")
+    (tmp_path / "run_summary.md").write_text("ok\n", encoding="utf-8")
+    (tmp_path / "RUN_COMPLETE").write_text("ok\n", encoding="utf-8")
+    assert _run_completion_errors(
+        tmp_path, selectors, require_summary=True, require_marker=True
+    ) == []

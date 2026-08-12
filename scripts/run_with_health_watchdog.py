@@ -38,13 +38,29 @@ def stop_process(process: subprocess.Popen[object], reason: str) -> int:
         else:  # pragma: no cover - formal runs use Linux
             process.terminate()
         process.wait(timeout=30)
+    except ProcessLookupError:
+        pass
     except subprocess.TimeoutExpired:
-        if os.name == "posix":
-            os.killpg(process.pid, signal.SIGKILL)
-        else:  # pragma: no cover - formal runs use Linux
-            process.kill()
+        try:
+            if os.name == "posix":
+                os.killpg(process.pid, signal.SIGKILL)
+            else:  # pragma: no cover - formal runs use Linux
+                process.kill()
+        except ProcessLookupError:
+            pass
         process.wait()
     return 124
+
+
+def _install_signal_handlers(process: subprocess.Popen[object]) -> None:
+    def handle_signal(signum: int, _frame: object) -> None:
+        stop_process(process, f"received_signal={signal.Signals(signum).name}")
+        raise SystemExit(128 + signum)
+
+    signal.signal(signal.SIGINT, handle_signal)
+    signal.signal(signal.SIGTERM, handle_signal)
+    if hasattr(signal, "SIGHUP"):
+        signal.signal(signal.SIGHUP, handle_signal)
 
 
 def main() -> int:
@@ -60,6 +76,9 @@ def main() -> int:
         env=environment,
         start_new_session=(os.name == "posix"),
     )
+
+    _install_signal_handlers(process)
+
     while True:
         returncode = process.poll()
         if returncode is not None:

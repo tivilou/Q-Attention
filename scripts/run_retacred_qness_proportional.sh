@@ -12,6 +12,7 @@ OUTPUT_DIR=""
 STALE_TIMEOUT_MINUTES=45
 STAGE_TIMEOUT_HOURS=12
 LOG_EVERY_BATCHES=25
+DASHBOARD_INTERVAL_SECONDS=10
 PROGRESS_FORMAT=both
 SKIP_PREFLIGHT=0
 DRY_RUN=0
@@ -28,6 +29,7 @@ Options:
   --seed N                   Random seed (default: 13)
   --output-dir PATH          New output directory; default is timestamped under runs/
   --log-every-batches N      Progress interval (default: 25)
+  --dashboard-interval-seconds N  Selector dashboard interval (default: 10)
   --progress-format MODE     json or both (default: both)
   --run-controls MODE        always or never (default: always)
   --stale-timeout-minutes N  Stop if no heartbeat progress (default: 45)
@@ -45,6 +47,7 @@ while [[ $# -gt 0 ]]; do
     --seed) SEED=$2; shift ;;
     --output-dir) OUTPUT_DIR=$2; shift ;;
     --log-every-batches) LOG_EVERY_BATCHES=$2; shift ;;
+    --dashboard-interval-seconds) DASHBOARD_INTERVAL_SECONDS=$2; shift ;;
     --progress-format) PROGRESS_FORMAT=$2; shift ;;
     --run-controls) RUN_CONTROLS=$2; shift ;;
     --stale-timeout-minutes) STALE_TIMEOUT_MINUTES=$2; shift ;;
@@ -59,6 +62,10 @@ done
 
 [[ "${SEED}" =~ ^[0-9]+$ ]] || { echo "Seed must be a non-negative integer." >&2; exit 2; }
 [[ "${LOG_EVERY_BATCHES}" =~ ^[1-9][0-9]*$ ]] || { echo "Log interval must be positive." >&2; exit 2; }
+[[ "${DASHBOARD_INTERVAL_SECONDS}" =~ ^[0-9]+([.][0-9]+)?$ ]] || {
+  echo "Dashboard interval must be positive." >&2
+  exit 2
+}
 [[ "${STALE_TIMEOUT_MINUTES}" =~ ^[1-9][0-9]*$ ]] || { echo "Stale timeout must be positive." >&2; exit 2; }
 [[ "${STAGE_TIMEOUT_HOURS}" =~ ^[1-9][0-9]*$ ]] || { echo "Stage timeout must be positive." >&2; exit 2; }
 [[ "${RUN_CONTROLS}" == always || "${RUN_CONTROLS}" == never ]] || {
@@ -123,6 +130,7 @@ if [[ ${DRY_RUN} -eq 1 ]]; then
   "${PYTHON_BIN}" experiments/run_relation_qness_proportional_gate.py \
     --output_dir "${RUN_DIR}" --seed "${SEED}" --device cuda \
     --gpus "${GPU_LIST}" --log_every_batches "${LOG_EVERY_BATCHES}" \
+    --dashboard_interval_seconds "${DASHBOARD_INTERVAL_SECONDS}" \
     --run_controls "${RUN_CONTROLS}" --dry_run
   exit 0
 fi
@@ -139,6 +147,7 @@ Q_ATTENTION_HEARTBEAT_FILE="${HEARTBEAT}" \
     -- "${PYTHON_BIN}" experiments/run_relation_qness_proportional_gate.py \
       --output_dir "${RUN_DIR}" --seed "${SEED}" --device cuda \
       --gpus "${GPU_LIST}" --log_every_batches "${LOG_EVERY_BATCHES}" \
+      --dashboard_interval_seconds "${DASHBOARD_INTERVAL_SECONDS}" \
       --run_controls "${RUN_CONTROLS}" \
       2>&1 | tee "${RUN_DIR}.console.log"
 STATUS=${PIPESTATUS[0]}
@@ -147,5 +156,32 @@ rm -f "${HEARTBEAT}"
 if [[ ${STATUS} -ne 0 ]]; then
   echo "Q-NESS proportional gate failed: ${RUN_DIR}" >&2
   exit "${STATUS}"
+fi
+
+completion_errors=()
+for required in RUN_COMPLETE run_summary.json run_summary.md gpu_assignments.json; do
+  [[ -f "${RUN_DIR}/${required}" ]] || completion_errors+=("missing ${required}")
+done
+for stage in baseline core_quantum; do
+  [[ "$(sed -n 's/^STATUS=//p' "${RUN_DIR}/status/${stage}.env" 2>/dev/null)" == complete ]] || \
+    completion_errors+=("${stage} is not complete")
+done
+SELECTOR_NAMES=(qness qness_classical)
+if [[ "${RUN_CONTROLS}" == always ]]; then
+  SELECTOR_NAMES+=(qness_commuting qness_separable qness_phase_scrambled qness_dephased)
+fi
+for selector in "${SELECTOR_NAMES[@]}"; do
+  stage="selector_${selector}"
+  [[ "$(sed -n 's/^STATUS=//p' "${RUN_DIR}/status/${stage}.env" 2>/dev/null)" == complete ]] || \
+    completion_errors+=("${stage} is not complete")
+  [[ -f "${RUN_DIR}/selector/${selector}/metrics.json" ]] || \
+    completion_errors+=("missing selector/${selector}/metrics.json")
+  [[ -f "${RUN_DIR}/selector/${selector}/diagnostics.json" ]] || \
+    completion_errors+=("missing selector/${selector}/diagnostics.json")
+done
+if [[ ${#completion_errors[@]} -gt 0 ]]; then
+  printf 'Q-NESS proportional gate incomplete: %s\n' "${RUN_DIR}" >&2
+  printf '  %s\n' "${completion_errors[@]}" >&2
+  exit 1
 fi
 echo "Q-NESS proportional gate complete: ${RUN_DIR}"

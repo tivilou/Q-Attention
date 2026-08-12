@@ -57,6 +57,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--quantum_diagnostic_limit", type=int, default=64)
     parser.add_argument("--random_repeats", type=int, default=1)
     parser.add_argument("--log_every_batches", type=int, default=25)
+    parser.add_argument(
+        "--dashboard_interval_seconds",
+        type=float,
+        default=10.0,
+        help="Seconds between centralized selector progress snapshots.",
+    )
     parser.add_argument("--seed", type=int, default=13)
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     parser.add_argument(
@@ -228,6 +234,152 @@ def _console_print(value: str, lock: threading.Lock | None) -> None:
         _CONSOLE_BROKEN.set()
 
 
+def _read_status(path: Path) -> dict[str, str]:
+    if not path.is_file():
+        return {}
+    fields: dict[str, str] = {}
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return {}
+    for line in lines:
+        key, separator, value = line.partition("=")
+        if separator:
+            fields[key] = value
+    return fields
+
+
+def _read_heartbeat(path: Path) -> dict[str, Any]:
+    if not path.is_file():
+        return {}
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
+def _format_duration(seconds: Any) -> str:
+    if seconds is None:
+        return "unknown"
+    try:
+        total = max(int(round(float(seconds))), 0)
+    except (TypeError, ValueError):
+        return "unknown"
+    hours, remainder = divmod(total, 3600)
+    minutes, secs = divmod(remainder, 60)
+    if hours:
+        return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+    return f"{minutes:02d}:{secs:02d}"
+
+
+def _selector_dashboard_snapshot(
+    output_dir: Path,
+    selector_names: list[str],
+    assignments: dict[str, Any],
+    assignments_lock: threading.Lock | None = None,
+) -> dict[str, Any]:
+    if assignments_lock is None:
+        stages = {
+            name: dict(value) for name, value in assignments.get("stages", {}).items()
+        }
+    else:
+        with assignments_lock:
+            stages = {
+                name: dict(value)
+                for name, value in assignments.get("stages", {}).items()
+            }
+
+    rows: list[dict[str, Any]] = []
+    groups: dict[str, list[str]] = {
+        "complete": [],
+        "running": [],
+        "pending": [],
+        "failed": [],
+    }
+    for selector in selector_names:
+        stage = f"selector_{selector}"
+        assignment = stages.get(stage, {})
+        status_fields = _read_status(output_dir / "status" / f"{stage}.env")
+        status = status_fields.get("STATUS", assignment.get("status", "pending"))
+        if status not in groups:
+            status = "failed"
+        groups[status].append(stage)
+        if status != "running":
+            continue
+        heartbeat = _read_heartbeat(output_dir / "status" / f"{stage}.heartbeat")
+        rows.append(
+            {
+                "stage": stage,
+                "gpu_id": status_fields.get("GPU_ID", assignment.get("gpu_id")),
+                "event": heartbeat.get("event"),
+                "phase": heartbeat.get("phase"),
+                "epoch": heartbeat.get("epoch"),
+                "epochs": heartbeat.get("epochs"),
+                "batch": heartbeat.get("batch"),
+                "batches": heartbeat.get("batches"),
+                "eta_seconds": heartbeat.get("eta_seconds"),
+                "batches_per_second": heartbeat.get("batches_per_second"),
+            }
+        )
+    rows.sort(key=lambda row: (str(row["gpu_id"]), row["stage"]))
+    return {
+        "total": len(selector_names),
+        "counts": {name: len(values) for name, values in groups.items()},
+        "groups": groups,
+        "rows": rows,
+    }
+
+
+def _render_selector_dashboard(snapshot: dict[str, Any]) -> str:
+    counts = snapshot["counts"]
+    lines = [
+        (
+            f"Q-NESS selectors: {counts['complete']}/{snapshot['total']} complete | "
+            f"{counts['running']} running | {counts['pending']} pending | "
+            f"{counts['failed']} failed"
+        )
+    ]
+    for row in snapshot["rows"]:
+        progress: list[str] = []
+        if row.get("phase"):
+            progress.append(str(row["phase"]))
+        if row.get("epoch") is not None and row.get("epochs") is not None:
+            progress.append(f"epoch {row['epoch']}/{row['epochs']}")
+        if row.get("batch") is not None and row.get("batches") is not None:
+            progress.append(f"batch {row['batch']}/{row['batches']}")
+        if not progress:
+            progress.append("starting")
+        progress.append(f"ETA {_format_duration(row.get('eta_seconds'))}")
+        rate = row.get("batches_per_second")
+        if rate is not None:
+            progress.append(f"{rate} batch/s")
+        lines.append(
+            f"GPU {row.get('gpu_id', '?')} | {row['stage']} | " + " | ".join(progress)
+        )
+    for label, key in (
+        ("Completed", "complete"),
+        ("Pending", "pending"),
+        ("Failed", "failed"),
+    ):
+        values = snapshot["groups"][key]
+        lines.append(f"{label}: {', '.join(values) if values else 'none'}")
+    return "\n".join(lines) + "\n"
+
+
+def _terminate_child_process(process: subprocess.Popen[object]) -> None:
+    if process.poll() is not None:
+        return
+    try:
+        process.terminate()
+        process.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait()
+    except ProcessLookupError:
+        return
+
+
 def _run_stage(
     name: str,
     command: list[str],
@@ -239,6 +391,7 @@ def _run_stage(
     assignments_lock: threading.Lock | None = None,
     console_lock: threading.Lock | None = None,
     required_paths: tuple[Path, ...] = (),
+    stream_output_to_console: bool = True,
 ) -> None:
     log_path = output_dir / "logs" / f"{name}.log"
     log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -286,20 +439,24 @@ def _run_stage(
             "cuda_visible_devices": str(gpu_id),
         },
     )
-    _console_print(
-        json.dumps(
-            {
-                "event": "stage_started",
-                "stage": name,
-                "gpu_id": gpu_id,
-                "log": str(log_path),
-            }
-        )
-        + "\n",
-        console_lock,
+    if name.startswith("selector_"):
+        _console_print(f"GPU {gpu_id} assigned {name}\n", console_lock)
+    else:
+        _console_print(
+            json.dumps(
+                {
+                    "event": "stage_started",
+                    "stage": name,
+                    "gpu_id": gpu_id,
+                    "log": str(log_path),
+                }
+            )
+            + "\n",
+            console_lock,
     )
     status = None
     process_error: BaseException | None = None
+    process: subprocess.Popen[object] | None = None
     with log_path.open("w", encoding="utf-8") as handle:
         try:
             process = subprocess.Popen(
@@ -324,7 +481,8 @@ def _run_stage(
             )
             assert process.stdout is not None
             for line in process.stdout:
-                _console_print(f"[{name}][gpu={gpu_id}] {line}", console_lock)
+                if stream_output_to_console:
+                    _console_print(f"[{name}][gpu={gpu_id}] {line}", console_lock)
                 handle.write(line)
                 handle.flush()
                 if heartbeat is not None:
@@ -332,6 +490,8 @@ def _run_stage(
             status = process.wait()
         except BaseException as exc:
             process_error = exc
+            if process is not None:
+                _terminate_child_process(process)
     duration = round(max(time.monotonic() - started_monotonic, 0.0), 3)
     completed_at = _utc_now()
     if process_error is not None:
@@ -424,24 +584,36 @@ def _run_stage(
             duration_seconds=duration,
             exit_code=0,
         )
-    _console_print(
-        json.dumps(
-            {
-                "event": "stage_completed",
-                "stage": name,
-                "gpu_id": gpu_id,
-                "duration_seconds": duration,
-            }
+    if name.startswith("selector_"):
+        _console_print(
+            f"GPU {gpu_id} completed {name} in {duration:.1f}s\n", console_lock
         )
-        + "\n",
-        console_lock,
-    )
+    else:
+        _console_print(
+            json.dumps(
+                {
+                    "event": "stage_completed",
+                    "stage": name,
+                    "gpu_id": gpu_id,
+                    "duration_seconds": duration,
+                }
+            )
+            + "\n",
+            console_lock,
+        )
 
 
 def _run_selector_workers(
     selector_names: list[str],
     gpu_ids: list[int],
     run_selector: Callable[[str, int], None],
+    *,
+    output_dir: Path | None = None,
+    assignments: dict[str, Any] | None = None,
+    assignments_lock: threading.Lock | None = None,
+    heartbeat: Path | None = None,
+    console_lock: threading.Lock | None = None,
+    dashboard_interval_seconds: float = 10.0,
 ) -> list[dict[str, Any]]:
     """Run selector jobs with one queue-consuming worker per physical GPU."""
     jobs: Queue[str] = Queue()
@@ -449,39 +621,106 @@ def _run_selector_workers(
         jobs.put(selector)
     outcomes: list[dict[str, Any]] = []
     outcomes_lock = threading.Lock()
+    stop_assigning = threading.Event()
+    workers_complete = threading.Event()
+    remaining_workers = len(gpu_ids)
+    workers_lock = threading.Lock()
 
     def worker(gpu_id: int) -> None:
-        while True:
-            try:
-                selector = jobs.get_nowait()
-            except Empty:
-                return
-            stage = f"selector_{selector}"
-            try:
-                run_selector(selector, gpu_id)
-            except Exception as exc:
-                outcome = {
-                    "stage": stage,
-                    "selector": selector,
-                    "gpu_id": gpu_id,
-                    "status": "failed",
-                    "error": str(exc),
-                }
-            else:
-                outcome = {
-                    "stage": stage,
-                    "selector": selector,
-                    "gpu_id": gpu_id,
-                    "status": "complete",
-                }
-            finally:
-                jobs.task_done()
-            with outcomes_lock:
-                outcomes.append(outcome)
+        nonlocal remaining_workers
+        try:
+            while not stop_assigning.is_set():
+                try:
+                    selector = jobs.get_nowait()
+                except Empty:
+                    return
+                stage = f"selector_{selector}"
+                try:
+                    run_selector(selector, gpu_id)
+                except Exception as exc:
+                    outcome = {
+                        "stage": stage,
+                        "selector": selector,
+                        "gpu_id": gpu_id,
+                        "status": "failed",
+                        "error": str(exc),
+                    }
+                    stop_assigning.set()
+                else:
+                    outcome = {
+                        "stage": stage,
+                        "selector": selector,
+                        "gpu_id": gpu_id,
+                        "status": "complete",
+                    }
+                finally:
+                    jobs.task_done()
+                with outcomes_lock:
+                    outcomes.append(outcome)
+        finally:
+            with workers_lock:
+                remaining_workers -= 1
+                if remaining_workers == 0:
+                    workers_complete.set()
 
     with ThreadPoolExecutor(max_workers=len(gpu_ids)) as executor:
-        list(executor.map(worker, gpu_ids))
+        futures = [executor.submit(worker, gpu_id) for gpu_id in gpu_ids]
+        if output_dir is not None and assignments is not None:
+            while True:
+                if heartbeat is not None:
+                    heartbeat.touch()
+                snapshot = _selector_dashboard_snapshot(
+                    output_dir, selector_names, assignments, assignments_lock
+                )
+                _console_print(_render_selector_dashboard(snapshot), console_lock)
+                if workers_complete.is_set():
+                    break
+                workers_complete.wait(dashboard_interval_seconds)
+        for future in futures:
+            future.result()
     return outcomes
+
+
+def _run_completion_errors(
+    output_dir: Path,
+    selector_names: list[str],
+    *,
+    require_summary: bool,
+    require_marker: bool,
+) -> list[str]:
+    errors: list[str] = []
+    assignments_path = output_dir / "gpu_assignments.json"
+    try:
+        assignments = _read_json(assignments_path)
+    except (FileNotFoundError, json.JSONDecodeError, OSError) as exc:
+        assignments = {}
+        errors.append(f"invalid gpu_assignments.json: {exc}")
+
+    expected_stages = ["baseline", "core_quantum"] + [
+        f"selector_{selector}" for selector in selector_names
+    ]
+    assignment_stages = assignments.get("stages", {})
+    for stage in expected_stages:
+        status = _read_status(output_dir / "status" / f"{stage}.env")
+        if status.get("STATUS") != "complete":
+            errors.append(f"{stage} status is {status.get('STATUS', 'missing')}")
+        assignment_status = assignment_stages.get(stage, {}).get("status")
+        if assignment_status != "complete":
+            errors.append(
+                f"{stage} assignment status is {assignment_status or 'missing'}"
+            )
+    for selector in selector_names:
+        selector_dir = output_dir / "selector" / selector
+        for filename in ("metrics.json", "diagnostics.json"):
+            if not (selector_dir / filename).is_file():
+                errors.append(f"missing selector/{selector}/{filename}")
+    if require_summary:
+        for filename in ("run_summary.json", "run_summary.md"):
+            if not (output_dir / filename).is_file():
+                errors.append(f"missing {filename}")
+    if require_marker and not (output_dir / "RUN_COMPLETE").is_file():
+        errors.append("missing RUN_COMPLETE")
+    return errors
 
 
 def _subset_manifest(records: list[Any], source_path: Path, sampler: str) -> dict[str, Any]:
@@ -971,6 +1210,8 @@ def main() -> None:
     )
     if min(positive) <= 0:
         raise ValueError("limits, epochs, batch sizes, diagnostics, and repeats must be positive")
+    if args.dashboard_interval_seconds <= 0.0:
+        raise ValueError("dashboard_interval_seconds must be positive")
     if args.min_loss_gain < 0.0 or args.max_f1_drop < 0.0:
         raise ValueError("gate thresholds must be non-negative")
     if args.dry_run and args.summarize_only:
@@ -1115,10 +1356,19 @@ def main() -> None:
                     output_dir / "selector" / selector / "metrics.json",
                     output_dir / "selector" / selector / "diagnostics.json",
                 ),
+                stream_output_to_console=False,
             )
 
         selector_outcomes = _run_selector_workers(
-            selector_names, resolved_gpus, run_selector
+            selector_names,
+            resolved_gpus,
+            run_selector,
+            output_dir=output_dir,
+            assignments=assignments,
+            assignments_lock=assignments_lock,
+            heartbeat=heartbeat,
+            console_lock=console_lock,
+            dashboard_interval_seconds=args.dashboard_interval_seconds,
         )
         failed_selectors = [
             outcome for outcome in selector_outcomes if outcome["status"] == "failed"
@@ -1128,13 +1378,51 @@ def main() -> None:
                 f"{item['stage']} gpu={item['gpu_id']}: {item['error']}"
                 for item in failed_selectors
             )
-            raise RuntimeError(f"selector worker failures: {details}")
+            started_selectors = {item["selector"] for item in selector_outcomes}
+            pending_selectors = [
+                selector for selector in selector_names if selector not in started_selectors
+            ]
+            pending_text = ", ".join(pending_selectors) if pending_selectors else "none"
+            raise RuntimeError(
+                f"selector worker failures: {details}; "
+                f"unstarted selectors: {pending_text}"
+            )
 
+        completion_errors = _run_completion_errors(
+            output_dir,
+            selector_names,
+            require_summary=False,
+            require_marker=False,
+        )
+        if completion_errors:
+            raise RuntimeError(
+                "completion gate failed before summary: " + "; ".join(completion_errors)
+            )
         summary = summarize_existing_run(output_dir)
         decision = summary["decision"]
+        completion_errors = _run_completion_errors(
+            output_dir,
+            selector_names,
+            require_summary=True,
+            require_marker=False,
+        )
+        if completion_errors:
+            raise RuntimeError(
+                "completion gate failed after summary: " + "; ".join(completion_errors)
+            )
         (output_dir / "RUN_COMPLETE").write_text(
             datetime.now(timezone.utc).isoformat() + "\n", encoding="utf-8"
         )
+        completion_errors = _run_completion_errors(
+            output_dir,
+            selector_names,
+            require_summary=True,
+            require_marker=True,
+        )
+        if completion_errors:
+            raise RuntimeError(
+                "completion gate failed after marker: " + "; ".join(completion_errors)
+            )
         print(
             json.dumps(
                 {
