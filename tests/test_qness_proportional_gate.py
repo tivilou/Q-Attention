@@ -20,6 +20,7 @@ from experiments.run_relation_qness_proportional_gate import (
     _selector_dashboard_snapshot,
     _selector_command,
     _stage_summary,
+    summarize_existing_run,
     proportional_gate_decision,
 )
 
@@ -32,6 +33,9 @@ def stage(loss, macro_f1, *, task_epoch=None, selectivity=True, resources=None):
             "correct_label_margin": 0.1,
         },
         "best_task_epoch": task_epoch,
+        "checkpoint_selection": {
+            "selected": "best_task_valid" if task_epoch is not None else "best_valid",
+        },
         "selectivity_pass": selectivity,
         "diagnostic_means": {
             "off_diagonal_density_norm": None,
@@ -75,6 +79,7 @@ def test_proportional_gate_requires_task_gain_and_resource_controls():
     assert decision["gate_pass"]
 
     stages["selector_qness"]["best_task_epoch"] = None
+    stages["selector_qness"]["checkpoint_selection"]["selected"] = "best_valid"
     assert not proportional_gate_decision(stages)["gate_pass"]
 
 
@@ -126,6 +131,157 @@ def test_baseline_stage_summary_does_not_require_diagnostics(tmp_path):
     )
     summary = _stage_summary(tmp_path)
     assert summary["diagnostics_path"] is None
+    assert summary["checkpoint_selection"] == {
+        "policy": "best_valid",
+        "requested": "best_valid",
+        "selected": "best_valid",
+        "fallback": False,
+        "epoch": None,
+    }
+
+
+def test_selector_stage_summary_prefers_task_checkpoint_and_records_fallback(tmp_path):
+    metrics_path = tmp_path / "metrics.json"
+    metrics_path.write_text(
+        json.dumps(
+            {
+                "best_epoch": 1,
+                "best_valid": {
+                    "loss": 1.2,
+                    "macro_f1": 0.3,
+                    "correct_label_margin": 0.1,
+                },
+                "best_task_epoch": 3,
+                "best_task_valid": {
+                    "loss": 1.1,
+                    "macro_f1": 0.4,
+                    "correct_label_margin": 0.2,
+                },
+                "best_selectivity": {
+                    "selectivity_pass": False,
+                    "metrics": {
+                        "mutual_information": {"mean": 0.1},
+                    },
+                },
+                "best_task_selectivity": {
+                    "selectivity_pass": True,
+                    "metrics": {
+                        "mutual_information": {"mean": 0.2},
+                    },
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    summary = _stage_summary(tmp_path, prefer_task=True)
+    assert summary["validation_metrics"]["loss"] == pytest.approx(1.1)
+    assert summary["selectivity_pass"]
+    assert summary["diagnostic_means"]["mutual_information"] == pytest.approx(0.2)
+    assert summary["checkpoint_selection"] == {
+        "policy": "best_task_valid_with_best_valid_fallback",
+        "requested": "best_task_valid",
+        "selected": "best_task_valid",
+        "fallback": False,
+        "epoch": 3,
+    }
+
+    payload = json.loads(metrics_path.read_text(encoding="utf-8"))
+    payload["best_task_valid"] = None
+    payload["best_task_epoch"] = None
+    metrics_path.write_text(json.dumps(payload), encoding="utf-8")
+    summary = _stage_summary(tmp_path, prefer_task=True)
+    assert summary["validation_metrics"]["loss"] == pytest.approx(1.2)
+    assert not summary["selectivity_pass"]
+    assert summary["diagnostic_means"]["mutual_information"] == pytest.approx(0.1)
+    assert summary["checkpoint_selection"] == {
+        "policy": "best_task_valid_with_best_valid_fallback",
+        "requested": "best_task_valid",
+        "selected": "best_valid",
+        "fallback": True,
+        "epoch": 1,
+    }
+
+
+def test_existing_run_uses_one_checkpoint_policy_for_all_selectors(tmp_path):
+    (tmp_path / "run_manifest.json").write_text(
+        json.dumps(
+            {
+                "config": {
+                    "seed": 13,
+                    "revision": "test-revision",
+                    "run_controls": "always",
+                },
+                "subset_manifest": {},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    def write_stage(relative_path, best_loss, task_loss=None):
+        stage_dir = tmp_path / relative_path
+        stage_dir.mkdir(parents=True)
+        payload = {
+            "best_epoch": 1,
+            "best_valid": {
+                "loss": best_loss,
+                "macro_f1": 0.2,
+                "correct_label_margin": 0.1,
+            },
+        }
+        if task_loss is not None:
+            payload.update(
+                {
+                    "best_task_epoch": 2,
+                    "best_task_valid": {
+                        "loss": task_loss,
+                        "macro_f1": 0.2,
+                        "correct_label_margin": 0.1,
+                    },
+                }
+            )
+        (stage_dir / "metrics.json").write_text(
+            json.dumps(payload), encoding="utf-8"
+        )
+
+    write_stage("baseline", 2.0)
+    write_stage("core/quantum", 1.5)
+    write_stage("selector/qness", 1.4, task_loss=1.2)
+    write_stage("selector/qness_classical", 1.6, task_loss=1.1)
+    write_stage("selector/qness_commuting", 1.7, task_loss=1.3)
+    write_stage("selector/qness_separable", 1.8)
+    write_stage("selector/qness_phase_scrambled", 1.9, task_loss=1.4)
+    write_stage("selector/qness_dephased", 2.0)
+
+    summary = summarize_existing_run(tmp_path)
+
+    assert summary["schema_version"] == "retacred-qness-proportional-gate.v2"
+    assert summary["checkpoint_policy"] == {
+        "primary_metric": "validation_loss",
+        "baseline_and_core": "best_valid",
+        "selectors": "best_task_valid_with_best_valid_fallback",
+        "macro_f1_role": "guardrail_only",
+    }
+    assert summary["stages"]["selector_qness"]["validation_metrics"]["loss"] == 1.2
+    assert (
+        summary["stages"]["selector_qness_classical"]["validation_metrics"]["loss"]
+        == 1.1
+    )
+    assert (
+        summary["stages"]["selector_qness_commuting"]["checkpoint_selection"][
+            "selected"
+        ]
+        == "best_task_valid"
+    )
+    assert summary["stages"]["selector_qness_separable"]["checkpoint_selection"][
+        "fallback"
+    ]
+    assert summary["stages"]["selector_qness_dephased"]["checkpoint_selection"][
+        "fallback"
+    ]
+    assert not summary["decision"]["task_checks"][
+        "qness_improves_over_classical_control"
+    ]
 
 
 def test_gpu_list_parser_preserves_order_and_rejects_duplicates():

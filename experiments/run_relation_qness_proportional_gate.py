@@ -37,6 +37,8 @@ CONTROL_SELECTORS = (
     "qness_phase_scrambled",
     "qness_dephased",
 )
+BASE_CHECKPOINT_POLICY = "best_valid"
+SELECTOR_CHECKPOINT_POLICY = "best_task_valid_with_best_valid_fallback"
 _CONSOLE_BROKEN = threading.Event()
 
 
@@ -954,10 +956,17 @@ def _below(value: float | None, threshold: float) -> bool:
     return value is not None and value < threshold
 
 
-def _metrics(payload: dict[str, Any], prefer_task: bool = False) -> dict[str, float]:
-    candidate = payload.get("best_task_valid") if prefer_task else None
+def _validation_checkpoint(
+    payload: dict[str, Any], *, prefer_task: bool = False
+) -> tuple[dict[str, float], dict[str, Any]]:
+    requested = "best_task_valid" if prefer_task else "best_valid"
+    candidate = payload.get(requested)
+    selected = requested
+    fallback = False
     if not isinstance(candidate, dict):
         candidate = payload.get("best_valid")
+        selected = "best_valid"
+        fallback = prefer_task
     if not isinstance(candidate, dict):
         raise ValueError("metrics payload has no usable validation metrics")
     result = {
@@ -966,11 +975,39 @@ def _metrics(payload: dict[str, Any], prefer_task: bool = False) -> dict[str, fl
     }
     if not all(_finite_number(value) for value in result.values()):
         raise ValueError("validation metrics contain a non-finite value")
-    return result
+    epoch_key = "best_task_epoch" if selected == "best_task_valid" else "best_epoch"
+    return result, {
+        "policy": (
+            SELECTOR_CHECKPOINT_POLICY if prefer_task else BASE_CHECKPOINT_POLICY
+        ),
+        "requested": requested,
+        "selected": selected,
+        "fallback": fallback,
+        "epoch": payload.get(epoch_key),
+    }
 
 
-def _diagnostic_mean(payload: dict[str, Any], name: str) -> float | None:
-    diagnostics = payload.get("best_selectivity")
+def _metrics(payload: dict[str, Any], prefer_task: bool = False) -> dict[str, float]:
+    metrics, _ = _validation_checkpoint(payload, prefer_task=prefer_task)
+    return metrics
+
+
+def _selected_selectivity(
+    payload: dict[str, Any], checkpoint_selection: dict[str, Any]
+) -> dict[str, Any] | None:
+    key = (
+        "best_task_selectivity"
+        if checkpoint_selection["selected"] == "best_task_valid"
+        else "best_selectivity"
+    )
+    diagnostics = payload.get(key)
+    return diagnostics if isinstance(diagnostics, dict) else None
+
+
+def _diagnostic_mean(
+    payload: dict[str, Any], name: str, checkpoint_selection: dict[str, Any]
+) -> float | None:
+    diagnostics = _selected_selectivity(payload, checkpoint_selection)
     if not isinstance(diagnostics, dict):
         return None
     metrics = diagnostics.get("metrics")
@@ -984,18 +1021,23 @@ def _stage_summary(path: Path, *, prefer_task: bool = False) -> dict[str, Any]:
     metrics = _read_json(path / "metrics.json")
     diagnostics_path = path / "diagnostics.json"
     diagnostics = _read_json(diagnostics_path) if diagnostics_path.is_file() else {}
+    validation_metrics, checkpoint_selection = _validation_checkpoint(
+        metrics, prefer_task=prefer_task
+    )
+    selected_selectivity = _selected_selectivity(metrics, checkpoint_selection)
     return {
         "metrics_path": str(path / "metrics.json"),
         "diagnostics_path": str(diagnostics_path) if diagnostics_path.is_file() else None,
-        "validation_metrics": _metrics(metrics, prefer_task=prefer_task),
+        "validation_metrics": validation_metrics,
+        "checkpoint_selection": checkpoint_selection,
         "best_epoch": metrics.get("best_epoch"),
         "best_task_epoch": metrics.get("best_task_epoch"),
         "selectivity_pass": bool(
-            isinstance(metrics.get("best_selectivity"), dict)
-            and metrics["best_selectivity"].get("selectivity_pass", False)
+            selected_selectivity is not None
+            and selected_selectivity.get("selectivity_pass", False)
         ),
         "diagnostic_means": {
-            name: _diagnostic_mean(metrics, name)
+            name: _diagnostic_mean(metrics, name, checkpoint_selection)
             for name in (
                 "complement_error",
                 "off_diagonal_density_norm",
@@ -1023,7 +1065,10 @@ def proportional_gate_decision(
     core = stages["core_quantum"]["validation_metrics"]
     qness = stages["selector_qness"]["validation_metrics"]
     classical = stages["selector_qness_classical"]["validation_metrics"]
-    qness_task = stages["selector_qness"].get("best_task_epoch") is not None
+    qness_task = (
+        stages["selector_qness"].get("checkpoint_selection", {}).get("selected")
+        == "best_task_valid"
+    )
     qness_resource = stages["selector_qness"]["diagnostic_means"]
     resource_checks = {
         "qness_commutator_nonzero": (
@@ -1101,6 +1146,7 @@ def proportional_gate_decision(
 
 def _render_summary(summary: dict[str, Any]) -> str:
     decision = summary["decision"]
+    policy = summary["checkpoint_policy"]
     lines = [
         "# Re-TACRED Q-NESS Proportional Gate",
         "",
@@ -1108,14 +1154,21 @@ def _render_summary(summary: dict[str, Any]) -> str:
         f"- seed: `{summary['config']['seed']}`",
         f"- overall gate: `{str(decision['gate_pass']).lower()}`",
         "- evaluation: validation only; blind test was not read.",
+        f"- primary gate metric: `{policy['primary_metric']}`",
+        f"- baseline/core checkpoint: `{policy['baseline_and_core']}`",
+        f"- selector checkpoint: `{policy['selectors']}`",
+        f"- Macro-F1 role: `{policy['macro_f1_role']}`",
         "",
-        "| Stage | Loss | Macro-F1 | Correct-label margin | Selectivity |",
-        "| --- | ---: | ---: | ---: | :---: |",
+        "| Stage | Checkpoint | Epoch | Fallback | Loss | Macro-F1 | Correct-label margin | Selectivity |",
+        "| --- | --- | ---: | :---: | ---: | ---: | ---: | :---: |",
     ]
     for name, stage in summary["stages"].items():
         metrics = stage["validation_metrics"]
+        selection = stage["checkpoint_selection"]
         lines.append(
-            f"| {name} | {metrics['loss']:.6f} | {metrics['macro_f1']:.6f} | "
+            f"| {name} | {selection['selected']} | {selection['epoch']} | "
+            f"{str(selection['fallback']).lower()} | {metrics['loss']:.6f} | "
+            f"{metrics['macro_f1']:.6f} | "
             f"{metrics['correct_label_margin']:.6f} | "
             f"{str(stage.get('selectivity_pass', False)).lower()} |"
         )
@@ -1158,13 +1211,15 @@ def summarize_existing_run(output_dir: Path) -> dict[str, Any]:
             stage_paths["selector_qness"], prefer_task=True
         ),
         "selector_qness_classical": _stage_summary(
-            stage_paths["selector_qness_classical"]
+            stage_paths["selector_qness_classical"], prefer_task=True
         ),
     }
     for selector in CONTROL_SELECTORS:
         name = f"selector_{selector}"
         if name in stage_paths:
-            stage_summaries[name] = _stage_summary(stage_paths[name])
+            stage_summaries[name] = _stage_summary(
+                stage_paths[name], prefer_task=True
+            )
     decision = proportional_gate_decision(
         stage_summaries,
         min_loss_gain=float(config.get("min_loss_gain", 1e-4)),
@@ -1173,9 +1228,15 @@ def summarize_existing_run(output_dir: Path) -> dict[str, Any]:
         controls_requested=controls_requested,
     )
     summary = {
-        "schema_version": "retacred-qness-proportional-gate.v1",
+        "schema_version": "retacred-qness-proportional-gate.v2",
         "revision": config.get("revision", _git_revision()),
         "config": config,
+        "checkpoint_policy": {
+            "primary_metric": "validation_loss",
+            "baseline_and_core": BASE_CHECKPOINT_POLICY,
+            "selectors": SELECTOR_CHECKPOINT_POLICY,
+            "macro_f1_role": "guardrail_only",
+        },
         "subset_manifest": manifest["subset_manifest"],
         "gpu_assignments": (
             _read_json(output_dir / "gpu_assignments.json")

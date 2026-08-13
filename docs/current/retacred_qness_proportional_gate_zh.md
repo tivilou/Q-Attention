@@ -71,6 +71,10 @@ cat "${RUN_DIR}/gpu_assignments.json"
 cat "${RUN_DIR}/status/selector_qness.env"
 ```
 
+汇总时，baseline 和 quantum core 使用 `best_valid`。Q-NESS、classical selector 和四个机制 control 统一优先使用 `best_task_valid`；如果某个 selector 没有 task checkpoint，则回退到 `best_valid`，并在 summary 中明确记录 `Fallback=true`。同一个 stage 的 Loss、Macro-F1、selectivity 和量子资源诊断均来自同一 checkpoint。
+
+Gate 的主比较指标是 validation loss，Macro-F1 仅作为防止明显退化的 guardrail。`run_summary.md` 会显示每个 stage 实际选中的 checkpoint、epoch 和是否发生 fallback。
+
 需要单独查看 selector 状态时：
 
 ```bash
