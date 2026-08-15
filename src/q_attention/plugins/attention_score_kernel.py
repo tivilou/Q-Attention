@@ -904,7 +904,9 @@ class RelationAttentionScoreKernel(nn.Module):
         self,
         query: torch.Tensor,
         key: torch.Tensor,
+        value: torch.Tensor | None = None,
         *,
+        scores: torch.Tensor | None = None,
         layer_index: int,
         attention_mask: torch.Tensor,
         subject_mask: torch.Tensor,
@@ -914,6 +916,7 @@ class RelationAttentionScoreKernel(nn.Module):
         detach_random: bool = False,
         routing_mode: str = "learned",
     ) -> torch.Tensor:
+        del value, scores
         evidence_readouts = None
         if self.evidence_selector is not None:
             evidence_readouts = self.evidence_readouts(

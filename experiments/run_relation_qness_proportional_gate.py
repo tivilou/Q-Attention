@@ -37,6 +37,8 @@ CONTROL_SELECTORS = (
     "qness_phase_scrambled",
     "qness_dephased",
 )
+BASE_CHECKPOINT_POLICY = "best_valid"
+SELECTOR_CHECKPOINT_POLICY = "best_task_valid_with_best_valid_fallback"
 _CONSOLE_BROKEN = threading.Event()
 
 
@@ -57,6 +59,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--quantum_diagnostic_limit", type=int, default=64)
     parser.add_argument("--random_repeats", type=int, default=1)
     parser.add_argument("--log_every_batches", type=int, default=25)
+    parser.add_argument(
+        "--dashboard_interval_seconds",
+        type=float,
+        default=10.0,
+        help="Seconds between centralized selector progress snapshots.",
+    )
     parser.add_argument("--seed", type=int, default=13)
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     parser.add_argument(
@@ -228,6 +236,152 @@ def _console_print(value: str, lock: threading.Lock | None) -> None:
         _CONSOLE_BROKEN.set()
 
 
+def _read_status(path: Path) -> dict[str, str]:
+    if not path.is_file():
+        return {}
+    fields: dict[str, str] = {}
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return {}
+    for line in lines:
+        key, separator, value = line.partition("=")
+        if separator:
+            fields[key] = value
+    return fields
+
+
+def _read_heartbeat(path: Path) -> dict[str, Any]:
+    if not path.is_file():
+        return {}
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
+def _format_duration(seconds: Any) -> str:
+    if seconds is None:
+        return "unknown"
+    try:
+        total = max(int(round(float(seconds))), 0)
+    except (TypeError, ValueError):
+        return "unknown"
+    hours, remainder = divmod(total, 3600)
+    minutes, secs = divmod(remainder, 60)
+    if hours:
+        return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+    return f"{minutes:02d}:{secs:02d}"
+
+
+def _selector_dashboard_snapshot(
+    output_dir: Path,
+    selector_names: list[str],
+    assignments: dict[str, Any],
+    assignments_lock: threading.Lock | None = None,
+) -> dict[str, Any]:
+    if assignments_lock is None:
+        stages = {
+            name: dict(value) for name, value in assignments.get("stages", {}).items()
+        }
+    else:
+        with assignments_lock:
+            stages = {
+                name: dict(value)
+                for name, value in assignments.get("stages", {}).items()
+            }
+
+    rows: list[dict[str, Any]] = []
+    groups: dict[str, list[str]] = {
+        "complete": [],
+        "running": [],
+        "pending": [],
+        "failed": [],
+    }
+    for selector in selector_names:
+        stage = f"selector_{selector}"
+        assignment = stages.get(stage, {})
+        status_fields = _read_status(output_dir / "status" / f"{stage}.env")
+        status = status_fields.get("STATUS", assignment.get("status", "pending"))
+        if status not in groups:
+            status = "failed"
+        groups[status].append(stage)
+        if status != "running":
+            continue
+        heartbeat = _read_heartbeat(output_dir / "status" / f"{stage}.heartbeat")
+        rows.append(
+            {
+                "stage": stage,
+                "gpu_id": status_fields.get("GPU_ID", assignment.get("gpu_id")),
+                "event": heartbeat.get("event"),
+                "phase": heartbeat.get("phase"),
+                "epoch": heartbeat.get("epoch"),
+                "epochs": heartbeat.get("epochs"),
+                "batch": heartbeat.get("batch"),
+                "batches": heartbeat.get("batches"),
+                "eta_seconds": heartbeat.get("eta_seconds"),
+                "batches_per_second": heartbeat.get("batches_per_second"),
+            }
+        )
+    rows.sort(key=lambda row: (str(row["gpu_id"]), row["stage"]))
+    return {
+        "total": len(selector_names),
+        "counts": {name: len(values) for name, values in groups.items()},
+        "groups": groups,
+        "rows": rows,
+    }
+
+
+def _render_selector_dashboard(snapshot: dict[str, Any]) -> str:
+    counts = snapshot["counts"]
+    lines = [
+        (
+            f"Q-NESS selectors: {counts['complete']}/{snapshot['total']} complete | "
+            f"{counts['running']} running | {counts['pending']} pending | "
+            f"{counts['failed']} failed"
+        )
+    ]
+    for row in snapshot["rows"]:
+        progress: list[str] = []
+        if row.get("phase"):
+            progress.append(str(row["phase"]))
+        if row.get("epoch") is not None and row.get("epochs") is not None:
+            progress.append(f"epoch {row['epoch']}/{row['epochs']}")
+        if row.get("batch") is not None and row.get("batches") is not None:
+            progress.append(f"batch {row['batch']}/{row['batches']}")
+        if not progress:
+            progress.append("starting")
+        progress.append(f"ETA {_format_duration(row.get('eta_seconds'))}")
+        rate = row.get("batches_per_second")
+        if rate is not None:
+            progress.append(f"{rate} batch/s")
+        lines.append(
+            f"GPU {row.get('gpu_id', '?')} | {row['stage']} | " + " | ".join(progress)
+        )
+    for label, key in (
+        ("Completed", "complete"),
+        ("Pending", "pending"),
+        ("Failed", "failed"),
+    ):
+        values = snapshot["groups"][key]
+        lines.append(f"{label}: {', '.join(values) if values else 'none'}")
+    return "\n".join(lines) + "\n"
+
+
+def _terminate_child_process(process: subprocess.Popen[object]) -> None:
+    if process.poll() is not None:
+        return
+    try:
+        process.terminate()
+        process.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait()
+    except ProcessLookupError:
+        return
+
+
 def _run_stage(
     name: str,
     command: list[str],
@@ -239,6 +393,7 @@ def _run_stage(
     assignments_lock: threading.Lock | None = None,
     console_lock: threading.Lock | None = None,
     required_paths: tuple[Path, ...] = (),
+    stream_output_to_console: bool = True,
 ) -> None:
     log_path = output_dir / "logs" / f"{name}.log"
     log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -286,20 +441,24 @@ def _run_stage(
             "cuda_visible_devices": str(gpu_id),
         },
     )
-    _console_print(
-        json.dumps(
-            {
-                "event": "stage_started",
-                "stage": name,
-                "gpu_id": gpu_id,
-                "log": str(log_path),
-            }
-        )
-        + "\n",
-        console_lock,
+    if name.startswith("selector_"):
+        _console_print(f"GPU {gpu_id} assigned {name}\n", console_lock)
+    else:
+        _console_print(
+            json.dumps(
+                {
+                    "event": "stage_started",
+                    "stage": name,
+                    "gpu_id": gpu_id,
+                    "log": str(log_path),
+                }
+            )
+            + "\n",
+            console_lock,
     )
     status = None
     process_error: BaseException | None = None
+    process: subprocess.Popen[object] | None = None
     with log_path.open("w", encoding="utf-8") as handle:
         try:
             process = subprocess.Popen(
@@ -324,7 +483,8 @@ def _run_stage(
             )
             assert process.stdout is not None
             for line in process.stdout:
-                _console_print(f"[{name}][gpu={gpu_id}] {line}", console_lock)
+                if stream_output_to_console:
+                    _console_print(f"[{name}][gpu={gpu_id}] {line}", console_lock)
                 handle.write(line)
                 handle.flush()
                 if heartbeat is not None:
@@ -332,6 +492,8 @@ def _run_stage(
             status = process.wait()
         except BaseException as exc:
             process_error = exc
+            if process is not None:
+                _terminate_child_process(process)
     duration = round(max(time.monotonic() - started_monotonic, 0.0), 3)
     completed_at = _utc_now()
     if process_error is not None:
@@ -424,24 +586,36 @@ def _run_stage(
             duration_seconds=duration,
             exit_code=0,
         )
-    _console_print(
-        json.dumps(
-            {
-                "event": "stage_completed",
-                "stage": name,
-                "gpu_id": gpu_id,
-                "duration_seconds": duration,
-            }
+    if name.startswith("selector_"):
+        _console_print(
+            f"GPU {gpu_id} completed {name} in {duration:.1f}s\n", console_lock
         )
-        + "\n",
-        console_lock,
-    )
+    else:
+        _console_print(
+            json.dumps(
+                {
+                    "event": "stage_completed",
+                    "stage": name,
+                    "gpu_id": gpu_id,
+                    "duration_seconds": duration,
+                }
+            )
+            + "\n",
+            console_lock,
+        )
 
 
 def _run_selector_workers(
     selector_names: list[str],
     gpu_ids: list[int],
     run_selector: Callable[[str, int], None],
+    *,
+    output_dir: Path | None = None,
+    assignments: dict[str, Any] | None = None,
+    assignments_lock: threading.Lock | None = None,
+    heartbeat: Path | None = None,
+    console_lock: threading.Lock | None = None,
+    dashboard_interval_seconds: float = 10.0,
 ) -> list[dict[str, Any]]:
     """Run selector jobs with one queue-consuming worker per physical GPU."""
     jobs: Queue[str] = Queue()
@@ -449,39 +623,106 @@ def _run_selector_workers(
         jobs.put(selector)
     outcomes: list[dict[str, Any]] = []
     outcomes_lock = threading.Lock()
+    stop_assigning = threading.Event()
+    workers_complete = threading.Event()
+    remaining_workers = len(gpu_ids)
+    workers_lock = threading.Lock()
 
     def worker(gpu_id: int) -> None:
-        while True:
-            try:
-                selector = jobs.get_nowait()
-            except Empty:
-                return
-            stage = f"selector_{selector}"
-            try:
-                run_selector(selector, gpu_id)
-            except Exception as exc:
-                outcome = {
-                    "stage": stage,
-                    "selector": selector,
-                    "gpu_id": gpu_id,
-                    "status": "failed",
-                    "error": str(exc),
-                }
-            else:
-                outcome = {
-                    "stage": stage,
-                    "selector": selector,
-                    "gpu_id": gpu_id,
-                    "status": "complete",
-                }
-            finally:
-                jobs.task_done()
-            with outcomes_lock:
-                outcomes.append(outcome)
+        nonlocal remaining_workers
+        try:
+            while not stop_assigning.is_set():
+                try:
+                    selector = jobs.get_nowait()
+                except Empty:
+                    return
+                stage = f"selector_{selector}"
+                try:
+                    run_selector(selector, gpu_id)
+                except Exception as exc:
+                    outcome = {
+                        "stage": stage,
+                        "selector": selector,
+                        "gpu_id": gpu_id,
+                        "status": "failed",
+                        "error": str(exc),
+                    }
+                    stop_assigning.set()
+                else:
+                    outcome = {
+                        "stage": stage,
+                        "selector": selector,
+                        "gpu_id": gpu_id,
+                        "status": "complete",
+                    }
+                finally:
+                    jobs.task_done()
+                with outcomes_lock:
+                    outcomes.append(outcome)
+        finally:
+            with workers_lock:
+                remaining_workers -= 1
+                if remaining_workers == 0:
+                    workers_complete.set()
 
     with ThreadPoolExecutor(max_workers=len(gpu_ids)) as executor:
-        list(executor.map(worker, gpu_ids))
+        futures = [executor.submit(worker, gpu_id) for gpu_id in gpu_ids]
+        if output_dir is not None and assignments is not None:
+            while True:
+                if heartbeat is not None:
+                    heartbeat.touch()
+                snapshot = _selector_dashboard_snapshot(
+                    output_dir, selector_names, assignments, assignments_lock
+                )
+                _console_print(_render_selector_dashboard(snapshot), console_lock)
+                if workers_complete.is_set():
+                    break
+                workers_complete.wait(dashboard_interval_seconds)
+        for future in futures:
+            future.result()
     return outcomes
+
+
+def _run_completion_errors(
+    output_dir: Path,
+    selector_names: list[str],
+    *,
+    require_summary: bool,
+    require_marker: bool,
+) -> list[str]:
+    errors: list[str] = []
+    assignments_path = output_dir / "gpu_assignments.json"
+    try:
+        assignments = _read_json(assignments_path)
+    except (FileNotFoundError, json.JSONDecodeError, OSError) as exc:
+        assignments = {}
+        errors.append(f"invalid gpu_assignments.json: {exc}")
+
+    expected_stages = ["baseline", "core_quantum"] + [
+        f"selector_{selector}" for selector in selector_names
+    ]
+    assignment_stages = assignments.get("stages", {})
+    for stage in expected_stages:
+        status = _read_status(output_dir / "status" / f"{stage}.env")
+        if status.get("STATUS") != "complete":
+            errors.append(f"{stage} status is {status.get('STATUS', 'missing')}")
+        assignment_status = assignment_stages.get(stage, {}).get("status")
+        if assignment_status != "complete":
+            errors.append(
+                f"{stage} assignment status is {assignment_status or 'missing'}"
+            )
+    for selector in selector_names:
+        selector_dir = output_dir / "selector" / selector
+        for filename in ("metrics.json", "diagnostics.json"):
+            if not (selector_dir / filename).is_file():
+                errors.append(f"missing selector/{selector}/{filename}")
+    if require_summary:
+        for filename in ("run_summary.json", "run_summary.md"):
+            if not (output_dir / filename).is_file():
+                errors.append(f"missing {filename}")
+    if require_marker and not (output_dir / "RUN_COMPLETE").is_file():
+        errors.append("missing RUN_COMPLETE")
+    return errors
 
 
 def _subset_manifest(records: list[Any], source_path: Path, sampler: str) -> dict[str, Any]:
@@ -715,10 +956,17 @@ def _below(value: float | None, threshold: float) -> bool:
     return value is not None and value < threshold
 
 
-def _metrics(payload: dict[str, Any], prefer_task: bool = False) -> dict[str, float]:
-    candidate = payload.get("best_task_valid") if prefer_task else None
+def _validation_checkpoint(
+    payload: dict[str, Any], *, prefer_task: bool = False
+) -> tuple[dict[str, float], dict[str, Any]]:
+    requested = "best_task_valid" if prefer_task else "best_valid"
+    candidate = payload.get(requested)
+    selected = requested
+    fallback = False
     if not isinstance(candidate, dict):
         candidate = payload.get("best_valid")
+        selected = "best_valid"
+        fallback = prefer_task
     if not isinstance(candidate, dict):
         raise ValueError("metrics payload has no usable validation metrics")
     result = {
@@ -727,11 +975,39 @@ def _metrics(payload: dict[str, Any], prefer_task: bool = False) -> dict[str, fl
     }
     if not all(_finite_number(value) for value in result.values()):
         raise ValueError("validation metrics contain a non-finite value")
-    return result
+    epoch_key = "best_task_epoch" if selected == "best_task_valid" else "best_epoch"
+    return result, {
+        "policy": (
+            SELECTOR_CHECKPOINT_POLICY if prefer_task else BASE_CHECKPOINT_POLICY
+        ),
+        "requested": requested,
+        "selected": selected,
+        "fallback": fallback,
+        "epoch": payload.get(epoch_key),
+    }
 
 
-def _diagnostic_mean(payload: dict[str, Any], name: str) -> float | None:
-    diagnostics = payload.get("best_selectivity")
+def _metrics(payload: dict[str, Any], prefer_task: bool = False) -> dict[str, float]:
+    metrics, _ = _validation_checkpoint(payload, prefer_task=prefer_task)
+    return metrics
+
+
+def _selected_selectivity(
+    payload: dict[str, Any], checkpoint_selection: dict[str, Any]
+) -> dict[str, Any] | None:
+    key = (
+        "best_task_selectivity"
+        if checkpoint_selection["selected"] == "best_task_valid"
+        else "best_selectivity"
+    )
+    diagnostics = payload.get(key)
+    return diagnostics if isinstance(diagnostics, dict) else None
+
+
+def _diagnostic_mean(
+    payload: dict[str, Any], name: str, checkpoint_selection: dict[str, Any]
+) -> float | None:
+    diagnostics = _selected_selectivity(payload, checkpoint_selection)
     if not isinstance(diagnostics, dict):
         return None
     metrics = diagnostics.get("metrics")
@@ -745,18 +1021,23 @@ def _stage_summary(path: Path, *, prefer_task: bool = False) -> dict[str, Any]:
     metrics = _read_json(path / "metrics.json")
     diagnostics_path = path / "diagnostics.json"
     diagnostics = _read_json(diagnostics_path) if diagnostics_path.is_file() else {}
+    validation_metrics, checkpoint_selection = _validation_checkpoint(
+        metrics, prefer_task=prefer_task
+    )
+    selected_selectivity = _selected_selectivity(metrics, checkpoint_selection)
     return {
         "metrics_path": str(path / "metrics.json"),
         "diagnostics_path": str(diagnostics_path) if diagnostics_path.is_file() else None,
-        "validation_metrics": _metrics(metrics, prefer_task=prefer_task),
+        "validation_metrics": validation_metrics,
+        "checkpoint_selection": checkpoint_selection,
         "best_epoch": metrics.get("best_epoch"),
         "best_task_epoch": metrics.get("best_task_epoch"),
         "selectivity_pass": bool(
-            isinstance(metrics.get("best_selectivity"), dict)
-            and metrics["best_selectivity"].get("selectivity_pass", False)
+            selected_selectivity is not None
+            and selected_selectivity.get("selectivity_pass", False)
         ),
         "diagnostic_means": {
-            name: _diagnostic_mean(metrics, name)
+            name: _diagnostic_mean(metrics, name, checkpoint_selection)
             for name in (
                 "complement_error",
                 "off_diagonal_density_norm",
@@ -784,7 +1065,10 @@ def proportional_gate_decision(
     core = stages["core_quantum"]["validation_metrics"]
     qness = stages["selector_qness"]["validation_metrics"]
     classical = stages["selector_qness_classical"]["validation_metrics"]
-    qness_task = stages["selector_qness"].get("best_task_epoch") is not None
+    qness_task = (
+        stages["selector_qness"].get("checkpoint_selection", {}).get("selected")
+        == "best_task_valid"
+    )
     qness_resource = stages["selector_qness"]["diagnostic_means"]
     resource_checks = {
         "qness_commutator_nonzero": (
@@ -862,6 +1146,7 @@ def proportional_gate_decision(
 
 def _render_summary(summary: dict[str, Any]) -> str:
     decision = summary["decision"]
+    policy = summary["checkpoint_policy"]
     lines = [
         "# Re-TACRED Q-NESS Proportional Gate",
         "",
@@ -869,14 +1154,21 @@ def _render_summary(summary: dict[str, Any]) -> str:
         f"- seed: `{summary['config']['seed']}`",
         f"- overall gate: `{str(decision['gate_pass']).lower()}`",
         "- evaluation: validation only; blind test was not read.",
+        f"- primary gate metric: `{policy['primary_metric']}`",
+        f"- baseline/core checkpoint: `{policy['baseline_and_core']}`",
+        f"- selector checkpoint: `{policy['selectors']}`",
+        f"- Macro-F1 role: `{policy['macro_f1_role']}`",
         "",
-        "| Stage | Loss | Macro-F1 | Correct-label margin | Selectivity |",
-        "| --- | ---: | ---: | ---: | :---: |",
+        "| Stage | Checkpoint | Epoch | Fallback | Loss | Macro-F1 | Correct-label margin | Selectivity |",
+        "| --- | --- | ---: | :---: | ---: | ---: | ---: | :---: |",
     ]
     for name, stage in summary["stages"].items():
         metrics = stage["validation_metrics"]
+        selection = stage["checkpoint_selection"]
         lines.append(
-            f"| {name} | {metrics['loss']:.6f} | {metrics['macro_f1']:.6f} | "
+            f"| {name} | {selection['selected']} | {selection['epoch']} | "
+            f"{str(selection['fallback']).lower()} | {metrics['loss']:.6f} | "
+            f"{metrics['macro_f1']:.6f} | "
             f"{metrics['correct_label_margin']:.6f} | "
             f"{str(stage.get('selectivity_pass', False)).lower()} |"
         )
@@ -919,13 +1211,15 @@ def summarize_existing_run(output_dir: Path) -> dict[str, Any]:
             stage_paths["selector_qness"], prefer_task=True
         ),
         "selector_qness_classical": _stage_summary(
-            stage_paths["selector_qness_classical"]
+            stage_paths["selector_qness_classical"], prefer_task=True
         ),
     }
     for selector in CONTROL_SELECTORS:
         name = f"selector_{selector}"
         if name in stage_paths:
-            stage_summaries[name] = _stage_summary(stage_paths[name])
+            stage_summaries[name] = _stage_summary(
+                stage_paths[name], prefer_task=True
+            )
     decision = proportional_gate_decision(
         stage_summaries,
         min_loss_gain=float(config.get("min_loss_gain", 1e-4)),
@@ -934,9 +1228,15 @@ def summarize_existing_run(output_dir: Path) -> dict[str, Any]:
         controls_requested=controls_requested,
     )
     summary = {
-        "schema_version": "retacred-qness-proportional-gate.v1",
+        "schema_version": "retacred-qness-proportional-gate.v2",
         "revision": config.get("revision", _git_revision()),
         "config": config,
+        "checkpoint_policy": {
+            "primary_metric": "validation_loss",
+            "baseline_and_core": BASE_CHECKPOINT_POLICY,
+            "selectors": SELECTOR_CHECKPOINT_POLICY,
+            "macro_f1_role": "guardrail_only",
+        },
         "subset_manifest": manifest["subset_manifest"],
         "gpu_assignments": (
             _read_json(output_dir / "gpu_assignments.json")
@@ -971,6 +1271,8 @@ def main() -> None:
     )
     if min(positive) <= 0:
         raise ValueError("limits, epochs, batch sizes, diagnostics, and repeats must be positive")
+    if args.dashboard_interval_seconds <= 0.0:
+        raise ValueError("dashboard_interval_seconds must be positive")
     if args.min_loss_gain < 0.0 or args.max_f1_drop < 0.0:
         raise ValueError("gate thresholds must be non-negative")
     if args.dry_run and args.summarize_only:
@@ -1115,10 +1417,19 @@ def main() -> None:
                     output_dir / "selector" / selector / "metrics.json",
                     output_dir / "selector" / selector / "diagnostics.json",
                 ),
+                stream_output_to_console=False,
             )
 
         selector_outcomes = _run_selector_workers(
-            selector_names, resolved_gpus, run_selector
+            selector_names,
+            resolved_gpus,
+            run_selector,
+            output_dir=output_dir,
+            assignments=assignments,
+            assignments_lock=assignments_lock,
+            heartbeat=heartbeat,
+            console_lock=console_lock,
+            dashboard_interval_seconds=args.dashboard_interval_seconds,
         )
         failed_selectors = [
             outcome for outcome in selector_outcomes if outcome["status"] == "failed"
@@ -1128,13 +1439,51 @@ def main() -> None:
                 f"{item['stage']} gpu={item['gpu_id']}: {item['error']}"
                 for item in failed_selectors
             )
-            raise RuntimeError(f"selector worker failures: {details}")
+            started_selectors = {item["selector"] for item in selector_outcomes}
+            pending_selectors = [
+                selector for selector in selector_names if selector not in started_selectors
+            ]
+            pending_text = ", ".join(pending_selectors) if pending_selectors else "none"
+            raise RuntimeError(
+                f"selector worker failures: {details}; "
+                f"unstarted selectors: {pending_text}"
+            )
 
+        completion_errors = _run_completion_errors(
+            output_dir,
+            selector_names,
+            require_summary=False,
+            require_marker=False,
+        )
+        if completion_errors:
+            raise RuntimeError(
+                "completion gate failed before summary: " + "; ".join(completion_errors)
+            )
         summary = summarize_existing_run(output_dir)
         decision = summary["decision"]
+        completion_errors = _run_completion_errors(
+            output_dir,
+            selector_names,
+            require_summary=True,
+            require_marker=False,
+        )
+        if completion_errors:
+            raise RuntimeError(
+                "completion gate failed after summary: " + "; ".join(completion_errors)
+            )
         (output_dir / "RUN_COMPLETE").write_text(
             datetime.now(timezone.utc).isoformat() + "\n", encoding="utf-8"
         )
+        completion_errors = _run_completion_errors(
+            output_dir,
+            selector_names,
+            require_summary=True,
+            require_marker=True,
+        )
+        if completion_errors:
+            raise RuntimeError(
+                "completion gate failed after marker: " + "; ".join(completion_errors)
+            )
         print(
             json.dumps(
                 {

@@ -56,7 +56,7 @@ class AttentionScoreKernelAdapter:
                 output: object,
             ) -> torch.Tensor:
                 if (
-                    len(inputs) != 3
+                    len(inputs) not in {3, 4}
                     or not isinstance(inputs[0], torch.Tensor)
                     or not isinstance(inputs[1], torch.Tensor)
                     or not isinstance(inputs[2], torch.Tensor)
@@ -65,10 +65,17 @@ class AttentionScoreKernelAdapter:
                     raise TypeError(
                         "score hook must receive and return score, query, and key tensors"
                     )
-                scores, query, key = inputs
+                scores, query, key = inputs[:3]
+                value = None
+                if len(inputs) == 4:
+                    if not isinstance(inputs[3], torch.Tensor):
+                        raise TypeError("optional score-hook value must be a tensor")
+                    value = inputs[3]
                 residual = self.score_kernel(
                     query,
                     key,
+                    value=value,
+                    scores=scores,
                     layer_index=layer_index,
                     attention_mask=config.attention_mask,
                     subject_mask=config.subject_mask,

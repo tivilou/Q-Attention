@@ -159,12 +159,12 @@ def diagnose_relation_attention_score_kernel(
                     output: object,
                 ) -> None:
                     if (
-                        len(inputs) != 3
+                        len(inputs) not in {3, 4}
                         or not all(isinstance(item, torch.Tensor) for item in inputs)
                         or not isinstance(output, torch.Tensor)
                     ):
                         raise TypeError("score diagnostics require score, query, and key tensors")
-                    scores, query, key = inputs
+                    scores, query, key = inputs[:3]
                     centered = score_kernel.centered_kernel(
                         query,
                         key,

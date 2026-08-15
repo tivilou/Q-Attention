@@ -2,7 +2,7 @@
 
 ## 分支约定
 
-- `main`：代码主线，由负责人维护。
+- `main`：负责人维护的最新代码。
 - `1.1`：合作者实验分支，只提交 `reports/` 下的结果。
 
 不要直接向 `main` 提交实验结果，不要使用 GitHub ZIP 作为持续开发方式。
@@ -23,31 +23,24 @@ git merge origin/main
 git fetch origin --prune
 git switch 1.1
 git merge origin/main
+git status --short
 ```
 
-出现冲突时停止操作并反馈，不要自行删除源码。
+出现冲突时停止并反馈，不要删除源码。
 
-## 每次实验前
+## 实验前检查
 
 ```bash
 git status --short
-git merge-base --is-ancestor b8d794f HEAD && echo "code version OK"
-```
-
-`git status --short` 必须没有输出。然后激活自己的 Conda 环境：
-
-```bash
 conda activate YOUR_ENV_NAME
 python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 nvidia-smi
 python -m pytest -q
 ```
 
-不要使用固定的环境名；只要当前环境满足项目依赖并能使用 CUDA 即可。
+`git status --short` 必须没有输出。不要使用固定的 Conda 环境名。
 
-## 数据检查
-
-数据应位于：
+数据必须位于：
 
 ```text
 data/relation/retacred/train.jsonl
@@ -55,52 +48,31 @@ data/relation/retacred/valid.jsonl
 data/relation/retacred/test.jsonl
 ```
 
-当前 full train/valid 预期：
+三者行数应为 `58465`、`19584`、`13418`。
+
+## 本轮实验
+
+按照 [Q-VRES Re-TACRED 正式实验](qvres_relation_transfer_full_run_zh.md) 执行：
 
 ```bash
-wc -l data/relation/retacred/train.jsonl
-wc -l data/relation/retacred/valid.jsonl
+bash scripts/run_qvres_relation_transfer_multi_seed.sh --gpus auto --seeds 7,11,13,17,23
 ```
-
-输出应为 `58465` 和 `19584`。本轮不要读取或运行 test。
-
-## 运行实验
-
-按照 [Re-TACRED full 运行指南](retacred_dual_qres_full_run_zh.md) 执行。长时间任务建议放在 `tmux` 中。
 
 ## 提交报告
 
-实验完成后只整理 `reports/retacred/<报告目录>/`，然后执行：
+实验完成后：
 
 ```bash
-git status --short
-git add reports/retacred/<报告目录>
+GROUP_DIR=$(ls -dt runs/q_vres_relation_transfer_full_multiseed_* | head -n 1)
+bash scripts/export_qvres_relation_transfer_multi_seed_report.sh "${GROUP_DIR}"
+REPORT_DIR=$(ls -dt reports/q_vres_relation_transfer/* | head -n 1)
+git add "${REPORT_DIR}"
 git diff --cached --check
 git diff --cached --name-only
-git commit -m "Add dual Q-RES full seed 13 results"
+git commit -m "Add Q-VRES formal multi-seed results"
 git push origin 1.1
 ```
 
-暂存区只能包含本次报告目录。禁止提交：
+暂存区只能包含本次报告目录。禁止提交 `data/`、`runs/`、checkpoint、预测文件、JSONL、完整日志或环境文件。
 
-- `data/`
-- `runs/`
-- `*.pt`、`*.pth`、`*.ckpt`
-- predictions、JSONL、完整日志
-- Conda 环境、缓存或压缩数据包
-
-推送后返回 commit hash。
-
-## 下一轮同步
-
-负责人更新 `main` 后：
-
-```bash
-git fetch origin --prune
-git switch 1.1
-git status --short
-git merge origin/main
-git status --short --branch
-```
-
-仓库 clean 后再开始下一轮实验。
+负责人更新 `main` 后，先执行 `git fetch origin --prune`、`git switch 1.1`、`git merge origin/main`，确认 clean 后再开始下一轮。

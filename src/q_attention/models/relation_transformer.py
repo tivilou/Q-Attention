@@ -29,6 +29,7 @@ class AttentionScorePassThrough(nn.Module):
         scores: torch.Tensor,
         _query: torch.Tensor,
         _key: torch.Tensor,
+        _value: torch.Tensor | None = None,
     ) -> torch.Tensor:
         return scores
 
@@ -60,7 +61,7 @@ class SteerableSelfAttention(nn.Module):
         value = self._split_heads(self.value_proj(hidden))
 
         scores = torch.matmul(query, key.transpose(-1, -2)) / math.sqrt(self.head_dim)
-        scores = self.score_intervention(scores, query, key)
+        scores = self.score_intervention(scores, query, key, value)
         if attention_mask is not None:
             key_mask = attention_mask[:, None, None, :].to(dtype=torch.bool)
             scores = scores.masked_fill(~key_mask, torch.finfo(scores.dtype).min)
