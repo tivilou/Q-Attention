@@ -80,6 +80,72 @@ def write_json(path: Path, payload: Any) -> None:
     os.replace(temporary, path)
 
 
+def load_json(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError(f"expected JSON object: {path}")
+    return payload
+
+
+def resolve_reused_seeds(
+    specs: list[str],
+    *,
+    seeds: list[int],
+    expected_commit: str,
+    expected_config_sha256: str,
+) -> dict[int, Path]:
+    reused: dict[int, Path] = {}
+    runs_root = (ROOT / "runs").resolve()
+    for spec in specs:
+        if "=" not in spec:
+            raise ValueError("--reuse-seed must use SEED=RUN_DIR syntax")
+        raw_seed, raw_path = spec.split("=", 1)
+        if not raw_seed.isdigit() or not raw_path:
+            raise ValueError("--reuse-seed must use SEED=RUN_DIR syntax")
+        seed = int(raw_seed)
+        if seed not in seeds:
+            raise ValueError(f"reused seed {seed} is not present in --seeds")
+        if seed in reused:
+            raise ValueError(f"duplicate reused seed: {seed}")
+        run_dir = Path(raw_path)
+        if not run_dir.is_absolute():
+            run_dir = ROOT / run_dir
+        run_dir = run_dir.resolve()
+        if not run_dir.is_relative_to(runs_root):
+            raise ValueError(f"reused seed directory must be inside runs/: {run_dir}")
+        if not (run_dir / "RUN_COMPLETE").is_file():
+            raise ValueError(f"reused seed is incomplete: {run_dir}")
+        if (run_dir / "RUN_FAILED").exists():
+            raise ValueError(f"reused seed also contains RUN_FAILED: {run_dir}")
+        summary = load_json(run_dir / "run_summary.json")
+        if (
+            summary.get("formal_experiment") is not True
+            or summary.get("status") != "pass"
+            or summary.get("partial_selector_run") is not False
+            or summary.get("run_type") != "formal_full_relation_transfer"
+        ):
+            raise ValueError(f"reused seed is not a passed formal run: {run_dir}")
+        if summary.get("selectors") != [
+            "disabled",
+            "q_causal_transport",
+            "classical_causal_transport",
+            "q_causal_key_only",
+        ]:
+            raise ValueError(f"reused seed is missing required selectors: {run_dir}")
+        result_seeds = {int(row["seed"]) for row in summary.get("results", [])}
+        if result_seeds != {seed}:
+            raise ValueError(f"reused run seed mismatch: expected {seed}, found {sorted(result_seeds)}")
+        provenance = summary.get("provenance", {})
+        if provenance.get("git_commit") != expected_commit:
+            raise ValueError(f"reused seed {seed} used a different commit")
+        if provenance.get("git_dirty") is not False:
+            raise ValueError(f"reused seed {seed} recorded git_dirty=true")
+        if provenance.get("config_sha256") != expected_config_sha256:
+            raise ValueError(f"reused seed {seed} used a different formal config")
+        reused[seed] = run_dir
+    return reused
+
+
 def build_command(args: argparse.Namespace, seed: int, gpu_id: int, run_dir: Path) -> list[str]:
     return [
         "bash",
@@ -98,6 +164,7 @@ def build_command(args: argparse.Namespace, seed: int, gpu_id: int, run_dir: Pat
         str(args.run_timeout_hours),
         "--progress-format",
         args.progress_format,
+        "--skip-preflight",
     ]
 
 
@@ -189,6 +256,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--progress-format", choices=["json", "both"], default="both")
     parser.add_argument("--skip-preflight", action="store_true")
     parser.add_argument("--skip-tests", action="store_true")
+    parser.add_argument(
+        "--reuse-seed",
+        action="append",
+        default=[],
+        metavar="SEED=RUN_DIR",
+        help="reuse a completed formal seed run from the same commit",
+    )
     parser.add_argument("--dry-run", action="store_true")
     return parser
 
@@ -203,6 +277,21 @@ def main() -> int:
     for name in ("log_every_batches", "stale_timeout_minutes", "run_timeout_hours"):
         if getattr(args, name) <= 0:
             raise SystemExit(f"--{name.replace('_', '-')} must be positive")
+    commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=ROOT, check=True, capture_output=True, text=True
+    ).stdout.strip()
+    config_path = (ROOT / "configs/q_vres_relation_transfer_full.json").resolve()
+    config_sha256 = sha256(config_path)
+    try:
+        reused_seeds = resolve_reused_seeds(
+            args.reuse_seed,
+            seeds=seeds,
+            expected_commit=commit,
+            expected_config_sha256=config_sha256,
+        )
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+    pending_seeds = [seed for seed in seeds if seed not in reused_seeds]
 
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     group_dir = Path(args.output_dir) if args.output_dir else Path(
@@ -218,15 +307,17 @@ def main() -> int:
 
     commands = [
         build_command(args, seed, gpu_ids[index % len(gpu_ids)], group_dir / f"seed_{seed}")
-        for index, seed in enumerate(seeds)
+        for index, seed in enumerate(pending_seeds)
     ]
     print(
         f"[scheduler] seeds={','.join(map(str, seeds))} gpus={','.join(map(str, gpu_ids))} "
-        f"workers={min(len(seeds), len(gpu_ids))}",
+        f"workers={min(len(pending_seeds), len(gpu_ids))} reused={','.join(map(str, reused_seeds)) or 'none'}",
         flush=True,
     )
     if args.dry_run:
-        for seed, command in zip(seeds, commands, strict=True):
+        for seed, run_dir in reused_seeds.items():
+            print(f"[scheduler] seed={seed} reused_from={run_dir}")
+        for seed, command in zip(pending_seeds, commands, strict=True):
             print(f"[scheduler] seed={seed} command={' '.join(command)}")
         return 0
 
@@ -234,17 +325,15 @@ def main() -> int:
     if not args.skip_preflight:
         run_preflight(args, group_dir / "preflight.log")
 
-    config_path = ROOT / "configs/q_vres_relation_transfer_full.json"
     manifest = {
         "started_at": datetime.now().astimezone().isoformat(timespec="seconds"),
-        "git_commit": subprocess.run(
-            ["git", "rev-parse", "HEAD"], cwd=ROOT, check=True, capture_output=True, text=True
-        ).stdout.strip(),
+        "git_commit": commit,
         "config": str(config_path),
-        "config_sha256": sha256(config_path),
+        "config_sha256": config_sha256,
         "seeds": seeds,
         "gpus": [{"id": gpu_id, "name": gpu_name(gpu_id)} for gpu_id in gpu_ids],
-        "worker_count": min(len(seeds), len(gpu_ids)),
+        "worker_count": min(len(pending_seeds), len(gpu_ids)),
+        "reused_seeds": {str(seed): str(path) for seed, path in reused_seeds.items()},
         "progress_format": args.progress_format,
     }
     write_json(group_dir / "multi_seed_manifest.json", manifest)
@@ -252,9 +341,28 @@ def main() -> int:
     state_lock = threading.Lock()
     output_lock = threading.Lock()
     state: dict[int, dict[str, Any]] = {
-        seed: {"seed": seed, "status": "queued", "gpu_id": None} for seed in seeds
+        seed: {
+            "seed": seed,
+            "status": "reused" if seed in reused_seeds else "queued",
+            "gpu_id": None,
+            **({"run_dir": str(reused_seeds[seed])} if seed in reused_seeds else {}),
+        }
+        for seed in seeds
     }
-    results: list[dict[str, Any]] = []
+    results: list[dict[str, Any]] = [
+        {
+            "seed": seed,
+            "gpu_id": None,
+            "run_dir": str(run_dir),
+            "started_at": None,
+            "completed_at": None,
+            "elapsed_seconds": 0.0,
+            "returncode": 0,
+            "success": True,
+            "reused": True,
+        }
+        for seed, run_dir in reused_seeds.items()
+    ]
 
     def write_state() -> None:
         payload = {
@@ -266,8 +374,10 @@ def main() -> int:
         write_json(group_dir / "multi_seed_status.json", payload)
 
     write_state()
+    for seed, source_dir in reused_seeds.items():
+        os.symlink(source_dir, group_dir / f"seed_{seed}", target_is_directory=True)
     jobs: queue.Queue[int] = queue.Queue()
-    for seed in seeds:
+    for seed in pending_seeds:
         jobs.put(seed)
     stop_event = threading.Event()
 
@@ -304,7 +414,7 @@ def main() -> int:
 
     threads = [
         threading.Thread(target=worker, args=(gpu_id,), name=f"qvres-gpu-{gpu_id}")
-        for gpu_id in gpu_ids[: len(seeds)]
+        for gpu_id in gpu_ids[: len(pending_seeds)]
     ]
     for thread in threads:
         thread.start()

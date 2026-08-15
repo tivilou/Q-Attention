@@ -132,6 +132,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="mark the output as a full formal run rather than a bounded screen",
     )
+    parser.add_argument(
+        "--allow-partial-selectors",
+        action="store_true",
+        help="allow one worker to run a strict subset of selectors",
+    )
     parser.set_defaults(**{key: value for key, value in config.items() if key in configurable})
     return parser.parse_args()
 
@@ -451,10 +456,19 @@ def train_kernel(
 
 def write_markdown(summary: Mapping[str, Any], path: Path) -> None:
     rows = summary["results"]
+    formal = bool(summary["formal_experiment"])
+    partial = bool(summary.get("partial_selector_run"))
+    title = "# Q-VRES Formal Relation Transfer" if formal else "# Q-VRES Real-Data Task-Transfer Screen"
+    if partial:
+        description = "This is one partial selector worker; the orchestrator must aggregate all controls."
+    elif formal:
+        description = "This is one completed formal full-data relation-transfer run."
+    else:
+        description = "This is a bounded screen, not the formal multi-seed Re-TACRED result."
     lines = [
-        "# Q-VRES Real-Data Task-Transfer Screen",
+        title,
         "",
-        "This is a bounded screen, not the formal multi-seed Re-TACRED result.",
+        description,
         "",
         "| selector | valid macro-F1 | test macro-F1 | delta test macro-F1 | test loss | parameters |",
         "| --- | ---: | ---: | ---: | ---: | ---: |",
@@ -469,9 +483,9 @@ def write_markdown(summary: Mapping[str, Any], path: Path) -> None:
     lines.extend(
         [
             "",
-            f"Screen gate: `{summary['screen_gate']['status']}`",
+            f"Integrity gate: `{summary['screen_gate']['status']}`",
             "",
-            "The screen gate checks implementation, finite values, geometry diagnostics, and matched controls. It does not automatically establish a publication-level task gain.",
+            "The integrity gate checks finite values and the controls available in this process. It does not automatically establish a publication-level task gain.",
             "",
         ]
     )
@@ -491,6 +505,8 @@ def main() -> None:
         raise ValueError("selectors must be a non-empty comma-separated list without duplicates")
     if any(selector not in SELECTORS for selector in selectors):
         raise ValueError(f"selectors must be drawn from {SELECTORS}")
+    config_path = resolve_path(args.config)
+    config_sha256 = file_sha256(config_path)
     set_seed(args.seed)
     device = choose_device(args.device)
     run_dir = create_run_dir(args.output_root, args.output_dir)
@@ -643,19 +659,25 @@ def main() -> None:
 
     non_disabled = [row for row in results if row["selector"] != "disabled"]
     controls_present = all(selector in selectors for selector in SELECTORS)
-    matched_parameters = len({row["trainable_parameters"] for row in non_disabled}) == 1
+    parameter_counts = {row["trainable_parameters"] for row in non_disabled}
+    matched_parameters = len(parameter_counts) <= 1
+    finite_metrics = all(row["finite"] for row in results)
+    gate_pass = finite_metrics and matched_parameters and (
+        args.allow_partial_selectors or controls_present
+    )
     screen_gate = {
-        "status": "pass" if all(row["finite"] for row in results) and controls_present and matched_parameters else "fail",
-        "finite_metrics": all(row["finite"] for row in results),
-        "matched_parameter_counts": sorted({row["trainable_parameters"] for row in non_disabled}),
+        "status": "pass" if gate_pass else "fail",
+        "finite_metrics": finite_metrics,
+        "matched_parameter_counts": sorted(parameter_counts),
         "matched_parameters": matched_parameters,
         "controls_present": {selector: selector in selectors for selector in SELECTORS},
+        "all_controls_required": not args.allow_partial_selectors,
         "task_gain_is_not_automatically_accepted": True,
     }
     summary = {
         "schema_version": "q-attention.q-vres.real-transfer-screen.v1",
-        "run_type": "bounded_real_data_task_transfer_screen",
         "formal_experiment": bool(args.formal_experiment),
+        "partial_selector_run": bool(args.allow_partial_selectors),
         "run_type": (
             "formal_full_relation_transfer"
             if args.formal_experiment
@@ -674,6 +696,8 @@ def main() -> None:
         "results": results,
         "screen_gate": screen_gate,
         "provenance": {
+            "config_path": str(config_path),
+            "config_sha256": config_sha256,
             "train": train_info,
             "valid": valid_info,
             "test": test_info,

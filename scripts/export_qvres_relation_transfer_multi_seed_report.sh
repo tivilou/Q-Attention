@@ -43,7 +43,7 @@ tail -n 1000 "${GROUP_DIR}/preflight.log" > "${REPORT_DIR}/preflight.log.tail.tx
 printf '%s\n' "${HEAD}" > "${REPORT_DIR}/export_commit.txt"
 wc -l data/relation/retacred/train.jsonl data/relation/retacred/valid.jsonl data/relation/retacred/test.jsonl > "${REPORT_DIR}/data_counts.txt"
 
-mapfile -t SEED_DIRS < <(find "${GROUP_DIR}" -mindepth 1 -maxdepth 1 -type d -name 'seed_*' | sort -V)
+mapfile -t SEED_DIRS < <(find "${GROUP_DIR}" -mindepth 1 -maxdepth 1 \( -type d -o -type l \) -name 'seed_*' | sort -V)
 [[ ${#SEED_DIRS[@]} -gt 0 ]] || { echo "No seed directories found." >&2; exit 1; }
 for SEED_DIR in "${SEED_DIRS[@]}"; do
   SEED_NAME=$(basename "${SEED_DIR}")
@@ -63,11 +63,20 @@ for SEED_DIR in "${SEED_DIRS[@]}"; do
   cp "${SEED_DIR}/run_summary.json" "${DEST}/"
   cp "${SEED_DIR}/run_summary.md" "${DEST}/"
   cp "${SEED_DIR}/run_config.json" "${DEST}/"
+  [[ ! -f "${SEED_DIR}/selector_parallel_manifest.json" ]] || cp "${SEED_DIR}/selector_parallel_manifest.json" "${DEST}/"
+  [[ ! -f "${SEED_DIR}/selector_parallel_summary.json" ]] || cp "${SEED_DIR}/selector_parallel_summary.json" "${DEST}/"
   cp "${SEED_DIR}/baseline/metrics.json" "${DEST}/baseline_metrics.json"
   for SELECTOR in disabled q_causal_transport classical_causal_transport q_causal_key_only; do
     cp "${SEED_DIR}/selectors/${SELECTOR}/metrics.json" "${DEST}/selectors/${SELECTOR}.json"
   done
-  tail -n 1000 "${SEED_DIR}/logs/run.log" > "${DEST}/logs/run.log.tail.txt"
+  if [[ -f "${SEED_DIR}/logs/run.log" ]]; then
+    tail -n 1000 "${SEED_DIR}/logs/run.log" > "${DEST}/logs/run.log.tail.txt"
+  else
+    for STAGE in baseline q_causal_transport classical_causal_transport q_causal_key_only; do
+      [[ -f "${SEED_DIR}/logs/${STAGE}.log" ]] || { echo "Missing selector-parallel log: ${STAGE}" >&2; exit 1; }
+      tail -n 1000 "${SEED_DIR}/logs/${STAGE}.log" > "${DEST}/logs/${STAGE}.log.tail.txt"
+    done
+  fi
   tail -n 1000 "${SEED_DIR}/baseline_train.log" > "${DEST}/logs/baseline_train.log.tail.txt"
 done
 

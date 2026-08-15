@@ -27,7 +27,10 @@ command -v nvidia-smi >/dev/null
 
 for FILE in \
   experiments/run_q_causal_value_evidence_relation_transfer.py \
+  scripts/aggregate_qvres_relation_transfer_selector_parallel.py \
+  scripts/export_qvres_relation_transfer_pilot_report.sh \
   scripts/run_qvres_relation_transfer_full.sh \
+  scripts/run_qvres_relation_transfer_selector_parallel.py \
   scripts/run_qvres_relation_transfer_multi_seed.py \
   configs/q_vres_relation_transfer_full.json; do
   [[ -f "${FILE}" ]] || { echo "Missing ${FILE}" >&2; exit 1; }
