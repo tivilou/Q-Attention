@@ -1,5 +1,7 @@
 # Q-VRES Re-TACRED 正式实验
 
+当前任务是诊断已经完成的 seed 13 pilot。不要重新训练 seed 13，也不要启动五 seed 实验。
+
 ## 1. 同步代码
 
 在项目根目录执行：
@@ -11,91 +13,65 @@ git merge origin/main
 git status --short
 ```
 
-最后一条命令必须没有输出。私有数据应位于：
+最后一条命令必须没有输出。
 
-```text
-data/relation/retacred/train.jsonl
-data/relation/retacred/valid.jsonl
-data/relation/retacred/test.jsonl
-```
-
-## 2. 先跑 seed 13 pilot
-
-三张 GPU 并行运行三个 selector：
-
-```bash
-bash scripts/run_qvres_relation_transfer_full.sh \
-  --parallel-mode selectors \
-  --gpus auto \
-  --seed 13
-```
-
-脚本先在 GPU 0 训练一次 baseline；baseline 完成后，三张 GPU 自动领取：
-
-```text
-q_causal_transport
-classical_causal_transport
-q_causal_key_only
-```
-
-终端会持续显示每个阶段的 GPU、状态、epoch、batch、速度和 ETA，并等待所有任务完成后才退出。
-
-## 3. 查看进度
-
-另开一个终端，在项目根目录执行：
+## 2. 定位 seed 13 raw run
 
 ```bash
 PILOT_DIR=$(ls -dt runs/q_vres_relation_transfer_full/*_seed13_selector_parallel | head -n 1)
-cat "${PILOT_DIR}/status/selector_parallel_status.json"
-grep -H -E 'STATUS=|GPU_ID=|PID=|EXIT_CODE=' "${PILOT_DIR}"/status/*.env
-watch -n 2 nvidia-smi
+echo "PILOT_DIR=${PILOT_DIR}"
+test -f "${PILOT_DIR}/RUN_COMPLETE"
+test -f "${PILOT_DIR}/run_summary.json"
 ```
 
-查看某个 selector 的实时日志：
+不要删除或移动这个目录。诊断需要读取其中的 baseline 和 selector checkpoint，但不会把它们复制到报告中。
+
+## 3. 运行 validation 诊断
+
+先激活自己的 Conda 环境，然后执行：
 
 ```bash
-tail -f "${PILOT_DIR}/logs/q_causal_transport.log"
+PYTHON_BIN=python bash scripts/run_qvres_validation_diagnostic.sh \
+  "${PILOT_DIR}" \
+  --gpu 0 \
+  --batch-size 8 \
+  --log-every-batches 50
 ```
 
-## 4. 导出并提交 pilot 结果
+这是只读诊断，不重新训练模型。脚本依次检查 baseline、Q causal、classical control 和 Q key-only，并在终端显示 batch、速度和 ETA。
 
-命令正常结束后执行：
+完成后终端会打印：
+
+```text
+REPORT_DIR=reports/q_vres_relation_transfer/时间戳-validation-diagnostic
+```
+
+## 4. 查看并提交结果
 
 ```bash
-cat "${PILOT_DIR}/run_summary.md"
-bash scripts/export_qvres_relation_transfer_pilot_report.sh "${PILOT_DIR}"
-REPORT_DIR=$(ls -dt reports/q_vres_relation_transfer/*-full-pilot-seed13 | head -n 1)
-git add "${REPORT_DIR}"
+REPORT_DIR=$(ls -dt reports/q_vres_relation_transfer/*-validation-diagnostic | head -n 1)
+cat "${REPORT_DIR}/diagnostic_summary.md"
+
+git add \
+  "${REPORT_DIR}/diagnostic_summary.json" \
+  "${REPORT_DIR}/diagnostic_summary.md"
+
 git diff --cached --check
 git diff --cached --name-only
-git commit -m "Add Q-VRES seed 13 full pilot results"
+git commit -m "Add Q-VRES seed 13 validation diagnostics"
 git push origin 1.1
 ```
 
-只提交本次 `REPORT_DIR`。不要提交 `data/`、`runs/`、checkpoint、预测文件、JSONL 或完整日志。
+`git diff --cached --name-only` 必须只有上述两个文件。
 
-## 5. pilot 通过后运行五 seed
+不要提交 `data/`、`runs/`、checkpoint、逐样本预测、JSONL、梯度张量或完整日志。
 
-只有在代码和正式配置没有变化时，seed 13 才能复用：
+## 5. 后续实验
 
-```bash
-bash scripts/run_qvres_relation_transfer_multi_seed.sh \
-  --gpus auto \
-  --seeds 7,11,13,17,23 \
-  --reuse-seed 13="${PILOT_DIR}"
+负责人审查诊断结果前，不要运行：
+
+```text
+scripts/run_qvres_relation_transfer_multi_seed.sh
 ```
 
-如果代码或 `configs/q_vres_relation_transfer_full.json` 已改变，不要使用 `--reuse-seed`，应重新运行 seed 13。
-
-五 seed 完成后执行：
-
-```bash
-GROUP_DIR=$(ls -dt runs/q_vres_relation_transfer_full_multiseed_* | head -n 1)
-bash scripts/export_qvres_relation_transfer_multi_seed_report.sh "${GROUP_DIR}"
-REPORT_DIR=$(ls -dt reports/q_vres_relation_transfer/*-full-multiseed | head -n 1)
-git add "${REPORT_DIR}"
-git diff --cached --check
-git diff --cached --name-only
-git commit -m "Add Q-VRES formal multi-seed results"
-git push origin 1.1
-```
+以后复用已有 seed 时，将比较实验有效代码、配置、数据 hash、seed 和关键参数的指纹，不再只比较整个 Git `HEAD`。该复用逻辑完成前，不要自行使用 `--reuse-seed`。

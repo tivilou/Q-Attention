@@ -13,16 +13,17 @@
 ## 当前代码入口
 
 - 关系迁移 runner：`experiments/run_q_causal_value_evidence_relation_transfer.py`
+- validation 诊断：`experiments/diagnose_qvres_relation_transfer.py`
 - Q-VRES kernel：`src/q_attention/plugins/q_causal_value_evidence.py`
 - Attention score adapter：`src/q_attention/adapters/attention_scores.py`
 - 关系模型：`src/q_attention/models/relation_transformer.py`
-- 正式单 seed：`scripts/run_qvres_relation_transfer_full.sh`
-- 正式多 GPU：`scripts/run_qvres_relation_transfer_multi_seed.sh`
+- 已完成的正式单 seed runner：`scripts/run_qvres_relation_transfer_full.sh`
+- 当前诊断入口：`scripts/run_qvres_validation_diagnostic.sh`
 
 ## 证据边界
 
 - bounded real-data screen 只验证实现、数值稳定性、机制诊断和 task-transfer 信号。
-- 当前扩大版 screen 中 Q-VRES test macro-F1 高于 disabled baseline 和 classical control，但只有单 seed，不能作为最终论文结论。
-- 正式结论必须来自完整 Re-TACRED、五个 seed、独立 test 和聚合报告。
+- seed 13 full pilot 的 Q causal validation gate 未通过，当前不启动五 seed。
+- 当前先对已完成 raw run 做 validation 机制诊断；正式结论仍需后续受控实验和独立 test，当前没有最终论文结论。
 - 当前使用 PennyLane/经典模拟时，只能报告功能、任务效果和资源账本；不能据此声称当前硬件速度优势。
 - 理想通用量子计算机的资源优势必须单独说明 state preparation、oracle/query、gate、depth、shots 和 readout 假设。
