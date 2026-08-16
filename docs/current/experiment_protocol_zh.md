@@ -15,7 +15,7 @@
 
 ## 阶段 C：validation 机制诊断
 
-从 seed 13 raw run 读取 baseline 和 selector checkpoint，生成以下聚合结果：
+负责人从 seed 13 raw run 读取 baseline 和 selector checkpoint，生成以下聚合结果。合作者不承担这类探索性诊断：
 
 - 按关系类别的 support、precision、recall 和 F1。
 - Q causal 相对 baseline 的 recall/F1 变化及关系频次分桶。
@@ -30,6 +30,7 @@
 - 如果 Q key-only 的任务表现和方向对齐更稳定，只将其升级为下一轮受控 pilot 候选。
 - 如果两者都没有有效证据对齐，停止当前 evidence 定义。
 - 新机制通过单 seed validation gate 后，才能恢复五 seed 实验。
+- 通过 gate 后，负责人将正式 full-data 和 multi-seed 运行命令交给合作者执行。
 
 ## 结果交接
 

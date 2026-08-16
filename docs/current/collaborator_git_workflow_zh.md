@@ -40,33 +40,21 @@ nvidia-smi
 
 ## 本轮任务
 
-本轮不重新训练，也不运行五 seed。按照 [Q-VRES Re-TACRED 正式实验](qvres_relation_transfer_full_run_zh.md) 诊断已完成的 seed 13 raw run：
+本轮不重新训练，也不运行五 seed。诊断由负责人在服务器执行。你只需要：
+
+1. 保留已经完成的 `runs/q_vres_relation_transfer_full/*_seed13_selector_parallel` raw run。
+2. 不删除 baseline 或 selector checkpoint。
+3. 等负责人根据 validation 诊断结果确认下一轮 full-data 或 multi-seed 命令。
+
+本轮不提交诊断报告。后续正式 full 实验开始前，仍要先同步 `origin/main` 并确认工作树 clean。
 
 ```bash
-PILOT_DIR=$(ls -dt runs/q_vres_relation_transfer_full/*_seed13_selector_parallel | head -n 1)
-
-PYTHON_BIN=python bash scripts/run_qvres_validation_diagnostic.sh \
-  "${PILOT_DIR}" \
-  --gpu 0 \
-  --batch-size 8 \
-  --log-every-batches 50
+git fetch origin --prune
+git switch 1.1
+git merge origin/main
+git status --short
 ```
 
-## 提交报告
-
-```bash
-REPORT_DIR=$(ls -dt reports/q_vres_relation_transfer/*-validation-diagnostic | head -n 1)
-
-git add \
-  "${REPORT_DIR}/diagnostic_summary.json" \
-  "${REPORT_DIR}/diagnostic_summary.md"
-
-git diff --cached --check
-git diff --cached --name-only
-git commit -m "Add Q-VRES seed 13 validation diagnostics"
-git push origin 1.1
-```
-
-暂存区只能包含本次 `diagnostic_summary.json` 和 `diagnostic_summary.md`。禁止提交 `data/`、`runs/`、checkpoint、逐样本预测、JSONL、梯度张量或完整日志。
+后续 full 实验只提交负责人指定的聚合 `reports/` 目录。禁止提交 `data/`、`runs/`、checkpoint、逐样本预测、JSONL、梯度张量或完整日志。
 
 负责人更新 `main` 后，下一轮开始前仍先同步 `origin/main` 并确认工作树 clean。
