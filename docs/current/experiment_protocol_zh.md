@@ -3,39 +3,37 @@
 ## 阶段 A：扩大版 task-transfer screen
 
 - 数据：Re-TACRED 的 train/valid/test 子集。
-- 训练：冻结 baseline，只训练 score-level intervention。
 - 比较：disabled、Q-VRES causal transport、classical causal transport、Q-VRES key-only。
-- 目的：确认任务可见信号、控制组、输出结构和运行稳定性。
-- 结果：Q-VRES 在单 seed screen 上相对 baseline 和 classical control 有小幅正向信号，但不构成最终结论。
+- 结果：screen 出现单 seed 正向信号，但不能作为最终结论。
 
-## 阶段 B：full 五 seed
+## 阶段 B：full seed 13 pilot
 
-固定当前配置后，从头运行：
+- baseline 只训练一次，三个 selector 在三张 GPU 上并行。
+- validation macro-F1：baseline `0.217253`，Q causal `0.215264`，classical `0.217354`，Q key-only `0.218519`。
+- Q causal 未通过 validation gate，因此不启动原方案五 seed。
+- test 指标只用于报告，不用于修改方法或选择超参数。
 
-```text
-7, 11, 13, 17, 23
-```
+## 阶段 C：validation 机制诊断
 
-每个 seed 独立训练 baseline 和三个 intervention selector，不共享 checkpoint。多 GPU 只做 seed-level 并行，不做 DDP 梯度同步。
+负责人从可访问的 seed 13 raw run 读取 baseline 和 selector checkpoint，生成以下聚合结果。如果 raw run 只在合作者机器上，则由合作者执行同一只读脚本并提交聚合报告；不重新训练：
 
-报告以下统计量：
+- 按关系类别的 support、precision、recall 和 F1。
+- Q causal 相对 baseline 的 recall/F1 变化及关系频次分桶。
+- quantum readout、leave-one-out value influence 和组合 evidence 的排序相关性。
+- 干预前后 attention、gold-margin 梯度代理和预测翻转统计。
 
-- 每个 selector 的 valid/test macro-F1 均值、标准差和逐 seed 数值。
-- 相对 disabled baseline 的 paired delta。
-- Q-VRES 与 classical causal transport 的逐 seed 配对差值。
-- attention geometry、context mass error、residual RMS。
-- trainable parameter count、Git commit、数据 hash、GPU 和运行时间。
+只输出 `diagnostic_summary.json` 和 `diagnostic_summary.md`。不输出逐样本预测、原句、token、checkpoint 或梯度张量。
 
-## 阶段 C：结果交接
+## 阶段 D：决定下一版机制
 
-1. 先完成所有 seed 并确认每个 seed 有 `RUN_COMPLETE`、`run_summary.json` 和 `run_summary.md`。
-2. 使用 exporter 生成只包含公开统计结果的报告目录。
-3. 只把报告目录提交到 `1.1`，不提交 `runs/`、`data/`、checkpoint、预测文件、JSONL 或完整日志。
-4. 负责人审查后再合并到 `main`。
+- 如果正式诊断确认 value influence 只表示影响大小、缺少有利/有害方向，应先修正或门控 Q causal。
+- 如果 Q key-only 的任务表现和方向对齐更稳定，只将其升级为下一轮受控 pilot 候选。
+- 如果两者都没有有效证据对齐，停止当前 evidence 定义。
+- 新机制通过单 seed validation gate 后，才能恢复五 seed 实验。
+- 通过 gate 后，负责人将正式 full-data 和 multi-seed 运行命令交给合作者执行。
 
-## 固定控制
+## 结果交接
 
-- `disabled`：冻结 baseline，不加 intervention。
-- `q_causal_transport`：主 Q-VRES。
-- `classical_causal_transport`：相同接口和参数规模的 classical evidence control。
-- `q_causal_key_only`：量子机制只使用 key-only evidence 的控制。
+1. 合作者只向 `1.1` 提交本轮 `reports/` 下的聚合报告。
+2. 禁止提交 `runs/`、`data/`、checkpoint、逐样本预测、JSONL、梯度张量或完整日志。
+3. 负责人审查后将报告合并到 `main`。
