@@ -17,12 +17,24 @@ git status --short
 
 ## 2. 定位 seed 13 raw run
 
+`PILOT_DIR` 是已经完成的 raw 输出目录，不是 GitHub 中的 `reports/` 目录，也不要求位于当前代码仓库下。先查找它：
+
 ```bash
-PILOT_DIR=$(ls -dt runs/q_vres_relation_transfer_full/*_seed13_selector_parallel | head -n 1)
+pwd
+find "$HOME" -type d -name '*_seed13_selector_parallel' -print | sort
+```
+
+找到后使用绝对路径，例如：
+
+```bash
+PILOT_DIR=/root/projects/Q-Attention/runs/q_vres_relation_transfer_full/20260815T235926Z_seed13_selector_parallel
 echo "PILOT_DIR=${PILOT_DIR}"
 test -f "${PILOT_DIR}/RUN_COMPLETE"
-test -f "${PILOT_DIR}/run_summary.json"
+test -f "${PILOT_DIR}/stages/baseline/baseline/model.pt"
+test -f "${PILOT_DIR}/stages/q_causal_transport/selectors/q_causal_transport/best_kernel.pt"
 ```
+
+如果 `find` 没有输出，说明 raw run 不在当前用户的 home 目录中，不能仅凭 GitHub 上的报告进行正式诊断。不要重新创建空目录，也不要立即重跑训练，先确认原实验实际保存位置。
 
 不要删除或移动这个目录。诊断需要读取其中的 baseline 和 selector checkpoint，但不会把它们复制到报告中。
 

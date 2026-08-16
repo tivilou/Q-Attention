@@ -43,7 +43,12 @@ nvidia-smi
 本轮不重新训练，也不运行五 seed。由于 seed 13 raw run 在你的机器上，请执行只读 validation 诊断：
 
 ```bash
-PILOT_DIR=$(ls -dt runs/q_vres_relation_transfer_full/*_seed13_selector_parallel | head -n 1)
+find "$HOME" -type d -name '*_seed13_selector_parallel' -print | sort
+
+PILOT_DIR=/root/projects/Q-Attention/runs/q_vres_relation_transfer_full/20260815T235926Z_seed13_selector_parallel
+test -f "${PILOT_DIR}/RUN_COMPLETE"
+test -f "${PILOT_DIR}/stages/baseline/baseline/model.pt"
+test -f "${PILOT_DIR}/stages/q_causal_transport/selectors/q_causal_transport/best_kernel.pt"
 
 PYTHON_BIN=python bash scripts/run_qvres_validation_diagnostic.sh \
   "${PILOT_DIR}" \
