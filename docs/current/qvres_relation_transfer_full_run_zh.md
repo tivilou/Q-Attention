@@ -1,6 +1,6 @@
 # Q-VRES Re-TACRED 正式实验
 
-当前诊断由负责人在服务器执行。合作者本轮不要重新训练 seed 13，也不要启动五 seed 实验，只需保留 raw run。
+诊断优先由负责人执行；如果正式 raw run 只在合作者机器上，则由合作者在原目录执行下面的只读诊断。不要重新训练 seed 13，也不要启动五 seed 实验。
 
 ## 1. 同步代码
 
@@ -26,9 +26,9 @@ test -f "${PILOT_DIR}/run_summary.json"
 
 不要删除或移动这个目录。诊断需要读取其中的 baseline 和 selector checkpoint，但不会把它们复制到报告中。
 
-## 3. 负责人运行 validation 诊断
+## 3. 运行 validation 诊断
 
-负责人在可访问 raw run 的服务器上激活 Conda 环境，然后执行：
+持有 raw run 的一方在对应项目根目录激活 Conda 环境，然后执行：
 
 ```bash
 PYTHON_BIN=python bash scripts/run_qvres_validation_diagnostic.sh \
@@ -46,16 +46,25 @@ PYTHON_BIN=python bash scripts/run_qvres_validation_diagnostic.sh \
 REPORT_DIR=reports/q_vres_relation_transfer/时间戳-validation-diagnostic
 ```
 
-## 4. 查看诊断结果
+## 4. 查看并提交诊断结果
 
 ```bash
 REPORT_DIR=$(ls -dt reports/q_vres_relation_transfer/*-validation-diagnostic | head -n 1)
 cat "${REPORT_DIR}/diagnostic_summary.md"
 
 cat "${REPORT_DIR}/diagnostic_summary.json"
+
+git add \
+  "${REPORT_DIR}/diagnostic_summary.json" \
+  "${REPORT_DIR}/diagnostic_summary.md"
+
+git diff --cached --check
+git diff --cached --name-only
+git commit -m "Add Q-VRES seed 13 validation diagnostics"
+git push origin 1.1
 ```
 
-诊断报告由负责人审查和归档。合作者本轮不需要运行诊断，也不需要提交诊断报告。
+`git diff --cached --name-only` 必须只有上述两个文件。负责人负责审查和归档诊断报告。
 
 不要提交 `data/`、`runs/`、checkpoint、逐样本预测、JSONL、梯度张量或完整日志。
 

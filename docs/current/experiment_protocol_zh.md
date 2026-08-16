@@ -15,7 +15,7 @@
 
 ## 阶段 C：validation 机制诊断
 
-负责人从 seed 13 raw run 读取 baseline 和 selector checkpoint，生成以下聚合结果。合作者不承担这类探索性诊断：
+负责人从可访问的 seed 13 raw run 读取 baseline 和 selector checkpoint，生成以下聚合结果。如果 raw run 只在合作者机器上，则由合作者执行同一只读脚本并提交聚合报告；不重新训练：
 
 - 按关系类别的 support、precision、recall 和 F1。
 - Q causal 相对 baseline 的 recall/F1 变化及关系频次分桶。
