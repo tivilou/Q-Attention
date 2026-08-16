@@ -1,0 +1,221 @@
+{
+  "finite": true,
+  "metadata": {
+    "config": {
+      "angle_scale": 1.0,
+      "depth": 1,
+      "eps": 1e-08,
+      "evidence_floor": 1e-06,
+      "head_dim": 8,
+      "initial_transport": 0.05,
+      "max_transport": 0.25,
+      "num_heads": 4,
+      "num_layers": 2,
+      "register_qubits": 2,
+      "seed": 5013,
+      "value_feature_mode": "key_only"
+    },
+    "mechanism": {
+      "causal_witness": "exact_leave_one_out_attention_output_delta",
+      "entity_attention": "unchanged",
+      "evidence": "nonnegative_quantum_state_overlap_squared",
+      "evidence_support": "convex_base_context_floor",
+      "input": "query,key,value,pre_softmax_scores",
+      "quantum_resource_note": "overlap can be estimated by a SWAP-test-style circuit; simulation does not claim hardware speedup",
+      "transport": "nonnegative_context_mass_preserving_log_ratio"
+    },
+    "type": "quantum_fidelity_transport"
+  },
+  "seed": 13,
+  "selector": "q_causal_key_only",
+  "test": {
+    "batches": 1678,
+    "delta_vs_baseline": {
+      "delta_accuracy": 0.002384856163362703,
+      "delta_loss": -0.006059149630841976,
+      "delta_macro_f1": 0.0017217723676639651,
+      "delta_macro_precision": 0.007567734497032491,
+      "delta_macro_recall": 0.00011445834833409552
+    },
+    "geometry": [
+      {
+        "attention_total_variation": {
+          "count": 1857788,
+          "mean": 0.013687521363309188,
+          "std": 0.00987165784813657
+        },
+        "context_mass_error": {
+          "count": 1857788,
+          "mean": 4.346135969445647e-08,
+          "std": 3.360234057040655e-08
+        },
+        "entity_mass_error": {
+          "count": 1857788,
+          "mean": 7.006349240708269e-09,
+          "std": 1.0644075161803114e-08
+        },
+        "residual_rms": {
+          "count": 13418,
+          "mean": 0.23528107665817896,
+          "std": 0.11647122373139851
+        }
+      },
+      {
+        "attention_total_variation": {
+          "count": 1857788,
+          "mean": 0.032356030413600294,
+          "std": 0.021951229311585715
+        },
+        "context_mass_error": {
+          "count": 1857788,
+          "mean": 4.557588335305201e-08,
+          "std": 3.633883325556165e-08
+        },
+        "entity_mass_error": {
+          "count": 1857788,
+          "mean": 8.358998676777416e-09,
+          "std": 1.4370057985197374e-08
+        },
+        "residual_rms": {
+          "count": 13418,
+          "mean": 0.8013509212813873,
+          "std": 0.4006097912132994
+        }
+      }
+    ],
+    "items": 13418,
+    "metrics": {
+      "accuracy": 0.6354896407810404,
+      "loss": 2.0775947819582874,
+      "macro_f1": 0.18431872898915522,
+      "macro_precision": 0.23110336845332294,
+      "macro_recall": 0.18876270880099646
+    }
+  },
+  "train": {
+    "best_epoch": 1,
+    "best_valid": {
+      "accuracy": 0.6217320261437909,
+      "loss": 1.9769072184336123,
+      "macro_f1": 0.21851857980434747,
+      "macro_precision": 0.2770847843841331,
+      "macro_recall": 0.21376124319803744
+    },
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 0.19391153228706465,
+        "valid": {
+          "accuracy": 0.6217320261437909,
+          "loss": 1.9769072184336123,
+          "macro_f1": 0.21851857980434747,
+          "macro_precision": 0.2770847843841331,
+          "macro_recall": 0.21376124319803744
+        }
+      },
+      {
+        "epoch": 2,
+        "train_loss": 0.19376619594711816,
+        "valid": {
+          "accuracy": 0.6215277777777778,
+          "loss": 1.9784740177203834,
+          "macro_f1": 0.21689035682367191,
+          "macro_precision": 0.27264305499913516,
+          "macro_recall": 0.21376910747015015
+        }
+      },
+      {
+        "epoch": 3,
+        "train_loss": 0.19372466724484586,
+        "valid": {
+          "accuracy": 0.6219362745098039,
+          "loss": 1.9781988517343587,
+          "macro_f1": 0.217931054248379,
+          "macro_precision": 0.2761300732453589,
+          "macro_recall": 0.213732666720967
+        }
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.19372119422362272,
+        "valid": {
+          "accuracy": 0.6224468954248366,
+          "loss": 1.9782367077531686,
+          "macro_f1": 0.21837849308544582,
+          "macro_precision": 0.2763801620322609,
+          "macro_recall": 0.21426625465239152
+        }
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.19363986780667822,
+        "valid": {
+          "accuracy": 0.622140522875817,
+          "loss": 1.977647024754654,
+          "macro_f1": 0.21668111504094015,
+          "macro_precision": 0.27505628762549805,
+          "macro_recall": 0.21269788817743351
+        }
+      }
+    ],
+    "runtime_seconds": 4076.281
+  },
+  "trainable_parameters": 72,
+  "valid": {
+    "batches": 2448,
+    "geometry": [
+      {
+        "attention_total_variation": {
+          "count": 2767284,
+          "mean": 0.013646221901693848,
+          "std": 0.00983446925425964
+        },
+        "context_mass_error": {
+          "count": 2767284,
+          "mean": 4.336803791397592e-08,
+          "std": 3.359418989010884e-08
+        },
+        "entity_mass_error": {
+          "count": 2767284,
+          "mean": 7.085354136727049e-09,
+          "std": 1.0534076914451219e-08
+        },
+        "residual_rms": {
+          "count": 19584,
+          "mean": 0.2321805453104472,
+          "std": 0.11353923966016109
+        }
+      },
+      {
+        "attention_total_variation": {
+          "count": 2767284,
+          "mean": 0.03251897667282383,
+          "std": 0.02192343767892777
+        },
+        "context_mass_error": {
+          "count": 2767284,
+          "mean": 4.585225674630186e-08,
+          "std": 3.652578449411557e-08
+        },
+        "entity_mass_error": {
+          "count": 2767284,
+          "mean": 7.9167455535633e-09,
+          "std": 1.33459068295265e-08
+        },
+        "residual_rms": {
+          "count": 19584,
+          "mean": 0.7948602907773521,
+          "std": 0.39778330719576305
+        }
+      }
+    ],
+    "items": 19584,
+    "metrics": {
+      "accuracy": 0.6217320261437909,
+      "loss": 1.9769072184336123,
+      "macro_f1": 0.21851857980434747,
+      "macro_precision": 0.2770847843841331,
+      "macro_recall": 0.21376124319803744
+    }
+  }
+}
