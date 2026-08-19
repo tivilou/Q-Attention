@@ -16,6 +16,7 @@ for path in (SRC, EXPERIMENTS):
 
 from q_attention.models import RelationExtractionModel, RelationTransformerConfig  # noqa: E402
 from run_q_coherent_attention_path_trained_baseline_gate import (  # noqa: E402
+    ChiralRelationContrastKernel,
     DirectedRelationContrastKernel,
     build_selector,
     geometry_diagnostics,
@@ -250,3 +251,27 @@ def test_stage_b_compares_against_lowest_nll_control() -> None:
     gate = stage_b_gate(results, cfg)
     assert abs(gate["quantum_over_best_control_nll_advantage"]["valid"] + 0.01) <= 1e-8
     assert gate["valid_control_advantage"] is False
+
+
+def test_chiral_graph_uses_only_skew_and_is_hermitian() -> None:
+    from q_attention.plugins.q_coherent_attention_path import CoherentAttentionPathConfig
+
+    kernel = ChiralRelationContrastKernel(
+        CoherentAttentionPathConfig(
+            num_layers=1,
+            num_heads=1,
+            max_transport=2.0,
+            initial_transport=0.05,
+            walk_time=config()["mechanism"]["walk_time"],
+        )
+    )
+    scores = torch.tensor(
+        [[[[0.0, 1.0, -0.4], [-0.2, 0.0, 0.8], [0.6, -0.3, 0.0]]]]
+    )
+    mask = torch.ones(1, 3, dtype=torch.bool)
+    graph = kernel._hermitian_graph(scores, mask)
+    assert torch.allclose(graph.real, torch.zeros_like(graph.real), atol=1e-7)
+    assert torch.allclose(graph, graph.transpose(-1, -2).conj(), atol=1e-7)
+    path = kernel._path_probabilities(graph)
+    assert torch.allclose(path.sum(dim=-1), torch.ones_like(path.sum(dim=-1)), atol=1e-6)
+    assert float((path - path.transpose(-1, -2)).abs().max()) > 1e-4

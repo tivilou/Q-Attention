@@ -245,7 +245,11 @@ def train_baseline(
     dataset = config["dataset"]
     model = RelationExtractionModel(
         RelationTransformerConfig(
-            vocab_size=NUISANCE_START + int(dataset["nuisance_tokens"]),
+            vocab_size=max(
+                int(tensor_batch(split)["input_ids"].max())
+                for split in splits.values()
+            )
+            + 1,
             num_labels=2,
             dim=int(model_config["dim"]),
             num_layers=int(model_config["num_layers"]),
@@ -568,6 +572,24 @@ class DirectedRelationContrastKernel(SignedRelationContrastKernel):
         return unitary.abs().square().to(graph.real.dtype)
 
 
+class ChiralRelationContrastKernel(DirectedRelationContrastKernel):
+    """Pure directed quantum walk from the antisymmetric Q/K score flow."""
+
+    kernel_type = "quantum_chiral"
+
+    def _hermitian_graph(
+        self, scores: torch.Tensor, attention_mask: torch.Tensor
+    ) -> torch.Tensor:
+        node_mask = attention_mask.to(dtype=torch.bool)
+        pair_mask = node_mask[:, None, :, None] & node_mask[:, None, None, :]
+        skew = 0.5 * (scores - scores.transpose(-1, -2))
+        complex_dtype = (
+            torch.complex128 if scores.dtype == torch.float64 else torch.complex64
+        )
+        graph = 1j * skew.to(complex_dtype) * pair_mask.to(complex_dtype)
+        return graph - torch.diag_embed(torch.diagonal(graph, dim1=-2, dim2=-1))
+
+
 class RawDirectRelationContrastKernel(SignedRelationContrastKernel):
     """Row-local directional control using the original non-symmetric scores."""
 
@@ -594,6 +616,16 @@ def build_selector(selector: str, model: RelationExtractionModel, config: dict[s
         walk_time=float(mechanism["walk_time"]),
     )
     readout = mechanism.get("readout", "row_transport")
+    if readout == "chiral_relation_contrast":
+        if selector in {"q_wap_signed", "shuffled_anchor"}:
+            return ChiralRelationContrastKernel(kernel_config)
+        if selector == "direct_row":
+            return RawDirectRelationContrastKernel(kernel_config)
+        path_types = {
+            "q_wap_unsigned": "quantum_unsigned",
+            "classical_wap_diffusion": "classical_diffusion",
+        }
+        return SignedRelationContrastKernel(kernel_config, path_types[selector])
     if readout == "directed_relation_contrast":
         if selector in {"q_wap_signed", "shuffled_anchor"}:
             return DirectedRelationContrastKernel(kernel_config)
