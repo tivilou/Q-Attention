@@ -1,0 +1,43 @@
+{
+  "schema_version": "q-attention.q-consensus-quantum-estimator-canary.v1",
+  "experiment_name": "q_consensus_quantum_estimator_canary",
+  "selectors": [
+    "disabled",
+    "q_consensus_quantum",
+    "classical_consensus_control",
+    "q_consensus_shuffled_query",
+    "q_consensus_magnitude"
+  ],
+  "seed": 7,
+  "device": "cuda",
+  "dataset": {
+    "identity": "synthetic_dynamic_address_consensus_error_witness_v2",
+    "train_size": 512,
+    "calibration_size": 256,
+    "valid_size": 256,
+    "test_size": 256,
+    "batch_size": 128
+  },
+  "estimator": {
+    "register_qubits": 3,
+    "depth": 2,
+    "angle_scale": 1.0,
+    "seed_offset": 7331
+  },
+  "training": {
+    "steps": 120,
+    "lr": 0.03,
+    "weight_decay": 0.0001,
+    "gradient_clip": 5.0
+  },
+  "gate": {
+    "baseline_accuracy_min": 0.7,
+    "baseline_accuracy_max": 0.9,
+    "minimum_accuracy_delta": 0.03,
+    "maximum_harm_rate": 0.02,
+    "minimum_quantum_control_margin": 0.0,
+    "minimum_control_margin": 0.02,
+    "maximum_gradient_norm": 100.0
+  },
+  "output_root": "runs/q_consensus_quantum_estimator_canary"
+}
