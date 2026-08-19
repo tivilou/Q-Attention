@@ -81,6 +81,14 @@ def export(group_dir: Path, report_dir: Path) -> dict[str, Any]:
         raise ValueError("run does not contain the frozen seed set")
     if aggregate.get("status") != "complete":
         raise ValueError("aggregate summary is incomplete")
+    preflight = manifest.get("preflight")
+    if not isinstance(preflight, dict) or preflight.get("gate_status") != "pass":
+        raise ValueError("manifest is missing a passed single-seed multi-GPU preflight")
+    preflight_source = (ROOT / str(preflight.get("path", ""))).resolve()
+    if not preflight_source.is_relative_to(runs_root) or not preflight_source.is_file():
+        raise ValueError("preflight summary is missing or outside runs/")
+    if sha256(preflight_source) != preflight.get("sha256"):
+        raise ValueError("preflight summary hash differs from the full-run manifest")
     require_clean_commit(str(manifest["git_commit"]))
 
     report_dir.mkdir(parents=True)
@@ -89,6 +97,10 @@ def export(group_dir: Path, report_dir: Path) -> dict[str, Any]:
         destination = report_dir / name
         shutil.copy2(group_dir / name, destination)
         copied.append(destination)
+    preflight_destination = report_dir / "preflight" / "run_summary.json"
+    preflight_destination.parent.mkdir()
+    shutil.copy2(preflight_source, preflight_destination)
+    copied.append(preflight_destination)
     for seed in FROZEN_SEEDS:
         source = group_dir / f"seed_{seed}" / "run_summary.json"
         if not source.is_file() or not (source.parent / "SEED_COMPLETE").is_file():

@@ -86,6 +86,11 @@ def parse_args() -> argparse.Namespace:
         default="auto",
         help="comma-separated physical GPU IDs, or auto",
     )
+    parser.add_argument(
+        "--preflight-summary",
+        default=None,
+        help="passed single-seed multi-GPU preflight run_summary.json",
+    )
     parser.add_argument("--output-dir", default=None)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--worker-seed", type=int, default=None, help=argparse.SUPPRESS)
@@ -225,6 +230,57 @@ def source_hashes() -> dict[str, str]:
     return {path.as_posix(): sha256(ROOT / path) for path in paths}
 
 
+def validate_multigpu_preflight(
+    path: Path,
+    *,
+    expected_commit: str,
+    expected_config_sha256: str,
+) -> dict[str, Any]:
+    runs_root = (ROOT / "runs").resolve()
+    path = path.resolve()
+    if not path.is_relative_to(runs_root) or path.name != "run_summary.json":
+        raise ValueError("preflight summary must be a run_summary.json inside runs/")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("schema_version") != (
+        "q-attention.q-consensus-quantum-estimator-single-seed-multigpu.v1"
+    ):
+        raise ValueError("preflight summary schema mismatch")
+    if payload.get("formal_preflight") is not True or payload.get("seed") != 7:
+        raise ValueError("preflight must be the frozen formal seed-7 preflight")
+    if payload.get("config_sha256") != expected_config_sha256:
+        raise ValueError("preflight used a different frozen config")
+    provenance = payload.get("provenance", {})
+    if (
+        provenance.get("git_commit") != expected_commit
+        or provenance.get("git_dirty") is not False
+    ):
+        raise ValueError("preflight Git provenance differs from the full run")
+    parallelism = payload.get("parallelism", {})
+    physical_gpu_ids = parallelism.get("physical_gpu_ids", [])
+    if (
+        parallelism.get("type") != "within_seed_stage_parallel"
+        or parallelism.get("ddp") is not False
+        or len(physical_gpu_ids) < 2
+        or len(set(physical_gpu_ids)) != len(physical_gpu_ids)
+        or float(parallelism.get("stage_time_overlap_seconds", 0.0)) <= 0.0
+    ):
+        raise ValueError("preflight did not prove concurrent stages on distinct GPUs")
+    execution = payload.get("stage_execution", [])
+    if len(execution) != 2 or not all(item.get("success") is True for item in execution):
+        raise ValueError("preflight stage execution is incomplete")
+    gate = payload.get("gate", {})
+    if gate.get("status") != "pass" or gate.get("next_multi_seed_authorized") is not True:
+        raise ValueError("preflight scientific gate did not authorize multi-seed execution")
+    return {
+        "path": path.relative_to(ROOT).as_posix(),
+        "sha256": sha256(path),
+        "seed": payload["seed"],
+        "physical_gpu_ids": physical_gpu_ids,
+        "stage_time_overlap_seconds": parallelism["stage_time_overlap_seconds"],
+        "gate_status": gate["status"],
+    }
+
+
 def canary_config(config: dict[str, Any], seed: int, output_root: Path) -> dict[str, Any]:
     return {
         "schema_version": "q-attention.q-consensus-quantum-estimator-canary.v1",
@@ -345,6 +401,18 @@ def execute_seed(command: list[str], gpu_id: int) -> dict[str, Any]:
     }
 
 
+def build_gpu_schedules(
+    assignments: list[dict[str, Any]], commands: list[list[str]]
+) -> dict[int, list[list[str]]]:
+    if len(assignments) != len(commands):
+        raise ValueError("assignment and command counts differ")
+    schedules: dict[int, list[list[str]]] = {}
+    for assignment, command in zip(assignments, commands, strict=True):
+        gpu_id = int(assignment["gpu_id"])
+        schedules.setdefault(gpu_id, []).append(command)
+    return schedules
+
+
 def main() -> int:
     args = parse_args()
     config_path = resolve_path(args.config)
@@ -362,6 +430,21 @@ def main() -> int:
     except (ValueError, subprocess.CalledProcessError) as exc:
         raise SystemExit(str(exc)) from exc
     config_digest = sha256(config_path)
+    preflight = None
+    if args.preflight_summary is not None:
+        try:
+            preflight = validate_multigpu_preflight(
+                resolve_path(args.preflight_summary),
+                expected_commit=provenance["git_commit"],
+                expected_config_sha256=config_digest,
+            )
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            raise SystemExit(str(exc)) from exc
+    if not args.dry_run and preflight is None:
+        raise SystemExit(
+            "formal multi-seed run requires --preflight-summary from a passed "
+            "single-seed multi-GPU preflight"
+        )
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     output_dir = resolve_path(
         args.output_dir or Path(config["output_root"]) / stamp
@@ -398,6 +481,7 @@ def main() -> int:
                     "gpus": gpu_ids,
                     "worker_count": min(len(FROZEN_SEEDS), len(gpu_ids)),
                     "assignments": assignments,
+                    "preflight": preflight,
                 },
                 indent=2,
                 sort_keys=True,
@@ -421,6 +505,7 @@ def main() -> int:
         "gpus": [{"id": gpu_id, "name": gpu_name(gpu_id)} for gpu_id in gpu_ids],
         "worker_count": min(len(FROZEN_SEEDS), len(gpu_ids)),
         "assignments": assignments,
+        "preflight": preflight,
     }
     write_json(output_dir / "multi_seed_manifest.json", manifest)
     results: list[dict[str, Any]] = []
@@ -435,16 +520,22 @@ def main() -> int:
             },
         )
 
-    with ThreadPoolExecutor(max_workers=min(len(FROZEN_SEEDS), len(gpu_ids))) as pool:
-        futures = {
-            pool.submit(execute_seed, command, item["gpu_id"]): item["seed"]
-            for command, item in zip(commands, assignments, strict=True)
-        }
-        for future in as_completed(futures):
-            result = future.result()
+    schedules = build_gpu_schedules(assignments, commands)
+
+    def run_gpu_schedule(gpu_id: int, scheduled_commands: list[list[str]]) -> None:
+        for command in scheduled_commands:
+            result = execute_seed(command, gpu_id)
             with status_lock:
                 results.append(result)
                 persist_status()
+
+    with ThreadPoolExecutor(max_workers=len(schedules)) as pool:
+        futures = [
+            pool.submit(run_gpu_schedule, gpu_id, scheduled_commands)
+            for gpu_id, scheduled_commands in schedules.items()
+        ]
+        for future in as_completed(futures):
+            future.result()
     execution_success = len(results) == len(FROZEN_SEEDS) and all(
         result["success"] for result in results
     )
