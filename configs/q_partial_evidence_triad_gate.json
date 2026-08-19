@@ -1,0 +1,65 @@
+{
+  "schema_version": "q-attention.q-partial-evidence-triad-gate.v1",
+  "experiment_name": "q_partial_evidence_triad_gate",
+  "seed": 7,
+  "device": "cuda",
+  "dataset": {
+    "identity": "fixed_role_signed_triad_partial_evidence_v1",
+    "nodes": 16,
+    "nuisance_tokens": 64,
+    "relocation_probability": 0.25,
+    "train_size": 1024,
+    "valid_size": 256,
+    "test_size": 256,
+    "train_stream": 6701,
+    "valid_stream": 6702,
+    "test_stream": 6703
+  },
+  "model": {
+    "dim": 24,
+    "num_layers": 2,
+    "num_heads": 4,
+    "ff_dim": 48,
+    "dropout": 0.0,
+    "epochs": 30,
+    "batch_size": 64,
+    "learning_rate": 0.003
+  },
+  "training": {
+    "steps": 30,
+    "learning_rate": 0.05,
+    "optimizer": "adam_full_batch"
+  },
+  "mechanism": {
+    "walk_time": 0.7853981633974483,
+    "max_transport": 2.0,
+    "initial_transport": 0.05,
+    "query_scope": "all",
+    "readout": "relation_contrast"
+  },
+  "selectors": [
+    "disabled",
+    "q_wap_signed",
+    "q_wap_unsigned",
+    "classical_wap_diffusion",
+    "direct_row",
+    "shuffled_anchor"
+  ],
+  "stage_a_gate": {
+    "minimum_valid_accuracy": 0.7,
+    "minimum_test_accuracy": 0.7,
+    "maximum_parity_error": 0.0000001,
+    "minimum_score_asymmetry": 0.01,
+    "minimum_negative_cycle_fraction": 0.1,
+    "minimum_signed_unsigned_tv": 0.005,
+    "minimum_oracle_nll_headroom": 0.002,
+    "minimum_cycle_alignment_accuracy": 0.55,
+    "oracle_residual_step": 0.05
+  },
+  "stage_b_gate": {
+    "minimum_quantum_nll_gain": 0.001,
+    "minimum_control_advantage": 0.0005,
+    "maximum_accuracy_drop": 0.01
+  },
+  "output_root": "runs/q_partial_evidence_triad_gate"
+}

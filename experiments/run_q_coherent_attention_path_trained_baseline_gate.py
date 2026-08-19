@@ -256,7 +256,9 @@ def train_baseline(
             num_heads=int(model_config["num_heads"]),
             ff_dim=int(model_config["ff_dim"]),
             dropout=float(model_config["dropout"]),
-            max_length=int(dataset["nodes"]),
+            max_length=int(
+                tensor_batch(next(iter(splits.values())))["input_ids"].shape[1]
+            ),
         )
     ).to(device)
     train = tensor_batch(splits["train"])
