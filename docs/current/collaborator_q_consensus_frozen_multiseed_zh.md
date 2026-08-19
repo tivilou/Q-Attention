@@ -37,38 +37,38 @@ nvidia-smi
 python -m pytest -q \
   tests/test_q_consensus_error_witness_prescreen.py \
   tests/test_q_consensus_quantum_estimator.py \
-  tests/test_q_consensus_quantum_estimator_single_seed_multigpu.py \
+  tests/test_q_consensus_quantum_estimator_single_seed.py \
   tests/test_q_consensus_quantum_estimator_frozen_multiseed.py
 ```
 
-## 2. 前置门禁：单 seed 多 GPU
+## 2. 前置门禁：单 seed 单 GPU
 
-机器必须至少提供两张可见 GPU。先做一次不执行实验的计划检查：
+先在一张空闲 GPU 上完成固定 seed 7。单 seed 不使用 DDP，不拆分 quantum/classical stage，也不在同一张 GPU 上启动多个 worker。先做一次不执行实验的计划检查：
 
 ```bash
-python experiments/run_q_consensus_quantum_estimator_single_seed_multigpu.py \
+python experiments/run_q_consensus_quantum_estimator_single_seed.py \
   --config configs/q_consensus_quantum_estimator_frozen_multiseed.json \
-  --gpus auto \
+  --gpu auto \
   --dry-run
 ```
 
-确认输出中的 `formal_preflight_started` 为 `false`，并确认 `quantum_controls` 与 `classical_control` 被分配到不同 GPU。然后运行固定 seed 7 的正式 preflight：
+确认输出中的 `formal_preflight_started` 为 `false`、`parallelism` 为 `single_seed_single_gpu`。然后运行固定 seed 7 的正式 preflight：
 
 ```bash
 set -o pipefail
-python experiments/run_q_consensus_quantum_estimator_single_seed_multigpu.py \
+python experiments/run_q_consensus_quantum_estimator_single_seed.py \
   --config configs/q_consensus_quantum_estimator_frozen_multiseed.json \
-  --gpus auto \
-  2>&1 | tee runs/q_consensus_quantum_estimator_single_seed_multigpu.log
+  --gpu auto \
+  2>&1 | tee runs/q_consensus_quantum_estimator_single_seed.log
 ```
 
-该 runner 采用 within-seed stage parallelism，不是 DDP：一张 GPU 训练/evaluate quantum estimator、shuffled-query 和 magnitude controls；另一张 GPU 同时训练/evaluate 等参数 product-state control。父进程验证两个阶段来自相同 clean commit 和配置、时间区间确实重叠、GPU ID 不同、参数量匹配，并重建原 seed-7 gate。
+该 runner 在一个进程中顺序训练 quantum estimator 与等参数 product-state control，并评估全部五个 selector。输出记录完整 seed 的端到端时间、物理 GPU ID、`workers_on_gpu=1`、配置 hash 和 clean commit provenance。
 
 ```bash
-PREFLIGHT_DIR=$(ls -dt runs/q_consensus_quantum_estimator_single_seed_multigpu/*/ | head -n 1)
+PREFLIGHT_DIR=$(ls -dt runs/q_consensus_quantum_estimator_single_seed/*/ | head -n 1)
 PREFLIGHT_SUMMARY=${PREFLIGHT_DIR}/run_summary.json
-test -f "${PREFLIGHT_DIR}/MULTIGPU_PREFLIGHT_COMPLETE"
-python -c "import json; p=json.load(open('${PREFLIGHT_SUMMARY}')); assert p['gate']['status']=='pass'; assert p['gate']['next_multi_seed_authorized'] is True; print(p['parallelism'])"
+test -f "${PREFLIGHT_DIR}/SINGLE_SEED_COMPLETE"
+python -c "import json; p=json.load(open('${PREFLIGHT_SUMMARY}')); assert p['gate']['status']=='pass'; assert p['gate']['next_multi_seed_authorized'] is True; assert p['parallelism']['type']=='single_seed_single_gpu'; print(p['runtime'], p['parallelism'])"
 ```
 
 如果 preflight gate 失败，停止，不得运行五 seed，不得换 seed 或调参。
@@ -85,7 +85,7 @@ python experiments/run_q_consensus_quantum_estimator_frozen_multiseed.py \
   --dry-run
 ```
 
-正式五 seed 只允许使用以下命令。一张 GPU 对应一个独立 seed；GPU 少于五张时，worker 完成后继续领取尚未开始的 seed。该阶段仍不使用 DDP。
+正式五 seed 只允许使用以下命令。每张 GPU 同一时刻只运行一个独立 seed；同一 GPU 分到多个 seed 时按固定顺序串行，GPU 队列之间并行。该阶段仍不使用 DDP，也不在单卡内并发多个 worker。
 
 ```bash
 python experiments/run_q_consensus_quantum_estimator_frozen_multiseed.py \
@@ -116,12 +116,12 @@ python scripts/export_q_consensus_quantum_estimator_frozen_multiseed_report.py \
   --report-dir "reports/q_consensus_quantum_estimator/$(date -u +%Y%m%d-%H%M%S)-frozen-multiseed"
 ```
 
-报告目录只允许包含 manifest、aggregate summary、preflight `run_summary.json`、每个 seed 的 `run_summary.json` 和完成标记。不要使用 `git add .`；只提交 report 目录中的白名单文件。如果项目负责人要求 push，先回传以下信息再等待确认：冻结 commit、preflight 的 GPU 分配和时间重叠、五个 seed 的完成状态、aggregate gate 状态、report 路径及 `git diff --cached --name-only`。
+报告目录只允许包含 manifest、aggregate summary、preflight `run_summary.json`、每个 seed 的 `run_summary.json` 和完成标记。不要使用 `git add .`；只提交 report 目录中的白名单文件。如果项目负责人要求 push，先回传以下信息再等待确认：冻结 commit、preflight 的单卡 ID 与端到端耗时、五个 seed 的完成状态、aggregate gate 状态、report 路径及 `git diff --cached --name-only`。
 
 ## 5. 失败处理
 
 - 环境、测试、配置 hash、commit、GPU 检查失败：停止并反馈原始错误摘要。
-- 单 seed 多 GPU preflight 缺少两张 GPU、阶段不重叠、阶段失败或 gate 失败：停止，不得启动五 seed。
+- 单 seed preflight GPU 不可用、worker 数不是 1、执行失败或 gate 失败：停止，不得启动五 seed。
 - 单个 seed 进程失败：不要改参数重跑；保留失败目录和 `MULTI_SEED_FAILED`，反馈 seed、GPU、return code。
 - 单 seed scientific gate 失败：不要删除、替换或重跑该 seed；仍完成剩余冻结 seed，并在汇总中保留 failed status。
 - aggregate gate 失败：这不是调参邀请。停止进入真实数据、finite-shot 或硬件实验，回传 `aggregate_summary.md`。

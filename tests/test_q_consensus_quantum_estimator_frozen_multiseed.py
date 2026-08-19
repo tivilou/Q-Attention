@@ -69,40 +69,41 @@ def test_each_gpu_has_one_serial_seed_queue() -> None:
     }
 
 
-def test_formal_multiseed_accepts_only_a_passed_multigpu_preflight(
+def test_formal_multiseed_accepts_only_a_passed_single_gpu_preflight(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(runner, "ROOT", tmp_path)
     summary_path = tmp_path / "runs/preflight/run_summary.json"
     summary_path.parent.mkdir(parents=True)
     payload = {
-        "schema_version": "q-attention.q-consensus-quantum-estimator-single-seed-multigpu.v1",
+        "schema_version": "q-attention.q-consensus-quantum-estimator-single-seed.v1",
         "formal_preflight": True,
         "seed": 7,
         "config_sha256": "config-hash",
         "provenance": {"git_commit": "commit", "git_dirty": False},
         "parallelism": {
-            "type": "within_seed_stage_parallel",
+            "type": "single_seed_single_gpu",
             "ddp": False,
-            "physical_gpu_ids": [0, 1],
-            "stage_time_overlap_seconds": 4.5,
+            "physical_gpu_id": 0,
+            "workers_on_gpu": 1,
         },
-        "stage_execution": [{"success": True}, {"success": True}],
+        "runtime": {"elapsed_seconds": 47.5},
         "gate": {"status": "pass", "next_multi_seed_authorized": True},
     }
     summary_path.write_text(json.dumps(payload), encoding="utf-8")
-    result = runner.validate_multigpu_preflight(
+    result = runner.validate_single_seed_preflight(
         summary_path,
         expected_commit="commit",
         expected_config_sha256="config-hash",
     )
-    assert result["physical_gpu_ids"] == [0, 1]
+    assert result["physical_gpu_id"] == 0
+    assert result["elapsed_seconds"] == 47.5
     assert result["gate_status"] == "pass"
 
-    payload["parallelism"]["stage_time_overlap_seconds"] = 0.0
+    payload["parallelism"]["workers_on_gpu"] = 2
     summary_path.write_text(json.dumps(payload), encoding="utf-8")
-    with pytest.raises(ValueError, match="concurrent stages"):
-        runner.validate_multigpu_preflight(
+    with pytest.raises(ValueError, match="one worker"):
+        runner.validate_single_seed_preflight(
             summary_path,
             expected_commit="commit",
             expected_config_sha256="config-hash",
