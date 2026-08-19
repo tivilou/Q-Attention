@@ -367,6 +367,31 @@ def five_seed_gate(rows: list[dict[str, Any]], config: dict[str, Any]) -> dict[s
     }
 
 
+def seed7_gate(row: dict[str, Any]) -> dict[str, Any]:
+    oracle = row.get("oracle_gate", {})
+    conditions = {
+        "split_invariants": bool(row["validity_gate"]["split_invariants"]),
+        "baseline_accuracy_parity": bool(
+            row["validity_gate"]["baseline_accuracy_parity"]
+        ),
+        "minimum_headroom": bool(oracle.get("minimum_headroom", False)),
+        "oracle_correct_retention": bool(
+            oracle.get("oracle_correct_retention", False)
+        ),
+        "oracle_residual_invariants": bool(
+            oracle.get("oracle_residual_invariants", False)
+        ),
+    }
+    passed = all(conditions.values())
+    return {
+        **conditions,
+        "status": "pass" if passed else "fail",
+        "five_seed_phase_authorized": passed,
+        "new_mechanism_authorized": False,
+        "real_data_authorized": False,
+    }
+
+
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -399,12 +424,7 @@ def main() -> None:
         if args.phase == "seed7" and row["validity_gate"]["status"] != "pass":
             break
     if args.phase == "seed7":
-        gate = {
-            **rows[0]["validity_gate"],
-            "status": rows[0]["validity_gate"]["status"],
-            "new_mechanism_authorized": False,
-            "real_data_authorized": False,
-        }
+        gate = seed7_gate(rows[0])
     else:
         gate = five_seed_gate(rows, config)
     output_root = Path(args.output_root or str(config["output_root"]))

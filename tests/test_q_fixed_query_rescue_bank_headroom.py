@@ -15,6 +15,7 @@ import run_q_margin_credit_self_conditioned_toy as legacy  # noqa: E402
 from run_q_fixed_query_rescue_bank_headroom_toy import (  # noqa: E402
     BANK_POSITIONS,
     make_fixed_query_rescue_bank_split,
+    seed7_gate,
     split_invariants,
 )
 
@@ -52,3 +53,20 @@ def test_non_rescue_examples_keep_bank_position_unset() -> None:
             bank["rescue_bank_position"][~bank["rescue_available"]], -1
         ),
     )
+
+
+def test_seed7_gate_requires_headroom_after_validity_passes() -> None:
+    row = {
+        "validity_gate": {
+            "split_invariants": True,
+            "baseline_accuracy_parity": True,
+        },
+        "oracle_gate": {
+            "minimum_headroom": False,
+            "oracle_correct_retention": True,
+            "oracle_residual_invariants": True,
+        },
+    }
+    gate = seed7_gate(row)
+    assert gate["status"] == "fail"
+    assert not gate["five_seed_phase_authorized"]
