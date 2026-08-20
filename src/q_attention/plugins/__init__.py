@@ -58,6 +58,15 @@ from .q_consensus_quantum_estimator import (
     QuantumConsensusEstimator,
     build_consensus_estimator,
 )
+from .q_connected_consensus_witness import (
+    QCCW_KERNEL_TYPES,
+    BilinearConnectedConsensusWitness,
+    ConnectedConsensusWitness,
+    ConnectedConsensusWitnessConfig,
+    ProductConnectedConsensusWitness,
+    build_connected_consensus_witness,
+    unordered_pair_index,
+)
 from .quantum_steering import (
     KEY_STEERING_CIRCUIT_CHOICES,
     PLUGIN_NAMES,
@@ -103,6 +112,7 @@ __all__ = [
     "ROUTER_RESIDUAL_REFERENCES",
     "ROUTING_MODES",
     "CONSENSUS_QUANTUM_KERNEL_TYPES",
+    "QCCW_KERNEL_TYPES",
     "SCORE_KERNEL_CHECKPOINT_VERSION",
     "SCORE_INPUT_ENCODING_CHOICES",
     "SCORE_READOUT_CHOICES",
@@ -126,6 +136,10 @@ __all__ = [
     "ConsensusQuantumEstimator",
     "QuantumConsensusEstimator",
     "ClassicalConsensusEstimator",
+    "ConnectedConsensusWitnessConfig",
+    "ConnectedConsensusWitness",
+    "ProductConnectedConsensusWitness",
+    "BilinearConnectedConsensusWitness",
     "RelationObservableExpertRouter",
     "PLUGIN_NAMES",
     "ComposableQuantumSteering",
@@ -142,6 +156,8 @@ __all__ = [
     "SteeringContribution",
     "build_quantum_steering",
     "build_consensus_estimator",
+    "build_connected_consensus_witness",
+    "unordered_pair_index",
     "build_quantum_steering_from_metadata",
     "build_relation_evidence_selector",
     "build_relation_expert_router",

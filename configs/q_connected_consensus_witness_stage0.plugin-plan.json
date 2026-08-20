@@ -1,0 +1,185 @@
+{
+  "schema_version": "research-plugin-architecture.plugin-plan.v1",
+  "project": "Q-Attention QCCW Stage-0",
+  "authorization": "approved",
+  "baseline": {
+    "entry_point": "experiments/run_q_consensus_quantum_estimator_canary.py",
+    "code_revision": "02cffd71560c30f2530af55f34d6d101f5ad8218",
+    "equivalence_test": "disabled selector exactly replays the unchanged synthetic-task baseline logits"
+  },
+  "core_invariants": [
+    "reuse synthetic_dynamic_address_consensus_error_witness_v2 and exact-disjoint split seeds",
+    "keep the fixed label-free score-concentration witness unchanged",
+    "enumerate all unordered key pairs at inference; labels and evidence slots are not plugin inputs",
+    "keep the bounded zero-sum attention action and baseline metrics unchanged",
+    "do not modify or rerun the failed frozen independent-key experiment"
+  ],
+  "interfaces": [
+    {
+      "id": "candidate_pair_scorer",
+      "type": "combiner",
+      "input_schema": "query[batch,query,dim], key[batch,query,key,dim], candidate_frames[candidate,dim,dim]",
+      "output_schema": "pair_score[batch,query,candidate,unordered_pair]",
+      "invariants": [
+        "key-pair exchange symmetry",
+        "all unordered pairs are enumerated",
+        "no label or evidence-pair argument"
+      ]
+    }
+  ],
+  "plugins": [
+    {
+      "id": "qccw_entangled",
+      "version": "0.1.0",
+      "role": "idea",
+      "interface": "candidate_pair_scorer",
+      "insertion_point": "candidate-pair scoring before bounded attention residual construction",
+      "hypothesis": "connected XX after symmetric cross-register CZ gates identifies two-key relation consensus more reliably than independent key scores",
+      "input_schema": "query,key,candidate_frames",
+      "output_schema": "connected_XX_pair_score",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "4 data qubits, 4 trainable parameters, 2 CZ gates per pair, exact statevector Stage-0",
+      "failure_signatures": [
+        "connected score is numerically trivial",
+        "pair-consistency AUC is below 0.75",
+        "matched bilinear control comes within 0.01",
+        "entangler-cut or key-shuffle drop is below 0.02",
+        "held-out harm exceeds 0.02"
+      ]
+    },
+    {
+      "id": "qccw_product_null",
+      "version": "0.1.0",
+      "role": "baseline",
+      "interface": "candidate_pair_scorer",
+      "insertion_point": "connected readout with cross-register gates disabled",
+      "hypothesis": "the connected correlator is zero for the matched pure product state",
+      "input_schema": "query,key,candidate_frames and frozen qccw local parameters",
+      "output_schema": "connected_XX_pair_score",
+      "requires": ["qccw_entangled"],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "4 data qubits, shared 4 local parameters, 0 two-qubit gates",
+      "failure_signatures": ["absolute connected score exceeds 1e-6"]
+    },
+    {
+      "id": "qccw_bilinear",
+      "version": "0.1.0",
+      "role": "baseline",
+      "interface": "candidate_pair_scorer",
+      "insertion_point": "candidate-pair scoring before bounded attention residual construction",
+      "hypothesis": "an equal-parameter symmetric low-rank bilinear interaction may explain the useful pair signal classically",
+      "input_schema": "query,key,candidate_frames",
+      "output_schema": "symmetric_bilinear_pair_score",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "4 trainable parameters, no quantum statevector",
+      "failure_signatures": ["matches or exceeds qccw held-out action gain"]
+    },
+    {
+      "id": "qccw_entangler_cut",
+      "version": "0.1.0",
+      "role": "adapter",
+      "interface": "candidate_pair_scorer",
+      "insertion_point": "qccw circuit ablation",
+      "hypothesis": "removing both cross-register CZ gates destroys the connected witness while retaining local encoders",
+      "input_schema": "query,key,candidate_frames and frozen qccw local parameters",
+      "output_schema": "connected_XX_pair_score",
+      "requires": ["qccw_entangled"],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "same local parameter budget as qccw, 0 two-qubit gates",
+      "failure_signatures": ["held-out accuracy drop from qccw is below 0.02"]
+    },
+    {
+      "id": "qccw_key_shuffle",
+      "version": "0.1.0",
+      "role": "adapter",
+      "interface": "candidate_pair_scorer",
+      "insertion_point": "second key register before qccw encoding",
+      "hypothesis": "a fixed within-query permutation of the second key breaks pair dependence while preserving one-key marginals",
+      "input_schema": "query,key,candidate_frames and frozen qccw parameters",
+      "output_schema": "connected_XX_pair_score",
+      "requires": ["qccw_entangled"],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "same circuit and parameter budget as qccw",
+      "failure_signatures": ["held-out accuracy drop from qccw is below 0.02"]
+    },
+    {
+      "id": "independent_key_quantum",
+      "version": "0.1.0",
+      "role": "baseline",
+      "interface": "candidate_pair_scorer",
+      "insertion_point": "historical independent-key field adapted to top-two support",
+      "hypothesis": "the previous independent-key estimator provides a direct historical reference without changing its mechanism",
+      "input_schema": "query,key,candidate_frames",
+      "output_schema": "candidate score and top-two key support",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "existing 3-qubit exact-statevector estimator, Stage-0 seed 7 only",
+      "failure_signatures": ["historical adapter changes existing estimator semantics"]
+    }
+  ],
+  "discovery": {
+    "mode": "explicit_allowlist",
+    "allowlist": [
+      "qccw_entangled",
+      "qccw_product_null",
+      "qccw_bilinear",
+      "qccw_entangler_cut",
+      "qccw_key_shuffle",
+      "independent_key_quantum"
+    ]
+  },
+  "composition": {
+    "mode": "single",
+    "order": ["qccw_entangled"],
+    "merge_rule": "one selector is evaluated at a time against the unchanged baseline and attention action",
+    "interaction_ablations": [
+      "qccw_product_null",
+      "qccw_bilinear",
+      "qccw_entangler_cut",
+      "qccw_key_shuffle",
+      "independent_key_quantum"
+    ]
+  },
+  "validation": {
+    "baseline_equivalence": "disabled selector predictions and logits exactly replay the unchanged task baseline",
+    "tests": [
+      "baseline_equivalence",
+      "plugin_isolation",
+      "deterministic_replay",
+      "interaction_ablation",
+      "baseline_equivalence: disabled selector exactly replays baseline logits",
+      "plugin_isolation: scorer inputs exclude labels and evidence slots",
+      "deterministic_replay: fixed inputs and parameters reproduce pair scores",
+      "interaction_ablation: product, bilinear, entangler-cut, key-shuffle, and independent-key controls",
+      "product-state connected XX is at most 1e-6",
+      "pair scores are invariant under exchanging key_a and key_b",
+      "plugin forward signatures accept no labels or evidence slots",
+      "all 15 unordered pairs are enumerated once",
+      "quantum and bilinear controls each expose exactly 4 trainable parameters",
+      "deterministic replay produces identical scores",
+      "invalid selector allowlists are rejected",
+      "Stage-0 smoke run writes a frozen experiment manifest"
+    ]
+  },
+  "reproducibility": {
+    "config_path": "configs/q_connected_consensus_witness_stage0.json",
+    "dataset_identity": "synthetic_dynamic_address_consensus_error_witness_v2",
+    "environment": "Python >=3.10 and torch >=2.0; exact statevector; CPU or one CUDA device",
+    "seeds": [7],
+    "output_manifest": "runs/q_connected_consensus_witness_stage0/<UTC>/run_summary.json"
+  },
+  "limitations": [
+    "Stage 0 is a single synthetic seed and cannot support a promotion or task-utility claim",
+    "training uses gold candidate and evidence-pair targets, but inference enumerates all pairs and receives neither target",
+    "connected correlation is classically simulable and the bilinear control is mandatory",
+    "finite-shot, noise, hardware runtime, real data, and structured-NLP witnesses are out of scope"
+  ]
+}
