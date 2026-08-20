@@ -8,8 +8,8 @@ from typing import Any
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
-from q_attention.plugins.q_margin_credit import _product_reuploading_state
 from q_attention.plugins.quantum_steering import (
     _data_reuploading_state,
     _seeded_projection,
@@ -17,6 +17,35 @@ from q_attention.plugins.quantum_steering import (
 
 
 CONSENSUS_QUANTUM_KERNEL_TYPES = ("quantum", "classical")
+
+
+def _product_state(angles: torch.Tensor) -> torch.Tensor:
+    state = torch.ones(angles.shape[0], 1, device=angles.device, dtype=angles.dtype)
+    for qubit in range(angles.shape[1]):
+        local = torch.stack(
+            (torch.cos(angles[:, qubit] / 2), torch.sin(angles[:, qubit] / 2)),
+            dim=-1,
+        )
+        state = (state.unsqueeze(-1) * local.unsqueeze(1)).reshape(angles.shape[0], -1)
+    return state
+
+
+def _product_reuploading_state(
+    features: torch.Tensor,
+    projection: torch.Tensor,
+    scales: torch.Tensor,
+    biases: torch.Tensor,
+    *,
+    angle_scale: float,
+    eps: float,
+) -> torch.Tensor:
+    """Parameter-matched product-state control without entangling gates."""
+    normalized = F.normalize(features.float(), p=2, dim=-1, eps=eps)
+    encoded = angle_scale * torch.matmul(normalized, projection.to(features.device))
+    total_angles = encoded + math.pi / 2
+    for depth_index in range(scales.shape[0]):
+        total_angles = total_angles + encoded * scales[depth_index] + biases[depth_index]
+    return F.normalize(_product_state(total_angles), p=2, dim=-1, eps=eps)
 
 
 @dataclass(frozen=True)

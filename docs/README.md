@@ -8,7 +8,7 @@
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
 | [Q-VRES 正式实验](current/qvres_relation_transfer_full_run_zh.md) | 当前 seed 13 validation 诊断与报告提交 |
-| [Q-LASS 冻结实验](current/collaborator_q_consensus_frozen_multiseed_zh.md) | seed 7 单 GPU 门禁与五 seed 多 GPU 验证 |
+| [Q-LASS 冻结验证](current/q_consensus_frozen_multiseed_zh.md) | 项目方执行 seed 7 门禁与五 seed synthetic 验证 |
 | [合作者 Git 工作流](current/collaborator_git_workflow_zh.md) | clone、同步 `main`、维护 `1.1`、提交报告 |
 | [正式实验协议](current/experiment_protocol_zh.md) | 数据、selector、指标和交接规则 |
 | [Q-NESS Toy Gate](current/qness_toy_gate_zh.md) | 历史机制原型测试，不是当前正式入口 |
@@ -23,5 +23,5 @@
 
 1. 当前实验以 GitHub `main` 和 `current/` 为准。
 2. Q-VRES 入口是 `scripts/run_qvres_validation_diagnostic.sh`，只读取已有 seed 13 raw run。
-3. Q-LASS 先运行 seed 7 单 GPU 门禁；通过后由合作者运行五 seed。单 seed 内 selector 顺序执行，多 GPU 只按 seed 并行。
+3. Q-LASS synthetic 验证由项目方执行：先跑 seed 7 单 GPU 门禁，再跑五 seed。完整真实数据正式实验才交给合作者。
 4. 不提交 `data/`、`runs/`、checkpoint、predictions、JSONL 或完整日志。
