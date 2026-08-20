@@ -10,6 +10,7 @@
 | [Q-VRES 正式实验](current/qvres_relation_transfer_full_run_zh.md) | 当前 seed 13 validation 诊断与报告提交 |
 | [Q-LASS 冻结验证](current/q_consensus_frozen_multiseed_zh.md) | 项目方执行 seed 7 门禁与五 seed synthetic 验证 |
 | [QCCW Stage-0](current/qccw_stage0_zh.md) | connected-correlation successor 的 seed-7 机制门禁；当前 bilinear gate 失败 |
+| [QCDD readout 诊断](current/qcdd_readout_diagnostic_zh.md) | coherent-minus-dephased seed-7 门禁；当前 matched control 失败 |
 | [合作者 Git 工作流](current/collaborator_git_workflow_zh.md) | clone、同步 `main`、维护 `1.1`、提交报告 |
 | [正式实验协议](current/experiment_protocol_zh.md) | 数据、selector、指标和交接规则 |
 | [Q-NESS Toy Gate](current/qness_toy_gate_zh.md) | 历史机制原型测试，不是当前正式入口 |
@@ -26,4 +27,5 @@
 2. Q-VRES 入口是 `scripts/run_qvres_validation_diagnostic.sh`，只读取已有 seed 13 raw run。
 3. Q-LASS synthetic 验证由项目方执行：先跑 seed 7 单 GPU 门禁，再跑五 seed。完整真实数据正式实验才交给合作者。
 4. QCCW Stage-0 仅跑 seed 7；当前 gate 失败，禁止五 seed、真实数据和硬件实验。
-5. 不提交 `data/`、`runs/`、checkpoint、predictions、JSONL 或完整日志。
+5. QCDD 仅为 seed-7 readout 诊断；当前 matched-control gate 失败，禁止调参、加 seed 和 attention action。
+6. 不提交 `data/`、`runs/`、checkpoint、predictions、JSONL 或完整日志。
