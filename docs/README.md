@@ -8,6 +8,7 @@
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
 | [Q-VRES 正式实验](current/qvres_relation_transfer_full_run_zh.md) | 当前 seed 13 validation 诊断与报告提交 |
+| [Q-LASS Re-TACRED 正式单 seed](current/retacred_qlass_formal_single_seed_zh.md) | 完整数据、单 seed、单 GPU 的 Q-LASS 与 classical matched control |
 | [Q-LASS 冻结验证](current/q_consensus_frozen_multiseed_zh.md) | 项目方执行 seed 7 门禁与五 seed synthetic 验证 |
 | [QCCW Stage-0](current/qccw_stage0_zh.md) | connected-correlation successor 的 seed-7 机制门禁；当前 bilinear gate 失败 |
 | [QCDD readout 诊断](current/qcdd_readout_diagnostic_zh.md) | coherent-minus-dephased seed-7 门禁；当前 matched control 失败 |
