@@ -86,7 +86,11 @@ EVIDENCE_MEASUREMENT_MODES = (
     "entanglement_phase_offset",
 )
 EVIDENCE_MEASUREMENT_FRAME_VIEWS = ("full", "z", "x")
-RELATION_EVIDENCE_ANCHOR_MODES = ("entity_pair", "leave_one_out_context")
+RELATION_EVIDENCE_ANCHOR_MODES = (
+    "entity_pair",
+    "leave_one_out_context",
+    "global_context",
+)
 QNESS_CONTROL_MODES = (
     "none",
     "commuting",
@@ -1325,7 +1329,7 @@ class RelationEvidenceSelector(nn.Module):
                 dim=-1,
             )
             relation = relation[:, head_index, None, :].expand(-1, key.shape[2], -1)
-        else:
+        elif self.config.relation_anchor_mode == "leave_one_out_context":
             head_key = key[:, head_index].float()
             context = (
                 attention_mask & ~(subject_mask | object_mask)
@@ -1352,6 +1356,25 @@ class RelationEvidenceSelector(nn.Module):
                 ),
                 dim=-1,
             )
+        else:
+            head_key = key[:, head_index].float()
+            valid = attention_mask.to(
+                device=head_key.device,
+                dtype=head_key.dtype,
+            )[:, :, None]
+            global_context = (head_key * valid).sum(dim=1, keepdim=True) / valid.sum(
+                dim=1,
+                keepdim=True,
+            ).clamp_min(1.0)
+            relation = torch.cat(
+                (
+                    global_context,
+                    global_context,
+                    torch.zeros_like(global_context),
+                    global_context * global_context,
+                ),
+                dim=-1,
+            ).expand(-1, key.shape[2], -1)
         anchor = F.normalize(
             relation.float(),
             p=2,

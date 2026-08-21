@@ -27,6 +27,7 @@ from .attention_evidence import (
 from .attention_score_kernel import (
     SCORE_KERNEL_CHECKPOINT_VERSION,
     SCORE_INPUT_ENCODING_CHOICES,
+    SCORE_RELATION_ANCHOR_CHOICES,
     SCORE_READOUT_CHOICES,
     SCORE_QUERY_SCOPE_CHOICES,
     ClassicalRelationAttentionScoreKernel,
@@ -128,6 +129,7 @@ __all__ = [
     "QCDD_KERNEL_TYPES",
     "SCORE_KERNEL_CHECKPOINT_VERSION",
     "SCORE_INPUT_ENCODING_CHOICES",
+    "SCORE_RELATION_ANCHOR_CHOICES",
     "SCORE_READOUT_CHOICES",
     "SCORE_QUERY_SCOPE_CHOICES",
     "ClassicalRelationAttentionScoreKernel",
