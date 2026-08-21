@@ -1,0 +1,50 @@
+{
+  "schema_version": "q-attention.q-lass-attention-alignment-audit.v1",
+  "experiment_name": "q_lass_attention_alignment_audit",
+  "source_experiment": {
+    "git_commit": "02cffd71560c30f2530af55f34d6d101f5ad8218",
+    "master_config_sha256": "bb577f9083d7573d26494bdd950c7d8af21236a36cf008df2f4a64d6ad63f548",
+    "seed_summary_schema": "q-attention.q-consensus-quantum-estimator-frozen-seed.v1",
+    "seeds": [
+      7,
+      11,
+      13,
+      17,
+      23
+    ],
+    "splits": [
+      "valid",
+      "test"
+    ],
+    "selectors": [
+      "disabled",
+      "q_consensus_quantum",
+      "classical_consensus_control"
+    ]
+  },
+  "device": {
+    "required_type": "cuda",
+    "required_name_substring": "RTX 3080 Ti"
+  },
+  "replay_compatibility": {
+    "maximum_accuracy_count_difference": 1,
+    "maximum_corrected_query_count_difference": 1,
+    "maximum_active_candidate_count_difference": 1,
+    "maximum_final_loss_absolute_difference": 0.001,
+    "require_exact_baseline_count": true,
+    "require_exact_active_query_count": true,
+    "require_exact_harmed_query_count": true,
+    "require_source_sha256_match": true
+  },
+  "alignment_gate": {
+    "movement_tolerance": 1e-08,
+    "minimum_evidence_mass_delta": 0.0,
+    "maximum_distractor_mass_delta": 0.0,
+    "minimum_evidence_minus_distractor_margin_delta": 0.0,
+    "minimum_evidence_top2_recall_delta": 0.0,
+    "maximum_mean_evidence_rank_delta": 0.0,
+    "maximum_harmful_movement_rate": 0.05,
+    "require_both_heldout_splits": true
+  },
+  "output_root": "runs/q_lass_attention_alignment_audit"
+}
