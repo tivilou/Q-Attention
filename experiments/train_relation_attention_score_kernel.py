@@ -98,6 +98,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--health_warning_patience", type=int, default=3)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--diversity_weight", type=float, default=0.0)
+    parser.add_argument("--role_regularization_weight", type=float, default=0.0)
+    parser.add_argument("--role_router_temperature", type=float, default=1.0)
+    parser.add_argument("--role_entropy_floor", type=float, default=0.35)
     parser.add_argument("--diagnostic_batches", type=int, default=0)
     parser.add_argument("--seed", type=int, default=13)
     parser.add_argument(
@@ -130,6 +133,8 @@ def validate_args(args: argparse.Namespace) -> None:
         raise ValueError("epochs, batch_size, and lr must be positive")
     if args.diversity_weight < 0:
         raise ValueError("diversity_weight must be non-negative")
+    if args.role_regularization_weight < 0:
+        raise ValueError("role_regularization_weight must be non-negative")
     if args.diagnostic_batches < 0:
         raise ValueError("diagnostic_batches must be non-negative")
     if args.log_every_batches <= 0:
@@ -198,6 +203,8 @@ def main() -> None:
             input_encoding=args.input_encoding,
             query_scope=args.query_scope,
             relation_anchor_mode=args.relation_anchor_mode,
+            role_router_temperature=args.role_router_temperature,
+            role_entropy_floor=args.role_entropy_floor,
             seed=args.seed,
         ),
     ).to(device)
@@ -260,6 +267,7 @@ def main() -> None:
         "seed": args.seed,
         "selection_metric": args.selection_metric,
         "diversity_weight": args.diversity_weight,
+        "role_regularization_weight": args.role_regularization_weight,
         "normalize_readout_energy": args.normalize_readout_energy,
         "action_contract": {
             "protocol": (
@@ -297,7 +305,10 @@ def main() -> None:
         ), start=0):
             batch = move_batch(batch, device)
             optimizer.zero_grad(set_to_none=True)
-            if args.diversity_weight > 0.0:
+            if args.diversity_weight > 0.0 or (
+                args.role_regularization_weight > 0.0
+                and args.relation_anchor_mode == "soft_role_pair"
+            ):
                 with kernel.capture_centered_kernels():
                     with adapter.steering(attention_score_hook_config(batch)):
                         logits = model(
@@ -307,8 +318,23 @@ def main() -> None:
                             batch["object_mask"],
                         )
                 task_loss = F.cross_entropy(logits, batch["labels"])
-                diversity_loss = kernel.functional_diversity_loss()
-                objective = task_loss + args.diversity_weight * diversity_loss
+                diversity_loss = (
+                    kernel.functional_diversity_loss()
+                    if args.diversity_weight > 0.0
+                    else task_loss.detach() * 0.0
+                )
+                role_loss = (
+                    kernel.last_role_regularization_loss
+                    if args.role_regularization_weight > 0.0
+                    and args.relation_anchor_mode == "soft_role_pair"
+                    and kernel.last_role_regularization_loss is not None
+                    else task_loss.detach() * 0.0
+                )
+                objective = (
+                    task_loss
+                    + args.diversity_weight * diversity_loss
+                    + args.role_regularization_weight * role_loss
+                )
                 require_finite_tensor(
                     objective,
                     "objective",
