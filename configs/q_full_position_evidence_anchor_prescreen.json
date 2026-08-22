@@ -1,0 +1,39 @@
+{
+  "schema_version": "q-attention.q-full-position-evidence-anchor-prescreen.v1",
+  "experiment_name": "q_full_position_evidence_anchor_prescreen",
+  "seed": 7,
+  "device": "cuda",
+  "source_config": "configs/q_partial_evidence_triad_gate.json",
+  "source_checkpoint": "runs/q_partial_evidence_triad_gate/seed7/20260819T101002Z/baseline_model.pt",
+  "expected_baseline_metrics": {
+    "valid": {
+      "accuracy": 0.8828125,
+      "nll": 0.5841842293739319
+    },
+    "test": {
+      "accuracy": 0.8671875,
+      "nll": 0.5574941039085388
+    }
+  },
+  "mechanism": {
+    "anchor": "baseline_context_attention",
+    "field_scope": "all_context_positions",
+    "walk_time": 0.7853981633974483,
+    "quantum_kernel": "signed_hermitian_walk",
+    "classical_control": "two_step_unsigned_diffusion",
+    "uses_labels_or_audit_masks": false
+  },
+  "training": {
+    "baseline_retrained_once": true,
+    "parameter_sweep": false,
+    "selector_training": false
+  },
+  "stage_a_gate": {
+    "minimum_baseline_accuracy": 0.7,
+    "minimum_candidate_alignment": 0.55,
+    "minimum_quantum_margin_advantage": 0.005,
+    "minimum_field_anchor_l1": 0.005,
+    "maximum_normalization_error": 0.000001
+  },
+  "output_root": "runs/q_full_position_evidence_anchor_prescreen"
+}

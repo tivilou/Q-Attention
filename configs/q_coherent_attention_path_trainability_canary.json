@@ -1,0 +1,47 @@
+{
+  "schema_version": "q-attention.coherent-attention-path-trainability.v1",
+  "experiment_name": "q_coherent_attention_path_trainability_canary",
+  "seed": 7,
+  "device": "cuda",
+  "dataset": {
+    "identity": "heldout_qk_signed_path_classification_v1",
+    "train_size": 192,
+    "valid_size": 96,
+    "nodes": 7,
+    "weight_jitter": 0.05,
+    "nuisance_weight": 0.1,
+    "skew_score_scale": 0.12,
+    "train_stream": 701,
+    "valid_stream": 702
+  },
+  "training": {
+    "steps": 80,
+    "learning_rate": 0.05,
+    "optimizer": "adam_full_batch"
+  },
+  "mechanism": {
+    "walk_time": 0.7853981633974483,
+    "max_transport": 2.0,
+    "initial_transport": 0.05,
+    "tie_tolerance": 0.000001
+  },
+  "selectors": [
+    "disabled",
+    "q_wap_signed",
+    "q_wap_unsigned",
+    "classical_wap_diffusion"
+  ],
+  "gate": {
+    "minimum_quantum_valid_accuracy": 0.95,
+    "maximum_control_valid_accuracy": 0.55,
+    "minimum_quantum_valid_nll_gain": 0.02,
+    "maximum_control_valid_nll_gain": 0.002,
+    "minimum_quantum_vs_control_nll_advantage": 0.02,
+    "minimum_quantum_training_nll_reduction": 0.02,
+    "minimum_transport_increase": 0.5,
+    "maximum_train_valid_nll_gap": 0.01,
+    "minimum_corrected_errors": 40,
+    "maximum_harmed_correct": 0
+  },
+  "output_root": "runs/q_coherent_attention_path_trainability_canary"
+}

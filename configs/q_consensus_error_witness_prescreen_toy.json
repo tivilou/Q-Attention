@@ -1,0 +1,34 @@
+{
+  "schema_version": "q-attention.q-consensus-error-witness-prescreen.v1",
+  "experiment_name": "q_consensus_error_witness_prescreen_toy",
+  "seed": 7,
+  "device": "cuda",
+  "dataset": {
+    "identity": "synthetic_dynamic_address_consensus_error_witness_v2",
+    "train_size": 512,
+    "calibration_size": 256,
+    "valid_size": 256,
+    "test_size": 256
+  },
+  "task": {
+    "queries": 2,
+    "classes": 3,
+    "keys": 6,
+    "dim": 4,
+    "evidence_keys": 2,
+    "hard_rate": 0.18,
+    "hard_score_bias": 2.0,
+    "easy_evidence_bias": 1.2,
+    "error_witness_threshold": 1.6,
+    "max_delta": 2.25
+  },
+  "gate": {
+    "baseline_accuracy_min": 0.7,
+    "baseline_accuracy_max": 0.9,
+    "minimum_witness_wrong_precision": 0.95,
+    "minimum_accuracy_delta": 0.03,
+    "maximum_harm_rate": 0.02,
+    "minimum_control_advantage": 0.02
+  },
+  "output_root": "runs/q_consensus_error_witness_prescreen_toy"
+}

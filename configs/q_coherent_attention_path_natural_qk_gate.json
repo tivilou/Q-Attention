@@ -1,0 +1,40 @@
+{
+  "schema_version": "q-attention.coherent-attention-path-natural-qk.v1",
+  "experiment_name": "q_coherent_attention_path_natural_qk_gate",
+  "seed": 7,
+  "device": "cuda",
+  "dataset": {
+    "identity": "fixed_feature_encoder_natural_qk_signed_cycle_v1",
+    "size": 96,
+    "nodes": 7,
+    "head_dim": 5,
+    "scale_low": 0.8,
+    "scale_high": 1.2,
+    "trainable_encoder": false
+  },
+  "mechanism": {
+    "walk_time": 0.7853981633974483,
+    "max_transport": 2.0,
+    "initial_transport": 1.0,
+    "tie_tolerance": 0.000001
+  },
+  "selectors": [
+    "disabled",
+    "q_wap_signed",
+    "q_wap_unsigned",
+    "classical_wap_diffusion"
+  ],
+  "gate": {
+    "minimum_unique_scores": 90,
+    "minimum_score_rank": 4,
+    "minimum_signed_target_gap": 0.1,
+    "maximum_control_target_gap": 0.00001,
+    "minimum_quantum_accuracy": 0.95,
+    "maximum_control_accuracy": 0.55,
+    "minimum_corrected_errors": 40,
+    "maximum_harmed_correct": 0,
+    "minimum_quantum_attention_gap": 0.05,
+    "maximum_reconstruction_error": 0.00001
+  },
+  "output_root": "runs/q_coherent_attention_path_natural_qk_gate"
+}

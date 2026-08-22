@@ -1,0 +1,62 @@
+{
+  "schema_version": "q-attention.q-wap-trained-baseline-gate.v1",
+  "experiment_name": "q_coherent_attention_path_anchor_scope_gate",
+  "seed": 7,
+  "device": "cuda",
+  "dataset": {
+    "identity": "structural_relation_order_parity_v1",
+    "nodes": 7,
+    "nuisance_tokens": 32,
+    "train_size": 512,
+    "valid_size": 256,
+    "test_size": 256,
+    "train_stream": 1701,
+    "valid_stream": 1702,
+    "test_stream": 1703
+  },
+  "model": {
+    "dim": 32,
+    "num_layers": 2,
+    "num_heads": 4,
+    "ff_dim": 64,
+    "dropout": 0.0,
+    "epochs": 24,
+    "batch_size": 64,
+    "learning_rate": 0.003
+  },
+  "training": {
+    "steps": 30,
+    "learning_rate": 0.05,
+    "optimizer": "adam_full_batch"
+  },
+  "mechanism": {
+    "walk_time": 0.7853981633974483,
+    "max_transport": 2.0,
+    "initial_transport": 0.05,
+    "query_scope": "subject_object"
+  },
+  "selectors": [
+    "disabled",
+    "q_wap_signed",
+    "q_wap_unsigned",
+    "classical_wap_diffusion",
+    "direct_row",
+    "shuffled_anchor"
+  ],
+  "stage_a_gate": {
+    "minimum_valid_accuracy": 0.7,
+    "minimum_test_accuracy": 0.7,
+    "maximum_parity_error": 0.0000001,
+    "minimum_score_asymmetry": 0.01,
+    "minimum_negative_cycle_fraction": 0.1,
+    "minimum_signed_unsigned_tv": 0.005,
+    "minimum_oracle_nll_headroom": 0.002,
+    "oracle_residual_step": 0.05
+  },
+  "stage_b_gate": {
+    "minimum_quantum_nll_gain": 0.001,
+    "minimum_control_advantage": 0.0005,
+    "maximum_accuracy_drop": 0.01
+  },
+  "output_root": "runs/q_coherent_attention_path_anchor_scope_gate"
+}

@@ -49,6 +49,7 @@ SCORE_READOUT_CHOICES = (
 )
 SCORE_INPUT_ENCODING_CHOICES = ("joint", "factorized_shared")
 SCORE_QUERY_SCOPE_CHOICES = ("all", "entities")
+SCORE_RELATION_ANCHOR_CHOICES = ("entity_pair", "global_context")
 
 
 @dataclass(frozen=True)
@@ -65,6 +66,7 @@ class RelationScoreKernelConfig:
     score_readout: str = "fidelity"
     input_encoding: str = "joint"
     query_scope: str = "all"
+    relation_anchor_mode: str = "entity_pair"
     seed: int = 53
     eps: float = 1e-8
 
@@ -87,6 +89,18 @@ class RelationScoreKernelConfig:
             )
         if self.query_scope not in SCORE_QUERY_SCOPE_CHOICES:
             raise ValueError(f"query_scope must be one of {SCORE_QUERY_SCOPE_CHOICES}")
+        if self.relation_anchor_mode not in SCORE_RELATION_ANCHOR_CHOICES:
+            raise ValueError(
+                "relation_anchor_mode must be one of "
+                f"{SCORE_RELATION_ANCHOR_CHOICES}"
+            )
+        if (
+            self.relation_anchor_mode == "global_context"
+            and self.query_scope != "all"
+        ):
+            raise ValueError(
+                "label-free global_context action requires query_scope='all'"
+            )
         if self.eps <= 0:
             raise ValueError("eps must be positive")
 
@@ -319,9 +333,28 @@ class RelationAttentionScoreKernel(nn.Module):
     def _relation_anchor(
         self,
         key: torch.Tensor,
+        attention_mask: torch.Tensor,
         subject_mask: torch.Tensor,
         object_mask: torch.Tensor,
     ) -> torch.Tensor:
+        if self.config.relation_anchor_mode == "global_context":
+            valid = attention_mask.to(
+                device=key.device,
+                dtype=key.dtype,
+            )[:, None, :, None]
+            global_context = (key * valid).sum(dim=2) / valid.sum(
+                dim=2,
+                keepdim=False,
+            ).clamp_min(1.0)
+            return torch.cat(
+                (
+                    global_context,
+                    global_context,
+                    torch.zeros_like(global_context),
+                    global_context * global_context,
+                ),
+                dim=-1,
+            )
         subject = _masked_head_mean(key, subject_mask, self.config.eps)
         object_ = _masked_head_mean(key, object_mask, self.config.eps)
         return torch.cat(
@@ -598,6 +631,7 @@ class RelationAttentionScoreKernel(nn.Module):
         self._validate_inputs(query, key, attention_mask, subject_mask, object_mask)
         relation_anchor = self._relation_anchor(
             key,
+            attention_mask,
             subject_mask,
             object_mask,
         )

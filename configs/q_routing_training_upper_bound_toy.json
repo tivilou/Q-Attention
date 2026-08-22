@@ -1,0 +1,29 @@
+{
+  "schema_version": "q-attention.q-routing-training-upper-bound.v1",
+  "experiment_name": "q_routing_training_upper_bound_toy",
+  "seed": 7,
+  "device": "cuda",
+  "readout": "query",
+  "conditions": [
+    "current_query",
+    "full_routing_query",
+    "masked_routing_query",
+    "full_routing_hard_selected",
+    "masked_routing_hard_selected"
+  ],
+  "dataset": {
+    "identity": "synthetic_noisy_primary_cue_rescue_v1_counterbalanced_routing_v2",
+    "train_size": 192,
+    "calibration_size": 96,
+    "valid_size": 96,
+    "batch_size": 32
+  },
+  "baseline": {
+    "epochs": 12,
+    "lr": 0.005
+  },
+  "gate": {
+    "reference_tolerance": 0.02
+  },
+  "output_root": "runs/q_routing_training_upper_bound_toy"
+}

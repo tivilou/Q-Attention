@@ -1,0 +1,47 @@
+{
+  "schema_version": "q-attention.ideal-quantum-resource-audit.v1",
+  "audit_name": "q_ideal_quantum_resource_audit",
+  "device": "cpu",
+  "shots": {
+    "policy": "symbolic_only",
+    "minimum_reported_shots": null,
+    "precision_target": "not_specified"
+  },
+  "qlass": {
+    "id": "q-lass-independent-key-estimator",
+    "source": "src/q_attention/plugins/q_consensus_quantum_estimator.py",
+    "qubits": 3,
+    "depth": 2,
+    "num_candidates": 3,
+    "head_dim": 4,
+    "queries_per_forward": 2,
+    "keys_per_query": 6,
+    "control": "product-state",
+    "readout": "parity expectation",
+    "measurement": "direct computational-basis parity estimate",
+    "state_preparation": "one encoded state per query-key-candidate; no amplitude-loading oracle specified",
+    "data_loading": "angle encoding through a dense classical projection",
+    "oracle_query": "none specified",
+    "classical_optimization": "trainable classical projection, scales, and biases",
+    "evidence": "refs/2026-08-20-qlass-evidence-card.json"
+  },
+  "qvres": {
+    "id": "q-vres-causal-value-transport",
+    "source": "src/q_attention/plugins/q_causal_value_evidence.py",
+    "qubits": 2,
+    "depth": 1,
+    "num_layers": 2,
+    "num_heads": 4,
+    "head_dim": 8,
+    "queries_per_forward": "sequence_length",
+    "keys_per_query": "sequence_length",
+    "control": "classical-linear-overlap-transport",
+    "readout": "fidelity overlap squared",
+    "measurement": "SWAP-test-style overlap estimate (assumed, not implemented)",
+    "state_preparation": "one encoded query state and one encoded token state per query-token pair; no amplitude-loading oracle specified",
+    "data_loading": "angle encoding through dense classical projections",
+    "oracle_query": "none specified",
+    "classical_optimization": "trainable scales, biases, and transport fractions",
+    "evidence": "reports/q_vres_relation_transfer/20260816-024541-full-pilot-seed13/run_summary.json"
+  }
+}

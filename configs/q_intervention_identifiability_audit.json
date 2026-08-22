@@ -1,0 +1,50 @@
+{
+  "schema_version": "q-attention.q-intervention-identifiability-audit.v1",
+  "experiment_name": "q_intervention_identifiability_audit",
+  "seed": 7,
+  "device": "cuda",
+  "source_config": "configs/q_partial_evidence_triad_gate.json",
+  "source_checkpoint": "runs/q_partial_evidence_triad_gate/seed7/20260819T101002Z/baseline_model.pt",
+  "source_checkpoint_sha256": "cf54680678563263fedf02c13d8cf062deb803e091fe33680383ee94cd37053e",
+  "expected_baseline_metrics": {
+    "valid": {
+      "accuracy": 0.8828125,
+      "nll": 0.5841842293739319
+    },
+    "test": {
+      "accuracy": 0.8671875,
+      "nll": 0.5574941039085388
+    }
+  },
+  "action_basis": {
+    "layers": "all",
+    "queries": "all",
+    "keys": "all_non_entity_context",
+    "signs": [-1, 1],
+    "heads": "all_shared",
+    "max_delta": 2.0,
+    "zero_sum_over_context": true
+  },
+  "observable_families": [
+    "action_identity",
+    "attention",
+    "value",
+    "jacobian",
+    "counterfactual",
+    "combined",
+    "shuffled_combined"
+  ],
+  "training": {
+    "probe": "standardized_ridge",
+    "ridge_penalty": 0.001,
+    "selection_threshold": 0.0,
+    "parameter_sweep": false
+  },
+  "gate": {
+    "minimum_oracle_corrections": 2,
+    "minimum_combined_corrections": 2,
+    "minimum_extra_corrections": 2,
+    "maximum_correct_to_wrong_rate": 0.01
+  },
+  "output_root": "runs/q_intervention_identifiability_audit"
+}

@@ -38,6 +38,7 @@ from q_attention.experiments.health import (  # noqa: E402
 )
 from q_attention.plugins import (  # noqa: E402
     SCORE_INPUT_ENCODING_CHOICES,
+    SCORE_RELATION_ANCHOR_CHOICES,
     SCORE_QUERY_SCOPE_CHOICES,
     SCORE_READOUT_CHOICES,
     RelationScoreKernelConfig,
@@ -82,6 +83,15 @@ def parse_args() -> argparse.Namespace:
         choices=SCORE_QUERY_SCOPE_CHOICES,
         default="all",
     )
+    parser.add_argument(
+        "--relation_anchor_mode",
+        choices=SCORE_RELATION_ANCHOR_CHOICES,
+        default="global_context",
+        help=(
+            "Relation anchor for the action path. global_context is the "
+            "label-free natural-task mode."
+        ),
+    )
     parser.add_argument("--epochs", type=int, default=12)
     parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--log_every_batches", type=int, default=50)
@@ -114,8 +124,8 @@ def resolve_data_path(value: str | None, fallback: Any, name: str) -> Path:
     return path if path.is_absolute() else ROOT / path
 
 
-def main() -> None:
-    args = parse_args()
+def validate_args(args: argparse.Namespace) -> None:
+    """Reject invalid and non-label-free natural-task configurations early."""
     if args.epochs <= 0 or args.batch_size <= 0 or args.lr <= 0:
         raise ValueError("epochs, batch_size, and lr must be positive")
     if args.diversity_weight < 0:
@@ -126,6 +136,15 @@ def main() -> None:
         raise ValueError("log_every_batches must be positive")
     if args.health_warning_patience <= 0:
         raise ValueError("health_warning_patience must be positive")
+    if args.relation_anchor_mode == "global_context" and args.query_scope != "all":
+        raise ValueError(
+            "label-free global_context action requires query_scope='all'"
+        )
+
+
+def main() -> None:
+    args = parse_args()
+    validate_args(args)
     stage = f"core_{args.kernel_type}"
     set_seed(args.seed)
     device = choose_device(args.device)
@@ -178,6 +197,7 @@ def main() -> None:
             score_readout=args.score_readout,
             input_encoding=args.input_encoding,
             query_scope=args.query_scope,
+            relation_anchor_mode=args.relation_anchor_mode,
             seed=args.seed,
         ),
     ).to(device)
@@ -241,6 +261,20 @@ def main() -> None:
         "selection_metric": args.selection_metric,
         "diversity_weight": args.diversity_weight,
         "normalize_readout_energy": args.normalize_readout_energy,
+        "action_contract": {
+            "protocol": (
+                "label_free_global_context"
+                if args.relation_anchor_mode == "global_context"
+                else "entity_pair_legacy"
+            ),
+            "action_uses_subject_object_masks": (
+                args.relation_anchor_mode != "global_context"
+            ),
+            "subject_object_spans_allowed_for_action": (
+                args.relation_anchor_mode != "global_context"
+            ),
+            "subject_object_spans_allowed_for_offline_evaluation": True,
+        },
     }
     history: list[dict[str, Any]] = []
     best_valid: dict[str, float] | None = None

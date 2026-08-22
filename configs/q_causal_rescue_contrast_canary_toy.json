@@ -1,0 +1,51 @@
+{
+  "schema_version": "q-attention.q-crc-canary-config.v1",
+  "experiment_name": "q_causal_rescue_contrast_canary_toy",
+  "selectors": [
+    "disabled",
+    "q_crc_gain_quantum",
+    "q_crc_gain_classical",
+    "q_crc_gain_shuffled_candidate",
+    "q_gain_task_only_quantum",
+    "q_crc_aoc_quantum",
+    "q_cat_gold"
+  ],
+  "seed": 7,
+  "device": "cuda",
+  "readout": "query",
+  "dataset": {
+    "identity": "synthetic_noisy_primary_cue_rescue_v1_query_indexed_readout",
+    "train_size": 192,
+    "calibration_size": 96,
+    "valid_size": 96,
+    "batch_size": 32
+  },
+  "baseline": {
+    "epochs": 12,
+    "lr": 0.005
+  },
+  "evidence": {
+    "register_qubits": 3,
+    "depth": 2,
+    "angle_scale": 1.0,
+    "max_delta": 2.0,
+    "max_gain": 6.0,
+    "initial_gain": 0.1,
+    "seed_offset": 2718
+  },
+  "training": {
+    "steps": 80,
+    "lr": 0.03,
+    "weight_decay": 0.0001,
+    "margin_target": 0.05,
+    "margin_weight": 0.5,
+    "gradient_clip": 5.0
+  },
+  "gate": {
+    "min_corrected_examples": 5,
+    "max_correct_to_wrong_rate": 0.02,
+    "minimum_gradient_norm": 1e-08
+  },
+  "q_cat_config": "configs/q_candidate_attention_transport_toy.json",
+  "output_root": "runs/q_causal_rescue_contrast_canary_toy"
+}
