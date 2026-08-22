@@ -12,4 +12,13 @@ bash scripts/run_retacred_qsrpa_formal_single_seed.sh --gpu 0
 
 运行目录在 `runs/retacred_qsrpa_formal_single_seed/`。完成后必须存在 `RUN_COMPLETE`、`run_summary.json` 和 `run_summary.md`。交付时只提交审计后的 report-only 文件，不提交 `runs/`、数据、checkpoint、预测或完整日志。
 
+在 `1.1` 分支合并 `origin/main` 后执行：
+
+```bash
+bash scripts/export_retacred_qsrpa_formal_single_seed_report.sh \
+  --run-dir runs/retacred_qsrpa_formal_single_seed/<timestamp>_seed13
+```
+
+导出脚本只提交 `reports/retacred_qsrpa_formal_single_seed/` 下的审计文件并推送 `origin/1.1`。
+
 判定门槛：Q-SRPA 相对 disabled 的 valid/test macro-F1 至少 `+0.001`，且相对 classical SRPA 不低于 `-0.0005`。未达到门槛时停止；只有正式单 seed 通过后才预声明五 seed replication。
