@@ -273,14 +273,12 @@ def main() -> None:
             "protocol": (
                 "label_free_global_context"
                 if args.relation_anchor_mode == "global_context"
+                else "label_free_soft_role_pair"
+                if args.relation_anchor_mode == "soft_role_pair"
                 else "entity_pair_legacy"
             ),
-            "action_uses_subject_object_masks": (
-                args.relation_anchor_mode != "global_context"
-            ),
-            "subject_object_spans_allowed_for_action": (
-                args.relation_anchor_mode != "global_context"
-            ),
+            "action_uses_subject_object_masks": args.relation_anchor_mode == "entity_pair",
+            "subject_object_spans_allowed_for_action": args.relation_anchor_mode == "entity_pair",
             "subject_object_spans_allowed_for_offline_evaluation": True,
         },
     }
