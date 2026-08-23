@@ -6,8 +6,9 @@
 
 ```bash
 git fetch origin --prune
-git switch main
-git pull --ff-only origin main
+git switch 1.1
+git merge origin/main
+git status --short
 bash scripts/check_retacred_qlass_formal_single_seed.sh
 ```
 
@@ -31,7 +32,7 @@ run_summary.md
 
 ## 3. 导出并提交到 1.1
 
-raw `runs/` 不提交。合作者先把 `main` 合入自己的 `1.1`，再执行：
+raw `runs/` 不提交。合作者始终在自己的 `1.1` 分支执行实验；`main` 只作为同步来源：
 
 ```bash
 git fetch origin --prune

@@ -4,11 +4,14 @@
 
 ```bash
 git fetch origin --prune
-git switch main
-git pull --ff-only origin main
+git switch 1.1
+git merge origin/main
+git status --short
 bash scripts/check_retacred_qsrpa_formal_single_seed.sh
 bash scripts/run_retacred_qsrpa_formal_single_seed.sh --gpu 0
 ```
+
+合作者的实验和报告准备始终在 `1.1` 分支进行；`main` 只作为负责人发布的代码来源，不在其上开发或提交实验结果。若合并出现冲突，立即停止并反馈。
 
 运行目录在 `runs/retacred_qsrpa_formal_single_seed/`。完成后必须存在 `RUN_COMPLETE`、`run_summary.json` 和 `run_summary.md`。交付时只提交审计后的 report-only 文件，不提交 `runs/`、数据、checkpoint、预测或完整日志。
 
