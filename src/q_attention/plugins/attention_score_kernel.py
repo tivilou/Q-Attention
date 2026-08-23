@@ -49,7 +49,7 @@ SCORE_READOUT_CHOICES = (
 )
 SCORE_INPUT_ENCODING_CHOICES = ("joint", "factorized_shared")
 SCORE_QUERY_SCOPE_CHOICES = ("all", "entities")
-SCORE_RELATION_ANCHOR_CHOICES = ("entity_pair", "global_context")
+SCORE_RELATION_ANCHOR_CHOICES = ("entity_pair", "global_context", "soft_role_pair")
 
 
 @dataclass(frozen=True)
@@ -67,6 +67,8 @@ class RelationScoreKernelConfig:
     input_encoding: str = "joint"
     query_scope: str = "all"
     relation_anchor_mode: str = "entity_pair"
+    role_router_temperature: float = 1.0
+    role_entropy_floor: float = 0.35
     seed: int = 53
     eps: float = 1e-8
 
@@ -103,6 +105,10 @@ class RelationScoreKernelConfig:
             )
         if self.eps <= 0:
             raise ValueError("eps must be positive")
+        if self.role_router_temperature <= 0:
+            raise ValueError("role_router_temperature must be positive")
+        if not 0.0 <= self.role_entropy_floor <= 1.0:
+            raise ValueError("role_entropy_floor must lie in [0, 1]")
 
 
 def _raw_gain(initial_gain: float, max_gain: float, shape: tuple[int, ...]) -> torch.Tensor:
@@ -126,6 +132,17 @@ class RelationAttentionScoreKernel(nn.Module):
         self.config = config
         self.evidence_selector: RelationEvidenceSelector | None = None
         self.expert_router: RelationObservableExpertRouter | None = None
+        self._last_role_regularization_loss: torch.Tensor | None = None
+        if config.relation_anchor_mode == "soft_role_pair":
+            generator = torch.Generator(device="cpu").manual_seed(config.seed + 4013)
+            base_router = torch.empty(config.num_heads, config.head_dim).normal_(
+                mean=0.0, std=1.0 / math.sqrt(config.head_dim), generator=generator
+            )
+            self.role_router = nn.Parameter(torch.stack((base_router, -base_router), dim=1))
+            self.role_router_bias = nn.Parameter(torch.zeros(config.num_heads, 2))
+        else:
+            self.register_parameter("role_router", None)
+            self.register_parameter("role_router_bias", None)
         if config.input_encoding == "joint":
             feature_dim = 5 * config.head_dim
             query_projections = torch.stack(
@@ -337,6 +354,28 @@ class RelationAttentionScoreKernel(nn.Module):
         subject_mask: torch.Tensor,
         object_mask: torch.Tensor,
     ) -> torch.Tensor:
+        if self.config.relation_anchor_mode == "soft_role_pair":
+            if self.role_router is None or self.role_router_bias is None:
+                raise RuntimeError("soft-role router parameters are unavailable")
+            valid = attention_mask[:, None, :].to(device=key.device, dtype=key.dtype)
+            logits = torch.einsum("bhkd,hrd->bhkr", key, self.role_router)
+            logits = logits + self.role_router_bias[None, :, None, :]
+            logits = logits / self.config.role_router_temperature
+            logits = logits.masked_fill(~attention_mask[:, None, :, None], -torch.inf)
+            weights = torch.softmax(logits, dim=2) * valid.unsqueeze(-1)
+            weights = weights / weights.sum(dim=2, keepdim=True).clamp_min(self.config.eps)
+            role_context = torch.einsum("bhkr,bhkd->bhrd", weights, key)
+            safe_weights = weights.clamp_min(self.config.eps)
+            entropy = -(safe_weights * safe_weights.log()).sum(dim=2)
+            token_count = attention_mask.sum(dim=-1, keepdim=True).clamp_min(2).to(key.dtype).unsqueeze(-1)
+            normalized_entropy = entropy / token_count.log().clamp_min(self.config.eps)
+            self._last_role_regularization_loss = (
+                F.relu(self.config.role_entropy_floor - normalized_entropy).square().mean()
+                + (weights[..., 0] * weights[..., 1]).sum(dim=2).mean()
+            )
+            source = role_context[:, :, 0]
+            target = role_context[:, :, 1]
+            return torch.cat((source, target, source - target, source * target), dim=-1)
         if self.config.relation_anchor_mode == "global_context":
             valid = attention_mask.to(
                 device=key.device,
@@ -371,6 +410,36 @@ class RelationAttentionScoreKernel(nn.Module):
         relation = relation_anchor
         relation = relation[:, :, None, :].expand(-1, -1, query.shape[2], -1)
         return torch.cat((query, relation), dim=-1), torch.cat((key, relation), dim=-1)
+
+    def relation_role_diagnostics(
+        self, key: torch.Tensor, attention_mask: torch.Tensor
+    ) -> dict[str, torch.Tensor]:
+        if self.config.relation_anchor_mode != "soft_role_pair":
+            raise RuntimeError("role diagnostics require relation_anchor_mode='soft_role_pair'")
+        if self.role_router is None or self.role_router_bias is None:
+            raise RuntimeError("soft-role router parameters are unavailable")
+        logits = torch.einsum("bhkd,hrd->bhkr", key, self.role_router)
+        logits = (logits + self.role_router_bias[None, :, None, :]) / self.config.role_router_temperature
+        logits = logits.masked_fill(~attention_mask[:, None, :, None], -torch.inf)
+        weights = torch.softmax(logits, dim=2)
+        valid = attention_mask[:, None, :, None].to(weights.dtype)
+        weights = weights * valid
+        weights = weights / weights.sum(dim=2, keepdim=True).clamp_min(self.config.eps)
+        safe = weights.clamp_min(self.config.eps)
+        entropy = -(safe * safe.log()).sum(dim=2)
+        count = attention_mask.sum(dim=-1, keepdim=True).clamp_min(2).to(weights.dtype).unsqueeze(-1)
+        normalized_entropy = entropy / count.log().clamp_min(self.config.eps)
+        overlap = (weights[..., 0] * weights[..., 1]).sum(dim=2)
+        return {"weights": weights, "normalized_entropy": normalized_entropy, "overlap": overlap, "effective_tokens": torch.exp(entropy)}
+
+    def role_router_regularization_loss(self, key: torch.Tensor, attention_mask: torch.Tensor) -> torch.Tensor:
+        diagnostics = self.relation_role_diagnostics(key, attention_mask)
+        entropy_penalty = F.relu(self.config.role_entropy_floor - diagnostics["normalized_entropy"]).square().mean()
+        return entropy_penalty + diagnostics["overlap"].mean()
+
+    @property
+    def last_role_regularization_loss(self) -> torch.Tensor | None:
+        return self._last_role_regularization_loss
 
     def _feature_states(
         self,

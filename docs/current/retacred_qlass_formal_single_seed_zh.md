@@ -6,8 +6,9 @@
 
 ```bash
 git fetch origin --prune
-git switch main
-git pull --ff-only origin main
+git switch 1.1
+git merge origin/main
+git status --short
 bash scripts/check_retacred_qlass_formal_single_seed.sh
 ```
 
@@ -31,17 +32,18 @@ run_summary.md
 
 ## 3. 导出并提交到 1.1
 
-raw `runs/` 不提交。合作者先把 `main` 合入自己的 `1.1`，再执行：
+raw `runs/` 不提交。合作者始终在自己的 `1.1` 分支执行实验；`main` 只作为同步来源：
 
 ```bash
 git fetch origin --prune
 git switch 1.1
 git pull --ff-only origin 1.1
-git merge --ff-only origin/main
+git merge origin/main
 bash scripts/export_retacred_qlass_formal_single_seed_report.sh \
   --run-dir runs/retacred_qlass_formal_single_seed/<时间戳>_seed13
 ```
 
+这里允许生成一个 merge commit：1.1 通常已经包含合作者的实验报告提交，和 main 会发生分叉。若 git merge origin/main 出现冲突，立即停止并反馈，不要删除源码、使用 git add -f runs/... 或强行继续。
 脚本会检查 `RUN_COMPLETE`、`RUN_FAILED`、seed、test isolation、valid/test 指标和私有文件；然后只把精简报告写入 `reports/retacred_qlass_formal_single_seed/`，执行 `git add`、`git diff --cached --check`、提交，并推送到 `origin/1.1`。如需先检查而不提交：
 
 ```bash

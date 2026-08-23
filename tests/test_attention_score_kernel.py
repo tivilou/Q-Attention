@@ -312,6 +312,31 @@ def test_global_context_requires_all_query_scope() -> None:
         )
 
 
+def test_soft_role_pair_is_label_free_mask_invariant_and_noncollapsed() -> None:
+    torch.manual_seed(91)
+    query = torch.randn(2, 2, 6, 4)
+    key = torch.randn(2, 2, 6, 4)
+    attention, subject, object_ = relation_masks(2, 6, padded=True)
+    kernel = QuantumRelationAttentionScoreKernel(
+        kernel_config(relation_anchor_mode="soft_role_pair", input_encoding="factorized_shared")
+    )
+    residual = kernel(
+        query, key, layer_index=0, attention_mask=attention,
+        subject_mask=subject, object_mask=object_,
+    )
+    swapped = kernel(
+        query, key, layer_index=0, attention_mask=attention,
+        subject_mask=object_, object_mask=subject,
+    )
+    torch.testing.assert_close(residual, swapped)
+    diagnostics = kernel.relation_role_diagnostics(key, attention)
+    assert torch.isfinite(residual).all()
+    assert torch.isfinite(diagnostics["weights"]).all()
+    assert diagnostics["effective_tokens"].min() > 1.0
+    assert diagnostics["normalized_entropy"].min() > 0.0
+    assert sum(p.numel() for p in kernel.parameters()) > 0
+
+
 def test_score_kernel_training_defaults_to_label_free_global_context(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

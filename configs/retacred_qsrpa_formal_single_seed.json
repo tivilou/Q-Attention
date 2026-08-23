@@ -1,0 +1,21 @@
+{
+  "name": "retacred_qsrpa_formal_single_seed",
+  "formal_experiment": true,
+  "seed": 13,
+  "selection_metric": "macro_f1_then_loss",
+  "expected_records": {"train": 58465, "valid": 19584, "test": 13418},
+  "kernel": {
+    "epochs": 12,
+    "batch_size": 256,
+    "lr": 0.001,
+    "num_qubits": 4,
+    "depth": 2,
+    "score_readout": "fidelity",
+    "input_encoding": "joint",
+    "query_scope": "all",
+    "relation_anchor_mode": "soft_role_pair",
+    "role_router_temperature": 1.0,
+    "role_entropy_floor": 0.35,
+    "role_regularization_weight": 0.001
+  }
+}
