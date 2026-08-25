@@ -23,7 +23,11 @@ PYTHON_BIN=$(resolve_python_bin); export PYTHON_BIN
 GPU_SPEC=0; OUTPUT_DIR=; REPORT_DIR=; LOG_EVERY_BATCHES=50; SKIP_PREFLIGHT=0; DRY_RUN=0
 usage(){ echo "Usage: bash scripts/run_retacred_qsrpa_query_conditioned_formal_single_seed.sh [--gpu N] [--output-dir PATH] [--report-dir PATH] [--skip-preflight] [--dry-run]"; }
 while [[ $# -gt 0 ]]; do case "$1" in --gpu) GPU_SPEC=$2; shift;; --output-dir) OUTPUT_DIR=$2; shift;; --report-dir) REPORT_DIR=$2; shift;; --log-every-batches) LOG_EVERY_BATCHES=$2; shift;; --skip-preflight) SKIP_PREFLIGHT=1;; --dry-run) DRY_RUN=1;; -h|--help) usage; exit 0;; *) usage >&2; exit 2;; esac; shift; done
-cd "${ROOT}"; RUN_DIR=${OUTPUT_DIR:-runs/retacred_qsrpa_query_conditioned_formal_single_seed/$(date -u +%Y%m%dT%H%M%SZ)_seed13}; RUN_DIR=$(readlink -m "${RUN_DIR}")
+cd "${ROOT}"
+RUN_TIMESTAMP=$(date -u +%Y%m%dT%H%M%SZ)
+RUN_DIR=${OUTPUT_DIR:-runs/retacred_qsrpa_query_conditioned_formal_single_seed/${RUN_TIMESTAMP}_seed13}
+DEFAULT_REPORT_DIR="reports/retacred_qsrpa_query_conditioned_formal_single_seed/${RUN_TIMESTAMP}_seed13"
+RUN_DIR=$(readlink -m "${RUN_DIR}")
 case "${RUN_DIR}" in "${ROOT}"/runs/*) ;; *) echo "Output must be under runs/" >&2; exit 2;; esac
 [[ ${DRY_RUN} -eq 1 || ! -e "${RUN_DIR}" ]] || { echo "Refusing to reuse output" >&2; exit 1; }
 [[ ${SKIP_PREFLIGHT} -eq 1 || ${DRY_RUN} -eq 1 ]] || bash scripts/check_retacred_qsrpa_query_conditioned_formal_single_seed.sh
@@ -35,10 +39,7 @@ for NAME in quantum_global_context classical_global_context quantum_soft_role_pa
 if [[ ${DRY_RUN} -eq 0 ]]; then
   "${PYTHON_BIN}" scripts/summarize_retacred_qsrpa_query_conditioned_formal_single_seed.py --run-dir "${RUN_DIR}"
   date -Iseconds > "${RUN_DIR}/RUN_COMPLETE"
-  if [[ -n "${REPORT_DIR}" ]]; then
-    PYTHON_BIN="${PYTHON_BIN}" bash scripts/export_retacred_qsrpa_query_conditioned_formal_single_seed_report.sh --run-dir "${RUN_DIR}" --report-dir "${REPORT_DIR}"
-  else
-    PYTHON_BIN="${PYTHON_BIN}" bash scripts/export_retacred_qsrpa_query_conditioned_formal_single_seed_report.sh --run-dir "${RUN_DIR}"
-  fi
+  REPORT_DIR=${REPORT_DIR:-${DEFAULT_REPORT_DIR}}
+  PYTHON_BIN="${PYTHON_BIN}" bash scripts/export_retacred_qsrpa_query_conditioned_formal_single_seed_report.sh --run-dir "${RUN_DIR}" --report-dir "${REPORT_DIR}"
   echo "RUN_DIR=${RUN_DIR}"
 fi
