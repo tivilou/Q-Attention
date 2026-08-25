@@ -142,8 +142,13 @@ def validate_args(args: argparse.Namespace) -> None:
     if args.health_warning_patience <= 0:
         raise ValueError("health_warning_patience must be positive")
     if args.relation_anchor_mode == "global_context" and args.query_scope != "all":
+        raise ValueError("label-free global_context action requires query_scope='all'")
+    if (
+        args.relation_anchor_mode == "query_conditioned_soft_role_pair"
+        and args.query_scope != "all"
+    ):
         raise ValueError(
-            "label-free global_context action requires query_scope='all'"
+            "label-free query-conditioned soft-role action requires query_scope='all'"
         )
 
 

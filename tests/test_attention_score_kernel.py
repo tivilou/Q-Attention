@@ -337,6 +337,93 @@ def test_soft_role_pair_is_label_free_mask_invariant_and_noncollapsed() -> None:
     assert sum(p.numel() for p in kernel.parameters()) > 0
 
 
+def test_query_conditioned_soft_role_pair_routes_per_query_without_entity_masks(
+    tmp_path,
+) -> None:
+    torch.manual_seed(92)
+    query = torch.randn(2, 2, 6, 4)
+    key = torch.randn(2, 2, 6, 4)
+    attention, subject, object_ = relation_masks(2, 6, padded=True)
+    config = kernel_config(
+        relation_anchor_mode="query_conditioned_soft_role_pair",
+        input_encoding="factorized_shared",
+    )
+    quantum = QuantumRelationAttentionScoreKernel(config)
+    classical = ClassicalRelationAttentionScoreKernel(config)
+
+    diagnostics = quantum.relation_role_diagnostics(key, attention, query)
+    reversed_query = query.roll(shifts=1, dims=2)
+    reversed_diagnostics = quantum.relation_role_diagnostics(
+        key, attention, reversed_query
+    )
+    assert diagnostics["weights"].shape == (2, 2, 6, 6, 2)
+    assert diagnostics["weights"][..., -1, :].equal(
+        torch.zeros_like(diagnostics["weights"][..., -1, :])
+    )
+    assert diagnostics["weights"][:, :, -1].equal(
+        torch.zeros_like(diagnostics["weights"][:, :, -1])
+    )
+    assert (diagnostics["weights"] - reversed_diagnostics["weights"]).abs().sum() > 1e-5
+
+    residual = quantum(
+        query,
+        key,
+        layer_index=0,
+        attention_mask=attention,
+        subject_mask=subject,
+        object_mask=object_,
+    )
+    alternate_masks = (
+        subject.roll(shifts=1, dims=-1),
+        object_.roll(shifts=-1, dims=-1),
+    )
+    alternate = quantum(
+        query,
+        key,
+        layer_index=0,
+        attention_mask=attention,
+        subject_mask=alternate_masks[0],
+        object_mask=alternate_masks[1],
+    )
+    torch.testing.assert_close(residual, alternate)
+    assert torch.equal(residual[:, :, -1], torch.zeros_like(residual[:, :, -1]))
+    assert torch.equal(residual[:, :, :, -1], torch.zeros_like(residual[:, :, :, -1]))
+    assert torch.isfinite(residual).all()
+    assert torch.allclose(
+        residual[:, :, :-1, :-1].sum(dim=-1),
+        torch.zeros(2, 2, 5),
+        atol=1e-6,
+    )
+    assert sum(p.numel() for p in quantum.parameters()) == sum(
+        p.numel() for p in classical.parameters()
+    )
+
+    checkpoint = tmp_path / "query_conditioned_soft_role_pair.pt"
+    save_relation_attention_score_kernel_checkpoint(checkpoint, quantum)
+    restored, _ = load_relation_attention_score_kernel_checkpoint(checkpoint)
+    restored_residual = restored(
+        query,
+        key,
+        layer_index=0,
+        attention_mask=attention,
+        subject_mask=subject,
+        object_mask=object_,
+    )
+    assert restored.config.relation_anchor_mode == "query_conditioned_soft_role_pair"
+    assert torch.equal(restored_residual, residual)
+
+
+def test_query_conditioned_soft_role_pair_requires_all_query_scope() -> None:
+    with pytest.raises(
+        ValueError,
+        match="label-free query-conditioned soft-role action requires query_scope='all'",
+    ):
+        kernel_config(
+            relation_anchor_mode="query_conditioned_soft_role_pair",
+            query_scope="entities",
+        )
+
+
 def test_score_kernel_training_defaults_to_label_free_global_context(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
