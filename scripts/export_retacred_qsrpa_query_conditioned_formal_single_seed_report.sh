@@ -34,7 +34,9 @@ assert 'quantum_query_conditioned_soft_role_pair' in p.get('methods', {})
 assert 'classical_query_conditioned_soft_role_pair' in p.get('methods', {})
 assert 'candidate_minus_matched' in p and 'candidate_minus_disabled' in p
 PY
-REPORT_DIR=${REPORT_DIR:-reports/retacred_qsrpa_query_conditioned_formal_single_seed/$(date -u +%Y%m%d-%H%M%S)-full-single-seed13}; [[ "${REPORT_DIR}" = /* ]] || REPORT_DIR="${ROOT}/${REPORT_DIR}"; REPORT_DIR=$(readlink -m "${REPORT_DIR}"); case "${REPORT_DIR}" in "${ROOT}/reports/retacred_qsrpa_query_conditioned_formal_single_seed/"*) ;; *) exit 1;; esac; [[ ! -e "${REPORT_DIR}" ]] || exit 1
+RUN_NAME=$(basename "${RUN_DIR}"); case "${RUN_NAME}" in *_seed13) ;; *) echo "Run directory must end with _seed13: ${RUN_NAME}" >&2; exit 1;; esac
+DEFAULT_REPORT_DIR="reports/retacred_qsrpa_query_conditioned_formal_single_seed/${RUN_NAME}"
+REPORT_DIR=${REPORT_DIR:-${DEFAULT_REPORT_DIR}}; [[ "${REPORT_DIR}" = /* ]] || REPORT_DIR="${ROOT}/${REPORT_DIR}"; REPORT_DIR=$(readlink -m "${REPORT_DIR}"); case "${REPORT_DIR}" in "${ROOT}/reports/retacred_qsrpa_query_conditioned_formal_single_seed/"*) ;; *) exit 1;; esac; [[ ! -e "${REPORT_DIR}" ]] || exit 1
 mkdir -p "${REPORT_DIR}/metrics"; cp "${RUN_DIR}/RUN_COMPLETE" "${RUN_DIR}/run_summary.json" "${RUN_DIR}/run_summary.md" "${REPORT_DIR}/"; cp configs/retacred_qsrpa_query_conditioned_formal_single_seed.json "${REPORT_DIR}/run_config.json"; cp "${RUN_DIR}/baseline/metrics.json" "${REPORT_DIR}/metrics/baseline.json"
 for name in quantum_global_context classical_global_context quantum_soft_role_pair classical_soft_role_pair quantum_query_conditioned_soft_role_pair classical_query_conditioned_soft_role_pair; do cp "${RUN_DIR}/${name}/valid/metrics.json" "${REPORT_DIR}/metrics/${name}_valid.json"; cp "${RUN_DIR}/${name}/test/metrics.json" "${REPORT_DIR}/metrics/${name}_test.json"; done
 if [[ -f "${RUN_DIR}/provenance.env" ]]; then cp "${RUN_DIR}/provenance.env" "${REPORT_DIR}/"; else echo PROVENANCE_STATUS=not_recorded_by_runner > "${REPORT_DIR}/provenance.env"; fi
