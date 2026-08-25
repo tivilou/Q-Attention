@@ -36,7 +36,11 @@ def test_query_conditioned_formal_runner_is_serial_and_has_all_controls() -> Non
     assert "CUDA_VISIBLE_DEVICES" in text
     assert "export_retacred_qsrpa_query_conditioned_formal_single_seed_report.sh" in text
     assert "--report-dir" in text
-    assert 'bash scripts/export_retacred_qsrpa_query_conditioned_formal_single_seed_report.sh --run-dir "${RUN_DIR}"' in text
+    assert "RUN_TIMESTAMP=$(date -u +%Y%m%dT%H%M%SZ)" in text
+    assert 'runs/retacred_qsrpa_query_conditioned_formal_single_seed/${RUN_TIMESTAMP}_seed13' in text
+    assert 'reports/retacred_qsrpa_query_conditioned_formal_single_seed/${RUN_TIMESTAMP}_seed13' in text
+    assert 'REPORT_DIR=${REPORT_DIR:-${DEFAULT_REPORT_DIR}}' in text
+    assert 'bash scripts/export_retacred_qsrpa_query_conditioned_formal_single_seed_report.sh --run-dir "${RUN_DIR}" --report-dir "${REPORT_DIR}"' in text
     assert "No Python interpreter found" in text
     assert "/usr/local/miniconda3" not in text
     assert not any(line.rstrip().endswith("&") for line in text.splitlines())

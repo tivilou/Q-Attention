@@ -13,7 +13,7 @@ bash scripts/check_retacred_qsrpa_query_conditioned_formal_single_seed.sh
 bash scripts/run_retacred_qsrpa_query_conditioned_formal_single_seed.sh --gpu 0
 ```
 
-runner 完成全部训练和评估后，会先生成 `RUN_COMPLETE`、`run_summary.json` 和 `run_summary.md`，再自动调用 exporter。默认报告目录为 `reports/retacred_qsrpa_query_conditioned_formal_single_seed/`；如需指定目录，直接把 `--report-dir reports/retacred_qsrpa_query_conditioned_formal_single_seed/<name>` 传给 runner。exporter 会再次检查完整性、分支、clean 状态和私有文件，随后只提交并 push 审计后的报告子集，不提交 runs、数据、checkpoint、预测或完整日志。
+runner 启动时只记录一次 UTC 时间戳，并用它命名运行目录和默认报告目录。完成全部训练和评估后，会先生成 `RUN_COMPLETE`、`run_summary.json` 和 `run_summary.md`，再自动调用 exporter。未指定时，报告目录为 `reports/retacred_qsrpa_query_conditioned_formal_single_seed/<启动时间戳>_seed13/`；如需指定目录，直接把 `--report-dir reports/retacred_qsrpa_query_conditioned_formal_single_seed/<name>` 传给 runner。exporter 会再次检查完整性、分支、clean 状态和私有文件，随后只提交并 push 审计后的报告子集，不提交 runs、数据、checkpoint、预测或完整日志。
 
 例如：
 
