@@ -1,6 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
-ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); PYTHON_BIN=${PYTHON_BIN:-python}; RUN_DIR=; REPORT_DIR=; NO_COMMIT=0
+ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); RUN_DIR=; REPORT_DIR=; NO_COMMIT=0
+resolve_python_bin(){
+  if [[ -n "${PYTHON_BIN:-}" ]]; then
+    if [[ "${PYTHON_BIN}" == */* ]]; then
+      [[ -x "${PYTHON_BIN}" ]] && { printf '%s\n' "${PYTHON_BIN}"; return; }
+    elif command -v "${PYTHON_BIN}" >/dev/null 2>&1; then
+      command -v "${PYTHON_BIN}"; return
+    fi
+    echo "PYTHON_BIN is not executable or not on PATH: ${PYTHON_BIN}" >&2
+    return 1
+  fi
+  for candidate in python python3; do
+    if command -v "${candidate}" >/dev/null 2>&1; then
+      command -v "${candidate}"; return
+    fi
+  done
+  echo "No Python interpreter found; activate an environment or set PYTHON_BIN" >&2
+  return 1
+}
+PYTHON_BIN=$(resolve_python_bin); export PYTHON_BIN
 while [[ $# -gt 0 ]]; do case "$1" in --run-dir) RUN_DIR=$2; shift 2;; --report-dir) REPORT_DIR=$2; shift 2;; --no-commit) NO_COMMIT=1; shift;; -h|--help) echo "Usage: $0 --run-dir PATH [--report-dir PATH] [--no-commit]"; exit 0;; *) exit 2;; esac; done
 cd "${ROOT}"; [[ "$(git branch --show-current)" == "1.1" ]] || { echo "Exporter must run on branch 1.1" >&2; exit 1; }; [[ -z "$(git status --porcelain --untracked-files=all)" ]] || { echo "Working tree must be clean" >&2; exit 1; }; git merge-base --is-ancestor origin/main HEAD
 [[ -n "${RUN_DIR}" ]] || { echo "--run-dir is required" >&2; exit 2; }; [[ "${RUN_DIR}" = /* ]] || RUN_DIR="${ROOT}/${RUN_DIR}"; RUN_DIR=$(readlink -f "${RUN_DIR}")
