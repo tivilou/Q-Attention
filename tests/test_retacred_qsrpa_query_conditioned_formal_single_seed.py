@@ -58,6 +58,42 @@ def test_query_conditioned_handoff_scripts_use_portable_python_resolution() -> N
         assert "/usr/local/miniconda3" not in text
 
 
+def test_query_conditioned_exporter_defaults_to_raw_run_timestamp() -> None:
+    text = (ROOT / "scripts/export_retacred_qsrpa_query_conditioned_formal_single_seed_report.sh").read_text(
+        encoding="utf-8"
+    )
+    assert 'RUN_NAME=$(basename "${RUN_DIR}")' in text
+    assert 'DEFAULT_REPORT_DIR="reports/retacred_qsrpa_query_conditioned_formal_single_seed/${RUN_NAME}"' in text
+    assert "date -u" not in text
+
+
+def test_query_conditioned_doc_prioritizes_default_report_flow_and_git_handoff() -> None:
+    text = (ROOT / "docs/current/retacred_qsrpa_query_conditioned_formal_single_seed_zh.md").read_text(
+        encoding="utf-8"
+    )
+    standard = "bash scripts/run_retacred_qsrpa_query_conditioned_formal_single_seed.sh --gpu 0"
+    assert standard in text
+    assert text.index(standard) < text.index("--report-dir")
+    for command in (
+        "git branch --show-current",
+        "git status --short",
+        "git log -1 --oneline --decorate",
+        "git diff --cached --check",
+        "git commit -m",
+        "git push origin 1.1",
+    ):
+        assert command in text
+
+
+def test_docs_index_places_new_qsrpa_doc_after_method_overview() -> None:
+    text = (ROOT / "docs/README.md").read_text(encoding="utf-8")
+    overview = "[当前方法概览](current/method_overview_zh.md)"
+    qsrpa = "[Q-SRPA query-conditioned Re-TACRED 正式单 seed](current/retacred_qsrpa_query_conditioned_formal_single_seed_zh.md)"
+    qvres = "[Q-VRES 正式实验](current/qvres_relation_transfer_full_run_zh.md)"
+    assert overview in text and qsrpa in text and qvres in text
+    assert text.index(overview) < text.index(qsrpa) < text.index(qvres)
+
+
 def test_query_conditioned_preflight_rejects_dirty_worktree() -> None:
     text = (ROOT / "scripts/check_retacred_qsrpa_query_conditioned_formal_single_seed.sh").read_text(
         encoding="utf-8"
