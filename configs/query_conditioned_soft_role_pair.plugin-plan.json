@@ -1,0 +1,134 @@
+{
+  "schema_version": "research-plugin-architecture.plugin-plan.v1",
+  "project": "Q-Attention query-conditioned soft-role pair successor",
+  "authorization": "implemented",
+  "baseline": {
+    "entry_point": "src/q_attention/plugins/attention_score_kernel.py::RelationAttentionScoreKernel",
+    "code_revision": "86a6a315c640dd5d35e2ed7bc8e9af8d368b73c9",
+    "equivalence_test": "existing entity_pair, global_context, and soft_role_pair configurations replay their pre-successor outputs on fixed inputs"
+  },
+  "core_invariants": [
+    "keep data loading, labels, metrics, and the Re-TACRED evaluation protocol outside the plugin",
+    "action routing reads query, key, and padding masks only; subject/object masks are not used to construct the anchor",
+    "centered score residuals remain query-aligned and have zero key-sum on active rows",
+    "existing relation anchor modes retain their prior configuration and checkpoint semantics",
+    "quantum and matched classical kernels share the same successor anchor and parameter budget"
+  ],
+  "interfaces": [
+    {
+      "id": "relation_score_anchor",
+      "type": "transformer",
+      "input_schema": "query[batch,heads,query_tokens,head_dim], key[batch,heads,key_tokens,head_dim], attention_mask[batch,tokens]",
+      "output_schema": "relation_anchor[batch,heads,4*head_dim] for legacy modes or [batch,heads,query_tokens,4*head_dim] for query-conditioned mode",
+      "invariants": [
+        "finite output",
+        "padding-only key support",
+        "no labels or entity-span masks",
+        "query-conditioned anchor is aligned to the query token axis"
+      ]
+    }
+  ],
+  "plugins": [
+    {
+      "id": "query_conditioned_soft_role_pair",
+      "version": "0.1.0",
+      "role": "idea",
+      "interface": "relation_score_anchor",
+      "insertion_point": "relation anchor construction before score-kernel feature encoding",
+      "hypothesis": "query-conditioned source/target soft role distributions can reverse role emphasis with the query while preserving label-free attention steering",
+      "input_schema": "query,key,attention_mask",
+      "output_schema": "per-query source/target role context concatenated as source,target,source-target,source*target",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "two learned role direction banks per head; O(batch*heads*query_tokens*key_tokens*2) routing logits; no additional quantum qubits",
+      "failure_signatures": [
+        "role weights are query-invariant on the declared reversal fixture",
+        "padding tokens receive nonzero routing mass",
+        "residual is non-finite or violates centered zero-sum invariant",
+        "matched classical control is not parameter-count matched",
+        "formal single-seed valid/test gain is below +0.001 versus disabled baseline or below -0.0005 versus matched classical control"
+      ]
+    },
+    {
+      "id": "soft_role_pair_null",
+      "version": "0.1.0",
+      "role": "baseline",
+      "interface": "relation_score_anchor",
+      "insertion_point": "existing soft-role pair anchor",
+      "hypothesis": "the legacy key-only soft-role pair remains the null successor comparator",
+      "input_schema": "key,attention_mask",
+      "output_schema": "global source/target role context",
+      "requires": [],
+      "conflicts": ["query_conditioned_soft_role_pair"],
+      "deterministic": true,
+      "resource_estimate": "existing two-role key router",
+      "failure_signatures": ["legacy fixed-input output changes unexpectedly"]
+    },
+    {
+      "id": "classical_query_conditioned_soft_role_pair",
+      "version": "0.1.0",
+      "role": "baseline",
+      "interface": "relation_score_anchor",
+      "insertion_point": "same relation anchor insertion point with matched classical score kernel",
+      "hypothesis": "any task utility from query-conditioned routing may be explained by the matched classical kernel",
+      "input_schema": "query,key,attention_mask",
+      "output_schema": "same per-query relation anchor schema",
+      "requires": ["query_conditioned_soft_role_pair"],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "same role-router parameter count and tensor shapes as quantum control",
+      "failure_signatures": ["parameter count or checkpoint schema differs from quantum control"]
+    }
+  ],
+  "discovery": {
+    "mode": "explicit_allowlist",
+    "allowlist": [
+      "query_conditioned_soft_role_pair",
+      "soft_role_pair_null",
+      "classical_query_conditioned_soft_role_pair"
+    ]
+  },
+  "composition": {
+    "mode": "single",
+    "order": ["query_conditioned_soft_role_pair"],
+    "merge_rule": "evaluate one anchor mode at a time; no implicit composition with expert routing",
+    "interaction_ablations": [
+      "soft_role_pair_null",
+      "classical_query_conditioned_soft_role_pair",
+      "query reversal",
+      "padding-mask perturbation",
+      "entity-span-mask perturbation"
+    ]
+  },
+  "validation": {
+    "baseline_equivalence": "legacy modes exactly replay fixed-fixture outputs and checkpoint round-trips",
+    "tests": [
+      "baseline_equivalence",
+      "plugin_isolation",
+      "deterministic_replay",
+      "interaction_ablation",
+      "schema and input-invariant checks",
+      "plugin isolation from entity-span masks",
+      "deterministic replay and checkpoint round-trip",
+      "query-conditioned role weights change when query changes",
+      "padding tokens receive zero role mass",
+      "centered residual has zero key-sum and finite values",
+      "quantum and classical successor controls have matched trainable parameter counts",
+      "formal run remains gated until the complete-data single-seed protocol is explicitly authorized"
+    ]
+  },
+  "reproducibility": {
+    "config_path": "configs/qsrpa_query_conditioned_role_pair_toy.json",
+    "dataset_identity": "synthetic query-conditioned role-reversal toy screen",
+    "environment": "Python >=3.10 and torch >=2.0; CPU unit/smoke tests",
+    "seeds": [7, 11, 13, 17, 23],
+    "output_manifest": "runs/qsrpa_query_conditioned_role_pair_toy/<UTC>/run_summary.json"
+  },
+  "limitations": [
+    "the current implementation is mechanism-only and does not establish natural-task utility",
+    "the matched classical router is expected to reproduce the same role-routing mechanism; no quantum advantage is implied",
+    "no formal Re-TACRED run, multi-seed replication, finite-shot, hardware, or resource-advantage claim is authorized by this plan",
+    "expert-router composition is not part of the successor screen and must be separately specified if needed"
+  ]
+}
