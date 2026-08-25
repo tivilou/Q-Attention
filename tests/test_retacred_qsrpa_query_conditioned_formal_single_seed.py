@@ -34,7 +34,24 @@ def test_query_conditioned_formal_runner_is_serial_and_has_all_controls() -> Non
     ):
         assert name in text
     assert "CUDA_VISIBLE_DEVICES" in text
+    assert "export_retacred_qsrpa_query_conditioned_formal_single_seed_report.sh" in text
+    assert "--report-dir" in text
+    assert 'bash scripts/export_retacred_qsrpa_query_conditioned_formal_single_seed_report.sh --run-dir "${RUN_DIR}"' in text
+    assert "No Python interpreter found" in text
+    assert "/usr/local/miniconda3" not in text
     assert not any(line.rstrip().endswith("&") for line in text.splitlines())
+
+
+def test_query_conditioned_handoff_scripts_use_portable_python_resolution() -> None:
+    for name in (
+        "run_retacred_qsrpa_query_conditioned_formal_single_seed.sh",
+        "check_retacred_qsrpa_query_conditioned_formal_single_seed.sh",
+        "export_retacred_qsrpa_query_conditioned_formal_single_seed_report.sh",
+    ):
+        text = (ROOT / "scripts" / name).read_text(encoding="utf-8")
+        assert "resolve_python_bin" in text
+        assert "for candidate in python python3" in text
+        assert "/usr/local/miniconda3" not in text
 
 
 def test_query_conditioned_preflight_rejects_dirty_worktree() -> None:
