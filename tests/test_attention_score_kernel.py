@@ -413,6 +413,34 @@ def test_query_conditioned_soft_role_pair_routes_per_query_without_entity_masks(
     assert torch.equal(restored_residual, residual)
 
 
+def test_query_conditioned_role_entropy_broadcasts_batch_and_head_dimensions() -> None:
+    torch.manual_seed(93)
+    query = torch.randn(3, 2, 5, 4)
+    key = torch.randn(3, 2, 5, 4)
+    attention, subject, object_ = relation_masks(3, 5, padded=True)
+    kernel = QuantumRelationAttentionScoreKernel(
+        kernel_config(
+            relation_anchor_mode="query_conditioned_soft_role_pair",
+            input_encoding="factorized_shared",
+        )
+    )
+
+    diagnostics = kernel.relation_role_diagnostics(key, attention, query)
+    assert diagnostics["normalized_entropy"].shape == (3, 2, 5, 2)
+    assert torch.isfinite(diagnostics["normalized_entropy"]).all()
+
+    residual = kernel(
+        query,
+        key,
+        layer_index=0,
+        attention_mask=attention,
+        subject_mask=subject,
+        object_mask=object_,
+    )
+    assert residual.shape == (3, 2, 5, 5)
+    assert torch.isfinite(residual).all()
+
+
 def test_query_conditioned_soft_role_pair_requires_all_query_scope() -> None:
     with pytest.raises(
         ValueError,
