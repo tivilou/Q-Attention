@@ -1,0 +1,81 @@
+{
+  "baseline": {
+    "accuracy": 0.6693729575163399,
+    "correct_label_margin": 1.7552399837892818,
+    "loss": 1.6225141637465532,
+    "macro_f1": 0.2935273108421133,
+    "macro_precision": 0.35623416205901137,
+    "macro_recall": 0.27110432110759636
+  },
+  "checkpoint_metadata": {
+    "action_contract": {
+      "action_uses_subject_object_masks": false,
+      "protocol": "label_free_global_context",
+      "subject_object_spans_allowed_for_action": false,
+      "subject_object_spans_allowed_for_offline_evaluation": true
+    },
+    "base_model_dir": "/root/projects/Q-Attention/runs/retacred_qsrpa_query_conditioned_formal_single_seed/20260826T023333Z_seed13/baseline",
+    "diversity_weight": 0.0,
+    "epoch": 2,
+    "kind": "best",
+    "normalize_readout_energy": false,
+    "role_regularization_weight": 0.001,
+    "score_module_paths": [
+      "encoder.layers.0.attn.score_intervention",
+      "encoder.layers.1.attn.score_intervention",
+      "encoder.layers.2.attn.score_intervention",
+      "encoder.layers.3.attn.score_intervention"
+    ],
+    "seed": 13,
+    "selection_metric": "macro_f1_then_loss",
+    "train_path": "/root/projects/Q-Attention/data/relation/retacred/train.jsonl",
+    "valid_path": "/root/projects/Q-Attention/data/relation/retacred/valid.jsonl"
+  },
+  "counterfactual_evidence": null,
+  "data_path": "data/relation/retacred/valid.jsonl",
+  "delta_vs_baseline": {
+    "accuracy": 0.0008169934640522847,
+    "correct_label_margin": 0.010310081874623123,
+    "loss": 0.004480963438944219,
+    "macro_f1": 0.0011933052146747558,
+    "macro_precision": 0.003123379279013294,
+    "macro_recall": 0.00011417799654622751
+  },
+  "device": "cuda",
+  "evidence_task_alignment": null,
+  "expert_routing": null,
+  "kernel_metadata": {
+    "config": {
+      "angle_scale": 1.0,
+      "depth": 2,
+      "eps": 1e-08,
+      "head_dim": 16,
+      "initial_gain": 0.02,
+      "input_encoding": "joint",
+      "max_gain": 0.5,
+      "normalize_readout_energy": false,
+      "num_heads": 8,
+      "num_layers": 4,
+      "num_qubits": 4,
+      "query_scope": "all",
+      "relation_anchor_mode": "global_context",
+      "role_entropy_floor": 0.35,
+      "role_router_temperature": 1.0,
+      "score_readout": "fidelity",
+      "seed": 13
+    },
+    "evidence_selector": null,
+    "expert_router": null,
+    "type": "classical"
+  },
+  "routing_task_alignment": null,
+  "steered": {
+    "accuracy": 0.6701899509803921,
+    "correct_label_margin": 1.765550065663905,
+    "loss": 1.6269951271854974,
+    "macro_f1": 0.29472061605678807,
+    "macro_precision": 0.35935754133802467,
+    "macro_recall": 0.2712184991041426
+  },
+  "uniform_routing": null
+}
