@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from experiments import train_relation_attention_score_kernel
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -44,6 +46,10 @@ def test_query_conditioned_formal_runner_is_serial_and_has_all_controls() -> Non
     assert "No Python interpreter found" in text
     assert "/usr/local/miniconda3" not in text
     assert not any(line.rstrip().endswith("&") for line in text.splitlines())
+    assert "record_provenance" in text
+    assert "PROVENANCE_STATUS=recorded_by_runner" in text
+    assert "GIT_COMMIT" in text
+    assert "GIT_BRANCH" in text
 
 
 def test_query_conditioned_handoff_scripts_use_portable_python_resolution() -> None:
@@ -56,6 +62,36 @@ def test_query_conditioned_handoff_scripts_use_portable_python_resolution() -> N
         assert "resolve_python_bin" in text
         assert "for candidate in python python3" in text
         assert "/usr/local/miniconda3" not in text
+
+    check_text = (
+        ROOT / "scripts/check_retacred_qsrpa_query_conditioned_formal_single_seed.sh"
+    ).read_text(encoding="utf-8")
+    export_text = (
+        ROOT / "scripts/export_retacred_qsrpa_query_conditioned_formal_single_seed_report.sh"
+    ).read_text(encoding="utf-8")
+    assert "Formal run must execute on branch 1.1" in check_text
+    assert "origin/1.1" in check_text
+    assert "origin/main" in check_text
+    assert "provenance.env" in export_text
+    assert 'PROVENANCE_STATUS)" == "recorded_by_runner"' in export_text
+    assert "GIT_COMMIT" in export_text
+    assert "GIT_BRANCH" in export_text
+    assert "execution commit is not an ancestor" in export_text
+    assert "label_free_query_conditioned_soft_role_pair" in export_text
+
+
+def test_query_conditioned_action_contract_is_explicitly_label_free() -> None:
+    assert train_relation_attention_score_kernel.action_contract_for_anchor_mode(
+        "query_conditioned_soft_role_pair"
+    ) == {
+        "protocol": "label_free_query_conditioned_soft_role_pair",
+        "action_uses_subject_object_masks": False,
+        "subject_object_spans_allowed_for_action": False,
+        "subject_object_spans_allowed_for_offline_evaluation": True,
+    }
+    assert train_relation_attention_score_kernel.action_contract_for_anchor_mode(
+        "entity_pair"
+    )["protocol"] == "entity_pair_legacy"
 
 
 def test_query_conditioned_exporter_defaults_to_raw_run_timestamp() -> None:
@@ -83,6 +119,8 @@ def test_query_conditioned_doc_prioritizes_default_report_flow_and_git_handoff()
         "git push origin 1.1",
     ):
         assert command in text
+    assert text.index("git fetch origin --prune") < text.index("git merge origin/1.1")
+    assert text.index("git merge origin/1.1") < text.index("git merge origin/main")
 
 
 def test_docs_index_places_new_qsrpa_doc_after_method_overview() -> None:

@@ -21,12 +21,15 @@ resolve_python_bin(){
 }
 PYTHON_BIN=$(resolve_python_bin); export PYTHON_BIN
 command -v nvidia-smi >/dev/null
+[[ "$(git branch --show-current)" == "1.1" ]] || { echo "Formal run must execute on branch 1.1" >&2; exit 1; }
 GIT_STATUS=$(git status --porcelain --untracked-files=all)
 if [[ -n "${GIT_STATUS}" ]]; then
   echo "Repository is dirty. Commit or isolate local changes before the formal run:" >&2
   printf '%s\n' "${GIT_STATUS}" >&2
   exit 1
 fi
+git merge-base --is-ancestor origin/1.1 HEAD || { echo "HEAD must include origin/1.1 before the formal run" >&2; exit 1; }
+git merge-base --is-ancestor origin/main HEAD || { echo "HEAD must include origin/main before the formal run" >&2; exit 1; }
 for FILE in configs/retacred_qsrpa_query_conditioned_formal_single_seed.json experiments/train_relation_baseline.py experiments/train_relation_attention_score_kernel.py experiments/eval_relation_attention_score_kernel.py scripts/run_retacred_qsrpa_query_conditioned_formal_single_seed.sh scripts/export_retacred_qsrpa_query_conditioned_formal_single_seed_report.sh scripts/summarize_retacred_qsrpa_query_conditioned_formal_single_seed.py; do [[ -f "${FILE}" ]] || { echo "Missing ${FILE}" >&2; exit 1; }; done
 [[ $(wc -l < data/relation/retacred/train.jsonl) -eq 58465 ]] || exit 1
 [[ $(wc -l < data/relation/retacred/valid.jsonl) -eq 19584 ]] || exit 1

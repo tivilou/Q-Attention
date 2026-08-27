@@ -31,6 +31,23 @@ RUN_DIR=$(readlink -m "${RUN_DIR}")
 case "${RUN_DIR}" in "${ROOT}"/runs/*) ;; *) echo "Output must be under runs/" >&2; exit 2;; esac
 [[ ${DRY_RUN} -eq 1 || ! -e "${RUN_DIR}" ]] || { echo "Refusing to reuse output" >&2; exit 1; }
 [[ ${SKIP_PREFLIGHT} -eq 1 || ${DRY_RUN} -eq 1 ]] || bash scripts/check_retacred_qsrpa_query_conditioned_formal_single_seed.sh
+record_provenance(){
+  local git_commit git_branch python_version
+  git_commit=$(git rev-parse HEAD)
+  git_branch=$(git branch --show-current)
+  python_version=$("${PYTHON_BIN}" --version 2>&1)
+  mkdir -p "${RUN_DIR}"
+  {
+    printf 'PROVENANCE_STATUS=recorded_by_runner\n'
+    printf 'RUN_TIMESTAMP=%s\n' "${RUN_TIMESTAMP}"
+    printf 'RUN_DIR_BASENAME=%s\n' "$(basename "${RUN_DIR}")"
+    printf 'GIT_COMMIT=%s\n' "${git_commit}"
+    printf 'GIT_BRANCH=%s\n' "${git_branch}"
+    printf 'PYTHON_BIN=%s\n' "${PYTHON_BIN}"
+    printf 'PYTHON_VERSION=%s\n' "${python_version}"
+  } > "${RUN_DIR}/provenance.env"
+}
+[[ ${DRY_RUN} -eq 1 ]] || record_provenance
 run_stage(){ local name=$1; shift; if [[ ${DRY_RUN} -eq 1 ]]; then printf '[dry-run] %s ' "$name"; printf '%q ' "$@"; echo; return; fi; mkdir -p "${RUN_DIR}/logs"; CUDA_VISIBLE_DEVICES="${GPU_SPEC}" "$@" 2>&1 | tee "${RUN_DIR}/logs/${name}.log"; }
 BASELINE_DIR="${RUN_DIR}/baseline"
 run_stage baseline "${PYTHON_BIN}" experiments/train_relation_baseline.py --train_path data/relation/retacred/train.jsonl --valid_path data/relation/retacred/valid.jsonl --output_dir "${BASELINE_DIR}" --epochs 12 --batch_size 128 --lr 0.0005 --dim 128 --num_layers 4 --num_heads 8 --ff_dim 256 --dropout 0.1 --max_length 128 --seed 13 --selection_metric macro_f1_then_loss --device cuda
