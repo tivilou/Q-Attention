@@ -1,0 +1,146 @@
+{
+  "action_contract": {
+    "action_uses_subject_object_masks": false,
+    "protocol": "label_free_global_context",
+    "subject_object_spans_allowed_for_action": false,
+    "subject_object_spans_allowed_for_offline_evaluation": true
+  },
+  "baseline_best_valid": {
+    "accuracy": 0.6693729575163399,
+    "correct_label_margin": 1.7552399013946258,
+    "loss": 1.6225141462157755,
+    "macro_f1": 0.2935273108421133,
+    "macro_precision": 0.35623416205901137,
+    "macro_recall": 0.27110432110759636
+  },
+  "config": {
+    "baseline": {
+      "batch_size": 128,
+      "dim": 128,
+      "dropout": 0.1,
+      "epochs": 12,
+      "ff_dim": 256,
+      "lr": 0.0005,
+      "max_length": 128,
+      "num_heads": 8,
+      "num_layers": 4
+    },
+    "description": "Formal full Re-TACRED Q-LASS single-seed, single-GPU run.",
+    "evaluation": {
+      "batch_size": 256,
+      "random_repeats": 4,
+      "random_seed": 101
+    },
+    "expected_records": {
+      "test": 13418,
+      "train": 58465,
+      "valid": 19584
+    },
+    "formal_experiment": true,
+    "kernel": {
+      "angle_scale": 1.0,
+      "batch_size": 256,
+      "depth": 2,
+      "diagnostic_batches": 0,
+      "epochs": 12,
+      "initial_gain": 0.02,
+      "input_encoding": "joint",
+      "lr": 0.001,
+      "max_gain": 0.5,
+      "num_qubits": 4,
+      "query_scope": "all",
+      "relation_anchor_mode": "global_context",
+      "score_readout": "fidelity"
+    },
+    "name": "retacred_qlass_formal_single_seed",
+    "output_root": "runs/retacred_qlass_formal_single_seed",
+    "seed": 13,
+    "selection_metric": "macro_f1_then_loss",
+    "task": "relation_extraction",
+    "test_path": "data/relation/retacred/test.jsonl",
+    "train_path": "data/relation/retacred/train.jsonl",
+    "valid_path": "data/relation/retacred/valid.jsonl"
+  },
+  "data_split_contract": {
+    "test_used_for_training_or_selection": false,
+    "train_used_for_fit": true,
+    "valid_used_for_selection": true
+  },
+  "quantum_minus_classical": {
+    "accuracy": -0.00022358026531532627,
+    "correct_label_margin": 0.00036848986232351777,
+    "loss": -0.0006791254610183373,
+    "macro_f1": -0.0003450986842547521
+  },
+  "run_dir": "/root/projects/Q-Attention/runs/retacred_qlass_formal_single_seed/20260822T042639Z_seed13",
+  "seed": 13,
+  "selection_metric": "macro_f1_then_loss",
+  "test": {
+    "classical": {
+      "accuracy": 0.6822179162319273,
+      "correct_label_margin": 1.8162755779971982,
+      "loss": 1.6330877711652447,
+      "macro_f1": 0.25216539293085743,
+      "macro_precision": 0.31816455328403354,
+      "macro_recall": 0.23310146091753176
+    },
+    "classical_minus_baseline": {
+      "accuracy": 0.0013414815918915135,
+      "correct_label_margin": 0.010030870697753658,
+      "loss": 0.004604250028283019,
+      "macro_f1": 0.0007964751346091758,
+      "macro_precision": 0.004097140161571533,
+      "macro_recall": -0.0003968813971967078
+    },
+    "quantum": {
+      "accuracy": 0.681994335966612,
+      "correct_label_margin": 1.8166440678595217,
+      "loss": 1.6324086457042264,
+      "macro_f1": 0.2518202942466027,
+      "macro_precision": 0.316942648795998,
+      "macro_recall": 0.23302084193483558
+    },
+    "quantum_minus_baseline": {
+      "accuracy": 0.0011179013265761872,
+      "correct_label_margin": 0.010399360560077175,
+      "loss": 0.003925124567264682,
+      "macro_f1": 0.00045137645035442375,
+      "macro_precision": 0.0028752356735359808,
+      "macro_recall": -0.00047750037989288674
+    }
+  },
+  "valid": {
+    "classical": {
+      "accuracy": 0.6701899509803921,
+      "correct_label_margin": 1.7655500477435542,
+      "loss": 1.6269951396518283,
+      "macro_f1": 0.29472061605678807,
+      "macro_precision": 0.35935754133802467,
+      "macro_recall": 0.2712184991041426
+    },
+    "classical_minus_baseline": {
+      "accuracy": 0.0008169934640522847,
+      "correct_label_margin": 0.010310063954272364,
+      "loss": 0.004480975905275075,
+      "macro_f1": 0.0011933052146747558,
+      "macro_precision": 0.003123379279013294,
+      "macro_recall": 0.00011417799654622751
+    },
+    "quantum": {
+      "accuracy": 0.6700367647058824,
+      "correct_label_margin": 1.7655822973625332,
+      "loss": 1.6266069692723892,
+      "macro_f1": 0.2945430623917141,
+      "macro_precision": 0.3586103693653232,
+      "macro_recall": 0.27112646164367393
+    },
+    "quantum_minus_baseline": {
+      "accuracy": 0.0006638071895425091,
+      "correct_label_margin": 0.010342313573251438,
+      "loss": 0.0040928055258360185,
+      "macro_f1": 0.0010157515496008185,
+      "macro_precision": 0.0023762073063118283,
+      "macro_recall": 2.2140536077575046e-05
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "name": "retacred_qlass_formal_single_seed",
+  "task": "relation_extraction",
+  "description": "Formal full Re-TACRED Q-LASS single-seed, single-GPU run.",
+  "formal_experiment": true,
+  "train_path": "data/relation/retacred/train.jsonl",
+  "valid_path": "data/relation/retacred/valid.jsonl",
+  "test_path": "data/relation/retacred/test.jsonl",
+  "output_root": "runs/retacred_qlass_formal_single_seed",
+  "seed": 13,
+  "selection_metric": "macro_f1_then_loss",
+  "baseline": {
+    "epochs": 12,
+    "batch_size": 128,
+    "dim": 128,
+    "num_layers": 4,
+    "num_heads": 8,
+    "ff_dim": 256,
+    "dropout": 0.1,
+    "lr": 0.0005,
+    "max_length": 128
+  },
+  "kernel": {
+    "epochs": 12,
+    "batch_size": 256,
+    "lr": 0.001,
+    "num_qubits": 4,
+    "depth": 2,
+    "angle_scale": 1.0,
+    "max_gain": 0.5,
+    "initial_gain": 0.02,
+    "score_readout": "fidelity",
+    "input_encoding": "joint",
+    "query_scope": "all",
+    "relation_anchor_mode": "global_context",
+    "diagnostic_batches": 0
+  },
+  "evaluation": {
+    "batch_size": 256,
+    "random_repeats": 4,
+    "random_seed": 101
+  },
+  "expected_records": {
+    "train": 58465,
+    "valid": 19584,
+    "test": 13418
+  }
+}
