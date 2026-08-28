@@ -176,3 +176,25 @@ def test_auto_profile_uses_the_weakest_selected_gpu() -> None:
     assert profile["name"] == "balanced"
     assert profile["minimum_memory_total_mib"] == 40 * 1024
     assert profile["minimum_memory_free_mib"] == 20 * 1024
+
+
+def test_gpu_capacity_guard_accepts_sufficient_memory() -> None:
+    formal_runner.validate_gpu_capacity(
+        [0],
+        [{"index": 0, "memory_total_mib": 12 * 1024, "memory_free_mib": 8 * 1024}],
+        phase="test",
+    )
+
+
+def test_gpu_capacity_guard_reports_competing_process(monkeypatch) -> None:
+    monkeypatch.setattr(
+        formal_runner,
+        "query_compute_apps",
+        lambda: [{"pid": 29066, "process_name": "python", "used_memory_mib": 47 * 1024}],
+    )
+    with pytest.raises(RuntimeError, match=r"before workers.*pid=29066"):
+        formal_runner.validate_gpu_capacity(
+            [0],
+            [{"index": 0, "memory_total_mib": 48 * 1024, "memory_free_mib": 300}],
+            phase="before workers",
+        )

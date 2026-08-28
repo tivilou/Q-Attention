@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
+import gc
 import hashlib
 import json
 import os
@@ -135,6 +136,77 @@ def query_gpu_inventory() -> list[dict[str, Any]]:
     if not inventory:
         raise RuntimeError("nvidia-smi reported no GPUs")
     return inventory
+
+
+def query_compute_apps() -> list[dict[str, Any]]:
+    """Return a compact list of processes currently using CUDA compute."""
+    result = subprocess.run(
+        [
+            "nvidia-smi",
+            "--query-compute-apps=pid,process_name,used_memory",
+            "--format=csv,noheader,nounits",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return []
+    apps: list[dict[str, Any]] = []
+    for line in result.stdout.splitlines():
+        fields = [field.strip() for field in line.split(",", 2)]
+        if len(fields) != 3:
+            continue
+        pid, process_name, used_memory = fields
+        try:
+            apps.append(
+                {
+                    "pid": int(pid),
+                    "process_name": process_name,
+                    "used_memory_mib": int(used_memory),
+                }
+            )
+        except ValueError:
+            continue
+    return apps
+
+
+def validate_gpu_capacity(
+    gpu_ids: list[int],
+    inventory: list[dict[str, Any]],
+    *,
+    phase: str,
+) -> None:
+    """Stop before a run if any selected GPU is already too busy."""
+    selected = {
+        int(item["index"]): item
+        for item in inventory
+        if int(item["index"]) in set(gpu_ids)
+    }
+    missing = [gpu_id for gpu_id in gpu_ids if gpu_id not in selected]
+    if missing:
+        raise RuntimeError(f"{phase}: nvidia-smi did not report selected GPU IDs {missing}")
+    insufficient = [
+        item
+        for item in selected.values()
+        if int(item["memory_free_mib"]) < AUTO_MIN_FREE_MIB
+    ]
+    if not insufficient:
+        return
+    apps = query_compute_apps()
+    app_text = ", ".join(
+        f"pid={app['pid']} {app['process_name']} ({app['used_memory_mib']} MiB)"
+        for app in apps
+    ) or "no process details available"
+    details = "; ".join(
+        f"GPU {item['index']} free={item['memory_free_mib']} MiB/{item['memory_total_mib']} MiB"
+        for item in insufficient
+    )
+    raise RuntimeError(
+        f"{phase}: selected GPU capacity is unsafe ({details}; required at least "
+        f"{AUTO_MIN_FREE_MIB} MiB free). Compute apps: {app_text}. "
+        "Stop or wait for the competing process, then rerun the unchanged contract."
+    )
 
 
 def resolve_gpu_ids(
@@ -488,6 +560,11 @@ def main() -> int:
     if gpu_ids and os.environ.get("CUDA_VISIBLE_DEVICES") is None:
         os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
         os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(str(gpu_id) for gpu_id in gpu_ids)
+    if gpu_ids:
+        # Re-read after visibility and before creating the run so an explicit
+        # GPU request gets the same minimum-capacity guard as --gpus auto.
+        inventory = query_gpu_inventory()
+        validate_gpu_capacity(gpu_ids, inventory, phase="before baseline")
     profile_request = "auto" if args.gpus and args.gpus.strip().lower() == "auto" and args.hardware_profile == "config" else args.hardware_profile
     hardware_profile = choose_hardware_profile(profile_request, config, gpu_ids, inventory)
     hardware_profile.update(
@@ -572,10 +649,19 @@ def main() -> int:
     # checkpoint. This is important when the first worker uses GPU 0.
     label_count = len(artifacts.label_to_id)
     artifacts.model.to("cpu")
+    del valid_loader, test_loader
     if device.type == "cuda":
+        gc.collect()
         torch.cuda.empty_cache()
     del artifacts
     del train_records
+    if gpu_ids:
+        # The baseline and its CUDA allocator must be gone before a worker is
+        # allowed to claim the first physical GPU.
+        gc.collect()
+        torch.cuda.empty_cache()
+        inventory = query_gpu_inventory()
+        validate_gpu_capacity(gpu_ids, inventory, phase="before selector workers")
     worker_selectors = [selector for selector in selectors if selector != "disabled"]
     worker_statuses = run_selector_workers(
         selectors=worker_selectors,
