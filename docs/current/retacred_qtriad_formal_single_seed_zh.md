@@ -1,6 +1,6 @@
 # Q-TRIAD Re-TACRED 正式单 seed 实验
 
-这是完整 Re-TACRED 的 seed 13、单 GPU、串行正式实验。Q-TRIAD candidate 使用 label-free 的 query、key 和 subject/object relation anchor；`classical_density_tensor` 是参数和输入匹配的经典密度控制，`quantum_product` 是无三方纠缠的量子 product control，`disabled` 是基线。完整数据正式运行必须由合作者在 `1.1` 分支执行。
+这是完整 Re-TACRED 的 seed 13 正式实验。Q-TRIAD candidate 使用 label-free 的 query、key 和 subject/object relation anchor；`classical_density_tensor` 是参数和输入匹配的经典密度控制，`quantum_product` 是无三方纠缠的量子 product control，`disabled` 是基线。完整数据正式运行必须由合作者在 `1.1` 分支执行。
 
 ## 1. 同步并执行
 
@@ -14,6 +14,22 @@ git merge origin/main
 git status --short
 bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu 0
 ```
+
+也可以让脚本自动发现可用 GPU，并按启动时的总显存和空闲显存选择执行 profile：
+
+```bash
+bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu auto
+```
+
+`auto` 会选择空闲显存至少 8 GiB 的可见物理 GPU；单 GPU 环境也适用。自动 profile 只调整显存执行策略，不改变 seed、数据、epoch、batch size、selector 或控制组：低显存（总显存小于 16 GiB，或空闲显存小于 12 GiB）使用 `pair_chunk_size=64` 并启用 activation checkpointing；中等显存（总显存小于 40 GiB，或空闲显存小于 28 GiB）使用 `pair_chunk_size=256` 并启用 checkpointing；高显存使用 `pair_chunk_size=1024` 并关闭 checkpointing 以换取速度。实际 GPU、显存、profile 和生效参数会写入 `run_summary.json` 与 `gpu_assignments.json`，供审计复核。
+
+默认单 GPU 路径会使用同一套调度器串行运行三个 selector。若有多张已验证的 GPU，可以在同一 seed 内并行运行相互独立的 selector worker，例如：
+
+```bash
+bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu 0,1
+```
+
+多 GPU 模式先训练一次共享 baseline，再按空闲 GPU 动态分配 `q_triad`、`classical_density_tensor` 和 `quantum_product`。每个 worker 独立加载同一 baseline checkpoint；这不是 DDP，也不会把两张卡的显存合并成一张卡。任一 worker 失败时，调度器会终止其余 worker、写入 `RUN_FAILED`，且不会写 `RUN_COMPLETE`。GPU ID 必须唯一且在 `nvidia-smi` 中可用。
 
 `git status --short` 在启动前必须没有输出。脚本在启动时记录一个 UTC 时间戳 `YYYYMMDDTHHMMSSZ`，raw run 默认写入：
 
@@ -29,7 +45,13 @@ reports/retacred_qtriad_formal_single_seed/<timestamp>_seed13/
 
 运行期间不要改动 seed、数据、selector、epoch、batch size、控制组或代码，也不要并行启动第二个完整 run。
 
-## 2. 完成检查
+## 2. 显存与并行说明
+
+Q-TRIAD 的 attention hook 会把 query-key 对分块计算，避免一次性物化 `batch x query_tokens x key_tokens` 的 statevector 输入；训练时对每个分块启用 activation checkpoint，反向传播时重算中间 statevector。`kernel.pair_chunk_size` 是已发布配置的一部分，不能在正式运行中临时修改。多 GPU 只降低每张卡承载的 selector 数量，不改变单个 selector 的峰值显存；因此每张卡仍必须满足单个 selector 的显存要求。
+
+运行摘要会记录 `gpu_assignments.json`、请求和解析到的 GPU ID、每个 worker 的 PID/状态/耗时、`pair_chunk_size` 以及 CUDA 设备信息。先用小规模 canary 验证 GPU 拓扑和显存，再运行完整正式实验；不得用降低 batch 或改变 selector 的临时命令冒充正式结果。
+
+## 3. 完成检查
 
 运行成功后 raw run 必须包含：
 
@@ -45,7 +67,7 @@ selectors/quantum_product/metrics.json
 
 摘要必须声明 seed 13、完整数据计数 `58465/19584/13418`，且 test 未用于训练或 valid checkpoint 选择。报告 exporter 还会检查 branch ancestry、clean tree、三份数据行数、完整 selector 指标、provenance 和私有文件禁带。
 
-## 3. 报告提交
+## 4. 报告提交
 
 一键脚本已经调用 exporter。exporter 只复制 `reports/retacred_qtriad_formal_single_seed/<timestamp>_seed13/` 下的审计子集，并自动执行 `git add`、`git diff --cached --check`、commit 和 `git push origin 1.1`。不得提交 `runs/`、`data/`、checkpoint、预测、JSONL 或完整日志。
 
@@ -62,6 +84,6 @@ git ls-remote --heads origin 1.1
 
 只有在需要审计而不提交时，才使用 exporter 的 `--no-commit`；显式 `--report-dir` 仅用于经负责人确认的例外目录，不是标准路径。
 
-## 4. 停止门禁
+## 5. 停止门禁
 
 负责人审计报告中的 valid/test 指标、控制组、数据 hash、provenance、test isolation 和 staged 文件后，才形成项目结论。单 seed 结果未通过预声明的 candidate-vs-disabled 实用增益门禁或 matched classical comparator 门禁时，立即停止；即使中间日志看起来有提升，也不得启动 multi-seed。只有负责人完成审计并明确授权后，才会发布后续 multi-seed handoff。

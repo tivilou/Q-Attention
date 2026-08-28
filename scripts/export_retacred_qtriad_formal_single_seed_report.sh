@@ -47,7 +47,7 @@ git merge-base --is-ancestor origin/main HEAD || { echo "origin/main must be an 
 RUN_DIR=$(readlink -f "${RUN_DIR}")
 RUN_NAME=$(basename "${RUN_DIR}")
 [[ "${RUN_NAME}" == *_seed13 ]] || { echo "Run directory must end with _seed13." >&2; exit 1; }
-for file in RUN_COMPLETE run_summary.json run_summary.md baseline/metrics.json; do
+for file in RUN_COMPLETE run_summary.json run_summary.md gpu_assignments.json baseline/metrics.json; do
   [[ -f "${RUN_DIR}/${file}" ]] || { echo "Missing ${file} in run directory." >&2; exit 1; }
 done
 for selector in q_triad classical_density_tensor quantum_product; do
@@ -64,6 +64,7 @@ assert p.get("test_used_for_training_or_selection") is False
 assert p.get("candidate") == "q_triad"
 assert p.get("matched_control") == "classical_density_tensor"
 assert p.get("formal_experiment") is True
+assert isinstance(p.get("hardware_profile"), dict), "run summary must include hardware_profile"
 provenance = p.get("provenance")
 assert isinstance(provenance, dict), "run summary must include provenance"
 required = {"git_revision", "git_branch", "started_at_utc", "torch", "cuda_available"}
@@ -79,6 +80,7 @@ case "${REPORT_DIR}" in "${ROOT}/reports/retacred_qtriad_formal_single_seed/"*) 
 [[ ! -e "${REPORT_DIR}" ]] || { echo "Refusing to overwrite report directory." >&2; exit 1; }
 mkdir -p "${REPORT_DIR}/metrics"
 cp "${RUN_DIR}/RUN_COMPLETE" "${RUN_DIR}/run_summary.json" "${RUN_DIR}/run_summary.md" "${REPORT_DIR}/"
+cp "${RUN_DIR}/gpu_assignments.json" "${REPORT_DIR}/gpu_assignments.json"
 cp configs/retacred_qtriad_formal_single_seed.json "${REPORT_DIR}/run_config.json"
 cp "${RUN_DIR}/baseline/metrics.json" "${REPORT_DIR}/metrics/baseline.json"
 for selector in q_triad classical_density_tensor quantum_product; do

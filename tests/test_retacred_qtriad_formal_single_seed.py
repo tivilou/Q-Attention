@@ -32,6 +32,9 @@ def test_qtriad_runner_is_portable_serial_and_auto_exports() -> None:
     assert "resolve_python_bin" in text
     assert "--started-at-utc" in text
     assert "CUDA_VISIBLE_DEVICES" in text
+    assert "--gpus" in text
+    runner = (ROOT / "experiments/run_qtriad_relation_transfer.py").read_text(encoding="utf-8")
+    assert "run_qtriad_selector_worker.py" in runner
     assert "export_retacred_qtriad_formal_single_seed_report.sh" in text
     assert not any(line.rstrip().endswith("&") for line in text.splitlines())
     assert "/usr/local/miniconda" not in text
