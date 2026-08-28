@@ -59,6 +59,7 @@ from .q_consensus_quantum_estimator import (
     QuantumConsensusEstimator,
     build_consensus_estimator,
 )
+from .q_triad import QTRIAD_CONTROL_MODES, QTriadAttentionScoreKernel, QTriadConfig, QTriadKernel, QTriadResult, build_qtriad
 from .q_connected_consensus_witness import (
     QCCW_KERNEL_TYPES,
     BilinearConnectedConsensusWitness,
@@ -127,6 +128,12 @@ __all__ = [
     "CONSENSUS_QUANTUM_KERNEL_TYPES",
     "QCCW_KERNEL_TYPES",
     "QCDD_KERNEL_TYPES",
+    "QTRIAD_CONTROL_MODES",
+    "QTriadAttentionScoreKernel",
+    "QTriadConfig",
+    "QTriadKernel",
+    "QTriadResult",
+    "build_qtriad",
     "SCORE_KERNEL_CHECKPOINT_VERSION",
     "SCORE_INPUT_ENCODING_CHOICES",
     "SCORE_RELATION_ANCHOR_CHOICES",
