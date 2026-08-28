@@ -23,6 +23,8 @@ bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu auto
 
 `auto` 会选择空闲显存至少 8 GiB 的可见物理 GPU；单 GPU 环境也适用。自动 profile 只调整显存执行策略，不改变 seed、数据、epoch、batch size、selector 或控制组：低显存（总显存小于 16 GiB，或空闲显存小于 12 GiB）使用 `pair_chunk_size=64` 并启用 activation checkpointing；中等显存（总显存小于 40 GiB，或空闲显存小于 28 GiB）使用 `pair_chunk_size=256` 并启用 checkpointing；高显存使用 `pair_chunk_size=1024` 并关闭 checkpointing 以换取速度。实际 GPU、显存、profile 和生效参数会写入 `run_summary.json` 与 `gpu_assignments.json`，供审计复核。
 
+脚本在创建 raw run 之前、以及 baseline 完成准备 selector 之前各检查一次显存。显式 `--gpu 0` 也必须至少有 8 GiB 空闲；若某个 GPU 被其他 PID 占用，脚本会列出 `nvidia-smi` 的进程并停止，不会把这次失败写成实验结果。不要强制杀掉不属于本实验的进程；确认占用进程可以停止后再重跑同一命令。
+
 默认单 GPU 路径会使用同一套调度器串行运行三个 selector。若有多张已验证的 GPU，可以在同一 seed 内并行运行相互独立的 selector worker，例如：
 
 ```bash

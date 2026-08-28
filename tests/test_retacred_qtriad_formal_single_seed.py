@@ -43,6 +43,14 @@ def test_qtriad_runner_is_portable_serial_and_auto_exports() -> None:
     assert 'mkdir -p "${RUN_DIR}/logs"\nCUDA_DEVICE_ORDER' not in text
 
 
+def test_qtriad_runner_checks_capacity_before_start() -> None:
+    text = (ROOT / "scripts/run_retacred_qtriad_formal_single_seed.sh").read_text(
+        encoding="utf-8"
+    )
+    assert "check_gpu_capacity" in text
+    assert "PYTORCH_CUDA_ALLOC_CONF" in text
+
+
 def test_qtriad_exporter_uses_run_basename_by_default_and_has_gates() -> None:
     text = (
         ROOT / "scripts/export_retacred_qtriad_formal_single_seed_report.sh"
