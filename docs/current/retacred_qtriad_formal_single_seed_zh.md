@@ -49,6 +49,18 @@ reports/retacred_qtriad_formal_single_seed/<timestamp>_seed13/
 
 运行期间不要改动 seed、数据、selector、epoch、batch size、控制组或代码，也不要并行启动第二个完整 run。
 
+### 可选的模型级并行
+
+当单个模型阶段需要跨卡放置时，可以显式启用按完整 encoder layer 切分的模型级并行：
+
+```bash
+bash scripts/run_retacred_qtriad_formal_single_seed.sh --model-parallel-gpus 0,1
+```
+
+该选项要求至少两张可见 GPU。embedding 和前部 layer 放在首卡，后部 layer 与 classifier 放在末卡，中间 hidden state 跨卡传输；Q-TRIAD 每层子核跟随对应 attention layer。它与独立 selector-parallel 不同，启用后 selector 按序运行，不会为每个 selector 复制整套模型。摘要会记录物理 GPU ID、进程内 CUDA 映射和模块 device map。
+
+模型级并行首先用于验证显存可行性；本模型层间依赖和跨卡通信可能抵消并行收益，不能预先宣称提速。合作者必须先做双 GPU canary，记录单卡/双卡吞吐、峰值显存、数值等价、checkpoint 恢复和退出后的残留进程，再决定是否用于完整 formal run。双 GPU canary 也不能替代 seed-13 正式实验的单 seed 门禁。
+
 ## 2. 显存与并行说明
 
 Q-TRIAD 的 attention hook 会把 query-key 对分块计算，避免一次性物化 `batch x query_tokens x key_tokens` 的 statevector 输入；训练前向只保留最终 score 张量，反向传播时逐块重算 statevector 并累积梯度，不会为每个 chunk 保留完整 autograd 图。`kernel.pair_chunk_size` 是已发布配置的一部分，不能在正式运行中临时修改。多 GPU 只降低每张卡承载的 selector 数量，不改变单个 selector 的峰值显存；因此每张卡仍必须满足单个 selector 的显存要求。

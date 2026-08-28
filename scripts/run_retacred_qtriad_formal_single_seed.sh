@@ -3,6 +3,8 @@ set -euo pipefail
 
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 GPU_SPEC=0
+MODEL_PARALLEL_GPU_SPEC=
+GPU_SPEC_EXPLICIT=0
 OUTPUT_DIR=
 LOG_EVERY_BATCHES=50
 REPORT_DIR=
@@ -67,13 +69,14 @@ check_gpu_capacity() {
   fi
 }
 
-usage() { echo "Usage: bash scripts/run_retacred_qtriad_formal_single_seed.sh [--gpu N[,N...]|auto] [--output-dir PATH] [--report-dir PATH] [--log-every-batches N] [--skip-preflight] [--dry-run]"; }
+usage() { echo "Usage: bash scripts/run_retacred_qtriad_formal_single_seed.sh [--gpu N[,N...]|auto] [--model-parallel-gpus N,N] [--output-dir PATH] [--report-dir PATH] [--log-every-batches N] [--skip-preflight] [--dry-run]"; }
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --gpu|--gpus|--output-dir|--report-dir|--log-every-batches)
+    --gpu|--gpus|--model-parallel-gpus|--output-dir|--report-dir|--log-every-batches)
       [[ $# -ge 2 ]] || { usage >&2; exit 2; }
       case "$1" in
-        --gpu|--gpus) GPU_SPEC=$2;;
+        --gpu|--gpus) GPU_SPEC=$2; GPU_SPEC_EXPLICIT=1;;
+        --model-parallel-gpus) MODEL_PARALLEL_GPU_SPEC=$2;;
         --output-dir) OUTPUT_DIR=$2;;
         --report-dir) REPORT_DIR=$2;;
         --log-every-batches) LOG_EVERY_BATCHES=$2;;
@@ -99,6 +102,17 @@ if [[ "${GPU_SPEC}" != "auto" ]]; then
     SEEN_GPU_IDS[${GPU_ID}]=1
   done
 fi
+if [[ -n "${MODEL_PARALLEL_GPU_SPEC}" ]]; then
+  [[ "${MODEL_PARALLEL_GPU_SPEC}" =~ ^[0-9]+(,[0-9]+)+$ ]] || { echo "--model-parallel-gpus must contain at least two comma-separated GPU IDs." >&2; exit 2; }
+  IFS=',' read -r -a MODEL_PARALLEL_GPU_IDS <<< "${MODEL_PARALLEL_GPU_SPEC}"
+  declare -A SEEN_MODEL_PARALLEL_GPU_IDS=()
+  for GPU_ID in "${MODEL_PARALLEL_GPU_IDS[@]}"; do
+    [[ -z "${SEEN_MODEL_PARALLEL_GPU_IDS[${GPU_ID}]:-}" ]] || { echo "Duplicate model-parallel GPU ID: ${GPU_ID}" >&2; exit 2; }
+    SEEN_MODEL_PARALLEL_GPU_IDS[${GPU_ID}]=1
+  done
+  [[ "${GPU_SPEC_EXPLICIT}" -eq 0 || "${GPU_SPEC}" == "${MODEL_PARALLEL_GPU_SPEC}" ]] || { echo "--gpu/--gpus and --model-parallel-gpus must name the same GPUs." >&2; exit 2; }
+  GPU_SPEC="${MODEL_PARALLEL_GPU_SPEC}"
+fi
 [[ "${LOG_EVERY_BATCHES}" =~ ^[1-9][0-9]*$ ]] || { echo "--log-every-batches must be positive." >&2; exit 2; }
 if [[ "${GPU_SPEC}" != "auto" ]]; then
   nvidia-smi -i "${GPU_SPEC}" --query-gpu=name --format=csv,noheader >/dev/null || { echo "GPU ${GPU_SPEC} is unavailable." >&2; exit 1; }
@@ -117,15 +131,19 @@ COMMAND=(
   "${PYTHON_BIN}" experiments/run_qtriad_relation_transfer.py
   --config configs/retacred_qtriad_formal_single_seed.json
   --device cuda
-  --gpus "${GPU_SPEC}"
   --seed 13
   --output-dir "${RUN_DIR}"
   --log-every-batches "${LOG_EVERY_BATCHES}"
   --started-at-utc "${STAMP}"
   --python-bin "${PYTHON_BIN}"
 )
-if [[ "${GPU_SPEC}" == "auto" ]]; then
+if [[ -n "${MODEL_PARALLEL_GPU_SPEC}" ]]; then
+  COMMAND+=(--model-parallel-gpus "${MODEL_PARALLEL_GPU_SPEC}")
+elif [[ "${GPU_SPEC}" == "auto" ]]; then
+  COMMAND+=(--gpus "${GPU_SPEC}")
   COMMAND+=(--hardware-profile auto)
+else
+  COMMAND+=(--gpus "${GPU_SPEC}")
 fi
 if [[ ${DRY_RUN} -eq 1 ]]; then
   if [[ "${GPU_SPEC}" != "auto" ]]; then

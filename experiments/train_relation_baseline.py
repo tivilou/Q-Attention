@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from collections.abc import Iterable
 import json
+import os
 from pathlib import Path
 import random
 import sys
@@ -66,6 +67,11 @@ def parse_args() -> argparse.Namespace:
         default="macro_f1_then_loss",
     )
     parser.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda"])
+    parser.add_argument(
+        "--model-parallel-gpus",
+        default=None,
+        help="comma-separated physical GPU IDs for layer-sharded model parallelism",
+    )
     return parser.parse_args()
 
 
@@ -88,6 +94,32 @@ def move_batch(batch: dict[str, torch.Tensor], device: torch.device) -> dict[str
     return {key: value.to(device) for key, value in batch.items()}
 
 
+def resolve_model_parallel_devices(spec: str) -> tuple[torch.device, ...]:
+    fields = [field.strip() for field in spec.split(",")]
+    if len(fields) < 2 or any(not field.isdigit() for field in fields):
+        raise ValueError("--model-parallel-gpus must contain at least two GPU IDs")
+    physical_ids = [int(field) for field in fields]
+    if len(set(physical_ids)) != len(physical_ids):
+        raise ValueError("--model-parallel-gpus must not contain duplicate GPU IDs")
+    visible = os.environ.get("CUDA_VISIBLE_DEVICES")
+    if visible:
+        visible_fields = [field.strip() for field in visible.split(",")]
+        if all(field.isdigit() for field in visible_fields):
+            mapping = {int(field): index for index, field in enumerate(visible_fields)}
+            missing = [gpu_id for gpu_id in physical_ids if gpu_id not in mapping]
+            if missing:
+                raise ValueError(
+                    f"model-parallel GPUs {missing} are not visible in CUDA_VISIBLE_DEVICES={visible}"
+                )
+            return tuple(torch.device(f"cuda:{mapping[gpu_id]}") for gpu_id in physical_ids)
+    available = torch.cuda.device_count()
+    if any(gpu_id >= available for gpu_id in physical_ids):
+        raise ValueError(
+            f"model-parallel GPUs {physical_ids} exceed visible device count {available}"
+        )
+    return tuple(torch.device(f"cuda:{gpu_id}") for gpu_id in physical_ids)
+
+
 def evaluate(
     model: RelationExtractionModel,
     loader: Iterable[dict[str, torch.Tensor]],
@@ -104,9 +136,11 @@ def evaluate(
         for batch in loader:
             batch = move_batch(batch, device)
             logits = model(batch["input_ids"], batch["attention_mask"], batch["subject_mask"], batch["object_mask"])
-            loss = F.cross_entropy(logits, batch["labels"])
+            loss = F.cross_entropy(logits, batch["labels"].to(logits.device))
             total_loss += float(loss.item()) * batch["labels"].shape[0]
-            total_margin += float(correct_label_margin(logits, batch["labels"]).sum().item())
+            total_margin += float(
+                correct_label_margin(logits, batch["labels"].to(logits.device)).sum().item()
+            )
             total_items += batch["labels"].shape[0]
             predictions.extend(torch.argmax(logits, dim=-1).detach().cpu().tolist())
             labels.extend(batch["labels"].detach().cpu().tolist())
@@ -166,7 +200,16 @@ def main() -> None:
         dropout=args.dropout,
         max_length=max_length,
     )
-    model = RelationExtractionModel(config).to(device)
+    model = RelationExtractionModel(config)
+    model_parallel_devices: tuple[torch.device, ...] = ()
+    if args.model_parallel_gpus is not None:
+        if args.device == "cpu":
+            raise ValueError("model parallelism requires CUDA")
+        model_parallel_devices = resolve_model_parallel_devices(args.model_parallel_gpus)
+        model.configure_model_parallel(model_parallel_devices)
+        device = model_parallel_devices[0]
+    else:
+        model.to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
 
     history: list[dict[str, Any]] = []
@@ -190,7 +233,7 @@ def main() -> None:
             batch = move_batch(batch, device)
             optimizer.zero_grad(set_to_none=True)
             logits = model(batch["input_ids"], batch["attention_mask"], batch["subject_mask"], batch["object_mask"])
-            loss = F.cross_entropy(logits, batch["labels"])
+            loss = F.cross_entropy(logits, batch["labels"].to(logits.device))
             require_finite_tensor(
                 loss,
                 "objective",

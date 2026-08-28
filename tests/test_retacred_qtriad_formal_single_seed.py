@@ -41,6 +41,17 @@ def test_qtriad_runner_is_portable_serial_and_auto_exports() -> None:
     assert 'LOG_TMP=$(mktemp)' in text
     assert 'mv "${LOG_TMP}" "${RUN_DIR}/logs/run.log"' in text
     assert 'mkdir -p "${RUN_DIR}/logs"\nCUDA_DEVICE_ORDER' not in text
+    assert "--model-parallel-gpus" in text
+    assert "model-parallel-gpus" in runner
+
+
+def test_qtriad_runner_records_model_parallel_provenance() -> None:
+    runner = (ROOT / "experiments/run_qtriad_relation_transfer.py").read_text(
+        encoding="utf-8"
+    )
+    assert "configure_model_parallel" in runner
+    assert '"parallel_mode": "model_parallel"' in runner
+    assert "model_parallel_device_map" in runner
 
 
 def test_qtriad_runner_checks_capacity_before_start() -> None:

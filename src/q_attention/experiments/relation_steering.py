@@ -104,7 +104,12 @@ def torch_load_weights(path: str | Path, map_location: str | torch.device = "cpu
     except TypeError:  # Older PyTorch versions do not expose weights_only.
         return torch.load(path, map_location=map_location)
 
-def load_relation_run(model_dir: str | Path, device: torch.device) -> RelationRunArtifacts:
+def load_relation_run(
+    model_dir: str | Path,
+    device: torch.device,
+    *,
+    model_parallel_devices: Sequence[torch.device | str] = (),
+) -> RelationRunArtifacts:
     """Load a baseline relation checkpoint and reconstruct its model."""
     model_dir = Path(model_dir)
     metrics_path = model_dir / "metrics.json"
@@ -139,7 +144,10 @@ def load_relation_run(model_dir: str | Path, device: torch.device) -> RelationRu
     )
     model = RelationExtractionModel(config)
     model.load_state_dict(state_dict)
-    model.to(device)
+    if model_parallel_devices:
+        model.configure_model_parallel(model_parallel_devices)
+    else:
+        model.to(device)
     model.eval()
 
     key_module_paths = key_paths or model.key_module_paths
@@ -474,7 +482,7 @@ def evaluate_relation_model(
                 with adapter.steering(hook_config):
                     logits = model(batch["input_ids"], batch["attention_mask"], batch["subject_mask"], batch["object_mask"])
 
-            loss = F.cross_entropy(logits, batch["labels"])
+            loss = F.cross_entropy(logits, batch["labels"].to(logits.device))
             total_loss += float(loss.item()) * int(batch["labels"].shape[0])
             total_items += int(batch["labels"].shape[0])
             predictions.extend(torch.argmax(logits, dim=-1).detach().cpu().tolist())

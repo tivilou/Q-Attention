@@ -248,12 +248,15 @@ def _capture_geometry(
         raise TypeError("geometry hook requires tensor score input and output")
     base_scores = inputs[0]
     steered_scores = output
-    base_attention = _masked_attention(base_scores, batch["attention_mask"])
-    steered_attention = _masked_attention(steered_scores, batch["attention_mask"])
-    context = batch["attention_mask"] & ~(batch["subject_mask"] | batch["object_mask"])
+    attention_mask = batch["attention_mask"].to(device=base_scores.device)
+    subject_mask = batch["subject_mask"].to(device=base_scores.device)
+    object_mask = batch["object_mask"].to(device=base_scores.device)
+    base_attention = _masked_attention(base_scores, attention_mask)
+    steered_attention = _masked_attention(steered_scores, attention_mask)
+    context = attention_mask & ~(subject_mask | object_mask)
     context_mask = context[:, None, None, :].to(dtype=base_attention.dtype)
     entity_mask = (batch["subject_mask"] | batch["object_mask"])[:, None, None, :].to(dtype=base_attention.dtype)
-    query_mask = batch["attention_mask"][:, None, :, None].to(dtype=base_attention.dtype)
+    query_mask = attention_mask[:, None, :, None].to(dtype=base_attention.dtype)
     probability_delta = (steered_attention - base_attention).abs()
     accumulator = layer_accumulators[layer_index]
     accumulator["residual_rms"].update((steered_scores - base_scores).square().mean(dim=(-1, -2, -3)).sqrt())
@@ -330,7 +333,7 @@ def evaluate(
                     adapter.remove()
             if not torch.isfinite(logits).all():
                 raise FloatingPointError(f"non-finite logits during {stage}")
-            loss = F.cross_entropy(logits, batch["labels"])
+            loss = F.cross_entropy(logits, batch["labels"].to(logits.device))
             total_loss += float(loss.item()) * int(batch["labels"].shape[0])
             total_items += int(batch["labels"].shape[0])
             predictions.extend(torch.argmax(logits, dim=-1).cpu().tolist())
@@ -407,7 +410,7 @@ def train_kernel(
                 )
             finally:
                 adapter.remove()
-            loss = F.cross_entropy(logits, batch["labels"])
+            loss = F.cross_entropy(logits, batch["labels"].to(logits.device))
             if not torch.isfinite(loss):
                 raise FloatingPointError(f"non-finite loss selector={selector} epoch={epoch}")
             loss.backward()

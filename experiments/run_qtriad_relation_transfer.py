@@ -93,6 +93,11 @@ def parse_args() -> argparse.Namespace:
         help="comma-separated physical GPU IDs or auto; selectors run as independent workers",
     )
     parser.add_argument(
+        "--model-parallel-gpus",
+        default=None,
+        help="comma-separated physical GPU IDs for layer-sharded model parallelism",
+    )
+    parser.add_argument(
         "--hardware-profile",
         choices=("config", "auto", "low_memory", "balanced", "high_memory"),
         default="config",
@@ -103,6 +108,38 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--started-at-utc", default=None, help=argparse.SUPPRESS)
     parser.add_argument("--python-bin", default=sys.executable, help=argparse.SUPPRESS)
     return parser.parse_args()
+
+
+def parse_model_parallel_gpu_ids(spec: str | None) -> list[int]:
+    if spec is None:
+        return []
+    fields = [field.strip() for field in spec.split(",")]
+    if len(fields) < 2 or any(not field.isdigit() for field in fields):
+        raise ValueError("--model-parallel-gpus must contain at least two GPU IDs")
+    ids = [int(field) for field in fields]
+    if len(set(ids)) != len(ids):
+        raise ValueError("--model-parallel-gpus must not contain duplicate GPU IDs")
+    return ids
+
+
+def local_model_parallel_devices(physical_gpu_ids: list[int]) -> tuple[torch.device, ...]:
+    visible = os.environ.get("CUDA_VISIBLE_DEVICES")
+    if visible:
+        fields = [field.strip() for field in visible.split(",")]
+        if all(field.isdigit() for field in fields):
+            mapping = {int(field): index for index, field in enumerate(fields)}
+            missing = [gpu_id for gpu_id in physical_gpu_ids if gpu_id not in mapping]
+            if missing:
+                raise ValueError(
+                    f"model-parallel GPUs {missing} are not visible in CUDA_VISIBLE_DEVICES={visible}"
+                )
+            return tuple(torch.device(f"cuda:{mapping[gpu_id]}") for gpu_id in physical_gpu_ids)
+    available = torch.cuda.device_count()
+    if any(gpu_id >= available for gpu_id in physical_gpu_ids):
+        raise ValueError(
+            f"model-parallel GPU IDs {physical_gpu_ids} exceed visible device count {available}"
+        )
+    return tuple(torch.device(f"cuda:{gpu_id}") for gpu_id in physical_gpu_ids)
 
 
 def query_gpu_inventory() -> list[dict[str, Any]]:
@@ -492,9 +529,10 @@ def build_kernel(
     *,
     pair_chunk_size: int | None = None,
     activation_checkpointing: bool | None = None,
+    model_parallel_devices: tuple[torch.device, ...] = (),
 ) -> QTriadAttentionScoreKernel:
     kernel_config = config["kernel"]
-    return QTriadAttentionScoreKernel(
+    kernel = QTriadAttentionScoreKernel(
         num_layers=model.config.num_layers,
         num_heads=model.config.num_heads,
         head_dim=model.config.dim // model.config.num_heads,
@@ -512,6 +550,9 @@ def build_kernel(
             else True
         ),
     )
+    if model_parallel_devices:
+        kernel.configure_model_parallel(model_parallel_devices)
+    return kernel
 
 
 def evaluate_selector(
@@ -550,31 +591,43 @@ def main() -> int:
         raise ValueError("config must include the matched classical control")
     if args.log_every_batches <= 0:
         raise ValueError("--log-every-batches must be positive")
-    inventory = query_gpu_inventory() if args.gpus and args.gpus.strip().lower() == "auto" else []
-    if args.gpus and args.gpus.strip().lower() != "auto" and os.environ.get("CUDA_VISIBLE_DEVICES") is None:
-        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-        os.environ["CUDA_VISIBLE_DEVICES"] = args.gpus.strip()
-    gpu_ids = resolve_gpu_ids(args.gpus, args.device, inventory)
-    if gpu_ids and not inventory:
+    model_parallel_gpu_ids = parse_model_parallel_gpu_ids(args.model_parallel_gpus)
+    if model_parallel_gpu_ids and args.gpus:
+        raise ValueError("--gpus/selector-parallel cannot be combined with --model-parallel-gpus")
+    if model_parallel_gpu_ids:
+        if args.device == "cpu":
+            raise ValueError("model parallelism requires CUDA")
         inventory = query_gpu_inventory()
-    if gpu_ids and os.environ.get("CUDA_VISIBLE_DEVICES") is None:
-        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-        os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(str(gpu_id) for gpu_id in gpu_ids)
-    if gpu_ids:
-        # Re-read after visibility and before creating the run so an explicit
-        # GPU request gets the same minimum-capacity guard as --gpus auto.
-        inventory = query_gpu_inventory()
-        validate_gpu_capacity(gpu_ids, inventory, phase="before baseline")
+        validate_gpu_capacity(model_parallel_gpu_ids, inventory, phase="before model-parallel baseline")
+        model_parallel_devices = local_model_parallel_devices(model_parallel_gpu_ids)
+        gpu_ids: list[int] = []
+        profile_gpu_ids = model_parallel_gpu_ids
+    else:
+        model_parallel_devices = ()
+        inventory = query_gpu_inventory() if args.gpus and args.gpus.strip().lower() == "auto" else []
+        if args.gpus and args.gpus.strip().lower() != "auto" and os.environ.get("CUDA_VISIBLE_DEVICES") is None:
+            os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+            os.environ["CUDA_VISIBLE_DEVICES"] = args.gpus.strip()
+        gpu_ids = resolve_gpu_ids(args.gpus, args.device, inventory)
+        if gpu_ids and not inventory:
+            inventory = query_gpu_inventory()
+        if gpu_ids and os.environ.get("CUDA_VISIBLE_DEVICES") is None:
+            os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+            os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(str(gpu_id) for gpu_id in gpu_ids)
+        if gpu_ids:
+            inventory = query_gpu_inventory()
+            validate_gpu_capacity(gpu_ids, inventory, phase="before baseline")
+        profile_gpu_ids = gpu_ids
     profile_request = "auto" if args.gpus and args.gpus.strip().lower() == "auto" and args.hardware_profile == "config" else args.hardware_profile
-    hardware_profile = choose_hardware_profile(profile_request, config, gpu_ids, inventory)
+    hardware_profile = choose_hardware_profile(profile_request, config, profile_gpu_ids, inventory)
     hardware_profile.update(
         {
-            "requested_gpu_spec": args.gpus or "default",
-            "selected_gpu_ids": gpu_ids,
+            "requested_gpu_spec": args.model_parallel_gpus or args.gpus or "default",
+            "selected_gpu_ids": profile_gpu_ids,
             "gpu_inventory": inventory,
         }
     )
-    device = torch.device("cuda:0") if gpu_ids else choose_device(args.device)
+    device = model_parallel_devices[0] if model_parallel_devices else (torch.device("cuda:0") if gpu_ids else choose_device(args.device))
     stamp = args.started_at_utc or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     if len(stamp) != 16 or not stamp.endswith("Z"):
         raise ValueError("--started-at-utc must use UTC format YYYYMMDDTHHMMSSZ")
@@ -618,8 +671,16 @@ def main() -> int:
         "--max_length", str(max_length),
         "--seed", str(seed),
     ]
+    if model_parallel_gpu_ids:
+        baseline_command.extend(
+            ["--model-parallel-gpus", ",".join(str(gpu_id) for gpu_id in model_parallel_gpu_ids)]
+        )
     run_logged_command(baseline_command, run_dir / "baseline_train.log")
-    artifacts = load_relation_run(baseline_dir, device)
+    artifacts = load_relation_run(
+        baseline_dir,
+        device,
+        model_parallel_devices=model_parallel_devices,
+    )
     valid_loader = make_relation_loader(valid_records, artifacts.vocab, artifacts.label_to_id, batch_size=int(config["kernel"]["batch_size"]))
     test_loader = make_relation_loader(test_records, artifacts.vocab, artifacts.label_to_id, batch_size=int(config["kernel"]["batch_size"]))
     for parameter in artifacts.model.parameters():
@@ -645,35 +706,209 @@ def main() -> int:
     (disabled_dir / "metrics.json").write_text(
         json.dumps(disabled_row, indent=2, sort_keys=True), encoding="utf-8"
     )
-    # Release the parent's model copy before selector workers load the shared
-    # checkpoint. This is important when the first worker uses GPU 0.
-    label_count = len(artifacts.label_to_id)
-    artifacts.model.to("cpu")
-    del valid_loader, test_loader
-    if device.type == "cuda":
-        gc.collect()
-        torch.cuda.empty_cache()
-    del artifacts
-    del train_records
-    if gpu_ids:
-        # The baseline and its CUDA allocator must be gone before a worker is
-        # allowed to claim the first physical GPU.
-        gc.collect()
-        torch.cuda.empty_cache()
-        inventory = query_gpu_inventory()
-        validate_gpu_capacity(gpu_ids, inventory, phase="before selector workers")
-    worker_selectors = [selector for selector in selectors if selector != "disabled"]
-    worker_statuses = run_selector_workers(
-        selectors=worker_selectors,
-        gpu_ids=gpu_ids or [-1],
-        args=args,
-        config_path=config_path,
-        baseline_dir=baseline_dir,
-        data_dir=data_dir,
-        run_dir=run_dir,
-        seed=seed,
-        hardware_profile=hardware_profile,
-    )
+    if model_parallel_devices:
+        # Model-parallel mode keeps one sharded model alive and runs selectors
+        # serially; independent selector workers would each duplicate the
+        # sharded model and defeat the memory purpose of this option.
+        worker_statuses = {}
+        train_args = argparse.Namespace(
+            batch_size=int(config["kernel"]["batch_size"]),
+            epochs=int(config["kernel"]["epochs"]),
+            kernel_lr=float(config["kernel"]["lr"]),
+            log_every_batches=args.log_every_batches,
+        )
+        pending_selectors = [selector for selector in selectors if selector != "disabled"]
+        for selector in pending_selectors:
+            worker_statuses[selector] = {
+                "selector": selector,
+                "status": "pending",
+                "physical_gpu_ids": model_parallel_gpu_ids,
+            }
+        _write_json_atomic(
+            run_dir / "gpu_assignments.json",
+            {
+                "parallel_mode": "model_parallel",
+                "requested_gpu_ids": model_parallel_gpu_ids,
+                "hardware_profile": hardware_profile,
+                "workers": worker_statuses,
+            },
+        )
+        current_selector: str | None = None
+        try:
+            for selector in pending_selectors:
+                current_selector = selector
+                selector_dir = run_dir / "selectors" / selector
+                selector_dir.mkdir(parents=True, exist_ok=True)
+                started_at = datetime.now(timezone.utc).isoformat()
+                started = time.perf_counter()
+                worker_statuses[selector].update({"status": "running", "started_at": started_at})
+                _write_json_atomic(
+                    run_dir / "gpu_assignments.json",
+                    {
+                        "parallel_mode": "model_parallel",
+                        "requested_gpu_ids": model_parallel_gpu_ids,
+                        "hardware_profile": hardware_profile,
+                        "workers": worker_statuses,
+                    },
+                )
+                kernel = build_kernel(
+                    selector,
+                    artifacts.model,
+                    seed,
+                    config,
+                    pair_chunk_size=int(hardware_profile["pair_chunk_size"]),
+                    activation_checkpointing=bool(hardware_profile["activation_checkpointing"]),
+                    model_parallel_devices=model_parallel_devices,
+                )
+                train_result = train_kernel(
+                    artifacts.model,
+                    kernel,
+                    train_records,
+                    valid_loader,
+                    artifacts,
+                    device,
+                    selector,
+                    seed,
+                    train_args,
+                    selector_dir,
+                )
+                valid_result = evaluate_selector(
+                    artifacts.model,
+                    valid_loader,
+                    device,
+                    len(artifacts.label_to_id),
+                    kernel,
+                    f"{selector}_valid_final",
+                )
+                test_result = evaluate_selector(
+                    artifacts.model,
+                    test_loader,
+                    device,
+                    len(artifacts.label_to_id),
+                    kernel,
+                    f"{selector}_test",
+                )
+                metadata = kernel.metadata()
+                trainable_parameters = sum(parameter.numel() for parameter in kernel.parameters())
+                row = {
+                    "selector": selector,
+                    "seed": seed,
+                    "valid": valid_result,
+                    "test": {
+                        **test_result,
+                        "delta_vs_baseline": metric_delta(test_result["metrics"], baseline_test["metrics"]),
+                    },
+                    "train": train_result,
+                    "metadata": metadata,
+                    "trainable_parameters": trainable_parameters,
+                    "finite": all(
+                        torch.isfinite(torch.tensor(value))
+                        for value in list(valid_result["metrics"].values())
+                        + list(test_result["metrics"].values())
+                    ),
+                }
+                torch.save(
+                    {"state_dict": kernel.state_dict(), "metadata": metadata},
+                    selector_dir / "best_kernel_with_metadata.pt",
+                )
+                (selector_dir / "metrics.json").write_text(
+                    json.dumps(row, indent=2, sort_keys=True), encoding="utf-8"
+                )
+                worker_statuses[selector].update(
+                    {
+                        "status": "complete",
+                        "finished_at": datetime.now(timezone.utc).isoformat(),
+                        "duration_seconds": round(time.perf_counter() - started, 3),
+                    }
+                )
+                _write_json_atomic(
+                    run_dir / "gpu_assignments.json",
+                    {
+                        "parallel_mode": "model_parallel",
+                        "requested_gpu_ids": model_parallel_gpu_ids,
+                        "hardware_profile": hardware_profile,
+                        "workers": worker_statuses,
+                    },
+                )
+                del kernel
+                gc.collect()
+                torch.cuda.empty_cache()
+                current_selector = None
+        except BaseException as exc:
+            now = datetime.now(timezone.utc).isoformat()
+            if current_selector is not None and worker_statuses[current_selector]["status"] == "running":
+                worker_statuses[current_selector].update(
+                    {
+                        "status": "failed",
+                        "finished_at": now,
+                        "duration_seconds": round(time.perf_counter() - started, 3),
+                        "error": f"{type(exc).__name__}: {exc}",
+                    }
+                )
+            for selector, status in worker_statuses.items():
+                if status["status"] == "pending":
+                    status.update({"status": "not_started", "finished_at": now})
+            _write_json_atomic(
+                run_dir / "gpu_assignments.json",
+                {
+                    "parallel_mode": "model_parallel",
+                    "requested_gpu_ids": model_parallel_gpu_ids,
+                    "hardware_profile": hardware_profile,
+                    "workers": worker_statuses,
+                },
+            )
+            (run_dir / "RUN_FAILED").write_text(
+                json.dumps(
+                    {
+                        "failed_at_utc": now,
+                        "stage": "model_parallel_selectors",
+                        "failed_selector": current_selector,
+                        "reason": f"{type(exc).__name__}: {exc}",
+                        "workers": worker_statuses,
+                    },
+                    indent=2,
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            raise
+        _write_json_atomic(
+            run_dir / "gpu_assignments.json",
+            {
+                "parallel_mode": "model_parallel",
+                "requested_gpu_ids": model_parallel_gpu_ids,
+                "hardware_profile": hardware_profile,
+                "workers": worker_statuses,
+            },
+        )
+    else:
+        # Release the parent's model copy before selector workers load the shared
+        # checkpoint. This is important when the first worker uses GPU 0.
+        artifacts.model.to("cpu")
+        del valid_loader, test_loader
+        if device.type == "cuda":
+            gc.collect()
+            torch.cuda.empty_cache()
+        del artifacts
+        del train_records
+        if gpu_ids:
+            gc.collect()
+            torch.cuda.empty_cache()
+            inventory = query_gpu_inventory()
+            validate_gpu_capacity(gpu_ids, inventory, phase="before selector workers")
+        worker_selectors = [selector for selector in selectors if selector != "disabled"]
+        worker_statuses = run_selector_workers(
+            selectors=worker_selectors,
+            gpu_ids=gpu_ids or [-1],
+            args=args,
+            config_path=config_path,
+            baseline_dir=baseline_dir,
+            data_dir=data_dir,
+            run_dir=run_dir,
+            seed=seed,
+            hardware_profile=hardware_profile,
+        )
     rows: list[dict[str, Any]] = []
     for selector in selectors:
         metrics_path = run_dir / "selectors" / selector / "metrics.json"
@@ -702,6 +937,12 @@ def main() -> int:
         "seed": seed,
         "run_dir": str(run_dir),
         "device": str(device),
+        "parallel_mode": "model_parallel" if model_parallel_devices else ("selector_parallel" if gpu_ids else "serial"),
+        "model_parallel": {
+            "enabled": bool(model_parallel_devices),
+            "physical_gpu_ids": model_parallel_gpu_ids,
+            "device_map": artifacts.model.model_parallel_metadata() if model_parallel_devices else {"enabled": False},
+        },
         "multi_gpu": {
             "requested_gpu_ids": gpu_ids,
             "selector_parallelism": len(gpu_ids),
@@ -729,6 +970,8 @@ def main() -> int:
             "cuda_available": torch.cuda.is_available(),
             "cuda_device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
             "visible_cuda_devices": gpu_ids,
+            "model_parallel_gpu_ids": model_parallel_gpu_ids,
+            "model_parallel_device_map": artifacts.model.model_parallel_metadata() if model_parallel_devices else {"enabled": False},
             "pair_chunk_size": int(hardware_profile["pair_chunk_size"]),
             "activation_checkpointing": bool(hardware_profile["activation_checkpointing"]),
             "started_at_utc": stamp,
@@ -743,6 +986,8 @@ def main() -> int:
         "",
         f"- candidate: `{config['candidate']}`",
         f"- matched control: `{config['matched_control']}`",
+        f"- parallel mode: `{'model_parallel' if model_parallel_devices else ('selector_parallel' if gpu_ids else 'serial')}`",
+        f"- model-parallel physical GPUs: `{model_parallel_gpu_ids}`",
         f"- hardware profile: `{hardware_profile['name']}` (pair_chunk_size={hardware_profile['pair_chunk_size']}, activation_checkpointing={str(hardware_profile['activation_checkpointing']).lower()})",
         f"- selected physical GPUs: `{gpu_ids}`",
         f"- candidate minus disabled test macro-F1: `{candidate_minus_disabled['delta_macro_f1']:.6f}`",
