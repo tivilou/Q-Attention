@@ -7,6 +7,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
+| [Q-TRIAD Re-TACRED 正式单 seed](current/retacred_qtriad_formal_single_seed_zh.md) | 完整数据、seed 13、单 GPU 的 Q-TRIAD 与经典密度控制 |
 | [Q-SRPA query-conditioned Re-TACRED 正式单 seed](current/retacred_qsrpa_query_conditioned_formal_single_seed_zh.md) | 固定 seed 13、完整数据、单 GPU 的 query-conditioned soft-role pair 与 matched classical controls；自动导出审计报告 |
 | [Q-VRES 正式实验](current/qvres_relation_transfer_full_run_zh.md) | 当前 seed 13 validation 诊断与报告提交 |
 | [Q-LASS Re-TACRED 正式单 seed](current/retacred_qlass_formal_single_seed_zh.md) | 完整数据、单 seed、单 GPU 的 Q-LASS 与 classical matched control |

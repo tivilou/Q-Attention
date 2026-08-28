@@ -7,13 +7,14 @@
 ```bash
 git fetch origin --prune
 git switch 1.1
+git merge origin/1.1
 git merge origin/main
 git status --short
 bash scripts/check_retacred_qsrpa_query_conditioned_formal_single_seed.sh
 bash scripts/run_retacred_qsrpa_query_conditioned_formal_single_seed.sh --gpu 0
 ```
 
-runner 启动时只记录一次 UTC 时间戳，并用它命名运行目录和默认报告目录。完成全部训练和评估后，会先生成 `RUN_COMPLETE`、`run_summary.json` 和 `run_summary.md`，再自动调用 exporter。未指定时，报告目录为 `reports/retacred_qsrpa_query_conditioned_formal_single_seed/<启动时间戳>_seed13/`。exporter 会再次检查完整性、分支、clean 状态和私有文件，随后只提交并 push 审计后的报告子集，不提交 runs、数据、checkpoint、预测或完整日志。显式目录覆盖只作为例外，见后文。
+runner 启动时只记录一次 UTC 时间戳，并用它命名运行目录和默认报告目录；在首个训练阶段前还会把执行 commit、分支和 Python 解释器写入 raw run 的 `provenance.env`。完成全部训练和评估后，会先生成 `RUN_COMPLETE`、`run_summary.json` 和 `run_summary.md`，再自动调用 exporter。未指定时，报告目录为 `reports/retacred_qsrpa_query_conditioned_formal_single_seed/<启动时间戳>_seed13/`。exporter 会再次检查完整性、`origin/1.1` 与 `origin/main` ancestry、分支、clean 状态、执行 commit provenance 和私有文件，随后只提交并 push 审计后的报告子集，不提交 runs、数据、checkpoint、预测或完整日志。显式目录覆盖只作为例外，见后文。
 
 标准运行命令不需要指定报告目录：
 
@@ -42,7 +43,7 @@ git log -1 --oneline --decorate
 git show --stat --oneline --summary HEAD
 ```
 
-`git status --short` 应为空，当前分支应为 `1.1`。runner 自动导出时已经执行 `git add`、报告提交和 `git push origin 1.1`；如果使用 `--no-commit` 或自动导出失败，则在确认报告目录只含审计允许文件后执行：
+`git status --short` 应为空，当前分支应为 `1.1`，且当前 `HEAD` 应同时包含 `origin/1.1` 和 `origin/main`。runner 自动导出时已经执行 `git add`、报告提交和 `git push origin 1.1`；如果使用 `--no-commit` 或自动导出失败，则在确认报告目录只含审计允许文件后执行：
 
 ```bash
 git add "${REPORT_DIR}"

@@ -152,6 +152,27 @@ def validate_args(args: argparse.Namespace) -> None:
         )
 
 
+def action_contract_for_anchor_mode(relation_anchor_mode: str) -> dict[str, Any]:
+    """Return the explicit action protocol for checkpoint audit metadata."""
+    protocols = {
+        "global_context": "label_free_global_context",
+        "soft_role_pair": "label_free_soft_role_pair",
+        "query_conditioned_soft_role_pair": "label_free_query_conditioned_soft_role_pair",
+        "entity_pair": "entity_pair_legacy",
+    }
+    try:
+        protocol = protocols[relation_anchor_mode]
+    except KeyError as exc:
+        raise ValueError(f"unknown relation anchor mode: {relation_anchor_mode}") from exc
+    uses_spans = relation_anchor_mode == "entity_pair"
+    return {
+        "protocol": protocol,
+        "action_uses_subject_object_masks": uses_spans,
+        "subject_object_spans_allowed_for_action": uses_spans,
+        "subject_object_spans_allowed_for_offline_evaluation": True,
+    }
+
+
 def main() -> None:
     args = parse_args()
     validate_args(args)
@@ -274,18 +295,7 @@ def main() -> None:
         "diversity_weight": args.diversity_weight,
         "role_regularization_weight": args.role_regularization_weight,
         "normalize_readout_energy": args.normalize_readout_energy,
-        "action_contract": {
-            "protocol": (
-                "label_free_global_context"
-                if args.relation_anchor_mode == "global_context"
-                else "label_free_soft_role_pair"
-                if args.relation_anchor_mode == "soft_role_pair"
-                else "entity_pair_legacy"
-            ),
-            "action_uses_subject_object_masks": args.relation_anchor_mode == "entity_pair",
-            "subject_object_spans_allowed_for_action": args.relation_anchor_mode == "entity_pair",
-            "subject_object_spans_allowed_for_offline_evaluation": True,
-        },
+        "action_contract": action_contract_for_anchor_mode(args.relation_anchor_mode),
     }
     history: list[dict[str, Any]] = []
     best_valid: dict[str, float] | None = None
