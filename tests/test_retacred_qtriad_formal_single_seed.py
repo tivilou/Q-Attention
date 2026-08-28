@@ -35,6 +35,9 @@ def test_qtriad_runner_is_portable_serial_and_auto_exports() -> None:
     assert "export_retacred_qtriad_formal_single_seed_report.sh" in text
     assert not any(line.rstrip().endswith("&") for line in text.splitlines())
     assert "/usr/local/miniconda" not in text
+    assert 'LOG_TMP=$(mktemp)' in text
+    assert 'mv "${LOG_TMP}" "${RUN_DIR}/logs/run.log"' in text
+    assert 'mkdir -p "${RUN_DIR}/logs"\nCUDA_DEVICE_ORDER' not in text
 
 
 def test_qtriad_exporter_uses_run_basename_by_default_and_has_gates() -> None:

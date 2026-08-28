@@ -77,9 +77,25 @@ if [[ ${DRY_RUN} -eq 1 ]]; then
   exit 0
 fi
 
-mkdir -p "${RUN_DIR}/logs"
+LOG_TMP=$(mktemp)
+cleanup_log() {
+  if [[ -f "${LOG_TMP}" && -d "${RUN_DIR}" ]]; then
+    mkdir -p "${RUN_DIR}/logs"
+    mv "${LOG_TMP}" "${RUN_DIR}/logs/run.log"
+  else
+    rm -f "${LOG_TMP}"
+  fi
+}
+trap cleanup_log EXIT
+
+set +e
 CUDA_DEVICE_ORDER=PCI_BUS_ID CUDA_VISIBLE_DEVICES="${GPU_SPEC}" \
-  "${COMMAND[@]}" 2>&1 | tee "${RUN_DIR}/logs/run.log"
+  "${COMMAND[@]}" 2>&1 | tee "${LOG_TMP}"
+RUN_STATUS=${PIPESTATUS[0]}
+set -e
+if [[ ${RUN_STATUS} -ne 0 ]]; then
+  exit "${RUN_STATUS}"
+fi
 [[ -f "${RUN_DIR}/RUN_COMPLETE" && -f "${RUN_DIR}/run_summary.json" && -f "${RUN_DIR}/run_summary.md" ]] || { echo "Run did not produce complete markers and summaries." >&2; exit 1; }
 EXPORT_COMMAND=(bash scripts/export_retacred_qtriad_formal_single_seed_report.sh --run-dir "${RUN_DIR}")
 if [[ -n "${REPORT_DIR}" ]]; then
