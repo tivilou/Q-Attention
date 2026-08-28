@@ -67,6 +67,8 @@ Q-TRIAD 的 attention hook 会把 query-key 对分块计算，避免一次性物
 
 运行摘要会记录 `gpu_assignments.json`、请求和解析到的 GPU ID、每个 worker 的 PID/状态/耗时、`pair_chunk_size` 以及 CUDA 设备信息。先用小规模 canary 验证 GPU 拓扑和显存，再运行完整正式实验；不得用降低 batch 或改变 selector 的临时命令冒充正式结果。
 
+运行期间主终端会每 30 秒输出一份可读的 selector 面板，按 GPU 显示当前 selector、phase、epoch/batch、速率和 ETA；完成、排队和失败的 selector 也会单独列出。worker 的原始 JSON 进度仍保存在各自的 `selectors/<selector>/worker.log`，调度器事件另存为 raw run 根目录的 `scheduler_events.jsonl`，便于审计。终端被重定向或通过 `tee` 保存时仍使用普通追加文本，不依赖 ANSI 光标控制。
+
 ## 3. 完成检查
 
 运行成功后 raw run 必须包含：

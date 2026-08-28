@@ -3,6 +3,7 @@ from __future__ import annotations
 import torch
 import pytest
 import sys
+import time
 from types import SimpleNamespace
 
 ROOT = __import__("pathlib").Path(__file__).resolve().parents[1]
@@ -114,14 +115,47 @@ def test_pair_chunk_size_must_be_positive() -> None:
         _kernel(0)
 
 
+def test_selector_dashboard_renders_multi_gpu_heartbeat(tmp_path) -> None:
+    heartbeat = tmp_path / "q_triad.heartbeat"
+    heartbeat.write_text(
+        '{"event":"batch_progress","phase":"train","epoch":3,"epochs":12,'
+        '"batch":147,"batches":229,"percent":64.19,"eta_seconds":4200,'
+        '"batches_per_second":0.42}\n',
+        encoding="utf-8",
+    )
+    statuses = {
+        "q_triad": {
+            "status": "running",
+            "gpu": 0,
+            "heartbeat_file": str(heartbeat),
+        },
+        "classical_density_tensor": {"status": "pending", "gpu": None},
+        "quantum_product": {"status": "complete", "gpu": 1},
+    }
+    active = {"q_triad": {"started_monotonic": time.monotonic() - 65}}
+
+    rendered = formal_runner._render_selector_dashboard(statuses, active)
+
+    assert "Q-TRIAD selectors: 1/3 complete" in rendered
+    assert "GPU 0 | q_triad" in rendered
+    assert "epoch 3/12" in rendered
+    assert "batch 147/229 64.2%" in rendered
+    assert "ETA 01:10:00" in rendered
+    assert "Queued: classical_density_tensor" in rendered
+    assert "Completed: quantum_product" in rendered
+
+
 def test_selector_scheduler_reuses_first_free_gpu(tmp_path, monkeypatch) -> None:
+    seen_environments = []
+
     class FakeProcess:
         _next_pid = 4100
 
-        def __init__(self, command, **_kwargs):
+        def __init__(self, command, **kwargs):
             self.pid = FakeProcess._next_pid
             FakeProcess._next_pid += 1
             self.return_code = 0
+            seen_environments.append(kwargs["env"])
             selector = command[command.index("--selector") + 1]
             output_dir = __import__("pathlib").Path(
                 command[command.index("--output-dir") + 1]
@@ -151,6 +185,9 @@ def test_selector_scheduler_reuses_first_free_gpu(tmp_path, monkeypatch) -> None
     assert statuses["q_triad"]["gpu"] == 2
     assert statuses["classical_density_tensor"]["gpu"] == 5
     assert statuses["quantum_product"]["gpu"] == 2
+    assert all(environment["Q_ATTENTION_HEARTBEAT_FILE"] for environment in seen_environments)
+    assert all(environment["PYTHONUNBUFFERED"] == "1" for environment in seen_environments)
+    assert (tmp_path / "run" / "scheduler_events.jsonl").is_file()
 
 
 def test_gpu_ids_follow_physical_ids_exposed_by_cuda_visible_devices(monkeypatch) -> None:

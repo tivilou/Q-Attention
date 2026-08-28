@@ -355,6 +355,103 @@ def _write_json_atomic(path: Path, payload: Any) -> None:
     temporary.replace(path)
 
 
+def _append_scheduler_event(run_dir: Path, payload: dict[str, Any]) -> None:
+    """Keep machine-readable scheduler events separate from the human console UI."""
+    event_path = run_dir / "scheduler_events.jsonl"
+    with event_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(payload, sort_keys=True) + "\n")
+        handle.flush()
+
+
+def _read_json(path: Path) -> dict[str, Any]:
+    """Read a heartbeat snapshot, tolerating startup races and stale files."""
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, OSError, json.JSONDecodeError):
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
+def _format_duration(seconds: Any) -> str:
+    if seconds is None:
+        return "--:--"
+    try:
+        total = max(int(round(float(seconds))), 0)
+    except (TypeError, ValueError):
+        return "--:--"
+    hours, remainder = divmod(total, 3600)
+    minutes, secs = divmod(remainder, 60)
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}" if hours else f"{minutes:02d}:{secs:02d}"
+
+
+def _render_selector_dashboard(
+    statuses: dict[str, dict[str, Any]],
+    active: dict[str, dict[str, Any]],
+) -> str:
+    """Render a readable, append-only snapshot for serial and multi-GPU runs."""
+    total = len(statuses)
+    counts = {
+        state: sum(item.get("status") == state for item in statuses.values())
+        for state in ("complete", "running", "pending", "failed", "not_started")
+    }
+    lines = [
+        (
+            f"Q-TRIAD selectors: {counts['complete']}/{total} complete | "
+            f"{counts['running']} running | {counts['pending']} queued | "
+            f"{counts['not_started']} not started | {counts['failed']} failed"
+        )
+    ]
+    for selector, item in sorted(statuses.items(), key=lambda pair: (str(pair[1].get("gpu", "?")), pair[0])):
+        status = str(item.get("status", "pending")).upper()
+        gpu = item.get("gpu") if item.get("gpu") is not None else "-"
+        if status != "RUNNING":
+            lines.append(f"GPU {gpu} | {selector:<28} | {status.lower()}")
+            continue
+        heartbeat_value = item.get("heartbeat_file")
+        heartbeat = _read_json(Path(str(heartbeat_value))) if heartbeat_value else {}
+        progress: list[str] = []
+        phase = heartbeat.get("phase") or heartbeat.get("stage")
+        if phase:
+            progress.append(str(phase))
+        epoch, epochs = heartbeat.get("epoch"), heartbeat.get("epochs")
+        if epoch is not None and epochs is not None:
+            progress.append(f"epoch {epoch}/{epochs}")
+        batch, batches = heartbeat.get("batch"), heartbeat.get("batches")
+        percent = heartbeat.get("percent")
+        if batch is not None and batches is not None:
+            try:
+                suffix = f" {float(percent):.1f}%" if percent is not None else ""
+            except (TypeError, ValueError):
+                suffix = ""
+            progress.append(f"batch {batch}/{batches}{suffix}")
+        if not progress:
+            progress.append("starting")
+        eta = _format_duration(heartbeat.get("eta_seconds"))
+        rate = heartbeat.get("batches_per_second")
+        try:
+            rate_text = f" | {float(rate):.2f} batch/s" if rate is not None else ""
+        except (TypeError, ValueError):
+            rate_text = ""
+        progress.append(f"ETA {eta}{rate_text}")
+        lines.append(f"GPU {gpu} | {selector:<28} | " + " | ".join(progress))
+
+    for label, state in (
+        ("Completed", "complete"),
+        ("Queued", "pending"),
+        ("Not started", "not_started"),
+        ("Failed", "failed"),
+    ):
+        names = [name for name, item in statuses.items() if item.get("status") == state]
+        lines.append(f"{label}: {', '.join(names) if names else 'none'}")
+    if active:
+        updated = []
+        for selector, entry in active.items():
+            elapsed = time.monotonic() - float(entry["started_monotonic"])
+            updated.append(f"{selector} {_format_duration(elapsed)}")
+        lines.append("Active time: " + ", ".join(sorted(updated)))
+    return "\n".join(lines)
+
+
 def _terminate_worker(process: subprocess.Popen[str]) -> None:
     if process.poll() is not None:
         return
@@ -433,6 +530,8 @@ def run_selector_workers(
                 selector_dir = run_dir / "selectors" / selector
                 selector_dir.mkdir(parents=True, exist_ok=True)
                 log_handle = (selector_dir / "worker.log").open("w", encoding="utf-8")
+                heartbeat_path = selector_dir / "heartbeat.json"
+                heartbeat_path.touch()
                 command = [
                     args.python_bin,
                     str(ROOT / "experiments" / "run_qtriad_selector_worker.py"),
@@ -451,6 +550,9 @@ def run_selector_workers(
                 if gpu_id >= 0:
                     environment["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
                     environment["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+                environment["PYTHONUNBUFFERED"] = "1"
+                environment["Q_ATTENTION_PROGRESS_FORMAT"] = "json"
+                environment["Q_ATTENTION_HEARTBEAT_FILE"] = str(heartbeat_path)
                 process = subprocess.Popen(
                     command,
                     cwd=ROOT,
@@ -467,15 +569,33 @@ def run_selector_workers(
                     "gpu": gpu_id,
                     "started_at": started_at,
                     "started_monotonic": time.monotonic(),
+                    "heartbeat_file": heartbeat_path,
                 }
                 statuses[selector].update(
-                    {"status": "running", "gpu": gpu_id, "pid": process.pid, "started_at": started_at}
+                    {
+                        "status": "running",
+                        "gpu": gpu_id,
+                        "pid": process.pid,
+                        "started_at": started_at,
+                        "heartbeat_file": str(heartbeat_path),
+                        "log_file": str(selector_dir / "worker.log"),
+                    }
                 )
                 _write_json_atomic(
                     assignments_path,
                     {"requested_gpu_ids": gpu_ids, "hardware_profile": hardware_profile, "workers": statuses},
                 )
-                print(json.dumps({"event": "selector_started", "selector": selector, "gpu": gpu_id}, sort_keys=True), flush=True)
+                _append_scheduler_event(
+                    run_dir,
+                    {
+                        "event": "selector_started",
+                        "selector": selector,
+                        "gpu": gpu_id,
+                        "pid": process.pid,
+                        "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                    },
+                )
+                print(f"[selector-scheduler] started {selector} on GPU {gpu_id}", flush=True)
 
             for selector, entry in list(active.items()):
                 process = entry["process"]
@@ -505,13 +625,40 @@ def run_selector_workers(
                 available.append(int(entry["gpu"]))
                 del active[selector]
                 _write_json_atomic(assignments_path, {"requested_gpu_ids": gpu_ids, "hardware_profile": hardware_profile, "workers": statuses})
-                print(json.dumps({"event": "selector_complete", "selector": selector, "gpu": entry["gpu"], "duration_seconds": duration}, sort_keys=True), flush=True)
+                _append_scheduler_event(
+                    run_dir,
+                    {
+                        "event": "selector_complete",
+                        "selector": selector,
+                        "gpu": entry["gpu"],
+                        "duration_seconds": duration,
+                        "timestamp": finished_at,
+                    },
+                )
+                print(
+                    f"[selector-scheduler] complete {selector} on GPU {entry['gpu']} "
+                    f"in {_format_duration(duration)}",
+                    flush=True,
+                )
 
             now = time.monotonic()
             if now - dashboard_at >= 30.0:
                 dashboard_at = now
                 counts = {state: sum(item["status"] == state for item in statuses.values()) for state in ("pending", "running", "complete", "failed", "not_started")}
-                print(json.dumps({"event": "selector_dashboard", **counts, "active_gpus": {selector: item["gpu"] for selector, item in statuses.items() if item["status"] == "running"}}, sort_keys=True), flush=True)
+                _append_scheduler_event(
+                    run_dir,
+                    {
+                        "event": "selector_dashboard",
+                        **counts,
+                        "active_gpus": {
+                            selector: item["gpu"]
+                            for selector, item in statuses.items()
+                            if item["status"] == "running"
+                        },
+                        "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                    },
+                )
+                print(_render_selector_dashboard(statuses, active), flush=True)
             if active:
                 time.sleep(0.5)
     except BaseException as exc:
