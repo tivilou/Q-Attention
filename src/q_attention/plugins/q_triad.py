@@ -15,7 +15,6 @@ from typing import Any
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.checkpoint import checkpoint
 
 
 QTRIAD_CONTROL_MODES = (
@@ -102,6 +101,130 @@ def _pauli_features(theta: torch.Tensor, phase: float) -> torch.Tensor:
 
 def _apply_pauli_x_all(state: torch.Tensor) -> torch.Tensor:
     return state.flip(dims=(-1,))
+
+
+class _ChunkedPairScoreFunction(torch.autograd.Function):
+    """Compute pair scores in forward and replay one chunk at a time in backward."""
+
+    @staticmethod
+    def forward(
+        ctx: Any,
+        kernel: "QTriadKernel",
+        pair_chunk_size: int,
+        query: torch.Tensor,
+        relation: torch.Tensor,
+        key: torch.Tensor,
+        *parameters: torch.Tensor,
+    ) -> torch.Tensor:
+        batch, query_tokens, _dim = query.shape
+        key_tokens = key.shape[1]
+        total_pairs = batch * query_tokens * key_tokens
+        pairs_per_batch = query_tokens * key_tokens
+        result: torch.Tensor | None = None
+        with torch.no_grad():
+            for start in range(0, total_pairs, pair_chunk_size):
+                stop = min(start + pair_chunk_size, total_pairs)
+                flat_index = torch.arange(start, stop, device=query.device)
+                batch_index = torch.div(flat_index, pairs_per_batch, rounding_mode="floor")
+                remainder = flat_index.remainder(pairs_per_batch)
+                query_index = torch.div(remainder, key_tokens, rounding_mode="floor")
+                key_index = remainder.remainder(key_tokens)
+                score = kernel(
+                    query[batch_index, query_index],
+                    relation[batch_index],
+                    key[batch_index, key_index],
+                ).score.detach()
+                if result is None:
+                    result = torch.empty(
+                        total_pairs,
+                        device=score.device,
+                        dtype=score.dtype,
+                    )
+                result[start:stop].copy_(score)
+        assert result is not None
+        ctx.kernel = kernel
+        ctx.pair_chunk_size = pair_chunk_size
+        ctx.parameters = tuple(parameters)
+        ctx.query_requires_grad = query.requires_grad
+        ctx.relation_requires_grad = relation.requires_grad
+        ctx.key_requires_grad = key.requires_grad
+        ctx.save_for_backward(query.detach(), relation.detach(), key.detach())
+        return result.reshape(batch, query_tokens, key_tokens)
+
+    @staticmethod
+    def backward(
+        ctx: Any,
+        grad_output: torch.Tensor,
+    ) -> tuple[Any, ...]:
+        query, relation, key = ctx.saved_tensors
+        batch, query_tokens, _dim = query.shape
+        key_tokens = key.shape[1]
+        total_pairs = batch * query_tokens * key_tokens
+        pairs_per_batch = query_tokens * key_tokens
+        query_grad = torch.zeros_like(query) if ctx.query_requires_grad else None
+        relation_grad = torch.zeros_like(relation) if ctx.relation_requires_grad else None
+        key_grad = torch.zeros_like(key) if ctx.key_requires_grad else None
+        parameter_grads: list[torch.Tensor | None] = [None] * len(ctx.parameters)
+
+        for start in range(0, total_pairs, ctx.pair_chunk_size):
+            stop = min(start + ctx.pair_chunk_size, total_pairs)
+            flat_index = torch.arange(start, stop, device=query.device)
+            batch_index = torch.div(flat_index, pairs_per_batch, rounding_mode="floor")
+            remainder = flat_index.remainder(pairs_per_batch)
+            query_index = torch.div(remainder, key_tokens, rounding_mode="floor")
+            key_index = remainder.remainder(key_tokens)
+            chunk_query = query[batch_index, query_index]
+            chunk_relation = relation[batch_index]
+            chunk_key = key[batch_index, key_index]
+            targets: list[torch.Tensor] = []
+            if ctx.query_requires_grad:
+                chunk_query = chunk_query.detach().requires_grad_(True)
+                targets.append(chunk_query)
+            if ctx.relation_requires_grad:
+                chunk_relation = chunk_relation.detach().requires_grad_(True)
+                targets.append(chunk_relation)
+            if ctx.key_requires_grad:
+                chunk_key = chunk_key.detach().requires_grad_(True)
+                targets.append(chunk_key)
+            parameter_offset = len(targets)
+            targets.extend(ctx.parameters)
+            with torch.enable_grad():
+                score = ctx.kernel(chunk_query, chunk_relation, chunk_key).score
+                gradients = torch.autograd.grad(
+                    score,
+                    targets,
+                    grad_outputs=grad_output.reshape(-1)[start:stop],
+                    allow_unused=True,
+                )
+            offset = 0
+            if ctx.query_requires_grad:
+                assert query_grad is not None
+                chunk_grad = gradients[offset]
+                if chunk_grad is not None:
+                    query_grad.index_put_((batch_index, query_index), chunk_grad, accumulate=True)
+                offset += 1
+            if ctx.relation_requires_grad:
+                assert relation_grad is not None
+                chunk_grad = gradients[offset]
+                if chunk_grad is not None:
+                    relation_grad.index_add_(0, batch_index, chunk_grad)
+                offset += 1
+            if ctx.key_requires_grad:
+                assert key_grad is not None
+                chunk_grad = gradients[offset]
+                if chunk_grad is not None:
+                    key_grad.index_put_((batch_index, key_index), chunk_grad, accumulate=True)
+                offset += 1
+            for index in range(len(parameter_grads)):
+                chunk_grad = gradients[parameter_offset + index]
+                if chunk_grad is None:
+                    continue
+                if parameter_grads[index] is None:
+                    parameter_grads[index] = chunk_grad.detach()
+                else:
+                    parameter_grads[index].add_(chunk_grad.detach())
+
+        return (None, None, query_grad, relation_grad, key_grad, *parameter_grads)
 
 
 class QTriadKernel(nn.Module):
@@ -412,33 +535,25 @@ class QTriadAttentionScoreKernel(nn.Module):
         relation: torch.Tensor,
         key: torch.Tensor,
     ) -> torch.Tensor:
-        """Score query-key pairs in bounded chunks.
-
-        The old implementation materialized three batch*query*key tensors
-        before constructing the statevector. Indexing one chunk at a time
-        avoids those large expanded copies. During training, checkpoint each
-        chunk so statevector intermediates are recomputed during backward
-        instead of being retained for every pair in the attention matrix.
-        """
-        batch, query_tokens, _dim = query.shape
-        key_tokens = key.shape[1]
-        total_pairs = batch * query_tokens * key_tokens
+        """Score query-key pairs without retaining one autograd graph per pair chunk."""
         parameter_inputs = tuple(
             parameter for parameter in kernel.parameters() if parameter.requires_grad
         )
-        use_checkpoint = self.activation_checkpointing and torch.is_grad_enabled() and bool(parameter_inputs)
+        if torch.is_grad_enabled() and parameter_inputs:
+            return _ChunkedPairScoreFunction.apply(
+                kernel,
+                self.pair_chunk_size,
+                query,
+                relation,
+                key,
+                *parameter_inputs,
+            )
 
-        def score_chunk(
-            chunk_query: torch.Tensor,
-            chunk_relation: torch.Tensor,
-            chunk_key: torch.Tensor,
-            *_parameters: torch.Tensor,
-        ) -> torch.Tensor:
-            del _parameters
-            return kernel(chunk_query, chunk_relation, chunk_key).score
-
-        chunks: list[torch.Tensor] = []
+        batch, query_tokens, _dim = query.shape
+        key_tokens = key.shape[1]
+        total_pairs = batch * query_tokens * key_tokens
         pairs_per_batch = query_tokens * key_tokens
+        result: torch.Tensor | None = None
         for start in range(0, total_pairs, self.pair_chunk_size):
             stop = min(start + self.pair_chunk_size, total_pairs)
             flat_index = torch.arange(start, stop, device=query.device)
@@ -446,24 +561,16 @@ class QTriadAttentionScoreKernel(nn.Module):
             remainder = flat_index.remainder(pairs_per_batch)
             query_index = torch.div(remainder, key_tokens, rounding_mode="floor")
             key_index = remainder.remainder(key_tokens)
-            chunk_query = query[batch_index, query_index]
-            chunk_relation = relation[batch_index]
-            chunk_key = key[batch_index, key_index]
-            if use_checkpoint:
-                chunks.append(
-                    checkpoint(
-                        score_chunk,
-                        chunk_query,
-                        chunk_relation,
-                        chunk_key,
-                        *parameter_inputs,
-                        use_reentrant=False,
-                        preserve_rng_state=False,
-                    )
-                )
-            else:
-                chunks.append(score_chunk(chunk_query, chunk_relation, chunk_key))
-        return torch.cat(chunks, dim=0).reshape(batch, query_tokens, key_tokens)
+            score = kernel(
+                query[batch_index, query_index],
+                relation[batch_index],
+                key[batch_index, key_index],
+            ).score
+            if result is None:
+                result = torch.empty(total_pairs, device=score.device, dtype=score.dtype)
+            result[start:stop].copy_(score)
+        assert result is not None
+        return result.reshape(batch, query_tokens, key_tokens)
 
     def forward(
         self,

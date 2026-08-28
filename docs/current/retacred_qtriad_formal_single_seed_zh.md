@@ -21,7 +21,7 @@ bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu 0
 bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu auto
 ```
 
-`auto` 会选择空闲显存至少 8 GiB 的可见物理 GPU；单 GPU 环境也适用。自动 profile 只调整显存执行策略，不改变 seed、数据、epoch、batch size、selector 或控制组：低显存（总显存小于 16 GiB，或空闲显存小于 12 GiB）使用 `pair_chunk_size=64` 并启用 activation checkpointing；中等显存（总显存小于 40 GiB，或空闲显存小于 28 GiB）使用 `pair_chunk_size=256` 并启用 checkpointing；高显存使用 `pair_chunk_size=1024` 并关闭 checkpointing 以换取速度。实际 GPU、显存、profile 和生效参数会写入 `run_summary.json` 与 `gpu_assignments.json`，供审计复核。
+`auto` 会选择空闲显存至少 8 GiB 的可见物理 GPU；单 GPU 环境也适用。自动 profile 只调整显存执行策略，不改变 seed、数据、epoch、batch size、selector 或控制组：低显存（总显存小于 16 GiB，或空闲显存小于 12 GiB）使用 `pair_chunk_size=64` 并启用 activation checkpointing；中等和高显存使用 `pair_chunk_size=256` 并启用 checkpointing。Q-TRIAD 的训练反向会对 pair chunk 逐块重算并累积梯度，不能通过关闭 checkpointing 换取速度；这样可避免把所有 query-key chunk 的计算图长期保留在显存中。实际 GPU、显存、profile 和生效参数会写入 `run_summary.json` 与 `gpu_assignments.json`，供审计复核。
 
 脚本在创建 raw run 之前、以及 baseline 完成准备 selector 之前各检查一次显存。显式 `--gpu 0` 也必须至少有 8 GiB 空闲；若某个 GPU 被其他 PID 占用，脚本会列出 `nvidia-smi` 的进程并停止，不会把这次失败写成实验结果。不要强制杀掉不属于本实验的进程；确认占用进程可以停止后再重跑同一命令。
 
@@ -49,7 +49,7 @@ reports/retacred_qtriad_formal_single_seed/<timestamp>_seed13/
 
 ## 2. 显存与并行说明
 
-Q-TRIAD 的 attention hook 会把 query-key 对分块计算，避免一次性物化 `batch x query_tokens x key_tokens` 的 statevector 输入；训练时对每个分块启用 activation checkpoint，反向传播时重算中间 statevector。`kernel.pair_chunk_size` 是已发布配置的一部分，不能在正式运行中临时修改。多 GPU 只降低每张卡承载的 selector 数量，不改变单个 selector 的峰值显存；因此每张卡仍必须满足单个 selector 的显存要求。
+Q-TRIAD 的 attention hook 会把 query-key 对分块计算，避免一次性物化 `batch x query_tokens x key_tokens` 的 statevector 输入；训练前向只保留最终 score 张量，反向传播时逐块重算 statevector 并累积梯度，不会为每个 chunk 保留完整 autograd 图。`kernel.pair_chunk_size` 是已发布配置的一部分，不能在正式运行中临时修改。多 GPU 只降低每张卡承载的 selector 数量，不改变单个 selector 的峰值显存；因此每张卡仍必须满足单个 selector 的显存要求。
 
 运行摘要会记录 `gpu_assignments.json`、请求和解析到的 GPU ID、每个 worker 的 PID/状态/耗时、`pair_chunk_size` 以及 CUDA 设备信息。先用小规模 canary 验证 GPU 拓扑和显存，再运行完整正式实验；不得用降低 batch 或改变 selector 的临时命令冒充正式结果。
 

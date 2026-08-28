@@ -60,9 +60,9 @@ HARDWARE_PROFILES: dict[str, dict[str, Any]] = {
         "reason": "at least one selected GPU has less than 40 GiB total or 28 GiB free",
     },
     "high_memory": {
-        "pair_chunk_size": 1024,
-        "activation_checkpointing": False,
-        "reason": "all selected GPUs have at least 40 GiB total and 28 GiB free",
+        "pair_chunk_size": 256,
+        "activation_checkpointing": True,
+        "reason": "all selected GPUs have at least 40 GiB total and 28 GiB free; retain streamed backward safety",
     },
 }
 

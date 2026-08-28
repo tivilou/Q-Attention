@@ -76,6 +76,39 @@ def test_chunked_score_matches_single_chunk_and_gradients() -> None:
         assert torch.allclose(chunked_parameter.grad, reference_parameter.grad, atol=2e-5, rtol=2e-5)
 
 
+def test_streamed_backward_matches_direct_pair_loop() -> None:
+    torch.manual_seed(43)
+    query = torch.randn(2, 4, 4)
+    relation = torch.randn(2, 4)
+    key = torch.randn(2, 4, 4)
+    kernel = _kernel(3)
+    streamed = kernel._score_pairs(kernel._kernel(0, 0), query, relation, key)
+    (streamed.square().sum()).backward()
+    streamed_grads = [parameter.grad.detach().clone() for parameter in kernel._kernel(0, 0).parameters()]
+
+    kernel.zero_grad(set_to_none=True)
+    direct_chunks = []
+    total_pairs = query.shape[0] * query.shape[1] * key.shape[1]
+    for start in range(0, total_pairs, 3):
+        indices = torch.arange(start, min(start + 3, total_pairs))
+        batch_index = indices // (query.shape[1] * key.shape[1])
+        remainder = indices % (query.shape[1] * key.shape[1])
+        query_index = remainder // key.shape[1]
+        key_index = remainder % key.shape[1]
+        direct_chunks.append(
+            kernel._kernel(0, 0)(
+                query[batch_index, query_index],
+                relation[batch_index],
+                key[batch_index, key_index],
+            ).score
+        )
+    direct = torch.cat(direct_chunks).reshape_as(streamed)
+    direct.square().sum().backward()
+    assert torch.allclose(streamed.detach(), direct.detach(), atol=2e-6, rtol=2e-6)
+    for streamed_grad, parameter in zip(streamed_grads, kernel._kernel(0, 0).parameters()):
+        assert torch.allclose(streamed_grad, parameter.grad, atol=2e-5, rtol=2e-5)
+
+
 def test_pair_chunk_size_must_be_positive() -> None:
     with pytest.raises(ValueError, match="pair_chunk_size"):
         _kernel(0)
@@ -162,8 +195,8 @@ def test_auto_profile_is_conservative_on_small_or_busy_gpu() -> None:
     ]
     high = formal_runner.choose_hardware_profile("auto", config, [0], high_inventory)
     assert high["name"] == "high_memory"
-    assert high["pair_chunk_size"] == 1024
-    assert high["activation_checkpointing"] is False
+    assert high["pair_chunk_size"] == 256
+    assert high["activation_checkpointing"] is True
 
 
 def test_auto_profile_uses_the_weakest_selected_gpu() -> None:
