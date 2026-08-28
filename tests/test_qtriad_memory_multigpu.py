@@ -145,6 +145,27 @@ def test_selector_dashboard_renders_multi_gpu_heartbeat(tmp_path) -> None:
     assert "Completed: quantum_product" in rendered
 
 
+def test_baseline_console_renderer_formats_progress_and_epoch() -> None:
+    progress = formal_runner._render_baseline_line(
+        '{"event":"batch_progress","phase":"train","epoch":2,"batch":8,'
+        '"batches":16,"percent":50,"elapsed_seconds":12,"eta_seconds":12,'
+        '"batches_per_second":0.67}',
+        epochs=8,
+    )
+    epoch = formal_runner._render_baseline_line(
+        '{"epoch":2,"train_loss":0.321,"valid":{"loss":0.456,"macro_f1":0.789}}',
+        epochs=8,
+    )
+
+    assert progress is not None
+    assert "[baseline][train] epoch 2/8" in progress
+    assert "batch 8/16" in progress and "ETA 00:12" in progress
+    assert epoch == (
+        "[baseline] epoch 2/8 complete | train_loss=0.3210 | "
+        "valid_loss=0.4560 | valid_macro_f1=0.7890"
+    )
+
+
 def test_selector_scheduler_reuses_first_free_gpu(tmp_path, monkeypatch) -> None:
     seen_environments = []
 

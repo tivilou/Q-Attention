@@ -35,7 +35,6 @@ from q_attention.plugins.q_triad import QTriadAttentionScoreKernel  # noqa: E402
 from run_q_causal_value_evidence_relation_smoke import (  # noqa: E402
     materialize_subset,
     resolve_path,
-    run_logged_command,
 )
 from run_q_causal_value_evidence_relation_transfer import (  # noqa: E402
     evaluate,
@@ -452,6 +451,118 @@ def _render_selector_dashboard(
     return "\n".join(lines)
 
 
+def _render_baseline_line(line: str, *, epochs: int) -> str | None:
+    """Render one baseline JSON event without losing the original log line."""
+    stripped = line.strip()
+    if not stripped:
+        return None
+    try:
+        payload = json.loads(stripped)
+    except json.JSONDecodeError:
+        return f"[baseline] {stripped}"
+    if not isinstance(payload, dict):
+        return f"[baseline] {stripped}"
+    event = payload.get("event")
+    phase = payload.get("phase")
+    epoch = payload.get("epoch")
+    epoch_text = f" epoch {epoch}/{epochs}" if epoch is not None else ""
+    label = f"[baseline]" + (f"[{phase}]" if phase else "")
+    if event == "phase_start":
+        return f"{label}{epoch_text} started | batches={payload.get('batches', '?')}"
+    if event == "batch_progress":
+        try:
+            percent = float(payload.get("percent", 0.0))
+        except (TypeError, ValueError):
+            percent = 0.0
+        width = 24
+        filled = min(max(int(round(width * percent / 100.0)), 0), width)
+        bar = "#" * filled + "-" * (width - filled)
+        try:
+            rate = f" | {float(payload['batches_per_second']):.2f} batch/s"
+        except (KeyError, TypeError, ValueError):
+            rate = ""
+        return (
+            f"{label}{epoch_text} [{bar}] {percent:5.1f}% "
+            f"batch {payload.get('batch', '?')}/{payload.get('batches', '?')} | "
+            f"elapsed {_format_duration(payload.get('elapsed_seconds'))} | "
+            f"ETA {_format_duration(payload.get('eta_seconds'))}{rate}"
+        )
+    if event == "phase_complete":
+        return (
+            f"{label}{epoch_text} complete | "
+            f"batches={payload.get('completed_batches', '?')} | "
+            f"elapsed {_format_duration(payload.get('elapsed_seconds'))}"
+        )
+    if event == "health_warning":
+        warning = payload.get("warning") or payload.get("message") or "health warning"
+        return f"[baseline] warning | {warning}"
+    if "epoch" in payload and isinstance(payload.get("valid"), dict):
+        valid = payload["valid"]
+        return (
+            f"[baseline] epoch {payload['epoch']}/{epochs} complete | "
+            f"train_loss={float(payload.get('train_loss', 0.0)):.4f} | "
+            f"valid_loss={float(valid.get('loss', 0.0)):.4f} | "
+            f"valid_macro_f1={float(valid.get('macro_f1', 0.0)):.4f}"
+        )
+    if "output_dir" in payload and "best_valid" in payload:
+        best_valid = payload.get("best_valid") or {}
+        return (
+            "[baseline] complete | "
+            f"best_valid_macro_f1={float(best_valid.get('macro_f1', 0.0)):.4f}"
+        )
+    return f"[baseline] event={event or 'json'}"
+
+
+def _run_baseline_logged_command(
+    command: list[str],
+    log_path: Path,
+    heartbeat_path: Path,
+    *,
+    epochs: int,
+) -> dict[str, Any]:
+    """Run baseline with a readable console while retaining its raw JSON log."""
+    environment = os.environ.copy()
+    environment.update(
+        {
+            "PYTHONUNBUFFERED": "1",
+            "Q_ATTENTION_PROGRESS_FORMAT": "json",
+            "Q_ATTENTION_HEARTBEAT_FILE": str(heartbeat_path),
+        }
+    )
+    heartbeat_path.parent.mkdir(parents=True, exist_ok=True)
+    print(f"[baseline] starting | epochs={epochs}", flush=True)
+    started = time.perf_counter()
+    with log_path.open("w", encoding="utf-8") as log_handle:
+        process = subprocess.Popen(
+            command,
+            cwd=ROOT,
+            env=environment,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+        assert process.stdout is not None
+        for line in process.stdout:
+            log_handle.write(line)
+            log_handle.flush()
+            rendered = _render_baseline_line(line, epochs=epochs)
+            if rendered is not None:
+                print(rendered, flush=True)
+        return_code = process.wait()
+    result = {
+        "command": command,
+        "returncode": return_code,
+        "duration_seconds": round(time.perf_counter() - started, 3),
+        "log_path": str(log_path),
+    }
+    if return_code != 0:
+        print(f"[baseline] failed | exit_code={return_code}", file=sys.stderr, flush=True)
+        raise RuntimeError(f"command failed with return code {return_code}: {command}")
+    print(f"[baseline] process complete | elapsed {_format_duration(result['duration_seconds'])}", flush=True)
+    return result
+
+
 def _terminate_worker(process: subprocess.Popen[str]) -> None:
     if process.poll() is not None:
         return
@@ -822,7 +933,13 @@ def main() -> int:
         baseline_command.extend(
             ["--model-parallel-gpus", ",".join(str(gpu_id) for gpu_id in model_parallel_gpu_ids)]
         )
-    run_logged_command(baseline_command, run_dir / "baseline_train.log")
+    baseline_dir.mkdir(parents=True, exist_ok=True)
+    _run_baseline_logged_command(
+        baseline_command,
+        run_dir / "baseline_train.log",
+        baseline_dir / "heartbeat.json",
+        epochs=int(config["baseline"]["epochs"]),
+    )
     artifacts = load_relation_run(
         baseline_dir,
         device,
