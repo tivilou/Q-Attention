@@ -26,7 +26,7 @@ resolve_python_bin() {
   return 1
 }
 
-usage() { echo "Usage: bash scripts/run_retacred_qtriad_formal_single_seed.sh [--gpu N[,N...]] [--output-dir PATH] [--report-dir PATH] [--log-every-batches N] [--skip-preflight] [--dry-run]"; }
+usage() { echo "Usage: bash scripts/run_retacred_qtriad_formal_single_seed.sh [--gpu N[,N...]|auto] [--output-dir PATH] [--report-dir PATH] [--log-every-batches N] [--skip-preflight] [--dry-run]"; }
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --gpu|--gpus|--output-dir|--report-dir|--log-every-batches)
@@ -48,15 +48,19 @@ done
 PYTHON_BIN=$(resolve_python_bin)
 export PYTHON_BIN
 cd "${ROOT}"
-[[ "${GPU_SPEC}" =~ ^[0-9]+(,[0-9]+)*$ ]] || { echo "--gpu/--gpus must be a comma-separated list of non-negative integers." >&2; exit 2; }
-IFS=',' read -r -a GPU_IDS <<< "${GPU_SPEC}"
-declare -A SEEN_GPU_IDS=()
-for GPU_ID in "${GPU_IDS[@]}"; do
-  [[ -z "${SEEN_GPU_IDS[${GPU_ID}]:-}" ]] || { echo "Duplicate GPU ID: ${GPU_ID}" >&2; exit 2; }
-  SEEN_GPU_IDS[${GPU_ID}]=1
-done
+[[ "${GPU_SPEC}" == "auto" || "${GPU_SPEC}" =~ ^[0-9]+(,[0-9]+)*$ ]] || { echo "--gpu/--gpus must be auto or a comma-separated list of non-negative integers." >&2; exit 2; }
+if [[ "${GPU_SPEC}" != "auto" ]]; then
+  IFS=',' read -r -a GPU_IDS <<< "${GPU_SPEC}"
+  declare -A SEEN_GPU_IDS=()
+  for GPU_ID in "${GPU_IDS[@]}"; do
+    [[ -z "${SEEN_GPU_IDS[${GPU_ID}]:-}" ]] || { echo "Duplicate GPU ID: ${GPU_ID}" >&2; exit 2; }
+    SEEN_GPU_IDS[${GPU_ID}]=1
+  done
+fi
 [[ "${LOG_EVERY_BATCHES}" =~ ^[1-9][0-9]*$ ]] || { echo "--log-every-batches must be positive." >&2; exit 2; }
-nvidia-smi -i "${GPU_SPEC}" --query-gpu=name --format=csv,noheader >/dev/null || { echo "GPU ${GPU_SPEC} is unavailable." >&2; exit 1; }
+if [[ "${GPU_SPEC}" != "auto" ]]; then
+  nvidia-smi -i "${GPU_SPEC}" --query-gpu=name --format=csv,noheader >/dev/null || { echo "GPU ${GPU_SPEC} is unavailable." >&2; exit 1; }
+fi
 
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
 RUN_DIR=${OUTPUT_DIR:-runs/retacred_qtriad_formal_single_seed/${STAMP}_seed13}
@@ -77,8 +81,13 @@ COMMAND=(
   --started-at-utc "${STAMP}"
   --python-bin "${PYTHON_BIN}"
 )
+if [[ "${GPU_SPEC}" == "auto" ]]; then
+  COMMAND+=(--hardware-profile auto)
+fi
 if [[ ${DRY_RUN} -eq 1 ]]; then
-  printf 'CUDA_VISIBLE_DEVICES=%q ' "${GPU_SPEC}"
+  if [[ "${GPU_SPEC}" != "auto" ]]; then
+    printf 'CUDA_VISIBLE_DEVICES=%q ' "${GPU_SPEC}"
+  fi
   printf '%q ' "${COMMAND[@]}"
   printf '\n'
   exit 0
@@ -96,8 +105,13 @@ cleanup_log() {
 trap cleanup_log EXIT
 
 set +e
-CUDA_DEVICE_ORDER=PCI_BUS_ID CUDA_VISIBLE_DEVICES="${GPU_SPEC}" \
-  "${COMMAND[@]}" 2>&1 | tee "${LOG_TMP}"
+if [[ "${GPU_SPEC}" == "auto" ]]; then
+  CUDA_DEVICE_ORDER=PCI_BUS_ID \
+    "${COMMAND[@]}" 2>&1 | tee "${LOG_TMP}"
+else
+  CUDA_DEVICE_ORDER=PCI_BUS_ID CUDA_VISIBLE_DEVICES="${GPU_SPEC}" \
+    "${COMMAND[@]}" 2>&1 | tee "${LOG_TMP}"
+fi
 RUN_STATUS=${PIPESTATUS[0]}
 set -e
 if [[ ${RUN_STATUS} -ne 0 ]]; then

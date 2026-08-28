@@ -46,6 +46,25 @@ from q_attention.tasks.relation import load_relation_jsonl  # noqa: E402
 
 DEFAULT_CONFIG = ROOT / "configs" / "retacred_qtriad_formal_single_seed.json"
 
+AUTO_MIN_FREE_MIB = 8 * 1024
+HARDWARE_PROFILES: dict[str, dict[str, Any]] = {
+    "low_memory": {
+        "pair_chunk_size": 64,
+        "activation_checkpointing": True,
+        "reason": "at least one selected GPU has less than 16 GiB total or 12 GiB free",
+    },
+    "balanced": {
+        "pair_chunk_size": 256,
+        "activation_checkpointing": True,
+        "reason": "at least one selected GPU has less than 40 GiB total or 28 GiB free",
+    },
+    "high_memory": {
+        "pair_chunk_size": 1024,
+        "activation_checkpointing": False,
+        "reason": "all selected GPUs have at least 40 GiB total and 28 GiB free",
+    },
+}
+
 
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
@@ -70,7 +89,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--gpus",
         default=None,
-        help="comma-separated physical GPU IDs; selectors run as independent workers",
+        help="comma-separated physical GPU IDs or auto; selectors run as independent workers",
+    )
+    parser.add_argument(
+        "--hardware-profile",
+        choices=("config", "auto", "low_memory", "balanced", "high_memory"),
+        default="config",
+        help="execution-memory profile; auto derives it from selected GPU VRAM",
     )
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--log-every-batches", type=int, default=50)
@@ -79,18 +104,78 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def resolve_gpu_ids(spec: str | None, device_name: str) -> list[int]:
+def query_gpu_inventory() -> list[dict[str, Any]]:
+    result = subprocess.run(
+        [
+            "nvidia-smi",
+            "--query-gpu=index,name,memory.total,memory.free,memory.used",
+            "--format=csv,noheader,nounits",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"nvidia-smi failed while discovering GPUs: {result.stderr.strip()}")
+    inventory: list[dict[str, Any]] = []
+    for line in result.stdout.splitlines():
+        fields = [field.strip() for field in line.split(",", 4)]
+        if len(fields) != 5:
+            raise RuntimeError(f"unexpected nvidia-smi GPU row: {line!r}")
+        index, name, total, free, used = fields
+        inventory.append(
+            {
+                "index": int(index),
+                "name": name,
+                "memory_total_mib": int(total),
+                "memory_free_mib": int(free),
+                "memory_used_mib": int(used),
+            }
+        )
+    if not inventory:
+        raise RuntimeError("nvidia-smi reported no GPUs")
+    return inventory
+
+
+def resolve_gpu_ids(
+    spec: str | None,
+    device_name: str,
+    inventory: list[dict[str, Any]] | None = None,
+) -> list[int]:
     """Validate the requested visible GPUs before creating a run directory."""
     if device_name == "cpu":
         if spec:
             raise ValueError("--gpus cannot be used with --device cpu")
         return []
-    if not torch.cuda.is_available():
+    auto_mode = bool(spec and spec.strip().lower() == "auto")
+    if not auto_mode and not torch.cuda.is_available():
         if device_name == "auto" and spec is None:
             return []
         raise RuntimeError("CUDA requested but no CUDA device is available")
     if spec is None:
         ids = [0]
+    elif spec.strip().lower() == "auto":
+        inventory = inventory or query_gpu_inventory()
+        visible_spec = os.environ.get("CUDA_VISIBLE_DEVICES")
+        allowed = None
+        if visible_spec:
+            visible_fields = [field.strip() for field in visible_spec.split(",")]
+            if all(field.isdigit() for field in visible_fields):
+                allowed = {int(field) for field in visible_fields}
+        candidates = [
+            item
+            for item in inventory
+            if allowed is None or int(item["index"]) in allowed
+        ]
+        ids = [
+            int(item["index"])
+            for item in candidates
+            if int(item["memory_free_mib"]) >= AUTO_MIN_FREE_MIB
+        ]
+        if not ids:
+            raise RuntimeError(
+                f"--gpus auto found no GPU with at least {AUTO_MIN_FREE_MIB // 1024} GiB free"
+            )
     else:
         fields = [field.strip() for field in spec.split(",")]
         if not fields or any(not field.isdigit() for field in fields):
@@ -98,6 +183,8 @@ def resolve_gpu_ids(spec: str | None, device_name: str) -> list[int]:
         ids = [int(field) for field in fields]
     if not ids or len(set(ids)) != len(ids):
         raise ValueError("--gpus must contain at least one unique GPU ID")
+    if auto_mode:
+        return ids
     available = torch.cuda.device_count()
     visible_spec = os.environ.get("CUDA_VISIBLE_DEVICES")
     visible_ids = None
@@ -110,6 +197,47 @@ def resolve_gpu_ids(spec: str | None, device_name: str) -> list[int]:
     if visible_ids is None and any(index >= available for index in ids):
         raise ValueError(f"requested GPU IDs {ids} exceed visible device count {available}")
     return ids
+
+
+def choose_hardware_profile(
+    requested: str,
+    config: dict[str, Any],
+    gpu_ids: list[int],
+    inventory: list[dict[str, Any]],
+) -> dict[str, Any]:
+    if requested == "config":
+        return {
+            "name": "config",
+            "pair_chunk_size": int(config["kernel"].get("pair_chunk_size", 256)),
+            "activation_checkpointing": True,
+            "selection_reason": "frozen config profile",
+        }
+    if requested == "auto":
+        selected = [item for item in inventory if int(item["index"]) in set(gpu_ids)]
+        if not selected:
+            raise RuntimeError("no GPU inventory entries match the selected GPU IDs")
+        min_total = min(int(item["memory_total_mib"]) for item in selected)
+        min_free = min(int(item["memory_free_mib"]) for item in selected)
+        if min_total < 16 * 1024 or min_free < 12 * 1024:
+            requested = "low_memory"
+        elif min_total < 40 * 1024 or min_free < 28 * 1024:
+            requested = "balanced"
+        else:
+            requested = "high_memory"
+        profile = dict(HARDWARE_PROFILES[requested])
+        profile.update(
+            {
+                "name": requested,
+                "selection_reason": profile.pop("reason"),
+                "minimum_memory_total_mib": min_total,
+                "minimum_memory_free_mib": min_free,
+            }
+        )
+        return profile
+    profile = dict(HARDWARE_PROFILES[requested])
+    profile.update({"name": requested, "selection_reason": "explicit profile override"})
+    profile.pop("reason", None)
+    return profile
 
 
 def _write_json_atomic(path: Path, payload: Any) -> None:
@@ -140,8 +268,14 @@ def run_selector_workers(
     data_dir: Path,
     run_dir: Path,
     seed: int,
+    hardware_profile: dict[str, Any] | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Run independent selectors with one dynamically scheduled worker per GPU."""
+    hardware_profile = hardware_profile or {
+        "name": "config",
+        "pair_chunk_size": 256,
+        "activation_checkpointing": True,
+    }
     run_dir.mkdir(parents=True, exist_ok=True)
     pending = list(selectors)
     available = list(gpu_ids)
@@ -153,7 +287,7 @@ def run_selector_workers(
     assignments_path = run_dir / "gpu_assignments.json"
     _write_json_atomic(
         assignments_path,
-        {"requested_gpu_ids": gpu_ids, "workers": statuses},
+        {"requested_gpu_ids": gpu_ids, "hardware_profile": hardware_profile, "workers": statuses},
     )
     dashboard_at = 0.0
 
@@ -166,7 +300,7 @@ def run_selector_workers(
             statuses[selector].update({"status": "not_started", "finished_at": now})
         _write_json_atomic(
             assignments_path,
-            {"requested_gpu_ids": gpu_ids, "workers": statuses},
+            {"requested_gpu_ids": gpu_ids, "hardware_profile": hardware_profile, "workers": statuses},
         )
         (run_dir / "RUN_FAILED").write_text(
             json.dumps(
@@ -201,6 +335,8 @@ def run_selector_workers(
                     "--device", "cuda" if gpu_id >= 0 else "cpu",
                     "--seed", str(seed),
                     "--log-every-batches", str(args.log_every_batches),
+                    "--pair-chunk-size", str(hardware_profile["pair_chunk_size"]),
+                    "--activation-checkpointing", str(int(hardware_profile["activation_checkpointing"])),
                 ]
                 environment = os.environ.copy()
                 if gpu_id >= 0:
@@ -228,7 +364,7 @@ def run_selector_workers(
                 )
                 _write_json_atomic(
                     assignments_path,
-                    {"requested_gpu_ids": gpu_ids, "workers": statuses},
+                    {"requested_gpu_ids": gpu_ids, "hardware_profile": hardware_profile, "workers": statuses},
                 )
                 print(json.dumps({"event": "selector_started", "selector": selector, "gpu": gpu_id}, sort_keys=True), flush=True)
 
@@ -244,7 +380,7 @@ def run_selector_workers(
                     statuses[selector].update(
                         {"status": "failed", "return_code": return_code, "finished_at": finished_at, "duration_seconds": duration}
                     )
-                    _write_json_atomic(assignments_path, {"requested_gpu_ids": gpu_ids, "workers": statuses})
+                    _write_json_atomic(assignments_path, {"requested_gpu_ids": gpu_ids, "hardware_profile": hardware_profile, "workers": statuses})
                     fail_run(f"selector worker {selector} failed with exit code {return_code}")
                     raise RuntimeError(f"selector worker {selector} failed; inspect {run_dir / 'selectors' / selector / 'worker.log'}")
                 metrics_path = run_dir / "selectors" / selector / "metrics.json"
@@ -259,7 +395,7 @@ def run_selector_workers(
                 )
                 available.append(int(entry["gpu"]))
                 del active[selector]
-                _write_json_atomic(assignments_path, {"requested_gpu_ids": gpu_ids, "workers": statuses})
+                _write_json_atomic(assignments_path, {"requested_gpu_ids": gpu_ids, "hardware_profile": hardware_profile, "workers": statuses})
                 print(json.dumps({"event": "selector_complete", "selector": selector, "gpu": entry["gpu"], "duration_seconds": duration}, sort_keys=True), flush=True)
 
             now = time.monotonic()
@@ -276,7 +412,15 @@ def run_selector_workers(
     return statuses
 
 
-def build_kernel(mode: str, model: torch.nn.Module, seed: int, config: dict[str, Any]) -> QTriadAttentionScoreKernel:
+def build_kernel(
+    mode: str,
+    model: torch.nn.Module,
+    seed: int,
+    config: dict[str, Any],
+    *,
+    pair_chunk_size: int | None = None,
+    activation_checkpointing: bool | None = None,
+) -> QTriadAttentionScoreKernel:
     kernel_config = config["kernel"]
     return QTriadAttentionScoreKernel(
         num_layers=model.config.num_layers,
@@ -289,7 +433,12 @@ def build_kernel(mode: str, model: torch.nn.Module, seed: int, config: dict[str,
         initial_gain=float(kernel_config["initial_gain"]),
         seed=seed + 307,
         control_mode=mode,
-        pair_chunk_size=int(kernel_config.get("pair_chunk_size", 256)),
+        pair_chunk_size=int(pair_chunk_size if pair_chunk_size is not None else kernel_config.get("pair_chunk_size", 256)),
+        activation_checkpointing=(
+            bool(activation_checkpointing)
+            if activation_checkpointing is not None
+            else True
+        ),
     )
 
 
@@ -329,7 +478,25 @@ def main() -> int:
         raise ValueError("config must include the matched classical control")
     if args.log_every_batches <= 0:
         raise ValueError("--log-every-batches must be positive")
-    gpu_ids = resolve_gpu_ids(args.gpus, args.device)
+    inventory = query_gpu_inventory() if args.gpus and args.gpus.strip().lower() == "auto" else []
+    if args.gpus and args.gpus.strip().lower() != "auto" and os.environ.get("CUDA_VISIBLE_DEVICES") is None:
+        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+        os.environ["CUDA_VISIBLE_DEVICES"] = args.gpus.strip()
+    gpu_ids = resolve_gpu_ids(args.gpus, args.device, inventory)
+    if gpu_ids and not inventory:
+        inventory = query_gpu_inventory()
+    if gpu_ids and os.environ.get("CUDA_VISIBLE_DEVICES") is None:
+        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+        os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(str(gpu_id) for gpu_id in gpu_ids)
+    profile_request = "auto" if args.gpus and args.gpus.strip().lower() == "auto" and args.hardware_profile == "config" else args.hardware_profile
+    hardware_profile = choose_hardware_profile(profile_request, config, gpu_ids, inventory)
+    hardware_profile.update(
+        {
+            "requested_gpu_spec": args.gpus or "default",
+            "selected_gpu_ids": gpu_ids,
+            "gpu_inventory": inventory,
+        }
+    )
     device = torch.device("cuda:0") if gpu_ids else choose_device(args.device)
     stamp = args.started_at_utc or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     if len(stamp) != 16 or not stamp.endswith("Z"):
@@ -419,6 +586,7 @@ def main() -> int:
         data_dir=data_dir,
         run_dir=run_dir,
         seed=seed,
+        hardware_profile=hardware_profile,
     )
     rows: list[dict[str, Any]] = []
     for selector in selectors:
@@ -453,6 +621,7 @@ def main() -> int:
             "selector_parallelism": len(gpu_ids),
             "worker_statuses": worker_statuses,
         },
+        "hardware_profile": hardware_profile,
         "selectors": selectors,
         "candidate": config["candidate"],
         "matched_control": config["matched_control"],
@@ -474,7 +643,8 @@ def main() -> int:
             "cuda_available": torch.cuda.is_available(),
             "cuda_device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
             "visible_cuda_devices": gpu_ids,
-            "pair_chunk_size": int(config["kernel"].get("pair_chunk_size", 256)),
+            "pair_chunk_size": int(hardware_profile["pair_chunk_size"]),
+            "activation_checkpointing": bool(hardware_profile["activation_checkpointing"]),
             "started_at_utc": stamp,
         },
     }
@@ -487,6 +657,8 @@ def main() -> int:
         "",
         f"- candidate: `{config['candidate']}`",
         f"- matched control: `{config['matched_control']}`",
+        f"- hardware profile: `{hardware_profile['name']}` (pair_chunk_size={hardware_profile['pair_chunk_size']}, activation_checkpointing={str(hardware_profile['activation_checkpointing']).lower()})",
+        f"- selected physical GPUs: `{gpu_ids}`",
         f"- candidate minus disabled test macro-F1: `{candidate_minus_disabled['delta_macro_f1']:.6f}`",
         f"- candidate minus matched test macro-F1: `{candidate_minus_matched['delta_macro_f1']:.6f}`",
         f"- practical gain gate: `{str(gates['practical_gain_gate']).lower()}`",

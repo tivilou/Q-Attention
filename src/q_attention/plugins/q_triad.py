@@ -339,6 +339,7 @@ class QTriadAttentionScoreKernel(nn.Module):
         control_mode: str = "q_triad",
         eps: float = 1e-8,
         pair_chunk_size: int = 256,
+        activation_checkpointing: bool = True,
     ) -> None:
         super().__init__()
         if num_layers <= 0 or num_heads <= 0 or head_dim <= 0:
@@ -357,6 +358,7 @@ class QTriadAttentionScoreKernel(nn.Module):
         self.control_mode = control_mode
         self.circuit_depth = circuit_depth
         self.pair_chunk_size = pair_chunk_size
+        self.activation_checkpointing = bool(activation_checkpointing)
         self.kernels = nn.ModuleList(
             [
                 QTriadKernel(
@@ -400,7 +402,7 @@ class QTriadAttentionScoreKernel(nn.Module):
             "readout": "centered_pre_softmax_score_residual",
             "key_action_scope": "non_entity_context_only",
             "pair_chunk_size": self.pair_chunk_size,
-            "activation_checkpointing": True,
+            "activation_checkpointing": self.activation_checkpointing,
         }
 
     def _score_pairs(
@@ -424,7 +426,7 @@ class QTriadAttentionScoreKernel(nn.Module):
         parameter_inputs = tuple(
             parameter for parameter in kernel.parameters() if parameter.requires_grad
         )
-        use_checkpoint = torch.is_grad_enabled() and bool(parameter_inputs)
+        use_checkpoint = self.activation_checkpointing and torch.is_grad_enabled() and bool(parameter_inputs)
 
         def score_chunk(
             chunk_query: torch.Tensor,

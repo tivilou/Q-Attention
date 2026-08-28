@@ -125,3 +125,54 @@ def test_gpu_ids_follow_physical_ids_exposed_by_cuda_visible_devices(monkeypatch
     monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
     monkeypatch.setattr(torch.cuda, "device_count", lambda: 2)
     assert formal_runner.resolve_gpu_ids("2,5", "cuda") == [2, 5]
+
+
+def test_auto_gpu_selects_all_sufficient_physical_devices(monkeypatch) -> None:
+    monkeypatch.delenv("CUDA_VISIBLE_DEVICES", raising=False)
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    monkeypatch.setattr(torch.cuda, "device_count", lambda: 2)
+    inventory = [
+        {"index": 0, "name": "A100", "memory_total_mib": 40 * 1024, "memory_free_mib": 39 * 1024, "memory_used_mib": 1024},
+        {"index": 1, "name": "A100", "memory_total_mib": 40 * 1024, "memory_free_mib": 38 * 1024, "memory_used_mib": 2 * 1024},
+    ]
+    assert formal_runner.resolve_gpu_ids("auto", "cuda", inventory) == [0, 1]
+
+
+def test_auto_gpu_resolution_does_not_initialize_torch_cuda(monkeypatch) -> None:
+    monkeypatch.delenv("CUDA_VISIBLE_DEVICES", raising=False)
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: (_ for _ in ()).throw(AssertionError("CUDA initialized")))
+    inventory = [
+        {"index": 0, "name": "A100", "memory_total_mib": 40 * 1024, "memory_free_mib": 39 * 1024, "memory_used_mib": 1024},
+    ]
+    assert formal_runner.resolve_gpu_ids("auto", "cuda", inventory) == [0]
+
+
+def test_auto_profile_is_conservative_on_small_or_busy_gpu() -> None:
+    config = {"kernel": {"pair_chunk_size": 256}}
+    low_inventory = [
+        {"index": 0, "name": "3080 Ti", "memory_total_mib": 12 * 1024, "memory_free_mib": 11 * 1024, "memory_used_mib": 1024},
+    ]
+    low = formal_runner.choose_hardware_profile("auto", config, [0], low_inventory)
+    assert low["name"] == "low_memory"
+    assert low["pair_chunk_size"] == 64
+    assert low["activation_checkpointing"] is True
+
+    high_inventory = [
+        {"index": 0, "name": "A100", "memory_total_mib": 80 * 1024, "memory_free_mib": 78 * 1024, "memory_used_mib": 2 * 1024},
+    ]
+    high = formal_runner.choose_hardware_profile("auto", config, [0], high_inventory)
+    assert high["name"] == "high_memory"
+    assert high["pair_chunk_size"] == 1024
+    assert high["activation_checkpointing"] is False
+
+
+def test_auto_profile_uses_the_weakest_selected_gpu() -> None:
+    config = {"kernel": {"pair_chunk_size": 256}}
+    inventory = [
+        {"index": 0, "name": "A100", "memory_total_mib": 80 * 1024, "memory_free_mib": 70 * 1024, "memory_used_mib": 10 * 1024},
+        {"index": 1, "name": "A100", "memory_total_mib": 40 * 1024, "memory_free_mib": 20 * 1024, "memory_used_mib": 20 * 1024},
+    ]
+    profile = formal_runner.choose_hardware_profile("auto", config, [0, 1], inventory)
+    assert profile["name"] == "balanced"
+    assert profile["minimum_memory_total_mib"] == 40 * 1024
+    assert profile["minimum_memory_free_mib"] == 20 * 1024

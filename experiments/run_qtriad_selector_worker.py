@@ -39,6 +39,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cuda")
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--log-every-batches", type=int, default=50)
+    parser.add_argument("--pair-chunk-size", type=int, default=None)
+    parser.add_argument("--activation-checkpointing", type=int, choices=(0, 1), default=None)
     return parser.parse_args()
 
 
@@ -69,7 +71,18 @@ def main() -> int:
     baseline_test = json.loads(
         (args.data_dir.parent / "baseline_eval.json").read_text(encoding="utf-8")
     )["test"]
-    kernel = build_kernel(args.selector, artifacts.model, args.seed, config).to(device)
+    kernel = build_kernel(
+        args.selector,
+        artifacts.model,
+        args.seed,
+        config,
+        pair_chunk_size=args.pair_chunk_size,
+        activation_checkpointing=(
+            None
+            if args.activation_checkpointing is None
+            else bool(args.activation_checkpointing)
+        ),
+    ).to(device)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     train_args = argparse.Namespace(
         batch_size=int(kernel_config["batch_size"]),
