@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
+import subprocess
 import sys
 from typing import Any
 
@@ -29,6 +31,49 @@ from run_q_causal_value_evidence_relation_transfer import train_kernel  # noqa: 
 from run_qtriad_relation_transfer import build_kernel, evaluate_selector  # noqa: E402
 
 
+MIN_WORKER_FREE_MIB = 8 * 1024
+
+
+def check_worker_gpu_capacity(device_name: str) -> None:
+    """Reject a worker start when its assigned physical GPU is already busy."""
+    if device_name != "cuda":
+        return
+    visible = os.environ.get("CUDA_VISIBLE_DEVICES")
+    if visible is None or not visible.isdigit():
+        return
+    result = subprocess.run(
+        [
+            "nvidia-smi",
+            "--query-gpu=index,memory.free,memory.total",
+            "--format=csv,noheader,nounits",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"worker GPU capacity check failed: {result.stderr.strip()}")
+    rows = {}
+    for line in result.stdout.splitlines():
+        fields = [field.strip() for field in line.split(",", 2)]
+        if len(fields) != 3:
+            continue
+        try:
+            rows[int(fields[0])] = (int(fields[1]), int(fields[2]))
+        except ValueError:
+            continue
+    physical_id = int(visible)
+    if physical_id not in rows:
+        raise RuntimeError(f"worker GPU capacity check could not find physical GPU {physical_id}")
+    free_mib, total_mib = rows[physical_id]
+    if free_mib < MIN_WORKER_FREE_MIB:
+        raise RuntimeError(
+            f"worker GPU {physical_id} has only {free_mib} MiB free of {total_mib} MiB; "
+            f"at least {MIN_WORKER_FREE_MIB} MiB is required. "
+            "A competing CUDA process is using the assigned GPU."
+        )
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
@@ -47,6 +92,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     config = json.loads(args.config.read_text(encoding="utf-8"))
+    check_worker_gpu_capacity(args.device)
     device = choose_device(args.device)
     artifacts = load_relation_run(args.baseline_dir, device)
     data_dir = args.data_dir

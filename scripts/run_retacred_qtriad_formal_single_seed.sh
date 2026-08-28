@@ -26,6 +26,47 @@ resolve_python_bin() {
   return 1
 }
 
+check_gpu_capacity() {
+  local spec="$1"
+  local inventory selected index free
+  inventory=$(nvidia-smi --query-gpu=index,memory.free --format=csv,noheader,nounits) || {
+    echo "Unable to query GPU memory with nvidia-smi." >&2
+    return 1
+  }
+  declare -A FREE_MIB=()
+  while IFS=',' read -r index free; do
+    [[ "${index}" =~ ^[[:space:]]*[0-9]+[[:space:]]*$ ]] || continue
+    index="${index//[[:space:]]/}"
+    free="${free//[[:space:]]/}"
+    FREE_MIB["${index}"]="${free}"
+  done <<< "${inventory}"
+  if [[ "${spec}" == "auto" ]]; then
+    selected=()
+    for index in "${!FREE_MIB[@]}"; do
+      (( FREE_MIB["${index}"] >= 8192 )) && selected+=("${index}")
+    done
+  else
+    IFS=',' read -r -a selected <<< "${spec}"
+  fi
+  [[ ${#selected[@]} -gt 0 ]] || { echo "No GPU selected." >&2; return 1; }
+  local unsafe=0
+  for index in "${selected[@]}"; do
+    if [[ -z "${FREE_MIB[${index}]+present}" ]]; then
+      echo "Requested GPU ${index} is unavailable." >&2
+      unsafe=1
+    elif (( FREE_MIB["${index}"] < 8192 )); then
+      echo "GPU ${index} has only ${FREE_MIB[${index}]} MiB free; at least 8192 MiB is required." >&2
+      unsafe=1
+    fi
+  done
+  if (( unsafe )); then
+    echo "Competing CUDA processes:" >&2
+    nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader,nounits >&2 || true
+    echo "Stop or wait for the competing process, then rerun the unchanged contract." >&2
+    return 1
+  fi
+}
+
 usage() { echo "Usage: bash scripts/run_retacred_qtriad_formal_single_seed.sh [--gpu N[,N...]|auto] [--output-dir PATH] [--report-dir PATH] [--log-every-batches N] [--skip-preflight] [--dry-run]"; }
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -47,6 +88,7 @@ done
 
 PYTHON_BIN=$(resolve_python_bin)
 export PYTHON_BIN
+export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
 cd "${ROOT}"
 [[ "${GPU_SPEC}" == "auto" || "${GPU_SPEC}" =~ ^[0-9]+(,[0-9]+)*$ ]] || { echo "--gpu/--gpus must be auto or a comma-separated list of non-negative integers." >&2; exit 2; }
 if [[ "${GPU_SPEC}" != "auto" ]]; then
@@ -61,6 +103,7 @@ fi
 if [[ "${GPU_SPEC}" != "auto" ]]; then
   nvidia-smi -i "${GPU_SPEC}" --query-gpu=name --format=csv,noheader >/dev/null || { echo "GPU ${GPU_SPEC} is unavailable." >&2; exit 1; }
 fi
+check_gpu_capacity "${GPU_SPEC}"
 
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
 RUN_DIR=${OUTPUT_DIR:-runs/retacred_qtriad_formal_single_seed/${STAMP}_seed13}
