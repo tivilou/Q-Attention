@@ -29,14 +29,15 @@ git merge-base --is-ancestor origin/1.1 HEAD || { echo "origin/1.1 must be an an
 git merge-base --is-ancestor origin/main HEAD || { echo "origin/main must be an ancestor of HEAD; merge it before running." >&2; exit 1; }
 
 for file in \
-  configs/retacred_qtriad_formal_single_seed.json \
-  experiments/run_qtriad_relation_transfer.py \
+    configs/retacred_qtriad_formal_single_seed.json \
+    experiments/run_qtriad_relation_transfer.py \
+    experiments/run_qtriad_selector_worker.py \
   experiments/train_relation_baseline.py \
   experiments/run_q_causal_value_evidence_relation_smoke.py \
   experiments/run_q_causal_value_evidence_relation_transfer.py \
   scripts/run_retacred_qtriad_formal_single_seed.sh \
-  scripts/export_retacred_qtriad_formal_single_seed_report.sh \
-  docs/current/retacred_qtriad_formal_single_seed_zh.md; do
+    scripts/export_retacred_qtriad_formal_single_seed_report.sh \
+    docs/current/retacred_qtriad_formal_single_seed_zh.md; do
   [[ -f "${file}" ]] || { echo "Missing ${file}" >&2; exit 1; }
 done
 
@@ -63,8 +64,9 @@ PY
 
 PYTHONPATH="${ROOT}/src${PYTHONPATH:+:${PYTHONPATH}}" "${PYTHON_BIN}" -m pytest -q \
   tests/test_q_triad_attention_score_kernel.py \
+  tests/test_qtriad_memory_multigpu.py \
   tests/test_retacred_qtriad_formal_single_seed.py
-"${PYTHON_BIN}" -m py_compile experiments/run_qtriad_relation_transfer.py src/q_attention/plugins/q_triad.py
+"${PYTHON_BIN}" -m py_compile experiments/run_qtriad_relation_transfer.py experiments/run_qtriad_selector_worker.py src/q_attention/plugins/q_triad.py
 nvidia-smi --query-gpu=index,name,memory.total --format=csv,noheader
 echo "Q-TRIAD formal preflight=OK"
 git rev-parse HEAD

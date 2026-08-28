@@ -26,13 +26,13 @@ resolve_python_bin() {
   return 1
 }
 
-usage() { echo "Usage: bash scripts/run_retacred_qtriad_formal_single_seed.sh [--gpu N] [--output-dir PATH] [--report-dir PATH] [--log-every-batches N] [--skip-preflight] [--dry-run]"; }
+usage() { echo "Usage: bash scripts/run_retacred_qtriad_formal_single_seed.sh [--gpu N[,N...]] [--output-dir PATH] [--report-dir PATH] [--log-every-batches N] [--skip-preflight] [--dry-run]"; }
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --gpu|--output-dir|--report-dir|--log-every-batches)
+    --gpu|--gpus|--output-dir|--report-dir|--log-every-batches)
       [[ $# -ge 2 ]] || { usage >&2; exit 2; }
       case "$1" in
-        --gpu) GPU_SPEC=$2;;
+        --gpu|--gpus) GPU_SPEC=$2;;
         --output-dir) OUTPUT_DIR=$2;;
         --report-dir) REPORT_DIR=$2;;
         --log-every-batches) LOG_EVERY_BATCHES=$2;;
@@ -48,7 +48,13 @@ done
 PYTHON_BIN=$(resolve_python_bin)
 export PYTHON_BIN
 cd "${ROOT}"
-[[ "${GPU_SPEC}" =~ ^[0-9]+$ ]] || { echo "--gpu must be a non-negative integer." >&2; exit 2; }
+[[ "${GPU_SPEC}" =~ ^[0-9]+(,[0-9]+)*$ ]] || { echo "--gpu/--gpus must be a comma-separated list of non-negative integers." >&2; exit 2; }
+IFS=',' read -r -a GPU_IDS <<< "${GPU_SPEC}"
+declare -A SEEN_GPU_IDS=()
+for GPU_ID in "${GPU_IDS[@]}"; do
+  [[ -z "${SEEN_GPU_IDS[${GPU_ID}]:-}" ]] || { echo "Duplicate GPU ID: ${GPU_ID}" >&2; exit 2; }
+  SEEN_GPU_IDS[${GPU_ID}]=1
+done
 [[ "${LOG_EVERY_BATCHES}" =~ ^[1-9][0-9]*$ ]] || { echo "--log-every-batches must be positive." >&2; exit 2; }
 nvidia-smi -i "${GPU_SPEC}" --query-gpu=name --format=csv,noheader >/dev/null || { echo "GPU ${GPU_SPEC} is unavailable." >&2; exit 1; }
 
@@ -64,6 +70,7 @@ COMMAND=(
   "${PYTHON_BIN}" experiments/run_qtriad_relation_transfer.py
   --config configs/retacred_qtriad_formal_single_seed.json
   --device cuda
+  --gpus "${GPU_SPEC}"
   --seed 13
   --output-dir "${RUN_DIR}"
   --log-every-batches "${LOG_EVERY_BATCHES}"

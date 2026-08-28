@@ -7,9 +7,12 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path
+import signal
 import subprocess
 import sys
+import time
 from typing import Any
 
 import torch
@@ -64,11 +67,213 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--output-dir", type=Path, default=None)
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
+    parser.add_argument(
+        "--gpus",
+        default=None,
+        help="comma-separated physical GPU IDs; selectors run as independent workers",
+    )
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--log-every-batches", type=int, default=50)
     parser.add_argument("--started-at-utc", default=None, help=argparse.SUPPRESS)
     parser.add_argument("--python-bin", default=sys.executable, help=argparse.SUPPRESS)
     return parser.parse_args()
+
+
+def resolve_gpu_ids(spec: str | None, device_name: str) -> list[int]:
+    """Validate the requested visible GPUs before creating a run directory."""
+    if device_name == "cpu":
+        if spec:
+            raise ValueError("--gpus cannot be used with --device cpu")
+        return []
+    if not torch.cuda.is_available():
+        if device_name == "auto" and spec is None:
+            return []
+        raise RuntimeError("CUDA requested but no CUDA device is available")
+    if spec is None:
+        ids = [0]
+    else:
+        fields = [field.strip() for field in spec.split(",")]
+        if not fields or any(not field.isdigit() for field in fields):
+            raise ValueError("--gpus must be a comma-separated list of non-negative integers")
+        ids = [int(field) for field in fields]
+    if not ids or len(set(ids)) != len(ids):
+        raise ValueError("--gpus must contain at least one unique GPU ID")
+    available = torch.cuda.device_count()
+    visible_spec = os.environ.get("CUDA_VISIBLE_DEVICES")
+    visible_ids = None
+    if visible_spec:
+        visible_fields = [field.strip() for field in visible_spec.split(",")]
+        if all(field.isdigit() for field in visible_fields):
+            visible_ids = {int(field) for field in visible_fields}
+    if visible_ids is not None and not set(ids).issubset(visible_ids):
+        raise ValueError(f"requested GPU IDs {ids} are not in CUDA_VISIBLE_DEVICES={visible_spec}")
+    if visible_ids is None and any(index >= available for index in ids):
+        raise ValueError(f"requested GPU IDs {ids} exceed visible device count {available}")
+    return ids
+
+
+def _write_json_atomic(path: Path, payload: Any) -> None:
+    temporary = path.with_name(path.name + ".tmp")
+    temporary.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+    temporary.replace(path)
+
+
+def _terminate_worker(process: subprocess.Popen[str]) -> None:
+    if process.poll() is not None:
+        return
+    try:
+        os.killpg(process.pid, signal.SIGTERM)
+        process.wait(timeout=15)
+    except (ProcessLookupError, subprocess.TimeoutExpired):
+        if process.poll() is None:
+            os.killpg(process.pid, signal.SIGKILL)
+            process.wait(timeout=15)
+
+
+def run_selector_workers(
+    *,
+    selectors: list[str],
+    gpu_ids: list[int],
+    args: argparse.Namespace,
+    config_path: Path,
+    baseline_dir: Path,
+    data_dir: Path,
+    run_dir: Path,
+    seed: int,
+) -> dict[str, dict[str, Any]]:
+    """Run independent selectors with one dynamically scheduled worker per GPU."""
+    run_dir.mkdir(parents=True, exist_ok=True)
+    pending = list(selectors)
+    available = list(gpu_ids)
+    statuses: dict[str, dict[str, Any]] = {
+        selector: {"selector": selector, "status": "pending", "gpu": None}
+        for selector in selectors
+    }
+    active: dict[str, dict[str, Any]] = {}
+    assignments_path = run_dir / "gpu_assignments.json"
+    _write_json_atomic(
+        assignments_path,
+        {"requested_gpu_ids": gpu_ids, "workers": statuses},
+    )
+    dashboard_at = 0.0
+
+    def fail_run(reason: str) -> None:
+        for entry in active.values():
+            _terminate_worker(entry["process"])
+            entry["handle"].close()
+        now = datetime.now(timezone.utc).isoformat()
+        for selector in pending:
+            statuses[selector].update({"status": "not_started", "finished_at": now})
+        _write_json_atomic(
+            assignments_path,
+            {"requested_gpu_ids": gpu_ids, "workers": statuses},
+        )
+        (run_dir / "RUN_FAILED").write_text(
+            json.dumps(
+                {
+                    "failed_at_utc": now,
+                    "reason": reason,
+                    "workers": statuses,
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+    try:
+        while pending or active:
+            while pending and available:
+                selector = pending.pop(0)
+                gpu_id = available.pop(0)
+                selector_dir = run_dir / "selectors" / selector
+                selector_dir.mkdir(parents=True, exist_ok=True)
+                log_handle = (selector_dir / "worker.log").open("w", encoding="utf-8")
+                command = [
+                    args.python_bin,
+                    str(ROOT / "experiments" / "run_qtriad_selector_worker.py"),
+                    "--config", str(config_path),
+                    "--baseline-dir", str(baseline_dir),
+                    "--data-dir", str(data_dir),
+                    "--output-dir", str(selector_dir),
+                    "--selector", selector,
+                    "--device", "cuda" if gpu_id >= 0 else "cpu",
+                    "--seed", str(seed),
+                    "--log-every-batches", str(args.log_every_batches),
+                ]
+                environment = os.environ.copy()
+                if gpu_id >= 0:
+                    environment["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+                    environment["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+                process = subprocess.Popen(
+                    command,
+                    cwd=ROOT,
+                    env=environment,
+                    stdout=log_handle,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    start_new_session=True,
+                )
+                started_at = datetime.now(timezone.utc).isoformat()
+                active[selector] = {
+                    "process": process,
+                    "handle": log_handle,
+                    "gpu": gpu_id,
+                    "started_at": started_at,
+                    "started_monotonic": time.monotonic(),
+                }
+                statuses[selector].update(
+                    {"status": "running", "gpu": gpu_id, "pid": process.pid, "started_at": started_at}
+                )
+                _write_json_atomic(
+                    assignments_path,
+                    {"requested_gpu_ids": gpu_ids, "workers": statuses},
+                )
+                print(json.dumps({"event": "selector_started", "selector": selector, "gpu": gpu_id}, sort_keys=True), flush=True)
+
+            for selector, entry in list(active.items()):
+                process = entry["process"]
+                return_code = process.poll()
+                if return_code is None:
+                    continue
+                entry["handle"].close()
+                finished_at = datetime.now(timezone.utc).isoformat()
+                duration = round(time.monotonic() - entry["started_monotonic"], 3)
+                if return_code != 0:
+                    statuses[selector].update(
+                        {"status": "failed", "return_code": return_code, "finished_at": finished_at, "duration_seconds": duration}
+                    )
+                    _write_json_atomic(assignments_path, {"requested_gpu_ids": gpu_ids, "workers": statuses})
+                    fail_run(f"selector worker {selector} failed with exit code {return_code}")
+                    raise RuntimeError(f"selector worker {selector} failed; inspect {run_dir / 'selectors' / selector / 'worker.log'}")
+                metrics_path = run_dir / "selectors" / selector / "metrics.json"
+                if not metrics_path.exists():
+                    statuses[selector].update(
+                        {"status": "failed", "return_code": return_code, "finished_at": finished_at, "duration_seconds": duration}
+                    )
+                    fail_run(f"selector worker {selector} exited without metrics.json")
+                    raise RuntimeError(f"selector worker {selector} produced no metrics.json")
+                statuses[selector].update(
+                    {"status": "complete", "return_code": 0, "finished_at": finished_at, "duration_seconds": duration}
+                )
+                available.append(int(entry["gpu"]))
+                del active[selector]
+                _write_json_atomic(assignments_path, {"requested_gpu_ids": gpu_ids, "workers": statuses})
+                print(json.dumps({"event": "selector_complete", "selector": selector, "gpu": entry["gpu"], "duration_seconds": duration}, sort_keys=True), flush=True)
+
+            now = time.monotonic()
+            if now - dashboard_at >= 30.0:
+                dashboard_at = now
+                counts = {state: sum(item["status"] == state for item in statuses.values()) for state in ("pending", "running", "complete", "failed", "not_started")}
+                print(json.dumps({"event": "selector_dashboard", **counts, "active_gpus": {selector: item["gpu"] for selector, item in statuses.items() if item["status"] == "running"}}, sort_keys=True), flush=True)
+            if active:
+                time.sleep(0.5)
+    except BaseException as exc:
+        if not (run_dir / "RUN_FAILED").exists():
+            fail_run(f"selector scheduler aborted: {type(exc).__name__}: {exc}")
+        raise
+    return statuses
 
 
 def build_kernel(mode: str, model: torch.nn.Module, seed: int, config: dict[str, Any]) -> QTriadAttentionScoreKernel:
@@ -84,6 +289,7 @@ def build_kernel(mode: str, model: torch.nn.Module, seed: int, config: dict[str,
         initial_gain=float(kernel_config["initial_gain"]),
         seed=seed + 307,
         control_mode=mode,
+        pair_chunk_size=int(kernel_config.get("pair_chunk_size", 256)),
     )
 
 
@@ -123,7 +329,8 @@ def main() -> int:
         raise ValueError("config must include the matched classical control")
     if args.log_every_batches <= 0:
         raise ValueError("--log-every-batches must be positive")
-    device = choose_device(args.device)
+    gpu_ids = resolve_gpu_ids(args.gpus, args.device)
+    device = torch.device("cuda:0") if gpu_ids else choose_device(args.device)
     stamp = args.started_at_utc or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     if len(stamp) != 16 or not stamp.endswith("Z"):
         raise ValueError("--started-at-utc must use UTC format YYYYMMDDTHHMMSSZ")
@@ -155,7 +362,7 @@ def main() -> int:
         "--train_path", str(data_dir / "train.jsonl"),
         "--valid_path", str(data_dir / "valid.jsonl"),
         "--output_dir", str(baseline_dir),
-        "--device", str(device),
+        "--device", "cuda" if gpu_ids else str(device),
         "--epochs", str(config["baseline"]["epochs"]),
         "--batch_size", str(config["baseline"]["batch_size"]),
         "--lr", str(config["baseline"]["lr"]),
@@ -175,55 +382,50 @@ def main() -> int:
         parameter.requires_grad_(False)
     baseline_valid = evaluate_selector(artifacts.model, valid_loader, device, len(artifacts.label_to_id), None, "baseline_valid")
     baseline_test = evaluate_selector(artifacts.model, test_loader, device, len(artifacts.label_to_id), None, "baseline_test")
-    train_args = argparse.Namespace(
-        batch_size=int(config["kernel"]["batch_size"]),
-        epochs=int(config["kernel"]["epochs"]),
-        kernel_lr=float(config["kernel"]["lr"]),
-        log_every_batches=args.log_every_batches,
+    (run_dir / "baseline_eval.json").write_text(
+        json.dumps({"valid": baseline_valid, "test": baseline_test}, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    disabled_dir = run_dir / "selectors" / "disabled"
+    disabled_dir.mkdir(parents=True, exist_ok=True)
+    disabled_row = {
+        "selector": "disabled",
+        "seed": seed,
+        "valid": baseline_valid,
+        "test": {**baseline_test, "delta_vs_baseline": metric_delta(baseline_test["metrics"], baseline_test["metrics"])},
+        "train": {"history": [], "best_epoch": 0, "runtime_seconds": 0.0},
+        "metadata": {"type": "disabled"},
+        "trainable_parameters": 0,
+        "finite": True,
+    }
+    (disabled_dir / "metrics.json").write_text(
+        json.dumps(disabled_row, indent=2, sort_keys=True), encoding="utf-8"
+    )
+    # Release the parent's model copy before selector workers load the shared
+    # checkpoint. This is important when the first worker uses GPU 0.
+    label_count = len(artifacts.label_to_id)
+    artifacts.model.to("cpu")
+    if device.type == "cuda":
+        torch.cuda.empty_cache()
+    del artifacts
+    del train_records
+    worker_selectors = [selector for selector in selectors if selector != "disabled"]
+    worker_statuses = run_selector_workers(
+        selectors=worker_selectors,
+        gpu_ids=gpu_ids or [-1],
+        args=args,
+        config_path=config_path,
+        baseline_dir=baseline_dir,
+        data_dir=data_dir,
+        run_dir=run_dir,
+        seed=seed,
     )
     rows: list[dict[str, Any]] = []
     for selector in selectors:
-        selector_dir = run_dir / "selectors" / selector
-        selector_dir.mkdir(parents=True, exist_ok=True)
-        if selector == "disabled":
-            valid_result = baseline_valid
-            test_result = baseline_test
-            train_result = {"history": [], "best_epoch": 0, "runtime_seconds": 0.0}
-            kernel = None
-            metadata: dict[str, Any] = {"type": "disabled"}
-            trainable_parameters = 0
-        else:
-            kernel = build_kernel(selector, artifacts.model, seed, config).to(device)
-            train_result = train_kernel(
-                artifacts.model,
-                kernel,
-                train_records,
-                valid_loader,
-                artifacts,
-                device,
-                selector,
-                seed,
-                train_args,
-                selector_dir,
-            )
-            valid_result = evaluate_selector(artifacts.model, valid_loader, device, len(artifacts.label_to_id), kernel, f"{selector}_valid_final")
-            test_result = evaluate_selector(artifacts.model, test_loader, device, len(artifacts.label_to_id), kernel, f"{selector}_test")
-            metadata = kernel.metadata()
-            trainable_parameters = sum(parameter.numel() for parameter in kernel.parameters())
-            torch.save({"state_dict": kernel.state_dict(), "metadata": metadata}, selector_dir / "best_kernel_with_metadata.pt")
-        row = {
-            "selector": selector,
-            "seed": seed,
-            "valid": valid_result,
-            "test": {**test_result, "delta_vs_baseline": metric_delta(test_result["metrics"], baseline_test["metrics"])},
-            "train": train_result,
-            "metadata": metadata,
-            "trainable_parameters": trainable_parameters,
-            "finite": all(torch.isfinite(torch.tensor(value)) for value in list(valid_result["metrics"].values()) + list(test_result["metrics"].values())),
-        }
-        (selector_dir / "metrics.json").write_text(json.dumps(row, indent=2, sort_keys=True), encoding="utf-8")
-        rows.append(row)
-        print(json.dumps({"event": "selector_complete", "selector": selector}, sort_keys=True), flush=True)
+        metrics_path = run_dir / "selectors" / selector / "metrics.json"
+        if not metrics_path.exists():
+            raise RuntimeError(f"missing selector metrics: {metrics_path}")
+        rows.append(json.loads(metrics_path.read_text(encoding="utf-8")))
     by_name = {row["selector"]: row for row in rows}
     candidate = by_name[config["candidate"]]
     matched = by_name[config["matched_control"]]
@@ -246,6 +448,11 @@ def main() -> int:
         "seed": seed,
         "run_dir": str(run_dir),
         "device": str(device),
+        "multi_gpu": {
+            "requested_gpu_ids": gpu_ids,
+            "selector_parallelism": len(gpu_ids),
+            "worker_statuses": worker_statuses,
+        },
         "selectors": selectors,
         "candidate": config["candidate"],
         "matched_control": config["matched_control"],
@@ -266,6 +473,8 @@ def main() -> int:
             "torch": torch.__version__,
             "cuda_available": torch.cuda.is_available(),
             "cuda_device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
+            "visible_cuda_devices": gpu_ids,
+            "pair_chunk_size": int(config["kernel"].get("pair_chunk_size", 256)),
             "started_at_utc": stamp,
         },
     }

@@ -15,6 +15,7 @@ from typing import Any
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.utils.checkpoint import checkpoint
 
 
 QTRIAD_CONTROL_MODES = (
@@ -337,6 +338,7 @@ class QTriadAttentionScoreKernel(nn.Module):
         seed: int = 131,
         control_mode: str = "q_triad",
         eps: float = 1e-8,
+        pair_chunk_size: int = 256,
     ) -> None:
         super().__init__()
         if num_layers <= 0 or num_heads <= 0 or head_dim <= 0:
@@ -345,6 +347,8 @@ class QTriadAttentionScoreKernel(nn.Module):
             raise ValueError("initial_gain must lie inside (-max_gain, max_gain)")
         if control_mode not in {"q_triad", "classical_density_tensor", "quantum_product", "quantum_random"}:
             raise ValueError("unsupported Q-TRIAD attention control mode")
+        if pair_chunk_size <= 0:
+            raise ValueError("pair_chunk_size must be positive")
         self.num_layers = num_layers
         self.num_heads = num_heads
         self.head_dim = head_dim
@@ -352,6 +356,7 @@ class QTriadAttentionScoreKernel(nn.Module):
         self.eps = eps
         self.control_mode = control_mode
         self.circuit_depth = circuit_depth
+        self.pair_chunk_size = pair_chunk_size
         self.kernels = nn.ModuleList(
             [
                 QTriadKernel(
@@ -394,7 +399,69 @@ class QTriadAttentionScoreKernel(nn.Module):
             "target_input": "query,key,subject_mask,object_mask",
             "readout": "centered_pre_softmax_score_residual",
             "key_action_scope": "non_entity_context_only",
+            "pair_chunk_size": self.pair_chunk_size,
+            "activation_checkpointing": True,
         }
+
+    def _score_pairs(
+        self,
+        kernel: QTriadKernel,
+        query: torch.Tensor,
+        relation: torch.Tensor,
+        key: torch.Tensor,
+    ) -> torch.Tensor:
+        """Score query-key pairs in bounded chunks.
+
+        The old implementation materialized three batch*query*key tensors
+        before constructing the statevector. Indexing one chunk at a time
+        avoids those large expanded copies. During training, checkpoint each
+        chunk so statevector intermediates are recomputed during backward
+        instead of being retained for every pair in the attention matrix.
+        """
+        batch, query_tokens, _dim = query.shape
+        key_tokens = key.shape[1]
+        total_pairs = batch * query_tokens * key_tokens
+        parameter_inputs = tuple(
+            parameter for parameter in kernel.parameters() if parameter.requires_grad
+        )
+        use_checkpoint = torch.is_grad_enabled() and bool(parameter_inputs)
+
+        def score_chunk(
+            chunk_query: torch.Tensor,
+            chunk_relation: torch.Tensor,
+            chunk_key: torch.Tensor,
+            *_parameters: torch.Tensor,
+        ) -> torch.Tensor:
+            del _parameters
+            return kernel(chunk_query, chunk_relation, chunk_key).score
+
+        chunks: list[torch.Tensor] = []
+        pairs_per_batch = query_tokens * key_tokens
+        for start in range(0, total_pairs, self.pair_chunk_size):
+            stop = min(start + self.pair_chunk_size, total_pairs)
+            flat_index = torch.arange(start, stop, device=query.device)
+            batch_index = torch.div(flat_index, pairs_per_batch, rounding_mode="floor")
+            remainder = flat_index.remainder(pairs_per_batch)
+            query_index = torch.div(remainder, key_tokens, rounding_mode="floor")
+            key_index = remainder.remainder(key_tokens)
+            chunk_query = query[batch_index, query_index]
+            chunk_relation = relation[batch_index]
+            chunk_key = key[batch_index, key_index]
+            if use_checkpoint:
+                chunks.append(
+                    checkpoint(
+                        score_chunk,
+                        chunk_query,
+                        chunk_relation,
+                        chunk_key,
+                        *parameter_inputs,
+                        use_reentrant=False,
+                        preserve_rng_state=False,
+                    )
+                )
+            else:
+                chunks.append(score_chunk(chunk_query, chunk_relation, chunk_key))
+        return torch.cat(chunks, dim=0).reshape(batch, query_tokens, key_tokens)
 
     def forward(
         self,
@@ -428,25 +495,22 @@ class QTriadAttentionScoreKernel(nn.Module):
         subject = (key * subject_weights[:, None, :, None]).sum(dim=2) / subject_weights.sum(dim=1).clamp_min(1.0)[:, None, None]
         object_ = (key * object_weights[:, None, :, None]).sum(dim=2) / object_weights.sum(dim=1).clamp_min(1.0)[:, None, None]
         relation = subject - object_
-        active_queries = mask[:, None, :, None].expand(batch, heads, query_tokens, 1)
+        active_queries = mask[:, None, :, None]
         context_mask = mask & ~(subject_mask.to(device=mask.device, dtype=torch.bool) | object_mask.to(device=mask.device, dtype=torch.bool))
-        key_mask = context_mask[:, None, None, :].expand(batch, heads, query_tokens, key_tokens)
+        context_key_mask = context_mask[:, None, None, :]
+        context_weights = context_mask.to(device=query.device, dtype=query.dtype)
+        key_count = context_weights.sum(dim=1).clamp_min(1.0)
         residuals: list[torch.Tensor] = []
         for head_index in range(heads):
             q = query[:, head_index, :, :]
             r = relation[:, head_index, :]
             k = key[:, head_index, :, :]
-            flat_q = q[:, :, None, :].expand(-1, -1, key_tokens, -1).reshape(-1, dim)
-            flat_r = r[:, None, None, :].expand(-1, query_tokens, key_tokens, -1).reshape(-1, dim)
-            flat_k = k[:, None, :, :].expand(-1, query_tokens, -1, -1).reshape(-1, dim)
-            score = self._kernel(layer_index, head_index)(flat_q, flat_r, flat_k).score
-            score = score.reshape(batch, query_tokens, key_tokens)
-            key_count = key_mask[:, head_index].sum(dim=-1, keepdim=True).clamp_min(1.0)
-            score = score - (score * key_mask[:, head_index]).sum(dim=-1, keepdim=True) / key_count
+            score = self._score_pairs(self._kernel(layer_index, head_index), q, r, k)
+            score = score - (score * context_weights[:, None, :]).sum(dim=-1, keepdim=True) / key_count[:, None, None]
             gain = self.max_gain * torch.tanh(self.raw_gains[layer_index, head_index])
             residuals.append(score * gain)
         residual = torch.stack(residuals, dim=1)
-        return residual * active_queries * key_mask
+        return residual * active_queries * context_key_mask
 
 
 def build_qtriad(mode: str, config: QTriadConfig | None = None) -> QTriadKernel:
