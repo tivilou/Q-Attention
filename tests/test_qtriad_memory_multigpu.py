@@ -120,7 +120,9 @@ def test_selector_dashboard_renders_multi_gpu_heartbeat(tmp_path) -> None:
     heartbeat.write_text(
         '{"event":"batch_progress","phase":"train","epoch":3,"epochs":12,'
         '"batch":147,"batches":229,"percent":64.19,"eta_seconds":4200,'
-        '"batches_per_second":0.42}\n',
+        '"batches_per_second":0.42,"gpu_memory":[{"physical_index":0,'
+        '"nvidia_used_mib":4096,"nvidia_free_mib":4096,"nvidia_total_mib":8192,'
+        '"allocated_mib":1024,"reserved_mib":2048,"peak_reserved_mib":3072}]}\n',
         encoding="utf-8",
     )
     statuses = {
@@ -141,6 +143,7 @@ def test_selector_dashboard_renders_multi_gpu_heartbeat(tmp_path) -> None:
     assert "epoch 3/12" in rendered
     assert "batch 147/229 64.2%" in rendered
     assert "ETA 01:10:00" in rendered
+    assert "GPU 0 VRAM 4.0/8.0 GiB used, free 4.0 GiB" in rendered
     assert "Queued: classical_density_tensor" in rendered
     assert "Completed: quantum_product" in rendered
 
@@ -149,7 +152,9 @@ def test_baseline_console_renderer_formats_progress_and_epoch() -> None:
     progress = formal_runner._render_baseline_line(
         '{"event":"batch_progress","phase":"train","epoch":2,"batch":8,'
         '"batches":16,"percent":50,"elapsed_seconds":12,"eta_seconds":12,'
-        '"batches_per_second":0.67}',
+        '"batches_per_second":0.67,"gpu_memory":[{"physical_index":0,'
+        '"nvidia_used_mib":4096,"nvidia_free_mib":4096,"nvidia_total_mib":8192,'
+        '"allocated_mib":1024,"reserved_mib":2048,"peak_reserved_mib":3072}]}',
         epochs=8,
     )
     epoch = formal_runner._render_baseline_line(
@@ -160,6 +165,7 @@ def test_baseline_console_renderer_formats_progress_and_epoch() -> None:
     assert progress is not None
     assert "[baseline][train] epoch 2/8" in progress
     assert "batch 8/16" in progress and "ETA 00:12" in progress
+    assert "proc 1.0/2.0 GiB alloc/reserved, peak 3.0 GiB" in progress
     assert epoch == (
         "[baseline] epoch 2/8 complete | train_loss=0.3210 | "
         "valid_loss=0.4560 | valid_macro_f1=0.7890"

@@ -31,6 +31,7 @@ from q_attention.experiments.relation_steering import (  # noqa: E402
     load_relation_run,
     make_relation_loader,
 )
+from q_attention.experiments.progress import format_gpu_memory  # noqa: E402
 from q_attention.plugins.q_triad import QTriadAttentionScoreKernel  # noqa: E402
 from run_q_causal_value_evidence_relation_smoke import (  # noqa: E402
     materialize_subset,
@@ -432,6 +433,9 @@ def _render_selector_dashboard(
         except (TypeError, ValueError):
             rate_text = ""
         progress.append(f"ETA {eta}{rate_text}")
+        memory_text = format_gpu_memory(heartbeat.get("gpu_memory"))
+        if memory_text:
+            progress.append(memory_text)
         lines.append(f"GPU {gpu} | {selector:<28} | " + " | ".join(progress))
 
     for label, state in (
@@ -481,11 +485,14 @@ def _render_baseline_line(line: str, *, epochs: int) -> str | None:
             rate = f" | {float(payload['batches_per_second']):.2f} batch/s"
         except (KeyError, TypeError, ValueError):
             rate = ""
+        memory_text = format_gpu_memory(payload.get("gpu_memory"))
+        if memory_text:
+            memory_text = f" | {memory_text}"
         return (
             f"{label}{epoch_text} [{bar}] {percent:5.1f}% "
             f"batch {payload.get('batch', '?')}/{payload.get('batches', '?')} | "
             f"elapsed {_format_duration(payload.get('elapsed_seconds'))} | "
-            f"ETA {_format_duration(payload.get('eta_seconds'))}{rate}"
+            f"ETA {_format_duration(payload.get('eta_seconds'))}{rate}{memory_text}"
         )
     if event == "phase_complete":
         return (
