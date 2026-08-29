@@ -8,8 +8,10 @@ from datetime import datetime, timezone
 import gc
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
+import shutil
 import signal
 import subprocess
 import sys
@@ -120,6 +122,8 @@ CUDA_OOM_MARKERS = (
 CUDA_OOM_EXIT_CODE = 86
 MEMORY_PRESSURE_EXIT_CODE = 87
 ADAPTIVE_MEMORY_STATE_SCHEMA = "q-attention.qtriad-adaptive-memory.v1"
+BASELINE_ARTIFACTS = ("metrics.json", "model.pt", "vocab.json", "labels.json")
+BASELINE_IMPORT_SCHEMA = "q-attention.qtriad-legacy-baseline-import.v1"
 
 
 def sha256(path: Path) -> str:
@@ -147,6 +151,16 @@ def parse_args() -> argparse.Namespace:
         default=None,
         metavar="RUN_DIR",
         help="resume an existing compatible run directory in place",
+    )
+    parser.add_argument(
+        "--import-baseline-from",
+        type=Path,
+        default=None,
+        metavar="OLD_RUN_DIR",
+        help=(
+            "import a completed legacy baseline into a new run; selectors are "
+            "always restarted from batch 0"
+        ),
     )
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     parser.add_argument(
@@ -995,6 +1009,265 @@ def _read_json(path: Path) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
 
 
+def _read_required_json(path: Path, *, label: str) -> dict[str, Any]:
+    """Read a JSON metadata file and turn malformed input into a clear import error."""
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, OSError, json.JSONDecodeError) as exc:
+        raise ResumeCompatibilityError(f"legacy baseline import: invalid {label}") from exc
+    if not isinstance(value, dict):
+        raise ResumeCompatibilityError(f"legacy baseline import: {label} must be a JSON object")
+    return value
+
+
+def _legacy_value_matches(actual: Any, expected: Any) -> bool:
+    if isinstance(expected, float):
+        try:
+            return math.isclose(float(actual), expected, rel_tol=0.0, abs_tol=1e-12)
+        except (TypeError, ValueError):
+            return False
+    return actual == expected
+
+
+def _validate_legacy_run_metadata(
+    source_run_dir: Path, *, config: dict[str, Any], seed: int
+) -> str | None:
+    """Validate optional metadata emitted by the old Q-TRIAD runner."""
+    source_revision: str | None = None
+    run_config_path = source_run_dir / "run_config.json"
+    if run_config_path.is_file():
+        run_config = _read_required_json(run_config_path, label="run_config.json")
+        scalar_contract = {
+            "schema_version": config["schema_version"],
+            "name": config["name"],
+            "formal_experiment": True,
+            "seed": seed,
+            "selectors": list(config["selectors"]),
+            "candidate": config["candidate"],
+            "matched_control": config["matched_control"],
+            "expected_records": config["expected_records"],
+        }
+        for key, expected in scalar_contract.items():
+            if key in run_config and run_config[key] != expected:
+                raise ResumeCompatibilityError(
+                    f"legacy baseline import: run_config.json {key} differs from frozen contract"
+                )
+        for section in ("baseline", "model"):
+            if section in run_config and run_config[section] != config[section]:
+                raise ResumeCompatibilityError(
+                    f"legacy baseline import: run_config.json {section} differs from frozen contract"
+                )
+
+    summary_path = source_run_dir / "run_summary.json"
+    if summary_path.is_file():
+        summary = _read_required_json(summary_path, label="run_summary.json")
+        for key, expected in (
+            ("name", config["name"]),
+            ("formal_experiment", True),
+            ("seed", seed),
+            ("selectors", list(config["selectors"])),
+            ("candidate", config["candidate"]),
+            ("matched_control", config["matched_control"]),
+        ):
+            if key in summary and summary[key] != expected:
+                raise ResumeCompatibilityError(
+                    f"legacy baseline import: run_summary.json {key} differs from frozen contract"
+                )
+        provenance = summary.get("provenance")
+        if isinstance(provenance, dict) and isinstance(provenance.get("git_revision"), str):
+            source_revision = provenance["git_revision"]
+
+    manifest_path = source_run_dir / "run_manifest.json"
+    if manifest_path.is_file() and source_revision is None:
+        manifest = _read_required_json(manifest_path, label="run_manifest.json")
+        source = manifest.get("source")
+        if isinstance(source, dict) and isinstance(source.get("git_revision"), str):
+            source_revision = source["git_revision"]
+    return source_revision
+
+
+def _import_legacy_baseline(
+    source_path: Path,
+    target_baseline_dir: Path,
+    target_data_dir: Path,
+    *,
+    config: dict[str, Any],
+    seed: int,
+    expected_max_length: int,
+    expected_records: dict[str, int],
+    run_dir: Path,
+) -> dict[str, Any]:
+    """Import only a completed legacy baseline into a newly-created run.
+
+    Legacy selector artifacts are deliberately ignored: their checkpoints were
+    written under a different code contract and the new selector workers must
+    start at batch 0.
+    """
+    source_run_dir = resolve_path(source_path)
+    if not source_run_dir.is_dir():
+        raise ResumeCompatibilityError(
+            f"legacy baseline import: source run does not exist: {source_run_dir}"
+        )
+    nested_baseline = source_run_dir / "baseline"
+    if nested_baseline.is_dir():
+        source_baseline_dir = nested_baseline
+    elif all((source_run_dir / name).is_file() for name in BASELINE_ARTIFACTS):
+        source_baseline_dir = source_run_dir
+        source_run_dir = source_run_dir.parent
+    else:
+        raise ResumeCompatibilityError(
+            "legacy baseline import: source must be an old run directory containing baseline/"
+        )
+    source_baseline_dir = source_baseline_dir.resolve()
+    target_baseline_dir = target_baseline_dir.resolve()
+    if source_baseline_dir == target_baseline_dir:
+        raise ResumeCompatibilityError("legacy baseline import: source and target baseline are identical")
+    missing = [name for name in BASELINE_ARTIFACTS if not (source_baseline_dir / name).is_file()]
+    if missing:
+        raise ResumeCompatibilityError(
+            "legacy baseline import: incomplete baseline; missing " + ", ".join(missing)
+        )
+
+    metrics = _read_required_json(source_baseline_dir / "metrics.json", label="baseline metrics.json")
+    baseline_args = metrics.get("args")
+    if not isinstance(baseline_args, dict):
+        raise ResumeCompatibilityError(
+            "legacy baseline import: metrics.json has no baseline training arguments"
+        )
+    expected_args: dict[str, Any] = {
+        "seed": seed,
+        "epochs": int(config["baseline"]["epochs"]),
+        "batch_size": int(config["baseline"]["batch_size"]),
+        "lr": float(config["baseline"]["lr"]),
+        "dim": int(config["model"]["dim"]),
+        "num_layers": int(config["model"]["num_layers"]),
+        "num_heads": int(config["model"]["num_heads"]),
+        "ff_dim": int(config["model"]["ff_dim"]),
+        "dropout": float(config["model"]["dropout"]),
+        "max_length": int(expected_max_length),
+        "selection_metric": "macro_f1_then_loss",
+    }
+    for key, expected in expected_args.items():
+        if key not in baseline_args or not _legacy_value_matches(baseline_args[key], expected):
+            raise ResumeCompatibilityError(
+                f"legacy baseline import: baseline args {key} differs from frozen contract"
+            )
+    if not isinstance(metrics.get("best_valid"), dict) or not isinstance(metrics.get("best_epoch"), int):
+        raise ResumeCompatibilityError(
+            "legacy baseline import: metrics.json does not describe a completed baseline"
+        )
+
+    vocab = _read_required_json(source_baseline_dir / "vocab.json", label="baseline vocab.json")
+    labels = _read_required_json(source_baseline_dir / "labels.json", label="baseline labels.json")
+    if not vocab or not labels or not all(isinstance(value, int) for value in labels.values()):
+        raise ResumeCompatibilityError("legacy baseline import: invalid vocab.json or labels.json")
+    try:
+        # Loading the state dict through the current loader verifies tensor
+        # names and dimensions without moving the imported model to CUDA.
+        load_relation_run(source_baseline_dir, torch.device("cpu"))
+    except Exception as exc:
+        raise ResumeCompatibilityError(
+            f"legacy baseline import: baseline checkpoint is incompatible: {exc}"
+        ) from exc
+
+    source_data_dir = source_run_dir / "data"
+    data_checks: dict[str, Any] = {}
+    for split in ("train", "valid", "test"):
+        source_file = source_data_dir / f"{split}.jsonl"
+        target_file = target_data_dir / f"{split}.jsonl"
+        if not source_file.is_file():
+            raise ResumeCompatibilityError(
+                f"legacy baseline import: source data/{split}.jsonl is missing"
+            )
+        if not target_file.is_file():
+            raise ResumeCompatibilityError(
+                f"legacy baseline import: new run data/{split}.jsonl is missing"
+            )
+        source_contract = file_contract(source_file)
+        target_contract = file_contract(target_file)
+        if (
+            source_contract["sha256"] != target_contract["sha256"]
+            or source_contract["bytes"] != target_contract["bytes"]
+        ):
+            raise ResumeCompatibilityError(
+                f"legacy baseline import: source and new {split} data differ"
+            )
+        data_checks[split] = {
+            "records": int(expected_records[split]),
+            "source_sha256": source_contract["sha256"],
+            "target_sha256": target_contract["sha256"],
+            "bytes": target_contract["bytes"],
+        }
+
+    legacy_data_manifest = source_data_dir / "data_manifest.json"
+    if legacy_data_manifest.is_file():
+        manifest = _read_required_json(legacy_data_manifest, label="data/data_manifest.json")
+        splits = manifest.get("splits")
+        if manifest.get("schema_version") != DATA_MANIFEST_SCHEMA or not isinstance(splits, dict):
+            raise ResumeCompatibilityError(
+                "legacy baseline import: source data_manifest.json has an unsupported schema"
+            )
+        for split, check in data_checks.items():
+            info = splits.get(split)
+            materialized = info.get("materialized") if isinstance(info, dict) else None
+            try:
+                manifest_records = int(info.get("records", -1)) if isinstance(info, dict) else -1
+            except (TypeError, ValueError):
+                manifest_records = -1
+            try:
+                manifest_bytes = int(materialized.get("bytes", -1)) if isinstance(materialized, dict) else -1
+            except (TypeError, ValueError):
+                manifest_bytes = -1
+            if (
+                not isinstance(materialized, dict)
+                or materialized.get("sha256") != check["source_sha256"]
+                or manifest_bytes != check["bytes"]
+                or manifest_records != check["records"]
+            ):
+                raise ResumeCompatibilityError(
+                    f"legacy baseline import: source data_manifest.json disagrees for {split}"
+                )
+
+    source_revision = _validate_legacy_run_metadata(source_run_dir, config=config, seed=seed)
+    if target_baseline_dir.exists() and any(target_baseline_dir.iterdir()):
+        raise ResumeCompatibilityError(
+            "legacy baseline import: new baseline directory already contains artifacts"
+        )
+    target_baseline_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        for name in BASELINE_ARTIFACTS:
+            temporary = target_baseline_dir / f".{name}.{os.getpid()}.importing"
+            shutil.copy2(source_baseline_dir / name, temporary)
+            os.replace(temporary, target_baseline_dir / name)
+    finally:
+        for name in BASELINE_ARTIFACTS:
+            (target_baseline_dir / f".{name}.{os.getpid()}.importing").unlink(missing_ok=True)
+
+    artifact_checks = {
+        name: file_contract(target_baseline_dir / name)
+        for name in BASELINE_ARTIFACTS
+    }
+    result = {
+        "schema_version": BASELINE_IMPORT_SCHEMA,
+        "imported_at_utc": datetime.now(timezone.utc).isoformat(),
+        "source_run_dir": str(source_run_dir),
+        "source_baseline_dir": str(source_baseline_dir),
+        "source_git_revision": source_revision,
+        "artifacts": {
+            name: {"sha256": item["sha256"], "bytes": item["bytes"]}
+            for name, item in artifact_checks.items()
+        },
+        "data": data_checks,
+        "selector_restart": {
+            "mode": "fresh",
+            "first_batch": 0,
+            "source_selector_artifacts_ignored": True,
+        },
+    }
+    _write_json_atomic(run_dir / "baseline_import.json", result)
+    return result
+
+
 def _format_duration(seconds: Any) -> str:
     if seconds is None:
         return "--:--"
@@ -1798,6 +2071,8 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
     device = model_parallel_devices[0] if model_parallel_devices else (torch.device("cuda:0") if gpu_ids else choose_device(args.device))
     if args.resume is not None and args.output_dir is not None:
         raise ValueError("--resume cannot be combined with --output-dir")
+    if args.resume is not None and args.import_baseline_from is not None:
+        raise ValueError("--import-baseline-from can only be used for a new run, not --resume")
     provisional_stamp = args.started_at_utc or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     run_dir = args.resume or args.output_dir or ROOT / "runs" / "retacred_qtriad_formal_single_seed" / f"{provisional_stamp}_seed13"
     run_dir = resolve_path(run_dir)
@@ -1916,9 +2191,25 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
             ["--model-parallel-gpus", ",".join(str(gpu_id) for gpu_id in model_parallel_gpu_ids)]
         )
     baseline_dir.mkdir(parents=True, exist_ok=True)
+    baseline_import: dict[str, Any] | None = None
+    if args.import_baseline_from is not None:
+        baseline_import = _import_legacy_baseline(
+            args.import_baseline_from,
+            baseline_dir,
+            data_dir,
+            config=config,
+            seed=seed,
+            expected_max_length=max_length,
+            expected_records={name: int(value) for name, value in expected.items()},
+            run_dir=run_dir,
+        )
+        print(
+            "[q-triad] imported completed legacy baseline; "
+            "q_triad and controls will restart from batch 0",
+            flush=True,
+        )
     baseline_complete = all(
-        (baseline_dir / name).is_file()
-        for name in ("metrics.json", "model.pt", "vocab.json", "labels.json")
+        (baseline_dir / name).is_file() for name in BASELINE_ARTIFACTS
     )
     if not baseline_complete:
         if resuming and any(baseline_dir.iterdir()) and not (baseline_dir / "checkpoints" / "latest.pt").is_file():
@@ -2267,7 +2558,13 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         "candidate": config["candidate"],
         "matched_control": config["matched_control"],
         "data": {"train": train_info, "valid": valid_info, "test": test_info},
-        "baseline": {"valid": baseline_valid, "test": baseline_test, "command": baseline_command},
+        "baseline": {
+            "valid": baseline_valid,
+            "test": baseline_test,
+            "command": baseline_command,
+            "import": baseline_import,
+        },
+        "baseline_import": baseline_import,
         "rows": rows,
         "candidate_minus_disabled": candidate_minus_disabled,
         "candidate_minus_matched": candidate_minus_matched,
@@ -2305,6 +2602,9 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         f"- model-parallel physical GPUs: `{model_parallel_gpu_ids}`",
         f"- hardware profile: `{hardware_profile['name']}` (pair_chunk_size={hardware_profile['pair_chunk_size']}, activation_checkpointing={str(hardware_profile['activation_checkpointing']).lower()})",
         f"- selected physical GPUs: `{gpu_ids}`",
+        *([
+            f"- baseline imported from legacy run: `{baseline_import['source_run_dir']}`; selectors restarted at batch 0",
+        ] if baseline_import else []),
         f"- candidate minus disabled test macro-F1: `{candidate_minus_disabled['delta_macro_f1']:.6f}`",
         f"- candidate minus matched test macro-F1: `{candidate_minus_matched['delta_macro_f1']:.6f}`",
         f"- practical gain gate: `{str(gates['practical_gain_gate']).lower()}`",

@@ -61,6 +61,20 @@ bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu 0 --resume runs/ret
 
 恢复会复用原 run 的 `data/*.jsonl` 和 `data/data_manifest.json`，跳过已有有效指标的 baseline/selector，并仅从兼容的 batch checkpoint 继续。恢复命令必须使用原 run 相同的物理 GPU 列表、并行模式和显存 profile；adaptive run 还会读取 `adaptive_memory_state.json`，从上次已验证的 tier 继续，不会重新回到最快档。若最初使用 `--gpu auto`，请从 `run_summary.json` 取出已解析的 GPU 与 profile，并显式传入，例如 `--gpu 0,1 --hardware-profile adaptive`。`--resume` 不能与 `--output-dir` 同时使用；恢复期间不能修改算法参数、数据、代码、seed、batch size、epoch、学习率、selector、显存 profile 或 checkpoint 契约。原始 `RUN_PAUSED` 保留完整 worker 状态，每次恢复会额外写入 `resume_state.json`；wrapper 的恢复日志写入新的 `logs/run.resume-<timestamp>.log`，不会覆盖首次日志。旧目录若没有 `run_manifest.json`、`data_manifest.json` 或 batch checkpoint，不能宣称 batch 级恢复，只能新建目录从 baseline 级重新开始。
 
+### 旧版已完成 baseline 的迁移
+
+如果师弟运行的是没有新 manifest/checkpoint 机制的旧版脚本，且旧 run 的 baseline 已完成、当前停在 `q_triad`，不要把旧目录作为 `--resume` 目录。`--resume` 会严格校验新代码指纹，拒绝不兼容的旧 run；请新建一个 run，只显式导入旧 baseline：
+
+```bash
+bash scripts/run_retacred_qtriad_formal_single_seed.sh \
+  --gpu 0 \
+  --import-baseline-from runs/retacred_qtriad_formal_single_seed/<旧时间戳>_seed13
+```
+
+该命令仍会按当前 frozen contract 重新 materialize 数据，并逐项核对旧 run 的 `baseline/model.pt`、`metrics.json`、`vocab.json`、`labels.json`、三份 `data/*.jsonl` 的完整性、SHA-256、seed 13、baseline/model 超参和模型结构。校验失败会停止，不会把旧结果当成可恢复状态。通过后只复制四个已完成 baseline 文件到新 run；旧 `selectors/`、旧 `q_triad` 中间 checkpoint 和日志一律不复制。新 run 会写 `baseline_import.json`，并让 `disabled`、`q_triad`、两个 controls 按新代码从 `q_triad` batch 0 重新开始，因此不能继承旧版已经跑过的 `q_triad` 部分，但可以跳过 baseline 训练。
+
+导入后的新 run 是独立 run，后续暂停请使用新目录的 `--resume <新目录>`；不要再次对同一目录使用 `--import-baseline-from`，也不要同时指定 `--resume` 和 `--import-baseline-from`。
+
 ### 可选的模型级并行
 
 当单个模型阶段需要跨卡放置时，可以显式启用按完整 encoder layer 切分的模型级并行：

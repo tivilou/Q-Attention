@@ -5,6 +5,7 @@ import torch
 import pytest
 import sys
 import time
+from pathlib import Path
 from types import SimpleNamespace
 
 ROOT = __import__("pathlib").Path(__file__).resolve().parents[1]
@@ -133,6 +134,8 @@ def test_memory_pressure_monitor_reclaims_only_at_poll_boundary(monkeypatch, cap
         restart_on_pressure=True,
         poll_interval_steps=20,
     )
+
+
     snapshots = iter(
         [
             {"free_mib": 400, "total_mib": 8 * 1024, "allocated_mib": 7000, "reserved_mib": 7500},
@@ -158,6 +161,64 @@ def test_memory_pressure_monitor_reclaims_only_at_poll_boundary(monkeypatch, cap
     assert event["event"] == "memory_pressure_reclaim"
     assert event["trigger"] == "low_free"
     assert event["reclaimed_reserved_mib"] == 450
+
+
+def _legacy_baseline_fixture(root: Path) -> tuple[Path, Path, Path, dict[str, object]]:
+    old_run = root / "old_run"
+    old_baseline = old_run / "baseline"
+    old_data = old_run / "data"
+    old_baseline.mkdir(parents=True)
+    old_data.mkdir()
+    records = {
+        "train": b"train-records\n",
+        "valid": b"valid-records\n",
+        "test": b"test-records\n",
+    }
+    for split, payload in records.items():
+        (old_data / f"{split}.jsonl").write_bytes(payload)
+    args = {
+        "seed": 13,
+        "epochs": 8,
+        "batch_size": 16,
+        "lr": 0.001,
+        "dim": 32,
+        "num_layers": 2,
+        "num_heads": 4,
+        "ff_dim": 64,
+        "dropout": 0.0,
+        "max_length": 12,
+        "selection_metric": "macro_f1_then_loss",
+    }
+    (old_baseline / "metrics.json").write_text(
+        json.dumps({"args": args, "best_valid": {"macro_f1": 0.2}, "best_epoch": 8}),
+        encoding="utf-8",
+    )
+    (old_baseline / "model.pt").write_bytes(b"legacy-model")
+    (old_baseline / "vocab.json").write_text(json.dumps({"<pad>": 0}), encoding="utf-8")
+    (old_baseline / "labels.json").write_text(json.dumps({"relation": 0}), encoding="utf-8")
+    (old_run / "selectors" / "q_triad").mkdir(parents=True)
+    (old_run / "selectors" / "q_triad" / "metrics.json").write_text(
+        "old-selector", encoding="utf-8"
+    )
+
+    new_run = root / "new_run"
+    new_data = new_run / "data"
+    new_data.mkdir(parents=True)
+    for split, payload in records.items():
+        (new_data / f"{split}.jsonl").write_bytes(payload)
+    config = {
+        "schema_version": "q-attention.qtriad-formal-single-seed.v1",
+        "name": "retacred_qtriad_formal_single_seed",
+        "formal_experiment": True,
+        "seed": 13,
+        "selectors": ["disabled", "q_triad", "classical_density_tensor", "quantum_product"],
+        "candidate": "q_triad",
+        "matched_control": "classical_density_tensor",
+        "expected_records": {"train": 1, "valid": 1, "test": 1},
+        "baseline": {"epochs": 8, "batch_size": 16, "lr": 0.001},
+        "model": {"dim": 32, "num_layers": 2, "num_heads": 4, "ff_dim": 64, "dropout": 0.0},
+    }
+    return old_run, new_run, new_data, config
 
 
 def test_memory_pressure_monitor_requests_restart_when_reclaim_is_insufficient(monkeypatch) -> None:
@@ -626,6 +687,95 @@ def test_baseline_console_renderer_formats_progress_and_epoch() -> None:
         "[baseline] epoch 2/8 complete | train_loss=0.3210 | "
         "valid_loss=0.4560 | valid_macro_f1=0.7890"
     )
+
+
+def test_legacy_baseline_import_copies_only_baseline_and_records_fresh_selector_restart(
+    tmp_path: Path, monkeypatch
+) -> None:
+    old_run, new_run, new_data, config = _legacy_baseline_fixture(tmp_path)
+    monkeypatch.setattr(formal_runner, "load_relation_run", lambda *_args, **_kwargs: object())
+
+    imported = formal_runner._import_legacy_baseline(
+        old_run,
+        new_run / "baseline",
+        new_data,
+        config=config,
+        seed=13,
+        expected_max_length=12,
+        expected_records={"train": 1, "valid": 1, "test": 1},
+        run_dir=new_run,
+    )
+
+    assert imported["schema_version"] == formal_runner.BASELINE_IMPORT_SCHEMA
+    assert imported["selector_restart"] == {
+        "mode": "fresh",
+        "first_batch": 0,
+        "source_selector_artifacts_ignored": True,
+    }
+    for name in formal_runner.BASELINE_ARTIFACTS:
+        assert (new_run / "baseline" / name).read_bytes() == (old_run / "baseline" / name).read_bytes()
+    assert not (new_run / "selectors").exists()
+    saved = json.loads((new_run / "baseline_import.json").read_text(encoding="utf-8"))
+    assert saved["artifacts"]["model.pt"]["sha256"] == formal_runner.sha256(new_run / "baseline" / "model.pt")
+
+
+def test_legacy_baseline_import_rejects_missing_artifact(tmp_path: Path, monkeypatch) -> None:
+    old_run, new_run, new_data, config = _legacy_baseline_fixture(tmp_path)
+    (old_run / "baseline" / "labels.json").unlink()
+    monkeypatch.setattr(formal_runner, "load_relation_run", lambda *_args, **_kwargs: object())
+
+    with pytest.raises(formal_runner.ResumeCompatibilityError, match="missing labels.json"):
+        formal_runner._import_legacy_baseline(
+            old_run,
+            new_run / "baseline",
+            new_data,
+            config=config,
+            seed=13,
+            expected_max_length=12,
+            expected_records={"train": 1, "valid": 1, "test": 1},
+            run_dir=new_run,
+        )
+
+
+def test_legacy_baseline_import_rejects_data_mismatch(tmp_path: Path, monkeypatch) -> None:
+    old_run, new_run, new_data, config = _legacy_baseline_fixture(tmp_path)
+    (new_data / "train.jsonl").write_bytes(b"different\n")
+    monkeypatch.setattr(formal_runner, "load_relation_run", lambda *_args, **_kwargs: object())
+
+    with pytest.raises(formal_runner.ResumeCompatibilityError, match="train data differ"):
+        formal_runner._import_legacy_baseline(
+            old_run,
+            new_run / "baseline",
+            new_data,
+            config=config,
+            seed=13,
+            expected_max_length=12,
+            expected_records={"train": 1, "valid": 1, "test": 1},
+            run_dir=new_run,
+        )
+
+
+def test_legacy_baseline_import_rejects_training_contract_mismatch(
+    tmp_path: Path, monkeypatch
+) -> None:
+    old_run, new_run, new_data, config = _legacy_baseline_fixture(tmp_path)
+    metrics_path = old_run / "baseline" / "metrics.json"
+    metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+    metrics["args"]["batch_size"] = 8
+    metrics_path.write_text(json.dumps(metrics), encoding="utf-8")
+    monkeypatch.setattr(formal_runner, "load_relation_run", lambda *_args, **_kwargs: object())
+
+    with pytest.raises(formal_runner.ResumeCompatibilityError, match="args batch_size differs"):
+        formal_runner._import_legacy_baseline(
+            old_run,
+            new_run / "baseline",
+            new_data,
+            config=config,
+            seed=13,
+            expected_max_length=12,
+            expected_records={"train": 1, "valid": 1, "test": 1},
+            run_dir=new_run,
+        )
 
 
 def test_selector_scheduler_reuses_first_free_gpu(tmp_path, monkeypatch) -> None:

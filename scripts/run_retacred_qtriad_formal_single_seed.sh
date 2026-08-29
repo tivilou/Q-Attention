@@ -7,6 +7,7 @@ MODEL_PARALLEL_GPU_SPEC=
 GPU_SPEC_EXPLICIT=0
 OUTPUT_DIR=
 RESUME_DIR=
+IMPORT_BASELINE_FROM=
 LOG_EVERY_BATCHES=50
 CHECKPOINT_EVERY_BATCHES=50
 HARDWARE_PROFILE=adaptive
@@ -72,10 +73,10 @@ check_gpu_capacity() {
   fi
 }
 
-usage() { echo "Usage: bash scripts/run_retacred_qtriad_formal_single_seed.sh [--gpu N[,N...]|auto] [--model-parallel-gpus N,N] [--hardware-profile config|auto|adaptive|low_memory|balanced|high_memory] [--output-dir PATH | --resume RUN_DIR] [--report-dir PATH] [--log-every-batches N] [--checkpoint-every-batches N] [--skip-preflight] [--dry-run]"; }
+usage() { echo "Usage: bash scripts/run_retacred_qtriad_formal_single_seed.sh [--gpu N[,N...]|auto] [--model-parallel-gpus N,N] [--hardware-profile config|auto|adaptive|low_memory|balanced|high_memory] [--output-dir PATH | --resume RUN_DIR | --import-baseline-from OLD_RUN_DIR] [--report-dir PATH] [--log-every-batches N] [--checkpoint-every-batches N] [--skip-preflight] [--dry-run]"; }
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --gpu|--gpus|--model-parallel-gpus|--hardware-profile|--output-dir|--resume|--report-dir|--log-every-batches|--checkpoint-every-batches)
+    --gpu|--gpus|--model-parallel-gpus|--hardware-profile|--output-dir|--resume|--import-baseline-from|--report-dir|--log-every-batches|--checkpoint-every-batches)
       [[ $# -ge 2 ]] || { usage >&2; exit 2; }
       case "$1" in
         --gpu|--gpus) GPU_SPEC=$2; GPU_SPEC_EXPLICIT=1;;
@@ -83,6 +84,7 @@ while [[ $# -gt 0 ]]; do
         --hardware-profile) HARDWARE_PROFILE=$2;;
         --output-dir) OUTPUT_DIR=$2;;
         --resume) RESUME_DIR=$2;;
+        --import-baseline-from) IMPORT_BASELINE_FROM=$2;;
         --report-dir) REPORT_DIR=$2;;
         --log-every-batches) LOG_EVERY_BATCHES=$2;;
         --checkpoint-every-batches) CHECKPOINT_EVERY_BATCHES=$2;;
@@ -123,6 +125,7 @@ fi
 [[ "${CHECKPOINT_EVERY_BATCHES}" =~ ^[1-9][0-9]*$ ]] || { echo "--checkpoint-every-batches must be positive." >&2; exit 2; }
 [[ "${HARDWARE_PROFILE}" =~ ^(config|auto|adaptive|low_memory|balanced|high_memory)$ ]] || { echo "Invalid --hardware-profile." >&2; exit 2; }
 [[ -z "${RESUME_DIR}" || -z "${OUTPUT_DIR}" ]] || { echo "--resume and --output-dir are mutually exclusive." >&2; exit 2; }
+[[ -z "${RESUME_DIR}" || -z "${IMPORT_BASELINE_FROM}" ]] || { echo "--resume and --import-baseline-from are mutually exclusive." >&2; exit 2; }
 if [[ "${GPU_SPEC}" != "auto" ]]; then
   nvidia-smi -i "${GPU_SPEC}" --query-gpu=name --format=csv,noheader >/dev/null || { echo "GPU ${GPU_SPEC} is unavailable." >&2; exit 1; }
 fi
@@ -154,6 +157,9 @@ if [[ -n "${RESUME_DIR}" ]]; then
 else
   COMMAND+=(--output-dir "${RUN_DIR}")
   COMMAND+=(--started-at-utc "${STAMP}")
+fi
+if [[ -n "${IMPORT_BASELINE_FROM}" ]]; then
+  COMMAND+=(--import-baseline-from "${IMPORT_BASELINE_FROM}")
 fi
 if [[ -n "${MODEL_PARALLEL_GPU_SPEC}" ]]; then
   [[ "${HARDWARE_PROFILE}" != "adaptive" ]] || { echo "--hardware-profile adaptive is supported for selector workers only; choose config/auto/low_memory/balanced/high_memory with --model-parallel-gpus." >&2; exit 2; }

@@ -42,6 +42,8 @@ def test_qtriad_runner_is_portable_serial_and_auto_exports() -> None:
     assert 'mv "${LOG_TMP}" "${RUN_DIR}/logs/run.log"' in text
     assert 'mkdir -p "${RUN_DIR}/logs"\nCUDA_DEVICE_ORDER' not in text
     assert "--model-parallel-gpus" in text
+    assert "--import-baseline-from" in text
+    assert "--resume and --import-baseline-from are mutually exclusive" in text
     assert 'COMMAND+=(--hardware-profile "${HARDWARE_PROFILE}")' in text
     assert "model-parallel-gpus" in runner
 
