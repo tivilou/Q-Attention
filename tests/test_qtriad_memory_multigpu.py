@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import torch
 import pytest
 import sys
@@ -12,6 +13,14 @@ sys.path.insert(0, str(ROOT / "experiments"))
 import run_qtriad_relation_transfer as formal_runner
 
 from q_attention.plugins.q_triad import QTriadAttentionScoreKernel
+
+
+def _write_selector_metrics(output_dir, selector: str) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    (output_dir / "metrics.json").write_text(
+        json.dumps({"selector": selector, "valid": {}, "test": {}}),
+        encoding="utf-8",
+    )
 
 
 def _inputs() -> dict[str, torch.Tensor]:
@@ -187,8 +196,7 @@ def test_selector_scheduler_reuses_first_free_gpu(tmp_path, monkeypatch) -> None
             output_dir = __import__("pathlib").Path(
                 command[command.index("--output-dir") + 1]
             )
-            output_dir.mkdir(parents=True, exist_ok=True)
-            (output_dir / "metrics.json").write_text("{}", encoding="utf-8")
+            _write_selector_metrics(output_dir, selector)
 
         def poll(self):
             return self.return_code
@@ -215,6 +223,227 @@ def test_selector_scheduler_reuses_first_free_gpu(tmp_path, monkeypatch) -> None
     assert all(environment["Q_ATTENTION_HEARTBEAT_FILE"] for environment in seen_environments)
     assert all(environment["PYTHONUNBUFFERED"] == "1" for environment in seen_environments)
     assert (tmp_path / "run" / "scheduler_events.jsonl").is_file()
+
+
+def test_selector_resume_skips_valid_completed_metrics(tmp_path, monkeypatch) -> None:
+    selector_dir = tmp_path / "run" / "selectors" / "q_triad"
+    _write_selector_metrics(selector_dir, "q_triad")
+
+    def unexpected_popen(*_args, **_kwargs):
+        raise AssertionError("completed selector must not be relaunched")
+
+    monkeypatch.setattr(formal_runner.subprocess, "Popen", unexpected_popen)
+    statuses = formal_runner.run_selector_workers(
+        selectors=["q_triad"],
+        gpu_ids=[0],
+        args=SimpleNamespace(python_bin=sys.executable, log_every_batches=1),
+        config_path=tmp_path / "config.json",
+        baseline_dir=tmp_path / "baseline",
+        data_dir=tmp_path / "data",
+        run_dir=tmp_path / "run",
+        seed=13,
+        resume=True,
+    )
+
+    assert statuses["q_triad"]["status"] == "complete"
+    assert statuses["q_triad"]["resumed_skip"] is True
+
+
+def test_selector_resume_rejects_partial_directory_without_checkpoint(
+    tmp_path, monkeypatch
+) -> None:
+    selector_dir = tmp_path / "run" / "selectors" / "q_triad"
+    selector_dir.mkdir(parents=True)
+    (selector_dir / "worker.log").write_text("partial", encoding="utf-8")
+
+    def unexpected_popen(*_args, **_kwargs):
+        raise AssertionError("unsafe partial selector must not be relaunched")
+
+    monkeypatch.setattr(formal_runner.subprocess, "Popen", unexpected_popen)
+    with pytest.raises(formal_runner.ResumeCompatibilityError, match="no batch checkpoint"):
+        formal_runner.run_selector_workers(
+            selectors=["q_triad"],
+            gpu_ids=[0],
+            args=SimpleNamespace(python_bin=sys.executable, log_every_batches=1),
+            config_path=tmp_path / "config.json",
+            baseline_dir=tmp_path / "baseline",
+            data_dir=tmp_path / "data",
+            run_dir=tmp_path / "run",
+            seed=13,
+            resume=True,
+        )
+
+    assert (tmp_path / "run" / "RUN_FAILED").is_file()
+    assert not (tmp_path / "run" / "RUN_PAUSED").exists()
+
+
+def test_selector_resume_passes_resume_only_with_checkpoint(tmp_path, monkeypatch) -> None:
+    commands = []
+    checkpoint = tmp_path / "run" / "selectors" / "q_triad" / "checkpoints" / "latest.pt"
+    checkpoint.parent.mkdir(parents=True)
+    checkpoint.write_bytes(b"checkpoint")
+
+    class FakeProcess:
+        def __init__(self, command, **_kwargs):
+            self.pid = 4200
+            self.return_code = 0
+            commands.append(command)
+            selector = command[command.index("--selector") + 1]
+            output_dir = __import__("pathlib").Path(
+                command[command.index("--output-dir") + 1]
+            )
+            _write_selector_metrics(output_dir, selector)
+
+        def poll(self):
+            return self.return_code
+
+        def wait(self, **_kwargs):
+            return self.return_code
+
+    monkeypatch.setattr(formal_runner.subprocess, "Popen", FakeProcess)
+    formal_runner.run_selector_workers(
+        selectors=["q_triad"],
+        gpu_ids=[0],
+        args=SimpleNamespace(python_bin=sys.executable, log_every_batches=1),
+        config_path=tmp_path / "config.json",
+        baseline_dir=tmp_path / "baseline",
+        data_dir=tmp_path / "data",
+        run_dir=tmp_path / "run",
+        seed=13,
+        resume=True,
+    )
+
+    assert len(commands) == 1
+    assert "--resume" in commands[0]
+
+
+def test_paused_selector_writes_paused_marker_not_failed(tmp_path, monkeypatch) -> None:
+    class FakeProcess:
+        def __init__(self, _command, **_kwargs):
+            self.pid = 4300
+
+        def poll(self):
+            return formal_runner.PAUSED_EXIT_CODE
+
+        def wait(self, **_kwargs):
+            return formal_runner.PAUSED_EXIT_CODE
+
+    monkeypatch.setattr(formal_runner.subprocess, "Popen", FakeProcess)
+    with pytest.raises(formal_runner.RunPaused, match="paused"):
+        formal_runner.run_selector_workers(
+            selectors=["q_triad"],
+            gpu_ids=[0],
+            args=SimpleNamespace(python_bin=sys.executable, log_every_batches=1),
+            config_path=tmp_path / "config.json",
+            baseline_dir=tmp_path / "baseline",
+            data_dir=tmp_path / "data",
+            run_dir=tmp_path / "run",
+            seed=13,
+        )
+
+    marker = json.loads((tmp_path / "run" / "RUN_PAUSED").read_text(encoding="utf-8"))
+    assert marker["workers"]["q_triad"]["status"] == "paused"
+    assert not (tmp_path / "run" / "RUN_FAILED").exists()
+
+
+def test_parent_pause_waits_for_all_active_selector_workers(tmp_path, monkeypatch) -> None:
+    processes = {}
+    signaled = []
+
+    class FakeProcess:
+        _next_pid = 4400
+
+        def __init__(self, _command, **_kwargs):
+            self.pid = FakeProcess._next_pid
+            FakeProcess._next_pid += 1
+            self.return_code = None
+            self.polls_after_signal = 0
+            processes[self.pid] = self
+
+        def poll(self):
+            if self.pid in signaled:
+                self.polls_after_signal += 1
+                if self.polls_after_signal >= self.pid - 4399:
+                    self.return_code = formal_runner.PAUSED_EXIT_CODE
+            return self.return_code
+
+        def wait(self, **_kwargs):
+            return self.return_code
+
+    pause = SimpleNamespace(requested=False, reason=None)
+    sleep_calls = 0
+
+    def fake_sleep(_seconds):
+        nonlocal sleep_calls
+        sleep_calls += 1
+        if len(processes) == 2 and not signaled:
+            pause.requested = True
+            pause.reason = "SIGTERM"
+
+    def fake_killpg(pid, signum):
+        assert signum == formal_runner.signal.SIGTERM
+        signaled.append(pid)
+
+    monkeypatch.setattr(formal_runner.subprocess, "Popen", FakeProcess)
+    monkeypatch.setattr(formal_runner.time, "sleep", fake_sleep)
+    monkeypatch.setattr(formal_runner.os, "killpg", fake_killpg, raising=False)
+
+    with pytest.raises(formal_runner.RunPaused, match="scheduler pause requested"):
+        formal_runner.run_selector_workers(
+            selectors=["q_triad", "classical_density_tensor"],
+            gpu_ids=[0, 1],
+            args=SimpleNamespace(python_bin=sys.executable, log_every_batches=1),
+            config_path=tmp_path / "config.json",
+            baseline_dir=tmp_path / "baseline",
+            data_dir=tmp_path / "data",
+            run_dir=tmp_path / "run",
+            seed=13,
+            pause=pause,
+        )
+
+    assert sorted(signaled) == [4400, 4401]
+    assert processes[4400].return_code == formal_runner.PAUSED_EXIT_CODE
+    assert processes[4401].return_code == formal_runner.PAUSED_EXIT_CODE
+    assert sleep_calls >= 2
+    marker = json.loads((tmp_path / "run" / "RUN_PAUSED").read_text(encoding="utf-8"))
+    assert {item["status"] for item in marker["workers"].values()} == {"paused"}
+    assert not (tmp_path / "run" / "RUN_FAILED").exists()
+
+
+def test_baseline_safe_pause_timeout_terminates_child(tmp_path, monkeypatch) -> None:
+    terminated = []
+
+    class FakeProcess:
+        def __init__(self, *_args, **_kwargs):
+            self.pid = 4500
+            self.stdout = []
+            self.return_code = None
+
+        def poll(self):
+            return self.return_code
+
+        def wait(self, **_kwargs):
+            return self.return_code
+
+    def fake_terminate(process):
+        terminated.append(process.pid)
+        process.return_code = -9
+
+    monkeypatch.setattr(formal_runner.subprocess, "Popen", FakeProcess)
+    monkeypatch.setattr(formal_runner, "SAFE_PAUSE_TIMEOUT_SECONDS", 0)
+    monkeypatch.setattr(formal_runner, "_terminate_worker", fake_terminate)
+    monkeypatch.setattr(formal_runner.os, "killpg", lambda *_args: None, raising=False)
+
+    with pytest.raises(RuntimeError, match="safe-pause timeout"):
+        formal_runner._run_baseline_logged_command(
+            [sys.executable, "train.py"],
+            tmp_path / "baseline.log",
+            tmp_path / "heartbeat.json",
+            epochs=2,
+            pause=SimpleNamespace(requested=True),
+        )
+
+    assert terminated == [4500]
 
 
 def test_gpu_ids_follow_physical_ids_exposed_by_cuda_visible_devices(monkeypatch) -> None:

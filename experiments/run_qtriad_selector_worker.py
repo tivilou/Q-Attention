@@ -26,9 +26,17 @@ from q_attention.experiments.relation_steering import (  # noqa: E402
     load_relation_run,
     make_relation_loader,
 )
+from q_attention.experiments.batch_resume import (  # noqa: E402
+    PAUSED_EXIT_CODE,
+    TrainingPaused,
+)
 from q_attention.tasks.relation import load_relation_jsonl  # noqa: E402
 from run_q_causal_value_evidence_relation_transfer import train_kernel  # noqa: E402
-from run_qtriad_relation_transfer import build_kernel, evaluate_selector  # noqa: E402
+from run_qtriad_relation_transfer import (  # noqa: E402
+    build_kernel,
+    evaluate_selector,
+    selector_resume_contract,
+)
 
 
 MIN_WORKER_FREE_MIB = 8 * 1024
@@ -84,6 +92,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cuda")
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--log-every-batches", type=int, default=50)
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="resume this selector from its compatible post-update checkpoint",
+    )
+    parser.add_argument("--checkpoint-every-batches", type=int, default=50)
     parser.add_argument("--pair-chunk-size", type=int, default=None)
     parser.add_argument("--activation-checkpointing", type=int, choices=(0, 1), default=None)
     return parser.parse_args()
@@ -91,6 +105,10 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    if args.log_every_batches <= 0:
+        raise ValueError("--log-every-batches must be positive")
+    if args.checkpoint_every_batches <= 0:
+        raise ValueError("--checkpoint-every-batches must be positive")
     config = json.loads(args.config.read_text(encoding="utf-8"))
     check_worker_gpu_capacity(args.device)
     device = choose_device(args.device)
@@ -135,19 +153,40 @@ def main() -> int:
         epochs=int(kernel_config["epochs"]),
         kernel_lr=float(kernel_config["lr"]),
         log_every_batches=args.log_every_batches,
+        batch_resume=True,
+        resume=args.resume,
+        checkpoint_every_batches=args.checkpoint_every_batches,
+        resume_contract=selector_resume_contract(
+            config_path=args.config,
+            baseline_dir=args.baseline_dir,
+            data_dir=data_dir,
+            selector=args.selector,
+            seed=args.seed,
+            pair_chunk_size=args.pair_chunk_size,
+            activation_checkpointing=args.activation_checkpointing,
+        ),
     )
-    train_result = train_kernel(
-        artifacts.model,
-        kernel,
-        train_records,
-        valid_loader,
-        artifacts,
-        device,
-        args.selector,
-        args.seed,
-        train_args,
-        args.output_dir,
-    )
+    try:
+        train_result = train_kernel(
+            artifacts.model,
+            kernel,
+            train_records,
+            valid_loader,
+            artifacts,
+            device,
+            args.selector,
+            args.seed,
+            train_args,
+            args.output_dir,
+        )
+    except TrainingPaused:
+        print(
+            json.dumps(
+                {"event": "run_paused", "selector": args.selector}, sort_keys=True
+            ),
+            flush=True,
+        )
+        return PAUSED_EXIT_CODE
     valid_result = evaluate_selector(
         artifacts.model,
         valid_loader,

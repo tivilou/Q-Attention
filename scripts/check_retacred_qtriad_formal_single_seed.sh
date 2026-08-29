@@ -33,6 +33,7 @@ for file in \
     experiments/run_qtriad_relation_transfer.py \
     experiments/run_qtriad_selector_worker.py \
     experiments/train_relation_baseline.py \
+    src/q_attention/experiments/batch_resume.py \
     src/q_attention/models/relation_transformer.py \
     src/q_attention/experiments/relation_steering.py \
     src/q_attention/plugins/q_triad.py \

@@ -25,8 +25,6 @@ bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu auto
 
 脚本在创建 raw run 之前、以及 baseline 完成准备 selector 之前各检查一次显存。显式 `--gpu 0` 也必须至少有 8 GiB 空闲；若某个 GPU 被其他 PID 占用，脚本会列出 `nvidia-smi` 的进程并停止，不会把这次失败写成实验结果。不要强制杀掉不属于本实验的进程；确认占用进程可以停止后再重跑同一命令。
 
-脚本在创建 raw run 之前、以及 baseline 完成准备 selector 之前各检查一次显存。显式 `--gpu 0` 也必须至少有 8 GiB 空闲；若某个 GPU 被其他 PID 占用，脚本会列出 `nvidia-smi` 的进程并停止，不会把这次失败写成实验结果。不要强制杀掉不属于本实验的进程；确认占用进程可以停止后再重跑同一命令。
-
 默认单 GPU 路径会使用同一套调度器串行运行三个 selector。若有多张已验证的 GPU，可以在同一 seed 内并行运行相互独立的 selector worker，例如：
 
 ```bash
@@ -48,6 +46,18 @@ reports/retacred_qtriad_formal_single_seed/<timestamp>_seed13/
 ```
 
 运行期间不要改动 seed、数据、selector、epoch、batch size、控制组或代码，也不要并行启动第二个完整 run。
+
+### 安全暂停与 batch 级恢复
+
+训练默认每隔 `--checkpoint-every-batches` 个 batch，在完整 `optimizer.step()` 后原子写入 checkpoint，并保存 optimizer、RNG、epoch permutation 和 next-batch cursor。按 `Ctrl+C` 或向 runner 发送 `SIGTERM`/`SIGHUP` 会请求安全暂停；当前更新完成后写入 `RUN_PAUSED` 并返回退出码 `75`。不要使用 `kill -9`，否则无法保证最后一个更新有 checkpoint。
+
+暂停后继续同一 run：
+
+```bash
+bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu 0 --resume runs/retacred_qtriad_formal_single_seed/<timestamp>_seed13
+```
+
+恢复会复用原 run 的 `data/*.jsonl` 和 `data/data_manifest.json`，跳过已有有效指标的 baseline/selector，并仅从兼容的 batch checkpoint 继续。恢复命令必须使用原 run 相同的物理 GPU 列表、并行模式和显存 profile；若最初使用 `--gpu auto`，请从 `run_summary.json` 取出已解析的 GPU 与 profile，并显式传入，例如 `--gpu 0,1 --hardware-profile balanced`。`--resume` 不能与 `--output-dir` 同时使用；恢复期间不能修改算法参数、数据、代码、seed、batch size、epoch、学习率、selector、显存 profile 或 checkpoint 契约。原始 `RUN_PAUSED` 保留完整 worker 状态，每次恢复会额外写入 `resume_state.json`；wrapper 的恢复日志写入新的 `logs/run.resume-<timestamp>.log`，不会覆盖首次日志。旧目录若没有 `run_manifest.json`、`data_manifest.json` 或 batch checkpoint，不能宣称 batch 级恢复，只能新建目录从 baseline 级重新开始。
 
 ### 可选的模型级并行
 

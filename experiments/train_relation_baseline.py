@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import random
+import subprocess
 import sys
 from typing import Any
 
@@ -29,6 +30,18 @@ from q_attention.experiments.health import (
     require_finite_values,
 )
 from q_attention.experiments.progress import tracked_batches
+from q_attention.experiments.batch_resume import (
+    PAUSED_EXIT_CODE,
+    BatchCheckpointManager,
+    BatchCursor,
+    PauseController,
+    RemainingBatchSampler,
+    TrainingPaused,
+    capture_rng_state,
+    file_contract,
+    restore_rng_state,
+    sha256_file,
+)
 from q_attention.tasks.relation import (
     PAD_TOKEN,
     RelationDataset,
@@ -61,6 +74,17 @@ def parse_args() -> argparse.Namespace:
         help="Fixed position-embedding capacity; defaults to observed train/valid length plus four.",
     )
     parser.add_argument("--seed", type=int, default=13)
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="resume this exact output directory from its compatible batch checkpoint",
+    )
+    parser.add_argument(
+        "--checkpoint-every-batches",
+        type=int,
+        default=50,
+        help="write an atomic post-update checkpoint at this batch interval",
+    )
     parser.add_argument(
         "--selection_metric",
         choices=RELATION_SELECTION_CHOICES,
@@ -150,7 +174,88 @@ def evaluate(
     return metrics
 
 
-def main() -> None:
+def _git_revision() -> str | None:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return None
+    return result.stdout.strip() if result.returncode == 0 else None
+
+
+def _restore_health_monitor(
+    summary: dict[str, Any], *, patience: int
+) -> EpochHealthMonitor:
+    monitor = EpochHealthMonitor(
+        "baseline",
+        patience=int(summary.get("patience", patience)),
+        min_delta=float(summary.get("min_delta", 1e-6)),
+    )
+    monitor.best_loss = summary.get("best_loss")
+    monitor.no_improvement_epochs = int(summary.get("no_improvement_epochs", 0))
+    monitor.consecutive_mechanism_failures = int(
+        summary.get("consecutive_mechanism_failures", 0)
+    )
+    monitor.warnings = list(summary.get("warnings", []))
+    return monitor
+
+
+def _resume_contract(args: argparse.Namespace) -> dict[str, Any]:
+    semantic_args = {
+        key: str(value) if isinstance(value, Path) else value
+        for key, value in vars(args).items()
+        if key not in {
+            "output_dir",
+            "resume",
+            "checkpoint_every_batches",
+            "log_every_batches",
+        }
+    }
+    return {
+        "stage": "relation_baseline",
+        "training_semantics": semantic_args,
+        "data": {
+            "train": file_contract(args.train_path),
+            "valid": file_contract(args.valid_path),
+        },
+        "source": {
+            "git_revision": _git_revision(),
+            "files": {
+                name: sha256_file(path)
+                for name, path in {
+                    "trainer": Path(__file__),
+                    "batch_resume": SRC
+                    / "q_attention"
+                    / "experiments"
+                    / "batch_resume.py",
+                    "progress": SRC
+                    / "q_attention"
+                    / "experiments"
+                    / "progress.py",
+                    "health": SRC
+                    / "q_attention"
+                    / "experiments"
+                    / "health.py",
+                    "relation_model": SRC
+                    / "q_attention"
+                    / "models"
+                    / "relation_transformer.py",
+                    "relation_task": SRC
+                    / "q_attention"
+                    / "tasks"
+                    / "relation.py",
+                }.items()
+            },
+        },
+    }
+
+
+def main() -> int:
     args = parse_args()
     if args.max_length is not None and args.max_length <= 0:
         raise ValueError("max_length must be positive when provided")
@@ -158,6 +263,8 @@ def main() -> None:
         raise ValueError("log_every_batches must be positive")
     if args.health_warning_patience <= 0:
         raise ValueError("health_warning_patience must be positive")
+    if args.checkpoint_every_batches <= 0:
+        raise ValueError("checkpoint_every_batches must be positive")
     set_seed(args.seed)
     device = choose_device(args.device)
     output_dir = Path(args.output_dir)
@@ -170,12 +277,6 @@ def main() -> None:
 
     train_data = RelationDataset(train_records, vocab, label_to_id)
     valid_data = RelationDataset(valid_records, vocab, label_to_id)
-    train_loader = DataLoader(
-        train_data,
-        batch_size=args.batch_size,
-        shuffle=True,
-        collate_fn=lambda batch: collate_relation_batch(batch, pad_id=vocab[PAD_TOKEN]),
-    )
     valid_loader = DataLoader(
         valid_data,
         batch_size=args.batch_size,
@@ -217,77 +318,207 @@ def main() -> None:
     best_metrics: dict[str, float] | None = None
     best_epoch: int | None = None
     best_score = (float("-inf"), float("-inf"))
-    for epoch in range(1, args.epochs + 1):
-        model.train()
-        total_loss = 0.0
-        total_items = 0
-        for batch_index, batch in enumerate(tracked_batches(
-            train_loader,
-            total_batches=len(train_loader),
-            stage="baseline",
-            phase="train",
-            log_every_batches=args.log_every_batches,
-            epoch=epoch,
-            epochs=args.epochs,
-        ), start=0):
-            batch = move_batch(batch, device)
-            optimizer.zero_grad(set_to_none=True)
-            logits = model(batch["input_ids"], batch["attention_mask"], batch["subject_mask"], batch["object_mask"])
-            loss = F.cross_entropy(logits, batch["labels"].to(logits.device))
-            require_finite_tensor(
-                loss,
-                "objective",
-                stage="baseline",
-                epoch=epoch,
-                batch_index=batch_index,
-            )
-            loss.backward()
-            require_finite_gradients(
-                model,
-                stage="baseline",
-                epoch=epoch,
-                batch_index=batch_index,
-            )
-            optimizer.step()
-            require_finite_parameters(
-                model,
-                stage="baseline",
-                epoch=epoch,
-                batch_index=batch_index,
-            )
-            total_loss += float(loss.item()) * batch["labels"].shape[0]
-            total_items += batch["labels"].shape[0]
-
-        valid_metrics = evaluate(
-            model,
-            tracked_batches(
-                valid_loader,
-                total_batches=len(valid_loader),
-                stage="baseline",
-                phase="validation",
-                log_every_batches=args.log_every_batches,
-                epoch=epoch,
-                epochs=args.epochs,
-            ),
-            device,
-            len(label_to_id),
+    manager = BatchCheckpointManager(
+        output_dir,
+        contract=_resume_contract(args),
+        resume=args.resume,
+    )
+    if args.resume:
+        checkpoint = manager.load()
+        model.load_state_dict(checkpoint["model_state"])
+        optimizer.load_state_dict(checkpoint["optimizer_state"])
+        restore_rng_state(checkpoint["rng_state"])
+        cursor = BatchCursor.from_payload(checkpoint["cursor"])
+        history = list(checkpoint.get("history", []))
+        best_metrics = checkpoint.get("best_metrics")
+        best_epoch = checkpoint.get("best_epoch")
+        best_score = tuple(checkpoint.get("best_score", best_score))
+        health_monitor = _restore_health_monitor(
+            dict(checkpoint.get("health", {})), patience=args.health_warning_patience
         )
-        require_finite_values(valid_metrics, f"baseline.valid.epoch_{epoch}")
-        health = health_monitor.observe(epoch=epoch, valid_loss=valid_metrics["loss"])
-        epoch_record = {
-            "epoch": epoch,
-            "train_loss": total_loss / max(total_items, 1),
-            "valid": valid_metrics,
-            "health": health,
-        }
-        history.append(epoch_record)
-        print(json.dumps(epoch_record, sort_keys=True), flush=True)
-        score = relation_selection_score(valid_metrics, args.selection_metric)
-        if score > best_score:
-            best_score = score
-            best_metrics = valid_metrics
-            best_epoch = epoch
-            torch.save(model.state_dict(), output_dir / "model.pt")
+        manager.clear_pause_marker()
+        print(
+            json.dumps(
+                {
+                    "event": "resume_loaded",
+                    "stage": "baseline",
+                    "epoch": cursor.epoch,
+                    "next_batch_index": cursor.next_batch_index,
+                    "global_step": cursor.global_step,
+                },
+                sort_keys=True,
+            ),
+            flush=True,
+        )
+    else:
+        cursor = BatchCursor.fresh(dataset_size=len(train_data), seed=args.seed)
+
+    pause = PauseController()
+    pause.install()
+
+    def save_checkpoint() -> None:
+        manager.save(
+            {
+                "stage": "baseline",
+                "model_state": model.state_dict(),
+                "optimizer_state": optimizer.state_dict(),
+                "cursor": cursor.payload(),
+                "rng_state": capture_rng_state(),
+                "history": history,
+                "best_metrics": best_metrics,
+                "best_epoch": best_epoch,
+                "best_score": best_score,
+                "health": health_monitor.summary(),
+            }
+        )
+
+    if not args.resume:
+        save_checkpoint()
+    if pause.requested:
+        manager.write_paused_marker(
+            stage="baseline", cursor=cursor, reason=pause.reason
+        )
+        print(
+            json.dumps(
+                {"event": "run_paused", "stage": "baseline", "global_step": cursor.global_step},
+                sort_keys=True,
+            ),
+            flush=True,
+        )
+        pause.close()
+        return PAUSED_EXIT_CODE
+
+    try:
+        while cursor.epoch <= args.epochs:
+            epoch = cursor.epoch
+            model.train()
+            total_batches = (len(train_data) + args.batch_size - 1) // args.batch_size
+            train_loader = DataLoader(
+                train_data,
+                batch_sampler=RemainingBatchSampler(
+                    cursor.permutation, args.batch_size, cursor.next_batch_index
+                ),
+                generator=torch.Generator(device="cpu").manual_seed(
+                    args.seed * 1_000_003 + epoch
+                ),
+                collate_fn=lambda batch: collate_relation_batch(
+                    batch, pad_id=vocab[PAD_TOKEN]
+                ),
+            )
+            for batch_index, batch in enumerate(
+                tracked_batches(
+                    train_loader,
+                    total_batches=total_batches,
+                    stage="baseline",
+                    phase="train",
+                    log_every_batches=args.log_every_batches,
+                    epoch=epoch,
+                    epochs=args.epochs,
+                    completed_batches=cursor.next_batch_index,
+                ),
+                start=cursor.next_batch_index,
+            ):
+                batch = move_batch(batch, device)
+                optimizer.zero_grad(set_to_none=True)
+                logits = model(
+                    batch["input_ids"],
+                    batch["attention_mask"],
+                    batch["subject_mask"],
+                    batch["object_mask"],
+                )
+                loss = F.cross_entropy(logits, batch["labels"].to(logits.device))
+                require_finite_tensor(
+                    loss,
+                    "objective",
+                    stage="baseline",
+                    epoch=epoch,
+                    batch_index=batch_index,
+                )
+                loss.backward()
+                require_finite_gradients(
+                    model,
+                    stage="baseline",
+                    epoch=epoch,
+                    batch_index=batch_index,
+                )
+                optimizer.step()
+                require_finite_parameters(
+                    model,
+                    stage="baseline",
+                    epoch=epoch,
+                    batch_index=batch_index,
+                )
+                cursor.total_loss += float(loss.item()) * batch["labels"].shape[0]
+                cursor.total_items += batch["labels"].shape[0]
+                cursor.next_batch_index += 1
+                cursor.global_step += 1
+                if (
+                    cursor.next_batch_index % args.checkpoint_every_batches == 0
+                    or cursor.next_batch_index == total_batches
+                    or pause.requested
+                ):
+                    save_checkpoint()
+                if pause.requested:
+                    manager.write_paused_marker(
+                        stage="baseline", cursor=cursor, reason=pause.reason
+                    )
+                    raise TrainingPaused(
+                        "baseline pause requested after optimizer update"
+                    )
+
+            valid_metrics = evaluate(
+                model,
+                tracked_batches(
+                    valid_loader,
+                    total_batches=len(valid_loader),
+                    stage="baseline",
+                    phase="validation",
+                    log_every_batches=args.log_every_batches,
+                    epoch=epoch,
+                    epochs=args.epochs,
+                ),
+                device,
+                len(label_to_id),
+            )
+            require_finite_values(valid_metrics, f"baseline.valid.epoch_{epoch}")
+            health = health_monitor.observe(
+                epoch=epoch, valid_loss=valid_metrics["loss"]
+            )
+            epoch_record = {
+                "epoch": epoch,
+                "train_loss": cursor.total_loss / max(cursor.total_items, 1),
+                "valid": valid_metrics,
+                "health": health,
+            }
+            history.append(epoch_record)
+            print(json.dumps(epoch_record, sort_keys=True), flush=True)
+            score = relation_selection_score(valid_metrics, args.selection_metric)
+            if score > best_score:
+                best_score = score
+                best_metrics = valid_metrics
+                best_epoch = epoch
+                torch.save(model.state_dict(), output_dir / "model.pt")
+            cursor.advance_epoch(dataset_size=len(train_data), seed=args.seed)
+            save_checkpoint()
+            if pause.requested:
+                manager.write_paused_marker(
+                    stage="baseline", cursor=cursor, reason=pause.reason
+                )
+                raise TrainingPaused(
+                    "baseline pause requested after epoch checkpoint"
+                )
+
+    except TrainingPaused:
+        print(
+            json.dumps(
+                {"event": "run_paused", "stage": "baseline", "global_step": cursor.global_step},
+                sort_keys=True,
+            ),
+            flush=True,
+        )
+        return PAUSED_EXIT_CODE
+    finally:
+        pause.close()
 
     payload = {
         "args": vars(args),
@@ -310,7 +541,9 @@ def main() -> None:
         ),
         flush=True,
     )
+    (output_dir / "RUN_PAUSED").unlink(missing_ok=True)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

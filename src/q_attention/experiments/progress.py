@@ -234,11 +234,14 @@ def tracked_batches(
     log_every_batches: int,
     epoch: int | None = None,
     epochs: int | None = None,
+    completed_batches: int = 0,
 ) -> Iterator[T]:
     if total_batches <= 0:
         raise ValueError("total_batches must be positive")
     if log_every_batches <= 0:
         raise ValueError("log_every_batches must be positive")
+    if not 0 <= completed_batches <= total_batches:
+        raise ValueError("completed_batches must be within the total batch range")
 
     context: dict[str, Any] = {
         "stage": stage,
@@ -252,8 +255,8 @@ def tracked_batches(
 
     started_at = time.monotonic()
     log_event("phase_start", **context)
-    completed = 0
-    for completed, batch in enumerate(batches, start=1):
+    completed = completed_batches
+    for completed, batch in enumerate(batches, start=completed_batches + 1):
         yield batch
         if (
             completed == 1

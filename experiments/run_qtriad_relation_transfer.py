@@ -13,6 +13,7 @@ from pathlib import Path
 import signal
 import subprocess
 import sys
+import threading
 import time
 from typing import Any
 
@@ -32,6 +33,14 @@ from q_attention.experiments.relation_steering import (  # noqa: E402
     make_relation_loader,
 )
 from q_attention.experiments.progress import format_gpu_memory  # noqa: E402
+from q_attention.experiments.batch_resume import (  # noqa: E402
+    PAUSED_EXIT_CODE,
+    PauseController,
+    ResumeCompatibilityError,
+    TrainingPaused,
+    fingerprint,
+    file_contract,
+)
 from q_attention.plugins.q_triad import QTriadAttentionScoreKernel  # noqa: E402
 from run_q_causal_value_evidence_relation_smoke import (  # noqa: E402
     materialize_subset,
@@ -46,6 +55,9 @@ from q_attention.tasks.relation import load_relation_jsonl  # noqa: E402
 
 
 DEFAULT_CONFIG = ROOT / "configs" / "retacred_qtriad_formal_single_seed.json"
+RUN_MANIFEST_SCHEMA = "q-attention.qtriad-batch-resume-run.v1"
+DATA_MANIFEST_SCHEMA = "q-attention.qtriad-materialized-data.v1"
+SAFE_PAUSE_TIMEOUT_SECONDS = 15 * 60
 
 AUTO_MIN_FREE_MIB = 8 * 1024
 HARDWARE_PROFILES: dict[str, dict[str, Any]] = {
@@ -86,6 +98,13 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--output-dir", type=Path, default=None)
+    parser.add_argument(
+        "--resume",
+        type=Path,
+        default=None,
+        metavar="RUN_DIR",
+        help="resume an existing compatible run directory in place",
+    )
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     parser.add_argument(
         "--gpus",
@@ -105,9 +124,267 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--log-every-batches", type=int, default=50)
+    parser.add_argument("--checkpoint-every-batches", type=int, default=50)
     parser.add_argument("--started-at-utc", default=None, help=argparse.SUPPRESS)
     parser.add_argument("--python-bin", default=sys.executable, help=argparse.SUPPRESS)
     return parser.parse_args()
+
+
+class RunPaused(RuntimeError):
+    """The run stopped at a durable post-update checkpoint."""
+
+
+def _source_contract() -> dict[str, Any]:
+    paths = {
+        "runner": ROOT / "experiments" / "run_qtriad_relation_transfer.py",
+        "worker": ROOT / "experiments" / "run_qtriad_selector_worker.py",
+        "baseline_trainer": ROOT / "experiments" / "train_relation_baseline.py",
+        "kernel_trainer": ROOT
+        / "experiments"
+        / "run_q_causal_value_evidence_relation_transfer.py",
+        "batch_resume": ROOT
+        / "src"
+        / "q_attention"
+        / "experiments"
+        / "batch_resume.py",
+        "relation_steering": ROOT
+        / "src"
+        / "q_attention"
+        / "experiments"
+        / "relation_steering.py",
+        "relation_model": ROOT
+        / "src"
+        / "q_attention"
+        / "models"
+        / "relation_transformer.py",
+        "relation_task": ROOT
+        / "src"
+        / "q_attention"
+        / "tasks"
+        / "relation.py",
+        "attention_adapter": ROOT
+        / "src"
+        / "q_attention"
+        / "adapters"
+        / "attention_scores.py",
+        "q_triad": ROOT
+        / "src"
+        / "q_attention"
+        / "plugins"
+        / "q_triad.py",
+    }
+    return {
+        "git_revision": git_output("rev-parse", "HEAD"),
+        "files": {name: file_contract(path) for name, path in paths.items()},
+    }
+
+
+def selector_resume_contract(
+    *,
+    config_path: Path,
+    baseline_dir: Path,
+    data_dir: Path,
+    selector: str,
+    seed: int,
+    pair_chunk_size: int | None,
+    activation_checkpointing: int | bool | None,
+    model_parallel_gpu_ids: list[int] | None = None,
+) -> dict[str, Any]:
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    kernel = config["kernel"]
+    return {
+        "stage": "qtriad_selector",
+        "training_semantics": {
+            "selector": selector,
+            "seed": int(seed),
+            "batch_size": int(kernel["batch_size"]),
+            "epochs": int(kernel["epochs"]),
+            "kernel_lr": float(kernel["lr"]),
+            "pair_chunk_size": int(
+                pair_chunk_size
+                if pair_chunk_size is not None
+                else kernel.get("pair_chunk_size", 256)
+            ),
+            "activation_checkpointing": (
+                True
+                if activation_checkpointing is None
+                else bool(activation_checkpointing)
+            ),
+            "model_parallel_gpu_ids": list(model_parallel_gpu_ids or []),
+        },
+        "config": file_contract(config_path),
+        "baseline": {
+            name: file_contract(baseline_dir / name)
+            for name in ("model.pt", "vocab.json", "labels.json", "metrics.json")
+        },
+        "data": {
+            split: file_contract(data_dir / f"{split}.jsonl")
+            for split in ("train", "valid", "test")
+        },
+        "materialization": file_contract(data_dir / "data_manifest.json"),
+        "source": _source_contract(),
+    }
+
+
+def _valid_selector_metrics(path: Path, selector: str) -> bool:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, OSError, json.JSONDecodeError):
+        return False
+    return (
+        isinstance(payload, dict)
+        and payload.get("selector") == selector
+        and isinstance(payload.get("valid"), dict)
+        and isinstance(payload.get("test"), dict)
+    )
+
+
+def _record_resume_event(run_dir: Path, *, event: str, **fields: Any) -> None:
+    path = run_dir / "resume_state.json"
+    state = _read_json(path)
+    if state.get("schema_version") != RUN_MANIFEST_SCHEMA:
+        state = {
+            "schema_version": RUN_MANIFEST_SCHEMA,
+            "resume_count": 0,
+            "events": [],
+        }
+    if event == "resume_started":
+        state["resume_count"] = int(state.get("resume_count", 0)) + 1
+    events = list(state.get("events", []))
+    events.append(
+        {
+            "event": event,
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            **fields,
+        }
+    )
+    state["events"] = events[-100:]
+    _write_json_atomic(path, state)
+
+
+def _write_root_marker(run_dir: Path, name: str, **payload: Any) -> None:
+    _write_json_atomic(
+        run_dir / name,
+        {
+            "schema_version": RUN_MANIFEST_SCHEMA,
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            **payload,
+        },
+    )
+
+
+def _run_resume_contract(
+    *,
+    config_path: Path,
+    config: dict[str, Any],
+    seed: int,
+    data_dir: Path,
+    hardware_profile: dict[str, Any],
+    model_parallel_gpu_ids: list[int],
+) -> dict[str, Any]:
+    return {
+        "schema_version": RUN_MANIFEST_SCHEMA,
+        "config": file_contract(config_path),
+        "source": _source_contract(),
+        "training_semantics": {
+            "seed": seed,
+            "selectors": list(config["selectors"]),
+            "candidate": config["candidate"],
+            "matched_control": config["matched_control"],
+            "baseline": config["baseline"],
+            "kernel": config["kernel"],
+            "model": config["model"],
+            "pair_chunk_size": int(hardware_profile["pair_chunk_size"]),
+            "activation_checkpointing": bool(hardware_profile["activation_checkpointing"]),
+            "parallel_mode": "model_parallel" if model_parallel_gpu_ids else "selector_or_serial",
+            "model_parallel_gpu_ids": list(model_parallel_gpu_ids),
+            "selector_gpu_ids": list(hardware_profile["selected_gpu_ids"]),
+        },
+        "data": {
+            split: file_contract(data_dir / f"{split}.jsonl")
+            for split in ("train", "valid", "test")
+        },
+        "materialization": file_contract(data_dir / "data_manifest.json"),
+    }
+
+
+def _validate_or_create_run_manifest(
+    run_dir: Path,
+    contract: dict[str, Any],
+    *,
+    resume: bool,
+    started_at_utc: str,
+) -> dict[str, Any]:
+    path = run_dir / "run_manifest.json"
+    contract_fingerprint = fingerprint(contract)
+    if resume:
+        persisted = _read_json(path)
+        if persisted.get("schema_version") != RUN_MANIFEST_SCHEMA:
+            raise ResumeCompatibilityError("unsupported run manifest schema")
+        if persisted.get("contract_fingerprint") != contract_fingerprint:
+            raise ResumeCompatibilityError(
+                "resume contract differs: code, config, data, selector or training settings changed"
+            )
+        if persisted.get("started_at_utc") != started_at_utc:
+            raise ResumeCompatibilityError(
+                "resume timestamp differs from the original run manifest"
+            )
+        return persisted
+    manifest = {
+        "schema_version": RUN_MANIFEST_SCHEMA,
+        "contract_fingerprint": contract_fingerprint,
+        "contract": contract,
+        "started_at_utc": started_at_utc,
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+    }
+    _write_json_atomic(
+        path,
+        manifest,
+    )
+    return manifest
+
+
+def _write_data_manifest(
+    data_dir: Path, split_info: dict[str, dict[str, Any]]
+) -> dict[str, Any]:
+    manifest = {
+        "schema_version": DATA_MANIFEST_SCHEMA,
+        "splits": {
+            split: {
+                **info,
+                "materialized": file_contract(data_dir / f"{split}.jsonl"),
+            }
+            for split, info in split_info.items()
+        },
+    }
+    _write_json_atomic(data_dir / "data_manifest.json", manifest)
+    return manifest
+
+
+def _load_data_manifest(data_dir: Path) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+    path = data_dir / "data_manifest.json"
+    manifest = _read_json(path)
+    splits = manifest.get("splits")
+    if manifest.get("schema_version") != DATA_MANIFEST_SCHEMA or not isinstance(
+        splits, dict
+    ):
+        raise ResumeCompatibilityError(
+            "resume requires the original data_manifest.json; legacy directories can only restart from baseline"
+        )
+    restored: dict[str, dict[str, Any]] = {}
+    for split in ("train", "valid", "test"):
+        info = splits.get(split)
+        if not isinstance(info, dict) or not isinstance(info.get("materialized"), dict):
+            raise ResumeCompatibilityError(
+                f"data manifest is missing materialized provenance for {split}"
+            )
+        actual = file_contract(data_dir / f"{split}.jsonl")
+        if actual != info["materialized"]:
+            raise ResumeCompatibilityError(
+                f"materialized {split} data differs from its immutable data manifest"
+            )
+        restored[split] = dict(info)
+    return manifest, restored
 
 
 def parse_model_parallel_gpu_ids(spec: str | None) -> list[int]:
@@ -350,6 +627,7 @@ def choose_hardware_profile(
 
 
 def _write_json_atomic(path: Path, payload: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(path.name + ".tmp")
     temporary.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
     temporary.replace(path)
@@ -526,6 +804,8 @@ def _run_baseline_logged_command(
     heartbeat_path: Path,
     *,
     epochs: int,
+    pause: PauseController | None = None,
+    append_log: bool = False,
 ) -> dict[str, Any]:
     """Run baseline with a readable console while retaining its raw JSON log."""
     environment = os.environ.copy()
@@ -539,7 +819,7 @@ def _run_baseline_logged_command(
     heartbeat_path.parent.mkdir(parents=True, exist_ok=True)
     print(f"[baseline] starting | epochs={epochs}", flush=True)
     started = time.perf_counter()
-    with log_path.open("w", encoding="utf-8") as log_handle:
+    with log_path.open("a" if append_log else "w", encoding="utf-8") as log_handle:
         process = subprocess.Popen(
             command,
             cwd=ROOT,
@@ -548,21 +828,56 @@ def _run_baseline_logged_command(
             stderr=subprocess.STDOUT,
             text=True,
             bufsize=1,
+            start_new_session=True,
         )
         assert process.stdout is not None
-        for line in process.stdout:
-            log_handle.write(line)
-            log_handle.flush()
-            rendered = _render_baseline_line(line, epochs=epochs)
-            if rendered is not None:
-                print(rendered, flush=True)
+        reader_error: list[BaseException] = []
+
+        def read_output() -> None:
+            try:
+                for line in process.stdout:
+                    log_handle.write(line)
+                    log_handle.flush()
+                    rendered = _render_baseline_line(line, epochs=epochs)
+                    if rendered is not None:
+                        print(rendered, flush=True)
+            except BaseException as exc:  # surfaced after the child is joined
+                reader_error.append(exc)
+
+        reader = threading.Thread(target=read_output, name="baseline-output", daemon=True)
+        reader.start()
+        pause_forwarded = False
+        pause_deadline: float | None = None
+        while process.poll() is None:
+            if pause is not None and pause.requested and not pause_forwarded:
+                pause_forwarded = True
+                pause_deadline = time.monotonic() + SAFE_PAUSE_TIMEOUT_SECONDS
+                try:
+                    os.killpg(process.pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
+            if pause_deadline is not None and time.monotonic() >= pause_deadline:
+                _terminate_worker(process)
+                reader.join(timeout=30)
+                raise RuntimeError(
+                    "baseline did not reach a post-update checkpoint before the safe-pause timeout"
+                )
+            time.sleep(0.1)
         return_code = process.wait()
+        reader.join(timeout=30)
+        if reader.is_alive():
+            _terminate_worker(process)
+            raise RuntimeError("baseline output reader did not finish")
+        if reader_error:
+            raise RuntimeError(f"baseline output reader failed: {reader_error[0]}")
     result = {
         "command": command,
         "returncode": return_code,
         "duration_seconds": round(time.perf_counter() - started, 3),
         "log_path": str(log_path),
     }
+    if return_code == PAUSED_EXIT_CODE:
+        raise RunPaused("baseline paused at a post-update checkpoint")
     if return_code != 0:
         print(f"[baseline] failed | exit_code={return_code}", file=sys.stderr, flush=True)
         raise RuntimeError(f"command failed with return code {return_code}: {command}")
@@ -593,6 +908,8 @@ def run_selector_workers(
     run_dir: Path,
     seed: int,
     hardware_profile: dict[str, Any] | None = None,
+    resume: bool = False,
+    pause: PauseController | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Run independent selectors with one dynamically scheduled worker per GPU."""
     hardware_profile = hardware_profile or {
@@ -607,6 +924,14 @@ def run_selector_workers(
         selector: {"selector": selector, "status": "pending", "gpu": None}
         for selector in selectors
     }
+    if resume:
+        for selector in list(pending):
+            metrics_path = run_dir / "selectors" / selector / "metrics.json"
+            if _valid_selector_metrics(metrics_path, selector):
+                statuses[selector].update(
+                    {"status": "complete", "gpu": None, "resumed_skip": True}
+                )
+                pending.remove(selector)
     active: dict[str, dict[str, Any]] = {}
     assignments_path = run_dir / "gpu_assignments.json"
     _write_json_atomic(
@@ -615,6 +940,12 @@ def run_selector_workers(
     )
     dashboard_at = 0.0
 
+    def write_assignments() -> None:
+        _write_json_atomic(
+            assignments_path,
+            {"requested_gpu_ids": gpu_ids, "hardware_profile": hardware_profile, "workers": statuses},
+        )
+
     def fail_run(reason: str) -> None:
         for entry in active.values():
             _terminate_worker(entry["process"])
@@ -622,32 +953,88 @@ def run_selector_workers(
         now = datetime.now(timezone.utc).isoformat()
         for selector in pending:
             statuses[selector].update({"status": "not_started", "finished_at": now})
-        _write_json_atomic(
-            assignments_path,
-            {"requested_gpu_ids": gpu_ids, "hardware_profile": hardware_profile, "workers": statuses},
-        )
-        (run_dir / "RUN_FAILED").write_text(
-            json.dumps(
-                {
-                    "failed_at_utc": now,
-                    "reason": reason,
-                    "workers": statuses,
-                },
-                indent=2,
-                sort_keys=True,
-            )
-            + "\n",
-            encoding="utf-8",
-        )
+        write_assignments()
+        _write_root_marker(run_dir, "RUN_FAILED", reason=reason, workers=statuses)
+
+    def pause_run(reason: str) -> None:
+        """Ask every active worker to save a post-update checkpoint before exit."""
+        for entry in active.values():
+            process = entry["process"]
+            if process.poll() is None:
+                try:
+                    os.killpg(process.pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
+
+        deadline = time.monotonic() + SAFE_PAUSE_TIMEOUT_SECONDS
+        while active:
+            for selector, entry in list(active.items()):
+                process = entry["process"]
+                return_code = process.poll()
+                if return_code is None:
+                    continue
+                entry["handle"].close()
+                finished_at = datetime.now(timezone.utc).isoformat()
+                duration = round(time.monotonic() - entry["started_monotonic"], 3)
+                if return_code not in (0, PAUSED_EXIT_CODE):
+                    statuses[selector].update(
+                        {
+                            "status": "failed",
+                            "return_code": return_code,
+                            "finished_at": finished_at,
+                            "duration_seconds": duration,
+                        }
+                    )
+                    del active[selector]
+                    for sibling in active.values():
+                        _terminate_worker(sibling["process"])
+                        sibling["handle"].close()
+                    raise RuntimeError(
+                        f"selector worker {selector} failed while pausing with exit code {return_code}"
+                    )
+                statuses[selector].update(
+                    {
+                        "status": "complete" if return_code == 0 else "paused",
+                        "return_code": return_code,
+                        "finished_at": finished_at,
+                        "duration_seconds": duration,
+                    }
+                )
+                del active[selector]
+            if active:
+                if time.monotonic() >= deadline:
+                    for entry in active.values():
+                        _terminate_worker(entry["process"])
+                        entry["handle"].close()
+                    raise RuntimeError(
+                        "selector workers did not reach a post-update checkpoint before the safe-pause timeout"
+                    )
+                time.sleep(0.1)
+
+        now = datetime.now(timezone.utc).isoformat()
+        for selector in pending:
+            statuses[selector].update({"status": "paused", "finished_at": now})
+        write_assignments()
+        _write_root_marker(run_dir, "RUN_PAUSED", reason=reason, workers=statuses)
 
     try:
         while pending or active:
-            while pending and available:
+            if pause is not None and pause.requested:
+                pause_run(pause.reason or "requested")
+                raise RunPaused("selector scheduler pause requested")
+            while pending and available and not (pause is not None and pause.requested):
                 selector = pending.pop(0)
                 gpu_id = available.pop(0)
                 selector_dir = run_dir / "selectors" / selector
                 selector_dir.mkdir(parents=True, exist_ok=True)
-                log_handle = (selector_dir / "worker.log").open("w", encoding="utf-8")
+                has_checkpoint = (selector_dir / "checkpoints" / "latest.pt").is_file()
+                if resume and not has_checkpoint and any(selector_dir.iterdir()):
+                    raise ResumeCompatibilityError(
+                        f"selector {selector} has partial artifacts but no batch checkpoint; refusing unsafe restart"
+                    )
+                log_handle = (selector_dir / "worker.log").open(
+                    "a" if resume else "w", encoding="utf-8"
+                )
                 heartbeat_path = selector_dir / "heartbeat.json"
                 heartbeat_path.touch()
                 command = [
@@ -661,9 +1048,12 @@ def run_selector_workers(
                     "--device", "cuda" if gpu_id >= 0 else "cpu",
                     "--seed", str(seed),
                     "--log-every-batches", str(args.log_every_batches),
+                    "--checkpoint-every-batches", str(getattr(args, "checkpoint_every_batches", 50)),
                     "--pair-chunk-size", str(hardware_profile["pair_chunk_size"]),
                     "--activation-checkpointing", str(int(hardware_profile["activation_checkpointing"])),
                 ]
+                if resume and has_checkpoint:
+                    command.append("--resume")
                 environment = os.environ.copy()
                 if gpu_id >= 0:
                     environment["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -699,10 +1089,7 @@ def run_selector_workers(
                         "log_file": str(selector_dir / "worker.log"),
                     }
                 )
-                _write_json_atomic(
-                    assignments_path,
-                    {"requested_gpu_ids": gpu_ids, "hardware_profile": hardware_profile, "workers": statuses},
-                )
+                write_assignments()
                 _append_scheduler_event(
                     run_dir,
                     {
@@ -723,26 +1110,33 @@ def run_selector_workers(
                 entry["handle"].close()
                 finished_at = datetime.now(timezone.utc).isoformat()
                 duration = round(time.monotonic() - entry["started_monotonic"], 3)
+                if return_code == PAUSED_EXIT_CODE:
+                    statuses[selector].update(
+                        {"status": "paused", "return_code": return_code, "finished_at": finished_at, "duration_seconds": duration}
+                    )
+                    del active[selector]
+                    pause_run(f"selector worker {selector} paused")
+                    raise RunPaused(f"selector worker {selector} paused")
                 if return_code != 0:
                     statuses[selector].update(
                         {"status": "failed", "return_code": return_code, "finished_at": finished_at, "duration_seconds": duration}
                     )
-                    _write_json_atomic(assignments_path, {"requested_gpu_ids": gpu_ids, "hardware_profile": hardware_profile, "workers": statuses})
+                    write_assignments()
                     fail_run(f"selector worker {selector} failed with exit code {return_code}")
                     raise RuntimeError(f"selector worker {selector} failed; inspect {run_dir / 'selectors' / selector / 'worker.log'}")
                 metrics_path = run_dir / "selectors" / selector / "metrics.json"
-                if not metrics_path.exists():
+                if not _valid_selector_metrics(metrics_path, selector):
                     statuses[selector].update(
                         {"status": "failed", "return_code": return_code, "finished_at": finished_at, "duration_seconds": duration}
                     )
-                    fail_run(f"selector worker {selector} exited without metrics.json")
-                    raise RuntimeError(f"selector worker {selector} produced no metrics.json")
+                    fail_run(f"selector worker {selector} exited without valid metrics.json")
+                    raise RuntimeError(f"selector worker {selector} produced no valid metrics.json")
                 statuses[selector].update(
                     {"status": "complete", "return_code": 0, "finished_at": finished_at, "duration_seconds": duration}
                 )
                 available.append(int(entry["gpu"]))
                 del active[selector]
-                _write_json_atomic(assignments_path, {"requested_gpu_ids": gpu_ids, "hardware_profile": hardware_profile, "workers": statuses})
+                write_assignments()
                 _append_scheduler_event(
                     run_dir,
                     {
@@ -779,6 +1173,8 @@ def run_selector_workers(
                 print(_render_selector_dashboard(statuses, active), flush=True)
             if active:
                 time.sleep(0.5)
+    except RunPaused:
+        raise
     except BaseException as exc:
         if not (run_dir / "RUN_FAILED").exists():
             fail_run(f"selector scheduler aborted: {type(exc).__name__}: {exc}")
@@ -840,8 +1236,7 @@ def evaluate_selector(
     )
 
 
-def main() -> int:
-    args = parse_args()
+def _run(args: argparse.Namespace, pause: PauseController) -> int:
     config_path = args.config if args.config.is_absolute() else ROOT / args.config
     config = json.loads(config_path.read_text(encoding="utf-8"))
     if config.get("schema_version") != "q-attention.qtriad-formal-single-seed.v1":
@@ -856,6 +1251,8 @@ def main() -> int:
         raise ValueError("config must include the matched classical control")
     if args.log_every_batches <= 0:
         raise ValueError("--log-every-batches must be positive")
+    if args.checkpoint_every_batches <= 0:
+        raise ValueError("--checkpoint-every-batches must be positive")
     model_parallel_gpu_ids = parse_model_parallel_gpu_ids(args.model_parallel_gpus)
     if model_parallel_gpu_ids and args.gpus:
         raise ValueError("--gpus/selector-parallel cannot be combined with --model-parallel-gpus")
@@ -893,28 +1290,75 @@ def main() -> int:
         }
     )
     device = model_parallel_devices[0] if model_parallel_devices else (torch.device("cuda:0") if gpu_ids else choose_device(args.device))
-    stamp = args.started_at_utc or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    if len(stamp) != 16 or not stamp.endswith("Z"):
-        raise ValueError("--started-at-utc must use UTC format YYYYMMDDTHHMMSSZ")
-    run_dir = args.output_dir or ROOT / "runs" / "retacred_qtriad_formal_single_seed" / f"{stamp}_seed13"
+    if args.resume is not None and args.output_dir is not None:
+        raise ValueError("--resume cannot be combined with --output-dir")
+    provisional_stamp = args.started_at_utc or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    run_dir = args.resume or args.output_dir or ROOT / "runs" / "retacred_qtriad_formal_single_seed" / f"{provisional_stamp}_seed13"
     run_dir = resolve_path(run_dir)
-    run_dir.mkdir(parents=True, exist_ok=False)
+    resuming = args.resume is not None
+    if resuming:
+        if not run_dir.is_dir() or not (run_dir / "run_manifest.json").is_file():
+            raise ResumeCompatibilityError(
+                "--resume requires an existing run_manifest.json; legacy directories can only restart from baseline"
+            )
+        if (run_dir / "RUN_COMPLETE").exists():
+            raise ResumeCompatibilityError("run is already complete")
+        original_manifest = _read_json(run_dir / "run_manifest.json")
+        stamp = original_manifest.get("started_at_utc")
+        if not isinstance(stamp, str) or len(stamp) != 16 or not stamp.endswith("Z"):
+            raise ResumeCompatibilityError("run manifest is missing the original startup timestamp")
+        if args.started_at_utc is not None and args.started_at_utc != stamp:
+            raise ResumeCompatibilityError("--started-at-utc must match the original run when resuming")
+    else:
+        stamp = provisional_stamp
+        if len(stamp) != 16 or not stamp.endswith("Z"):
+            raise ValueError("--started-at-utc must use UTC format YYYYMMDDTHHMMSSZ")
+        run_dir.mkdir(parents=True, exist_ok=False)
     data_dir = run_dir / "data"
     data_dir.mkdir(parents=True, exist_ok=True)
     train_source = resolve_path(config["train_path"])
     valid_source = resolve_path(config["valid_path"])
     test_source = resolve_path(config["test_path"])
-    valid_info = materialize_subset(valid_source, data_dir / "valid.jsonl", 0, seed=seed + 101, split="valid")
+    if resuming:
+        if not all((data_dir / f"{split}.jsonl").is_file() for split in ("train", "valid", "test")):
+            raise ResumeCompatibilityError("resume requires original data/train.jsonl, valid.jsonl and test.jsonl")
+        _, data_info = _load_data_manifest(data_dir)
+        train_info = data_info["train"]
+        valid_info = data_info["valid"]
+        test_info = data_info["test"]
+    else:
+        valid_info = materialize_subset(valid_source, data_dir / "valid.jsonl", 0, seed=seed + 101, split="valid")
+        valid_records = load_relation_jsonl(data_dir / "valid.jsonl")
+        required_labels = {record.label for record in valid_records}
+        train_info = materialize_subset(train_source, data_dir / "train.jsonl", 0, seed=seed, split="train", required_labels=required_labels)
+        test_info = materialize_subset(test_source, data_dir / "test.jsonl", 0, seed=seed + 211, split="test")
+        _write_data_manifest(
+            data_dir,
+            {"train": train_info, "valid": valid_info, "test": test_info},
+        )
     valid_records = load_relation_jsonl(data_dir / "valid.jsonl")
-    required_labels = {record.label for record in valid_records}
-    train_info = materialize_subset(train_source, data_dir / "train.jsonl", 0, seed=seed, split="train", required_labels=required_labels)
-    test_info = materialize_subset(test_source, data_dir / "test.jsonl", 0, seed=seed + 211, split="test")
     train_records = load_relation_jsonl(data_dir / "train.jsonl")
     test_records = load_relation_jsonl(data_dir / "test.jsonl")
     expected = config["expected_records"]
     for name, info in (("train", train_info), ("valid", valid_info), ("test", test_info)):
         if int(info["records"]) != int(expected[name]):
             raise ValueError(f"{name} record count differs from frozen contract")
+    run_contract = _run_resume_contract(
+        config_path=config_path,
+        config=config,
+        seed=seed,
+        data_dir=data_dir,
+        hardware_profile=hardware_profile,
+        model_parallel_gpu_ids=model_parallel_gpu_ids,
+    )
+    _validate_or_create_run_manifest(
+        run_dir, run_contract, resume=resuming, started_at_utc=stamp
+    )
+    args._run_dir = run_dir
+    if resuming:
+        _record_resume_event(run_dir, event="resume_started", contract_fingerprint=fingerprint(run_contract))
+        (run_dir / "RUN_PAUSED").unlink(missing_ok=True)
+        (run_dir / "RUN_FAILED").unlink(missing_ok=True)
     max_length = max(len(record.tokens) for record in train_records + valid_records + test_records) + 4
     model_config = config["model"]
     baseline_dir = run_dir / "baseline"
@@ -924,7 +1368,7 @@ def main() -> int:
         "--train_path", str(data_dir / "train.jsonl"),
         "--valid_path", str(data_dir / "valid.jsonl"),
         "--output_dir", str(baseline_dir),
-        "--device", "cuda" if gpu_ids else str(device),
+        "--device", "cuda" if (gpu_ids or model_parallel_gpu_ids) else str(device),
         "--epochs", str(config["baseline"]["epochs"]),
         "--batch_size", str(config["baseline"]["batch_size"]),
         "--lr", str(config["baseline"]["lr"]),
@@ -941,12 +1385,26 @@ def main() -> int:
             ["--model-parallel-gpus", ",".join(str(gpu_id) for gpu_id in model_parallel_gpu_ids)]
         )
     baseline_dir.mkdir(parents=True, exist_ok=True)
-    _run_baseline_logged_command(
-        baseline_command,
-        run_dir / "baseline_train.log",
-        baseline_dir / "heartbeat.json",
-        epochs=int(config["baseline"]["epochs"]),
+    baseline_complete = all(
+        (baseline_dir / name).is_file()
+        for name in ("metrics.json", "model.pt", "vocab.json", "labels.json")
     )
+    if not baseline_complete:
+        if resuming and any(baseline_dir.iterdir()) and not (baseline_dir / "checkpoints" / "latest.pt").is_file():
+            raise ResumeCompatibilityError(
+                "baseline has partial artifacts but no batch checkpoint; refusing unsafe restart"
+            )
+        if (baseline_dir / "checkpoints" / "latest.pt").is_file():
+            baseline_command.append("--resume")
+        baseline_command.extend(["--checkpoint-every-batches", str(args.checkpoint_every_batches)])
+        _run_baseline_logged_command(
+            baseline_command,
+            run_dir / "baseline_train.log",
+            baseline_dir / "heartbeat.json",
+            epochs=int(config["baseline"]["epochs"]),
+            pause=pause,
+            append_log=resuming,
+        )
     artifacts = load_relation_run(
         baseline_dir,
         device,
@@ -956,12 +1414,17 @@ def main() -> int:
     test_loader = make_relation_loader(test_records, artifacts.vocab, artifacts.label_to_id, batch_size=int(config["kernel"]["batch_size"]))
     for parameter in artifacts.model.parameters():
         parameter.requires_grad_(False)
-    baseline_valid = evaluate_selector(artifacts.model, valid_loader, device, len(artifacts.label_to_id), None, "baseline_valid")
-    baseline_test = evaluate_selector(artifacts.model, test_loader, device, len(artifacts.label_to_id), None, "baseline_test")
-    (run_dir / "baseline_eval.json").write_text(
-        json.dumps({"valid": baseline_valid, "test": baseline_test}, indent=2, sort_keys=True),
-        encoding="utf-8",
-    )
+    baseline_eval_path = run_dir / "baseline_eval.json"
+    if baseline_eval_path.is_file():
+        baseline_eval = json.loads(baseline_eval_path.read_text(encoding="utf-8"))
+        baseline_valid, baseline_test = baseline_eval["valid"], baseline_eval["test"]
+    else:
+        baseline_valid = evaluate_selector(artifacts.model, valid_loader, device, len(artifacts.label_to_id), None, "baseline_valid")
+        baseline_test = evaluate_selector(artifacts.model, test_loader, device, len(artifacts.label_to_id), None, "baseline_test")
+        baseline_eval_path.write_text(
+            json.dumps({"valid": baseline_valid, "test": baseline_test}, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
     disabled_dir = run_dir / "selectors" / "disabled"
     disabled_dir.mkdir(parents=True, exist_ok=True)
     disabled_row = {
@@ -974,9 +1437,10 @@ def main() -> int:
         "trainable_parameters": 0,
         "finite": True,
     }
-    (disabled_dir / "metrics.json").write_text(
-        json.dumps(disabled_row, indent=2, sort_keys=True), encoding="utf-8"
-    )
+    if not (disabled_dir / "metrics.json").is_file():
+        (disabled_dir / "metrics.json").write_text(
+            json.dumps(disabled_row, indent=2, sort_keys=True), encoding="utf-8"
+        )
     if model_parallel_devices:
         # Model-parallel mode keeps one sharded model alive and runs selectors
         # serially; independent selector workers would each duplicate the
@@ -987,6 +1451,9 @@ def main() -> int:
             epochs=int(config["kernel"]["epochs"]),
             kernel_lr=float(config["kernel"]["lr"]),
             log_every_batches=args.log_every_batches,
+            batch_resume=True,
+            checkpoint_every_batches=args.checkpoint_every_batches,
+            pause=pause,
         )
         pending_selectors = [selector for selector in selectors if selector != "disabled"]
         for selector in pending_selectors:
@@ -1007,8 +1474,20 @@ def main() -> int:
         current_selector: str | None = None
         try:
             for selector in pending_selectors:
-                current_selector = selector
                 selector_dir = run_dir / "selectors" / selector
+                if resuming and _valid_selector_metrics(selector_dir / "metrics.json", selector):
+                    worker_statuses[selector].update({"status": "complete", "resumed_skip": True})
+                    continue
+                if (
+                    resuming
+                    and selector_dir.exists()
+                    and any(selector_dir.iterdir())
+                    and not (selector_dir / "checkpoints" / "latest.pt").is_file()
+                ):
+                    raise ResumeCompatibilityError(
+                        f"selector {selector} has partial artifacts but no batch checkpoint; refusing unsafe restart"
+                    )
+                current_selector = selector
                 selector_dir.mkdir(parents=True, exist_ok=True)
                 started_at = datetime.now(timezone.utc).isoformat()
                 started = time.perf_counter()
@@ -1031,18 +1510,27 @@ def main() -> int:
                     activation_checkpointing=bool(hardware_profile["activation_checkpointing"]),
                     model_parallel_devices=model_parallel_devices,
                 )
-                train_result = train_kernel(
-                    artifacts.model,
-                    kernel,
-                    train_records,
-                    valid_loader,
-                    artifacts,
-                    device,
-                    selector,
-                    seed,
-                    train_args,
-                    selector_dir,
+                train_args.resume = resuming and (selector_dir / "checkpoints" / "latest.pt").is_file()
+                train_args.resume_contract = selector_resume_contract(
+                    config_path=config_path,
+                    baseline_dir=baseline_dir,
+                    data_dir=data_dir,
+                    selector=selector,
+                    seed=seed,
+                    pair_chunk_size=int(hardware_profile["pair_chunk_size"]),
+                    activation_checkpointing=bool(hardware_profile["activation_checkpointing"]),
+                    model_parallel_gpu_ids=model_parallel_gpu_ids,
                 )
+                try:
+                    train_result = train_kernel(
+                        artifacts.model, kernel, train_records, valid_loader, artifacts,
+                        device, selector, seed, train_args, selector_dir,
+                    )
+                except TrainingPaused as exc:
+                    worker_statuses[selector].update(
+                        {"status": "paused", "finished_at": datetime.now(timezone.utc).isoformat()}
+                    )
+                    raise RunPaused(str(exc)) from exc
                 valid_result = evaluate_selector(
                     artifacts.model,
                     valid_loader,
@@ -1105,6 +1593,22 @@ def main() -> int:
                 gc.collect()
                 torch.cuda.empty_cache()
                 current_selector = None
+        except RunPaused:
+            now = datetime.now(timezone.utc).isoformat()
+            for selector, status in worker_statuses.items():
+                if status["status"] == "pending":
+                    status.update({"status": "paused", "finished_at": now})
+            _write_json_atomic(
+                run_dir / "gpu_assignments.json",
+                {
+                    "parallel_mode": "model_parallel",
+                    "requested_gpu_ids": model_parallel_gpu_ids,
+                    "hardware_profile": hardware_profile,
+                    "workers": worker_statuses,
+                },
+            )
+            _write_root_marker(run_dir, "RUN_PAUSED", stage="model_parallel_selectors", workers=worker_statuses)
+            raise
         except BaseException as exc:
             now = datetime.now(timezone.utc).isoformat()
             if current_selector is not None and worker_statuses[current_selector]["status"] == "running":
@@ -1179,11 +1683,13 @@ def main() -> int:
             run_dir=run_dir,
             seed=seed,
             hardware_profile=hardware_profile,
+            resume=resuming,
+            pause=pause,
         )
     rows: list[dict[str, Any]] = []
     for selector in selectors:
         metrics_path = run_dir / "selectors" / selector / "metrics.json"
-        if not metrics_path.exists():
+        if not _valid_selector_metrics(metrics_path, selector):
             raise RuntimeError(f"missing selector metrics: {metrics_path}")
         rows.append(json.loads(metrics_path.read_text(encoding="utf-8")))
     by_name = {row["selector"]: row for row in rows}
@@ -1269,10 +1775,34 @@ def main() -> int:
         "The test split is evaluated only after training and validation selection. This single seed does not authorize multi-seed replication.",
     ]
     (run_dir / "run_summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (run_dir / "RUN_PAUSED").unlink(missing_ok=True)
+    (run_dir / "RUN_FAILED").unlink(missing_ok=True)
     (run_dir / "RUN_COMPLETE").write_text(
         datetime.now(timezone.utc).isoformat() + "\n", encoding="utf-8"
     )
     return 0
+
+
+def main() -> int:
+    args = parse_args()
+    pause = PauseController()
+    pause.install()
+    try:
+        return _run(args, pause)
+    except RunPaused as exc:
+        run_dir = getattr(args, "_run_dir", None)
+        if run_dir is not None and not (run_dir / "RUN_PAUSED").exists():
+            _write_root_marker(run_dir, "RUN_PAUSED", reason=str(exc))
+            _record_resume_event(run_dir, event="paused", reason=str(exc))
+        print(f"[q-triad] safely paused: {exc}", flush=True)
+        return PAUSED_EXIT_CODE
+    except BaseException as exc:
+        run_dir = getattr(args, "_run_dir", None)
+        if run_dir is not None and not (run_dir / "RUN_FAILED").exists():
+            _write_root_marker(run_dir, "RUN_FAILED", reason=f"{type(exc).__name__}: {exc}")
+        raise
+    finally:
+        pause.close()
 
 
 if __name__ == "__main__":
