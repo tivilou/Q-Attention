@@ -266,10 +266,10 @@ def test_adaptive_profile_ladder_and_contract_are_stable(tmp_path) -> None:
         (data_dir / f"{split}.jsonl").write_text("", encoding="utf-8")
     (data_dir / "data_manifest.json").write_text("{}", encoding="utf-8")
     first = formal_runner.choose_hardware_profile("adaptive", {"kernel": {}}, [], [])
-    assert [tier["pair_chunk_size"] for tier in first["tiers"]] == [16384, 4096, 1024, 256, 64]
+    assert [tier["pair_chunk_size"] for tier in first["tiers"]] == [163840, 16384, 4096, 1024, 256, 64]
     a = formal_runner.selector_resume_contract(
         config_path=config_path, baseline_dir=baseline_dir, data_dir=data_dir,
-        selector="q_triad", seed=13, pair_chunk_size=16384,
+        selector="q_triad", seed=13, pair_chunk_size=163840,
         activation_checkpointing=False, adaptive_memory=True,
     )
     b = formal_runner.selector_resume_contract(
@@ -319,8 +319,8 @@ def test_adaptive_scheduler_retries_oom_from_checkpoint(tmp_path, monkeypatch) -
     )
     assert statuses["q_triad"]["status"] == "complete"
     assert "--resume" in commands[1]
-    assert commands[0][commands[0].index("--pair-chunk-size") + 1] == "16384"
-    assert commands[1][commands[1].index("--pair-chunk-size") + 1] == "4096"
+    assert commands[0][commands[0].index("--pair-chunk-size") + 1] == "163840"
+    assert commands[1][commands[1].index("--pair-chunk-size") + 1] == "16384"
     assert not (tmp_path / "run" / "RUN_FAILED").exists()
     events = (tmp_path / "run" / "scheduler_events.jsonl").read_text(encoding="utf-8")
     assert '"event": "oom_retry"' in events
@@ -378,7 +378,7 @@ def test_adaptive_scheduler_retries_memory_pressure_from_checkpoint(tmp_path, mo
     assert statuses["q_triad"]["status"] == "complete"
     assert statuses["q_triad"]["memory_pressure_retries"] == 1
     assert "--resume" in commands[1]
-    assert commands[1][commands[1].index("--pair-chunk-size") + 1] == "4096"
+    assert commands[1][commands[1].index("--pair-chunk-size") + 1] == "16384"
     events = (tmp_path / "run" / "scheduler_events.jsonl").read_text(encoding="utf-8")
     assert '"event": "memory_pressure_retry"' in events
     state = json.loads(
@@ -443,8 +443,8 @@ def test_adaptive_tier_is_independent_per_selector(tmp_path, monkeypatch) -> Non
         ]
         for command in commands
     }
-    assert chunk_sizes["q_triad"] == "4096"
-    assert chunk_sizes["classical_density_tensor"] == "16384"
+    assert chunk_sizes["q_triad"] == "16384"
+    assert chunk_sizes["classical_density_tensor"] == "163840"
     state = json.loads(
         (tmp_path / "run" / "adaptive_memory_state.json").read_text(encoding="utf-8")
     )

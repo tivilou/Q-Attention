@@ -80,12 +80,18 @@ HARDWARE_PROFILES: dict[str, dict[str, Any]] = {
     },
 }
 
-# The adaptive path deliberately starts with the largest safe streamed-backward
-# chunk.  The streamed backward implementation remains enabled internally: the
-# old graph-retaining implementation is not a valid performance tier because it
-# can grow until a late, unrecoverable OOM.  Each lower tier trades throughput
-# for a smaller per-chunk peak and is selected only after a confirmed CUDA OOM.
+# The adaptive path deliberately starts with an aggressive streamed-backward
+# trial chunk. The 10x tier is a throughput probe, not a promise that every GPU
+# can hold it; a confirmed OOM or memory-pressure event falls back per selector
+# to the previous proven tiers. The old graph-retaining implementation is not a
+# valid performance tier because it can grow until a late, unrecoverable OOM.
+# Each lower tier trades throughput for a smaller per-chunk peak.
 ADAPTIVE_HARDWARE_PROFILES: tuple[dict[str, Any], ...] = (
+    {
+        "name": "adaptive_max",
+        "pair_chunk_size": 163840,
+        "activation_checkpointing": False,
+    },
     {
         "name": "adaptive_fast",
         "pair_chunk_size": 16384,
@@ -177,7 +183,7 @@ def parse_args() -> argparse.Namespace:
         "--hardware-profile",
         choices=("config", "auto", "adaptive", "low_memory", "balanced", "high_memory"),
         default="adaptive",
-        help="execution-memory profile; adaptive starts fast and falls back after CUDA OOM",
+        help="execution-memory profile; adaptive probes the max tier and falls back after OOM/pressure",
     )
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--log-every-batches", type=int, default=50)
@@ -380,6 +386,42 @@ def _adaptive_state_path(run_dir: Path) -> Path:
     return run_dir / "adaptive_memory_state.json"
 
 
+def _normalize_adaptive_state_tier(
+    entry: dict[str, Any],
+    *,
+    tiers: list[dict[str, Any]],
+    label: str,
+) -> bool:
+    """Resolve persisted tiers by profile name after prepending a new tier."""
+    profile_name = entry.get("current_profile")
+    tier_by_name = {
+        str(profile.get("name")): index for index, profile in enumerate(tiers)
+    }
+    if isinstance(profile_name, str) and profile_name in tier_by_name:
+        normalized_tier = tier_by_name[profile_name]
+        changed = entry.get("current_tier") != normalized_tier
+        entry["current_tier"] = normalized_tier
+        profile = tiers[normalized_tier]
+        entry["current_profile"] = profile["name"]
+        entry["pair_chunk_size"] = int(profile["pair_chunk_size"])
+        entry["activation_checkpointing"] = bool(
+            profile["activation_checkpointing"]
+        )
+        return changed
+    tier = entry.get("current_tier")
+    if not isinstance(tier, int) or tier < 0 or tier >= len(tiers) - 1:
+        raise ResumeCompatibilityError(f"invalid adaptive memory tier for {label}")
+    # Before adaptive_max was added, all persisted numeric tiers were one index
+    # lower. This fallback is only for old state files missing profile names.
+    normalized_tier = tier + 1
+    profile = tiers[normalized_tier]
+    entry["current_tier"] = normalized_tier
+    entry["current_profile"] = profile["name"]
+    entry["pair_chunk_size"] = int(profile["pair_chunk_size"])
+    entry["activation_checkpointing"] = bool(profile["activation_checkpointing"])
+    return True
+
+
 def _load_or_create_adaptive_memory_state(
     run_dir: Path,
     hardware_profile: dict[str, Any],
@@ -391,15 +433,14 @@ def _load_or_create_adaptive_memory_state(
     path = _adaptive_state_path(run_dir)
     if path.is_file():
         state = _read_json(path)
-        tier = state.get("current_tier")
         tiers = hardware_profile.get("tiers", [])
-        if (
-            state.get("schema_version") != ADAPTIVE_MEMORY_STATE_SCHEMA
-            or not isinstance(tier, int)
-            or tier < 0
-            or tier >= len(tiers)
-        ):
+        if state.get("schema_version") != ADAPTIVE_MEMORY_STATE_SCHEMA or not isinstance(
+            tiers, list
+        ) or len(tiers) < 2:
             raise ResumeCompatibilityError("invalid adaptive_memory_state.json")
+        migrated = _normalize_adaptive_state_tier(
+            state, tiers=tiers, label="adaptive_memory_state.json"
+        )
         selectors = state.get("selectors")
         if selectors is not None:
             if not isinstance(selectors, dict):
@@ -409,15 +450,13 @@ def _load_or_create_adaptive_memory_state(
                     raise ResumeCompatibilityError(
                         f"invalid adaptive selector state for {selector}"
                     )
-                selector_tier = selector_state.get("current_tier")
-                if (
-                    not isinstance(selector_tier, int)
-                    or selector_tier < 0
-                    or selector_tier >= len(tiers)
-                ):
-                    raise ResumeCompatibilityError(
-                        f"invalid adaptive memory tier for selector {selector}"
-                    )
+                migrated = _normalize_adaptive_state_tier(
+                    selector_state,
+                    tiers=tiers,
+                    label=f"selector {selector}",
+                ) or migrated
+        if migrated:
+            _write_json_atomic(path, state)
         return state
     if resume:
         raise ResumeCompatibilityError(
@@ -938,8 +977,8 @@ def choose_hardware_profile(
             "adaptive": True,
             "tiers": tiers,
             "selection_reason": (
-                "start with the largest streamed-backward pair chunk and "
-                "fall back only after a confirmed CUDA OOM"
+                "start with the 10x throughput-trial streamed-backward pair "
+                "chunk and fall back only after confirmed CUDA OOM or memory pressure"
             ),
         }
     if requested == "config":
