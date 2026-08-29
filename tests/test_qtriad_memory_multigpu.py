@@ -11,6 +11,7 @@ ROOT = __import__("pathlib").Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "experiments"))
 
 import run_qtriad_relation_transfer as formal_runner
+import run_qtriad_selector_worker as selector_worker
 
 from q_attention.plugins.q_triad import QTriadAttentionScoreKernel
 
@@ -124,6 +125,70 @@ def test_pair_chunk_size_must_be_positive() -> None:
         _kernel(0)
 
 
+def test_memory_pressure_monitor_reclaims_only_at_poll_boundary(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(selector_worker.torch.cuda, "is_available", lambda: True)
+    monitor = selector_worker.CudaMemoryPressureMonitor(
+        selector="q_triad",
+        enabled=True,
+        restart_on_pressure=True,
+        poll_interval_steps=20,
+    )
+    snapshots = iter(
+        [
+            {"free_mib": 400, "total_mib": 8 * 1024, "allocated_mib": 7000, "reserved_mib": 7500},
+            {"free_mib": 1000, "total_mib": 8 * 1024, "allocated_mib": 7000, "reserved_mib": 7050},
+        ]
+    )
+    calls = {"gc": 0, "empty_cache": 0}
+    monkeypatch.setattr(monitor, "_snapshot", lambda: next(snapshots))
+    monkeypatch.setattr(selector_worker.gc, "collect", lambda: calls.__setitem__("gc", calls["gc"] + 1))
+    monkeypatch.setattr(
+        selector_worker.torch.cuda,
+        "empty_cache",
+        lambda: calls.__setitem__("empty_cache", calls["empty_cache"] + 1),
+    )
+    cursor = SimpleNamespace(global_step=19, next_batch_index=19)
+    assert monitor(epoch=1, total_batches=100, cursor=cursor) is None
+    assert calls == {"gc": 0, "empty_cache": 0}
+
+    cursor.global_step = 20
+    assert monitor(epoch=1, total_batches=100, cursor=cursor) is None
+    assert calls == {"gc": 1, "empty_cache": 1}
+    event = json.loads(capsys.readouterr().out)
+    assert event["event"] == "memory_pressure_reclaim"
+    assert event["trigger"] == "low_free"
+    assert event["reclaimed_reserved_mib"] == 450
+
+
+def test_memory_pressure_monitor_requests_restart_when_reclaim_is_insufficient(monkeypatch) -> None:
+    monkeypatch.setattr(selector_worker.torch.cuda, "is_available", lambda: True)
+    monitor = selector_worker.CudaMemoryPressureMonitor(
+        selector="q_triad", enabled=True, restart_on_pressure=True, poll_interval_steps=1
+    )
+    snapshots = iter(
+        [
+            {"free_mib": 400, "total_mib": 8 * 1024, "allocated_mib": 7000, "reserved_mib": 7500},
+            {"free_mib": 450, "total_mib": 8 * 1024, "allocated_mib": 7000, "reserved_mib": 7480},
+        ]
+    )
+    calls = {"gc": 0, "empty_cache": 0}
+    monkeypatch.setattr(monitor, "_snapshot", lambda: next(snapshots))
+    monkeypatch.setattr(selector_worker.gc, "collect", lambda: calls.__setitem__("gc", calls["gc"] + 1))
+    monkeypatch.setattr(
+        selector_worker.torch.cuda,
+        "empty_cache",
+        lambda: calls.__setitem__("empty_cache", calls["empty_cache"] + 1),
+    )
+    event = monitor(
+        epoch=1,
+        total_batches=100,
+        cursor=SimpleNamespace(global_step=1, next_batch_index=1),
+    )
+    assert event is not None
+    assert event["after"]["free_mib"] < event["minimum_free_mib"]
+    assert calls == {"gc": 1, "empty_cache": 1}
+
+
 def test_adaptive_profile_ladder_and_contract_are_stable(tmp_path) -> None:
     config_path = tmp_path / "config.json"
     baseline_dir = tmp_path / "baseline"
@@ -198,6 +263,67 @@ def test_adaptive_scheduler_retries_oom_from_checkpoint(tmp_path, monkeypatch) -
     assert not (tmp_path / "run" / "RUN_FAILED").exists()
     events = (tmp_path / "run" / "scheduler_events.jsonl").read_text(encoding="utf-8")
     assert '"event": "oom_retry"' in events
+
+
+def test_adaptive_scheduler_retries_memory_pressure_from_checkpoint(tmp_path, monkeypatch) -> None:
+    commands = []
+    attempts = {"q_triad": 0}
+
+    class FakeProcess:
+        _next_pid = 5120
+
+        def __init__(self, command, **_kwargs):
+            self.pid = FakeProcess._next_pid
+            FakeProcess._next_pid += 1
+            commands.append(command)
+            selector = command[command.index("--selector") + 1]
+            output_dir = __import__("pathlib").Path(
+                command[command.index("--output-dir") + 1]
+            )
+            checkpoint = output_dir / "checkpoints" / "latest.pt"
+            checkpoint.parent.mkdir(parents=True, exist_ok=True)
+            checkpoint.write_bytes(b"checkpoint")
+            attempts[selector] += 1
+            if attempts[selector] == 1:
+                (output_dir / "memory_pressure_event.json").write_text(
+                    json.dumps({"diagnostics": {"before": {"free_mib": 400}}}),
+                    encoding="utf-8",
+                )
+                self.return_code = formal_runner.MEMORY_PRESSURE_EXIT_CODE
+            else:
+                _write_selector_metrics(output_dir, selector)
+                self.return_code = 0
+
+        def poll(self):
+            return self.return_code
+
+        def wait(self, **_kwargs):
+            return self.return_code
+
+    monkeypatch.setattr(formal_runner.subprocess, "Popen", FakeProcess)
+    adaptive = formal_runner.choose_hardware_profile("adaptive", {"kernel": {}}, [0], [])
+    statuses = formal_runner.run_selector_workers(
+        selectors=["q_triad"],
+        gpu_ids=[0],
+        args=SimpleNamespace(python_bin=sys.executable, log_every_batches=1),
+        config_path=tmp_path / "config.json",
+        baseline_dir=tmp_path / "baseline",
+        data_dir=tmp_path / "data",
+        run_dir=tmp_path / "run",
+        seed=13,
+        hardware_profile=adaptive,
+    )
+
+    assert statuses["q_triad"]["status"] == "complete"
+    assert statuses["q_triad"]["memory_pressure_retries"] == 1
+    assert "--resume" in commands[1]
+    assert commands[1][commands[1].index("--pair-chunk-size") + 1] == "4096"
+    events = (tmp_path / "run" / "scheduler_events.jsonl").read_text(encoding="utf-8")
+    assert '"event": "memory_pressure_retry"' in events
+    state = json.loads(
+        (tmp_path / "run" / "adaptive_memory_state.json").read_text(encoding="utf-8")
+    )
+    assert state["selectors"]["q_triad"]["memory_pressure_retries"] == 1
 
 
 def test_adaptive_tier_is_independent_per_selector(tmp_path, monkeypatch) -> None:
@@ -340,6 +466,54 @@ def test_adaptive_scheduler_fails_after_final_memory_tier(tmp_path, monkeypatch)
     state = json.loads((tmp_path / "run" / "adaptive_memory_state.json").read_text(encoding="utf-8"))
     assert state["current_tier"] == len(adaptive["tiers"]) - 1
     assert state["oom_retries"] == len(adaptive["tiers"]) - 1
+
+
+def test_adaptive_scheduler_records_pressure_retries_on_final_failure(tmp_path, monkeypatch) -> None:
+    class FakeProcess:
+        _next_pid = 5350
+
+        def __init__(self, command, **_kwargs):
+            self.pid = FakeProcess._next_pid
+            FakeProcess._next_pid += 1
+            output_dir = __import__("pathlib").Path(
+                command[command.index("--output-dir") + 1]
+            )
+            checkpoint = output_dir / "checkpoints" / "latest.pt"
+            checkpoint.parent.mkdir(parents=True, exist_ok=True)
+            checkpoint.write_bytes(b"checkpoint")
+            (output_dir / "memory_pressure_event.json").write_text(
+                json.dumps({"diagnostics": {"before": {"free_mib": 400}}}),
+                encoding="utf-8",
+            )
+
+        def poll(self):
+            return formal_runner.MEMORY_PRESSURE_EXIT_CODE
+
+        def wait(self, **_kwargs):
+            return formal_runner.MEMORY_PRESSURE_EXIT_CODE
+
+    monkeypatch.setattr(formal_runner.subprocess, "Popen", FakeProcess)
+    adaptive = formal_runner.choose_hardware_profile("adaptive", {"kernel": {}}, [0], [])
+    with pytest.raises(RuntimeError, match="exhausted all adaptive memory tiers"):
+        formal_runner.run_selector_workers(
+            selectors=["q_triad"],
+            gpu_ids=[0],
+            args=SimpleNamespace(python_bin=sys.executable, log_every_batches=1),
+            config_path=tmp_path / "config.json",
+            baseline_dir=tmp_path / "baseline",
+            data_dir=tmp_path / "data",
+            run_dir=tmp_path / "run",
+            seed=13,
+            hardware_profile=adaptive,
+        )
+
+    state = json.loads(
+        (tmp_path / "run" / "adaptive_memory_state.json").read_text(encoding="utf-8")
+    )
+    selector_state = state["selectors"]["q_triad"]
+    assert selector_state["memory_pressure_retries"] == len(adaptive["tiers"]) - 1
+    marker = json.loads((tmp_path / "run" / "RUN_FAILED").read_text(encoding="utf-8"))
+    assert marker["workers"]["q_triad"]["memory_pressure_retries"] == len(adaptive["tiers"]) - 1
 
 
 def test_adaptive_resume_uses_persisted_tier_and_checkpoint(tmp_path, monkeypatch) -> None:

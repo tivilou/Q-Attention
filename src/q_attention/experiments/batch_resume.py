@@ -30,6 +30,14 @@ class TrainingPaused(RuntimeError):
     """Raised only after the current optimizer update has been checkpointed."""
 
 
+class TrainingMemoryPressure(RuntimeError):
+    """Raised after a post-update checkpoint when safe CUDA reclaim was insufficient."""
+
+    def __init__(self, message: str, *, diagnostics: Mapping[str, Any] | None = None):
+        super().__init__(message)
+        self.diagnostics = dict(diagnostics or {})
+
+
 def _canonical_json(value: Mapping[str, Any]) -> str:
     return json.dumps(value, ensure_ascii=True, sort_keys=True, separators=(",", ":"))
 

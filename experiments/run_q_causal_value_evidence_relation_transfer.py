@@ -37,6 +37,7 @@ from q_attention.experiments.batch_resume import (  # noqa: E402
     BatchCursor,
     PauseController,
     RemainingBatchSampler,
+    TrainingMemoryPressure,
     TrainingPaused,
     atomic_torch_save,
     capture_rng_state,
@@ -483,6 +484,11 @@ def train_kernel(
         raise TrainingPaused(f"{selector} pause requested before the first optimizer update")
 
     try:
+        memory_pressure_monitor = getattr(args, "memory_pressure_monitor", None)
+        if memory_pressure_monitor is not None:
+            # Subsequent updates leave gradients as None at the post-step safe
+            # boundary, where the monitor can reclaim allocator cache safely.
+            optimizer.zero_grad(set_to_none=True)
         while cursor.epoch <= args.epochs:
             epoch = cursor.epoch
             kernel.train()
@@ -514,7 +520,8 @@ def train_kernel(
                 completed_batches=cursor.next_batch_index,
             ):
                 batch = move_batch(raw_batch, device)
-                optimizer.zero_grad(set_to_none=True)
+                if memory_pressure_monitor is None:
+                    optimizer.zero_grad(set_to_none=True)
                 adapter.attach(hook_config(batch))
                 try:
                     logits = model(
@@ -553,12 +560,36 @@ def train_kernel(
                 cursor.total_items += int(batch["labels"].shape[0])
                 cursor.next_batch_index += 1
                 cursor.global_step += 1
+                pressure_restart: dict[str, Any] | None = None
+                if memory_pressure_monitor is not None:
+                    # The completed update is now durable in model/optimizer
+                    # state. These tensors are no longer needed by this
+                    # training step, so releasing them cannot alter gradients.
+                    optimizer.zero_grad(set_to_none=True)
+                    del gradients, loss, logits, batch, raw_batch
+                    pressure_restart = memory_pressure_monitor(
+                        epoch=epoch,
+                        total_batches=total_batches,
+                        cursor=cursor,
+                    )
                 if (
                     cursor.next_batch_index % checkpoint_every == 0
                     or cursor.next_batch_index == total_batches
                     or (pause is not None and pause.requested)
                 ):
                     save_checkpoint()
+                if pressure_restart is not None:
+                    if manager is None:
+                        raise RuntimeError(
+                            "memory-pressure restart requires batch-level checkpointing"
+                        )
+                    # A pressure restart must never rely on the periodic save
+                    # cadence: the cursor denotes the next complete batch.
+                    save_checkpoint()
+                    raise TrainingMemoryPressure(
+                        f"{selector} remained under CUDA memory pressure after safe reclaim",
+                        diagnostics=pressure_restart,
+                    )
                 if pause is not None and pause.requested:
                     assert manager is not None
                     manager.write_paused_marker(

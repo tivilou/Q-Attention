@@ -118,6 +118,7 @@ CUDA_OOM_MARKERS = (
     "cudaerrormemoryallocation",
 )
 CUDA_OOM_EXIT_CODE = 86
+MEMORY_PRESSURE_EXIT_CODE = 87
 ADAPTIVE_MEMORY_STATE_SCHEMA = "q-attention.qtriad-adaptive-memory.v1"
 
 
@@ -416,6 +417,7 @@ def _load_or_create_adaptive_memory_state(
         "pair_chunk_size": int(initial["pair_chunk_size"]),
         "activation_checkpointing": bool(initial["activation_checkpointing"]),
         "oom_retries": 0,
+        "memory_pressure_retries": 0,
         "events": [],
     }
     _write_json_atomic(path, state)
@@ -435,6 +437,7 @@ def _adaptive_selector_state(
             "current_tier": 0,
             "current_profile": hardware_profile.get("name", "config"),
             "oom_retries": 0,
+            "memory_pressure_retries": 0,
         }
     selectors = state.setdefault("selectors", {})
     if not isinstance(selectors, dict):
@@ -458,17 +461,27 @@ def _adaptive_selector_state(
     if not isinstance(tier, int) or tier < 0 or tier >= len(tiers):
         raise ResumeCompatibilityError("invalid adaptive_memory_state.json")
     profile = _adaptive_profile_at(hardware_profile, tier)
-    retries = sum(
+    oom_retries = sum(
         1
         for event in state.get("events", [])
-        if isinstance(event, dict) and event.get("selector") == selector
+        if isinstance(event, dict)
+        and event.get("selector") == selector
+        and event.get("event") == "oom_retry"
+    )
+    memory_pressure_retries = sum(
+        1
+        for event in state.get("events", [])
+        if isinstance(event, dict)
+        and event.get("selector") == selector
+        and event.get("event") == "memory_pressure_retry"
     )
     created = {
         "current_tier": tier,
         "current_profile": profile["name"],
         "pair_chunk_size": int(profile["pair_chunk_size"]),
         "activation_checkpointing": bool(profile["activation_checkpointing"]),
-        "oom_retries": retries,
+        "oom_retries": oom_retries,
+        "memory_pressure_retries": memory_pressure_retries,
     }
     selectors[selector] = created
     _write_json_atomic(_adaptive_state_path(run_dir), state)
@@ -484,14 +497,18 @@ def _record_adaptive_oom_retry(
     from_tier: int,
     to_tier: int,
     hardware_profile: dict[str, Any],
+    event_type: str = "oom_retry",
+    memory_pressure: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    if event_type not in ("oom_retry", "memory_pressure_retry"):
+        raise ValueError(f"unsupported adaptive retry event: {event_type}")
     previous = _adaptive_profile_at(hardware_profile, from_tier)
     selected = _adaptive_profile_at(hardware_profile, to_tier)
     selector_state = _adaptive_selector_state(
         run_dir, state, hardware_profile, selector
     )
     event = {
-        "event": "oom_retry",
+        "event": event_type,
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
         "selector": selector,
         "gpu": gpu,
@@ -502,6 +519,8 @@ def _record_adaptive_oom_retry(
         "pair_chunk_size": int(selected["pair_chunk_size"]),
         "activation_checkpointing": bool(selected["activation_checkpointing"]),
     }
+    if memory_pressure:
+        event["memory_pressure"] = memory_pressure
     events = list(state.get("events", []))
     events.append(event)
     selector_state.update(
@@ -510,7 +529,16 @@ def _record_adaptive_oom_retry(
             "current_profile": selected["name"],
             "pair_chunk_size": int(selected["pair_chunk_size"]),
             "activation_checkpointing": bool(selected["activation_checkpointing"]),
-            "oom_retries": int(selector_state.get("oom_retries", 0)) + 1,
+            **(
+                {"oom_retries": int(selector_state.get("oom_retries", 0)) + 1}
+                if event_type == "oom_retry"
+                else {
+                    "memory_pressure_retries": int(
+                        selector_state.get("memory_pressure_retries", 0)
+                    )
+                    + 1
+                }
+            ),
         }
     )
     selector_states = state.setdefault("selectors", {})
@@ -527,7 +555,16 @@ def _record_adaptive_oom_retry(
             "current_profile": max_profile["name"],
             "pair_chunk_size": int(max_profile["pair_chunk_size"]),
             "activation_checkpointing": bool(max_profile["activation_checkpointing"]),
-            "oom_retries": int(state.get("oom_retries", 0)) + 1,
+            **(
+                {"oom_retries": int(state.get("oom_retries", 0)) + 1}
+                if event_type == "oom_retry"
+                else {
+                    "memory_pressure_retries": int(
+                        state.get("memory_pressure_retries", 0)
+                    )
+                    + 1
+                }
+            ),
             "events": events[-100:],
         }
     )
@@ -541,6 +578,16 @@ def _record_adaptive_oom_retry(
     )
     _write_json_atomic(_adaptive_state_path(run_dir), state)
     return event
+
+
+def _read_memory_pressure_event(selector_dir: Path) -> dict[str, Any]:
+    path = selector_dir / "memory_pressure_event.json"
+    try:
+        payload = _read_json(path)
+    except (OSError, json.JSONDecodeError):
+        return {}
+    diagnostics = payload.get("diagnostics") if isinstance(payload, dict) else None
+    return diagnostics if isinstance(diagnostics, dict) else {}
 
 
 def _run_resume_contract(
@@ -1429,6 +1476,22 @@ def run_selector_workers(
                             if adaptive
                             else int(statuses[selector].get("oom_retries", 0))
                         ),
+                        "memory_pressure_retries": (
+                            int(
+                                _adaptive_selector_state(
+                                    run_dir,
+                                    adaptive_memory_state,
+                                    hardware_profile,
+                                    selector,
+                                ).get("memory_pressure_retries", 0)
+                            )
+                            if adaptive
+                            else int(
+                                statuses[selector].get(
+                                    "memory_pressure_retries", 0
+                                )
+                            )
+                        ),
                     }
                 )
                 write_assignments()
@@ -1464,12 +1527,19 @@ def run_selector_workers(
                 if return_code != 0:
                     log_path = run_dir / "selectors" / selector / "worker.log"
                     oom = adaptive and _worker_reported_cuda_oom(log_path, return_code)
+                    memory_pressure = (
+                        adaptive and return_code == MEMORY_PRESSURE_EXIT_CODE
+                    )
                     checkpoint_path = (
                         run_dir / "selectors" / selector / "checkpoints" / "latest.pt"
                     )
                     tier_used = int(entry["adaptive_tier"])
                     next_tier = tier_used + 1
-                    if oom and checkpoint_path.is_file() and next_tier < len(hardware_profile["tiers"]):
+                    if (
+                        (oom or memory_pressure)
+                        and checkpoint_path.is_file()
+                        and next_tier < len(hardware_profile["tiers"])
+                    ):
                         event = _record_adaptive_oom_retry(
                             run_dir,
                             adaptive_memory_state,
@@ -1478,15 +1548,36 @@ def run_selector_workers(
                             from_tier=tier_used,
                             to_tier=next_tier,
                             hardware_profile=hardware_profile,
+                            event_type=(
+                                "memory_pressure_retry"
+                                if memory_pressure
+                                else "oom_retry"
+                            ),
+                            memory_pressure=(
+                                _read_memory_pressure_event(
+                                    run_dir / "selectors" / selector
+                                )
+                                if memory_pressure
+                                else None
+                            ),
                         )
-                        retries = int(statuses[selector].get("oom_retries", 0)) + 1
+                        retry_key = (
+                            "memory_pressure_retries"
+                            if memory_pressure
+                            else "oom_retries"
+                        )
+                        retries = int(statuses[selector].get(retry_key, 0)) + 1
                         statuses[selector].update(
                             {
                                 "status": "pending",
                                 "gpu": None,
                                 "last_return_code": return_code,
-                                "oom_retries": retries,
-                                "last_oom_at": finished_at,
+                                retry_key: retries,
+                                (
+                                    "last_memory_pressure_at"
+                                    if memory_pressure
+                                    else "last_oom_at"
+                                ): finished_at,
                                 "last_memory_profile": entry["memory_profile"],
                             }
                         )
@@ -1496,8 +1587,9 @@ def run_selector_workers(
                         write_assignments()
                         _append_scheduler_event(run_dir, event)
                         selected = _adaptive_profile_at(hardware_profile, next_tier)
+                        failure_name = "memory pressure" if memory_pressure else "CUDA OOM"
                         print(
-                            f"[selector-scheduler] CUDA OOM on {selector} | retry {retries} | "
+                            f"[selector-scheduler] {failure_name} on {selector} | retry {retries} | "
                             f"profile {selected['name']} | pair_chunk_size={selected['pair_chunk_size']}",
                             flush=True,
                         )
@@ -1510,18 +1602,27 @@ def run_selector_workers(
                             "finished_at": finished_at,
                             "duration_seconds": duration,
                             "oom_retries": int(statuses[selector].get("oom_retries", 0)),
+                            "memory_pressure_retries": int(
+                                statuses[selector].get("memory_pressure_retries", 0)
+                            ),
                         }
                     )
                     write_assignments()
-                    if oom and not checkpoint_path.is_file():
+                    if (oom or memory_pressure) and not checkpoint_path.is_file():
+                        failure_name = "memory pressure" if memory_pressure else "CUDA OOM"
                         reason = (
-                            f"selector worker {selector} hit CUDA OOM without a batch checkpoint; "
+                            f"selector worker {selector} hit {failure_name} without a batch checkpoint; "
                             "unsafe adaptive restart refused"
                         )
                     elif oom:
                         reason = (
                             f"selector worker {selector} exhausted all adaptive memory tiers "
                             f"after CUDA OOM (exit code {return_code})"
+                        )
+                    elif memory_pressure:
+                        reason = (
+                            f"selector worker {selector} exhausted all adaptive memory tiers "
+                            f"after memory pressure (exit code {return_code})"
                         )
                     else:
                         reason = f"selector worker {selector} failed with exit code {return_code}"
