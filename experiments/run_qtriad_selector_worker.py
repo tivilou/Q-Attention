@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import os
 from pathlib import Path
@@ -26,12 +27,140 @@ from q_attention.experiments.relation_steering import (  # noqa: E402
     load_relation_run,
     make_relation_loader,
 )
+from q_attention.experiments.batch_resume import (  # noqa: E402
+    PAUSED_EXIT_CODE,
+    TrainingMemoryPressure,
+    TrainingPaused,
+    atomic_write_json,
+)
 from q_attention.tasks.relation import load_relation_jsonl  # noqa: E402
 from run_q_causal_value_evidence_relation_transfer import train_kernel  # noqa: E402
-from run_qtriad_relation_transfer import build_kernel, evaluate_selector  # noqa: E402
+from run_qtriad_relation_transfer import (  # noqa: E402
+    CUDA_OOM_EXIT_CODE,
+    MEMORY_PRESSURE_EXIT_CODE,
+    build_kernel,
+    evaluate_selector,
+    is_cuda_oom_error,
+    selector_resume_contract,
+)
 
 
 MIN_WORKER_FREE_MIB = 8 * 1024
+MEMORY_PRESSURE_POLL_INTERVAL_STEPS = 20
+
+
+class CudaMemoryPressureMonitor:
+    """Reclaim only this worker's idle allocator cache after complete updates."""
+
+    def __init__(
+        self,
+        *,
+        selector: str,
+        enabled: bool,
+        restart_on_pressure: bool,
+        poll_interval_steps: int = MEMORY_PRESSURE_POLL_INTERVAL_STEPS,
+    ) -> None:
+        self.selector = selector
+        self.enabled = enabled
+        self.restart_on_pressure = restart_on_pressure
+        self.poll_interval_steps = max(1, int(poll_interval_steps))
+
+    @staticmethod
+    def _mib(value: int) -> int:
+        return int(value // (1024 * 1024))
+
+    def _snapshot(self) -> dict[str, int]:
+        free_bytes, total_bytes = torch.cuda.mem_get_info()
+        allocated = torch.cuda.memory_allocated()
+        reserved = torch.cuda.memory_reserved()
+        return {
+            "free_mib": self._mib(free_bytes),
+            "total_mib": self._mib(total_bytes),
+            "allocated_mib": self._mib(allocated),
+            "reserved_mib": self._mib(reserved),
+        }
+
+    @staticmethod
+    def _minimum_free_mib(total_mib: int) -> int:
+        # Keep a modest allocation margin, capped so large cards are not
+        # needlessly treated as under pressure.
+        return max(512, min(2 * 1024, total_mib // 20))
+
+    def __call__(
+        self, *, epoch: int, total_batches: int, cursor: Any
+    ) -> dict[str, Any] | None:
+        if (
+            not self.enabled
+            or not torch.cuda.is_available()
+            or int(cursor.global_step) % self.poll_interval_steps != 0
+        ):
+            return None
+        try:
+            before = self._snapshot()
+        except Exception as exc:  # diagnostics must never stop a valid update loop
+            print(
+                json.dumps(
+                    {
+                        "event": "memory_pressure_sample_failed",
+                        "selector": self.selector,
+                        "error": str(exc),
+                    },
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
+            return None
+        minimum_free_mib = self._minimum_free_mib(before["total_mib"])
+        cached_mib = max(0, before["reserved_mib"] - before["allocated_mib"])
+        under_pressure = before["free_mib"] < minimum_free_mib
+        fragmented = (
+            before["free_mib"] < 2 * minimum_free_mib
+            and cached_mib >= max(512, before["total_mib"] // 20)
+        )
+        if not under_pressure and not fragmented:
+            return None
+
+        # gc collects only unreachable objects; empty_cache returns only idle
+        # blocks from this process's PyTorch allocator. Neither can release
+        # active training tensors or memory owned by another CUDA process.
+        gc.collect()
+        torch.cuda.empty_cache()
+        try:
+            after = self._snapshot()
+        except Exception as exc:  # reclaim succeeded even if the second sample is unavailable
+            print(
+                json.dumps(
+                    {
+                        "event": "memory_pressure_sample_failed",
+                        "selector": self.selector,
+                        "phase": "after_reclaim",
+                        "error": str(exc),
+                    },
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
+            return None
+        event = {
+            "event": "memory_pressure_reclaim",
+            "selector": self.selector,
+            "epoch": int(epoch),
+            "batch": int(cursor.next_batch_index),
+            "batches": int(total_batches),
+            "global_step": int(cursor.global_step),
+            "minimum_free_mib": minimum_free_mib,
+            "trigger": "low_free" if under_pressure else "fragmented_cache",
+            "before": before,
+            "after": after,
+            "reclaimed_reserved_mib": max(
+                0, before["reserved_mib"] - after["reserved_mib"]
+            ),
+            "reclaimed_free_mib": max(0, after["free_mib"] - before["free_mib"]),
+        }
+        print(json.dumps(event, sort_keys=True), flush=True)
+        if after["free_mib"] >= minimum_free_mib or not self.restart_on_pressure:
+            return None
+        return event
 
 
 def check_worker_gpu_capacity(device_name: str) -> None:
@@ -84,13 +213,28 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cuda")
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--log-every-batches", type=int, default=50)
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="resume this selector from its compatible post-update checkpoint",
+    )
+    parser.add_argument("--checkpoint-every-batches", type=int, default=50)
     parser.add_argument("--pair-chunk-size", type=int, default=None)
     parser.add_argument("--activation-checkpointing", type=int, choices=(0, 1), default=None)
+    parser.add_argument(
+        "--adaptive-memory",
+        action="store_true",
+        help="allow the parent scheduler to resume this worker with a lower memory tier",
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    if args.log_every_batches <= 0:
+        raise ValueError("--log-every-batches must be positive")
+    if args.checkpoint_every_batches <= 0:
+        raise ValueError("--checkpoint-every-batches must be positive")
     config = json.loads(args.config.read_text(encoding="utf-8"))
     check_worker_gpu_capacity(args.device)
     device = choose_device(args.device)
@@ -135,19 +279,56 @@ def main() -> int:
         epochs=int(kernel_config["epochs"]),
         kernel_lr=float(kernel_config["lr"]),
         log_every_batches=args.log_every_batches,
+        batch_resume=True,
+        resume=args.resume,
+        checkpoint_every_batches=args.checkpoint_every_batches,
+        resume_contract=selector_resume_contract(
+            config_path=args.config,
+            baseline_dir=args.baseline_dir,
+            data_dir=data_dir,
+            selector=args.selector,
+            seed=args.seed,
+            pair_chunk_size=args.pair_chunk_size,
+            activation_checkpointing=args.activation_checkpointing,
+            adaptive_memory=args.adaptive_memory,
+        ),
+        memory_pressure_monitor=CudaMemoryPressureMonitor(
+            selector=args.selector,
+            enabled=device.type == "cuda",
+            restart_on_pressure=args.adaptive_memory,
+        ),
     )
-    train_result = train_kernel(
-        artifacts.model,
-        kernel,
-        train_records,
-        valid_loader,
-        artifacts,
-        device,
-        args.selector,
-        args.seed,
-        train_args,
-        args.output_dir,
-    )
+    try:
+        train_result = train_kernel(
+            artifacts.model,
+            kernel,
+            train_records,
+            valid_loader,
+            artifacts,
+            device,
+            args.selector,
+            args.seed,
+            train_args,
+            args.output_dir,
+        )
+    except TrainingPaused:
+        print(
+            json.dumps(
+                {"event": "run_paused", "selector": args.selector}, sort_keys=True
+            ),
+            flush=True,
+        )
+        return PAUSED_EXIT_CODE
+    except TrainingMemoryPressure as exc:
+        event = {
+            "event": "memory_pressure_restart",
+            "selector": args.selector,
+            "checkpoint": str(args.output_dir / "checkpoints" / "latest.pt"),
+            "diagnostics": exc.diagnostics,
+        }
+        atomic_write_json(args.output_dir / "memory_pressure_event.json", event)
+        print(json.dumps(event, sort_keys=True), flush=True)
+        return MEMORY_PRESSURE_EXIT_CODE
     valid_result = evaluate_selector(
         artifacts.model,
         valid_loader,
@@ -207,4 +388,19 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except BaseException as exc:
+        if is_cuda_oom_error(exc):
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            selector = sys.argv[sys.argv.index("--selector") + 1] if "--selector" in sys.argv else "<unknown>"
+            print(
+                json.dumps(
+                    {"event": "cuda_oom", "selector": selector, "error": str(exc)},
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
+            raise SystemExit(CUDA_OOM_EXIT_CODE) from exc
+        raise

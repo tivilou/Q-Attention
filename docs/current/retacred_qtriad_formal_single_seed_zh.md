@@ -21,9 +21,9 @@ bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu 0
 bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu auto
 ```
 
-`auto` 会选择空闲显存至少 8 GiB 的可见物理 GPU；单 GPU 环境也适用。自动 profile 只调整显存执行策略，不改变 seed、数据、epoch、batch size、selector 或控制组：低显存（总显存小于 16 GiB，或空闲显存小于 12 GiB）使用 `pair_chunk_size=64` 并启用 activation checkpointing；中等和高显存使用 `pair_chunk_size=256` 并启用 checkpointing。Q-TRIAD 的训练反向会对 pair chunk 逐块重算并累积梯度，不能通过关闭 checkpointing 换取速度；这样可避免把所有 query-key chunk 的计算图长期保留在显存中。实际 GPU、显存、profile 和生效参数会写入 `run_summary.json` 与 `gpu_assignments.json`，供审计复核。
+`auto` 会选择空闲显存至少 8 GiB 的可见物理 GPU；单 GPU 环境也适用。默认 profile 是 `adaptive`：每个 selector 都先用最快的 streamed-backward 档位 `adaptive_fast`（`pair_chunk_size=16384`），只有该 selector 确认 CUDA OOM 才独立降到 `4096 -> 1024 -> 256 -> 64`，并在需要时启用 checkpointing。OOM worker 会退出，父调度器释放 GPU 后用该 selector 的最近 batch checkpoint 重启；回退过程写入 `adaptive_memory_state.json` 与 `scheduler_events.jsonl`。一个 selector 降档不会降低其他 selector 的初始档位，因此不会无故牺牲它们的速度。没有 checkpoint 或同一 selector 的所有档位都失败时才写 `RUN_FAILED`。这不是把两张 GPU 的显存合并。该机制只调整执行策略，不改变 seed、数据、batch size、epoch、selector、控制组或优化契约；不恢复旧的无限 autograd graph retaining 实现。固定 `low_memory`/`balanced`/`high_memory` profile 不会自动回退。当前 activation checkpointing 字段保留在执行契约中，Q-TRIAD 的核心显存保护来自 streamed backward。实际 GPU、显存、profile 和生效参数会写入 `run_summary.json` 与 `gpu_assignments.json`，供审计复核。
 
-脚本在创建 raw run 之前、以及 baseline 完成准备 selector 之前各检查一次显存。显式 `--gpu 0` 也必须至少有 8 GiB 空闲；若某个 GPU 被其他 PID 占用，脚本会列出 `nvidia-smi` 的进程并停止，不会把这次失败写成实验结果。不要强制杀掉不属于本实验的进程；确认占用进程可以停止后再重跑同一命令。
+每个 CUDA selector worker 还会在完成 optimizer 更新后的安全边界按 20 个 batch 轮询显存压力。压力触发时只执行本进程的 `gc.collect()` 和 `torch.cuda.empty_cache()`：前者回收不可达 Python 对象，后者只归还本 worker PyTorch allocator 的闲置缓存；不会删除仍在计算图中的活跃 Tensor，也不会触碰其他 CUDA 进程。每次回收会输出 `memory_pressure_reclaim` 事件及回收前后 `free/allocated/reserved` 诊断。如果清理后仍低于保留阈值，自适应 worker 会先保存当前 batch checkpoint，再以退出码 `87` 退出，由父调度器仅降低该 selector 的下一档并从 checkpoint 继续；固定 profile 则记录事件后继续运行。自适应重试写入 `memory_pressure_event.json`、`adaptive_memory_state.json` 和 `scheduler_events.jsonl`；固定 profile 只输出回收事件，不会擅自改变执行档位。因此该机制不能释放活跃模型状态导致的真实峰值显存，仍需依靠 streamed backward、pair chunking 和必要的 checkpointing 降低峰值。
 
 脚本在创建 raw run 之前、以及 baseline 完成准备 selector 之前各检查一次显存。显式 `--gpu 0` 也必须至少有 8 GiB 空闲；若某个 GPU 被其他 PID 占用，脚本会列出 `nvidia-smi` 的进程并停止，不会把这次失败写成实验结果。不要强制杀掉不属于本实验的进程；确认占用进程可以停止后再重跑同一命令。
 
@@ -33,7 +33,7 @@ bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu auto
 bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu 0,1
 ```
 
-多 GPU 模式先训练一次共享 baseline，再按空闲 GPU 动态分配 `q_triad`、`classical_density_tensor` 和 `quantum_product`。每个 worker 独立加载同一 baseline checkpoint；这不是 DDP，也不会把两张卡的显存合并成一张卡。任一 worker 失败时，调度器会终止其余 worker、写入 `RUN_FAILED`，且不会写 `RUN_COMPLETE`。GPU ID 必须唯一且在 `nvidia-smi` 中可用。
+多 GPU 模式先训练一次共享 baseline，再按空闲 GPU 动态分配 `q_triad`、`classical_density_tensor` 和 `quantum_product`。每个 worker 独立加载同一 baseline checkpoint；这不是 DDP，也不会把两张卡的显存合并成一张卡。adaptive 模式只重试确认 OOM 且有 batch checkpoint 的 worker，其他 selector 可以继续运行；普通非零退出仍立即失败。GPU ID 必须唯一且在 `nvidia-smi` 中可用。
 
 `git status --short` 在启动前必须没有输出。脚本在启动时记录一个 UTC 时间戳 `YYYYMMDDTHHMMSSZ`，raw run 默认写入：
 
@@ -49,11 +49,51 @@ reports/retacred_qtriad_formal_single_seed/<timestamp>_seed13/
 
 运行期间不要改动 seed、数据、selector、epoch、batch size、控制组或代码，也不要并行启动第二个完整 run。
 
+### 安全暂停与 batch 级恢复
+
+训练默认每隔 `--checkpoint-every-batches` 个 batch，在完整 `optimizer.step()` 后原子写入 checkpoint，并保存 optimizer、RNG、epoch permutation 和 next-batch cursor。按 `Ctrl+C` 或向 runner 发送 `SIGTERM`/`SIGHUP` 会请求安全暂停；当前更新完成后写入 `RUN_PAUSED` 并返回退出码 `75`。不要使用 `kill -9`，否则无法保证最后一个更新有 checkpoint。
+
+暂停后继续同一 run：
+
+```bash
+bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu 0 --resume runs/retacred_qtriad_formal_single_seed/<timestamp>_seed13
+```
+
+恢复会复用原 run 的 `data/*.jsonl` 和 `data/data_manifest.json`，跳过已有有效指标的 baseline/selector，并仅从兼容的 batch checkpoint 继续。恢复命令必须使用原 run 相同的物理 GPU 列表、并行模式和显存 profile；adaptive run 还会读取 `adaptive_memory_state.json`，从上次已验证的 tier 继续，不会重新回到最快档。若最初使用 `--gpu auto`，请从 `run_summary.json` 取出已解析的 GPU 与 profile，并显式传入，例如 `--gpu 0,1 --hardware-profile adaptive`。`--resume` 不能与 `--output-dir` 同时使用；恢复期间不能修改算法参数、数据、代码、seed、batch size、epoch、学习率、selector、显存 profile 或 checkpoint 契约。原始 `RUN_PAUSED` 保留完整 worker 状态，每次恢复会额外写入 `resume_state.json`；wrapper 的恢复日志写入新的 `logs/run.resume-<timestamp>.log`，不会覆盖首次日志。旧目录若没有 `run_manifest.json`、`data_manifest.json` 或 batch checkpoint，不能宣称 batch 级恢复，只能新建目录从 baseline 级重新开始。
+
+### 旧版已完成 baseline 的迁移
+
+如果师弟运行的是没有新 manifest/checkpoint 机制的旧版脚本，且旧 run 的 baseline 已完成、当前停在 `q_triad`，不要把旧目录作为 `--resume` 目录。`--resume` 会严格校验新代码指纹，拒绝不兼容的旧 run；请新建一个 run，只显式导入旧 baseline：
+
+```bash
+bash scripts/run_retacred_qtriad_formal_single_seed.sh \
+  --gpu 0 \
+  --import-baseline-from runs/retacred_qtriad_formal_single_seed/<旧时间戳>_seed13
+```
+
+该命令仍会按当前 frozen contract 重新 materialize 数据，并逐项核对旧 run 的 `baseline/model.pt`、`metrics.json`、`vocab.json`、`labels.json`、三份 `data/*.jsonl` 的完整性、SHA-256、seed 13、baseline/model 超参和模型结构。校验失败会停止，不会把旧结果当成可恢复状态。通过后只复制四个已完成 baseline 文件到新 run；旧 `selectors/`、旧 `q_triad` 中间 checkpoint 和日志一律不复制。新 run 会写 `baseline_import.json`，并让 `disabled`、`q_triad`、两个 controls 按新代码从 `q_triad` batch 0 重新开始，因此不能继承旧版已经跑过的 `q_triad` 部分，但可以跳过 baseline 训练。
+
+导入后的新 run 是独立 run，后续暂停请使用新目录的 `--resume <新目录>`；不要再次对同一目录使用 `--import-baseline-from`，也不要同时指定 `--resume` 和 `--import-baseline-from`。
+
+### 可选的模型级并行
+
+当单个模型阶段需要跨卡放置时，可以显式启用按完整 encoder layer 切分的模型级并行：
+
+```bash
+bash scripts/run_retacred_qtriad_formal_single_seed.sh --model-parallel-gpus 0,1
+```
+
+该选项要求至少两张可见 GPU。embedding 和前部 layer 放在首卡，后部 layer 与 classifier 放在末卡，中间 hidden state 跨卡传输；Q-TRIAD 每层子核跟随对应 attention layer。它与独立 selector-parallel 不同，启用后 selector 按序运行，不会为每个 selector 复制整套模型。摘要会记录物理 GPU ID、进程内 CUDA 映射和模块 device map。
+
+模型级并行首先用于验证显存可行性；本模型层间依赖和跨卡通信可能抵消并行收益，不能预先宣称提速。合作者必须先做双 GPU canary，记录单卡/双卡吞吐、峰值显存、数值等价、checkpoint 恢复和退出后的残留进程，再决定是否用于完整 formal run。双 GPU canary 也不能替代 seed-13 正式实验的单 seed 门禁。
+
 ## 2. 显存与并行说明
 
 Q-TRIAD 的 attention hook 会把 query-key 对分块计算，避免一次性物化 `batch x query_tokens x key_tokens` 的 statevector 输入；训练前向只保留最终 score 张量，反向传播时逐块重算 statevector 并累积梯度，不会为每个 chunk 保留完整 autograd 图。`kernel.pair_chunk_size` 是已发布配置的一部分，不能在正式运行中临时修改。多 GPU 只降低每张卡承载的 selector 数量，不改变单个 selector 的峰值显存；因此每张卡仍必须满足单个 selector 的显存要求。
 
 运行摘要会记录 `gpu_assignments.json`、请求和解析到的 GPU ID、每个 worker 的 PID/状态/耗时、`pair_chunk_size` 以及 CUDA 设备信息。先用小规模 canary 验证 GPU 拓扑和显存，再运行完整正式实验；不得用降低 batch 或改变 selector 的临时命令冒充正式结果。
+
+运行期间主终端会输出可读的 baseline 进度和每 30 秒一份 selector 面板。baseline 显示 phase、epoch、batch、速率、ETA、当前/峰值进程显存和每轮 valid 指标；selector 面板按物理 GPU 显示当前 selector、phase、epoch/batch、速率、ETA、整卡已用/空闲显存以及该 worker 的 allocated/reserved/peak 显存，完成、排队和失败的 selector 也会单独列出。显存采样由 `nvidia-smi` 和 PyTorch allocator 提供，batch 进度最多每 5 秒查询一次，采样失败不会阻断训练。worker 的原始 JSON 进度仍保存在各自的 `selectors/<selector>/worker.log`，baseline 原始输出保存在 `baseline_train.log`，调度器事件另存为 raw run 根目录的 `scheduler_events.jsonl`，便于审计。终端被重定向或通过 `tee` 保存时仍使用普通追加文本，不依赖 ANSI 光标控制。
 
 ## 3. 完成检查
 

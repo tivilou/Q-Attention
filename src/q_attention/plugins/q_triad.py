@@ -8,6 +8,7 @@ while the classical density expansion exposes the attribution ceiling.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from collections.abc import Sequence
 import itertools
 import math
 from typing import Any
@@ -502,6 +503,8 @@ class QTriadAttentionScoreKernel(nn.Module):
         ratio = torch.tensor(initial_gain / max_gain, dtype=torch.float32)
         raw = torch.full((num_layers, num_heads), float(torch.atanh(ratio).item()))
         self.raw_gains = nn.Parameter(raw)
+        self._model_parallel_devices: tuple[torch.device, ...] = ()
+        self._model_parallel_layer_devices: tuple[torch.device, ...] = ()
 
     @property
     def model_dimensions(self) -> tuple[int, int, int]:
@@ -509,6 +512,27 @@ class QTriadAttentionScoreKernel(nn.Module):
 
     def _kernel(self, layer_index: int, head_index: int) -> QTriadKernel:
         return self.kernels[layer_index * self.num_heads + head_index]
+
+    def configure_model_parallel(
+        self, devices: Sequence[torch.device | str]
+    ) -> "QTriadAttentionScoreKernel":
+        """Place each layer's score sub-kernels beside its attention layer."""
+        normalized = tuple(torch.device(device) for device in devices)
+        if not normalized:
+            raise ValueError("at least one device is required for kernel placement")
+        if any(device.type == "cuda" and device.index is None for device in normalized):
+            raise ValueError("model parallel CUDA devices must include explicit indexes")
+        layer_devices = tuple(
+            normalized[min(index * len(normalized) // self.num_layers, len(normalized) - 1)]
+            for index in range(self.num_layers)
+        )
+        for layer_index, layer_device in enumerate(layer_devices):
+            for head_index in range(self.num_heads):
+                self._kernel(layer_index, head_index).to(layer_device)
+        self.raw_gains.data = self.raw_gains.data.to(normalized[0])
+        self._model_parallel_devices = normalized
+        self._model_parallel_layer_devices = layer_devices
+        return self
 
     def metadata(self) -> dict[str, Any]:
         return {
@@ -524,6 +548,11 @@ class QTriadAttentionScoreKernel(nn.Module):
             "target_input": "query,key,subject_mask,object_mask",
             "readout": "centered_pre_softmax_score_residual",
             "key_action_scope": "non_entity_context_only",
+            "model_parallel": bool(self._model_parallel_devices),
+            "model_parallel_devices": [str(device) for device in self._model_parallel_devices],
+            "model_parallel_layer_devices": [
+                str(device) for device in self._model_parallel_layer_devices
+            ],
             "pair_chunk_size": self.pair_chunk_size,
             "activation_checkpointing": self.activation_checkpointing,
         }
@@ -616,7 +645,9 @@ class QTriadAttentionScoreKernel(nn.Module):
             k = key[:, head_index, :, :]
             score = self._score_pairs(self._kernel(layer_index, head_index), q, r, k)
             score = score - (score * context_weights[:, None, :]).sum(dim=-1, keepdim=True) / key_count[:, None, None]
-            gain = self.max_gain * torch.tanh(self.raw_gains[layer_index, head_index])
+            gain = self.max_gain * torch.tanh(
+                self.raw_gains[layer_index, head_index].to(query.device)
+            )
             residuals.append(score * gain)
         residual = torch.stack(residuals, dim=1)
         return residual * active_queries * context_key_mask

@@ -6,11 +6,145 @@ from itertools import islice
 import json
 import os
 from pathlib import Path
+import subprocess
 import time
 from typing import Any, TypeVar
 
 
 T = TypeVar("T")
+
+_GPU_MEMORY_SAMPLE_INTERVAL_SECONDS = 5.0
+_GPU_MEMORY_CACHE: list[dict[str, Any]] | None = None
+_GPU_MEMORY_CACHE_AT: float | None = None
+_GPU_MEMORY_CACHE_KEY: tuple[str | None, int] | None = None
+
+
+def _gpu_memory_snapshot(*, force: bool = False) -> list[dict[str, Any]] | None:
+    """Collect process and device memory without making CPU runs depend on CUDA."""
+    global _GPU_MEMORY_CACHE, _GPU_MEMORY_CACHE_AT, _GPU_MEMORY_CACHE_KEY
+    try:
+        import torch
+
+        if not torch.cuda.is_available():
+            return None
+        device_count = torch.cuda.device_count()
+    except (ImportError, RuntimeError, OSError):
+        return None
+
+    visible = os.environ.get("CUDA_VISIBLE_DEVICES")
+    cache_key = (visible, device_count)
+    now = time.monotonic()
+    if (
+        not force
+        and _GPU_MEMORY_CACHE_KEY == cache_key
+        and _GPU_MEMORY_CACHE_AT is not None
+        and now - _GPU_MEMORY_CACHE_AT < _GPU_MEMORY_SAMPLE_INTERVAL_SECONDS
+    ):
+        return _GPU_MEMORY_CACHE
+
+    physical_ids: list[int | None]
+    if visible:
+        fields = [field.strip() for field in visible.split(",")]
+        physical_ids = [int(field) if field.isdigit() else None for field in fields]
+    else:
+        physical_ids = list(range(device_count))
+    if len(physical_ids) < device_count:
+        physical_ids.extend([None] * (device_count - len(physical_ids)))
+
+    nvidia_rows: dict[int, dict[str, int]] = {}
+    try:
+        result = subprocess.run(
+            [
+                "nvidia-smi",
+                "--query-gpu=index,memory.used,memory.free,memory.total",
+                "--format=csv,noheader,nounits",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=2,
+        )
+    except (OSError, subprocess.SubprocessError):
+        result = None
+    if result is not None and result.returncode == 0:
+        for line in result.stdout.splitlines():
+            fields = [field.strip() for field in line.split(",", 3)]
+            if len(fields) != 4:
+                continue
+            try:
+                index, used, free, total = (int(field) for field in fields)
+            except ValueError:
+                continue
+            nvidia_rows[index] = {
+                "nvidia_used_mib": used,
+                "nvidia_free_mib": free,
+                "nvidia_total_mib": total,
+            }
+
+    snapshots: list[dict[str, Any]] = []
+    for local_index in range(device_count):
+        try:
+            allocated = torch.cuda.memory_allocated(local_index)
+            reserved = torch.cuda.memory_reserved(local_index)
+            peak_allocated = torch.cuda.max_memory_allocated(local_index)
+            peak_reserved = torch.cuda.max_memory_reserved(local_index)
+        except (RuntimeError, OSError):
+            continue
+        physical_index = physical_ids[local_index]
+        item: dict[str, Any] = {
+            "local_index": local_index,
+            "physical_index": physical_index,
+            "allocated_mib": round(allocated / (1024 * 1024), 1),
+            "reserved_mib": round(reserved / (1024 * 1024), 1),
+            "peak_allocated_mib": round(peak_allocated / (1024 * 1024), 1),
+            "peak_reserved_mib": round(peak_reserved / (1024 * 1024), 1),
+        }
+        if physical_index is not None and physical_index in nvidia_rows:
+            item.update(nvidia_rows[physical_index])
+        snapshots.append(item)
+    _GPU_MEMORY_CACHE = snapshots or None
+    _GPU_MEMORY_CACHE_AT = now
+    _GPU_MEMORY_CACHE_KEY = cache_key
+    return _GPU_MEMORY_CACHE
+
+
+def _format_gib(value: Any) -> str | None:
+    try:
+        return f"{float(value) / 1024:.1f}"
+    except (TypeError, ValueError):
+        return None
+
+
+def format_gpu_memory(value: Any) -> str:
+    """Format a compact memory summary for the human-readable console UI."""
+    if not isinstance(value, list):
+        return ""
+    parts: list[str] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        label = item.get("physical_index")
+        if label is None:
+            label = f"local{item.get('local_index', '?')}"
+        used = _format_gib(item.get("nvidia_used_mib"))
+        total = _format_gib(item.get("nvidia_total_mib"))
+        free = _format_gib(item.get("nvidia_free_mib"))
+        allocated = _format_gib(item.get("allocated_mib"))
+        reserved = _format_gib(item.get("reserved_mib"))
+        peak = _format_gib(item.get("peak_reserved_mib"))
+        device_text = (
+            f"GPU {label} VRAM {used}/{total} GiB used, free {free} GiB"
+            if used is not None and total is not None and free is not None
+            else f"GPU {label} VRAM unavailable"
+        )
+        process_text = (
+            f"proc {allocated}/{reserved} GiB"
+            f" alloc/reserved, peak {peak} GiB"
+            if allocated is not None and reserved is not None and peak is not None
+            else "proc memory unavailable"
+        )
+        parts.append(f"{device_text} | {process_text}")
+    return " ; ".join(parts)
 
 
 def _format_duration(seconds: float | int | None) -> str:
@@ -41,12 +175,15 @@ def _progress_text(payload: dict[str, Any]) -> str | None:
         filled = min(max(int(round(width * percent / 100.0)), 0), width)
         bar = "#" * filled + "-" * (width - filled)
         finish = payload.get("estimated_completion_time", "unknown")
+        memory = format_gpu_memory(payload.get("gpu_memory"))
+        memory_text = f" | {memory}" if memory else ""
         return (
             f"{label}{epoch_text} [{bar}] {percent:6.2f}% "
             f"batch {payload.get('batch', '?')}/{payload.get('batches', '?')} | "
             f"elapsed {_format_duration(payload.get('elapsed_seconds'))} | "
             f"ETA {_format_duration(payload.get('eta_seconds'))} | "
             f"finish {finish} | {payload.get('batches_per_second', 0.0)} batch/s"
+            f"{memory_text}"
         )
     if event == "phase_complete":
         return (
@@ -62,6 +199,9 @@ def log_event(event: str, **fields: Any) -> None:
         "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
         **fields,
     }
+    memory = _gpu_memory_snapshot(force=event != "batch_progress")
+    if memory is not None:
+        payload["gpu_memory"] = memory
     heartbeat_value = os.environ.get("Q_ATTENTION_HEARTBEAT_FILE")
     if heartbeat_value:
         heartbeat = Path(heartbeat_value)
@@ -94,11 +234,14 @@ def tracked_batches(
     log_every_batches: int,
     epoch: int | None = None,
     epochs: int | None = None,
+    completed_batches: int = 0,
 ) -> Iterator[T]:
     if total_batches <= 0:
         raise ValueError("total_batches must be positive")
     if log_every_batches <= 0:
         raise ValueError("log_every_batches must be positive")
+    if not 0 <= completed_batches <= total_batches:
+        raise ValueError("completed_batches must be within the total batch range")
 
     context: dict[str, Any] = {
         "stage": stage,
@@ -112,8 +255,8 @@ def tracked_batches(
 
     started_at = time.monotonic()
     log_event("phase_start", **context)
-    completed = 0
-    for completed, batch in enumerate(batches, start=1):
+    completed = completed_batches
+    for completed, batch in enumerate(batches, start=completed_batches + 1):
         yield batch
         if (
             completed == 1

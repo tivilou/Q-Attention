@@ -32,10 +32,14 @@ for file in \
     configs/retacred_qtriad_formal_single_seed.json \
     experiments/run_qtriad_relation_transfer.py \
     experiments/run_qtriad_selector_worker.py \
-  experiments/train_relation_baseline.py \
-  experiments/run_q_causal_value_evidence_relation_smoke.py \
-  experiments/run_q_causal_value_evidence_relation_transfer.py \
-  scripts/run_retacred_qtriad_formal_single_seed.sh \
+    experiments/train_relation_baseline.py \
+    src/q_attention/experiments/batch_resume.py \
+    src/q_attention/models/relation_transformer.py \
+    src/q_attention/experiments/relation_steering.py \
+    src/q_attention/plugins/q_triad.py \
+    experiments/run_q_causal_value_evidence_relation_smoke.py \
+    experiments/run_q_causal_value_evidence_relation_transfer.py \
+    scripts/run_retacred_qtriad_formal_single_seed.sh \
     scripts/export_retacred_qtriad_formal_single_seed_report.sh \
     docs/current/retacred_qtriad_formal_single_seed_zh.md; do
   [[ -f "${file}" ]] || { echo "Missing ${file}" >&2; exit 1; }
@@ -65,6 +69,7 @@ PY
 PYTHONPATH="${ROOT}/src${PYTHONPATH:+:${PYTHONPATH}}" "${PYTHON_BIN}" -m pytest -q \
   tests/test_q_triad_attention_score_kernel.py \
   tests/test_qtriad_memory_multigpu.py \
+  tests/test_model_parallel.py \
   tests/test_retacred_qtriad_formal_single_seed.py
 "${PYTHON_BIN}" -m py_compile experiments/run_qtriad_relation_transfer.py experiments/run_qtriad_selector_worker.py src/q_attention/plugins/q_triad.py
 nvidia-smi --query-gpu=index,name,memory.total --format=csv,noheader

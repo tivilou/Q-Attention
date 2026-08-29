@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 import torch
@@ -132,6 +133,57 @@ def test_log_event_updates_configured_heartbeat(
     payload = json.loads(heartbeat.read_text(encoding="utf-8"))
     assert payload["event"] == "phase_start"
     assert json.loads(capsys.readouterr().out)["event"] == "phase_start"
+
+
+def test_format_gpu_memory_converts_mib_to_gib() -> None:
+    rendered = progress.format_gpu_memory(
+        [
+            {
+                "physical_index": 2,
+                "nvidia_used_mib": 4096,
+                "nvidia_total_mib": 8192,
+                "nvidia_free_mib": 4096,
+                "allocated_mib": 1024,
+                "reserved_mib": 2048,
+                "peak_reserved_mib": 3072,
+            }
+        ]
+    )
+
+    assert rendered == (
+        "GPU 2 VRAM 4.0/8.0 GiB used, free 4.0 GiB | "
+        "proc 1.0/2.0 GiB alloc/reserved, peak 3.0 GiB"
+    )
+
+
+def test_gpu_memory_snapshot_is_cached_for_five_seconds(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    readings = iter((10.0, 12.0, 16.0))
+    monkeypatch.setattr(progress.time, "monotonic", lambda: next(readings))
+    progress._GPU_MEMORY_CACHE = None
+    progress._GPU_MEMORY_CACHE_AT = None
+    progress._GPU_MEMORY_CACHE_KEY = None
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    monkeypatch.setattr(torch.cuda, "device_count", lambda: 1)
+    monkeypatch.setattr(torch.cuda, "memory_allocated", lambda _index: 1024 * 1024)
+    monkeypatch.setattr(torch.cuda, "memory_reserved", lambda _index: 2 * 1024 * 1024)
+    monkeypatch.setattr(torch.cuda, "max_memory_allocated", lambda _index: 3 * 1024 * 1024)
+    monkeypatch.setattr(torch.cuda, "max_memory_reserved", lambda _index: 4 * 1024 * 1024)
+    calls = []
+
+    def fake_run(*_args, **_kwargs):
+        calls.append(1)
+        return SimpleNamespace(returncode=0, stdout="2, 4096, 4096, 8192\n")
+
+    monkeypatch.setattr(progress.subprocess, "run", fake_run)
+    first = progress._gpu_memory_snapshot(force=True)
+    second = progress._gpu_memory_snapshot()
+    third = progress._gpu_memory_snapshot()
+
+    assert first == second
+    assert third == second
+    assert len(calls) == 2
 
 
 def test_health_monitor_warns_without_stopping_training(capsys: pytest.CaptureFixture[str]) -> None:
