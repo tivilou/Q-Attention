@@ -16,6 +16,7 @@ from torch.utils.data import DataLoader
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
+BASELINE_ELASTIC_SOURCE_FILES = ("trainer", "batch_resume")
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
@@ -38,6 +39,7 @@ from q_attention.experiments.batch_resume import (
     RemainingBatchSampler,
     TrainingPaused,
     capture_rng_state,
+    execution_contract_compatible,
     file_contract,
     restore_rng_state,
     sha256_file,
@@ -78,6 +80,11 @@ def parse_args() -> argparse.Namespace:
         "--resume",
         action="store_true",
         help="resume this exact output directory from its compatible batch checkpoint",
+    )
+    parser.add_argument(
+        "--elastic-resume",
+        action="store_true",
+        help="allow an explicit execution-only contract migration during resume",
     )
     parser.add_argument(
         "--checkpoint-every-batches",
@@ -212,6 +219,7 @@ def _resume_contract(args: argparse.Namespace) -> dict[str, Any]:
         if key not in {
             "output_dir",
             "resume",
+            "elastic_resume",
             "checkpoint_every_batches",
             "log_every_batches",
         }
@@ -253,6 +261,16 @@ def _resume_contract(args: argparse.Namespace) -> dict[str, Any]:
             },
         },
     }
+
+
+def _resume_contract_compatible(
+    persisted: Any, current: dict[str, Any]
+) -> bool:
+    return execution_contract_compatible(
+        persisted,
+        current,
+        ignored_source_files=BASELINE_ELASTIC_SOURCE_FILES,
+    )
 
 
 def main() -> int:
@@ -322,6 +340,9 @@ def main() -> int:
         output_dir,
         contract=_resume_contract(args),
         resume=args.resume,
+        resume_contract_compatible=(
+            _resume_contract_compatible if args.elastic_resume else None
+        ),
     )
     if args.resume:
         checkpoint = manager.load()

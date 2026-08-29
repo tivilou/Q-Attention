@@ -42,6 +42,7 @@ from run_qtriad_relation_transfer import (  # noqa: E402
     evaluate_selector,
     is_cuda_oom_error,
     selector_resume_contract,
+    selector_resume_contract_compatible,
 )
 
 
@@ -226,6 +227,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="allow the parent scheduler to resume this worker with a lower memory tier",
     )
+    parser.add_argument(
+        "--elastic-resume",
+        action="store_true",
+        help="allow an explicit execution-only contract migration during resume",
+    )
     return parser.parse_args()
 
 
@@ -291,6 +297,9 @@ def main() -> int:
             pair_chunk_size=args.pair_chunk_size,
             activation_checkpointing=args.activation_checkpointing,
             adaptive_memory=args.adaptive_memory,
+        ),
+        resume_contract_compatible=(
+            selector_resume_contract_compatible if args.elastic_resume else None
         ),
         memory_pressure_monitor=CudaMemoryPressureMonitor(
             selector=args.selector,

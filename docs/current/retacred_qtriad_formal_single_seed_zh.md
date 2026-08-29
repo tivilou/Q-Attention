@@ -61,6 +61,18 @@ bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu 0 --resume runs/ret
 
 恢复会复用原 run 的 `data/*.jsonl` 和 `data/data_manifest.json`，跳过已有有效指标的 baseline/selector，并仅从兼容的 batch checkpoint 继续。恢复命令必须使用原 run 相同的物理 GPU 列表、并行模式和显存 profile；adaptive run 还会读取 `adaptive_memory_state.json`，从上次已验证的 tier 继续，不会重新回到最快档。若最初使用 `--gpu auto`，请从 `run_summary.json` 取出已解析的 GPU 与 profile，并显式传入，例如 `--gpu 0,1 --hardware-profile adaptive`。`--resume` 不能与 `--output-dir` 同时使用；恢复期间不能修改算法参数、数据、代码、seed、batch size、epoch、学习率、selector、显存 profile 或 checkpoint 契约。原始 `RUN_PAUSED` 保留完整 worker 状态，每次恢复会额外写入 `resume_state.json`；wrapper 的恢复日志写入新的 `logs/run.resume-<timestamp>.log`，不会覆盖首次日志。旧目录若没有 `run_manifest.json`、`data_manifest.json` 或 batch checkpoint，不能宣称 batch 级恢复，只能新建目录从 baseline 级重新开始。
 
+如果旧 run 是单 GPU selector-parallel，暂停后希望改用多张 GPU 并行剩余 selector，必须显式授权执行层拓扑迁移，并保持其它训练合同不变：
+
+```bash
+bash scripts/run_retacred_qtriad_formal_single_seed.sh \
+  --gpu 0,1 \
+  --hardware-profile adaptive \
+  --resume runs/retacred_qtriad_formal_single_seed/<timestamp>_seed13 \
+  --allow-gpu-topology-change
+```
+
+该迁移只支持“原来恰好 1 张 GPU、现在至少 2 张 GPU”的 selector-parallel 恢复；baseline 和每个未完成 selector 仍从各自最近的 batch checkpoint 恢复，已完成 selector 按指标文件跳过。它不合并显存、不改变模型并行布局，也不允许 `--model-parallel-gpus`、新建 run 或改变 seed、数据、batch size、epoch、学习率、selector、控制组和科学训练参数。脚本会在 `resume_state.json` 和 `scheduler_events.jsonl` 记录 `elastic_gpu_topology_change`，普通不兼容变更仍会拒绝恢复。
+
 ### 旧版已完成 baseline 的迁移
 
 如果师弟运行的是没有新 manifest/checkpoint 机制的旧版脚本，且旧 run 的 baseline 已完成、当前停在 `q_triad`，不要把旧目录作为 `--resume` 目录。`--resume` 会严格校验新代码指纹，拒绝不兼容的旧 run；请新建一个 run，只显式导入旧 baseline：

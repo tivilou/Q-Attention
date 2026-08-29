@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import hashlib
@@ -38,6 +38,11 @@ class TrainingMemoryPressure(RuntimeError):
         self.diagnostics = dict(diagnostics or {})
 
 
+ResumeContractCompatibility = Callable[
+    [Mapping[str, Any], Mapping[str, Any]], bool
+]
+
+
 def _canonical_json(value: Mapping[str, Any]) -> str:
     return json.dumps(value, ensure_ascii=True, sort_keys=True, separators=(",", ":"))
 
@@ -61,6 +66,35 @@ def file_contract(path: str | Path) -> dict[str, Any]:
         "sha256": sha256_file(source),
         "bytes": source.stat().st_size,
     }
+
+
+def execution_contract_compatible(
+    persisted: Mapping[str, Any],
+    current: Mapping[str, Any],
+    *,
+    ignored_source_files: Sequence[str] = (),
+) -> bool:
+    """Compare a checkpoint contract while allowing an explicit execution migration.
+
+    Scientific/data fields remain exact. Only the source revision and named
+    orchestration files may differ, and callers must gate this check behind an
+    explicit migration option.
+    """
+    try:
+        left = json.loads(json.dumps(dict(persisted)))
+        right = json.loads(json.dumps(dict(current)))
+    except (TypeError, ValueError):
+        return False
+    for contract in (left, right):
+        source = contract.get("source")
+        if not isinstance(source, dict):
+            continue
+        source.pop("git_revision", None)
+        files = source.get("files")
+        if isinstance(files, dict):
+            for name in ignored_source_files:
+                files.pop(name, None)
+    return left == right
 
 
 def atomic_write_json(path: str | Path, payload: Mapping[str, Any]) -> None:
@@ -243,10 +277,18 @@ class PauseController:
 class BatchCheckpointManager:
     """Own one atomic checkpoint stream and its immutable compatibility contract."""
 
-    def __init__(self, output_dir: str | Path, *, contract: Mapping[str, Any], resume: bool) -> None:
+    def __init__(
+        self,
+        output_dir: str | Path,
+        *,
+        contract: Mapping[str, Any],
+        resume: bool,
+        resume_contract_compatible: ResumeContractCompatibility | None = None,
+    ) -> None:
         self.output_dir = Path(output_dir)
         self.contract = dict(contract)
         self.contract_fingerprint = fingerprint(self.contract)
+        self._accepted_resume_fingerprints = {self.contract_fingerprint}
         self.checkpoint_path = self.output_dir / "checkpoints" / "latest.pt"
         self.contract_path = self.output_dir / "checkpoints" / "contract.json"
         if resume:
@@ -255,7 +297,34 @@ class BatchCheckpointManager:
                     f"no compatible batch-resume checkpoint exists at {self.checkpoint_path}; baseline-level restart is the only safe option"
                 )
             persisted = json.loads(self.contract_path.read_text(encoding="utf-8")) if self.contract_path.exists() else None
-            if not isinstance(persisted, dict) or persisted.get("fingerprint") != self.contract_fingerprint:
+            persisted_fingerprint = (
+                persisted.get("fingerprint") if isinstance(persisted, dict) else None
+            )
+            accepted_legacy = (
+                persisted.get("accepted_legacy_fingerprints", [])
+                if isinstance(persisted, dict)
+                else []
+            )
+            if isinstance(accepted_legacy, list):
+                self._accepted_resume_fingerprints.update(
+                    value for value in accepted_legacy if isinstance(value, str)
+                )
+            if (
+                not isinstance(persisted, dict)
+                or persisted_fingerprint not in self._accepted_resume_fingerprints
+            ):
+                persisted_contract = (
+                    persisted.get("contract") if isinstance(persisted, dict) else None
+                )
+                if (
+                    not isinstance(persisted_contract, Mapping)
+                    or not isinstance(resume_contract_compatible, Callable)
+                    or not resume_contract_compatible(persisted_contract, self.contract)
+                ):
+                    raise ResumeCompatibilityError("resume contract differs from the checkpointed training contract")
+                if isinstance(persisted_fingerprint, str):
+                    self._accepted_resume_fingerprints.add(persisted_fingerprint)
+            if not isinstance(persisted, dict):
                 raise ResumeCompatibilityError("resume contract differs from the checkpointed training contract")
         else:
             if self.checkpoint_path.exists() or self.contract_path.exists():
@@ -281,7 +350,7 @@ class BatchCheckpointManager:
             raise ResumeCompatibilityError("checkpoint payload is not a dictionary")
         if payload.get("schema_version") != CHECKPOINT_SCHEMA:
             raise ResumeCompatibilityError("unsupported batch-resume checkpoint schema")
-        if payload.get("contract_fingerprint") != self.contract_fingerprint:
+        if payload.get("contract_fingerprint") not in self._accepted_resume_fingerprints:
             raise ResumeCompatibilityError("checkpoint contract fingerprint mismatch")
         return payload
 

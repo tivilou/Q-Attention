@@ -421,6 +421,9 @@ def train_kernel(
             output_dir,
             contract=dict(getattr(args, "resume_contract")),
             resume=bool(getattr(args, "resume", False)),
+            resume_contract_compatible=getattr(
+                args, "resume_contract_compatible", None
+            ),
         )
         if bool(getattr(args, "resume", False)):
             checkpoint = manager.load()

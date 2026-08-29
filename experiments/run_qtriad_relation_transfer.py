@@ -40,6 +40,7 @@ from q_attention.experiments.batch_resume import (  # noqa: E402
     PauseController,
     ResumeCompatibilityError,
     TrainingPaused,
+    execution_contract_compatible,
     fingerprint,
     file_contract,
 )
@@ -130,6 +131,13 @@ MEMORY_PRESSURE_EXIT_CODE = 87
 ADAPTIVE_MEMORY_STATE_SCHEMA = "q-attention.qtriad-adaptive-memory.v1"
 BASELINE_ARTIFACTS = ("metrics.json", "model.pt", "vocab.json", "labels.json")
 BASELINE_IMPORT_SCHEMA = "q-attention.qtriad-legacy-baseline-import.v1"
+ELASTIC_RESUME_SOURCE_FILES = (
+    "runner",
+    "worker",
+    "baseline_trainer",
+    "kernel_trainer",
+    "batch_resume",
+)
 
 
 def sha256(path: Path) -> str:
@@ -157,6 +165,14 @@ def parse_args() -> argparse.Namespace:
         default=None,
         metavar="RUN_DIR",
         help="resume an existing compatible run directory in place",
+    )
+    parser.add_argument(
+        "--allow-gpu-topology-change",
+        action="store_true",
+        help=(
+            "explicitly allow selector-parallel resume from one GPU onto multiple GPUs; "
+            "scientific and checkpoint contracts remain strict"
+        ),
     )
     parser.add_argument(
         "--import-baseline-from",
@@ -686,12 +702,66 @@ def _run_resume_contract(
     }
 
 
+def _elastic_run_contract_compatible(
+    persisted: Any, current: dict[str, Any]
+) -> bool:
+    """Allow only one-to-many selector GPU expansion during explicit resume."""
+    if not isinstance(persisted, dict):
+        return False
+    persisted_semantics = persisted.get("training_semantics")
+    current_semantics = current.get("training_semantics")
+    if not isinstance(persisted_semantics, dict) or not isinstance(
+        current_semantics, dict
+    ):
+        return False
+    if (
+        persisted_semantics.get("parallel_mode") != "selector_or_serial"
+        or current_semantics.get("parallel_mode") != "selector_or_serial"
+        or persisted_semantics.get("model_parallel_gpu_ids")
+        or current_semantics.get("model_parallel_gpu_ids")
+    ):
+        return False
+    old_gpu_ids = persisted_semantics.get("selector_gpu_ids")
+    new_gpu_ids = current_semantics.get("selector_gpu_ids")
+    if (
+        not isinstance(old_gpu_ids, list)
+        or not isinstance(new_gpu_ids, list)
+        or len(old_gpu_ids) != 1
+        or len(new_gpu_ids) < 2
+        or len(set(old_gpu_ids)) != len(old_gpu_ids)
+        or len(set(new_gpu_ids)) != len(new_gpu_ids)
+        or any(not isinstance(value, int) for value in old_gpu_ids + new_gpu_ids)
+    ):
+        return False
+    persisted_without_gpu = json.loads(json.dumps(persisted))
+    current_without_gpu = json.loads(json.dumps(current))
+    persisted_without_gpu["training_semantics"].pop("selector_gpu_ids", None)
+    current_without_gpu["training_semantics"].pop("selector_gpu_ids", None)
+    return execution_contract_compatible(
+        persisted_without_gpu,
+        current_without_gpu,
+        ignored_source_files=ELASTIC_RESUME_SOURCE_FILES,
+    )
+
+
+def selector_resume_contract_compatible(
+    persisted: Any, current: dict[str, Any]
+) -> bool:
+    """Allow the elastic runner's execution-only source migration for selectors."""
+    return execution_contract_compatible(
+        persisted,
+        current,
+        ignored_source_files=ELASTIC_RESUME_SOURCE_FILES,
+    )
+
+
 def _validate_or_create_run_manifest(
     run_dir: Path,
     contract: dict[str, Any],
     *,
     resume: bool,
     started_at_utc: str,
+    allow_gpu_topology_change: bool = False,
 ) -> dict[str, Any]:
     path = run_dir / "run_manifest.json"
     contract_fingerprint = fingerprint(contract)
@@ -700,9 +770,14 @@ def _validate_or_create_run_manifest(
         if persisted.get("schema_version") != RUN_MANIFEST_SCHEMA:
             raise ResumeCompatibilityError("unsupported run manifest schema")
         if persisted.get("contract_fingerprint") != contract_fingerprint:
-            raise ResumeCompatibilityError(
-                "resume contract differs: code, config, data, selector or training settings changed"
-            )
+            persisted_contract = persisted.get("contract")
+            if not (
+                allow_gpu_topology_change
+                and _elastic_run_contract_compatible(persisted_contract, contract)
+            ):
+                raise ResumeCompatibilityError(
+                    "resume contract differs: code, config, data, selector or training settings changed"
+                )
         if persisted.get("started_at_utc") != started_at_utc:
             raise ResumeCompatibilityError(
                 "resume timestamp differs from the original run manifest"
@@ -1566,6 +1641,7 @@ def run_selector_workers(
     seed: int,
     hardware_profile: dict[str, Any] | None = None,
     resume: bool = False,
+    allow_gpu_topology_change: bool = False,
     pause: PauseController | None = None,
     adaptive_memory_state: dict[str, Any] | None = None,
 ) -> dict[str, dict[str, Any]]:
@@ -1735,6 +1811,8 @@ def run_selector_workers(
                 ]
                 if adaptive:
                     command.append("--adaptive-memory")
+                if allow_gpu_topology_change:
+                    command.append("--elastic-resume")
                 if worker_resume:
                     command.append("--resume")
                 environment = os.environ.copy()
@@ -2071,10 +2149,16 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         raise ValueError("--log-every-batches must be positive")
     if args.checkpoint_every_batches <= 0:
         raise ValueError("--checkpoint-every-batches must be positive")
+    if args.allow_gpu_topology_change and args.resume is None:
+        raise ValueError("--allow-gpu-topology-change requires --resume")
     model_parallel_gpu_ids = parse_model_parallel_gpu_ids(args.model_parallel_gpus)
     if model_parallel_gpu_ids and args.gpus:
         raise ValueError("--gpus/selector-parallel cannot be combined with --model-parallel-gpus")
     if model_parallel_gpu_ids:
+        if args.allow_gpu_topology_change:
+            raise ValueError(
+                "--allow-gpu-topology-change supports selector-parallel resume only"
+            )
         if args.device == "cpu":
             raise ValueError("model parallelism requires CUDA")
         inventory = query_gpu_inventory()
@@ -2180,7 +2264,11 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         hardware_profile.setdefault("current_tier", 0)
         hardware_profile.setdefault("current_profile", hardware_profile["name"])
     _validate_or_create_run_manifest(
-        run_dir, run_contract, resume=resuming, started_at_utc=stamp
+        run_dir,
+        run_contract,
+        resume=resuming,
+        started_at_utc=stamp,
+        allow_gpu_topology_change=args.allow_gpu_topology_change,
     )
     adaptive_memory_state = _load_or_create_adaptive_memory_state(
         run_dir, hardware_profile, resume=resuming
@@ -2202,6 +2290,23 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
     args._run_dir = run_dir
     if resuming:
         _record_resume_event(run_dir, event="resume_started", contract_fingerprint=fingerprint(run_contract))
+        if args.allow_gpu_topology_change:
+            persisted_contract = _read_json(run_dir / "run_manifest.json").get("contract", {})
+            persisted_semantics = (
+                persisted_contract.get("training_semantics", {})
+                if isinstance(persisted_contract, dict)
+                else {}
+            )
+            if isinstance(persisted_semantics, dict):
+                old_gpu_ids = persisted_semantics.get("selector_gpu_ids", [])
+                if old_gpu_ids != list(profile_gpu_ids):
+                    _record_resume_event(
+                        run_dir,
+                        event="elastic_gpu_topology_change",
+                        old_gpu_ids=old_gpu_ids,
+                        new_gpu_ids=list(profile_gpu_ids),
+                        parallel_mode="selector_or_serial",
+                    )
         (run_dir / "RUN_PAUSED").unlink(missing_ok=True)
         (run_dir / "RUN_FAILED").unlink(missing_ok=True)
     max_length = max(len(record.tokens) for record in train_records + valid_records + test_records) + 4
@@ -2257,6 +2362,8 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
             )
         if (baseline_dir / "checkpoints" / "latest.pt").is_file():
             baseline_command.append("--resume")
+        if args.allow_gpu_topology_change:
+            baseline_command.append("--elastic-resume")
         baseline_command.extend(["--checkpoint-every-batches", str(args.checkpoint_every_batches)])
         _run_baseline_logged_command(
             baseline_command,
@@ -2545,6 +2652,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
             seed=seed,
             hardware_profile=hardware_profile,
             resume=resuming,
+            allow_gpu_topology_change=args.allow_gpu_topology_change,
             pause=pause,
             adaptive_memory_state=adaptive_memory_state,
         )
