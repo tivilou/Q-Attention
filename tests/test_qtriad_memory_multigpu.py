@@ -124,6 +124,279 @@ def test_pair_chunk_size_must_be_positive() -> None:
         _kernel(0)
 
 
+def test_adaptive_profile_ladder_and_contract_are_stable(tmp_path) -> None:
+    config_path = tmp_path / "config.json"
+    baseline_dir = tmp_path / "baseline"
+    data_dir = tmp_path / "data"
+    config_path.write_text(
+        json.dumps({"kernel": {"batch_size": 2, "epochs": 1, "lr": 0.1}}),
+        encoding="utf-8",
+    )
+    for name in ("model.pt", "vocab.json", "labels.json", "metrics.json"):
+        (baseline_dir / name).parent.mkdir(parents=True, exist_ok=True)
+        (baseline_dir / name).write_text("{}", encoding="utf-8")
+    for split in ("train", "valid", "test"):
+        (data_dir / f"{split}.jsonl").parent.mkdir(parents=True, exist_ok=True)
+        (data_dir / f"{split}.jsonl").write_text("", encoding="utf-8")
+    (data_dir / "data_manifest.json").write_text("{}", encoding="utf-8")
+    first = formal_runner.choose_hardware_profile("adaptive", {"kernel": {}}, [], [])
+    assert [tier["pair_chunk_size"] for tier in first["tiers"]] == [16384, 4096, 1024, 256, 64]
+    a = formal_runner.selector_resume_contract(
+        config_path=config_path, baseline_dir=baseline_dir, data_dir=data_dir,
+        selector="q_triad", seed=13, pair_chunk_size=16384,
+        activation_checkpointing=False, adaptive_memory=True,
+    )
+    b = formal_runner.selector_resume_contract(
+        config_path=config_path, baseline_dir=baseline_dir, data_dir=data_dir,
+        selector="q_triad", seed=13, pair_chunk_size=64,
+        activation_checkpointing=True, adaptive_memory=True,
+    )
+    assert formal_runner.fingerprint(a) == formal_runner.fingerprint(b)
+
+
+def test_adaptive_scheduler_retries_oom_from_checkpoint(tmp_path, monkeypatch) -> None:
+    commands = []
+    attempts = {"q_triad": 0}
+
+    class FakeProcess:
+        _next_pid = 5100
+
+        def __init__(self, command, **_kwargs):
+            self.pid = FakeProcess._next_pid
+            FakeProcess._next_pid += 1
+            self.return_code = None
+            commands.append(command)
+            selector = command[command.index("--selector") + 1]
+            output_dir = __import__("pathlib").Path(command[command.index("--output-dir") + 1])
+            checkpoint = output_dir / "checkpoints" / "latest.pt"
+            checkpoint.parent.mkdir(parents=True, exist_ok=True)
+            checkpoint.write_bytes(b"checkpoint")
+            attempts[selector] += 1
+            self.return_code = formal_runner.CUDA_OOM_EXIT_CODE if attempts[selector] == 1 else 0
+            if self.return_code == 0:
+                _write_selector_metrics(output_dir, selector)
+            else:
+                (output_dir / "worker.log").write_text("CUDA out of memory", encoding="utf-8")
+
+        def poll(self):
+            return self.return_code
+
+        def wait(self, **_kwargs):
+            return self.return_code
+
+    monkeypatch.setattr(formal_runner.subprocess, "Popen", FakeProcess)
+    adaptive = formal_runner.choose_hardware_profile("adaptive", {"kernel": {}}, [0], [])
+    statuses = formal_runner.run_selector_workers(
+        selectors=["q_triad"], gpu_ids=[0], args=SimpleNamespace(python_bin=sys.executable, log_every_batches=1),
+        config_path=tmp_path / "config.json", baseline_dir=tmp_path / "baseline", data_dir=tmp_path / "data",
+        run_dir=tmp_path / "run", seed=13, hardware_profile=adaptive,
+    )
+    assert statuses["q_triad"]["status"] == "complete"
+    assert "--resume" in commands[1]
+    assert commands[0][commands[0].index("--pair-chunk-size") + 1] == "16384"
+    assert commands[1][commands[1].index("--pair-chunk-size") + 1] == "4096"
+    assert not (tmp_path / "run" / "RUN_FAILED").exists()
+    events = (tmp_path / "run" / "scheduler_events.jsonl").read_text(encoding="utf-8")
+    assert '"event": "oom_retry"' in events
+
+
+def test_adaptive_tier_is_independent_per_selector(tmp_path, monkeypatch) -> None:
+    commands = []
+    attempts = {"q_triad": 0, "classical_density_tensor": 0}
+
+    class FakeProcess:
+        _next_pid = 5150
+
+        def __init__(self, command, **_kwargs):
+            self.pid = FakeProcess._next_pid
+            FakeProcess._next_pid += 1
+            commands.append(command)
+            selector = command[command.index("--selector") + 1]
+            output_dir = __import__("pathlib").Path(
+                command[command.index("--output-dir") + 1]
+            )
+            attempts[selector] += 1
+            if selector == "q_triad" and attempts[selector] == 1:
+                checkpoint = output_dir / "checkpoints" / "latest.pt"
+                checkpoint.parent.mkdir(parents=True, exist_ok=True)
+                checkpoint.write_bytes(b"checkpoint")
+                (output_dir / "worker.log").write_text(
+                    "CUDA out of memory", encoding="utf-8"
+                )
+                self.return_code = formal_runner.CUDA_OOM_EXIT_CODE
+            else:
+                _write_selector_metrics(output_dir, selector)
+                self.return_code = 0
+
+        def poll(self):
+            return self.return_code
+
+        def wait(self, **_kwargs):
+            return self.return_code
+
+    monkeypatch.setattr(formal_runner.subprocess, "Popen", FakeProcess)
+    adaptive = formal_runner.choose_hardware_profile("adaptive", {"kernel": {}}, [0], [])
+    statuses = formal_runner.run_selector_workers(
+        selectors=["q_triad", "classical_density_tensor"],
+        gpu_ids=[0],
+        args=SimpleNamespace(python_bin=sys.executable, log_every_batches=1),
+        config_path=tmp_path / "config.json",
+        baseline_dir=tmp_path / "baseline",
+        data_dir=tmp_path / "data",
+        run_dir=tmp_path / "run",
+        seed=13,
+        hardware_profile=adaptive,
+    )
+
+    assert statuses["q_triad"]["status"] == "complete"
+    assert statuses["classical_density_tensor"]["status"] == "complete"
+    chunk_sizes = {
+        command[command.index("--selector") + 1]: command[
+            command.index("--pair-chunk-size") + 1
+        ]
+        for command in commands
+    }
+    assert chunk_sizes["q_triad"] == "4096"
+    assert chunk_sizes["classical_density_tensor"] == "16384"
+    state = json.loads(
+        (tmp_path / "run" / "adaptive_memory_state.json").read_text(encoding="utf-8")
+    )
+    assert state["selectors"]["q_triad"]["current_tier"] == 1
+    assert state["selectors"]["classical_density_tensor"]["current_tier"] == 0
+
+
+def test_adaptive_scheduler_refuses_oom_restart_without_checkpoint(tmp_path, monkeypatch) -> None:
+    class FakeProcess:
+        def __init__(self, _command, **_kwargs):
+            self.pid = 5200
+
+        def poll(self):
+            return formal_runner.CUDA_OOM_EXIT_CODE
+
+        def wait(self, **_kwargs):
+            return formal_runner.CUDA_OOM_EXIT_CODE
+
+    monkeypatch.setattr(formal_runner.subprocess, "Popen", FakeProcess)
+    adaptive = formal_runner.choose_hardware_profile("adaptive", {"kernel": {}}, [0], [])
+    with pytest.raises(RuntimeError, match="without a batch checkpoint"):
+        formal_runner.run_selector_workers(
+            selectors=["q_triad"],
+            gpu_ids=[0],
+            args=SimpleNamespace(python_bin=sys.executable, log_every_batches=1),
+            config_path=tmp_path / "config.json",
+            baseline_dir=tmp_path / "baseline",
+            data_dir=tmp_path / "data",
+            run_dir=tmp_path / "run",
+            seed=13,
+            hardware_profile=adaptive,
+        )
+
+    marker = json.loads((tmp_path / "run" / "RUN_FAILED").read_text(encoding="utf-8"))
+    assert "without a batch checkpoint" in marker["reason"]
+    assert marker["workers"]["q_triad"]["status"] == "failed"
+
+
+def test_adaptive_scheduler_fails_after_final_memory_tier(tmp_path, monkeypatch) -> None:
+    commands = []
+
+    class FakeProcess:
+        _next_pid = 5300
+
+        def __init__(self, command, **_kwargs):
+            self.pid = FakeProcess._next_pid
+            FakeProcess._next_pid += 1
+            commands.append(command)
+            output_dir = __import__("pathlib").Path(
+                command[command.index("--output-dir") + 1]
+            )
+            checkpoint = output_dir / "checkpoints" / "latest.pt"
+            checkpoint.parent.mkdir(parents=True, exist_ok=True)
+            checkpoint.write_bytes(b"checkpoint")
+
+        def poll(self):
+            return formal_runner.CUDA_OOM_EXIT_CODE
+
+        def wait(self, **_kwargs):
+            return formal_runner.CUDA_OOM_EXIT_CODE
+
+    monkeypatch.setattr(formal_runner.subprocess, "Popen", FakeProcess)
+    adaptive = formal_runner.choose_hardware_profile("adaptive", {"kernel": {}}, [0], [])
+    with pytest.raises(RuntimeError, match="exhausted all adaptive memory tiers"):
+        formal_runner.run_selector_workers(
+            selectors=["q_triad"],
+            gpu_ids=[0],
+            args=SimpleNamespace(python_bin=sys.executable, log_every_batches=1),
+            config_path=tmp_path / "config.json",
+            baseline_dir=tmp_path / "baseline",
+            data_dir=tmp_path / "data",
+            run_dir=tmp_path / "run",
+            seed=13,
+            hardware_profile=adaptive,
+        )
+
+    assert len(commands) == len(adaptive["tiers"])
+    marker = json.loads((tmp_path / "run" / "RUN_FAILED").read_text(encoding="utf-8"))
+    assert "exhausted all adaptive memory tiers" in marker["reason"]
+    state = json.loads((tmp_path / "run" / "adaptive_memory_state.json").read_text(encoding="utf-8"))
+    assert state["current_tier"] == len(adaptive["tiers"]) - 1
+    assert state["oom_retries"] == len(adaptive["tiers"]) - 1
+
+
+def test_adaptive_resume_uses_persisted_tier_and_checkpoint(tmp_path, monkeypatch) -> None:
+    commands = []
+    adaptive = formal_runner.choose_hardware_profile("adaptive", {"kernel": {}}, [0], [])
+    selector_dir = tmp_path / "run" / "selectors" / "q_triad"
+    checkpoint = selector_dir / "checkpoints" / "latest.pt"
+    checkpoint.parent.mkdir(parents=True, exist_ok=True)
+    checkpoint.write_bytes(b"checkpoint")
+    state = {
+        "schema_version": formal_runner.ADAPTIVE_MEMORY_STATE_SCHEMA,
+        "current_tier": 2,
+        "current_profile": "adaptive_medium",
+        "pair_chunk_size": 1024,
+        "activation_checkpointing": True,
+        "oom_retries": 2,
+        "events": [],
+    }
+    (tmp_path / "run" / "adaptive_memory_state.json").write_text(
+        json.dumps(state), encoding="utf-8"
+    )
+
+    class FakeProcess:
+        def __init__(self, command, **_kwargs):
+            self.pid = 5400
+            commands.append(command)
+            selector = command[command.index("--selector") + 1]
+            output_dir = __import__("pathlib").Path(
+                command[command.index("--output-dir") + 1]
+            )
+            _write_selector_metrics(output_dir, selector)
+
+        def poll(self):
+            return 0
+
+        def wait(self, **_kwargs):
+            return 0
+
+    monkeypatch.setattr(formal_runner.subprocess, "Popen", FakeProcess)
+    statuses = formal_runner.run_selector_workers(
+        selectors=["q_triad"],
+        gpu_ids=[0],
+        args=SimpleNamespace(python_bin=sys.executable, log_every_batches=1),
+        config_path=tmp_path / "config.json",
+        baseline_dir=tmp_path / "baseline",
+        data_dir=tmp_path / "data",
+        run_dir=tmp_path / "run",
+        seed=13,
+        hardware_profile=adaptive,
+        resume=True,
+    )
+
+    assert statuses["q_triad"]["status"] == "complete"
+    assert "--resume" in commands[0]
+    assert commands[0][commands[0].index("--pair-chunk-size") + 1] == "1024"
+
+
 def test_selector_dashboard_renders_multi_gpu_heartbeat(tmp_path) -> None:
     heartbeat = tmp_path / "q_triad.heartbeat"
     heartbeat.write_text(

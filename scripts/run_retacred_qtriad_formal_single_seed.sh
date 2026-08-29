@@ -9,7 +9,7 @@ OUTPUT_DIR=
 RESUME_DIR=
 LOG_EVERY_BATCHES=50
 CHECKPOINT_EVERY_BATCHES=50
-HARDWARE_PROFILE=config
+HARDWARE_PROFILE=adaptive
 REPORT_DIR=
 SKIP_PREFLIGHT=0
 DRY_RUN=0
@@ -72,7 +72,7 @@ check_gpu_capacity() {
   fi
 }
 
-usage() { echo "Usage: bash scripts/run_retacred_qtriad_formal_single_seed.sh [--gpu N[,N...]|auto] [--model-parallel-gpus N,N] [--hardware-profile config|auto|low_memory|balanced|high_memory] [--output-dir PATH | --resume RUN_DIR] [--report-dir PATH] [--log-every-batches N] [--checkpoint-every-batches N] [--skip-preflight] [--dry-run]"; }
+usage() { echo "Usage: bash scripts/run_retacred_qtriad_formal_single_seed.sh [--gpu N[,N...]|auto] [--model-parallel-gpus N,N] [--hardware-profile config|auto|adaptive|low_memory|balanced|high_memory] [--output-dir PATH | --resume RUN_DIR] [--report-dir PATH] [--log-every-batches N] [--checkpoint-every-batches N] [--skip-preflight] [--dry-run]"; }
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --gpu|--gpus|--model-parallel-gpus|--hardware-profile|--output-dir|--resume|--report-dir|--log-every-batches|--checkpoint-every-batches)
@@ -121,7 +121,7 @@ if [[ -n "${MODEL_PARALLEL_GPU_SPEC}" ]]; then
 fi
 [[ "${LOG_EVERY_BATCHES}" =~ ^[1-9][0-9]*$ ]] || { echo "--log-every-batches must be positive." >&2; exit 2; }
 [[ "${CHECKPOINT_EVERY_BATCHES}" =~ ^[1-9][0-9]*$ ]] || { echo "--checkpoint-every-batches must be positive." >&2; exit 2; }
-[[ "${HARDWARE_PROFILE}" =~ ^(config|auto|low_memory|balanced|high_memory)$ ]] || { echo "Invalid --hardware-profile." >&2; exit 2; }
+[[ "${HARDWARE_PROFILE}" =~ ^(config|auto|adaptive|low_memory|balanced|high_memory)$ ]] || { echo "Invalid --hardware-profile." >&2; exit 2; }
 [[ -z "${RESUME_DIR}" || -z "${OUTPUT_DIR}" ]] || { echo "--resume and --output-dir are mutually exclusive." >&2; exit 2; }
 if [[ "${GPU_SPEC}" != "auto" ]]; then
   nvidia-smi -i "${GPU_SPEC}" --query-gpu=name --format=csv,noheader >/dev/null || { echo "GPU ${GPU_SPEC} is unavailable." >&2; exit 1; }
@@ -156,6 +156,7 @@ else
   COMMAND+=(--started-at-utc "${STAMP}")
 fi
 if [[ -n "${MODEL_PARALLEL_GPU_SPEC}" ]]; then
+  [[ "${HARDWARE_PROFILE}" != "adaptive" ]] || { echo "--hardware-profile adaptive is supported for selector workers only; choose config/auto/low_memory/balanced/high_memory with --model-parallel-gpus." >&2; exit 2; }
   COMMAND+=(--model-parallel-gpus "${MODEL_PARALLEL_GPU_SPEC}")
   COMMAND+=(--hardware-profile "${HARDWARE_PROFILE}")
 elif [[ "${GPU_SPEC}" == "auto" ]]; then

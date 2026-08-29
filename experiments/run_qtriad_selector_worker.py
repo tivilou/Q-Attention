@@ -33,8 +33,10 @@ from q_attention.experiments.batch_resume import (  # noqa: E402
 from q_attention.tasks.relation import load_relation_jsonl  # noqa: E402
 from run_q_causal_value_evidence_relation_transfer import train_kernel  # noqa: E402
 from run_qtriad_relation_transfer import (  # noqa: E402
+    CUDA_OOM_EXIT_CODE,
     build_kernel,
     evaluate_selector,
+    is_cuda_oom_error,
     selector_resume_contract,
 )
 
@@ -100,6 +102,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--checkpoint-every-batches", type=int, default=50)
     parser.add_argument("--pair-chunk-size", type=int, default=None)
     parser.add_argument("--activation-checkpointing", type=int, choices=(0, 1), default=None)
+    parser.add_argument(
+        "--adaptive-memory",
+        action="store_true",
+        help="allow the parent scheduler to resume this worker with a lower memory tier",
+    )
     return parser.parse_args()
 
 
@@ -164,6 +171,7 @@ def main() -> int:
             seed=args.seed,
             pair_chunk_size=args.pair_chunk_size,
             activation_checkpointing=args.activation_checkpointing,
+            adaptive_memory=args.adaptive_memory,
         ),
     )
     try:
@@ -246,4 +254,19 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except BaseException as exc:
+        if is_cuda_oom_error(exc):
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            selector = sys.argv[sys.argv.index("--selector") + 1] if "--selector" in sys.argv else "<unknown>"
+            print(
+                json.dumps(
+                    {"event": "cuda_oom", "selector": selector, "error": str(exc)},
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
+            raise SystemExit(CUDA_OOM_EXIT_CODE) from exc
+        raise

@@ -21,7 +21,7 @@ bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu 0
 bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu auto
 ```
 
-`auto` 会选择空闲显存至少 8 GiB 的可见物理 GPU；单 GPU 环境也适用。自动 profile 只调整显存执行策略，不改变 seed、数据、epoch、batch size、selector 或控制组：低显存（总显存小于 16 GiB，或空闲显存小于 12 GiB）使用 `pair_chunk_size=64` 并启用 activation checkpointing；中等和高显存使用 `pair_chunk_size=256` 并启用 checkpointing。Q-TRIAD 的训练反向会对 pair chunk 逐块重算并累积梯度，不能通过关闭 checkpointing 换取速度；这样可避免把所有 query-key chunk 的计算图长期保留在显存中。实际 GPU、显存、profile 和生效参数会写入 `run_summary.json` 与 `gpu_assignments.json`，供审计复核。
+`auto` 会选择空闲显存至少 8 GiB 的可见物理 GPU；单 GPU 环境也适用。默认 profile 是 `adaptive`：每个 selector 都先用最快的 streamed-backward 档位 `adaptive_fast`（`pair_chunk_size=16384`），只有该 selector 确认 CUDA OOM 才独立降到 `4096 -> 1024 -> 256 -> 64`，并在需要时启用 checkpointing。OOM worker 会退出，父调度器释放 GPU 后用该 selector 的最近 batch checkpoint 重启；回退过程写入 `adaptive_memory_state.json` 与 `scheduler_events.jsonl`。一个 selector 降档不会降低其他 selector 的初始档位，因此不会无故牺牲它们的速度。没有 checkpoint 或同一 selector 的所有档位都失败时才写 `RUN_FAILED`。这不是把两张 GPU 的显存合并。该机制只调整执行策略，不改变 seed、数据、batch size、epoch、selector、控制组或优化契约；不恢复旧的无限 autograd graph retaining 实现。固定 `low_memory`/`balanced`/`high_memory` profile 不会自动回退。当前 activation checkpointing 字段保留在执行契约中，Q-TRIAD 的核心显存保护来自 streamed backward。实际 GPU、显存、profile 和生效参数会写入 `run_summary.json` 与 `gpu_assignments.json`，供审计复核。
 
 脚本在创建 raw run 之前、以及 baseline 完成准备 selector 之前各检查一次显存。显式 `--gpu 0` 也必须至少有 8 GiB 空闲；若某个 GPU 被其他 PID 占用，脚本会列出 `nvidia-smi` 的进程并停止，不会把这次失败写成实验结果。不要强制杀掉不属于本实验的进程；确认占用进程可以停止后再重跑同一命令。
 
@@ -31,7 +31,7 @@ bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu auto
 bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu 0,1
 ```
 
-多 GPU 模式先训练一次共享 baseline，再按空闲 GPU 动态分配 `q_triad`、`classical_density_tensor` 和 `quantum_product`。每个 worker 独立加载同一 baseline checkpoint；这不是 DDP，也不会把两张卡的显存合并成一张卡。任一 worker 失败时，调度器会终止其余 worker、写入 `RUN_FAILED`，且不会写 `RUN_COMPLETE`。GPU ID 必须唯一且在 `nvidia-smi` 中可用。
+多 GPU 模式先训练一次共享 baseline，再按空闲 GPU 动态分配 `q_triad`、`classical_density_tensor` 和 `quantum_product`。每个 worker 独立加载同一 baseline checkpoint；这不是 DDP，也不会把两张卡的显存合并成一张卡。adaptive 模式只重试确认 OOM 且有 batch checkpoint 的 worker，其他 selector 可以继续运行；普通非零退出仍立即失败。GPU ID 必须唯一且在 `nvidia-smi` 中可用。
 
 `git status --short` 在启动前必须没有输出。脚本在启动时记录一个 UTC 时间戳 `YYYYMMDDTHHMMSSZ`，raw run 默认写入：
 
@@ -57,7 +57,7 @@ reports/retacred_qtriad_formal_single_seed/<timestamp>_seed13/
 bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu 0 --resume runs/retacred_qtriad_formal_single_seed/<timestamp>_seed13
 ```
 
-恢复会复用原 run 的 `data/*.jsonl` 和 `data/data_manifest.json`，跳过已有有效指标的 baseline/selector，并仅从兼容的 batch checkpoint 继续。恢复命令必须使用原 run 相同的物理 GPU 列表、并行模式和显存 profile；若最初使用 `--gpu auto`，请从 `run_summary.json` 取出已解析的 GPU 与 profile，并显式传入，例如 `--gpu 0,1 --hardware-profile balanced`。`--resume` 不能与 `--output-dir` 同时使用；恢复期间不能修改算法参数、数据、代码、seed、batch size、epoch、学习率、selector、显存 profile 或 checkpoint 契约。原始 `RUN_PAUSED` 保留完整 worker 状态，每次恢复会额外写入 `resume_state.json`；wrapper 的恢复日志写入新的 `logs/run.resume-<timestamp>.log`，不会覆盖首次日志。旧目录若没有 `run_manifest.json`、`data_manifest.json` 或 batch checkpoint，不能宣称 batch 级恢复，只能新建目录从 baseline 级重新开始。
+恢复会复用原 run 的 `data/*.jsonl` 和 `data/data_manifest.json`，跳过已有有效指标的 baseline/selector，并仅从兼容的 batch checkpoint 继续。恢复命令必须使用原 run 相同的物理 GPU 列表、并行模式和显存 profile；adaptive run 还会读取 `adaptive_memory_state.json`，从上次已验证的 tier 继续，不会重新回到最快档。若最初使用 `--gpu auto`，请从 `run_summary.json` 取出已解析的 GPU 与 profile，并显式传入，例如 `--gpu 0,1 --hardware-profile adaptive`。`--resume` 不能与 `--output-dir` 同时使用；恢复期间不能修改算法参数、数据、代码、seed、batch size、epoch、学习率、selector、显存 profile 或 checkpoint 契约。原始 `RUN_PAUSED` 保留完整 worker 状态，每次恢复会额外写入 `resume_state.json`；wrapper 的恢复日志写入新的 `logs/run.resume-<timestamp>.log`，不会覆盖首次日志。旧目录若没有 `run_manifest.json`、`data_manifest.json` 或 batch checkpoint，不能宣称 batch 级恢复，只能新建目录从 baseline 级重新开始。
 
 ### 可选的模型级并行
 

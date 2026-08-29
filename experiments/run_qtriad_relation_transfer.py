@@ -78,6 +78,48 @@ HARDWARE_PROFILES: dict[str, dict[str, Any]] = {
     },
 }
 
+# The adaptive path deliberately starts with the largest safe streamed-backward
+# chunk.  The streamed backward implementation remains enabled internally: the
+# old graph-retaining implementation is not a valid performance tier because it
+# can grow until a late, unrecoverable OOM.  Each lower tier trades throughput
+# for a smaller per-chunk peak and is selected only after a confirmed CUDA OOM.
+ADAPTIVE_HARDWARE_PROFILES: tuple[dict[str, Any], ...] = (
+    {
+        "name": "adaptive_fast",
+        "pair_chunk_size": 16384,
+        "activation_checkpointing": False,
+    },
+    {
+        "name": "adaptive_large",
+        "pair_chunk_size": 4096,
+        "activation_checkpointing": False,
+    },
+    {
+        "name": "adaptive_medium",
+        "pair_chunk_size": 1024,
+        "activation_checkpointing": True,
+    },
+    {
+        "name": "adaptive_conservative",
+        "pair_chunk_size": 256,
+        "activation_checkpointing": True,
+    },
+    {
+        "name": "adaptive_low_memory",
+        "pair_chunk_size": 64,
+        "activation_checkpointing": True,
+    },
+)
+CUDA_OOM_MARKERS = (
+    "cuda out of memory",
+    "cuda error: out of memory",
+    "cuda_error_out_of_memory",
+    "cublas_status_alloc_failed",
+    "cudaerrormemoryallocation",
+)
+CUDA_OOM_EXIT_CODE = 86
+ADAPTIVE_MEMORY_STATE_SCHEMA = "q-attention.qtriad-adaptive-memory.v1"
+
 
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
@@ -118,9 +160,9 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--hardware-profile",
-        choices=("config", "auto", "low_memory", "balanced", "high_memory"),
-        default="config",
-        help="execution-memory profile; auto derives it from selected GPU VRAM",
+        choices=("config", "auto", "adaptive", "low_memory", "balanced", "high_memory"),
+        default="adaptive",
+        help="execution-memory profile; adaptive starts fast and falls back after CUDA OOM",
     )
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--log-every-batches", type=int, default=50)
@@ -189,6 +231,7 @@ def selector_resume_contract(
     pair_chunk_size: int | None,
     activation_checkpointing: int | bool | None,
     model_parallel_gpu_ids: list[int] | None = None,
+    adaptive_memory: bool = False,
 ) -> dict[str, Any]:
     config = json.loads(config_path.read_text(encoding="utf-8"))
     kernel = config["kernel"]
@@ -200,15 +243,24 @@ def selector_resume_contract(
             "batch_size": int(kernel["batch_size"]),
             "epochs": int(kernel["epochs"]),
             "kernel_lr": float(kernel["lr"]),
-            "pair_chunk_size": int(
-                pair_chunk_size
-                if pair_chunk_size is not None
-                else kernel.get("pair_chunk_size", 256)
-            ),
-            "activation_checkpointing": (
-                True
-                if activation_checkpointing is None
-                else bool(activation_checkpointing)
+            # Adaptive retries intentionally keep these controls out of the
+            # immutable checkpoint fingerprint.  The scientific optimizer
+            # contract stays fixed while only the execution strategy changes.
+            **(
+                {"memory_strategy": "adaptive"}
+                if adaptive_memory
+                else {
+                    "pair_chunk_size": int(
+                        pair_chunk_size
+                        if pair_chunk_size is not None
+                        else kernel.get("pair_chunk_size", 256)
+                    ),
+                    "activation_checkpointing": (
+                        True
+                        if activation_checkpointing is None
+                        else bool(activation_checkpointing)
+                    ),
+                }
             ),
             "model_parallel_gpu_ids": list(model_parallel_gpu_ids or []),
         },
@@ -273,6 +325,224 @@ def _write_root_marker(run_dir: Path, name: str, **payload: Any) -> None:
     )
 
 
+def is_cuda_oom_error(error: BaseException | str) -> bool:
+    """Return whether an exception or message is a CUDA allocation failure."""
+    # torch.cuda.OutOfMemoryError was added after some PyTorch releases still
+    # used by collaborators.  Text matching remains the compatibility path.
+    oom_exception = getattr(torch.cuda, "OutOfMemoryError", ())
+    if isinstance(error, oom_exception):
+        return True
+    message = str(error).lower()
+    return any(marker in message for marker in CUDA_OOM_MARKERS)
+
+
+def _worker_reported_cuda_oom(log_path: Path, return_code: int) -> bool:
+    if return_code == CUDA_OOM_EXIT_CODE:
+        return True
+    try:
+        with log_path.open("rb") as handle:
+            handle.seek(0, os.SEEK_END)
+            size = handle.tell()
+            handle.seek(max(0, size - 1024 * 1024))
+            tail = handle.read().decode("utf-8", errors="replace")
+    except OSError:
+        return False
+    return is_cuda_oom_error(tail)
+
+
+def _adaptive_profile_at(
+    hardware_profile: dict[str, Any], tier: int
+) -> dict[str, Any]:
+    tiers = hardware_profile.get("tiers")
+    if not hardware_profile.get("adaptive") or not isinstance(tiers, list):
+        return dict(hardware_profile)
+    if tier < 0 or tier >= len(tiers):
+        raise ValueError(f"adaptive memory tier {tier} is out of range")
+    return dict(tiers[tier])
+
+
+def _adaptive_state_path(run_dir: Path) -> Path:
+    return run_dir / "adaptive_memory_state.json"
+
+
+def _load_or_create_adaptive_memory_state(
+    run_dir: Path,
+    hardware_profile: dict[str, Any],
+    *,
+    resume: bool,
+) -> dict[str, Any] | None:
+    if not hardware_profile.get("adaptive"):
+        return None
+    path = _adaptive_state_path(run_dir)
+    if path.is_file():
+        state = _read_json(path)
+        tier = state.get("current_tier")
+        tiers = hardware_profile.get("tiers", [])
+        if (
+            state.get("schema_version") != ADAPTIVE_MEMORY_STATE_SCHEMA
+            or not isinstance(tier, int)
+            or tier < 0
+            or tier >= len(tiers)
+        ):
+            raise ResumeCompatibilityError("invalid adaptive_memory_state.json")
+        selectors = state.get("selectors")
+        if selectors is not None:
+            if not isinstance(selectors, dict):
+                raise ResumeCompatibilityError("invalid adaptive selector state")
+            for selector, selector_state in selectors.items():
+                if not isinstance(selector_state, dict):
+                    raise ResumeCompatibilityError(
+                        f"invalid adaptive selector state for {selector}"
+                    )
+                selector_tier = selector_state.get("current_tier")
+                if (
+                    not isinstance(selector_tier, int)
+                    or selector_tier < 0
+                    or selector_tier >= len(tiers)
+                ):
+                    raise ResumeCompatibilityError(
+                        f"invalid adaptive memory tier for selector {selector}"
+                    )
+        return state
+    if resume:
+        raise ResumeCompatibilityError(
+            "adaptive resume requires the original adaptive_memory_state.json"
+        )
+    initial = _adaptive_profile_at(hardware_profile, 0)
+    state = {
+        "schema_version": ADAPTIVE_MEMORY_STATE_SCHEMA,
+        "current_tier": 0,
+        "current_profile": initial["name"],
+        "pair_chunk_size": int(initial["pair_chunk_size"]),
+        "activation_checkpointing": bool(initial["activation_checkpointing"]),
+        "oom_retries": 0,
+        "events": [],
+    }
+    _write_json_atomic(path, state)
+    return state
+
+
+def _adaptive_selector_state(
+    run_dir: Path,
+    state: dict[str, Any],
+    hardware_profile: dict[str, Any],
+    selector: str,
+) -> dict[str, Any]:
+    """Return one selector's adaptive tier, preserving legacy global state."""
+    tiers = hardware_profile.get("tiers")
+    if not hardware_profile.get("adaptive") or not isinstance(tiers, list):
+        return {
+            "current_tier": 0,
+            "current_profile": hardware_profile.get("name", "config"),
+            "oom_retries": 0,
+        }
+    selectors = state.setdefault("selectors", {})
+    if not isinstance(selectors, dict):
+        raise ResumeCompatibilityError("invalid adaptive selector state")
+    existing = selectors.get(selector)
+    if existing is not None:
+        if not isinstance(existing, dict):
+            raise ResumeCompatibilityError(
+                f"invalid adaptive selector state for {selector}"
+            )
+        tier = existing.get("current_tier")
+        if not isinstance(tier, int) or tier < 0 or tier >= len(tiers):
+            raise ResumeCompatibilityError(
+                f"invalid adaptive memory tier for selector {selector}"
+            )
+        return existing
+
+    # A pre-selector-state run used one global tier. Seed newly observed selectors
+    # from that tier so resuming an old run never silently upgrades memory usage.
+    tier = state.get("current_tier", 0)
+    if not isinstance(tier, int) or tier < 0 or tier >= len(tiers):
+        raise ResumeCompatibilityError("invalid adaptive_memory_state.json")
+    profile = _adaptive_profile_at(hardware_profile, tier)
+    retries = sum(
+        1
+        for event in state.get("events", [])
+        if isinstance(event, dict) and event.get("selector") == selector
+    )
+    created = {
+        "current_tier": tier,
+        "current_profile": profile["name"],
+        "pair_chunk_size": int(profile["pair_chunk_size"]),
+        "activation_checkpointing": bool(profile["activation_checkpointing"]),
+        "oom_retries": retries,
+    }
+    selectors[selector] = created
+    _write_json_atomic(_adaptive_state_path(run_dir), state)
+    return created
+
+
+def _record_adaptive_oom_retry(
+    run_dir: Path,
+    state: dict[str, Any],
+    *,
+    selector: str,
+    gpu: int,
+    from_tier: int,
+    to_tier: int,
+    hardware_profile: dict[str, Any],
+) -> dict[str, Any]:
+    previous = _adaptive_profile_at(hardware_profile, from_tier)
+    selected = _adaptive_profile_at(hardware_profile, to_tier)
+    selector_state = _adaptive_selector_state(
+        run_dir, state, hardware_profile, selector
+    )
+    event = {
+        "event": "oom_retry",
+        "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+        "selector": selector,
+        "gpu": gpu,
+        "from_tier": from_tier,
+        "from_profile": previous["name"],
+        "to_tier": to_tier,
+        "to_profile": selected["name"],
+        "pair_chunk_size": int(selected["pair_chunk_size"]),
+        "activation_checkpointing": bool(selected["activation_checkpointing"]),
+    }
+    events = list(state.get("events", []))
+    events.append(event)
+    selector_state.update(
+        {
+            "current_tier": to_tier,
+            "current_profile": selected["name"],
+            "pair_chunk_size": int(selected["pair_chunk_size"]),
+            "activation_checkpointing": bool(selected["activation_checkpointing"]),
+            "oom_retries": int(selector_state.get("oom_retries", 0)) + 1,
+        }
+    )
+    selector_states = state.setdefault("selectors", {})
+    selector_states[selector] = selector_state
+    max_tier = max(
+        int(item.get("current_tier", 0))
+        for item in selector_states.values()
+        if isinstance(item, dict)
+    )
+    max_profile = _adaptive_profile_at(hardware_profile, max_tier)
+    state.update(
+        {
+            "current_tier": max_tier,
+            "current_profile": max_profile["name"],
+            "pair_chunk_size": int(max_profile["pair_chunk_size"]),
+            "activation_checkpointing": bool(max_profile["activation_checkpointing"]),
+            "oom_retries": int(state.get("oom_retries", 0)) + 1,
+            "events": events[-100:],
+        }
+    )
+    hardware_profile.update(
+        {
+            "current_tier": max_tier,
+            "current_profile": max_profile["name"],
+            "pair_chunk_size": int(max_profile["pair_chunk_size"]),
+            "activation_checkpointing": bool(max_profile["activation_checkpointing"]),
+        }
+    )
+    _write_json_atomic(_adaptive_state_path(run_dir), state)
+    return event
+
+
 def _run_resume_contract(
     *,
     config_path: Path,
@@ -294,8 +564,16 @@ def _run_resume_contract(
             "baseline": config["baseline"],
             "kernel": config["kernel"],
             "model": config["model"],
-            "pair_chunk_size": int(hardware_profile["pair_chunk_size"]),
-            "activation_checkpointing": bool(hardware_profile["activation_checkpointing"]),
+            **(
+                {"memory_strategy": "adaptive"}
+                if hardware_profile.get("adaptive")
+                else {
+                    "pair_chunk_size": int(hardware_profile["pair_chunk_size"]),
+                    "activation_checkpointing": bool(
+                        hardware_profile["activation_checkpointing"]
+                    ),
+                }
+            ),
             "parallel_mode": "model_parallel" if model_parallel_gpu_ids else "selector_or_serial",
             "model_parallel_gpu_ids": list(model_parallel_gpu_ids),
             "selector_gpu_ids": list(hardware_profile["selected_gpu_ids"]),
@@ -591,11 +869,24 @@ def choose_hardware_profile(
     gpu_ids: list[int],
     inventory: list[dict[str, Any]],
 ) -> dict[str, Any]:
+    if requested == "adaptive":
+        tiers = [dict(profile) for profile in ADAPTIVE_HARDWARE_PROFILES]
+        return {
+            **tiers[0],
+            "name": "adaptive",
+            "adaptive": True,
+            "tiers": tiers,
+            "selection_reason": (
+                "start with the largest streamed-backward pair chunk and "
+                "fall back only after a confirmed CUDA OOM"
+            ),
+        }
     if requested == "config":
         return {
             "name": "config",
             "pair_chunk_size": int(config["kernel"].get("pair_chunk_size", 256)),
             "activation_checkpointing": True,
+            "adaptive": False,
             "selection_reason": "frozen config profile",
         }
     if requested == "auto":
@@ -614,6 +905,7 @@ def choose_hardware_profile(
         profile.update(
             {
                 "name": requested,
+                "adaptive": False,
                 "selection_reason": profile.pop("reason"),
                 "minimum_memory_total_mib": min_total,
                 "minimum_memory_free_mib": min_free,
@@ -621,7 +913,13 @@ def choose_hardware_profile(
         )
         return profile
     profile = dict(HARDWARE_PROFILES[requested])
-    profile.update({"name": requested, "selection_reason": "explicit profile override"})
+    profile.update(
+        {
+            "name": requested,
+            "adaptive": False,
+            "selection_reason": "explicit profile override",
+        }
+    )
     profile.pop("reason", None)
     return profile
 
@@ -910,14 +1208,27 @@ def run_selector_workers(
     hardware_profile: dict[str, Any] | None = None,
     resume: bool = False,
     pause: PauseController | None = None,
+    adaptive_memory_state: dict[str, Any] | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Run independent selectors with one dynamically scheduled worker per GPU."""
     hardware_profile = hardware_profile or {
         "name": "config",
         "pair_chunk_size": 256,
         "activation_checkpointing": True,
+        "adaptive": False,
     }
     run_dir.mkdir(parents=True, exist_ok=True)
+    adaptive = bool(hardware_profile.get("adaptive"))
+    adaptive_memory_state = adaptive_memory_state or _load_or_create_adaptive_memory_state(
+        run_dir, hardware_profile, resume=resume
+    )
+    if adaptive_memory_state is not None:
+        # Initialize all selectors before scheduling. This prevents one worker's
+        # OOM from making an unstarted independent worker inherit its lower tier.
+        for selector in selectors:
+            _adaptive_selector_state(
+                run_dir, adaptive_memory_state, hardware_profile, selector
+            )
     pending = list(selectors)
     available = list(gpu_ids)
     statuses: dict[str, dict[str, Any]] = {
@@ -1032,8 +1343,19 @@ def run_selector_workers(
                     raise ResumeCompatibilityError(
                         f"selector {selector} has partial artifacts but no batch checkpoint; refusing unsafe restart"
                     )
+                worker_resume = has_checkpoint
+                tier = (
+                    int(
+                        _adaptive_selector_state(
+                            run_dir, adaptive_memory_state, hardware_profile, selector
+                        )["current_tier"]
+                    )
+                    if adaptive
+                    else 0
+                )
+                selected_profile = _adaptive_profile_at(hardware_profile, tier)
                 log_handle = (selector_dir / "worker.log").open(
-                    "a" if resume else "w", encoding="utf-8"
+                    "a" if worker_resume else "w", encoding="utf-8"
                 )
                 heartbeat_path = selector_dir / "heartbeat.json"
                 heartbeat_path.touch()
@@ -1049,10 +1371,12 @@ def run_selector_workers(
                     "--seed", str(seed),
                     "--log-every-batches", str(args.log_every_batches),
                     "--checkpoint-every-batches", str(getattr(args, "checkpoint_every_batches", 50)),
-                    "--pair-chunk-size", str(hardware_profile["pair_chunk_size"]),
-                    "--activation-checkpointing", str(int(hardware_profile["activation_checkpointing"])),
+                    "--pair-chunk-size", str(selected_profile["pair_chunk_size"]),
+                    "--activation-checkpointing", str(int(selected_profile["activation_checkpointing"])),
                 ]
-                if resume and has_checkpoint:
+                if adaptive:
+                    command.append("--adaptive-memory")
+                if worker_resume:
                     command.append("--resume")
                 environment = os.environ.copy()
                 if gpu_id >= 0:
@@ -1078,6 +1402,8 @@ def run_selector_workers(
                     "started_at": started_at,
                     "started_monotonic": time.monotonic(),
                     "heartbeat_file": heartbeat_path,
+                    "adaptive_tier": tier,
+                    "memory_profile": selected_profile["name"],
                 }
                 statuses[selector].update(
                     {
@@ -1087,6 +1413,22 @@ def run_selector_workers(
                         "started_at": started_at,
                         "heartbeat_file": str(heartbeat_path),
                         "log_file": str(selector_dir / "worker.log"),
+                        "adaptive_tier": tier if adaptive else None,
+                        "memory_profile": selected_profile["name"],
+                        "pair_chunk_size": int(selected_profile["pair_chunk_size"]),
+                        "activation_checkpointing": bool(selected_profile["activation_checkpointing"]),
+                        "oom_retries": (
+                            int(
+                                _adaptive_selector_state(
+                                    run_dir,
+                                    adaptive_memory_state,
+                                    hardware_profile,
+                                    selector,
+                                ).get("oom_retries", 0)
+                            )
+                            if adaptive
+                            else int(statuses[selector].get("oom_retries", 0))
+                        ),
                     }
                 )
                 write_assignments()
@@ -1097,6 +1439,8 @@ def run_selector_workers(
                         "selector": selector,
                         "gpu": gpu_id,
                         "pid": process.pid,
+                        "adaptive_tier": tier if adaptive else None,
+                        "memory_profile": selected_profile["name"],
                         "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                     },
                 )
@@ -1118,12 +1462,73 @@ def run_selector_workers(
                     pause_run(f"selector worker {selector} paused")
                     raise RunPaused(f"selector worker {selector} paused")
                 if return_code != 0:
+                    log_path = run_dir / "selectors" / selector / "worker.log"
+                    oom = adaptive and _worker_reported_cuda_oom(log_path, return_code)
+                    checkpoint_path = (
+                        run_dir / "selectors" / selector / "checkpoints" / "latest.pt"
+                    )
+                    tier_used = int(entry["adaptive_tier"])
+                    next_tier = tier_used + 1
+                    if oom and checkpoint_path.is_file() and next_tier < len(hardware_profile["tiers"]):
+                        event = _record_adaptive_oom_retry(
+                            run_dir,
+                            adaptive_memory_state,
+                            selector=selector,
+                            gpu=int(entry["gpu"]),
+                            from_tier=tier_used,
+                            to_tier=next_tier,
+                            hardware_profile=hardware_profile,
+                        )
+                        retries = int(statuses[selector].get("oom_retries", 0)) + 1
+                        statuses[selector].update(
+                            {
+                                "status": "pending",
+                                "gpu": None,
+                                "last_return_code": return_code,
+                                "oom_retries": retries,
+                                "last_oom_at": finished_at,
+                                "last_memory_profile": entry["memory_profile"],
+                            }
+                        )
+                        available.append(int(entry["gpu"]))
+                        del active[selector]
+                        pending.insert(0, selector)
+                        write_assignments()
+                        _append_scheduler_event(run_dir, event)
+                        selected = _adaptive_profile_at(hardware_profile, next_tier)
+                        print(
+                            f"[selector-scheduler] CUDA OOM on {selector} | retry {retries} | "
+                            f"profile {selected['name']} | pair_chunk_size={selected['pair_chunk_size']}",
+                            flush=True,
+                        )
+                        continue
                     statuses[selector].update(
-                        {"status": "failed", "return_code": return_code, "finished_at": finished_at, "duration_seconds": duration}
+                        {
+                            "status": "failed",
+                            "return_code": return_code,
+                            "last_return_code": return_code,
+                            "finished_at": finished_at,
+                            "duration_seconds": duration,
+                            "oom_retries": int(statuses[selector].get("oom_retries", 0)),
+                        }
                     )
                     write_assignments()
-                    fail_run(f"selector worker {selector} failed with exit code {return_code}")
-                    raise RuntimeError(f"selector worker {selector} failed; inspect {run_dir / 'selectors' / selector / 'worker.log'}")
+                    if oom and not checkpoint_path.is_file():
+                        reason = (
+                            f"selector worker {selector} hit CUDA OOM without a batch checkpoint; "
+                            "unsafe adaptive restart refused"
+                        )
+                    elif oom:
+                        reason = (
+                            f"selector worker {selector} exhausted all adaptive memory tiers "
+                            f"after CUDA OOM (exit code {return_code})"
+                        )
+                    else:
+                        reason = f"selector worker {selector} failed with exit code {return_code}"
+                    fail_run(reason)
+                    raise RuntimeError(
+                        f"{reason}; inspect {run_dir / 'selectors' / selector / 'worker.log'}"
+                    )
                 metrics_path = run_dir / "selectors" / selector / "metrics.json"
                 if not _valid_selector_metrics(metrics_path, selector):
                     statuses[selector].update(
@@ -1351,9 +1756,34 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         hardware_profile=hardware_profile,
         model_parallel_gpu_ids=model_parallel_gpu_ids,
     )
+    if model_parallel_gpu_ids and hardware_profile.get("adaptive"):
+        raise ValueError(
+            "adaptive hardware profile is currently supported for selector workers only; "
+            "use a fixed profile for --model-parallel-gpus"
+        )
+    if hardware_profile.get("adaptive"):
+        hardware_profile.setdefault("current_tier", 0)
+        hardware_profile.setdefault("current_profile", hardware_profile["name"])
     _validate_or_create_run_manifest(
         run_dir, run_contract, resume=resuming, started_at_utc=stamp
     )
+    adaptive_memory_state = _load_or_create_adaptive_memory_state(
+        run_dir, hardware_profile, resume=resuming
+    )
+    if adaptive_memory_state is not None:
+        current_profile = _adaptive_profile_at(
+            hardware_profile, int(adaptive_memory_state["current_tier"])
+        )
+        hardware_profile.update(
+            {
+                "current_tier": int(adaptive_memory_state["current_tier"]),
+                "current_profile": current_profile["name"],
+                "pair_chunk_size": int(current_profile["pair_chunk_size"]),
+                "activation_checkpointing": bool(
+                    current_profile["activation_checkpointing"]
+                ),
+            }
+        )
     args._run_dir = run_dir
     if resuming:
         _record_resume_event(run_dir, event="resume_started", contract_fingerprint=fingerprint(run_contract))
@@ -1685,6 +2115,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
             hardware_profile=hardware_profile,
             resume=resuming,
             pause=pause,
+            adaptive_memory_state=adaptive_memory_state,
         )
     rows: list[dict[str, Any]] = []
     for selector in selectors:
@@ -1726,6 +2157,11 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
             "worker_statuses": worker_statuses,
         },
         "hardware_profile": hardware_profile,
+        "adaptive_memory": (
+            _read_json(_adaptive_state_path(run_dir))
+            if hardware_profile.get("adaptive")
+            else None
+        ),
         "selectors": selectors,
         "candidate": config["candidate"],
         "matched_control": config["matched_control"],
@@ -1751,6 +2187,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
             "model_parallel_device_map": artifacts.model.model_parallel_metadata() if model_parallel_devices else {"enabled": False},
             "pair_chunk_size": int(hardware_profile["pair_chunk_size"]),
             "activation_checkpointing": bool(hardware_profile["activation_checkpointing"]),
+            "memory_strategy": "adaptive" if hardware_profile.get("adaptive") else "fixed",
             "started_at_utc": stamp,
         },
     }
