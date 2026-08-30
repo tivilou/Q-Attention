@@ -1,0 +1,292 @@
+{
+  "finite": true,
+  "metadata": {
+    "activation_checkpointing": false,
+    "circuit_depth": 1,
+    "control_mode": "classical_density_tensor",
+    "head_dim": 8,
+    "inference_mode": "label_free",
+    "key_action_scope": "non_entity_context_only",
+    "model_parallel": false,
+    "model_parallel_devices": [],
+    "model_parallel_layer_devices": [],
+    "num_heads": 4,
+    "num_layers": 2,
+    "pair_chunk_size": 16384,
+    "readout": "centered_pre_softmax_score_residual",
+    "relation_anchor": "subject_mean_minus_object_mean",
+    "target_input": "query,key,subject_mask,object_mask",
+    "trainable_parameters": 120,
+    "type": "q_triad"
+  },
+  "seed": 13,
+  "selector": "classical_density_tensor",
+  "test": {
+    "batches": 53,
+    "delta_vs_baseline": {
+      "delta_accuracy": -0.0001490535102101065,
+      "delta_loss": 1.614018086470992e-05,
+      "delta_macro_f1": -0.00028094929391747625,
+      "delta_macro_precision": -0.00039517211993969625,
+      "delta_macro_recall": -0.00020321750321750098
+    },
+    "geometry": [
+      {
+        "attention_total_variation": {
+          "count": 1857788,
+          "mean": 0.00013199311838520307,
+          "std": 0.0002829028356357928
+        },
+        "context_mass_error": {
+          "count": 1857788,
+          "mean": 8.245202630714845e-06,
+          "std": 3.343442354618081e-05
+        },
+        "entity_mass_error": {
+          "count": 1857788,
+          "mean": 8.23911123441134e-06,
+          "std": 3.343580742652556e-05
+        },
+        "residual_rms": {
+          "count": 13418,
+          "mean": 0.00025951647224538565,
+          "std": 0.0002476214963773228
+        }
+      },
+      {
+        "attention_total_variation": {
+          "count": 1857788,
+          "mean": 0.00033136042316530244,
+          "std": 0.000726348705041162
+        },
+        "context_mass_error": {
+          "count": 1857788,
+          "mean": 4.2944779459392844e-05,
+          "std": 0.0001786192349595331
+        },
+        "entity_mass_error": {
+          "count": 1857788,
+          "mean": 4.293761376568468e-05,
+          "std": 0.00017862100604227222
+        },
+        "residual_rms": {
+          "count": 13418,
+          "mean": 0.0006619946227945751,
+          "std": 0.0005705970438405136
+        }
+      }
+    ],
+    "items": 13418,
+    "metrics": {
+      "accuracy": 0.6329557311074676,
+      "loss": 2.083669941157729,
+      "macro_f1": 0.18231600732757378,
+      "macro_precision": 0.22314046183635075,
+      "macro_recall": 0.18844503294944487
+    }
+  },
+  "train": {
+    "best_epoch": 9,
+    "best_valid": {
+      "accuracy": 0.6206086601307189,
+      "loss": 1.9813701927272322,
+      "macro_f1": 0.2172621517541918,
+      "macro_precision": 0.2712900748889442,
+      "macro_recall": 0.21472928825223345
+    },
+    "global_step": 2748,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 0.19404066245600532,
+        "valid": {
+          "accuracy": 0.6205575980392157,
+          "loss": 1.9813420616723354,
+          "macro_f1": 0.21725289412144616,
+          "macro_precision": 0.271280735065928,
+          "macro_recall": 0.21472706523960677
+        }
+      },
+      {
+        "epoch": 2,
+        "train_loss": 0.19404024971129905,
+        "valid": {
+          "accuracy": 0.6205575980392157,
+          "loss": 1.9813430130092147,
+          "macro_f1": 0.21725289412144616,
+          "macro_precision": 0.271280735065928,
+          "macro_recall": 0.21472706523960677
+        }
+      },
+      {
+        "epoch": 3,
+        "train_loss": 0.1940397812877598,
+        "valid": {
+          "accuracy": 0.6205575980392157,
+          "loss": 1.981343908247605,
+          "macro_f1": 0.21725289412144616,
+          "macro_precision": 0.271280735065928,
+          "macro_recall": 0.21472706523960677
+        }
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.1940392093433955,
+        "valid": {
+          "accuracy": 0.6205575980392157,
+          "loss": 1.9813452842188817,
+          "macro_f1": 0.21725289412144616,
+          "macro_precision": 0.271280735065928,
+          "macro_recall": 0.21472706523960677
+        }
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.19403848192574663,
+        "valid": {
+          "accuracy": 0.6205575980392157,
+          "loss": 1.9813470396341062,
+          "macro_f1": 0.21725289412144616,
+          "macro_precision": 0.271280735065928,
+          "macro_recall": 0.21472706523960677
+        }
+      },
+      {
+        "epoch": 6,
+        "train_loss": 0.19403748025205395,
+        "valid": {
+          "accuracy": 0.6205575980392157,
+          "loss": 1.98134931863523,
+          "macro_f1": 0.21725289412144616,
+          "macro_precision": 0.271280735065928,
+          "macro_recall": 0.21472706523960677
+        }
+      },
+      {
+        "epoch": 7,
+        "train_loss": 0.19403595554964237,
+        "valid": {
+          "accuracy": 0.6205575980392157,
+          "loss": 1.9813539646809397,
+          "macro_f1": 0.21714566418229028,
+          "macro_precision": 0.2709880553346353,
+          "macro_recall": 0.21472706523960677
+        }
+      },
+      {
+        "epoch": 8,
+        "train_loss": 0.19403361576964304,
+        "valid": {
+          "accuracy": 0.6205575980392157,
+          "loss": 1.9813609115438524,
+          "macro_f1": 0.2171498005793043,
+          "macro_precision": 0.2709898181771574,
+          "macro_recall": 0.21472706523960677
+        }
+      },
+      {
+        "epoch": 9,
+        "train_loss": 0.19403023126340857,
+        "valid": {
+          "accuracy": 0.6206086601307189,
+          "loss": 1.9813701927272322,
+          "macro_f1": 0.2172621517541918,
+          "macro_precision": 0.2712900748889442,
+          "macro_recall": 0.21472928825223345
+        }
+      },
+      {
+        "epoch": 10,
+        "train_loss": 0.1940260702006109,
+        "valid": {
+          "accuracy": 0.6206086601307189,
+          "loss": 1.981378672169704,
+          "macro_f1": 0.2172621517541918,
+          "macro_precision": 0.2712900748889442,
+          "macro_recall": 0.21472928825223345
+        }
+      },
+      {
+        "epoch": 11,
+        "train_loss": 0.1940215283185231,
+        "valid": {
+          "accuracy": 0.6206086601307189,
+          "loss": 1.9813828468322754,
+          "macro_f1": 0.2172321853593356,
+          "macro_precision": 0.27166860513897656,
+          "macro_recall": 0.21467926882721403
+        }
+      },
+      {
+        "epoch": 12,
+        "train_loss": 0.19401657588669693,
+        "valid": {
+          "accuracy": 0.6206086601307189,
+          "loss": 1.9813855154062407,
+          "macro_f1": 0.21724193253232774,
+          "macro_precision": 0.271695154040288,
+          "macro_recall": 0.21467926882721403
+        }
+      }
+    ],
+    "runtime_seconds": 18205.775
+  },
+  "trainable_parameters": 120,
+  "valid": {
+    "batches": 77,
+    "geometry": [
+      {
+        "attention_total_variation": {
+          "count": 2767284,
+          "mean": 0.00013190320533595812,
+          "std": 0.0002811350237170459
+        },
+        "context_mass_error": {
+          "count": 2767284,
+          "mean": 8.419733713922248e-06,
+          "std": 3.4653701706737985e-05
+        },
+        "entity_mass_error": {
+          "count": 2767284,
+          "mean": 8.41382060087343e-06,
+          "std": 3.465508073857723e-05
+        },
+        "residual_rms": {
+          "count": 19584,
+          "mean": 0.0002795850051174342,
+          "std": 0.00026523858065838796
+        }
+      },
+      {
+        "attention_total_variation": {
+          "count": 2767284,
+          "mean": 0.00033130323317672014,
+          "std": 0.0007243100646306615
+        },
+        "context_mass_error": {
+          "count": 2767284,
+          "mean": 4.0582707921320155e-05,
+          "std": 0.00016970637399013814
+        },
+        "entity_mass_error": {
+          "count": 2767284,
+          "mean": 4.057530234655034e-05,
+          "std": 0.0001697081286996319
+        },
+        "residual_rms": {
+          "count": 19584,
+          "mean": 0.0007112717622696283,
+          "std": 0.000614011954693449
+        }
+      }
+    ],
+    "items": 19584,
+    "metrics": {
+      "accuracy": 0.6206086601307189,
+      "loss": 1.9813701927272322,
+      "macro_f1": 0.2172621517541918,
+      "macro_precision": 0.2712900748889442,
+      "macro_recall": 0.21472928825223345
+    }
+  }
+}

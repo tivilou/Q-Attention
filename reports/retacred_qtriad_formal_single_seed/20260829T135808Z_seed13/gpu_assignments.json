@@ -1,0 +1,121 @@
+{
+  "hardware_profile": {
+    "activation_checkpointing": false,
+    "adaptive": true,
+    "current_profile": "adaptive_fast",
+    "current_tier": 1,
+    "gpu_inventory": [
+      {
+        "index": 0,
+        "memory_free_mib": 12032,
+        "memory_total_mib": 12282,
+        "memory_used_mib": 2,
+        "name": "NVIDIA RTX A2000 12GB"
+      },
+      {
+        "index": 1,
+        "memory_free_mib": 12032,
+        "memory_total_mib": 12282,
+        "memory_used_mib": 2,
+        "name": "NVIDIA RTX A2000 12GB"
+      },
+      {
+        "index": 2,
+        "memory_free_mib": 12032,
+        "memory_total_mib": 12282,
+        "memory_used_mib": 2,
+        "name": "NVIDIA RTX A2000 12GB"
+      }
+    ],
+    "name": "adaptive",
+    "pair_chunk_size": 16384,
+    "requested_gpu_spec": "auto",
+    "selected_gpu_ids": [
+      0,
+      1,
+      2
+    ],
+    "selection_reason": "start with the 10x throughput-trial streamed-backward pair chunk and fall back only after confirmed CUDA OOM or memory pressure",
+    "tiers": [
+      {
+        "activation_checkpointing": false,
+        "name": "adaptive_max",
+        "pair_chunk_size": 163840
+      },
+      {
+        "activation_checkpointing": false,
+        "name": "adaptive_fast",
+        "pair_chunk_size": 16384
+      },
+      {
+        "activation_checkpointing": false,
+        "name": "adaptive_large",
+        "pair_chunk_size": 4096
+      },
+      {
+        "activation_checkpointing": true,
+        "name": "adaptive_medium",
+        "pair_chunk_size": 1024
+      },
+      {
+        "activation_checkpointing": true,
+        "name": "adaptive_conservative",
+        "pair_chunk_size": 256
+      },
+      {
+        "activation_checkpointing": true,
+        "name": "adaptive_low_memory",
+        "pair_chunk_size": 64
+      }
+    ]
+  },
+  "requested_gpu_ids": [
+    0,
+    1,
+    2
+  ],
+  "workers": {
+    "classical_density_tensor": {
+      "activation_checkpointing": false,
+      "adaptive_tier": 1,
+      "duration_seconds": 18625.194,
+      "finished_at": "2026-08-30T07:56:03.373408+00:00",
+      "gpu": 0,
+      "heartbeat_file": "/root/projects/Q-Attention/runs/retacred_qtriad_formal_single_seed/20260829T135808Z_seed13/selectors/classical_density_tensor/heartbeat.json",
+      "log_file": "/root/projects/Q-Attention/runs/retacred_qtriad_formal_single_seed/20260829T135808Z_seed13/selectors/classical_density_tensor/worker.log",
+      "memory_pressure_retries": 0,
+      "memory_profile": "adaptive_fast",
+      "oom_retries": 0,
+      "pair_chunk_size": 16384,
+      "pid": 553,
+      "return_code": 0,
+      "selector": "classical_density_tensor",
+      "started_at": "2026-08-30T02:45:38.179175+00:00",
+      "status": "complete"
+    },
+    "q_triad": {
+      "gpu": null,
+      "resumed_skip": true,
+      "selector": "q_triad",
+      "status": "complete"
+    },
+    "quantum_product": {
+      "activation_checkpointing": false,
+      "adaptive_tier": 1,
+      "duration_seconds": 33223.883,
+      "finished_at": "2026-08-30T11:59:22.079220+00:00",
+      "gpu": 1,
+      "heartbeat_file": "/root/projects/Q-Attention/runs/retacred_qtriad_formal_single_seed/20260829T135808Z_seed13/selectors/quantum_product/heartbeat.json",
+      "log_file": "/root/projects/Q-Attention/runs/retacred_qtriad_formal_single_seed/20260829T135808Z_seed13/selectors/quantum_product/worker.log",
+      "memory_pressure_retries": 0,
+      "memory_profile": "adaptive_fast",
+      "oom_retries": 0,
+      "pair_chunk_size": 16384,
+      "pid": 554,
+      "return_code": 0,
+      "selector": "quantum_product",
+      "started_at": "2026-08-30T02:45:38.195911+00:00",
+      "status": "complete"
+    }
+  }
+}

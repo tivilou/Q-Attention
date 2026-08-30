@@ -1,0 +1,57 @@
+{
+  "schema_version": "q-attention.qtriad-formal-single-seed.v1",
+  "name": "retacred_qtriad_formal_single_seed",
+  "formal_experiment": true,
+  "seed": 13,
+  "train_path": "data/relation/retacred/train.jsonl",
+  "valid_path": "data/relation/retacred/valid.jsonl",
+  "test_path": "data/relation/retacred/test.jsonl",
+  "expected_records": {
+    "train": 58465,
+    "valid": 19584,
+    "test": 13418
+  },
+  "selectors": [
+    "disabled",
+    "q_triad",
+    "classical_density_tensor",
+    "quantum_product"
+  ],
+  "candidate": "q_triad",
+  "matched_control": "classical_density_tensor",
+  "baseline": {
+    "epochs": 8,
+    "batch_size": 16,
+    "lr": 0.001
+  },
+  "kernel": {
+    "epochs": 12,
+    "batch_size": 256,
+    "lr": 0.001,
+    "num_qubits": 2,
+    "circuit_depth": 1,
+    "pair_chunk_size": 256,
+    "angle_scale": 1.0,
+    "max_gain": 0.5,
+    "initial_gain": 0.02,
+    "weight_decay": 0.0
+  },
+  "model": {
+    "dim": 32,
+    "num_layers": 2,
+    "num_heads": 4,
+    "ff_dim": 64,
+    "dropout": 0.0
+  },
+  "gates": {
+    "minimum_candidate_minus_disabled_macro_f1": 0.001,
+    "minimum_candidate_minus_matched_macro_f1": -0.0005,
+    "test_used_for_training_or_selection": false
+  },
+  "claim_limits": {
+    "single_seed_only": true,
+    "natural_transfer_not_yet_reproducible": true,
+    "quantum_specific_advantage_not_claimed": true,
+    "multi_seed_requires_post_audit_authorization": true
+  }
+}
