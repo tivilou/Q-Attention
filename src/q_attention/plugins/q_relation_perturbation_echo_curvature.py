@@ -16,6 +16,7 @@ from typing import Any
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.utils.checkpoint import checkpoint
 
 
 Q_RPEC_KERNEL_TYPES = ("quantum", "local_control")
@@ -73,9 +74,19 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
     kernel_type = "quantum"
     uses_cross_register_echo = True
 
-    def __init__(self, config: RelationPerturbationEchoConfig) -> None:
+    def __init__(
+        self,
+        config: RelationPerturbationEchoConfig,
+        *,
+        pair_chunk_size: int = 256,
+        activation_checkpointing: bool = True,
+    ) -> None:
         super().__init__()
+        if pair_chunk_size <= 0:
+            raise ValueError("pair_chunk_size must be positive")
         self.config = config
+        self.pair_chunk_size = int(pair_chunk_size)
+        self.activation_checkpointing = bool(activation_checkpointing)
         self.num_layers = config.num_layers
         self.num_heads = config.num_heads
         self.head_dim = config.head_dim
@@ -191,6 +202,12 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
             coupling = self.config.max_coupling * torch.tanh(self.raw_coupling[layer_index, head_index])
             phase = torch.exp(1j * torch.matmul(self.phase_masks.to(state.device), coupling.to(state.device)))
             state = state.to(torch.complex64) * phase
+        else:
+            # Keep the matched control's parameter schema and optimizer contract
+            # identical while disabling the cross-register interaction exactly.
+            # Reduce the parameter tensor to a scalar so broadcasting cannot
+            # change the state shape while preserving an exact zero gradient.
+            state = state + self.raw_coupling[layer_index, head_index].sum().to(state.device) * 0.0
         flipped = state[:, self.observable_flip.to(state.device)]
         return (state.conj() * flipped).sum(dim=-1).real
 
@@ -248,6 +265,10 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
                 "context residual is not zero-sum",
             ],
             "config": asdict(self.config),
+            "execution": {
+                "pair_chunk_size": self.pair_chunk_size,
+                "activation_checkpointing": self.activation_checkpointing,
+            },
             "inference_mode": "label_free",
             "target_input": "query,key,subject_mask,object_mask",
             "key_action_scope": "non_entity_context_only",
@@ -290,7 +311,36 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
             q_pairs = q[:, :, None, :].expand(-1, -1, key_tokens, -1).reshape(-1, self.head_dim)
             k_pairs = k[:, None, :, :].expand(-1, query_tokens, -1, -1).reshape(-1, self.head_dim)
             r_pairs = r[:, None, None, :].expand(-1, query_tokens, key_tokens, -1).reshape(-1, self.head_dim)
-            score = self._curvature(q_pairs, r_pairs, k_pairs, layer_index=layer_index, head_index=head_index).reshape(batch, query_tokens, key_tokens)
+            chunks: list[torch.Tensor] = []
+            for start in range(0, q_pairs.shape[0], self.pair_chunk_size):
+                stop = min(start + self.pair_chunk_size, q_pairs.shape[0])
+                q_chunk = q_pairs[start:stop]
+                r_chunk = r_pairs[start:stop]
+                k_chunk = k_pairs[start:stop]
+                if self.training and self.activation_checkpointing:
+                    score_chunk = checkpoint(
+                        lambda qv, rv, kv: self._curvature(
+                            qv,
+                            rv,
+                            kv,
+                            layer_index=layer_index,
+                            head_index=head_index,
+                        ),
+                        q_chunk,
+                        r_chunk,
+                        k_chunk,
+                        use_reentrant=False,
+                    )
+                else:
+                    score_chunk = self._curvature(
+                        q_chunk,
+                        r_chunk,
+                        k_chunk,
+                        layer_index=layer_index,
+                        head_index=head_index,
+                    )
+                chunks.append(score_chunk)
+            score = torch.cat(chunks, dim=0).reshape(batch, query_tokens, key_tokens)
             score = score - (score * context_weights[:, None, :]).sum(dim=-1, keepdim=True) / key_count[:, None, None]
             gain = self.max_gain * torch.tanh(self.raw_gains[layer_index, head_index].to(query.device))
             residuals.append(score * gain)
@@ -310,6 +360,9 @@ class LocalRelationEchoCurvatureControl(RelationPerturbationEchoCurvatureKernel)
 def build_relation_perturbation_echo_curvature(
     mode: str,
     config: RelationPerturbationEchoConfig,
+    *,
+    pair_chunk_size: int = 256,
+    activation_checkpointing: bool = True,
 ) -> RelationPerturbationEchoCurvatureKernel:
     classes = {
         "quantum": RelationPerturbationEchoCurvatureKernel,
@@ -319,4 +372,8 @@ def build_relation_perturbation_echo_curvature(
         cls = classes[mode]
     except KeyError as error:
         raise ValueError(f"mode must be one of {Q_RPEC_KERNEL_TYPES}") from error
-    return cls(config)
+    return cls(
+        config,
+        pair_chunk_size=pair_chunk_size,
+        activation_checkpointing=activation_checkpointing,
+    )
