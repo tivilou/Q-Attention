@@ -266,10 +266,10 @@ def test_adaptive_profile_ladder_and_contract_are_stable(tmp_path) -> None:
         (data_dir / f"{split}.jsonl").write_text("", encoding="utf-8")
     (data_dir / "data_manifest.json").write_text("{}", encoding="utf-8")
     first = formal_runner.choose_hardware_profile("adaptive", {"kernel": {}}, [], [])
-    assert [tier["pair_chunk_size"] for tier in first["tiers"]] == [16384, 4096, 1024, 256, 64]
+    assert [tier["pair_chunk_size"] for tier in first["tiers"]] == [163840, 16384, 4096, 1024, 256, 64]
     a = formal_runner.selector_resume_contract(
         config_path=config_path, baseline_dir=baseline_dir, data_dir=data_dir,
-        selector="q_triad", seed=13, pair_chunk_size=16384,
+        selector="q_triad", seed=13, pair_chunk_size=163840,
         activation_checkpointing=False, adaptive_memory=True,
     )
     b = formal_runner.selector_resume_contract(
@@ -319,8 +319,8 @@ def test_adaptive_scheduler_retries_oom_from_checkpoint(tmp_path, monkeypatch) -
     )
     assert statuses["q_triad"]["status"] == "complete"
     assert "--resume" in commands[1]
-    assert commands[0][commands[0].index("--pair-chunk-size") + 1] == "16384"
-    assert commands[1][commands[1].index("--pair-chunk-size") + 1] == "4096"
+    assert commands[0][commands[0].index("--pair-chunk-size") + 1] == "163840"
+    assert commands[1][commands[1].index("--pair-chunk-size") + 1] == "16384"
     assert not (tmp_path / "run" / "RUN_FAILED").exists()
     events = (tmp_path / "run" / "scheduler_events.jsonl").read_text(encoding="utf-8")
     assert '"event": "oom_retry"' in events
@@ -378,7 +378,7 @@ def test_adaptive_scheduler_retries_memory_pressure_from_checkpoint(tmp_path, mo
     assert statuses["q_triad"]["status"] == "complete"
     assert statuses["q_triad"]["memory_pressure_retries"] == 1
     assert "--resume" in commands[1]
-    assert commands[1][commands[1].index("--pair-chunk-size") + 1] == "4096"
+    assert commands[1][commands[1].index("--pair-chunk-size") + 1] == "16384"
     events = (tmp_path / "run" / "scheduler_events.jsonl").read_text(encoding="utf-8")
     assert '"event": "memory_pressure_retry"' in events
     state = json.loads(
@@ -443,8 +443,8 @@ def test_adaptive_tier_is_independent_per_selector(tmp_path, monkeypatch) -> Non
         ]
         for command in commands
     }
-    assert chunk_sizes["q_triad"] == "4096"
-    assert chunk_sizes["classical_density_tensor"] == "16384"
+    assert chunk_sizes["q_triad"] == "16384"
+    assert chunk_sizes["classical_density_tensor"] == "163840"
     state = json.loads(
         (tmp_path / "run" / "adaptive_memory_state.json").read_text(encoding="utf-8")
     )
@@ -630,6 +630,92 @@ def test_adaptive_resume_uses_persisted_tier_and_checkpoint(tmp_path, monkeypatc
     assert statuses["q_triad"]["status"] == "complete"
     assert "--resume" in commands[0]
     assert commands[0][commands[0].index("--pair-chunk-size") + 1] == "1024"
+
+
+def test_selector_worker_receives_elastic_resume_permission(tmp_path, monkeypatch) -> None:
+    commands = []
+
+    class FakeProcess:
+        def __init__(self, command, **_kwargs):
+            self.pid = 5450
+            commands.append(command)
+            selector = command[command.index("--selector") + 1]
+            output_dir = Path(command[command.index("--output-dir") + 1])
+            _write_selector_metrics(output_dir, selector)
+
+        def poll(self):
+            return 0
+
+        def wait(self, **_kwargs):
+            return 0
+
+    monkeypatch.setattr(formal_runner.subprocess, "Popen", FakeProcess)
+    profile = formal_runner.choose_hardware_profile("adaptive", {"kernel": {}}, [0, 1], [])
+    statuses = formal_runner.run_selector_workers(
+        selectors=["q_triad"],
+        gpu_ids=[0, 1],
+        args=SimpleNamespace(python_bin=sys.executable, log_every_batches=1),
+        config_path=tmp_path / "config.json",
+        baseline_dir=tmp_path / "baseline",
+        data_dir=tmp_path / "data",
+        run_dir=tmp_path / "run",
+        seed=13,
+        hardware_profile=profile,
+        allow_gpu_topology_change=True,
+    )
+
+    assert statuses["q_triad"]["status"] == "complete"
+    assert "--elastic-resume" in commands[0]
+
+
+def test_elastic_run_contract_allows_single_to_multi_selector_gpu_change() -> None:
+    persisted = {
+        "training_semantics": {
+            "parallel_mode": "selector_or_serial",
+            "model_parallel_gpu_ids": [],
+            "selector_gpu_ids": [0],
+            "seed": 13,
+        },
+        "source": {
+            "git_revision": "old",
+            "files": {
+                "runner": "old-runner",
+                "worker": "old-worker",
+                "baseline_trainer": "old-baseline",
+                "kernel_trainer": "old-kernel",
+                "batch_resume": "old-resume",
+                "relation_model": "stable-model",
+            },
+        },
+    }
+    current = json.loads(json.dumps(persisted))
+    current["training_semantics"]["selector_gpu_ids"] = [0, 1]
+    current["source"]["git_revision"] = "new"
+    for name in ("runner", "worker", "baseline_trainer", "kernel_trainer", "batch_resume"):
+        current["source"]["files"][name] = f"new-{name}"
+
+    assert formal_runner._elastic_run_contract_compatible(persisted, current)
+
+
+def test_elastic_run_contract_rejects_model_parallel_or_non_expansion() -> None:
+    base = {
+        "training_semantics": {
+            "parallel_mode": "selector_or_serial",
+            "model_parallel_gpu_ids": [],
+            "selector_gpu_ids": [0],
+            "seed": 13,
+        },
+        "source": {"files": {}},
+    }
+    model_parallel = json.loads(json.dumps(base))
+    model_parallel["training_semantics"].update(
+        {"parallel_mode": "model_parallel", "model_parallel_gpu_ids": [0, 1]}
+    )
+    same_topology = json.loads(json.dumps(base))
+    same_topology["training_semantics"]["selector_gpu_ids"] = [0]
+
+    assert not formal_runner._elastic_run_contract_compatible(base, model_parallel)
+    assert not formal_runner._elastic_run_contract_compatible(base, same_topology)
 
 
 def test_selector_dashboard_renders_multi_gpu_heartbeat(tmp_path) -> None:

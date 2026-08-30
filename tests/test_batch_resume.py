@@ -157,3 +157,20 @@ def test_baseline_resume_matches_uninterrupted_training_after_post_update_pause(
     for name, tensor in uninterrupted["model_state"].items():
         assert torch.equal(tensor, resumed["model_state"][name]), name
     assert not (resumed_dir / "RUN_PAUSED").exists()
+
+
+def test_baseline_elastic_resume_is_execution_only_contract_change(monkeypatch) -> None:
+    base_argv = _baseline_argv(Path("unused"))
+    monkeypatch.setattr(sys, "argv", base_argv)
+    regular = baseline_trainer.parse_args()
+    monkeypatch.setattr(sys, "argv", [*base_argv, "--elastic-resume"])
+    elastic = baseline_trainer.parse_args()
+
+    assert baseline_trainer._resume_contract(regular) == baseline_trainer._resume_contract(elastic)
+
+    migrated = baseline_trainer._resume_contract(elastic)
+    migrated["source"]["git_revision"] = "different-revision"
+    migrated["source"]["files"]["trainer"] = "different-trainer-source"
+    assert baseline_trainer._resume_contract_compatible(
+        baseline_trainer._resume_contract(regular), migrated
+    )

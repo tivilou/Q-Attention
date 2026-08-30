@@ -21,7 +21,7 @@ bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu 0
 bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu auto
 ```
 
-`auto` 会选择空闲显存至少 8 GiB 的可见物理 GPU；单 GPU 环境也适用。默认 profile 是 `adaptive`：每个 selector 都先用最快的 streamed-backward 档位 `adaptive_fast`（`pair_chunk_size=16384`），只有该 selector 确认 CUDA OOM 才独立降到 `4096 -> 1024 -> 256 -> 64`，并在需要时启用 checkpointing。OOM worker 会退出，父调度器释放 GPU 后用该 selector 的最近 batch checkpoint 重启；回退过程写入 `adaptive_memory_state.json` 与 `scheduler_events.jsonl`。一个 selector 降档不会降低其他 selector 的初始档位，因此不会无故牺牲它们的速度。没有 checkpoint 或同一 selector 的所有档位都失败时才写 `RUN_FAILED`。这不是把两张 GPU 的显存合并。该机制只调整执行策略，不改变 seed、数据、batch size、epoch、selector、控制组或优化契约；不恢复旧的无限 autograd graph retaining 实现。固定 `low_memory`/`balanced`/`high_memory` profile 不会自动回退。当前 activation checkpointing 字段保留在执行契约中，Q-TRIAD 的核心显存保护来自 streamed backward。实际 GPU、显存、profile 和生效参数会写入 `run_summary.json` 与 `gpu_assignments.json`，供审计复核。
+`auto` 会选择空闲显存至少 8 GiB 的可见物理 GPU；单 GPU 环境也适用。默认 profile 是 `adaptive`：每个 selector 先试探 10 倍于原最高档的 `adaptive_max`（`pair_chunk_size=163840`），这是吞吐优先的激进试探档；只有该 selector 确认 CUDA OOM 或显存压力仍未解除，才独立回退到 `adaptive_fast=16384 -> 4096 -> 1024 -> 256 -> 64`，并在需要时启用 checkpointing。OOM worker 会退出，父调度器释放 GPU 后用该 selector 的最近 batch checkpoint 重启；回退过程写入 `adaptive_memory_state.json` 与 `scheduler_events.jsonl`。一个 selector 降档不会降低其他 selector 的初始档位，因此不会无故牺牲它们的速度。没有 checkpoint 或同一 selector 的所有档位都失败时才写 `RUN_FAILED`。这不是把两张 GPU 的显存合并。该机制只调整执行策略，不改变 seed、数据、batch size、epoch、selector、控制组或优化契约；不恢复旧的无限 autograd graph retaining 实现。固定 `low_memory`/`balanced`/`high_memory` profile 不会自动回退。当前 activation checkpointing 字段保留在执行契约中，Q-TRIAD 的核心显存保护来自 streamed backward。实际 GPU、显存、profile 和生效参数会写入 `run_summary.json` 与 `gpu_assignments.json`，供审计复核。
 
 每个 CUDA selector worker 还会在完成 optimizer 更新后的安全边界按 20 个 batch 轮询显存压力。压力触发时只执行本进程的 `gc.collect()` 和 `torch.cuda.empty_cache()`：前者回收不可达 Python 对象，后者只归还本 worker PyTorch allocator 的闲置缓存；不会删除仍在计算图中的活跃 Tensor，也不会触碰其他 CUDA 进程。每次回收会输出 `memory_pressure_reclaim` 事件及回收前后 `free/allocated/reserved` 诊断。如果清理后仍低于保留阈值，自适应 worker 会先保存当前 batch checkpoint，再以退出码 `87` 退出，由父调度器仅降低该 selector 的下一档并从 checkpoint 继续；固定 profile 则记录事件后继续运行。自适应重试写入 `memory_pressure_event.json`、`adaptive_memory_state.json` 和 `scheduler_events.jsonl`；固定 profile 只输出回收事件，不会擅自改变执行档位。因此该机制不能释放活跃模型状态导致的真实峰值显存，仍需依靠 streamed backward、pair chunking 和必要的 checkpointing 降低峰值。
 
@@ -60,6 +60,18 @@ bash scripts/run_retacred_qtriad_formal_single_seed.sh --gpu 0 --resume runs/ret
 ```
 
 恢复会复用原 run 的 `data/*.jsonl` 和 `data/data_manifest.json`，跳过已有有效指标的 baseline/selector，并仅从兼容的 batch checkpoint 继续。恢复命令必须使用原 run 相同的物理 GPU 列表、并行模式和显存 profile；adaptive run 还会读取 `adaptive_memory_state.json`，从上次已验证的 tier 继续，不会重新回到最快档。若最初使用 `--gpu auto`，请从 `run_summary.json` 取出已解析的 GPU 与 profile，并显式传入，例如 `--gpu 0,1 --hardware-profile adaptive`。`--resume` 不能与 `--output-dir` 同时使用；恢复期间不能修改算法参数、数据、代码、seed、batch size、epoch、学习率、selector、显存 profile 或 checkpoint 契约。原始 `RUN_PAUSED` 保留完整 worker 状态，每次恢复会额外写入 `resume_state.json`；wrapper 的恢复日志写入新的 `logs/run.resume-<timestamp>.log`，不会覆盖首次日志。旧目录若没有 `run_manifest.json`、`data_manifest.json` 或 batch checkpoint，不能宣称 batch 级恢复，只能新建目录从 baseline 级重新开始。
+
+如果旧 run 是单 GPU selector-parallel，暂停后希望改用多张 GPU 并行剩余 selector，必须显式授权执行层拓扑迁移，并保持其它训练合同不变：
+
+```bash
+bash scripts/run_retacred_qtriad_formal_single_seed.sh \
+  --gpu 0,1 \
+  --hardware-profile adaptive \
+  --resume runs/retacred_qtriad_formal_single_seed/<timestamp>_seed13 \
+  --allow-gpu-topology-change
+```
+
+该迁移只支持“原来恰好 1 张 GPU、现在至少 2 张 GPU”的 selector-parallel 恢复；baseline 和每个未完成 selector 仍从各自最近的 batch checkpoint 恢复，已完成 selector 按指标文件跳过。它不合并显存、不改变模型并行布局，也不允许 `--model-parallel-gpus`、新建 run 或改变 seed、数据、batch size、epoch、学习率、selector、控制组和科学训练参数。脚本会在 `resume_state.json` 和 `scheduler_events.jsonl` 记录 `elastic_gpu_topology_change`，普通不兼容变更仍会拒绝恢复。
 
 ### 旧版已完成 baseline 的迁移
 

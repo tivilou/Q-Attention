@@ -239,6 +239,45 @@ def build_kernel(selector: str, model: torch.nn.Module, seed: int, args: argpars
     )
 
 
+def _validate_kernel_gradients(
+    kernel: torch.nn.Module,
+    *,
+    selector: str,
+    epoch: int,
+) -> None:
+    """Reject missing or non-finite trainable gradients with parameter names.
+
+    The Q-TRIAD ``quantum_product`` control intentionally replaces the
+    relation-dependent ``gamma`` angle with zeros.  Its ``gamma_scales``
+    parameters are therefore unused and legitimately receive no gradient;
+    every other trainable parameter must still participate in the update.
+    """
+    missing: list[str] = []
+    nonfinite: list[str] = []
+    for name, parameter in kernel.named_parameters():
+        if not parameter.requires_grad:
+            continue
+        gradient = parameter.grad
+        if gradient is None:
+            if selector == "quantum_product" and name.endswith(".gamma_scales"):
+                continue
+            missing.append(name)
+            continue
+        if not torch.isfinite(gradient).all():
+            nonfinite.append(name)
+    if not missing and not nonfinite:
+        return
+    details: list[str] = []
+    if missing:
+        details.append("missing=" + ",".join(missing))
+    if nonfinite:
+        details.append("non_finite=" + ",".join(nonfinite))
+    raise FloatingPointError(
+        f"gradient check failed selector={selector} epoch={epoch} "
+        + " ".join(details)
+    )
+
+
 def hook_config(batch: Mapping[str, torch.Tensor]) -> Any:
     from q_attention.adapters.attention_scores import AttentionScoreHookConfig
 
@@ -421,6 +460,9 @@ def train_kernel(
             output_dir,
             contract=dict(getattr(args, "resume_contract")),
             resume=bool(getattr(args, "resume", False)),
+            resume_contract_compatible=getattr(
+                args, "resume_contract_compatible", None
+            ),
         )
         if bool(getattr(args, "resume", False)):
             checkpoint = manager.load()
@@ -538,14 +580,11 @@ def train_kernel(
                         f"non-finite loss selector={selector} epoch={epoch}"
                     )
                 loss.backward()
-                gradients = [parameter.grad for parameter in kernel.parameters()]
-                if any(
-                    gradient is None or not torch.isfinite(gradient).all()
-                    for gradient in gradients
-                ):
-                    raise FloatingPointError(
-                        f"non-finite gradient selector={selector} epoch={epoch}"
-                    )
+                _validate_kernel_gradients(
+                    kernel,
+                    selector=selector,
+                    epoch=epoch,
+                )
                 optimizer.step()
                 if any(
                     not torch.isfinite(parameter).all()
@@ -566,7 +605,7 @@ def train_kernel(
                     # state. These tensors are no longer needed by this
                     # training step, so releasing them cannot alter gradients.
                     optimizer.zero_grad(set_to_none=True)
-                    del gradients, loss, logits, batch, raw_batch
+                    del loss, logits, batch, raw_batch
                     pressure_restart = memory_pressure_monitor(
                         epoch=epoch,
                         total_batches=total_batches,
