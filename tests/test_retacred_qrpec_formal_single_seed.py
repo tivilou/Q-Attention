@@ -73,6 +73,31 @@ def test_new_adaptive_state_starts_with_all_pairs(tmp_path: Path) -> None:
     assert state["gradient_accumulation_steps"] == 1
 
 
+def test_profile_execution_fields_preserves_all_pairs_and_normalizes_numeric_chunk() -> None:
+    runner = _runner_module()
+    all_pairs = runner._profile_execution_fields(
+        {
+            "pair_chunk_size": "all",
+            "pair_chunk_divisor": 1,
+            "micro_batch_size": 256,
+            "gradient_accumulation_steps": 1,
+            "activation_checkpointing": False,
+        }
+    )
+    assert all_pairs["pair_chunk_size"] == "all"
+
+    numeric = runner._profile_execution_fields(
+        {
+            "pair_chunk_size": "4096",
+            "pair_chunk_divisor": 2,
+            "micro_batch_size": 128,
+            "gradient_accumulation_steps": 2,
+            "activation_checkpointing": True,
+        }
+    )
+    assert numeric["pair_chunk_size"] == 4096
+
+
 def test_retired_adaptive_state_is_rejected(tmp_path: Path) -> None:
     runner = _runner_module()
     path = tmp_path / "adaptive_memory_state.json"
