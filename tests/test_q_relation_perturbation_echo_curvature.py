@@ -75,6 +75,55 @@ def test_q_rpec_relation_perturbation_changes_action() -> None:
     assert (base - changed).abs().mean() > 1e-7
 
 
+def test_q_rpec_analytic_observable_matches_statevector_reference_with_gradients() -> None:
+    torch.manual_seed(41)
+    config = _config()
+    reference = RelationPerturbationEchoCurvatureKernel(config, pair_chunk_size=2)
+    analytic = RelationPerturbationEchoCurvatureKernel(config, pair_chunk_size=7)
+    analytic.load_state_dict(reference.state_dict())
+    reference_inputs = [torch.randn(6, 3, requires_grad=True) for _ in range(3)]
+    analytic_inputs = [item.detach().clone().requires_grad_() for item in reference_inputs]
+    reference_output = reference._observable_statevector_reference(
+        *reference_inputs, layer_index=0, head_index=1
+    )
+    analytic_output = analytic._observable(
+        *analytic_inputs, layer_index=0, head_index=1
+    )
+    assert torch.allclose(analytic_output, reference_output, atol=2e-6, rtol=2e-5)
+    reference_grads = torch.autograd.grad(
+        reference_output.sum(),
+        tuple(reference_inputs) + tuple(reference.parameters()),
+        allow_unused=True,
+    )
+    analytic_grads = torch.autograd.grad(
+        analytic_output.sum(),
+        tuple(analytic_inputs) + tuple(analytic.parameters()),
+        allow_unused=True,
+    )
+    for expected, actual in zip(reference_grads, analytic_grads):
+        if expected is None or actual is None:
+            assert expected is None and actual is None
+        else:
+            assert torch.allclose(actual, expected, atol=2e-5, rtol=2e-4)
+
+
+def test_q_rpec_pair_chunk_size_does_not_change_forward_or_gradient() -> None:
+    torch.manual_seed(43)
+    config = _config()
+    small = RelationPerturbationEchoCurvatureKernel(config, pair_chunk_size=1)
+    large = RelationPerturbationEchoCurvatureKernel(config, pair_chunk_size=11)
+    large.load_state_dict(small.state_dict())
+    batch_small = _batch()
+    batch_large = {name: value.detach().clone().requires_grad_(value.requires_grad) for name, value in batch_small.items()}
+    output_small = small(**batch_small, layer_index=0)
+    output_large = large(**batch_large, layer_index=0)
+    assert torch.allclose(output_small, output_large, atol=2e-6, rtol=2e-5)
+    grads_small = torch.autograd.grad(output_small.square().mean(), tuple(small.parameters()))
+    grads_large = torch.autograd.grad(output_large.square().mean(), tuple(large.parameters()))
+    for expected, actual in zip(grads_small, grads_large):
+        assert torch.allclose(actual, expected, atol=2e-5, rtol=2e-4)
+
+
 def test_q_rpec_score_hook_integrates_with_relation_transformer() -> None:
     torch.manual_seed(17)
     model = RelationExtractionModel(

@@ -70,58 +70,59 @@ AUTO_MIN_FREE_MIB = 8 * 1024
 HARDWARE_PROFILES: dict[str, dict[str, Any]] = {
     "low_memory": {
         "pair_chunk_size": 64,
+        "pair_chunk_divisor": 1,
+        "micro_batch_size": 256,
+        "gradient_accumulation_steps": 1,
         "activation_checkpointing": True,
         "reason": "at least one selected GPU has less than 16 GiB total or 12 GiB free",
     },
     "balanced": {
         "pair_chunk_size": 256,
+        "pair_chunk_divisor": 1,
+        "micro_batch_size": 256,
+        "gradient_accumulation_steps": 1,
         "activation_checkpointing": True,
         "reason": "at least one selected GPU has less than 40 GiB total or 28 GiB free",
     },
     "high_memory": {
         "pair_chunk_size": 256,
+        "pair_chunk_divisor": 1,
+        "micro_batch_size": 256,
+        "gradient_accumulation_steps": 1,
         "activation_checkpointing": True,
         "reason": "all selected GPUs have at least 40 GiB total and 28 GiB free; retain streamed backward safety",
     },
 }
 
-# The adaptive path deliberately starts with an aggressive streamed-backward
-# trial chunk. The 10x tier is a throughput probe, not a promise that every GPU
-# can hold it; a confirmed OOM or memory-pressure event falls back per selector
-# to the previous proven tiers. The old graph-retaining implementation is not a
-# valid performance tier because it can grow until a late, unrecoverable OOM.
-# Each lower tier trades throughput for a smaller per-chunk peak.
-ADAPTIVE_HARDWARE_PROFILES: tuple[dict[str, Any], ...] = (
-    {
-        "name": "adaptive_max",
-        "pair_chunk_size": 163840,
-        "activation_checkpointing": False,
-    },
-    {
-        "name": "adaptive_fast",
-        "pair_chunk_size": 16384,
-        "activation_checkpointing": False,
-    },
-    {
-        "name": "adaptive_large",
-        "pair_chunk_size": 4096,
-        "activation_checkpointing": False,
-    },
-    {
-        "name": "adaptive_medium",
-        "pair_chunk_size": 1024,
-        "activation_checkpointing": True,
-    },
-    {
-        "name": "adaptive_conservative",
-        "pair_chunk_size": 256,
-        "activation_checkpointing": True,
-    },
-    {
-        "name": "adaptive_low_memory",
-        "pair_chunk_size": 64,
-        "activation_checkpointing": True,
-    },
+# Adaptive execution starts with one all-pairs chunk for the current physical
+# micro-batch.  OOM retries halve that chunk by increasing the divisor.  Only
+# after the all-pairs ladder is exhausted do we introduce physical
+# micro-batches, while keeping the optimizer's logical batch fixed at 256.
+_CHUNK_DIVISORS = (1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024)
+_MICRO_BATCH_TIERS = ((128, 2), (64, 4), (32, 8))
+ADAPTIVE_HARDWARE_PROFILES: tuple[dict[str, Any], ...] = tuple(
+    [
+        {
+            "name": f"adaptive_chunk_{divisor}x",
+            "pair_chunk_size": None,
+            "pair_chunk_divisor": divisor,
+            "micro_batch_size": 256,
+            "gradient_accumulation_steps": 1,
+            "activation_checkpointing": False,
+        }
+        for divisor in _CHUNK_DIVISORS
+    ]
+    + [
+        {
+            "name": f"adaptive_micro_{micro_size}",
+            "pair_chunk_size": None,
+            "pair_chunk_divisor": 1,
+            "micro_batch_size": micro_size,
+            "gradient_accumulation_steps": accumulation,
+            "activation_checkpointing": True,
+        }
+        for micro_size, accumulation in _MICRO_BATCH_TIERS
+    ]
 )
 CUDA_OOM_MARKERS = (
     "cuda out of memory",
@@ -132,7 +133,7 @@ CUDA_OOM_MARKERS = (
 )
 CUDA_OOM_EXIT_CODE = 86
 MEMORY_PRESSURE_EXIT_CODE = 87
-ADAPTIVE_MEMORY_STATE_SCHEMA = "q-attention.qrpec-adaptive-memory.v1"
+ADAPTIVE_MEMORY_STATE_SCHEMA = "q-attention.qrpec-adaptive-memory.v2"
 BASELINE_ARTIFACTS = ("metrics.json", "model.pt", "vocab.json", "labels.json")
 BASELINE_IMPORT_SCHEMA = "q-attention.qrpec-legacy-baseline-import.v1"
 ELASTIC_RESUME_SOURCE_FILES = (
@@ -142,6 +143,7 @@ ELASTIC_RESUME_SOURCE_FILES = (
     "kernel_trainer",
     "batch_resume",
 )
+_DEFAULT_PAIR_CHUNK = object()
 
 
 def sha256(path: Path) -> str:
@@ -271,6 +273,9 @@ def selector_resume_contract(
     seed: int,
     pair_chunk_size: int | None,
     activation_checkpointing: int | bool | None,
+    pair_chunk_divisor: int = 1,
+    micro_batch_size: int | None = None,
+    gradient_accumulation_steps: int = 1,
     model_parallel_gpu_ids: list[int] | None = None,
     adaptive_memory: bool = False,
 ) -> dict[str, Any]:
@@ -291,10 +296,19 @@ def selector_resume_contract(
                 {"memory_strategy": "adaptive"}
                 if adaptive_memory
                 else {
-                    "pair_chunk_size": int(
-                        pair_chunk_size
-                        if pair_chunk_size is not None
-                        else kernel.get("pair_chunk_size", 256)
+                    "pair_chunk_size": (
+                        "all"
+                        if pair_chunk_size is None
+                        else int(pair_chunk_size)
+                    ),
+                    "pair_chunk_divisor": int(pair_chunk_divisor),
+                    "micro_batch_size": int(
+                        micro_batch_size
+                        if micro_batch_size is not None
+                        else kernel["batch_size"]
+                    ),
+                    "gradient_accumulation_steps": int(
+                        gradient_accumulation_steps
                     ),
                     "activation_checkpointing": (
                         True
@@ -406,13 +420,45 @@ def _adaptive_state_path(run_dir: Path) -> Path:
     return run_dir / "adaptive_memory_state.json"
 
 
+def _profile_execution_fields(profile: dict[str, Any]) -> dict[str, Any]:
+    """Normalize serializable execution controls for status and provenance."""
+    return {
+        "pair_chunk_size": (
+            "all" if profile.get("pair_chunk_size") is None
+            else int(profile["pair_chunk_size"])
+        ),
+        "pair_chunk_divisor": int(profile.get("pair_chunk_divisor", 1)),
+        "micro_batch_size": int(profile.get("micro_batch_size", 256)),
+        "gradient_accumulation_steps": int(
+            profile.get("gradient_accumulation_steps", 1)
+        ),
+        "activation_checkpointing": bool(profile["activation_checkpointing"]),
+    }
+
+
+def _profile_command_pair_chunk(profile: dict[str, Any]) -> str:
+    value = profile.get("pair_chunk_size")
+    return "all" if value is None else str(int(value))
+
+
+def _profile_execution_label(profile: dict[str, Any]) -> str:
+    """Format the execution-only controls for concise operator-facing output."""
+    fields = _profile_execution_fields(profile)
+    return (
+        f"chunk={fields['pair_chunk_size']}/divisor={fields['pair_chunk_divisor']} | "
+        f"physical_batch={fields['micro_batch_size']} | "
+        f"accumulation={fields['gradient_accumulation_steps']} | "
+        f"activation_checkpointing={str(fields['activation_checkpointing']).lower()}"
+    )
+
+
 def _normalize_adaptive_state_tier(
     entry: dict[str, Any],
     *,
     tiers: list[dict[str, Any]],
     label: str,
 ) -> bool:
-    """Resolve persisted tiers by profile name after prepending a new tier."""
+    """Resolve v2 adaptive tiers by their stable profile names."""
     profile_name = entry.get("current_profile")
     tier_by_name = {
         str(profile.get("name")): index for index, profile in enumerate(tiers)
@@ -423,23 +469,12 @@ def _normalize_adaptive_state_tier(
         entry["current_tier"] = normalized_tier
         profile = tiers[normalized_tier]
         entry["current_profile"] = profile["name"]
-        entry["pair_chunk_size"] = int(profile["pair_chunk_size"])
-        entry["activation_checkpointing"] = bool(
-            profile["activation_checkpointing"]
-        )
+        entry.update(_profile_execution_fields(profile))
         return changed
-    tier = entry.get("current_tier")
-    if not isinstance(tier, int) or tier < 0 or tier >= len(tiers) - 1:
-        raise ResumeCompatibilityError(f"invalid adaptive memory tier for {label}")
-    # Before adaptive_max was added, all persisted numeric tiers were one index
-    # lower. This fallback is only for old state files missing profile names.
-    normalized_tier = tier + 1
-    profile = tiers[normalized_tier]
-    entry["current_tier"] = normalized_tier
-    entry["current_profile"] = profile["name"]
-    entry["pair_chunk_size"] = int(profile["pair_chunk_size"])
-    entry["activation_checkpointing"] = bool(profile["activation_checkpointing"])
-    return True
+    raise ResumeCompatibilityError(
+        f"adaptive resume state {label} does not identify a compatible v2 profile; "
+        "start a new run and use --import-baseline-from for a legacy baseline"
+    )
 
 
 def _load_or_create_adaptive_memory_state(
@@ -454,9 +489,12 @@ def _load_or_create_adaptive_memory_state(
     if path.is_file():
         state = _read_json(path)
         tiers = hardware_profile.get("tiers", [])
-        if state.get("schema_version") != ADAPTIVE_MEMORY_STATE_SCHEMA or not isinstance(
-            tiers, list
-        ) or len(tiers) < 2:
+        if state.get("schema_version") != ADAPTIVE_MEMORY_STATE_SCHEMA:
+            raise ResumeCompatibilityError(
+                "adaptive_memory_state.json uses a retired memory-policy schema; "
+                "start a new run and import only the completed baseline"
+            )
+        if not isinstance(tiers, list) or len(tiers) < 2:
             raise ResumeCompatibilityError("invalid adaptive_memory_state.json")
         migrated = _normalize_adaptive_state_tier(
             state, tiers=tiers, label="adaptive_memory_state.json"
@@ -487,8 +525,7 @@ def _load_or_create_adaptive_memory_state(
         "schema_version": ADAPTIVE_MEMORY_STATE_SCHEMA,
         "current_tier": 0,
         "current_profile": initial["name"],
-        "pair_chunk_size": int(initial["pair_chunk_size"]),
-        "activation_checkpointing": bool(initial["activation_checkpointing"]),
+        **_profile_execution_fields(initial),
         "oom_retries": 0,
         "memory_pressure_retries": 0,
         "events": [],
@@ -551,8 +588,7 @@ def _adaptive_selector_state(
     created = {
         "current_tier": tier,
         "current_profile": profile["name"],
-        "pair_chunk_size": int(profile["pair_chunk_size"]),
-        "activation_checkpointing": bool(profile["activation_checkpointing"]),
+        **_profile_execution_fields(profile),
         "oom_retries": oom_retries,
         "memory_pressure_retries": memory_pressure_retries,
     }
@@ -589,8 +625,7 @@ def _record_adaptive_oom_retry(
         "from_profile": previous["name"],
         "to_tier": to_tier,
         "to_profile": selected["name"],
-        "pair_chunk_size": int(selected["pair_chunk_size"]),
-        "activation_checkpointing": bool(selected["activation_checkpointing"]),
+        **_profile_execution_fields(selected),
     }
     if memory_pressure:
         event["memory_pressure"] = memory_pressure
@@ -600,8 +635,7 @@ def _record_adaptive_oom_retry(
         {
             "current_tier": to_tier,
             "current_profile": selected["name"],
-            "pair_chunk_size": int(selected["pair_chunk_size"]),
-            "activation_checkpointing": bool(selected["activation_checkpointing"]),
+            **_profile_execution_fields(selected),
             **(
                 {"oom_retries": int(selector_state.get("oom_retries", 0)) + 1}
                 if event_type == "oom_retry"
@@ -626,8 +660,7 @@ def _record_adaptive_oom_retry(
         {
             "current_tier": max_tier,
             "current_profile": max_profile["name"],
-            "pair_chunk_size": int(max_profile["pair_chunk_size"]),
-            "activation_checkpointing": bool(max_profile["activation_checkpointing"]),
+            **_profile_execution_fields(max_profile),
             **(
                 {"oom_retries": int(state.get("oom_retries", 0)) + 1}
                 if event_type == "oom_retry"
@@ -645,8 +678,7 @@ def _record_adaptive_oom_retry(
         {
             "current_tier": max_tier,
             "current_profile": max_profile["name"],
-            "pair_chunk_size": int(max_profile["pair_chunk_size"]),
-            "activation_checkpointing": bool(max_profile["activation_checkpointing"]),
+            **_profile_execution_fields(max_profile),
         }
     )
     _write_json_atomic(_adaptive_state_path(run_dir), state)
@@ -688,10 +720,7 @@ def _run_resume_contract(
                 {"memory_strategy": "adaptive"}
                 if hardware_profile.get("adaptive")
                 else {
-                    "pair_chunk_size": int(hardware_profile["pair_chunk_size"]),
-                    "activation_checkpointing": bool(
-                        hardware_profile["activation_checkpointing"]
-                    ),
+                    **_profile_execution_fields(hardware_profile),
                 }
             ),
             "parallel_mode": "model_parallel" if model_parallel_gpu_ids else "selector_or_serial",
@@ -1056,14 +1085,18 @@ def choose_hardware_profile(
             "adaptive": True,
             "tiers": tiers,
             "selection_reason": (
-                "start with the 10x throughput-trial streamed-backward pair "
-                "chunk and fall back only after confirmed CUDA OOM or memory pressure"
+                "start at logical batch 256 with physical batch 256 and all pairs; "
+                "halve the all-pairs chunk after CUDA OOM or memory pressure, then "
+                "use 128/64/32 physical micro-batches with gradient accumulation"
             ),
         }
     if requested == "config":
         return {
             "name": "config",
             "pair_chunk_size": int(config["kernel"].get("pair_chunk_size", 256)),
+            "pair_chunk_divisor": 1,
+            "micro_batch_size": int(config["kernel"]["batch_size"]),
+            "gradient_accumulation_steps": 1,
             "activation_checkpointing": True,
             "adaptive": False,
             "selection_reason": "frozen config profile",
@@ -1655,6 +1688,9 @@ def run_selector_workers(
     hardware_profile = hardware_profile or {
         "name": "config",
         "pair_chunk_size": 256,
+        "pair_chunk_divisor": 1,
+        "micro_batch_size": 256,
+        "gradient_accumulation_steps": 1,
         "activation_checkpointing": True,
         "adaptive": False,
     }
@@ -1812,7 +1848,10 @@ def run_selector_workers(
                     "--seed", str(seed),
                     "--log-every-batches", str(args.log_every_batches),
                     "--checkpoint-every-batches", str(getattr(args, "checkpoint_every_batches", 50)),
-                    "--pair-chunk-size", str(selected_profile["pair_chunk_size"]),
+                    "--pair-chunk-size", _profile_command_pair_chunk(selected_profile),
+                    "--pair-chunk-divisor", str(selected_profile["pair_chunk_divisor"]),
+                    "--micro-batch-size", str(selected_profile["micro_batch_size"]),
+                    "--gradient-accumulation-steps", str(selected_profile["gradient_accumulation_steps"]),
                     "--activation-checkpointing", str(int(selected_profile["activation_checkpointing"])),
                 ]
                 if adaptive:
@@ -1847,6 +1886,7 @@ def run_selector_workers(
                     "heartbeat_file": heartbeat_path,
                     "adaptive_tier": tier,
                     "memory_profile": selected_profile["name"],
+                    "execution": _profile_execution_fields(selected_profile),
                 }
                 statuses[selector].update(
                     {
@@ -1858,8 +1898,7 @@ def run_selector_workers(
                         "log_file": str(selector_dir / "worker.log"),
                         "adaptive_tier": tier if adaptive else None,
                         "memory_profile": selected_profile["name"],
-                        "pair_chunk_size": int(selected_profile["pair_chunk_size"]),
-                        "activation_checkpointing": bool(selected_profile["activation_checkpointing"]),
+                        **_profile_execution_fields(selected_profile),
                         "oom_retries": (
                             int(
                                 _adaptive_selector_state(
@@ -1900,6 +1939,7 @@ def run_selector_workers(
                         "pid": process.pid,
                         "adaptive_tier": tier if adaptive else None,
                         "memory_profile": selected_profile["name"],
+                        "execution": _profile_execution_fields(selected_profile),
                         "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                     },
                 )
@@ -1986,7 +2026,7 @@ def run_selector_workers(
                         failure_name = "memory pressure" if memory_pressure else "CUDA OOM"
                         print(
                             f"[selector-scheduler] {failure_name} on {selector} | retry {retries} | "
-                            f"profile {selected['name']} | pair_chunk_size={selected['pair_chunk_size']}",
+                            f"profile {selected['name']} | {_profile_execution_label(selected)}",
                             flush=True,
                         )
                         continue
@@ -2090,7 +2130,8 @@ def build_kernel(
     seed: int,
     config: dict[str, Any],
     *,
-    pair_chunk_size: int | None = None,
+    pair_chunk_size: int | None | object = _DEFAULT_PAIR_CHUNK,
+    pair_chunk_divisor: int = 1,
     activation_checkpointing: bool | None = None,
     model_parallel_devices: tuple[torch.device, ...] = (),
 ) -> RelationPerturbationEchoCurvatureKernel:
@@ -2114,7 +2155,12 @@ def build_kernel(
     return build_relation_perturbation_echo_curvature(
         mode_map[mode],
         config_obj,
-        pair_chunk_size=int(pair_chunk_size if pair_chunk_size is not None else kernel_config.get("pair_chunk_size", 256)),
+        pair_chunk_size=(
+            int(kernel_config.get("pair_chunk_size", 256))
+            if pair_chunk_size is _DEFAULT_PAIR_CHUNK
+            else pair_chunk_size
+        ),
+        pair_chunk_divisor=int(pair_chunk_divisor),
         activation_checkpointing=(
             bool(activation_checkpointing)
             if activation_checkpointing is not None
@@ -2297,10 +2343,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
             {
                 "current_tier": int(adaptive_memory_state["current_tier"]),
                 "current_profile": current_profile["name"],
-                "pair_chunk_size": int(current_profile["pair_chunk_size"]),
-                "activation_checkpointing": bool(
-                    current_profile["activation_checkpointing"]
-                ),
+                **_profile_execution_fields(current_profile),
             }
         )
     args._run_dir = run_dir
@@ -2438,6 +2481,10 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
             batch_resume=True,
             checkpoint_every_batches=args.checkpoint_every_batches,
             pause=pause,
+            micro_batch_size=int(hardware_profile["micro_batch_size"]),
+            gradient_accumulation_steps=int(
+                hardware_profile["gradient_accumulation_steps"]
+            ),
         )
         pending_selectors = [selector for selector in selectors if selector != "disabled"]
         for selector in pending_selectors:
@@ -2490,7 +2537,8 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
                     artifacts.model,
                     seed,
                     config,
-                    pair_chunk_size=int(hardware_profile["pair_chunk_size"]),
+                    pair_chunk_size=hardware_profile["pair_chunk_size"],
+                    pair_chunk_divisor=int(hardware_profile["pair_chunk_divisor"]),
                     activation_checkpointing=bool(hardware_profile["activation_checkpointing"]),
                     model_parallel_devices=model_parallel_devices,
                 )
@@ -2501,7 +2549,12 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
                     data_dir=data_dir,
                     selector=selector,
                     seed=seed,
-                    pair_chunk_size=int(hardware_profile["pair_chunk_size"]),
+                    pair_chunk_size=hardware_profile["pair_chunk_size"],
+                    pair_chunk_divisor=int(hardware_profile["pair_chunk_divisor"]),
+                    micro_batch_size=int(hardware_profile["micro_batch_size"]),
+                    gradient_accumulation_steps=int(
+                        hardware_profile["gradient_accumulation_steps"]
+                    ),
                     activation_checkpointing=bool(hardware_profile["activation_checkpointing"]),
                     model_parallel_gpu_ids=model_parallel_gpu_ids,
                 )
@@ -2746,8 +2799,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
             "visible_cuda_devices": gpu_ids,
             "model_parallel_gpu_ids": model_parallel_gpu_ids,
             "model_parallel_device_map": artifacts.model.model_parallel_metadata() if model_parallel_devices else {"enabled": False},
-            "pair_chunk_size": int(hardware_profile["pair_chunk_size"]),
-            "activation_checkpointing": bool(hardware_profile["activation_checkpointing"]),
+            **_profile_execution_fields(hardware_profile),
             "memory_strategy": "adaptive" if hardware_profile.get("adaptive") else "fixed",
             "started_at_utc": stamp,
         },
@@ -2763,7 +2815,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         f"- matched control: `{config['matched_control']}`",
         f"- parallel mode: `{'model_parallel' if model_parallel_devices else ('selector_parallel' if gpu_ids else 'serial')}`",
         f"- model-parallel physical GPUs: `{model_parallel_gpu_ids}`",
-        f"- hardware profile: `{hardware_profile['name']}` (pair_chunk_size={hardware_profile['pair_chunk_size']}, activation_checkpointing={str(hardware_profile['activation_checkpointing']).lower()})",
+        f"- hardware profile: `{hardware_profile['name']}` ({_profile_execution_label(hardware_profile)})",
         f"- selected physical GPUs: `{gpu_ids}`",
         *([
             f"- baseline imported from legacy run: `{baseline_import['source_run_dir']}`; selectors restarted at batch 0",

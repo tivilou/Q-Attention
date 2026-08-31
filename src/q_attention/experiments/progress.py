@@ -169,6 +169,15 @@ def _progress_text(payload: dict[str, Any]) -> str | None:
 
     if event == "phase_start":
         return f"{label}{epoch_text} started | batches={payload.get('batches', '?')}"
+    if event == "batch_start":
+        memory = format_gpu_memory(payload.get("gpu_memory"))
+        memory_text = f" | {memory}" if memory else ""
+        return (
+            f"{label}{epoch_text} IN PROGRESS | "
+            f"batch {payload.get('batch', '?')}/{payload.get('batches', '?')} | "
+            "awaiting first completed update"
+            f"{memory_text}"
+        )
     if event == "batch_progress":
         percent = float(payload.get("percent", 0.0))
         width = 20
@@ -257,6 +266,20 @@ def tracked_batches(
     log_event("phase_start", **context)
     completed = completed_batches
     for completed, batch in enumerate(batches, start=completed_batches + 1):
+        # Publish an explicit pre-update heartbeat.  A slow first batch is
+        # therefore shown as in progress rather than as completed progress
+        # with a fabricated rate or ETA.
+        log_event(
+            "batch_start",
+            **context,
+            batch=completed,
+            completed_batches=completed - 1,
+            percent=round(100.0 * (completed - 1) / total_batches, 2),
+            current_batch_elapsed_seconds=0.0,
+            batches_per_second=None,
+            eta_seconds=None,
+            estimated_completion_time=None,
+        )
         yield batch
         if (
             completed == 1

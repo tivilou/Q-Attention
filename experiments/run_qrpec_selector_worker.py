@@ -221,7 +221,17 @@ def parse_args() -> argparse.Namespace:
         help="resume this selector from its compatible post-update checkpoint",
     )
     parser.add_argument("--checkpoint-every-batches", type=int, default=50)
-    parser.add_argument("--pair-chunk-size", type=int, default=None)
+    parser.add_argument(
+        "--pair-chunk-size",
+        default="all",
+        help="maximum pair chunk, or all for every pair in the physical micro-batch",
+    )
+    parser.add_argument(
+        "--pair-chunk-divisor", type=int, default=1,
+        help="divide an all-pairs chunk by this positive power-of-two fallback divisor",
+    )
+    parser.add_argument("--micro-batch-size", type=int, default=None)
+    parser.add_argument("--gradient-accumulation-steps", type=int, default=1)
     parser.add_argument("--activation-checkpointing", type=int, choices=(0, 1), default=None)
     parser.add_argument(
         "--adaptive-memory",
@@ -242,6 +252,17 @@ def main() -> int:
         raise ValueError("--log-every-batches must be positive")
     if args.checkpoint_every_batches <= 0:
         raise ValueError("--checkpoint-every-batches must be positive")
+    if args.pair_chunk_size == "all":
+        args.pair_chunk_size = None
+    else:
+        try:
+            args.pair_chunk_size = int(args.pair_chunk_size)
+        except ValueError as exc:
+            raise ValueError("--pair-chunk-size must be a positive integer or all") from exc
+        if args.pair_chunk_size <= 0:
+            raise ValueError("--pair-chunk-size must be positive")
+    if args.pair_chunk_divisor <= 0:
+        raise ValueError("--pair-chunk-divisor must be positive")
     config = json.loads(args.config.read_text(encoding="utf-8"))
     check_worker_gpu_capacity(args.device)
     device = choose_device(args.device)
@@ -251,6 +272,15 @@ def main() -> int:
     valid_records = load_relation_jsonl(data_dir / "valid.jsonl")
     test_records = load_relation_jsonl(data_dir / "test.jsonl")
     kernel_config = config["kernel"]
+    logical_batch_size = int(kernel_config["batch_size"])
+    if args.micro_batch_size is None:
+        args.micro_batch_size = logical_batch_size
+    if args.micro_batch_size <= 0 or args.micro_batch_size > logical_batch_size:
+        raise ValueError("--micro-batch-size must be in (0, logical batch size]")
+    if args.micro_batch_size * args.gradient_accumulation_steps != logical_batch_size:
+        raise ValueError(
+            "--micro-batch-size * --gradient-accumulation-steps must equal the logical batch size"
+        )
     valid_loader = make_relation_loader(
         valid_records,
         artifacts.vocab,
@@ -274,6 +304,7 @@ def main() -> int:
         args.seed,
         config,
         pair_chunk_size=args.pair_chunk_size,
+        pair_chunk_divisor=args.pair_chunk_divisor,
         activation_checkpointing=(
             None
             if args.activation_checkpointing is None
@@ -282,7 +313,7 @@ def main() -> int:
     ).to(device)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     train_args = argparse.Namespace(
-        batch_size=int(kernel_config["batch_size"]),
+        batch_size=logical_batch_size,
         epochs=int(kernel_config["epochs"]),
         kernel_lr=float(kernel_config["lr"]),
         log_every_batches=args.log_every_batches,
@@ -296,12 +327,17 @@ def main() -> int:
             selector=args.selector,
             seed=args.seed,
             pair_chunk_size=args.pair_chunk_size,
+            pair_chunk_divisor=args.pair_chunk_divisor,
+            micro_batch_size=args.micro_batch_size,
+            gradient_accumulation_steps=args.gradient_accumulation_steps,
             activation_checkpointing=args.activation_checkpointing,
             adaptive_memory=args.adaptive_memory,
         ),
         resume_contract_compatible=(
             selector_resume_contract_compatible if args.elastic_resume else None
         ),
+        micro_batch_size=args.micro_batch_size,
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
         memory_pressure_monitor=CudaMemoryPressureMonitor(
             selector=args.selector,
             enabled=device.type == "cuda",
