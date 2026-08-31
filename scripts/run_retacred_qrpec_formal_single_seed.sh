@@ -8,6 +8,7 @@ RESUME_DIR=
 IMPORT_BASELINE_FROM=
 LOG_EVERY_BATCHES=50
 CHECKPOINT_EVERY_BATCHES=50
+FIRST_BATCH_TIMEOUT_SECONDS=300
 HARDWARE_PROFILE=adaptive
 REPORT_DIR=
 ALLOW_GPU_TOPOLOGY_CHANGE=0
@@ -72,10 +73,10 @@ check_gpu_capacity() {
   fi
 }
 
-usage() { echo "Usage: bash scripts/run_retacred_qrpec_formal_single_seed.sh [--gpu N[,N...]|auto] [--hardware-profile config|auto|adaptive|low_memory|balanced|high_memory] [--output-dir PATH | --resume RUN_DIR | --import-baseline-from OLD_RUN_DIR] [--allow-gpu-topology-change] [--report-dir PATH] [--log-every-batches N] [--checkpoint-every-batches N] [--skip-preflight] [--dry-run]"; }
+usage() { echo "Usage: bash scripts/run_retacred_qrpec_formal_single_seed.sh [--gpu N[,N...]|auto] [--hardware-profile config|auto|adaptive|low_memory|balanced|high_memory] [--output-dir PATH | --resume RUN_DIR | --import-baseline-from OLD_RUN_DIR] [--allow-gpu-topology-change] [--report-dir PATH] [--log-every-batches N] [--checkpoint-every-batches N] [--first-batch-timeout-seconds N] [--skip-preflight] [--dry-run]"; }
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --gpu|--gpus|--hardware-profile|--output-dir|--resume|--import-baseline-from|--report-dir|--log-every-batches|--checkpoint-every-batches)
+    --gpu|--gpus|--hardware-profile|--output-dir|--resume|--import-baseline-from|--report-dir|--log-every-batches|--checkpoint-every-batches|--first-batch-timeout-seconds)
       [[ $# -ge 2 ]] || { usage >&2; exit 2; }
       case "$1" in
         --gpu|--gpus) GPU_SPEC=$2;;
@@ -86,6 +87,7 @@ while [[ $# -gt 0 ]]; do
         --report-dir) REPORT_DIR=$2;;
         --log-every-batches) LOG_EVERY_BATCHES=$2;;
         --checkpoint-every-batches) CHECKPOINT_EVERY_BATCHES=$2;;
+        --first-batch-timeout-seconds) FIRST_BATCH_TIMEOUT_SECONDS=$2;;
       esac
       shift 2;;
     --skip-preflight) SKIP_PREFLIGHT=1; shift;;
@@ -111,6 +113,7 @@ if [[ "${GPU_SPEC}" != "auto" ]]; then
 fi
 [[ "${LOG_EVERY_BATCHES}" =~ ^[1-9][0-9]*$ ]] || { echo "--log-every-batches must be positive." >&2; exit 2; }
 [[ "${CHECKPOINT_EVERY_BATCHES}" =~ ^[1-9][0-9]*$ ]] || { echo "--checkpoint-every-batches must be positive." >&2; exit 2; }
+[[ "${FIRST_BATCH_TIMEOUT_SECONDS}" =~ ^[1-9][0-9]*$ ]] || { echo "--first-batch-timeout-seconds must be positive." >&2; exit 2; }
 [[ "${HARDWARE_PROFILE}" =~ ^(config|auto|adaptive|low_memory|balanced|high_memory)$ ]] || { echo "Invalid --hardware-profile." >&2; exit 2; }
 [[ -z "${RESUME_DIR}" || -z "${OUTPUT_DIR}" ]] || { echo "--resume and --output-dir are mutually exclusive." >&2; exit 2; }
 [[ -z "${RESUME_DIR}" || -z "${IMPORT_BASELINE_FROM}" ]] || { echo "--resume and --import-baseline-from are mutually exclusive." >&2; exit 2; }
@@ -141,6 +144,7 @@ COMMAND=(
   --seed 13
   --log-every-batches "${LOG_EVERY_BATCHES}"
   --checkpoint-every-batches "${CHECKPOINT_EVERY_BATCHES}"
+  --first-batch-timeout-seconds "${FIRST_BATCH_TIMEOUT_SECONDS}"
   --python-bin "${PYTHON_BIN}"
 )
 if [[ -n "${RESUME_DIR}" ]]; then

@@ -183,7 +183,7 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
             + self.angle_biases[layer_index, head_index, role]
         )
 
-    def _observable(
+    def _observable_statevector_reference(
         self,
         query: torch.Tensor,
         relation: torch.Tensor,
@@ -210,6 +210,48 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
             state = state + self.raw_coupling[layer_index, head_index].sum().to(state.device) * 0.0
         flipped = state[:, self.observable_flip.to(state.device)]
         return (state.conj() * flipped).sum(dim=-1).real
+
+    def _observable(
+        self,
+        query: torch.Tensor,
+        relation: torch.Tensor,
+        key: torch.Tensor,
+        *,
+        layer_index: int,
+        head_index: int,
+    ) -> torch.Tensor:
+        """Evaluate the exact XXX echo without materializing a statevector.
+
+        The circuit is a tensor product of real R_y product states, followed by
+        a diagonal relation-key phase and a global X observable.  Its exact
+        expectation therefore factors over qubits.  Keeping this expression
+        analytical preserves the circuit and optimizer contract while removing
+        the exponential statevector hot path from every pair and echo point.
+        """
+        query_angles = self._role_angles(
+            query, layer_index=layer_index, head_index=head_index, role=0
+        )
+        relation_angles = self._role_angles(
+            relation, layer_index=layer_index, head_index=head_index, role=1
+        )
+        key_angles = self._role_angles(
+            key, layer_index=layer_index, head_index=head_index, role=2
+        )
+        factors = (
+            torch.sin(query_angles)
+            * torch.sin(relation_angles)
+            * torch.sin(key_angles)
+        )
+        if self.uses_cross_register_echo:
+            coupling = self.config.max_coupling * torch.tanh(
+                self.raw_coupling[layer_index, head_index]
+            )
+            factors = factors * torch.cos(coupling / 2.0).square()
+        else:
+            # Keep the matched control's parameter schema and exact zero
+            # coupling gradient while disabling the cross-register phase.
+            factors = factors + self.raw_coupling[layer_index, head_index].sum() * 0.0
+        return factors.prod(dim=-1)
 
     def _pair_observable(
         self,
@@ -308,15 +350,19 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
             q = query[:, head_index]
             k = key[:, head_index]
             r = relation[:, head_index]
-            q_pairs = q[:, :, None, :].expand(-1, -1, key_tokens, -1).reshape(-1, self.head_dim)
-            k_pairs = k[:, None, :, :].expand(-1, query_tokens, -1, -1).reshape(-1, self.head_dim)
-            r_pairs = r[:, None, None, :].expand(-1, query_tokens, key_tokens, -1).reshape(-1, self.head_dim)
             chunks: list[torch.Tensor] = []
-            for start in range(0, q_pairs.shape[0], self.pair_chunk_size):
-                stop = min(start + self.pair_chunk_size, q_pairs.shape[0])
-                q_chunk = q_pairs[start:stop]
-                r_chunk = r_pairs[start:stop]
-                k_chunk = k_pairs[start:stop]
+            pair_count = query_tokens * key_tokens
+            total_pairs = batch * pair_count
+            for start in range(0, total_pairs, self.pair_chunk_size):
+                stop = min(start + self.pair_chunk_size, total_pairs)
+                flat = torch.arange(start, stop, device=q.device)
+                batch_index = torch.div(flat, pair_count, rounding_mode="floor")
+                within_batch = flat.remainder(pair_count)
+                query_index = torch.div(within_batch, key_tokens, rounding_mode="floor")
+                key_index = within_batch.remainder(key_tokens)
+                q_chunk = q[batch_index, query_index]
+                r_chunk = r[batch_index]
+                k_chunk = k[batch_index, key_index]
                 if self.training and self.activation_checkpointing:
                     score_chunk = checkpoint(
                         lambda qv, rv, kv: self._curvature(
