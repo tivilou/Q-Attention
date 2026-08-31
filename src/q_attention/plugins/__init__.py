@@ -60,6 +60,13 @@ from .q_consensus_quantum_estimator import (
     build_consensus_estimator,
 )
 from .q_triad import QTRIAD_CONTROL_MODES, QTriadAttentionScoreKernel, QTriadConfig, QTriadKernel, QTriadResult, build_qtriad
+from .q_relation_perturbation_echo_curvature import (
+    Q_RPEC_KERNEL_TYPES,
+    LocalRelationEchoCurvatureControl,
+    RelationPerturbationEchoConfig,
+    RelationPerturbationEchoCurvatureKernel,
+    build_relation_perturbation_echo_curvature,
+)
 from .q_connected_consensus_witness import (
     QCCW_KERNEL_TYPES,
     BilinearConnectedConsensusWitness,
@@ -129,6 +136,11 @@ __all__ = [
     "QCCW_KERNEL_TYPES",
     "QCDD_KERNEL_TYPES",
     "QTRIAD_CONTROL_MODES",
+    "Q_RPEC_KERNEL_TYPES",
+    "RelationPerturbationEchoConfig",
+    "RelationPerturbationEchoCurvatureKernel",
+    "LocalRelationEchoCurvatureControl",
+    "build_relation_perturbation_echo_curvature",
     "QTriadAttentionScoreKernel",
     "QTriadConfig",
     "QTriadKernel",
