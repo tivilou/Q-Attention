@@ -527,10 +527,18 @@ def train_kernel(
 
     try:
         memory_pressure_monitor = getattr(args, "memory_pressure_monitor", None)
-        if memory_pressure_monitor is not None:
-            # Subsequent updates leave gradients as None at the post-step safe
-            # boundary, where the monitor can reclaim allocator cache safely.
-            optimizer.zero_grad(set_to_none=True)
+        micro_batch_size = int(getattr(args, "micro_batch_size", args.batch_size))
+        gradient_accumulation_steps = int(
+            getattr(args, "gradient_accumulation_steps", 1)
+        )
+        if micro_batch_size <= 0 or micro_batch_size > args.batch_size:
+            raise ValueError("micro_batch_size must be in (0, batch_size]")
+        if gradient_accumulation_steps <= 0:
+            raise ValueError("gradient_accumulation_steps must be positive")
+        if micro_batch_size * gradient_accumulation_steps != args.batch_size:
+            raise ValueError(
+                "micro_batch_size * gradient_accumulation_steps must equal the logical batch size"
+            )
         while cursor.epoch <= args.epochs:
             epoch = cursor.epoch
             kernel.train()
@@ -562,24 +570,43 @@ def train_kernel(
                 completed_batches=cursor.next_batch_index,
             ):
                 batch = move_batch(raw_batch, device)
-                if memory_pressure_monitor is None:
-                    optimizer.zero_grad(set_to_none=True)
-                adapter.attach(hook_config(batch))
-                try:
-                    logits = model(
-                        batch["input_ids"],
-                        batch["attention_mask"],
-                        batch["subject_mask"],
-                        batch["object_mask"],
+                optimizer.zero_grad(set_to_none=True)
+                labels = batch["labels"]
+                batch_items = int(labels.shape[0])
+                micro_count = (batch_items + micro_batch_size - 1) // micro_batch_size
+                if micro_count > gradient_accumulation_steps:
+                    raise ValueError(
+                        "logical batch requires more physical micro-batches than the configured accumulation steps"
                     )
-                finally:
-                    adapter.remove()
-                loss = F.cross_entropy(logits, batch["labels"].to(logits.device))
-                if not torch.isfinite(loss):
-                    raise FloatingPointError(
-                        f"non-finite loss selector={selector} epoch={epoch}"
+                total_loss = 0.0
+                total_micro_items = 0
+                for micro_index in range(micro_count):
+                    start = micro_index * micro_batch_size
+                    stop = min(start + micro_batch_size, batch_items)
+                    micro = {name: value[start:stop] for name, value in batch.items()}
+                    adapter.attach(hook_config(micro))
+                    try:
+                        logits = model(
+                            micro["input_ids"],
+                            micro["attention_mask"],
+                            micro["subject_mask"],
+                            micro["object_mask"],
+                        )
+                    finally:
+                        adapter.remove()
+                    micro_loss = F.cross_entropy(
+                        logits, micro["labels"].to(logits.device)
                     )
-                loss.backward()
+                    if not torch.isfinite(micro_loss):
+                        raise FloatingPointError(
+                            f"non-finite loss selector={selector} epoch={epoch}"
+                        )
+                    # Preserve the mean-loss gradient of the complete logical
+                    # batch, including its final short batch.
+                    (micro_loss * (float(stop - start) / float(batch_items))).backward()
+                    total_loss += float(micro_loss.item()) * (stop - start)
+                    total_micro_items += stop - start
+                    del micro_loss, logits, micro
                 _validate_kernel_gradients(
                     kernel,
                     selector=selector,
@@ -593,10 +620,8 @@ def train_kernel(
                     raise FloatingPointError(
                         f"non-finite parameter selector={selector} epoch={epoch}"
                     )
-                cursor.total_loss += float(loss.item()) * int(
-                    batch["labels"].shape[0]
-                )
-                cursor.total_items += int(batch["labels"].shape[0])
+                cursor.total_loss += total_loss
+                cursor.total_items += total_micro_items
                 cursor.next_batch_index += 1
                 cursor.global_step += 1
                 pressure_restart: dict[str, Any] | None = None
@@ -605,7 +630,7 @@ def train_kernel(
                     # state. These tensors are no longer needed by this
                     # training step, so releasing them cannot alter gradients.
                     optimizer.zero_grad(set_to_none=True)
-                    del loss, logits, batch, raw_batch
+                    del batch, raw_batch
                     pressure_restart = memory_pressure_monitor(
                         epoch=epoch,
                         total_batches=total_batches,

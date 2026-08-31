@@ -65,58 +65,64 @@ DEFAULT_CONFIG = ROOT / "configs" / "retacred_qrpec_formal_single_seed.json"
 RUN_MANIFEST_SCHEMA = "q-attention.qrpec-batch-resume-run.v1"
 DATA_MANIFEST_SCHEMA = "q-attention.qrpec-materialized-data.v1"
 SAFE_PAUSE_TIMEOUT_SECONDS = 15 * 60
-FIRST_BATCH_TIMEOUT_SECONDS = 5 * 60
 
 AUTO_MIN_FREE_MIB = 8 * 1024
 HARDWARE_PROFILES: dict[str, dict[str, Any]] = {
     "low_memory": {
         "pair_chunk_size": 64,
+        "pair_chunk_divisor": 1,
+        "micro_batch_size": 256,
+        "gradient_accumulation_steps": 1,
         "activation_checkpointing": True,
         "reason": "at least one selected GPU has less than 16 GiB total or 12 GiB free",
     },
     "balanced": {
         "pair_chunk_size": 256,
+        "pair_chunk_divisor": 1,
+        "micro_batch_size": 256,
+        "gradient_accumulation_steps": 1,
         "activation_checkpointing": True,
         "reason": "at least one selected GPU has less than 40 GiB total or 28 GiB free",
     },
     "high_memory": {
         "pair_chunk_size": 256,
+        "pair_chunk_divisor": 1,
+        "micro_batch_size": 256,
+        "gradient_accumulation_steps": 1,
         "activation_checkpointing": True,
         "reason": "all selected GPUs have at least 40 GiB total and 28 GiB free; retain streamed backward safety",
     },
 }
 
-# The analytic, genuinely streamed path may use a substantial first chunk, but
-# never the old 163840-pair probe: that setting could stay compute-bound inside
-# its first statevector batch for hours without an OOM.  Lower tiers remain
-# execution-only fallbacks; seed, data, batch size, optimizer, and selectors do
-# not change.
-ADAPTIVE_HARDWARE_PROFILES: tuple[dict[str, Any], ...] = (
-    {
-        "name": "adaptive_fast",
-        "pair_chunk_size": 8192,
-        "activation_checkpointing": False,
-    },
-    {
-        "name": "adaptive_large",
-        "pair_chunk_size": 2048,
-        "activation_checkpointing": False,
-    },
-    {
-        "name": "adaptive_medium",
-        "pair_chunk_size": 512,
-        "activation_checkpointing": False,
-    },
-    {
-        "name": "adaptive_conservative",
-        "pair_chunk_size": 256,
-        "activation_checkpointing": True,
-    },
-    {
-        "name": "adaptive_low_memory",
-        "pair_chunk_size": 64,
-        "activation_checkpointing": True,
-    },
+# Adaptive execution starts with one all-pairs chunk for the current physical
+# micro-batch.  OOM retries halve that chunk by increasing the divisor.  Only
+# after the all-pairs ladder is exhausted do we introduce physical
+# micro-batches, while keeping the optimizer's logical batch fixed at 256.
+_CHUNK_DIVISORS = (1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024)
+_MICRO_BATCH_TIERS = ((128, 2), (64, 4), (32, 8))
+ADAPTIVE_HARDWARE_PROFILES: tuple[dict[str, Any], ...] = tuple(
+    [
+        {
+            "name": f"adaptive_chunk_{divisor}x",
+            "pair_chunk_size": None,
+            "pair_chunk_divisor": divisor,
+            "micro_batch_size": 256,
+            "gradient_accumulation_steps": 1,
+            "activation_checkpointing": False,
+        }
+        for divisor in _CHUNK_DIVISORS
+    ]
+    + [
+        {
+            "name": f"adaptive_micro_{micro_size}",
+            "pair_chunk_size": None,
+            "pair_chunk_divisor": 1,
+            "micro_batch_size": micro_size,
+            "gradient_accumulation_steps": accumulation,
+            "activation_checkpointing": True,
+        }
+        for micro_size, accumulation in _MICRO_BATCH_TIERS
+    ]
 )
 CUDA_OOM_MARKERS = (
     "cuda out of memory",
@@ -127,7 +133,7 @@ CUDA_OOM_MARKERS = (
 )
 CUDA_OOM_EXIT_CODE = 86
 MEMORY_PRESSURE_EXIT_CODE = 87
-ADAPTIVE_MEMORY_STATE_SCHEMA = "q-attention.qrpec-adaptive-memory.v1"
+ADAPTIVE_MEMORY_STATE_SCHEMA = "q-attention.qrpec-adaptive-memory.v2"
 BASELINE_ARTIFACTS = ("metrics.json", "model.pt", "vocab.json", "labels.json")
 BASELINE_IMPORT_SCHEMA = "q-attention.qrpec-legacy-baseline-import.v1"
 ELASTIC_RESUME_SOURCE_FILES = (
@@ -137,6 +143,7 @@ ELASTIC_RESUME_SOURCE_FILES = (
     "kernel_trainer",
     "batch_resume",
 )
+_DEFAULT_PAIR_CHUNK = object()
 
 
 def sha256(path: Path) -> str:
@@ -203,15 +210,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--log-every-batches", type=int, default=50)
     parser.add_argument("--checkpoint-every-batches", type=int, default=50)
-    parser.add_argument(
-        "--first-batch-timeout-seconds",
-        type=int,
-        default=FIRST_BATCH_TIMEOUT_SECONDS,
-        help=(
-            "adaptive execution watchdog for an unfinished first optimizer "
-            "update; retries only at the next lower memory tier"
-        ),
-    )
     parser.add_argument("--started-at-utc", default=None, help=argparse.SUPPRESS)
     parser.add_argument("--python-bin", default=sys.executable, help=argparse.SUPPRESS)
     return parser.parse_args()
@@ -275,6 +273,9 @@ def selector_resume_contract(
     seed: int,
     pair_chunk_size: int | None,
     activation_checkpointing: int | bool | None,
+    pair_chunk_divisor: int = 1,
+    micro_batch_size: int | None = None,
+    gradient_accumulation_steps: int = 1,
     model_parallel_gpu_ids: list[int] | None = None,
     adaptive_memory: bool = False,
 ) -> dict[str, Any]:
@@ -295,10 +296,19 @@ def selector_resume_contract(
                 {"memory_strategy": "adaptive"}
                 if adaptive_memory
                 else {
-                    "pair_chunk_size": int(
-                        pair_chunk_size
-                        if pair_chunk_size is not None
-                        else kernel.get("pair_chunk_size", 256)
+                    "pair_chunk_size": (
+                        "all"
+                        if pair_chunk_size is None
+                        else int(pair_chunk_size)
+                    ),
+                    "pair_chunk_divisor": int(pair_chunk_divisor),
+                    "micro_batch_size": int(
+                        micro_batch_size
+                        if micro_batch_size is not None
+                        else kernel["batch_size"]
+                    ),
+                    "gradient_accumulation_steps": int(
+                        gradient_accumulation_steps
                     ),
                     "activation_checkpointing": (
                         True
@@ -395,15 +405,6 @@ def _worker_reported_cuda_oom(log_path: Path, return_code: int) -> bool:
     return is_cuda_oom_error(tail)
 
 
-def _is_unfinished_first_batch_heartbeat(heartbeat: dict[str, Any]) -> bool:
-    """Return whether a worker has entered, but not completed, batch one."""
-    return (
-        heartbeat.get("event") == "batch_start"
-        and heartbeat.get("batch") == 1
-        and heartbeat.get("completed_batches") == 0
-    )
-
-
 def _adaptive_profile_at(
     hardware_profile: dict[str, Any], tier: int
 ) -> dict[str, Any]:
@@ -419,23 +420,46 @@ def _adaptive_state_path(run_dir: Path) -> Path:
     return run_dir / "adaptive_memory_state.json"
 
 
+def _profile_execution_fields(profile: dict[str, Any]) -> dict[str, Any]:
+    """Normalize serializable execution controls for status and provenance."""
+    return {
+        "pair_chunk_size": (
+            "all" if profile.get("pair_chunk_size") is None
+            else int(profile["pair_chunk_size"])
+        ),
+        "pair_chunk_divisor": int(profile.get("pair_chunk_divisor", 1)),
+        "micro_batch_size": int(profile.get("micro_batch_size", 256)),
+        "gradient_accumulation_steps": int(
+            profile.get("gradient_accumulation_steps", 1)
+        ),
+        "activation_checkpointing": bool(profile["activation_checkpointing"]),
+    }
+
+
+def _profile_command_pair_chunk(profile: dict[str, Any]) -> str:
+    value = profile.get("pair_chunk_size")
+    return "all" if value is None else str(int(value))
+
+
+def _profile_execution_label(profile: dict[str, Any]) -> str:
+    """Format the execution-only controls for concise operator-facing output."""
+    fields = _profile_execution_fields(profile)
+    return (
+        f"chunk={fields['pair_chunk_size']}/divisor={fields['pair_chunk_divisor']} | "
+        f"physical_batch={fields['micro_batch_size']} | "
+        f"accumulation={fields['gradient_accumulation_steps']} | "
+        f"activation_checkpointing={str(fields['activation_checkpointing']).lower()}"
+    )
+
+
 def _normalize_adaptive_state_tier(
     entry: dict[str, Any],
     *,
     tiers: list[dict[str, Any]],
     label: str,
 ) -> bool:
-    """Resolve persisted tiers by profile name and reject ambiguous legacy state."""
+    """Resolve v2 adaptive tiers by their stable profile names."""
     profile_name = entry.get("current_profile")
-    old_chunk_size = entry.get("pair_chunk_size")
-    if profile_name == "adaptive_max" or (
-        isinstance(old_chunk_size, int) and old_chunk_size > 32768
-    ):
-        raise ResumeCompatibilityError(
-            f"{label} records the retired unsafe adaptive_max profile; "
-            "start a new run with --import-baseline-from so selectors restart "
-            "from batch 0 under the repaired execution path"
-        )
     tier_by_name = {
         str(profile.get("name")): index for index, profile in enumerate(tiers)
     }
@@ -445,15 +469,11 @@ def _normalize_adaptive_state_tier(
         entry["current_tier"] = normalized_tier
         profile = tiers[normalized_tier]
         entry["current_profile"] = profile["name"]
-        entry["pair_chunk_size"] = int(profile["pair_chunk_size"])
-        entry["activation_checkpointing"] = bool(
-            profile["activation_checkpointing"]
-        )
+        entry.update(_profile_execution_fields(profile))
         return changed
     raise ResumeCompatibilityError(
-        f"{label} has no recognized adaptive profile name; refusing to infer "
-        "a safe tier from an ambiguous legacy numeric index. Start a new run "
-        "with --import-baseline-from so selectors restart at batch 0."
+        f"adaptive resume state {label} does not identify a compatible v2 profile; "
+        "start a new run and use --import-baseline-from for a legacy baseline"
     )
 
 
@@ -469,9 +489,12 @@ def _load_or_create_adaptive_memory_state(
     if path.is_file():
         state = _read_json(path)
         tiers = hardware_profile.get("tiers", [])
-        if state.get("schema_version") != ADAPTIVE_MEMORY_STATE_SCHEMA or not isinstance(
-            tiers, list
-        ) or len(tiers) < 2:
+        if state.get("schema_version") != ADAPTIVE_MEMORY_STATE_SCHEMA:
+            raise ResumeCompatibilityError(
+                "adaptive_memory_state.json uses a retired memory-policy schema; "
+                "start a new run and import only the completed baseline"
+            )
+        if not isinstance(tiers, list) or len(tiers) < 2:
             raise ResumeCompatibilityError("invalid adaptive_memory_state.json")
         migrated = _normalize_adaptive_state_tier(
             state, tiers=tiers, label="adaptive_memory_state.json"
@@ -502,11 +525,9 @@ def _load_or_create_adaptive_memory_state(
         "schema_version": ADAPTIVE_MEMORY_STATE_SCHEMA,
         "current_tier": 0,
         "current_profile": initial["name"],
-        "pair_chunk_size": int(initial["pair_chunk_size"]),
-        "activation_checkpointing": bool(initial["activation_checkpointing"]),
+        **_profile_execution_fields(initial),
         "oom_retries": 0,
         "memory_pressure_retries": 0,
-        "throughput_timeouts": 0,
         "events": [],
     }
     _write_json_atomic(path, state)
@@ -527,7 +548,6 @@ def _adaptive_selector_state(
             "current_profile": hardware_profile.get("name", "config"),
             "oom_retries": 0,
             "memory_pressure_retries": 0,
-            "throughput_timeouts": 0,
         }
     selectors = state.setdefault("selectors", {})
     if not isinstance(selectors, dict):
@@ -565,28 +585,19 @@ def _adaptive_selector_state(
         and event.get("selector") == selector
         and event.get("event") == "memory_pressure_retry"
     )
-    throughput_timeouts = sum(
-        1
-        for event in state.get("events", [])
-        if isinstance(event, dict)
-        and event.get("selector") == selector
-        and event.get("event") == "throughput_timeout"
-    )
     created = {
         "current_tier": tier,
         "current_profile": profile["name"],
-        "pair_chunk_size": int(profile["pair_chunk_size"]),
-        "activation_checkpointing": bool(profile["activation_checkpointing"]),
+        **_profile_execution_fields(profile),
         "oom_retries": oom_retries,
         "memory_pressure_retries": memory_pressure_retries,
-        "throughput_timeouts": throughput_timeouts,
     }
     selectors[selector] = created
     _write_json_atomic(_adaptive_state_path(run_dir), state)
     return created
 
 
-def _record_adaptive_retry(
+def _record_adaptive_oom_retry(
     run_dir: Path,
     state: dict[str, Any],
     *,
@@ -597,9 +608,8 @@ def _record_adaptive_retry(
     hardware_profile: dict[str, Any],
     event_type: str = "oom_retry",
     memory_pressure: dict[str, Any] | None = None,
-    event_fields: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    if event_type not in ("oom_retry", "memory_pressure_retry", "throughput_timeout"):
+    if event_type not in ("oom_retry", "memory_pressure_retry"):
         raise ValueError(f"unsupported adaptive retry event: {event_type}")
     previous = _adaptive_profile_at(hardware_profile, from_tier)
     selected = _adaptive_profile_at(hardware_profile, to_tier)
@@ -615,34 +625,26 @@ def _record_adaptive_retry(
         "from_profile": previous["name"],
         "to_tier": to_tier,
         "to_profile": selected["name"],
-        "pair_chunk_size": int(selected["pair_chunk_size"]),
-        "activation_checkpointing": bool(selected["activation_checkpointing"]),
+        **_profile_execution_fields(selected),
     }
     if memory_pressure:
         event["memory_pressure"] = memory_pressure
-    if event_fields:
-        event.update(event_fields)
     events = list(state.get("events", []))
     events.append(event)
     selector_state.update(
         {
             "current_tier": to_tier,
             "current_profile": selected["name"],
-            "pair_chunk_size": int(selected["pair_chunk_size"]),
-            "activation_checkpointing": bool(selected["activation_checkpointing"]),
+            **_profile_execution_fields(selected),
             **(
                 {"oom_retries": int(selector_state.get("oom_retries", 0)) + 1}
                 if event_type == "oom_retry"
-                else (
-                    {"throughput_timeouts": int(selector_state.get("throughput_timeouts", 0)) + 1}
-                    if event_type == "throughput_timeout"
-                    else {
+                else {
                     "memory_pressure_retries": int(
                         selector_state.get("memory_pressure_retries", 0)
                     )
                     + 1
-                    }
-                )
+                }
             ),
         }
     )
@@ -658,21 +660,16 @@ def _record_adaptive_retry(
         {
             "current_tier": max_tier,
             "current_profile": max_profile["name"],
-            "pair_chunk_size": int(max_profile["pair_chunk_size"]),
-            "activation_checkpointing": bool(max_profile["activation_checkpointing"]),
+            **_profile_execution_fields(max_profile),
             **(
                 {"oom_retries": int(state.get("oom_retries", 0)) + 1}
                 if event_type == "oom_retry"
-                else (
-                    {"throughput_timeouts": int(state.get("throughput_timeouts", 0)) + 1}
-                    if event_type == "throughput_timeout"
-                    else {
+                else {
                     "memory_pressure_retries": int(
                         state.get("memory_pressure_retries", 0)
                     )
                     + 1
-                    }
-                )
+                }
             ),
             "events": events[-100:],
         }
@@ -681,8 +678,7 @@ def _record_adaptive_retry(
         {
             "current_tier": max_tier,
             "current_profile": max_profile["name"],
-            "pair_chunk_size": int(max_profile["pair_chunk_size"]),
-            "activation_checkpointing": bool(max_profile["activation_checkpointing"]),
+            **_profile_execution_fields(max_profile),
         }
     )
     _write_json_atomic(_adaptive_state_path(run_dir), state)
@@ -724,10 +720,7 @@ def _run_resume_contract(
                 {"memory_strategy": "adaptive"}
                 if hardware_profile.get("adaptive")
                 else {
-                    "pair_chunk_size": int(hardware_profile["pair_chunk_size"]),
-                    "activation_checkpointing": bool(
-                        hardware_profile["activation_checkpointing"]
-                    ),
+                    **_profile_execution_fields(hardware_profile),
                 }
             ),
             "parallel_mode": "model_parallel" if model_parallel_gpu_ids else "selector_or_serial",
@@ -1092,14 +1085,18 @@ def choose_hardware_profile(
             "adaptive": True,
             "tiers": tiers,
             "selection_reason": (
-                "start with the 10x throughput-trial streamed-backward pair "
-                "chunk and fall back only after confirmed CUDA OOM or memory pressure"
+                "start at logical batch 256 with physical batch 256 and all pairs; "
+                "halve the all-pairs chunk after CUDA OOM or memory pressure, then "
+                "use 128/64/32 physical micro-batches with gradient accumulation"
             ),
         }
     if requested == "config":
         return {
             "name": "config",
             "pair_chunk_size": int(config["kernel"].get("pair_chunk_size", 256)),
+            "pair_chunk_divisor": 1,
+            "micro_batch_size": int(config["kernel"]["batch_size"]),
+            "gradient_accumulation_steps": 1,
             "activation_checkpointing": True,
             "adaptive": False,
             "selection_reason": "frozen config profile",
@@ -1478,28 +1475,13 @@ def _render_selector_dashboard(
             progress.append(f"batch {batch}/{batches}{suffix}")
         if not progress:
             progress.append("starting")
-        first_batch_active = (
-            heartbeat.get("event") == "batch_start"
-            and heartbeat.get("batch") == 1
-            and heartbeat.get("completed_batches") == 0
-        )
-        if first_batch_active:
-            started = item.get("first_batch_started_monotonic")
-            if started is not None:
-                progress.append(
-                    "IN PROGRESS "
-                    f"{_format_duration(time.monotonic() - float(started))}"
-                )
-            else:
-                progress.append("IN PROGRESS")
-        else:
-            eta = _format_duration(heartbeat.get("eta_seconds"))
-            rate = heartbeat.get("batches_per_second")
-            try:
-                rate_text = f" | {float(rate):.2f} batch/s" if rate is not None else ""
-            except (TypeError, ValueError):
-                rate_text = ""
-            progress.append(f"ETA {eta}{rate_text}")
+        eta = _format_duration(heartbeat.get("eta_seconds"))
+        rate = heartbeat.get("batches_per_second")
+        try:
+            rate_text = f" | {float(rate):.2f} batch/s" if rate is not None else ""
+        except (TypeError, ValueError):
+            rate_text = ""
+        progress.append(f"ETA {eta}{rate_text}")
         memory_text = format_gpu_memory(heartbeat.get("gpu_memory"))
         if memory_text:
             progress.append(memory_text)
@@ -1706,6 +1688,9 @@ def run_selector_workers(
     hardware_profile = hardware_profile or {
         "name": "config",
         "pair_chunk_size": 256,
+        "pair_chunk_divisor": 1,
+        "micro_batch_size": 256,
+        "gradient_accumulation_steps": 1,
         "activation_checkpointing": True,
         "adaptive": False,
     }
@@ -1863,7 +1848,10 @@ def run_selector_workers(
                     "--seed", str(seed),
                     "--log-every-batches", str(args.log_every_batches),
                     "--checkpoint-every-batches", str(getattr(args, "checkpoint_every_batches", 50)),
-                    "--pair-chunk-size", str(selected_profile["pair_chunk_size"]),
+                    "--pair-chunk-size", _profile_command_pair_chunk(selected_profile),
+                    "--pair-chunk-divisor", str(selected_profile["pair_chunk_divisor"]),
+                    "--micro-batch-size", str(selected_profile["micro_batch_size"]),
+                    "--gradient-accumulation-steps", str(selected_profile["gradient_accumulation_steps"]),
                     "--activation-checkpointing", str(int(selected_profile["activation_checkpointing"])),
                 ]
                 if adaptive:
@@ -1898,6 +1886,7 @@ def run_selector_workers(
                     "heartbeat_file": heartbeat_path,
                     "adaptive_tier": tier,
                     "memory_profile": selected_profile["name"],
+                    "execution": _profile_execution_fields(selected_profile),
                 }
                 statuses[selector].update(
                     {
@@ -1909,8 +1898,7 @@ def run_selector_workers(
                         "log_file": str(selector_dir / "worker.log"),
                         "adaptive_tier": tier if adaptive else None,
                         "memory_profile": selected_profile["name"],
-                        "pair_chunk_size": int(selected_profile["pair_chunk_size"]),
-                        "activation_checkpointing": bool(selected_profile["activation_checkpointing"]),
+                        **_profile_execution_fields(selected_profile),
                         "oom_retries": (
                             int(
                                 _adaptive_selector_state(
@@ -1939,18 +1927,6 @@ def run_selector_workers(
                                 )
                             )
                         ),
-                        "throughput_timeouts": (
-                            int(
-                                _adaptive_selector_state(
-                                    run_dir,
-                                    adaptive_memory_state,
-                                    hardware_profile,
-                                    selector,
-                                ).get("throughput_timeouts", 0)
-                            )
-                            if adaptive
-                            else int(statuses[selector].get("throughput_timeouts", 0))
-                        ),
                     }
                 )
                 write_assignments()
@@ -1963,6 +1939,7 @@ def run_selector_workers(
                         "pid": process.pid,
                         "adaptive_tier": tier if adaptive else None,
                         "memory_profile": selected_profile["name"],
+                        "execution": _profile_execution_fields(selected_profile),
                         "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                     },
                 )
@@ -1970,123 +1947,6 @@ def run_selector_workers(
 
             for selector, entry in list(active.items()):
                 process = entry["process"]
-                heartbeat = _read_json(entry["heartbeat_file"])
-                if _is_unfinished_first_batch_heartbeat(heartbeat):
-                    first_batch_started = entry.setdefault(
-                        "first_batch_started_monotonic", time.monotonic()
-                    )
-                    statuses[selector]["first_batch_started_monotonic"] = (
-                        first_batch_started
-                    )
-                    elapsed = time.monotonic() - float(first_batch_started)
-                    checkpoint_path = (
-                        run_dir / "selectors" / selector / "checkpoints" / "latest.pt"
-                    )
-                    tier_used = int(entry["adaptive_tier"])
-                    next_tier = tier_used + 1
-                    first_batch_timeout = int(
-                        getattr(
-                            args,
-                            "first_batch_timeout_seconds",
-                            FIRST_BATCH_TIMEOUT_SECONDS,
-                        )
-                    )
-                    if (
-                        adaptive
-                        and elapsed >= first_batch_timeout
-                        and checkpoint_path.is_file()
-                        and next_tier < len(hardware_profile["tiers"])
-                    ):
-                        # SIGTERM is a safe-pause request in workers.  An
-                        # unfinished CUDA operation may not return to honor
-                        # it, so _terminate_worker escalates only this
-                        # worker process group after the documented grace.
-                        _terminate_worker(process)
-                        entry["handle"].close()
-                        finished_at = datetime.now(timezone.utc).isoformat()
-                        event = _record_adaptive_retry(
-                            run_dir,
-                            adaptive_memory_state,
-                            selector=selector,
-                            gpu=int(entry["gpu"]),
-                            from_tier=tier_used,
-                            to_tier=next_tier,
-                            hardware_profile=hardware_profile,
-                            event_type="throughput_timeout",
-                            event_fields={
-                                "first_batch_elapsed_seconds": round(elapsed, 3)
-                            },
-                        )
-                        retries = int(statuses[selector].get("throughput_timeouts", 0)) + 1
-                        statuses[selector].update(
-                            {
-                                "status": "pending",
-                                "gpu": None,
-                                "last_return_code": process.returncode,
-                                "throughput_timeouts": retries,
-                                "last_throughput_timeout_at": finished_at,
-                                "last_memory_profile": entry["memory_profile"],
-                                "first_batch_started_monotonic": None,
-                            }
-                        )
-                        available.append(int(entry["gpu"]))
-                        del active[selector]
-                        pending.insert(0, selector)
-                        write_assignments()
-                        _append_scheduler_event(run_dir, event)
-                        selected = _adaptive_profile_at(hardware_profile, next_tier)
-                        print(
-                            f"[selector-scheduler] first batch exceeded "
-                            f"{first_batch_timeout}s on {selector} | "
-                            f"retry {retries} | profile {selected['name']} | "
-                            f"pair_chunk_size={selected['pair_chunk_size']}",
-                            flush=True,
-                        )
-                        continue
-                    if adaptive and elapsed >= first_batch_timeout:
-                        _terminate_worker(process)
-                        entry["handle"].close()
-                        finished_at = datetime.now(timezone.utc).isoformat()
-                        if not checkpoint_path.is_file():
-                            reason = (
-                                f"selector worker {selector} exceeded the first-batch "
-                                "timeout without a batch checkpoint; unsafe restart refused"
-                            )
-                        else:
-                            reason = (
-                                f"selector worker {selector} exhausted all adaptive "
-                                "memory tiers without completing its first batch"
-                            )
-                        statuses[selector].update(
-                            {
-                                "status": "failed",
-                                "return_code": process.returncode,
-                                "last_return_code": process.returncode,
-                                "finished_at": finished_at,
-                                "throughput_timeouts": int(
-                                    statuses[selector].get("throughput_timeouts", 0)
-                                ),
-                                "duration_seconds": round(
-                                    time.monotonic() - entry["started_monotonic"], 3
-                                ),
-                            }
-                        )
-                        del active[selector]
-                        write_assignments()
-                        _append_scheduler_event(
-                            run_dir,
-                            {
-                                "event": "throughput_timeout_failed",
-                                "selector": selector,
-                                "gpu": entry["gpu"],
-                                "adaptive_tier": tier_used,
-                                "first_batch_elapsed_seconds": round(elapsed, 3),
-                                "checkpoint_exists": checkpoint_path.is_file(),
-                                "timestamp": finished_at,
-                            },
-                        )
-                        fail_run(reason)
-                        raise RuntimeError(reason)
                 return_code = process.poll()
                 if return_code is None:
                     continue
@@ -2116,7 +1976,7 @@ def run_selector_workers(
                         and checkpoint_path.is_file()
                         and next_tier < len(hardware_profile["tiers"])
                     ):
-                        event = _record_adaptive_retry(
+                        event = _record_adaptive_oom_retry(
                             run_dir,
                             adaptive_memory_state,
                             selector=selector,
@@ -2166,7 +2026,7 @@ def run_selector_workers(
                         failure_name = "memory pressure" if memory_pressure else "CUDA OOM"
                         print(
                             f"[selector-scheduler] {failure_name} on {selector} | retry {retries} | "
-                            f"profile {selected['name']} | pair_chunk_size={selected['pair_chunk_size']}",
+                            f"profile {selected['name']} | {_profile_execution_label(selected)}",
                             flush=True,
                         )
                         continue
@@ -2270,7 +2130,8 @@ def build_kernel(
     seed: int,
     config: dict[str, Any],
     *,
-    pair_chunk_size: int | None = None,
+    pair_chunk_size: int | None | object = _DEFAULT_PAIR_CHUNK,
+    pair_chunk_divisor: int = 1,
     activation_checkpointing: bool | None = None,
     model_parallel_devices: tuple[torch.device, ...] = (),
 ) -> RelationPerturbationEchoCurvatureKernel:
@@ -2294,7 +2155,12 @@ def build_kernel(
     return build_relation_perturbation_echo_curvature(
         mode_map[mode],
         config_obj,
-        pair_chunk_size=int(pair_chunk_size if pair_chunk_size is not None else kernel_config.get("pair_chunk_size", 256)),
+        pair_chunk_size=(
+            int(kernel_config.get("pair_chunk_size", 256))
+            if pair_chunk_size is _DEFAULT_PAIR_CHUNK
+            else pair_chunk_size
+        ),
+        pair_chunk_divisor=int(pair_chunk_divisor),
         activation_checkpointing=(
             bool(activation_checkpointing)
             if activation_checkpointing is not None
@@ -2340,8 +2206,6 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         raise ValueError("--log-every-batches must be positive")
     if args.checkpoint_every_batches <= 0:
         raise ValueError("--checkpoint-every-batches must be positive")
-    if args.first_batch_timeout_seconds <= 0:
-        raise ValueError("--first-batch-timeout-seconds must be positive")
     if args.allow_gpu_topology_change and args.resume is None:
         raise ValueError("--allow-gpu-topology-change requires --resume")
     model_parallel_gpu_ids = parse_model_parallel_gpu_ids(args.model_parallel_gpus)
@@ -2479,10 +2343,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
             {
                 "current_tier": int(adaptive_memory_state["current_tier"]),
                 "current_profile": current_profile["name"],
-                "pair_chunk_size": int(current_profile["pair_chunk_size"]),
-                "activation_checkpointing": bool(
-                    current_profile["activation_checkpointing"]
-                ),
+                **_profile_execution_fields(current_profile),
             }
         )
     args._run_dir = run_dir
@@ -2620,6 +2481,10 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
             batch_resume=True,
             checkpoint_every_batches=args.checkpoint_every_batches,
             pause=pause,
+            micro_batch_size=int(hardware_profile["micro_batch_size"]),
+            gradient_accumulation_steps=int(
+                hardware_profile["gradient_accumulation_steps"]
+            ),
         )
         pending_selectors = [selector for selector in selectors if selector != "disabled"]
         for selector in pending_selectors:
@@ -2672,7 +2537,8 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
                     artifacts.model,
                     seed,
                     config,
-                    pair_chunk_size=int(hardware_profile["pair_chunk_size"]),
+                    pair_chunk_size=hardware_profile["pair_chunk_size"],
+                    pair_chunk_divisor=int(hardware_profile["pair_chunk_divisor"]),
                     activation_checkpointing=bool(hardware_profile["activation_checkpointing"]),
                     model_parallel_devices=model_parallel_devices,
                 )
@@ -2683,7 +2549,12 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
                     data_dir=data_dir,
                     selector=selector,
                     seed=seed,
-                    pair_chunk_size=int(hardware_profile["pair_chunk_size"]),
+                    pair_chunk_size=hardware_profile["pair_chunk_size"],
+                    pair_chunk_divisor=int(hardware_profile["pair_chunk_divisor"]),
+                    micro_batch_size=int(hardware_profile["micro_batch_size"]),
+                    gradient_accumulation_steps=int(
+                        hardware_profile["gradient_accumulation_steps"]
+                    ),
                     activation_checkpointing=bool(hardware_profile["activation_checkpointing"]),
                     model_parallel_gpu_ids=model_parallel_gpu_ids,
                 )
@@ -2928,8 +2799,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
             "visible_cuda_devices": gpu_ids,
             "model_parallel_gpu_ids": model_parallel_gpu_ids,
             "model_parallel_device_map": artifacts.model.model_parallel_metadata() if model_parallel_devices else {"enabled": False},
-            "pair_chunk_size": int(hardware_profile["pair_chunk_size"]),
-            "activation_checkpointing": bool(hardware_profile["activation_checkpointing"]),
+            **_profile_execution_fields(hardware_profile),
             "memory_strategy": "adaptive" if hardware_profile.get("adaptive") else "fixed",
             "started_at_utc": stamp,
         },
@@ -2945,7 +2815,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         f"- matched control: `{config['matched_control']}`",
         f"- parallel mode: `{'model_parallel' if model_parallel_devices else ('selector_parallel' if gpu_ids else 'serial')}`",
         f"- model-parallel physical GPUs: `{model_parallel_gpu_ids}`",
-        f"- hardware profile: `{hardware_profile['name']}` (pair_chunk_size={hardware_profile['pair_chunk_size']}, activation_checkpointing={str(hardware_profile['activation_checkpointing']).lower()})",
+        f"- hardware profile: `{hardware_profile['name']}` ({_profile_execution_label(hardware_profile)})",
         f"- selected physical GPUs: `{gpu_ids}`",
         *([
             f"- baseline imported from legacy run: `{baseline_import['source_run_dir']}`; selectors restarted at batch 0",

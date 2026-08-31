@@ -78,14 +78,23 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
         self,
         config: RelationPerturbationEchoConfig,
         *,
-        pair_chunk_size: int = 256,
+        pair_chunk_size: int | None = 256,
+        pair_chunk_divisor: int = 1,
         activation_checkpointing: bool = True,
     ) -> None:
         super().__init__()
-        if pair_chunk_size <= 0:
+        if pair_chunk_size is not None and pair_chunk_size <= 0:
             raise ValueError("pair_chunk_size must be positive")
+        if pair_chunk_divisor <= 0:
+            raise ValueError("pair_chunk_divisor must be positive")
         self.config = config
-        self.pair_chunk_size = int(pair_chunk_size)
+        # None means one chunk containing all pairs for the current physical
+        # micro-batch. A divisor lets the adaptive runner halve that chunk
+        # without guessing sequence padding lengths in the parent process.
+        self.pair_chunk_size = None if pair_chunk_size is None else int(pair_chunk_size)
+        self.pair_chunk_divisor = int(pair_chunk_divisor)
+        self.last_total_pairs = 0
+        self.last_resolved_pair_chunk_size = 0
         self.activation_checkpointing = bool(activation_checkpointing)
         self.num_layers = config.num_layers
         self.num_heads = config.num_heads
@@ -223,8 +232,8 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
         """Evaluate the exact XXX echo without materializing a statevector.
 
         The circuit is a tensor product of real R_y product states, followed by
-        a diagonal relation-key phase and a global X observable.  Its exact
-        expectation therefore factors over qubits.  Keeping this expression
+        a diagonal relation-key phase and a global X observable. Its exact
+        expectation therefore factors over qubits. Keeping this expression
         analytical preserves the circuit and optimizer contract while removing
         the exponential statevector hot path from every pair and echo point.
         """
@@ -308,7 +317,10 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
             ],
             "config": asdict(self.config),
             "execution": {
-                "pair_chunk_size": self.pair_chunk_size,
+                "pair_chunk_size": (
+                    "all" if self.pair_chunk_size is None else self.pair_chunk_size
+                ),
+                "pair_chunk_divisor": self.pair_chunk_divisor,
                 "activation_checkpointing": self.activation_checkpointing,
             },
             "inference_mode": "label_free",
@@ -353,8 +365,15 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
             chunks: list[torch.Tensor] = []
             pair_count = query_tokens * key_tokens
             total_pairs = batch * pair_count
-            for start in range(0, total_pairs, self.pair_chunk_size):
-                stop = min(start + self.pair_chunk_size, total_pairs)
+            if self.pair_chunk_size is None:
+                chunk_size = (total_pairs + self.pair_chunk_divisor - 1) // self.pair_chunk_divisor
+            else:
+                chunk_size = self.pair_chunk_size
+            chunk_size = max(1, int(chunk_size))
+            self.last_total_pairs = int(total_pairs)
+            self.last_resolved_pair_chunk_size = int(chunk_size)
+            for start in range(0, total_pairs, chunk_size):
+                stop = min(start + chunk_size, total_pairs)
                 flat = torch.arange(start, stop, device=q.device)
                 batch_index = torch.div(flat, pair_count, rounding_mode="floor")
                 within_batch = flat.remainder(pair_count)
@@ -407,7 +426,8 @@ def build_relation_perturbation_echo_curvature(
     mode: str,
     config: RelationPerturbationEchoConfig,
     *,
-    pair_chunk_size: int = 256,
+    pair_chunk_size: int | None = 256,
+    pair_chunk_divisor: int = 1,
     activation_checkpointing: bool = True,
 ) -> RelationPerturbationEchoCurvatureKernel:
     classes = {
@@ -421,5 +441,6 @@ def build_relation_perturbation_echo_curvature(
     return cls(
         config,
         pair_chunk_size=pair_chunk_size,
+        pair_chunk_divisor=pair_chunk_divisor,
         activation_checkpointing=activation_checkpointing,
     )

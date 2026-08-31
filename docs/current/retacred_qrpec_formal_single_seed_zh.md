@@ -4,7 +4,7 @@
 
 ## 1. 同步并执行
 
-在项目根目录执行。下面的默认命令会检查分支、数据、环境和测试，运行 baseline 及三个 selector，写入摘要，并在完成标记生成后自动导出报告、提交并推送到 `origin/1.1`。不要在标准命令中加入 `--report-dir`。
+在项目根目录执行。下面的默认命令会检查分支、数据、环境和测试，运行 baseline、`disabled` 及两个独立 selector，写入摘要，并在完成标记生成后自动导出报告、提交并推送到 `origin/1.1`。不要在标准命令中加入 `--report-dir`。
 
 ```bash
 git fetch origin --prune
@@ -21,7 +21,7 @@ bash scripts/run_retacred_qrpec_formal_single_seed.sh --gpu 0
 bash scripts/run_retacred_qrpec_formal_single_seed.sh --gpu auto
 ```
 
-`auto` 会选择空闲显存至少 8 GiB 的可见物理 GPU；单 GPU 环境也适用。默认 profile 是 `adaptive`：每个 selector 从有界的 `adaptive_fast=8192 -> 2048 -> 512 -> 256 -> 64` 吞吐档开始，首个 batch 默认超过 5 分钟仍未完成时也会自动降到下一档；CUDA OOM 或显存压力触发时同样独立回退，并在需要时启用 checkpointing。OOM worker 会退出，父调度器释放 GPU 后用该 selector 的最近 batch checkpoint 重启；回退过程写入 `adaptive_memory_state.json` 与 `scheduler_events.jsonl`。一个 selector 降档不会降低其他 selector 的初始档位，因此不会无故牺牲它们的速度。没有 checkpoint 或同一 selector 的所有档位都失败时才写 `RUN_FAILED`。这不是把两张 GPU 的显存合并。该机制只调整执行策略，不改变 seed、数据、batch size、epoch、selector、控制组或优化契约；不恢复旧的无限 autograd graph retaining 实现。固定 `low_memory`/`balanced`/`high_memory` profile 不会自动回退。当前 activation checkpointing 字段保留在执行契约中，Q-RPEC 的核心显存保护来自 streamed backward。实际 GPU、显存、profile 和生效参数会写入 `run_summary.json` 与 `gpu_assignments.json`，供审计复核。
+`auto` 会选择空闲显存至少 8 GiB 的可见物理 GPU；单 GPU 环境也适用。默认 profile 是 `adaptive`：每个 selector 首先使用逻辑 batch 256、physical batch 256、当前 physical batch 的 `all` pairs，且不启用 activation checkpointing。若该 selector 发生 CUDA OOM 或显存压力，调度器按 `all/divisor` 梯度逐级减半：`divisor=1 -> 2 -> 4 -> ... -> 1024`；只有这条 all-pairs 梯度耗尽后，才启用 `micro_batch=128 -> 64 -> 32`，对应梯度累积 `2 -> 4 -> 8`，始终保持一次 optimizer update 等价于逻辑 batch 256，并在 micro-batch 档启用 activation checkpointing。OOM worker 会退出，父调度器释放 GPU 后用该 selector 的最近 batch checkpoint 重启；回退过程写入 `adaptive_memory_state.json` 与 `scheduler_events.jsonl`。一个 selector 降档不会降低其他 selector 的初始档位，因此不会无故牺牲它们的速度。没有 checkpoint 或同一 selector 的所有档位都失败时才写 `RUN_FAILED`。这不是把两张 GPU 的显存合并。该机制只调整执行策略，不改变 seed、数据、逻辑 batch size、epoch、selector、控制组或优化契约；不恢复旧的无限 autograd graph retaining 实现。固定 `low_memory`/`balanced`/`high_memory` profile 不会自动回退。当前 activation checkpointing 字段保留在执行契约中，Q-RPEC 的核心显存保护来自 streamed backward。实际 GPU、显存、profile 和生效参数会写入 `run_summary.json` 与 `gpu_assignments.json`，供审计复核。
 
 每个 CUDA selector worker 还会在完成 optimizer 更新后的安全边界按 20 个 batch 轮询显存压力。压力触发时只执行本进程的 `gc.collect()` 和 `torch.cuda.empty_cache()`：前者回收不可达 Python 对象，后者只归还本 worker PyTorch allocator 的闲置缓存；不会删除仍在计算图中的活跃 Tensor，也不会触碰其他 CUDA 进程。每次回收会输出 `memory_pressure_reclaim` 事件及回收前后 `free/allocated/reserved` 诊断。如果清理后仍低于保留阈值，自适应 worker 会先保存当前 batch checkpoint，再以退出码 `87` 退出，由父调度器仅降低该 selector 的下一档并从 checkpoint 继续；固定 profile 则记录事件后继续运行。自适应重试写入 `memory_pressure_event.json`、`adaptive_memory_state.json` 和 `scheduler_events.jsonl`；固定 profile 只输出回收事件，不会擅自改变执行档位。因此该机制不能释放活跃模型状态导致的真实峰值显存，仍需依靠 streamed backward、pair chunking 和必要的 checkpointing 降低峰值。
 
@@ -33,7 +33,7 @@ bash scripts/run_retacred_qrpec_formal_single_seed.sh --gpu auto
 bash scripts/run_retacred_qrpec_formal_single_seed.sh --gpu 0,1
 ```
 
-多 GPU 模式先训练一次共享 baseline，再按空闲 GPU 动态分配 `q_rpec` 与 `classical_local_echo`。每个 worker 独立加载同一 baseline checkpoint；这不是 DDP，也不会把两张卡的显存合并成一张卡。adaptive 模式会对确认 OOM、显存压力或首 batch 吞吐超时且有 batch checkpoint 的 worker 独立降档，其他 selector 可以继续运行；普通非零退出仍立即失败。GPU ID 必须唯一且在 `nvidia-smi` 中可用。
+多 GPU 模式先训练一次共享 baseline，再按空闲 GPU 动态分配 `q_rpec` 与 `classical_local_echo`。每个 worker 独立加载同一 baseline checkpoint；这不是 DDP，也不会把两张卡的显存合并成一张卡。adaptive 模式只重试确认 OOM 或显存压力且有 batch checkpoint 的 worker，其他 selector 可以继续运行；普通非零退出仍立即失败。GPU ID 必须唯一且在 `nvidia-smi` 中可用。
 
 `git status --short` 在启动前必须没有输出。脚本在启动时记录一个 UTC 时间戳 `YYYYMMDDTHHMMSSZ`，raw run 默认写入：
 
@@ -97,7 +97,7 @@ Q-RPEC 的 attention hook 会把 query-key 对分块计算，避免一次性物�
 
 运行摘要会记录 `gpu_assignments.json`、请求和解析到的 GPU ID、每个 worker 的 PID/状态/耗时、`pair_chunk_size` 以及 CUDA 设备信息。先用小规模 canary 验证 GPU 拓扑和显存，再运行完整正式实验；不得用降低 batch 或改变 selector 的临时命令冒充正式结果。
 
-运行期间主终端会输出可读的 baseline 进度和每 30 秒一份 selector 面板。baseline 显示 phase、epoch、batch、速率、ETA、当前/峰值进程显存和每轮 valid 指标；selector 面板按物理 GPU 显示当前 selector、phase、epoch/batch、速率、ETA、整卡已用/空闲显存以及该 worker 的 allocated/reserved/peak 显存，完成、排队和失败的 selector 也会单独列出。首个 batch 尚未完成时显示 `IN PROGRESS` 和已运行时长，不显示虚假的 `0.00 batch/s` 或 ETA；默认超过 5 分钟由 adaptive watchdog 自动降档。显存采样由 `nvidia-smi` 和 PyTorch allocator 提供，batch 进度最多每 5 秒查询一次，采样失败不会阻断训练。worker 的原始 JSON 进度仍保存在各自的 `selectors/<selector>/worker.log`，baseline 原始输出保存在 `baseline_train.log`，调度器事件另存为 raw run 根目录的 `scheduler_events.jsonl`，便于审计。终端被重定向或通过 `tee` 保存时仍使用普通追加文本，不依赖 ANSI 光标控制。
+运行期间主终端会输出可读的 baseline 进度和每 30 秒一份 selector 面板。baseline 显示 phase、epoch、batch、速率、ETA、当前/峰值进程显存和每轮 valid 指标；selector 面板按物理 GPU 显示当前 selector、phase、epoch/batch、速率、ETA、整卡已用/空闲显存以及该 worker 的 allocated/reserved/peak 显存，完成、排队和失败的 selector 也会单独列出。显存采样由 `nvidia-smi` 和 PyTorch allocator 提供，batch 进度最多每 5 秒查询一次，采样失败不会阻断训练。worker 的原始 JSON 进度仍保存在各自的 `selectors/<selector>/worker.log`，baseline 原始输出保存在 `baseline_train.log`，调度器事件另存为 raw run 根目录的 `scheduler_events.jsonl`，便于审计。终端被重定向或通过 `tee` 保存时仍使用普通追加文本，不依赖 ANSI 光标控制。
 
 ## 3. 完成检查
 
