@@ -85,6 +85,19 @@ bash scripts/run_retacred_qrpec_formal_single_seed.sh \
 
 该迁移只支持“原来恰好 1 张 GPU、现在至少 2 张 GPU”的 selector-parallel 恢复；baseline 和每个未完成 selector 仍从各自最近的 batch checkpoint 恢复，已完成 selector 按指标文件跳过。它不合并显存、不改变模型并行布局，也不允许 `--model-parallel-gpus`、新建 run 或改变 seed、数据、batch size、epoch、学习率、selector、控制组和科学训练参数。脚本会在 `resume_state.json` 和 `scheduler_events.jsonl` 记录 `elastic_gpu_topology_change`，普通不兼容变更仍会拒绝恢复。
 
+### 续跑失败时的只读诊断
+
+如果恢复提示 `ResumeCompatibilityError: resume contract differs`，先不要删除 run、checkpoint 或重新训练。使用下面的只读脚本检查原 run 与当前 checkout 的具体差异；它不会修改 run 目录：
+
+```bash
+bash scripts/check_retacred_qrpec_resume.sh \
+  --run-dir runs/retacred_qrpec_formal_single_seed/<时间戳>_seed13 \
+  --gpus auto \
+  --hardware-profile adaptive
+```
+
+脚本会报告 manifest 合同指纹、代码/配置/数据/训练字段差异、当前 GPU 拓扑、baseline 和各 selector 的 checkpoint/指标/heartbeat 状态，并明确给出可用的最小授权参数：`--allow-code-update` 或 `--allow-gpu-topology-change`。如果差异属于 seed、数据、selector、batch size、epoch、学习率或其它科学训练设置，脚本会明确报告不能安全续跑；不要用迁移参数绕过这类差异。需要机器可读结果时追加 `--json`，将完整输出回传给负责人。
+
 ### 旧版已完成 baseline 的迁移
 
 如果师弟运行的是没有新 manifest/checkpoint 机制的旧版脚本，且旧 run 的 baseline 已完成、当前停在 `q_triad`，不要把旧目录作为 `--resume` 目录。`--resume` 会严格校验新代码指纹，拒绝不兼容的旧 run；请新建一个 run，只显式导入旧 baseline：
