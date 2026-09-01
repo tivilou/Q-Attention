@@ -2206,6 +2206,7 @@ def build_kernel(
         perturbation=float(kernel_config["perturbation"]),
         max_coupling=float(kernel_config["max_coupling"]),
         max_gain=float(kernel_config["max_gain"]),
+        mixed_readout_weight=float(kernel_config.get("mixed_readout_weight", 0.5)),
         initial_gain=float(kernel_config["initial_gain"]),
         seed=seed + 307,
     )

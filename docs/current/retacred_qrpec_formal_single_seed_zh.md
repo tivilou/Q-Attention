@@ -1,6 +1,6 @@
 # Q-RPEC Re-TACRED 正式单 seed 实验
 
-这是完整 Re-TACRED 的 seed 13 正式实验。Q-RPEC candidate 使用 label-free 的 query、key 和 subject/object relation anchor 做对称三点关系曲率回声；`classical_local_echo` 使用相同局部编码与参数但移除 relation-key 受控相位，`disabled` 是基线。完整数据正式运行必须由合作者在 `1.1` 分支执行。
+这是完整 Re-TACRED 的 seed 13 正式实验。Q-RPEC candidate 使用 label-free 的 query、key 和 subject/object relation anchor 做对称三点关系曲率回声；回声读出是 `XXX + mixed_readout_weight * XZZ`（默认 `mixed_readout_weight=0.5`），其中 relation-key 受控相位只作用于 `XXX`，`XZZ` 保留输入依赖；`classical_local_echo` 使用相同局部编码与参数但移除 relation-key 受控相位，`disabled` 是基线。完整数据正式运行必须由合作者在 `1.1` 分支执行。
 
 ## 1. 同步并执行
 

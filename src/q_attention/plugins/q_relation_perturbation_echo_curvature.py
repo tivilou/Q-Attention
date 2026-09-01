@@ -1,10 +1,13 @@
 """Relation-perturbation echo curvature attention-score plugins.
 
 Q-RPEC measures a symmetric second response to a relation-anchor perturbation.
-The quantum branch applies a relation-key controlled phase before a global
-three-register X observable; the matched control uses the same local encoding
-and parameters without the cross-register phase.  Both branches expose the
-same label-free, context-only centered score residual interface.
+The quantum branch applies a relation-key controlled phase before a mixed
+three-register Pauli readout (XXX plus a configurable XZZ term); the matched
+control uses the same local encoding and parameters without the cross-register
+phase.  The phase rescales only XXX while XZZ remains input-dependent, so the
+quantum branch is not an input-independent rescaling of its control.  Both
+branches expose the same label-free, context-only centered score residual
+interface.
 """
 
 from __future__ import annotations
@@ -32,6 +35,7 @@ class RelationPerturbationEchoConfig:
     perturbation: float = 0.2
     max_coupling: float = math.pi / 2.0
     max_gain: float = 0.5
+    mixed_readout_weight: float = 0.5
     initial_gain: float = 0.02
     seed: int = 271
     eps: float = 1e-8
@@ -45,6 +49,8 @@ class RelationPerturbationEchoConfig:
             raise ValueError("angle_scale and perturbation must be positive")
         if self.max_coupling <= 0.0 or self.max_gain <= 0.0:
             raise ValueError("max_coupling and max_gain must be positive")
+        if not math.isfinite(self.mixed_readout_weight) or self.mixed_readout_weight <= 0.0:
+            raise ValueError("mixed_readout_weight must be finite and positive")
         if not -self.max_gain < self.initial_gain < self.max_gain:
             raise ValueError("initial_gain must lie inside (-max_gain, max_gain)")
         if self.eps <= 0.0:
@@ -127,6 +133,8 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
             torch.full((config.num_layers, config.num_heads), float(torch.atanh(ratio)))
         )
         self.register_buffer("observable_flip", self._make_observable_flip(), persistent=False)
+        self.register_buffer("xzz_flip", self._make_xzz_flip(), persistent=False)
+        self.register_buffer("xzz_sign", self._make_xzz_sign(), persistent=False)
         self.register_buffer("phase_masks", self._make_phase_masks(), persistent=False)
 
     @property
@@ -146,6 +154,28 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
                 position = register * self.config.num_qubits + qubit
                 flip = flip | (1 << (total - position - 1))
         return indices ^ flip
+
+    def _make_xzz_flip(self) -> torch.Tensor:
+        """Return basis indices after applying X to every query qubit only."""
+        total = 3 * self.config.num_qubits
+        indices = torch.arange(2**total)
+        flip = 0
+        for qubit in range(self.config.num_qubits):
+            flip |= 1 << (total - qubit - 1)
+        return indices ^ flip
+
+    def _make_xzz_sign(self) -> torch.Tensor:
+        """Return the Z-relation/Z-key eigenvalue for every basis state."""
+        total = 3 * self.config.num_qubits
+        indices = torch.arange(2**total)
+        sign = torch.ones(indices.shape, dtype=torch.float32)
+        for register in (1, 2):
+            for qubit in range(self.config.num_qubits):
+                position = register * self.config.num_qubits + qubit
+                bit_mask = 1 << (total - position - 1)
+                bit = ((indices & bit_mask) != 0).to(torch.float32)
+                sign = sign * (1.0 - 2.0 * bit)
+        return sign
 
     def _make_phase_masks(self) -> torch.Tensor:
         total = 3 * self.config.num_qubits
@@ -217,8 +247,12 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
             # Reduce the parameter tensor to a scalar so broadcasting cannot
             # change the state shape while preserving an exact zero gradient.
             state = state + self.raw_coupling[layer_index, head_index].sum().to(state.device) * 0.0
-        flipped = state[:, self.observable_flip.to(state.device)]
-        return (state.conj() * flipped).sum(dim=-1).real
+        xxx_flipped = state[:, self.observable_flip.to(state.device)]
+        xzz_flipped = state[:, self.xzz_flip.to(state.device)]
+        xzz_flipped = xzz_flipped * self.xzz_sign.to(state.device, dtype=state.real.dtype)
+        xxx = (state.conj() * xxx_flipped).sum(dim=-1).real
+        xzz = (state.conj() * xzz_flipped).sum(dim=-1).real
+        return xxx + self.config.mixed_readout_weight * xzz
 
     def _observable(
         self,
@@ -229,13 +263,14 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
         layer_index: int,
         head_index: int,
     ) -> torch.Tensor:
-        """Evaluate the exact XXX echo without materializing a statevector.
+        """Evaluate the exact mixed Pauli echo without materializing a statevector.
 
         The circuit is a tensor product of real R_y product states, followed by
-        a diagonal relation-key phase and a global X observable. Its exact
-        expectation therefore factors over qubits. Keeping this expression
-        analytical preserves the circuit and optimizer contract while removing
-        the exponential statevector hot path from every pair and echo point.
+        a diagonal relation-key phase. The readout is the sum of two Pauli
+        strings, XXX and XZZ (X on the query register, Z on relation and key).
+        The phase rescales only the XXX term; the XZZ term remains phase
+        invariant. Their sum therefore cannot collapse to an input-independent
+        scalar multiple of the matched local control.
         """
         query_angles = self._role_angles(
             query, layer_index=layer_index, head_index=head_index, role=0
@@ -246,21 +281,27 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
         key_angles = self._role_angles(
             key, layer_index=layer_index, head_index=head_index, role=2
         )
-        factors = (
-            torch.sin(query_angles)
+        query_sine = torch.sin(query_angles)
+        xxx_factors = (
+            query_sine
             * torch.sin(relation_angles)
             * torch.sin(key_angles)
+        )
+        xzz_factors = (
+            query_sine
+            * torch.cos(relation_angles)
+            * torch.cos(key_angles)
         )
         if self.uses_cross_register_echo:
             coupling = self.config.max_coupling * torch.tanh(
                 self.raw_coupling[layer_index, head_index]
             )
-            factors = factors * torch.cos(coupling / 2.0).square()
+            xxx_factors = xxx_factors * torch.cos(coupling / 2.0).square()
         else:
             # Keep the matched control's parameter schema and exact zero
             # coupling gradient while disabling the cross-register phase.
-            factors = factors + self.raw_coupling[layer_index, head_index].sum() * 0.0
-        return factors.prod(dim=-1)
+            xxx_factors = xxx_factors + self.raw_coupling[layer_index, head_index].sum() * 0.0
+        return xxx_factors.prod(dim=-1) + self.config.mixed_readout_weight * xzz_factors.prod(dim=-1)
 
     def _pair_observable(
         self,
@@ -292,13 +333,17 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
     def metadata(self) -> dict[str, Any]:
         return {
             "id": f"q_rpec_{self.kernel_type}",
-            "version": "0.1.0",
+            "version": "0.2.0",
             "type": "relation_perturbation_echo_curvature",
             "insertion_point": "pre_softmax_attention_scores",
-            "hypothesis": "symmetric relation-anchor curvature exposes local relation sensitivity beyond static density readout",
+            "hypothesis": "mixed Pauli relation-anchor curvature exposes input-dependent relation-key sensitivity beyond static density readout",
             "input_schema": "query,key,attention_mask,subject_mask,object_mask; labels prohibited",
             "output_schema": "finite centered context-only score residual [batch,heads,query,key]",
-            "requires": ["label-free relation anchor", "three-point symmetric echo"],
+            "requires": [
+                "label-free relation anchor",
+                "three-point symmetric echo",
+                "mixed XXX plus XZZ Pauli readout",
+            ],
             "conflicts": ["q_triad", "qness", "q_wap", "qcdd", "qccw", "stacked_score_interventions"],
             "deterministic": True,
             "resource_estimate": {
@@ -326,7 +371,7 @@ class RelationPerturbationEchoCurvatureKernel(nn.Module):
             "inference_mode": "label_free",
             "target_input": "query,key,subject_mask,object_mask",
             "key_action_scope": "non_entity_context_only",
-            "readout": "symmetric_second_finite_difference_of_global_XXX_echo",
+            "readout": "symmetric_second_finite_difference_of_mixed_XXX_plus_XZZ_echo",
         }
 
     def forward(

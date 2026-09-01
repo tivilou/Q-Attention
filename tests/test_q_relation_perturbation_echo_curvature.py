@@ -64,6 +64,21 @@ def test_q_rpec_quantum_differs_from_parameter_matched_local_control() -> None:
     assert (q - c).abs().max() > 1e-7
 
 
+def test_q_rpec_quantum_is_not_an_input_independent_control_rescaling() -> None:
+    batch = _batch()
+    quantum = RelationPerturbationEchoCurvatureKernel(_config())
+    control = LocalRelationEchoCurvatureControl(_config())
+    control.load_state_dict(quantum.state_dict())
+    q = quantum(**batch, layer_index=0)
+    c = control(**batch, layer_index=0)
+    # A learnable per-head gain can absorb any fixed scalar.  The mixed Pauli
+    # readout must therefore leave a substantial residual after the best global
+    # least-squares rescaling of the matched control.
+    scale = (q * c).sum() / c.square().sum().clamp_min(1e-12)
+    residual = q - scale * c
+    assert residual.norm() > 1e-4 * q.norm()
+
+
 def test_q_rpec_relation_perturbation_changes_action() -> None:
     batch = _batch()
     kernel = RelationPerturbationEchoCurvatureKernel(_config())
