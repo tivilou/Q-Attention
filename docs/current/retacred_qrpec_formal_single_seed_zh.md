@@ -100,7 +100,7 @@ bash scripts/check_retacred_qrpec_resume.sh \
 
 ### 旧版已完成 baseline 的迁移
 
-如果师弟运行的是没有新 manifest/checkpoint 机制的旧版脚本，且旧 run 的 baseline 已完成、当前停在 `q_triad`，不要把旧目录作为 `--resume` 目录。`--resume` 会严格校验新代码指纹，拒绝不兼容的旧 run；请新建一个 run，只显式导入旧 baseline：
+如果师弟运行的是旧版 Q-RPEC 读出（单一 `XXX`）脚本，即使旧 run 已有 manifest/checkpoint、baseline 已完成且当前停在 selector，也不要把旧目录作为 `--resume` 目录。读出机制和 frozen config 已发生科学变更，`--resume` 与 `--allow-code-update` 都不能把旧 selector checkpoint 当作兼容状态；请新建一个 run，只显式导入经校验的旧 baseline：
 
 ```bash
 bash scripts/run_retacred_qrpec_formal_single_seed.sh \
