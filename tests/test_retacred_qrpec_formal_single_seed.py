@@ -98,6 +98,62 @@ def test_profile_execution_fields_preserves_all_pairs_and_normalizes_numeric_chu
     assert numeric["pair_chunk_size"] == 4096
 
 
+def test_code_update_contract_allows_only_source_revision_changes() -> None:
+    runner = _runner_module()
+    persisted = {
+        "training_semantics": {"seed": 13, "selectors": ["disabled", "q_rpec"]},
+        "config": {"sha256": "same-config"},
+        "data": {"train": {"sha256": "same-data"}},
+        "source": {
+            "git_revision": "old-revision",
+            "files": {name: f"old-{name}" for name in runner.ELASTIC_RESUME_SOURCE_FILES},
+        },
+    }
+    current = json.loads(json.dumps(persisted))
+    current["source"]["git_revision"] = "new-revision"
+    current["source"]["files"] = {
+        name: f"new-{name}" for name in runner.ELASTIC_RESUME_SOURCE_FILES
+    }
+    assert runner._code_update_contract_compatible(persisted, current)
+
+    changed_config = json.loads(json.dumps(current))
+    changed_config["config"]["sha256"] = "changed-config"
+    assert not runner._code_update_contract_compatible(persisted, changed_config)
+
+
+def test_code_update_resume_migrates_manifest_and_records_provenance(tmp_path: Path) -> None:
+    runner = _runner_module()
+    persisted_contract = {
+        "training_semantics": {"seed": 13},
+        "config": {"sha256": "same-config"},
+        "source": {"git_revision": "old-revision", "files": {"runner": "old-runner"}},
+    }
+    current_contract = json.loads(json.dumps(persisted_contract))
+    current_contract["source"] = {"git_revision": "new-revision", "files": {"runner": "new-runner"}}
+    manifest_path = tmp_path / "run_manifest.json"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "schema_version": runner.RUN_MANIFEST_SCHEMA,
+                "contract_fingerprint": runner.fingerprint(persisted_contract),
+                "contract": persisted_contract,
+                "started_at_utc": "20260901T120000Z",
+            }
+        ),
+        encoding="utf-8",
+    )
+    migrated = runner._validate_or_create_run_manifest(
+        tmp_path,
+        current_contract,
+        resume=True,
+        started_at_utc="20260901T120000Z",
+        allow_code_update=True,
+    )
+    assert migrated["contract_fingerprint"] == runner.fingerprint(current_contract)
+    assert migrated["contract"] == current_contract
+    assert migrated["resume_migrations"][0]["event"] == "code_update_resume"
+
+
 def test_retired_adaptive_state_is_rejected(tmp_path: Path) -> None:
     runner = _runner_module()
     path = tmp_path / "adaptive_memory_state.json"
