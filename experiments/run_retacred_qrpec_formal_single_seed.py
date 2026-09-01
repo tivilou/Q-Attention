@@ -181,6 +181,16 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--allow-code-update",
+        "--allow-source-update",
+        dest="allow_code_update",
+        action="store_true",
+        help=(
+            "explicitly allow a published execution-layer source update during resume; "
+            "config, data, selector and training contracts remain strict"
+        ),
+    )
+    parser.add_argument(
         "--import-baseline-from",
         type=Path,
         default=None,
@@ -790,6 +800,17 @@ def selector_resume_contract_compatible(
     )
 
 
+def _code_update_contract_compatible(
+    persisted: Any, current: dict[str, Any]
+) -> bool:
+    """Allow an explicit published execution-layer source migration on resume."""
+    return execution_contract_compatible(
+        persisted,
+        current,
+        ignored_source_files=ELASTIC_RESUME_SOURCE_FILES,
+    )
+
+
 def _validate_or_create_run_manifest(
     run_dir: Path,
     contract: dict[str, Any],
@@ -797,6 +818,7 @@ def _validate_or_create_run_manifest(
     resume: bool,
     started_at_utc: str,
     allow_gpu_topology_change: bool = False,
+    allow_code_update: bool = False,
 ) -> dict[str, Any]:
     path = run_dir / "run_manifest.json"
     contract_fingerprint = fingerprint(contract)
@@ -806,13 +828,46 @@ def _validate_or_create_run_manifest(
             raise ResumeCompatibilityError("unsupported run manifest schema")
         if persisted.get("contract_fingerprint") != contract_fingerprint:
             persisted_contract = persisted.get("contract")
-            if not (
+            elastic_compatible = (
                 allow_gpu_topology_change
                 and _elastic_run_contract_compatible(persisted_contract, contract)
-            ):
+            )
+            code_update_compatible = (
+                allow_code_update
+                and _code_update_contract_compatible(persisted_contract, contract)
+            )
+            if not (elastic_compatible or code_update_compatible):
                 raise ResumeCompatibilityError(
                     "resume contract differs: code, config, data, selector or training settings changed"
                 )
+            if code_update_compatible and not elastic_compatible:
+                migrations = list(persisted.get("resume_migrations", []))
+                migrations.append(
+                    {
+                        "event": "code_update_resume",
+                        "previous_contract_fingerprint": persisted.get(
+                            "contract_fingerprint"
+                        ),
+                        "previous_git_revision": (
+                            persisted_contract.get("source", {}).get("git_revision")
+                            if isinstance(persisted_contract, dict)
+                            else None
+                        ),
+                        "current_git_revision": contract.get("source", {}).get(
+                            "git_revision"
+                        ),
+                    }
+                )
+                migrated = dict(persisted)
+                migrated.update(
+                    {
+                        "contract_fingerprint": contract_fingerprint,
+                        "contract": contract,
+                        "resume_migrations": migrations[-20:],
+                    }
+                )
+                _write_json_atomic(path, migrated)
+                persisted = migrated
         if persisted.get("started_at_utc") != started_at_utc:
             raise ResumeCompatibilityError(
                 "resume timestamp differs from the original run manifest"
@@ -1683,6 +1738,7 @@ def run_selector_workers(
     hardware_profile: dict[str, Any] | None = None,
     resume: bool = False,
     allow_gpu_topology_change: bool = False,
+    allow_code_update: bool = False,
     pause: PauseController | None = None,
     adaptive_memory_state: dict[str, Any] | None = None,
 ) -> dict[str, dict[str, Any]]:
@@ -1858,7 +1914,7 @@ def run_selector_workers(
                 ]
                 if adaptive:
                     command.append("--adaptive-memory")
-                if allow_gpu_topology_change:
+                if allow_gpu_topology_change or allow_code_update:
                     command.append("--elastic-resume")
                 if worker_resume:
                     command.append("--resume")
@@ -2210,6 +2266,8 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         raise ValueError("--checkpoint-every-batches must be positive")
     if args.allow_gpu_topology_change and args.resume is None:
         raise ValueError("--allow-gpu-topology-change requires --resume")
+    if args.allow_code_update and args.resume is None:
+        raise ValueError("--allow-code-update requires --resume")
     model_parallel_gpu_ids = parse_model_parallel_gpu_ids(args.model_parallel_gpus)
     if model_parallel_gpu_ids:
         raise ValueError(
@@ -2333,6 +2391,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         resume=resuming,
         started_at_utc=stamp,
         allow_gpu_topology_change=args.allow_gpu_topology_change,
+        allow_code_update=args.allow_code_update,
     )
     adaptive_memory_state = _load_or_create_adaptive_memory_state(
         run_dir, hardware_profile, resume=resuming
@@ -2423,7 +2482,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
             )
         if (baseline_dir / "checkpoints" / "latest.pt").is_file():
             baseline_command.append("--resume")
-        if args.allow_gpu_topology_change:
+        if args.allow_gpu_topology_change or args.allow_code_update:
             baseline_command.append("--elastic-resume")
         baseline_command.extend(["--checkpoint-every-batches", str(args.checkpoint_every_batches)])
         _run_baseline_logged_command(
@@ -2482,6 +2541,11 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
             log_every_batches=args.log_every_batches,
             batch_resume=True,
             checkpoint_every_batches=args.checkpoint_every_batches,
+            resume_contract_compatible=(
+                selector_resume_contract_compatible
+                if args.allow_code_update
+                else None
+            ),
             pause=pause,
             micro_batch_size=int(hardware_profile["micro_batch_size"]),
             gradient_accumulation_steps=int(
@@ -2724,6 +2788,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
             hardware_profile=hardware_profile,
             resume=resuming,
             allow_gpu_topology_change=args.allow_gpu_topology_change,
+            allow_code_update=args.allow_code_update,
             pause=pause,
             adaptive_memory_state=adaptive_memory_state,
         )

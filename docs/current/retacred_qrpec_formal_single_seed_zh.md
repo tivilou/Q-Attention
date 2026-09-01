@@ -61,6 +61,18 @@ bash scripts/run_retacred_qrpec_formal_single_seed.sh --gpu 0 --resume runs/reta
 
 恢复会复用原 run 的 `data/*.jsonl` 和 `data/data_manifest.json`，跳过已有有效指标的 baseline/selector，并仅从兼容的 batch checkpoint 继续。恢复命令必须使用原 run 相同的物理 GPU 列表、并行模式和显存 profile；adaptive run 还会读取 `adaptive_memory_state.json`，从上次已验证的 tier 继续，不会重新回到最快档。若最初使用 `--gpu auto`，请从 `run_summary.json` 取出已解析的 GPU 与 profile，并显式传入，例如 `--gpu 0,1 --hardware-profile adaptive`。`--resume` 不能与 `--output-dir` 同时使用；恢复期间不能修改算法参数、数据、代码、seed、batch size、epoch、学习率、selector、显存 profile 或 checkpoint 契约。原始 `RUN_PAUSED` 保留完整 worker 状态，每次恢复会额外写入 `resume_state.json`；wrapper 的恢复日志写入新的 `logs/run.resume-<timestamp>.log`，不会覆盖首次日志。旧目录若没有 `run_manifest.json`、`data_manifest.json` 或 batch checkpoint，不能宣称 batch 级恢复，只能新建目录从 baseline 级重新开始。
 
+如果 run 是用上一版已发布 runner 启动、并在 selector 完成后的摘要阶段因已修复的 runner bug 退出，旧 manifest 会因源码指纹不同而拒绝普通恢复。确认工作树已同步到当前 `main` 后，对同一原 run 增加一次显式的代码更新许可：
+
+```bash
+bash scripts/run_retacred_qrpec_formal_single_seed.sh \
+  --gpu auto \
+  --hardware-profile adaptive \
+  --resume runs/retacred_qrpec_formal_single_seed/<timestamp>_seed13 \
+  --allow-code-update
+```
+
+`--allow-code-update` 只允许已发布执行层源码的指纹迁移，并把旧/新 revision 写入 `run_manifest.json` 的 `resume_migrations`；config、data、seed、selector、batch size、epoch、学习率和 checkpoint 训练语义仍逐项严格匹配。它不能用于绕过科学配置变更，也不能与新建 run 或 `--import-baseline-from` 一起使用。若同时从单 GPU 改为多 GPU，还要额外保留 `--allow-gpu-topology-change`。
+
 如果旧 run 是单 GPU selector-parallel，暂停后希望改用多张 GPU 并行剩余 selector，必须显式授权执行层拓扑迁移，并保持其它训练合同不变：
 
 ```bash
