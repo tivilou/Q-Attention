@@ -1,6 +1,6 @@
 # Q-RPEC Re-TACRED 正式单 seed 实验
 
-这是完整 Re-TACRED 的 seed 13 正式实验。Q-RPEC candidate 使用 label-free 的 query、key 和 subject/object relation anchor 做对称三点关系曲率回声；`classical_local_echo` 使用相同局部编码与参数但移除 relation-key 受控相位，`disabled` 是基线。完整数据正式运行必须由合作者在 `1.1` 分支执行。
+这是完整 Re-TACRED 的 seed 13 正式实验。Q-RPEC candidate 使用 label-free 的 query、key 和 subject/object relation anchor 做对称三点关系曲率回声；回声读出是 `XXX + mixed_readout_weight * XZZ`（默认 `mixed_readout_weight=0.5`），其中 relation-key 受控相位只作用于 `XXX`，`XZZ` 保留输入依赖；`classical_local_echo` 使用相同局部编码与参数但移除 relation-key 受控相位，`disabled` 是基线。完整数据正式运行必须由合作者在 `1.1` 分支执行。
 
 ## 1. 同步并执行
 
@@ -100,7 +100,7 @@ bash scripts/check_retacred_qrpec_resume.sh \
 
 ### 旧版已完成 baseline 的迁移
 
-如果师弟运行的是没有新 manifest/checkpoint 机制的旧版脚本，且旧 run 的 baseline 已完成、当前停在 `q_triad`，不要把旧目录作为 `--resume` 目录。`--resume` 会严格校验新代码指纹，拒绝不兼容的旧 run；请新建一个 run，只显式导入旧 baseline：
+如果师弟运行的是旧版 Q-RPEC 读出（单一 `XXX`）脚本，即使旧 run 已有 manifest/checkpoint、baseline 已完成且当前停在 selector，也不要把旧目录作为 `--resume` 目录。读出机制和 frozen config 已发生科学变更，`--resume` 与 `--allow-code-update` 都不能把旧 selector checkpoint 当作兼容状态；请新建一个 run，只显式导入经校验的旧 baseline：
 
 ```bash
 bash scripts/run_retacred_qrpec_formal_single_seed.sh \
