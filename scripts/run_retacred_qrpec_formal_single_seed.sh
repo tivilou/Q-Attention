@@ -11,6 +11,7 @@ CHECKPOINT_EVERY_BATCHES=50
 HARDWARE_PROFILE=adaptive
 REPORT_DIR=
 ALLOW_GPU_TOPOLOGY_CHANGE=0
+ALLOW_CODE_UPDATE=0
 SKIP_PREFLIGHT=0
 DRY_RUN=0
 
@@ -72,7 +73,7 @@ check_gpu_capacity() {
   fi
 }
 
-usage() { echo "Usage: bash scripts/run_retacred_qrpec_formal_single_seed.sh [--gpu N[,N...]|auto] [--hardware-profile config|auto|adaptive|low_memory|balanced|high_memory] [--output-dir PATH | --resume RUN_DIR | --import-baseline-from OLD_RUN_DIR] [--allow-gpu-topology-change] [--report-dir PATH] [--log-every-batches N] [--checkpoint-every-batches N] [--skip-preflight] [--dry-run]"; }
+usage() { echo "Usage: bash scripts/run_retacred_qrpec_formal_single_seed.sh [--gpu N[,N...]|auto] [--hardware-profile config|auto|adaptive|low_memory|balanced|high_memory] [--output-dir PATH | --resume RUN_DIR | --import-baseline-from OLD_RUN_DIR] [--allow-gpu-topology-change] [--allow-code-update] [--report-dir PATH] [--log-every-batches N] [--checkpoint-every-batches N] [--skip-preflight] [--dry-run]"; }
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --gpu|--gpus|--hardware-profile|--output-dir|--resume|--import-baseline-from|--report-dir|--log-every-batches|--checkpoint-every-batches)
@@ -90,6 +91,7 @@ while [[ $# -gt 0 ]]; do
       shift 2;;
     --skip-preflight) SKIP_PREFLIGHT=1; shift;;
     --allow-gpu-topology-change) ALLOW_GPU_TOPOLOGY_CHANGE=1; shift;;
+    --allow-code-update) ALLOW_CODE_UPDATE=1; shift;;
     --dry-run) DRY_RUN=1; shift;;
     -h|--help) usage; exit 0;;
     *) usage >&2; exit 2;;
@@ -116,6 +118,9 @@ fi
 [[ -z "${RESUME_DIR}" || -z "${IMPORT_BASELINE_FROM}" ]] || { echo "--resume and --import-baseline-from are mutually exclusive." >&2; exit 2; }
 if [[ "${ALLOW_GPU_TOPOLOGY_CHANGE}" -eq 1 ]]; then
   [[ -n "${RESUME_DIR}" ]] || { echo "--allow-gpu-topology-change requires --resume." >&2; exit 2; }
+fi
+if [[ "${ALLOW_CODE_UPDATE}" -eq 1 ]]; then
+  [[ -n "${RESUME_DIR}" ]] || { echo "--allow-code-update requires --resume." >&2; exit 2; }
 fi
 if [[ "${GPU_SPEC}" != "auto" ]]; then
   nvidia-smi -i "${GPU_SPEC}" --query-gpu=name --format=csv,noheader >/dev/null || { echo "GPU ${GPU_SPEC} is unavailable." >&2; exit 1; }
@@ -151,6 +156,9 @@ else
 fi
 if [[ "${ALLOW_GPU_TOPOLOGY_CHANGE}" -eq 1 ]]; then
   COMMAND+=(--allow-gpu-topology-change)
+fi
+if [[ "${ALLOW_CODE_UPDATE}" -eq 1 ]]; then
+  COMMAND+=(--allow-code-update)
 fi
 if [[ -n "${IMPORT_BASELINE_FROM}" ]]; then
   COMMAND+=(--import-baseline-from "${IMPORT_BASELINE_FROM}")
