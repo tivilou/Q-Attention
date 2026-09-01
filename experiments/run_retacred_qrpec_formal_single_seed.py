@@ -422,11 +422,13 @@ def _adaptive_state_path(run_dir: Path) -> Path:
 
 def _profile_execution_fields(profile: dict[str, Any]) -> dict[str, Any]:
     """Normalize serializable execution controls for status and provenance."""
+    pair_chunk_size = profile.get("pair_chunk_size")
+    if pair_chunk_size is None or pair_chunk_size == "all":
+        serialized_pair_chunk_size: int | str = "all"
+    else:
+        serialized_pair_chunk_size = int(pair_chunk_size)
     return {
-        "pair_chunk_size": (
-            "all" if profile.get("pair_chunk_size") is None
-            else int(profile["pair_chunk_size"])
-        ),
+        "pair_chunk_size": serialized_pair_chunk_size,
         "pair_chunk_divisor": int(profile.get("pair_chunk_divisor", 1)),
         "micro_batch_size": int(profile.get("micro_batch_size", 256)),
         "gradient_accumulation_steps": int(
