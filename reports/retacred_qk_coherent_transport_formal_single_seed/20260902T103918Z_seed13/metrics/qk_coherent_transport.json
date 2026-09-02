@@ -1,0 +1,352 @@
+{
+  "finite": true,
+  "metadata": {
+    "config": {
+      "angle_scale": 1.0,
+      "depth": 1,
+      "eps": 1e-08,
+      "head_dim": 8,
+      "initial_phase": 0.6,
+      "initial_post_rotation": 0.35,
+      "initial_transport": 0.05,
+      "max_phase": 3.141592653589793,
+      "max_post_rotation": 1.5707963267948966,
+      "max_transport": 0.25,
+      "num_heads": 4,
+      "num_layers": 2,
+      "pair_chunk_divisor": 1,
+      "pair_chunk_size": null,
+      "register_qubits": 1,
+      "seed": 320
+    },
+    "conflicts": [
+      "q_rpec_quantum",
+      "q_rpec_local_control",
+      "q_triad",
+      "qness",
+      "q_wap",
+      "qcdd",
+      "qccw",
+      "stacked_score_interventions"
+    ],
+    "deterministic": true,
+    "failure_signatures": [
+      "quantum score collapses to the separable control",
+      "score or residual variance is near numerical noise",
+      "relation or permutation discriminator fails",
+      "masked/entity key receives action",
+      "context residual is not zero-sum",
+      "nonfinite score or gradient"
+    ],
+    "hypothesis": "direct query-key cross-register transport can expose a stronger continuous pair relation than relation-coordinate curvature",
+    "id": "qk_coherent_transport_quantum",
+    "input_schema": "query,key,scores?,attention_mask,subject_mask,object_mask,query_mask?; masks are [batch,key] or [batch,query,key]; labels and relation IDs prohibited",
+    "insertion_point": "pre_softmax_attention_scores",
+    "observability_contract": {
+      "checks": [
+        "finite",
+        "nonzero_score_variance",
+        "context_zero_sum",
+        "entity_mask_zero",
+        "query_key_permutation_equivariance",
+        "deterministic_replay",
+        "parameter_match"
+      ],
+      "deterministic_replay": true,
+      "emitted_fields": [
+        "pair_score_mean",
+        "pair_score_std",
+        "residual_rms",
+        "gradient_norm",
+        "quantum_control_gap",
+        "target_key_top1",
+        "permutation_equivariance_error"
+      ],
+      "trace_schema": "qk-coherent-transport-trace.v1"
+    },
+    "output_schema": "finite bounded centered context-only score residual [batch,heads,query,key]",
+    "requires": [
+      "query/key projections",
+      "mask-aware score hook"
+    ],
+    "resource_estimate": {
+      "ancilla_qubits": 0,
+      "data_qubits": 2,
+      "depth": 1,
+      "pair_budget": "one transport evaluation per query-key pair",
+      "trainable_parameter_count": 64
+    },
+    "type": "query_key_coherent_transport",
+    "version": "0.2.0"
+  },
+  "seed": 13,
+  "selector": "qk_coherent_transport",
+  "test": {
+    "batches": 53,
+    "delta_vs_baseline": {
+      "delta_accuracy": 0.004173498285884647,
+      "delta_loss": -0.002982025442153091,
+      "delta_macro_f1": 0.0038326959703166297,
+      "delta_macro_precision": 0.007946420174913094,
+      "delta_macro_recall": 0.0008300230272877962
+    },
+    "geometry": [
+      {
+        "attention_total_variation": {
+          "count": 1857788,
+          "mean": 0.023749670262157033,
+          "std": 0.017026212945910765
+        },
+        "context_mass_error": {
+          "count": 1857788,
+          "mean": 0.0018604415695677025,
+          "std": 0.0032889793986377695
+        },
+        "entity_mass_error": {
+          "count": 1857788,
+          "mean": 0.0018604415962613105,
+          "std": 0.0032889794164610697
+        },
+        "residual_rms": {
+          "count": 13418,
+          "mean": 0.030454136003661144,
+          "std": 0.012232963675177165
+        }
+      },
+      {
+        "attention_total_variation": {
+          "count": 1857788,
+          "mean": 0.0133238908275852,
+          "std": 0.014746081342796947
+        },
+        "context_mass_error": {
+          "count": 1857788,
+          "mean": 0.0017442625507070658,
+          "std": 0.003807909251078264
+        },
+        "entity_mass_error": {
+          "count": 1857788,
+          "mean": 0.0017442624100522856,
+          "std": 0.0038079092280921194
+        },
+        "residual_rms": {
+          "count": 13418,
+          "mean": 0.01983043299575626,
+          "std": 0.008231461341847513
+        }
+      }
+    ],
+    "items": 13418,
+    "metrics": {
+      "accuracy": 0.601803547473543,
+      "loss": 2.044626780195232,
+      "macro_f1": 0.18227360374239,
+      "macro_precision": 0.21696722518483394,
+      "macro_recall": 0.18804062762842724
+    }
+  },
+  "train": {
+    "best_epoch": 9,
+    "best_valid": {
+      "accuracy": 0.6034517973856209,
+      "loss": 1.8946634079116622,
+      "macro_f1": 0.2219989288269777,
+      "macro_precision": 0.2761163770256,
+      "macro_recall": 0.22018198920498405
+    },
+    "global_step": 2748,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 0.20028250428753108,
+        "valid": {
+          "accuracy": 0.6001327614379085,
+          "loss": 1.8967936062345319,
+          "macro_f1": 0.22014820186942444,
+          "macro_precision": 0.27072238247964,
+          "macro_recall": 0.22065512644708746
+        }
+      },
+      {
+        "epoch": 2,
+        "train_loss": 0.2000231750204332,
+        "valid": {
+          "accuracy": 0.6004901960784313,
+          "loss": 1.8964201492421768,
+          "macro_f1": 0.22046845222992636,
+          "macro_precision": 0.27177622618577263,
+          "macro_recall": 0.22061472697542922
+        }
+      },
+      {
+        "epoch": 3,
+        "train_loss": 0.19980926036268898,
+        "valid": {
+          "accuracy": 0.600796568627451,
+          "loss": 1.896164305849013,
+          "macro_f1": 0.2202752926151867,
+          "macro_precision": 0.2718106672072752,
+          "macro_recall": 0.22022251540870896
+        }
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.1996351263589471,
+        "valid": {
+          "accuracy": 0.6011029411764706,
+          "loss": 1.8959227449753706,
+          "macro_f1": 0.22072931797492573,
+          "macro_precision": 0.27261624627060266,
+          "macro_recall": 0.22037184388546466
+        }
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.1994531071931315,
+        "valid": {
+          "accuracy": 0.6013582516339869,
+          "loss": 1.8956162204929428,
+          "macro_f1": 0.2199702246023687,
+          "macro_precision": 0.2722081904837085,
+          "macro_recall": 0.21954022351395291
+        }
+      },
+      {
+        "epoch": 6,
+        "train_loss": 0.19925623457175698,
+        "valid": {
+          "accuracy": 0.6014093137254902,
+          "loss": 1.895304656496235,
+          "macro_f1": 0.21994509726442774,
+          "macro_precision": 0.2722236854853385,
+          "macro_recall": 0.21926639099948142
+        }
+      },
+      {
+        "epoch": 7,
+        "train_loss": 0.19906038370591625,
+        "valid": {
+          "accuracy": 0.602328431372549,
+          "loss": 1.8950388501672184,
+          "macro_f1": 0.2210327101019415,
+          "macro_precision": 0.27435522629930437,
+          "macro_recall": 0.21989502310607487
+        }
+      },
+      {
+        "epoch": 8,
+        "train_loss": 0.19884640521823946,
+        "valid": {
+          "accuracy": 0.6030943627450981,
+          "loss": 1.894835466652914,
+          "macro_f1": 0.2218172075780936,
+          "macro_precision": 0.27606719512918226,
+          "macro_recall": 0.2201679040883165
+        }
+      },
+      {
+        "epoch": 9,
+        "train_loss": 0.19864570258885692,
+        "valid": {
+          "accuracy": 0.6034517973856209,
+          "loss": 1.8946634079116622,
+          "macro_f1": 0.2219989288269777,
+          "macro_precision": 0.2761163770256,
+          "macro_recall": 0.22018198920498405
+        }
+      },
+      {
+        "epoch": 10,
+        "train_loss": 0.198509639983282,
+        "valid": {
+          "accuracy": 0.6034007352941176,
+          "loss": 1.8945327560886058,
+          "macro_f1": 0.22188934336431942,
+          "macro_precision": 0.27583878029889497,
+          "macro_recall": 0.2200892989508545
+        }
+      },
+      {
+        "epoch": 11,
+        "train_loss": 0.19840678260307626,
+        "valid": {
+          "accuracy": 0.6035539215686274,
+          "loss": 1.8944183619193782,
+          "macro_f1": 0.22161352170410492,
+          "macro_precision": 0.2754221559538096,
+          "macro_recall": 0.2198147942551289
+        }
+      },
+      {
+        "epoch": 12,
+        "train_loss": 0.19833056844199357,
+        "valid": {
+          "accuracy": 0.6042177287581699,
+          "loss": 1.8943437665116554,
+          "macro_f1": 0.2219277670103826,
+          "macro_precision": 0.2766753312474214,
+          "macro_recall": 0.21987520024171556
+        }
+      }
+    ],
+    "runtime_seconds": 7302.173
+  },
+  "trainable_parameters": 64,
+  "valid": {
+    "batches": 77,
+    "geometry": [
+      {
+        "attention_total_variation": {
+          "count": 2767284,
+          "mean": 0.023885303611073674,
+          "std": 0.017064657965641314
+        },
+        "context_mass_error": {
+          "count": 2767284,
+          "mean": 0.0018921809831884229,
+          "std": 0.0033145473815713376
+        },
+        "entity_mass_error": {
+          "count": 2767284,
+          "mean": 0.0018921809928379135,
+          "std": 0.0033145473565677104
+        },
+        "residual_rms": {
+          "count": 19584,
+          "mean": 0.033037801681001205,
+          "std": 0.013212794737634228
+        }
+      },
+      {
+        "attention_total_variation": {
+          "count": 2767284,
+          "mean": 0.013382396629541804,
+          "std": 0.014784375988200845
+        },
+        "context_mass_error": {
+          "count": 2767284,
+          "mean": 0.0017042481500065495,
+          "std": 0.0037285373641698536
+        },
+        "entity_mass_error": {
+          "count": 2767284,
+          "mean": 0.0017042480355911615,
+          "std": 0.003728537454016337
+        },
+        "residual_rms": {
+          "count": 19584,
+          "mean": 0.02154299171239722,
+          "std": 0.008816985057507411
+        }
+      }
+    ],
+    "items": 19584,
+    "metrics": {
+      "accuracy": 0.6034517973856209,
+      "loss": 1.8946634079116622,
+      "macro_f1": 0.2219989288269777,
+      "macro_precision": 0.2761163770256,
+      "macro_recall": 0.22018198920498405
+    }
+  }
+}
