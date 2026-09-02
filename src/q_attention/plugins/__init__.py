@@ -88,6 +88,14 @@ from .q_coherence_destruction_differential import (
     explicit_dephased_connected_yyyy,
     pauli_string_operator,
 )
+from .q_query_key_coherent_transport import (
+    QK_COHERENT_TRANSPORT_KERNEL_TYPES,
+    ClassicalQueryKeyCoherentTransportKernel,
+    QuantumQueryKeyCoherentTransportKernel,
+    QueryKeyCoherentTransportConfig,
+    QueryKeyCoherentTransportKernel,
+    build_query_key_coherent_transport_kernel,
+)
 from .quantum_steering import (
     KEY_STEERING_CIRCUIT_CHOICES,
     PLUGIN_NAMES,
@@ -135,8 +143,14 @@ __all__ = [
     "CONSENSUS_QUANTUM_KERNEL_TYPES",
     "QCCW_KERNEL_TYPES",
     "QCDD_KERNEL_TYPES",
+    "QK_COHERENT_TRANSPORT_KERNEL_TYPES",
     "QTRIAD_CONTROL_MODES",
     "Q_RPEC_KERNEL_TYPES",
+    "QueryKeyCoherentTransportConfig",
+    "QueryKeyCoherentTransportKernel",
+    "QuantumQueryKeyCoherentTransportKernel",
+    "ClassicalQueryKeyCoherentTransportKernel",
+    "build_query_key_coherent_transport_kernel",
     "RelationPerturbationEchoConfig",
     "RelationPerturbationEchoCurvatureKernel",
     "LocalRelationEchoCurvatureControl",
