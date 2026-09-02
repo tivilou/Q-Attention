@@ -38,7 +38,13 @@ class QueryKeyCoherentTransportConfig:
     initial_phase: float = 0.6
     initial_post_rotation: float = 0.35
     initial_transport: float = 0.05
-    pair_chunk_size: int = 4096
+    # ``None`` is the explicit all-pairs execution tier.  It is resolved
+    # against the current forward batch, so no static sequence-length guess is
+    # required by the adaptive-memory runner.
+    pair_chunk_size: int | None = 4096
+    # An adaptive retry divides the current batch's total pair budget without
+    # changing the score function, logical batch, optimizer, or RNG contract.
+    pair_chunk_divisor: int = 1
     seed: int = 2718
     eps: float = 1e-8
 
@@ -49,10 +55,13 @@ class QueryKeyCoherentTransportConfig:
             self.head_dim,
             self.register_qubits,
             self.depth,
-            self.pair_chunk_size,
         )
         if min(dimensions) <= 0:
             raise ValueError("model, circuit, and chunk dimensions must be positive")
+        if self.pair_chunk_size is not None and self.pair_chunk_size <= 0:
+            raise ValueError("pair_chunk_size must be positive or None for all pairs")
+        if self.pair_chunk_divisor <= 0:
+            raise ValueError("pair_chunk_divisor must be positive")
         if self.angle_scale <= 0.0:
             raise ValueError("angle_scale must be positive")
         if self.max_phase <= 0.0 or self.max_post_rotation <= 0.0:
@@ -457,8 +466,14 @@ class QueryKeyCoherentTransportKernel(nn.Module):
             q = query[:, head_index]
             k = key[:, head_index]
             chunks: list[torch.Tensor] = []
-            for start in range(0, total_pairs, self.pair_chunk_size):
-                stop = min(start + self.pair_chunk_size, total_pairs)
+            adaptive_chunk_size = math.ceil(total_pairs / self.config.pair_chunk_divisor)
+            chunk_size = (
+                adaptive_chunk_size
+                if self.pair_chunk_size is None
+                else min(self.pair_chunk_size, adaptive_chunk_size)
+            )
+            for start in range(0, total_pairs, chunk_size):
+                stop = min(start + chunk_size, total_pairs)
                 flat = torch.arange(start, stop, device=query.device)
                 batch_index = torch.div(flat, pair_count, rounding_mode="floor")
                 within = flat.remainder(pair_count)
