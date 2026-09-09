@@ -96,6 +96,14 @@ from .q_query_key_coherent_transport import (
     QueryKeyCoherentTransportKernel,
     build_query_key_coherent_transport_kernel,
 )
+from .q_multi_query_covariance import (
+    MQIC_CONTROL_MODES,
+    ClassicalMultiQueryCovarianceKernel,
+    MultiQueryCovarianceConfig,
+    MultiQueryCovarianceKernel,
+    QuantumMultiQueryCovarianceKernel,
+    build_multi_query_covariance_kernel,
+)
 from .quantum_steering import (
     KEY_STEERING_CIRCUIT_CHOICES,
     PLUGIN_NAMES,
@@ -151,6 +159,12 @@ __all__ = [
     "QuantumQueryKeyCoherentTransportKernel",
     "ClassicalQueryKeyCoherentTransportKernel",
     "build_query_key_coherent_transport_kernel",
+    "MQIC_CONTROL_MODES",
+    "MultiQueryCovarianceConfig",
+    "MultiQueryCovarianceKernel",
+    "QuantumMultiQueryCovarianceKernel",
+    "ClassicalMultiQueryCovarianceKernel",
+    "build_multi_query_covariance_kernel",
     "RelationPerturbationEchoConfig",
     "RelationPerturbationEchoCurvatureKernel",
     "LocalRelationEchoCurvatureControl",
