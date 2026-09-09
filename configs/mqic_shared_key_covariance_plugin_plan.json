@@ -1,0 +1,106 @@
+{
+  "schema_version": "research-plugin-architecture.plugin-plan.v2",
+  "project": "Q-Attention",
+  "authorization": "bounded_toy_only",
+  "baseline": {
+    "entry_point": "q_attention.adapters.AttentionScoreKernelAdapter",
+    "code_revision": "mqic-shared-key-query-covariance-v1",
+    "equivalence_test": "zero initial gain leaves fixed model score tensors unchanged"
+  },
+  "core_invariants": [
+    "Labels and relation IDs never enter the plugin.",
+    "Subject and object query rows are pooled into two role registers; each active context key is shared by both roles.",
+    "Only valid non-entity context keys receive residual action; masked and entity keys are zero.",
+    "Every active role query context row is centered to zero sum and finite.",
+    "Quantum and classical branches use identical projections, trainable tensor shapes, gain bounds, masks, and pair chunk budget.",
+    "The connected covariance and independent-product null are both observable diagnostics.",
+    "The plugin is isolated behind the existing pre-softmax score-hook adapter."
+  ],
+  "interfaces": [
+    {
+      "id": "attention-score-residual-v1",
+      "type": "enhancer",
+      "input_schema": "query,key,value?,scores?,layer_index,attention_mask,subject_mask,object_mask,query_mask?",
+      "output_schema": "float residual [batch,heads,query_tokens,key_tokens]",
+      "invariants": ["finite", "context-only", "query-row zero-sum", "bounded"]
+    }
+  ],
+  "plugins": [
+    {
+      "id": "disabled",
+      "version": "1.0.0",
+      "role": "baseline",
+      "interface": "attention-score-residual-v1",
+      "insertion_point": "none",
+      "hypothesis": "Original attention behavior is the reference baseline.",
+      "input_schema": "none",
+      "output_schema": "zero residual",
+      "requires": [],
+      "conflicts": ["mqic_shared_key_query_covariance_quantum", "mqic_shared_key_query_covariance_classical"],
+      "deterministic": true,
+      "resource_estimate": "no plugin computation",
+      "failure_signatures": ["baseline output changes when disabled"]
+    },
+    {
+      "id": "mqic_shared_key_query_covariance_quantum",
+      "version": "0.1.0",
+      "role": "idea",
+      "interface": "attention-score-residual-v1",
+      "insertion_point": "pre-softmax attention score hook",
+      "hypothesis": "A shared context key can couple pooled subject and object query roles through an input-dependent connected covariance observable.",
+      "input_schema": "query,key,attention_mask,subject_mask,object_mask,query_mask?; labels prohibited",
+      "output_schema": "finite bounded centered context-only residual",
+      "requires": ["disabled"],
+      "conflicts": ["q_rpec_quantum", "q_triad", "qk_coherent_transport", "stacked_score_interventions"],
+      "deterministic": true,
+      "resource_estimate": "3*num_qubits data qubits; one shared-key covariance evaluation per batch-key pair and depth",
+      "failure_signatures": ["connected covariance collapses to independent product", "nonzero covariance or gradient disappears", "query-pair swap or key permutation equivariance fails", "mask or zero-sum contract fails", "nonfinite score or gradient"]
+    },
+    {
+      "id": "mqic_shared_key_query_covariance_classical",
+      "version": "0.1.0",
+      "role": "adapter",
+      "interface": "attention-score-residual-v1",
+      "insertion_point": "pre-softmax attention score hook",
+      "hypothesis": "A parameter- and input-matched tensor-product covariance is the strong classical control.",
+      "input_schema": "query,key,attention_mask,subject_mask,object_mask,query_mask?; labels prohibited",
+      "output_schema": "finite bounded centered context-only residual",
+      "requires": ["disabled"],
+      "conflicts": ["q_rpec_quantum", "q_triad", "qk_coherent_transport", "stacked_score_interventions"],
+      "deterministic": true,
+      "resource_estimate": "same projections, trainable tensors, masks, and pair budget; no joint statevector",
+      "failure_signatures": ["control violates parameter/input matching", "nonfinite score or gradient", "mask or zero-sum contract fails"]
+    }
+  ],
+  "discovery": {
+    "mode": "explicit_allowlist",
+    "allowlist": ["disabled", "mqic_shared_key_query_covariance_quantum", "mqic_shared_key_query_covariance_classical"]
+  },
+  "composition": {
+    "mode": "single",
+    "order": ["disabled", "mqic_shared_key_query_covariance_quantum", "mqic_shared_key_query_covariance_classical"],
+    "merge_rule": "Run exactly one entry from the allowlist per condition; never stack score residuals.",
+    "interaction_ablations": ["disabled vs quantum", "disabled vs classical", "quantum vs classical", "connected covariance vs independent-product null", "query-pair swap", "key permutation"]
+  },
+  "validation": {
+    "baseline_equivalence": "Zero initial gain condition has exact zero intervention and leaves fixed score tensors unchanged.",
+    "tests": ["baseline_equivalence", "plugin_isolation", "deterministic_replay", "finite_values", "gradient_flow", "mask_and_gauge_invariants", "query_pair_swap", "key_permutation_equivariance", "quantum_control_non_equivalence", "parameter_match", "connected_vs_independent_null"]
+  },
+  "reproducibility": {
+    "config_path": "configs/mqic_shared_key_covariance_toy.json",
+    "dataset_identity": "synthetic shared-key role covariance toy v1 with fixed generator seeds",
+    "environment": "Python >=3.10, torch >=2.0; CPU default; optional single CUDA canary only after review",
+    "seeds": [13, 29, 53],
+    "output_manifest": "runs/mqic_shared_key_covariance_toy/manifest.json"
+  },
+  "recovery_contract": {
+    "candidate_id": "mqic-shared-key-query-covariance-v1",
+    "discriminating_intermediate_measurement": "Input-dependent connected covariance over a shared key, separation from the independent-product null and matched tensor control",
+    "evidence_ceiling": "bounded_toy_mechanism_only"
+  },
+  "limitations": [
+    "This plan authorizes isolated implementation and toy screening only, not complete-data training.",
+    "Exact statevector behavior proves functional mechanism only, not hardware speed or quantum advantage.",
+    "Collision risk and task utility remain unresolved until later bounded audits."
+  ]
+}
