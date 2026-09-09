@@ -112,6 +112,23 @@ def test_key_permutation_equivariance_and_chunk_replay() -> None:
     torch.testing.assert_close(permuted_output, base[:, :, :, permutation], rtol=1e-5, atol=1e-6)
 
 
+def test_adaptive_chunk_divisor_preserves_score_values() -> None:
+    fixture = _fixture(num_heads=1)
+    full = QuantumMultiQueryCovarianceKernel(
+        _config(num_heads=1, pair_chunk_size=None, pair_chunk_divisor=1)
+    )
+    divided = QuantumMultiQueryCovarianceKernel(
+        _config(num_heads=1, pair_chunk_size=None, pair_chunk_divisor=4)
+    )
+    divided.load_state_dict(full.state_dict(), strict=True)
+    torch.testing.assert_close(
+        _forward(divided, fixture),
+        _forward(full, fixture),
+        rtol=1e-5,
+        atol=1e-6,
+    )
+
+
 def test_all_trainable_parameters_receive_finite_gradient() -> None:
     kernel = QuantumMultiQueryCovarianceKernel(_config(num_heads=1)).double()
     fixture = tuple(value.double() if value.is_floating_point() else value for value in _fixture(num_heads=1))

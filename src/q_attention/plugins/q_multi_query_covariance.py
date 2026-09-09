@@ -38,7 +38,11 @@ class MultiQueryCovarianceConfig:
     initial_phase: float = 0.6
     initial_post_rotation: float = 0.35
     initial_gain: float = 0.05
+    # ``None`` means all pairs at the current forward batch.  The formal
+    # runner can divide that dynamic budget after an OOM without changing the
+    # logical batch or the score function.
     pair_chunk_size: int | None = 4096
+    pair_chunk_divisor: int = 1
     seed: int = 7919
     eps: float = 1e-8
 
@@ -65,6 +69,8 @@ class MultiQueryCovarianceConfig:
             raise ValueError("initial_gain must lie inside the covariance bound")
         if self.pair_chunk_size is not None and self.pair_chunk_size <= 0:
             raise ValueError("pair_chunk_size must be positive or None")
+        if self.pair_chunk_divisor <= 0:
+            raise ValueError("pair_chunk_divisor must be positive")
         if self.eps <= 0.0:
             raise ValueError("eps must be positive")
 
@@ -561,7 +567,13 @@ class MultiQueryCovarianceKernel(nn.Module):
         connected_scores: list[torch.Tensor] = []
         independent_scores: list[torch.Tensor] = []
         residuals: list[torch.Tensor] = []
-        chunk_size = self.config.pair_chunk_size or max(1, batch * key_tokens)
+        total_pairs = batch * key_tokens
+        adaptive_chunk_size = math.ceil(total_pairs / self.config.pair_chunk_divisor)
+        chunk_size = (
+            adaptive_chunk_size
+            if self.config.pair_chunk_size is None
+            else min(self.config.pair_chunk_size, adaptive_chunk_size)
+        )
         self._last_pair_count = batch * key_tokens
 
         for head_index in range(heads):

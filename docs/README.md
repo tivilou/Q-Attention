@@ -7,6 +7,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
+| [MQIC shared-key covariance Re-TACRED 正式单 seed](current/retacred_mqic_shared_key_covariance_formal_single_seed_zh.md) | 完整数据、seed 13、单/多 GPU selector 并行、batch 级恢复和 shared-key query covariance 与匹配 classical control |
 | [QK coherent transport Re-TACRED 正式单 seed](current/retacred_qk_coherent_transport_formal_single_seed_zh.md) | 完整数据、seed 13、单/多 GPU selector 并行、batch 级恢复和 query-key 双寄存器 transport 与 matched classical control |
 | [Q-RPEC Re-TACRED 正式单 seed](current/retacred_qrpec_formal_single_seed_zh.md) | 完整数据、seed 13、单/多 GPU selector 并行及关系扰动回声曲率与局部经典控制 |
 | [Q-TRIAD Re-TACRED 正式单 seed](current/retacred_qtriad_formal_single_seed_zh.md) | 完整数据、seed 13、单/多 GPU selector 并行及可选模型级并行的 Q-TRIAD 与经典密度控制 |
