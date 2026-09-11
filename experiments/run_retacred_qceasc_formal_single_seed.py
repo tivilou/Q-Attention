@@ -24,6 +24,7 @@ import torch
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 EXPERIMENTS = ROOT / "experiments"
+SELECTOR_WORKER_PATH = EXPERIMENTS / "run_qceasc_selector_worker.py"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 if str(EXPERIMENTS) not in sys.path:
@@ -243,7 +244,7 @@ class RunPaused(RuntimeError):
 def _source_contract() -> dict[str, Any]:
     paths = {
         "runner": ROOT / "experiments" / "run_retacred_qceasc_formal_single_seed.py",
-        "worker": ROOT / "experiments" / "run_qceasc_selector_worker.py",
+        "worker": SELECTOR_WORKER_PATH,
         "baseline_trainer": ROOT / "experiments" / "train_relation_baseline.py",
         "kernel_trainer": ROOT
         / "experiments"
@@ -1913,7 +1914,7 @@ def run_selector_workers(
                 heartbeat_path.touch()
                 command = [
                     args.python_bin,
-                    str(ROOT / "experiments" / "run_q_ceasc_selector_worker.py"),
+                    str(SELECTOR_WORKER_PATH),
                     "--config", str(config_path),
                     "--baseline-dir", str(baseline_dir),
                     "--data-dir", str(data_dir),
