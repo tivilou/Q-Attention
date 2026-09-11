@@ -1,0 +1,72 @@
+{
+  "schema_version": "q-attention.q-ceasc-formal-single-seed.v1",
+  "name": "retacred_qceasc_formal_single_seed",
+  "formal_experiment": true,
+  "seed": 13,
+  "train_path": "data/relation/retacred/train.jsonl",
+  "valid_path": "data/relation/retacred/valid.jsonl",
+  "test_path": "data/relation/retacred/test.jsonl",
+  "expected_records": {
+    "train": 58465,
+    "valid": 19584,
+    "test": 13418
+  },
+  "selectors": [
+    "disabled",
+    "q_ceasc",
+    "classical_ceasc"
+  ],
+  "candidate": "q_ceasc",
+  "matched_control": "classical_ceasc",
+  "control_definitions": {
+    "disabled": "Frozen attention baseline with no score residual.",
+    "q_ceasc": "Context-conditioned auxiliary quantum support followed by frozen action-span orthogonal projection.",
+    "classical_ceasc": "Matched-parameter D-dimensional random-feature span control; this is not an unrestricted classical architecture."
+  },
+  "baseline": {
+    "epochs": 8,
+    "batch_size": 16,
+    "lr": 0.001
+  },
+  "kernel": {
+    "epochs": 12,
+    "batch_size": 256,
+    "lr": 0.001,
+    "auxiliary_qubits": 3,
+    "depth": 2,
+    "support_width": 2,
+    "action_rank": 2,
+    "angle_scale": 1.0,
+    "max_gain": 0.25,
+    "initial_gain": 0.05,
+    "span_rcond": 1e-6,
+    "query_chunk_size": 4096,
+    "weight_decay": 0.0
+  },
+  "model": {
+    "dim": 32,
+    "num_layers": 2,
+    "num_heads": 4,
+    "ff_dim": 64,
+    "dropout": 0.0
+  },
+  "case_study": {
+    "split": "valid",
+    "record_indices": [0, 1, 2],
+    "freeze_before_training": true,
+    "description": "Fixed validation examples with baseline and selector attention-score deltas; report-only evidence, not selection data."
+  },
+  "gates": {
+    "minimum_candidate_minus_disabled_macro_f1": 0.001,
+    "minimum_candidate_minus_matched_macro_f1": -0.0005,
+    "test_used_for_training_or_selection": false
+  },
+  "claim_limits": {
+    "single_seed_only": true,
+    "natural_transfer_not_yet_reproducible": true,
+    "quantum_specific_advantage_not_claimed": true,
+    "multi_seed_requires_post_audit_authorization": true,
+    "exact_statevector_is_not_hardware_speed_evidence": true,
+    "toy_pass_promoted_directly_to_single_seed": true
+  }
+}

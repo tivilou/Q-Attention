@@ -104,6 +104,12 @@ from .q_multi_query_covariance import (
     QuantumMultiQueryCovarianceKernel,
     build_multi_query_covariance_kernel,
 )
+from .q_ceasc_score import (
+    QCEASC_SCORE_CONTROL_MODES,
+    QCEASCScoreKernel,
+    QCEASCScoreKernelConfig,
+    build_qceasc_score_kernel,
+)
 from .quantum_steering import (
     KEY_STEERING_CIRCUIT_CHOICES,
     PLUGIN_NAMES,
@@ -165,6 +171,10 @@ __all__ = [
     "QuantumMultiQueryCovarianceKernel",
     "ClassicalMultiQueryCovarianceKernel",
     "build_multi_query_covariance_kernel",
+    "QCEASC_SCORE_CONTROL_MODES",
+    "QCEASCScoreKernel",
+    "QCEASCScoreKernelConfig",
+    "build_qceasc_score_kernel",
     "RelationPerturbationEchoConfig",
     "RelationPerturbationEchoCurvatureKernel",
     "LocalRelationEchoCurvatureControl",

@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 import subprocess
 import time
 from dataclasses import replace
@@ -18,6 +19,11 @@ from pathlib import Path
 from typing import Any
 
 import torch
+
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
 
 from q_attention.plugins.q_ceasc import QCEASCConfig, build_qceasc
 
@@ -252,6 +258,15 @@ def _shuffled_generation_case(
     return {**source, "query": current["query"]}, source_name
 
 
+def _context_summary(case: dict[str, Any]) -> torch.Tensor:
+    """Return the label-free active-key summary used by the constructor."""
+    active = case["valid"] & ~case["entity"]
+    weights = active.to(dtype=case["key"].dtype)
+    return (case["key"] * weights.unsqueeze(-1)).sum(dim=1) / weights.sum(
+        dim=-1, keepdim=True
+    ).clamp_min(1.0)
+
+
 def _train(
     kernel,
     manifest: dict[str, Any],
@@ -481,13 +496,30 @@ def evaluate_seed(
             "random_support": _evaluate_generation(kernels["random_support"], case),
         }
         shuffled_case, source_name = _shuffled_generation_case(manifest, case_name)
-        case_results["shuffled_context"] = _evaluate_generation(
+        shuffled_current = _evaluate_generation(kernels["shuffled_context"], case)
+        shuffled_swapped = _evaluate_generation(
             kernels["shuffled_context"], shuffled_case
         )
+        case_results["shuffled_context"] = shuffled_swapped
         case_results["shuffled_context_source_case"] = source_name
-        case_results["shuffled_context_difference"] = float(
+        case_results["shuffled_context_key_difference"] = float(
             (case["key"] - shuffled_case["key"]).abs().max().detach().cpu()
         )
+        case_results["shuffled_context_difference"] = float(
+            (_context_summary(case) - _context_summary(shuffled_case))
+            .abs()
+            .max()
+            .detach()
+            .cpu()
+        )
+        case_results["shuffled_context_output_difference"] = float(
+            (shuffled_current["result"].residual - shuffled_swapped["result"].residual)
+            .abs()
+            .max()
+            .detach()
+            .cpu()
+        )
+        shuffled_current.pop("result")
         quantum_result = case_results["q_ceasc"].pop("result")
         classical_result = case_results["classical_span"].pop("result")
         for mode in (
@@ -570,6 +602,16 @@ def evaluate_seed(
                         "mask_entity": metrics["mask_entity_zero_error"],
                         "zero_sum": metrics["zero_sum_error"],
                     },
+                    "context_swap": (
+                        {
+                            "source_case": case_results["shuffled_context_source_case"],
+                            "key_difference": case_results["shuffled_context_key_difference"],
+                            "summary_difference": case_results["shuffled_context_difference"],
+                            "output_difference": case_results["shuffled_context_output_difference"],
+                        }
+                        if mode == "shuffled_context"
+                        else None
+                    ),
                     "finite": metrics["finite"],
                 }
             )
@@ -697,7 +739,9 @@ def main() -> None:
         ),
         "shuffled_context_executed": all(
             result["generation"][case]["shuffled_context_source_case"] != case
-            and result["generation"][case]["shuffled_context_difference"] > 1e-8
+            and result["generation"][case]["shuffled_context_key_difference"] > 1e-8
+            and result["generation"][case]["shuffled_context_difference"] > 1e-6
+            and result["generation"][case]["shuffled_context_output_difference"] > 1e-8
             and result["generation"][case]["shuffled_context"]["finite"]
             for result in results
             for case in GENERATION_CASES
@@ -705,7 +749,7 @@ def main() -> None:
         "bounded_runtime": elapsed <= float(raw["max_runtime_seconds"]),
     }
     report = {
-        "schema_version": "q-attention.qceasc-toy.v2",
+        "schema_version": "q-attention.qceasc-toy.v3",
         "project": "Q-Attention / q-ceasc-context-entangled-auxiliary-support-v1",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "device": str(device),
@@ -742,7 +786,7 @@ def main() -> None:
         "schema_version": "sample-trace.v1",
         "project": report["project"],
         "status": "observed",
-        "selection_rule": "First fixed training micro-batch plus two generation fixtures are frozen before outcomes; shuffled_context swaps context rows across fixed cases.",
+        "selection_rule": "First fixed training micro-batch plus two generation fixtures are frozen before outcomes; shuffled_context preserves the current query and target semantics while swapping only the source context key bank.",
         "training": [item["trace"]["training"] for item in results],
         "scoring": [entry for item in results for entry in item["trace"]["scoring"]],
         "generation": [entry for item in results for entry in item["trace"]["generation"]],
