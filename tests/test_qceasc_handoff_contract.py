@@ -33,6 +33,15 @@ def test_adaptive_policy_prefers_micro_batch_before_chunking():
     assert runner.ADAPTIVE_MEMORY_STATE_SCHEMA.endswith(".v2")
 
 
+def test_selector_worker_invocation_uses_checked_in_worker_path():
+    runner = _load("qceasc_formal_runner_worker_path_contract", RUNNER_PATH)
+    assert runner.SELECTOR_WORKER_PATH.name == "run_qceasc_selector_worker.py"
+    assert runner.SELECTOR_WORKER_PATH.is_file()
+    source = RUNNER_PATH.read_text(encoding="utf-8")
+    assert "run_q_ceasc_selector_worker.py" not in source
+    assert "str(SELECTOR_WORKER_PATH)" in source
+
+
 def test_shuffled_generation_preserves_query_and_swaps_context():
     toy = _load("qceasc_toy_contract", TOY_PATH)
     query = torch.tensor([[1.0, 2.0]])
