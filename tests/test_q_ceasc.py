@@ -152,6 +152,7 @@ def test_empty_context_rows_fall_back_to_zero_residual():
     assert torch.allclose(result.residual, torch.zeros_like(result.residual))
     assert result.diagnostics["empty_context_row"].tolist() == [True, True]
 
+
 def test_mixed_empty_context_row_preserves_normal_row():
     query, key, valid, entity = _inputs(batch=2)
     valid[0] = False
