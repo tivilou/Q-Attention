@@ -327,6 +327,109 @@ def _capture_geometry(
     )
 
 
+_CONTEXT_DIAGNOSTIC_EXAMPLE_LIMIT = 32
+_CONTEXT_EVENT_ROW_LIMIT = 64
+
+
+def _new_context_diagnostics() -> dict[str, Any]:
+    return {
+        "total_rows": 0,
+        "empty_context_rows": 0,
+        "empty_context_batches": 0,
+        "reasons": {
+            "entity_covers_all_valid": 0,
+            "no_valid_tokens": 0,
+        },
+        "examples": [],
+    }
+
+
+def _emit_context_event(event: str, **fields: Any) -> None:
+    payload = {
+        "event": event,
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        **fields,
+    }
+    print(json.dumps(payload, sort_keys=True), flush=True)
+
+
+def _record_context_batch(
+    summary: dict[str, Any],
+    raw_batch: Mapping[str, torch.Tensor],
+    *,
+    selector: str,
+    phase: str,
+    epoch: int | None,
+    batch_index: int,
+    global_step: int | None,
+) -> None:
+    valid = raw_batch["attention_mask"].detach().to(dtype=torch.bool)
+    entity = (
+        raw_batch["subject_mask"].detach().to(dtype=torch.bool)
+        | raw_batch["object_mask"].detach().to(dtype=torch.bool)
+    )
+    active = valid & ~entity
+    valid_counts = valid.sum(dim=-1)
+    entity_counts = (valid & entity).sum(dim=-1)
+    active_counts = active.sum(dim=-1)
+    summary["total_rows"] += int(active.shape[0])
+    empty_rows = torch.nonzero(active_counts == 0, as_tuple=False).flatten().tolist()
+    if not empty_rows:
+        return
+
+    summary["empty_context_rows"] += len(empty_rows)
+    summary["empty_context_batches"] += 1
+    sample_indices = raw_batch.get("sample_index")
+    event_rows: list[dict[str, Any]] = []
+    for row in empty_rows:
+        valid_count = int(valid_counts[row].item())
+        entity_count = int(entity_counts[row].item())
+        active_count = int(active_counts[row].item())
+        reason = "no_valid_tokens" if valid_count == 0 else "entity_covers_all_valid"
+        summary["reasons"][reason] += 1
+        item: dict[str, Any] = {
+            "row": int(row),
+            "valid_tokens": valid_count,
+            "entity_tokens": entity_count,
+            "active_context_tokens": active_count,
+            "reason": reason,
+            "valid_token_positions": torch.nonzero(valid[row], as_tuple=False).flatten().tolist(),
+            "subject_token_positions": torch.nonzero(raw_batch["subject_mask"][row], as_tuple=False).flatten().tolist(),
+            "object_token_positions": torch.nonzero(raw_batch["object_mask"][row], as_tuple=False).flatten().tolist(),
+        }
+        if isinstance(sample_indices, torch.Tensor):
+            item["sample_index"] = int(sample_indices[row].item())
+        if len(summary["examples"]) < _CONTEXT_DIAGNOSTIC_EXAMPLE_LIMIT:
+            summary["examples"].append({**item, "batch": int(batch_index)})
+        if len(event_rows) < _CONTEXT_EVENT_ROW_LIMIT:
+            event_rows.append(item)
+    _emit_context_event(
+        "context_edge_case",
+        selector=selector,
+        phase=phase,
+        epoch=epoch,
+        batch=int(batch_index),
+        global_step=global_step,
+        empty_context_rows=len(empty_rows),
+        rows=event_rows,
+        truncated_rows=max(0, len(empty_rows) - len(event_rows)),
+        fallback="zero_residual_baseline",
+    )
+
+
+def _finalize_context_diagnostics(summary: dict[str, Any]) -> dict[str, Any]:
+    total_rows = int(summary["total_rows"])
+    finalized = dict(summary)
+    finalized["reasons"] = dict(summary["reasons"])
+    finalized["examples"] = list(summary["examples"])
+    finalized["empty_context_fraction"] = (
+        float(summary["empty_context_rows"]) / float(total_rows)
+        if total_rows
+        else 0.0
+    )
+    return finalized
+
+
 def evaluate(
     model: torch.nn.Module,
     loader: Iterable[dict[str, torch.Tensor]],
@@ -346,6 +449,7 @@ def evaluate(
     labels: list[int] = []
     total_loss = 0.0
     total_items = 0
+    context_diagnostics = _new_context_diagnostics()
     layer_accumulators = [
         {
             name: ScalarAccumulator()
@@ -361,7 +465,17 @@ def evaluate(
         log_every_batches=log_every_batches,
     )
     with torch.no_grad():
-        for raw_batch in batches:
+        for batch_index, raw_batch in enumerate(batches, start=1):
+            if kernel is not None:
+                _record_context_batch(
+                    context_diagnostics,
+                    raw_batch,
+                    selector=stage,
+                    phase="evaluation",
+                    epoch=None,
+                    batch_index=batch_index,
+                    global_step=None,
+                )
             batch = move_batch(raw_batch, device)
             captures: dict[int, tuple[tuple[object, ...], object]] = {}
             handles: list[torch.utils.hooks.RemovableHandle] = []
@@ -398,6 +512,14 @@ def evaluate(
                 _capture_geometry(layer_accumulators, layer_index, inputs, output, batch)
     metrics = classification_metrics(predictions, labels, num_labels)
     metrics["loss"] = total_loss / max(total_items, 1)
+    context_summary = _finalize_context_diagnostics(context_diagnostics)
+    if kernel is not None:
+        _emit_context_event(
+            "context_diagnostics",
+            selector=stage,
+            phase="evaluation",
+            **context_summary,
+        )
     return {
         "metrics": metrics,
         "items": total_items,
@@ -406,6 +528,7 @@ def evaluate(
             {name: accumulator.summary() for name, accumulator in layer.items()}
             for layer in layer_accumulators
         ],
+        "context_diagnostics": context_summary,
     }
 
 
@@ -447,6 +570,7 @@ def train_kernel(
     best_valid: dict[str, float] | None = None
     best_epoch: int | None = None
     best_score = (float("-inf"), float("-inf"))
+    context_diagnostics = _new_context_diagnostics()
     started = time.perf_counter()
     resume_enabled = bool(getattr(args, "batch_resume", False))
     manager: BatchCheckpointManager | None = None
@@ -474,6 +598,9 @@ def train_kernel(
             best_valid = checkpoint.get("best_valid")
             best_epoch = checkpoint.get("best_epoch")
             best_score = tuple(checkpoint.get("best_score", best_score))
+            saved_context_diagnostics = checkpoint.get("context_diagnostics")
+            if isinstance(saved_context_diagnostics, dict):
+                context_diagnostics = saved_context_diagnostics
             manager.clear_pause_marker()
             print(
                 json.dumps(
@@ -513,6 +640,7 @@ def train_kernel(
                 "best_valid": best_valid,
                 "best_epoch": best_epoch,
                 "best_score": best_score,
+                "context_diagnostics": context_diagnostics,
             }
         )
 
@@ -569,6 +697,15 @@ def train_kernel(
                 epochs=args.epochs,
                 completed_batches=cursor.next_batch_index,
             ):
+                _record_context_batch(
+                    context_diagnostics,
+                    raw_batch,
+                    selector=selector,
+                    phase="train",
+                    epoch=epoch,
+                    batch_index=cursor.next_batch_index + 1,
+                    global_step=cursor.global_step,
+                )
                 batch = move_batch(raw_batch, device)
                 optimizer.zero_grad(set_to_none=True)
                 labels = batch["labels"]
@@ -707,6 +844,13 @@ def train_kernel(
             pause.close()
     if best_valid is None or best_epoch is None:
         raise RuntimeError(f"selector {selector} produced no validation checkpoint")
+    context_summary = _finalize_context_diagnostics(context_diagnostics)
+    _emit_context_event(
+        "context_diagnostics",
+        selector=selector,
+        phase="train",
+        **context_summary,
+    )
     kernel.load_state_dict(torch.load(output_dir / "best_kernel.pt", map_location=device, weights_only=True))
     if manager is not None:
         manager.clear_pause_marker()
@@ -716,6 +860,7 @@ def train_kernel(
         "best_epoch": best_epoch,
         "global_step": cursor.global_step,
         "runtime_seconds": round(time.perf_counter() - started, 3),
+        "context_diagnostics": context_summary,
     }
 
 

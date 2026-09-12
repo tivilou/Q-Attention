@@ -55,6 +55,8 @@ bash scripts/run_retacred_qceasc_formal_single_seed.sh \
 
 发生 SIGINT/SIGTERM/SIGHUP 时，脚本会在当前 optimizer update 后安全暂停，写入 batch checkpoint 与 `RUN_PAUSED`，并返回退出码 75；这不是失败。
 
+如果某个样本的有效 token 全部属于 subject/object 实体，因而没有非实体 context，Q-CEASC 会将该样本的 residual 置零并继续训练，不再因该边界样本终止。worker.log 会立即写入 `context_edge_case` 事件，包含 selector、epoch/batch、样本索引、有效/实体/可用 context token 数和 `fallback=zero_residual_baseline`；每个 selector 的训练与评估结束时还会写入 `context_diagnostics` 聚合统计。该诊断不改变数据、标签或优化目标。
+
 ## 4. 查看或恢复
 
 原始 run 只留在合作者机器，禁止提交。统一 dashboard 已显示阶段、batch、速度、ETA、显存和各 GPU worker；需要只读查看或定位恢复参数时运行：

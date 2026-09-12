@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import pytest
 import torch
 
 from q_attention.plugins.q_ceasc import (
@@ -145,8 +144,19 @@ def test_float64_path_is_finite():
     assert torch.isfinite(result.residual).all()
 
 
-def test_invalid_rows_are_rejected():
+def test_empty_context_rows_fall_back_to_zero_residual():
     query, key, valid, entity = _inputs(batch=2)
     valid[:] = False
-    with pytest.raises(ValueError, match="at least one"):
-        build_qceasc("q_ceasc", _config()).evaluate(query, key, valid, entity)
+    result = build_qceasc("q_ceasc", _config()).evaluate(query, key, valid, entity)
+    assert torch.isfinite(result.residual).all()
+    assert torch.allclose(result.residual, torch.zeros_like(result.residual))
+    assert result.diagnostics["empty_context_row"].tolist() == [True, True]
+
+def test_mixed_empty_context_row_preserves_normal_row():
+    query, key, valid, entity = _inputs(batch=2)
+    valid[0] = False
+    kernel = build_qceasc("q_ceasc", _config())
+    result = kernel.evaluate(query, key, valid, entity)
+    assert torch.allclose(result.residual[0], torch.zeros_like(result.residual[0]))
+    assert not bool(result.diagnostics["empty_context_row"][1])
+    assert int(result.diagnostics["active_context_token_count"][1]) > 0
