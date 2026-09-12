@@ -225,6 +225,7 @@ class RelationDataset(Dataset):
         record = self.records[index]
         input_ids = [self.vocab.get(token.lower(), self.vocab[UNK_TOKEN]) for token in record.tokens]
         return {
+            "sample_index": torch.tensor(index, dtype=torch.long),
             "input_ids": torch.tensor(input_ids, dtype=torch.long),
             "subject_mask": _span_to_mask(len(record.tokens), record.subject),
             "object_mask": _span_to_mask(len(record.tokens), record.object),
@@ -242,8 +243,10 @@ def collate_relation_batch(batch: list[dict[str, object]], pad_id: int = 0) -> d
     subject_mask = torch.zeros(batch_size, max_len, dtype=torch.bool)
     object_mask = torch.zeros(batch_size, max_len, dtype=torch.bool)
     labels = torch.empty(batch_size, dtype=torch.long)
+    sample_indices = torch.empty(batch_size, dtype=torch.long)
 
     for row, item in enumerate(batch):
+        sample_indices[row] = item["sample_index"]  # type: ignore[assignment]
         ids = item["input_ids"]
         subj = item["subject_mask"]
         obj = item["object_mask"]
@@ -255,6 +258,7 @@ def collate_relation_batch(batch: list[dict[str, object]], pad_id: int = 0) -> d
         labels[row] = item["label"]  # type: ignore[assignment]
 
     return {
+        "sample_index": sample_indices,
         "input_ids": input_ids,
         "attention_mask": attention_mask,
         "subject_mask": subject_mask,

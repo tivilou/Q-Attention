@@ -378,8 +378,6 @@ class ContextEntangledAuxiliarySupportConstructor(nn.Module):
         active = valid_context_mask.to(device=key.device, dtype=torch.bool) & ~entity_mask.to(
             device=key.device, dtype=torch.bool
         )
-        if not bool(active.any(dim=-1).all()):
-            raise ValueError("every batch row needs at least one valid non-entity context key")
         return query, key, active
 
     def _context_features(
@@ -488,6 +486,15 @@ class ContextEntangledAuxiliarySupportConstructor(nn.Module):
         query, key, active = self._validate_inputs(
             query, key, valid_context_mask, entity_mask
         )
+        valid = valid_context_mask.to(device=key.device, dtype=torch.bool)
+        entity = (
+            torch.zeros_like(valid, dtype=torch.bool)
+            if entity_mask is None
+            else entity_mask.to(device=key.device, dtype=torch.bool)
+        )
+        valid_context_token_count = valid.sum(dim=-1)
+        entity_context_token_count = (valid & entity).sum(dim=-1)
+        active_context_token_count = active.sum(dim=-1)
         context = self._context_features(query, key, active)
         if self.control_mode == "classical_span":
             support = self._classical_support(context)
@@ -585,6 +592,10 @@ class ContextEntangledAuxiliarySupportConstructor(nn.Module):
                 "span_rcond": self.config.span_rcond,
                 "readout": "signed_bipolar_observable_expectations",
                 "context_is_label_free": True,
+                "valid_context_token_count": valid_context_token_count.detach(),
+                "entity_context_token_count": entity_context_token_count.detach(),
+                "active_context_token_count": active_context_token_count.detach(),
+                "empty_context_row": (active_context_token_count == 0).detach(),
             },
         )
 
