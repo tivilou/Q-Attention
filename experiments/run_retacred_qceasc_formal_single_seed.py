@@ -66,6 +66,19 @@ DEFAULT_CONFIG = ROOT / "configs" / "retacred_qceasc_formal_single_seed.json"
 RUN_MANIFEST_SCHEMA = "q-attention.q-ceasc-batch-resume-run.v1"
 DATA_MANIFEST_SCHEMA = "q-attention.q-ceasc-materialized-data.v1"
 SAFE_PAUSE_TIMEOUT_SECONDS = 15 * 60
+RATING_POLICY = {
+    "id": "q-attention-utility-and-qi-v1",
+    "version": "2026-09-13",
+    "l1_primary_delta": "strictly positive held-out primary metric versus disabled baseline",
+    "quantum_inspired_relative_gain": "classical counterpart must exceed 1% relative gain versus disabled baseline",
+}
+
+
+def relative_metric_gain(delta: float, baseline_value: float) -> float | None:
+    """Return a signed ratio without conflating it with an absolute delta."""
+    if baseline_value == 0.0:
+        return None
+    return float(delta) / abs(float(baseline_value))
 
 AUTO_MIN_FREE_MIB = 8 * 1024
 HARDWARE_PROFILES: dict[str, dict[str, Any]] = {
@@ -2831,10 +2844,28 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
     disabled = by_name["disabled"]
     candidate_minus_disabled = metric_delta(candidate["test"]["metrics"], disabled["test"]["metrics"])
     candidate_minus_matched = metric_delta(candidate["test"]["metrics"], matched["test"]["metrics"])
+    disabled_macro_f1 = float(disabled["test"]["metrics"]["macro_f1"])
+    candidate_relative_macro_f1 = relative_metric_gain(
+        candidate_minus_disabled["delta_macro_f1"], disabled_macro_f1
+    )
+    classical_relative_macro_f1 = relative_metric_gain(
+        float(matched["test"]["metrics"]["macro_f1"]) - disabled_macro_f1,
+        disabled_macro_f1,
+    )
+    minimum_classical_relative_gain = float(
+        config["gates"].get("minimum_classical_relative_gain", 0.01)
+    )
+    minimum_candidate_delta = float(
+        config["gates"].get("minimum_candidate_minus_disabled_macro_f1", 0.0)
+    )
     gates = {
         "candidate_minus_disabled_macro_f1": candidate_minus_disabled["delta_macro_f1"],
         "candidate_minus_matched_macro_f1": candidate_minus_matched["delta_macro_f1"],
-        "practical_gain_gate": candidate_minus_disabled["delta_macro_f1"] >= float(config["gates"]["minimum_candidate_minus_disabled_macro_f1"]),
+        "candidate_relative_gain_macro_f1": candidate_relative_macro_f1,
+        "classical_relative_gain_macro_f1": classical_relative_macro_f1,
+        "l1_utility_gate": candidate_minus_disabled["delta_macro_f1"] > 0.0,
+        "practical_gain_gate": candidate_minus_disabled["delta_macro_f1"] >= minimum_candidate_delta,
+        "quantum_inspired_relative_gain_gate": classical_relative_macro_f1 is not None and classical_relative_macro_f1 > minimum_classical_relative_gain,
         "matched_comparator_gate": candidate_minus_matched["delta_macro_f1"] >= float(config["gates"]["minimum_candidate_minus_matched_macro_f1"]),
         "finite_metrics": all(row["finite"] for row in rows),
         "test_used_for_training_or_selection": False,
@@ -2878,6 +2909,12 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         "rows": rows,
         "candidate_minus_disabled": candidate_minus_disabled,
         "candidate_minus_matched": candidate_minus_matched,
+        "relative_deltas": {
+            "candidate_macro_f1_vs_disabled": candidate_relative_macro_f1,
+            "classical_macro_f1_vs_disabled": classical_relative_macro_f1,
+            "classical_quantum_inspired_threshold": minimum_classical_relative_gain,
+        },
+        "rating_policy": RATING_POLICY,
         "gates": gates,
         "test_used_for_training_or_selection": False,
         "claim_limits": config["claim_limits"],
@@ -2923,6 +2960,10 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         ] if baseline_import else []),
         f"- candidate minus disabled test macro-F1: `{candidate_minus_disabled['delta_macro_f1']:.6f}`",
         f"- candidate minus matched test macro-F1: `{candidate_minus_matched['delta_macro_f1']:.6f}`",
+        f"- candidate relative gain vs disabled: `{candidate_relative_macro_f1:.6%}`" if candidate_relative_macro_f1 is not None else "- candidate relative gain vs disabled: `n/a`",
+        f"- classical relative gain vs disabled: `{classical_relative_macro_f1:.6%}`" if classical_relative_macro_f1 is not None else "- classical relative gain vs disabled: `n/a`",
+        f"- L1 utility gate (strictly positive): `{str(gates['l1_utility_gate']).lower()}`",
+        f"- quantum-inspired relative-gain gate (>1%): `{str(gates['quantum_inspired_relative_gain_gate']).lower()}`",
         f"- practical gain gate: `{str(gates['practical_gain_gate']).lower()}`",
         f"- matched comparator gate: `{str(gates['matched_comparator_gate']).lower()}`",
         "",
