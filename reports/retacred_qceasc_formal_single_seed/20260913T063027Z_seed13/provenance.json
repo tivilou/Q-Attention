@@ -1,0 +1,88 @@
+{
+  "activation_checkpointing": false,
+  "config_path": "/root/projects/Q-Attention/configs/retacred_qceasc_formal_single_seed.json",
+  "config_sha256": "7b9521c13bf79a93ac6098a77f5c6a8682c97f377fbb4a538573fad09fd36dd0",
+  "cuda_available": true,
+  "cuda_device": "NVIDIA RTX A2000 12GB",
+  "git_branch": "1.1",
+  "git_dirty": false,
+  "git_revision": "fae0b1ddb3f7ad882687cb976f43e05af7201680",
+  "gradient_accumulation_steps": 1,
+  "memory_strategy": "adaptive",
+  "micro_batch_size": 256,
+  "model_parallel_device_map": {
+    "enabled": false
+  },
+  "model_parallel_gpu_ids": [],
+  "pair_chunk_divisor": 1,
+  "pair_chunk_size": "all",
+  "plugin_core_sha256": "5f357d923653d5fc30323270d174c6d6ea3ff85f8ff092b462b344e902beeb6e",
+  "plugin_sha256": "e52a078101eb36f41078d777fc7e192346dc52e87585a86d587ce803401b91df",
+  "source_contract": {
+    "files": {
+      "attention_adapter": {
+        "bytes": 3984,
+        "path": "/root/projects/Q-Attention/src/q_attention/adapters/attention_scores.py",
+        "sha256": "b87e862ffdb5f6ea3d17ebd2dc21d401b65a0244db4d15f596f03b318747907c"
+      },
+      "baseline_trainer": {
+        "bytes": 21092,
+        "path": "/root/projects/Q-Attention/experiments/train_relation_baseline.py",
+        "sha256": "e974c706e211dff28fa0d6fb65f1a7438d4523919986a605e8f0ef2e13a27392"
+      },
+      "batch_resume": {
+        "bytes": 13954,
+        "path": "/root/projects/Q-Attention/src/q_attention/experiments/batch_resume.py",
+        "sha256": "d3874d264574a1ad564419348ede8cc85a9cdfb7f51edbcf0000a1f9390074d8"
+      },
+      "kernel_trainer": {
+        "bytes": 46518,
+        "path": "/root/projects/Q-Attention/experiments/run_q_causal_value_evidence_relation_transfer.py",
+        "sha256": "df7cb6b980eb97afae47f74cdc0d4157da428940f2fec1aab6092a59abd08139"
+      },
+      "q_ceasc": {
+        "bytes": 8444,
+        "path": "/root/projects/Q-Attention/src/q_attention/plugins/q_ceasc_score.py",
+        "sha256": "e52a078101eb36f41078d777fc7e192346dc52e87585a86d587ce803401b91df"
+      },
+      "q_ceasc_core": {
+        "bytes": 26042,
+        "path": "/root/projects/Q-Attention/src/q_attention/plugins/q_ceasc.py",
+        "sha256": "5f357d923653d5fc30323270d174c6d6ea3ff85f8ff092b462b344e902beeb6e"
+      },
+      "relation_model": {
+        "bytes": 10887,
+        "path": "/root/projects/Q-Attention/src/q_attention/models/relation_transformer.py",
+        "sha256": "a238553b9f92fbe2b656774ff1525e46ed7d599cf9d085a7a2e7e5bcce951617"
+      },
+      "relation_steering": {
+        "bytes": 20501,
+        "path": "/root/projects/Q-Attention/src/q_attention/experiments/relation_steering.py",
+        "sha256": "8c1205b680bce0c5f68a76a681ac6d732ff1bb88f111ae2db944213d4f3ac36d"
+      },
+      "relation_task": {
+        "bytes": 9654,
+        "path": "/root/projects/Q-Attention/src/q_attention/tasks/relation.py",
+        "sha256": "145296d7086c4fa93f65ca1e2b8b71e74e1f1aeb9a669b9d63ec29b7b7c9b5b3"
+      },
+      "runner": {
+        "bytes": 125689,
+        "path": "/root/projects/Q-Attention/experiments/run_retacred_qceasc_formal_single_seed.py",
+        "sha256": "f34790b60253324399b6daee590830e991134e20f9c0abce655d20e8f54a8c20"
+      },
+      "worker": {
+        "bytes": 21792,
+        "path": "/root/projects/Q-Attention/experiments/run_qceasc_selector_worker.py",
+        "sha256": "e9d0e0f558876443b74c444736277fb807e426e51e0bb582e3d2a0916dbea28c"
+      }
+    },
+    "git_revision": "fae0b1ddb3f7ad882687cb976f43e05af7201680"
+  },
+  "started_at_utc": "20260913T063027Z",
+  "torch": "2.4.0+cu118",
+  "visible_cuda_devices": [
+    0,
+    1,
+    2
+  ]
+}
