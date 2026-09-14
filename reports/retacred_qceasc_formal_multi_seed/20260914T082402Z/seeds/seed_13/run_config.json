@@ -1,0 +1,86 @@
+{
+  "baseline": {
+    "batch_size": 16,
+    "epochs": 8,
+    "lr": 0.001
+  },
+  "candidate": "q_ceasc",
+  "case_study": {
+    "description": "Fixed validation examples with baseline and selector attention-score deltas; report-only evidence, not selection data.",
+    "freeze_before_training": true,
+    "record_indices": [
+      0,
+      1,
+      2
+    ],
+    "split": "valid"
+  },
+  "claim_limits": {
+    "exact_statevector_is_not_hardware_speed_evidence": true,
+    "multi_seed_requires_post_audit_authorization": true,
+    "natural_transfer_not_yet_reproducible": true,
+    "quantum_specific_advantage_not_claimed": true,
+    "single_seed_only": true,
+    "toy_pass_promoted_directly_to_single_seed": true
+  },
+  "control_definitions": {
+    "classical_ceasc": "Matched-parameter D-dimensional random-feature span control; this is not an unrestricted classical architecture.",
+    "disabled": "Frozen attention baseline with no score residual.",
+    "q_ceasc": "Context-conditioned auxiliary quantum support followed by frozen action-span orthogonal projection."
+  },
+  "expected_records": {
+    "test": 13418,
+    "train": 58465,
+    "valid": 19584
+  },
+  "formal_experiment": true,
+  "gates": {
+    "minimum_candidate_minus_disabled_macro_f1": 0.001,
+    "minimum_candidate_minus_matched_macro_f1": -0.0005,
+    "test_used_for_training_or_selection": false
+  },
+  "kernel": {
+    "action_rank": 2,
+    "angle_scale": 1.0,
+    "auxiliary_qubits": 3,
+    "batch_size": 256,
+    "depth": 2,
+    "epochs": 12,
+    "initial_gain": 0.05,
+    "lr": 0.001,
+    "max_gain": 0.25,
+    "query_chunk_size": 4096,
+    "span_rcond": 1e-06,
+    "support_width": 2,
+    "weight_decay": 0.0
+  },
+  "matched_control": "classical_ceasc",
+  "model": {
+    "dim": 32,
+    "dropout": 0.0,
+    "ff_dim": 64,
+    "num_heads": 4,
+    "num_layers": 2
+  },
+  "name": "retacred_qceasc_formal_single_seed",
+  "replication": {
+    "child_seed": 13,
+    "parent_contract": "ec180fe57feda595f1e57e337cbada48f3a9b6d6686344d4423446415eea03dd",
+    "schema_version": "q-attention.q-ceasc-replication-child.v1",
+    "seed_set": [
+      13,
+      29,
+      53
+    ]
+  },
+  "schema_version": "q-attention.q-ceasc-formal-single-seed.v1",
+  "seed": 13,
+  "selectors": [
+    "disabled",
+    "q_ceasc",
+    "classical_ceasc"
+  ],
+  "test_path": "data/relation/retacred/test.jsonl",
+  "train_path": "data/relation/retacred/train.jsonl",
+  "valid_path": "data/relation/retacred/valid.jsonl"
+}

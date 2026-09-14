@@ -1,0 +1,554 @@
+{
+  "coverage": {
+    "context": "observed",
+    "data": "observed",
+    "diagnosis": "observed",
+    "evaluation": "observed",
+    "generation": "not_applicable",
+    "preprocess": "observed",
+    "retrieval": "not_applicable",
+    "scoring": "observed",
+    "selection": "observed",
+    "training": "observed"
+  },
+  "experiment": {
+    "code_revision": "7fb3a6e20fd8f9feeae9a31f8afe233f2e553bec",
+    "config_sha256": "b088476130d2bf08af984723b1efd08987abb6c2a40d46de3e584fc7bba79d2c",
+    "dataset": "retacred.valid",
+    "model_identity": "relation-transformer-q-ceasc",
+    "run_id": "seed_53",
+    "seed": 53
+  },
+  "sample_selection": {
+    "population_scope": "retacred.valid",
+    "rule": "Indices are frozen in the formal config before training; this file is written after selector completion and is never used for optimization or selection.",
+    "seed": 53,
+    "selected_count": 3,
+    "selected_sample_ids": [
+      "q_ceasc:valid:0",
+      "q_ceasc:valid:1",
+      "q_ceasc:valid:2"
+    ]
+  },
+  "samples": [
+    {
+      "sample_id": "q_ceasc:valid:0",
+      "split_position": 0,
+      "stages": [
+        {
+          "observed_fields": {
+            "split": "valid",
+            "tokens": [
+              "At",
+              "the",
+              "same",
+              "time",
+              ",",
+              "Chief",
+              "Financial",
+              "Officer",
+              "Douglas",
+              "Flint",
+              "will",
+              "become",
+              "chairman",
+              ",",
+              "succeeding",
+              "Stephen",
+              "Green",
+              "who",
+              "is",
+              "leaving",
+              "to",
+              "take",
+              "a",
+              "government",
+              "job",
+              "."
+            ]
+          },
+          "stage": "data",
+          "status": "observed"
+        },
+        {
+          "observed_fields": {
+            "token_count": 26
+          },
+          "stage": "preprocess",
+          "status": "observed"
+        },
+        {
+          "observed_fields": {
+            "epochs": 12,
+            "selector": "q_ceasc"
+          },
+          "stage": "training",
+          "status": "observed"
+        },
+        {
+          "stage": "retrieval",
+          "status": "not_applicable"
+        },
+        {
+          "observed_fields": {
+            "logit_delta_l2": 0.914335310459137,
+            "residual_rms_by_layer": {
+              "0": 0.0796646848320961,
+              "1": 0.045245978981256485
+            }
+          },
+          "stage": "scoring",
+          "status": "observed"
+        },
+        {
+          "observed_fields": {
+            "baseline_prediction": 0,
+            "selector_prediction": 0
+          },
+          "stage": "selection",
+          "status": "observed"
+        },
+        {
+          "observed_fields": {
+            "token_count": 26
+          },
+          "stage": "context",
+          "status": "observed"
+        },
+        {
+          "stage": "generation",
+          "status": "not_applicable"
+        },
+        {
+          "observed_fields": {
+            "baseline_correct": false,
+            "label_id": 39,
+            "selector_correct": false
+          },
+          "stage": "evaluation",
+          "status": "observed"
+        },
+        {
+          "observed_fields": {
+            "kernel_metadata": {
+              "config": {
+                "action_rank": 2,
+                "angle_scale": 1.0,
+                "auxiliary_qubits": 3,
+                "depth": 2,
+                "eps": 1e-08,
+                "head_dim": 8,
+                "initial_gain": 0.05,
+                "max_gain": 0.25,
+                "num_heads": 4,
+                "num_layers": 2,
+                "query_chunk_size": 4096,
+                "seed": 360,
+                "span_rcond": 1e-06,
+                "support_width": 2
+              },
+              "control_mode": "q_ceasc",
+              "head_dim": 8,
+              "input_schema": "query/key (B,H,T,D), attention and entity masks (B,T)",
+              "mechanism": "context-conditioned auxiliary support construction followed by frozen action-span orthogonal projection and key-aligned score residual",
+              "num_heads": 4,
+              "num_layers": 2,
+              "output_schema": "zero-sum masked score residual (B,H,T,T)",
+              "parameter_count": 200,
+              "per_head_constructor": {
+                "auxiliary_qubits": 3,
+                "classical_control_semantics": null,
+                "complement_rank": 6,
+                "config": {
+                  "action_rank": 2,
+                  "angle_scale": 1.0,
+                  "auxiliary_qubits": 3,
+                  "depth": 2,
+                  "eps": 1e-08,
+                  "initial_gain": 0.05,
+                  "key_dim": 8,
+                  "max_gain": 0.25,
+                  "query_dim": 8,
+                  "seed": 360,
+                  "span_rcond": 1e-06,
+                  "support_width": 2
+                },
+                "control_mode": "q_ceasc",
+                "id": "q_ceasc",
+                "input_schema": "query (B,Dq), key (B,N,Dk), valid/entity masks",
+                "mechanism": "context-conditioned auxiliary support with frozen-span orthogonal projection",
+                "output_schema": "finite context-only zero-sum bounded residual (B,N)",
+                "parameter_count": 25,
+                "quantum_core_parameter_count": 25,
+                "quantum_resource_note": "Exact statevector simulation establishes functional behavior only; it does not establish hardware speedup or quantum advantage.",
+                "readout": "signed_bipolar_observable_expectations",
+                "span_rank": 2,
+                "span_rcond": 1e-06,
+                "state_dim": 8,
+                "support_dictionary": "frozen_label_free orthonormal columns",
+                "type": "q_ceasc_stage_a",
+                "version": "0.1.0"
+              },
+              "quantum_resource_note": "Exact statevector simulation establishes functional behavior only; it does not establish hardware speedup or quantum advantage.",
+              "query_chunk_size": 4096,
+              "type": "q_ceasc_score_kernel",
+              "version": "1.0.0"
+            }
+          },
+          "stage": "diagnosis",
+          "status": "observed"
+        }
+      ]
+    },
+    {
+      "sample_id": "q_ceasc:valid:1",
+      "split_position": 1,
+      "stages": [
+        {
+          "observed_fields": {
+            "split": "valid",
+            "tokens": [
+              "U.S.",
+              "District",
+              "Court",
+              "Judge",
+              "Jeffrey",
+              "White",
+              "in",
+              "mid-February",
+              "issued",
+              "an",
+              "injunction",
+              "against",
+              "Wikileaks",
+              "after",
+              "the",
+              "Zurich-based",
+              "Bank",
+              "Julius",
+              "Baer",
+              "accused",
+              "the",
+              "site",
+              "of",
+              "posting",
+              "sensitive",
+              "account",
+              "information",
+              "stolen",
+              "by",
+              "a",
+              "disgruntled",
+              "former",
+              "employee",
+              "."
+            ]
+          },
+          "stage": "data",
+          "status": "observed"
+        },
+        {
+          "observed_fields": {
+            "token_count": 34
+          },
+          "stage": "preprocess",
+          "status": "observed"
+        },
+        {
+          "observed_fields": {
+            "epochs": 12,
+            "selector": "q_ceasc"
+          },
+          "stage": "training",
+          "status": "observed"
+        },
+        {
+          "stage": "retrieval",
+          "status": "not_applicable"
+        },
+        {
+          "observed_fields": {
+            "logit_delta_l2": 1.960097074508667,
+            "residual_rms_by_layer": {
+              "0": 0.0796646848320961,
+              "1": 0.045245978981256485
+            }
+          },
+          "stage": "scoring",
+          "status": "observed"
+        },
+        {
+          "observed_fields": {
+            "baseline_prediction": 0,
+            "selector_prediction": 0
+          },
+          "stage": "selection",
+          "status": "observed"
+        },
+        {
+          "observed_fields": {
+            "token_count": 34
+          },
+          "stage": "context",
+          "status": "observed"
+        },
+        {
+          "stage": "generation",
+          "status": "not_applicable"
+        },
+        {
+          "observed_fields": {
+            "baseline_correct": true,
+            "label_id": 0,
+            "selector_correct": true
+          },
+          "stage": "evaluation",
+          "status": "observed"
+        },
+        {
+          "observed_fields": {
+            "kernel_metadata": {
+              "config": {
+                "action_rank": 2,
+                "angle_scale": 1.0,
+                "auxiliary_qubits": 3,
+                "depth": 2,
+                "eps": 1e-08,
+                "head_dim": 8,
+                "initial_gain": 0.05,
+                "max_gain": 0.25,
+                "num_heads": 4,
+                "num_layers": 2,
+                "query_chunk_size": 4096,
+                "seed": 360,
+                "span_rcond": 1e-06,
+                "support_width": 2
+              },
+              "control_mode": "q_ceasc",
+              "head_dim": 8,
+              "input_schema": "query/key (B,H,T,D), attention and entity masks (B,T)",
+              "mechanism": "context-conditioned auxiliary support construction followed by frozen action-span orthogonal projection and key-aligned score residual",
+              "num_heads": 4,
+              "num_layers": 2,
+              "output_schema": "zero-sum masked score residual (B,H,T,T)",
+              "parameter_count": 200,
+              "per_head_constructor": {
+                "auxiliary_qubits": 3,
+                "classical_control_semantics": null,
+                "complement_rank": 6,
+                "config": {
+                  "action_rank": 2,
+                  "angle_scale": 1.0,
+                  "auxiliary_qubits": 3,
+                  "depth": 2,
+                  "eps": 1e-08,
+                  "initial_gain": 0.05,
+                  "key_dim": 8,
+                  "max_gain": 0.25,
+                  "query_dim": 8,
+                  "seed": 360,
+                  "span_rcond": 1e-06,
+                  "support_width": 2
+                },
+                "control_mode": "q_ceasc",
+                "id": "q_ceasc",
+                "input_schema": "query (B,Dq), key (B,N,Dk), valid/entity masks",
+                "mechanism": "context-conditioned auxiliary support with frozen-span orthogonal projection",
+                "output_schema": "finite context-only zero-sum bounded residual (B,N)",
+                "parameter_count": 25,
+                "quantum_core_parameter_count": 25,
+                "quantum_resource_note": "Exact statevector simulation establishes functional behavior only; it does not establish hardware speedup or quantum advantage.",
+                "readout": "signed_bipolar_observable_expectations",
+                "span_rank": 2,
+                "span_rcond": 1e-06,
+                "state_dim": 8,
+                "support_dictionary": "frozen_label_free orthonormal columns",
+                "type": "q_ceasc_stage_a",
+                "version": "0.1.0"
+              },
+              "quantum_resource_note": "Exact statevector simulation establishes functional behavior only; it does not establish hardware speedup or quantum advantage.",
+              "query_chunk_size": 4096,
+              "type": "q_ceasc_score_kernel",
+              "version": "1.0.0"
+            }
+          },
+          "stage": "diagnosis",
+          "status": "observed"
+        }
+      ]
+    },
+    {
+      "sample_id": "q_ceasc:valid:2",
+      "split_position": 2,
+      "stages": [
+        {
+          "observed_fields": {
+            "split": "valid",
+            "tokens": [
+              "PARIS",
+              "2009-07-07",
+              "11:07:32",
+              "UTC",
+              "French",
+              "media",
+              "earlier",
+              "reported",
+              "that",
+              "Montcourt",
+              ",",
+              "ranked",
+              "119",
+              ",",
+              "was",
+              "found",
+              "dead",
+              "by",
+              "his",
+              "girlfriend",
+              "in",
+              "the",
+              "stairwell",
+              "of",
+              "his",
+              "Paris",
+              "apartment",
+              "."
+            ]
+          },
+          "stage": "data",
+          "status": "observed"
+        },
+        {
+          "observed_fields": {
+            "token_count": 28
+          },
+          "stage": "preprocess",
+          "status": "observed"
+        },
+        {
+          "observed_fields": {
+            "epochs": 12,
+            "selector": "q_ceasc"
+          },
+          "stage": "training",
+          "status": "observed"
+        },
+        {
+          "stage": "retrieval",
+          "status": "not_applicable"
+        },
+        {
+          "observed_fields": {
+            "logit_delta_l2": 0.905067503452301,
+            "residual_rms_by_layer": {
+              "0": 0.0796646848320961,
+              "1": 0.045245978981256485
+            }
+          },
+          "stage": "scoring",
+          "status": "observed"
+        },
+        {
+          "observed_fields": {
+            "baseline_prediction": 0,
+            "selector_prediction": 0
+          },
+          "stage": "selection",
+          "status": "observed"
+        },
+        {
+          "observed_fields": {
+            "token_count": 28
+          },
+          "stage": "context",
+          "status": "observed"
+        },
+        {
+          "stage": "generation",
+          "status": "not_applicable"
+        },
+        {
+          "observed_fields": {
+            "baseline_correct": false,
+            "label_id": 21,
+            "selector_correct": false
+          },
+          "stage": "evaluation",
+          "status": "observed"
+        },
+        {
+          "observed_fields": {
+            "kernel_metadata": {
+              "config": {
+                "action_rank": 2,
+                "angle_scale": 1.0,
+                "auxiliary_qubits": 3,
+                "depth": 2,
+                "eps": 1e-08,
+                "head_dim": 8,
+                "initial_gain": 0.05,
+                "max_gain": 0.25,
+                "num_heads": 4,
+                "num_layers": 2,
+                "query_chunk_size": 4096,
+                "seed": 360,
+                "span_rcond": 1e-06,
+                "support_width": 2
+              },
+              "control_mode": "q_ceasc",
+              "head_dim": 8,
+              "input_schema": "query/key (B,H,T,D), attention and entity masks (B,T)",
+              "mechanism": "context-conditioned auxiliary support construction followed by frozen action-span orthogonal projection and key-aligned score residual",
+              "num_heads": 4,
+              "num_layers": 2,
+              "output_schema": "zero-sum masked score residual (B,H,T,T)",
+              "parameter_count": 200,
+              "per_head_constructor": {
+                "auxiliary_qubits": 3,
+                "classical_control_semantics": null,
+                "complement_rank": 6,
+                "config": {
+                  "action_rank": 2,
+                  "angle_scale": 1.0,
+                  "auxiliary_qubits": 3,
+                  "depth": 2,
+                  "eps": 1e-08,
+                  "initial_gain": 0.05,
+                  "key_dim": 8,
+                  "max_gain": 0.25,
+                  "query_dim": 8,
+                  "seed": 360,
+                  "span_rcond": 1e-06,
+                  "support_width": 2
+                },
+                "control_mode": "q_ceasc",
+                "id": "q_ceasc",
+                "input_schema": "query (B,Dq), key (B,N,Dk), valid/entity masks",
+                "mechanism": "context-conditioned auxiliary support with frozen-span orthogonal projection",
+                "output_schema": "finite context-only zero-sum bounded residual (B,N)",
+                "parameter_count": 25,
+                "quantum_core_parameter_count": 25,
+                "quantum_resource_note": "Exact statevector simulation establishes functional behavior only; it does not establish hardware speedup or quantum advantage.",
+                "readout": "signed_bipolar_observable_expectations",
+                "span_rank": 2,
+                "span_rcond": 1e-06,
+                "state_dim": 8,
+                "support_dictionary": "frozen_label_free orthonormal columns",
+                "type": "q_ceasc_stage_a",
+                "version": "0.1.0"
+              },
+              "quantum_resource_note": "Exact statevector simulation establishes functional behavior only; it does not establish hardware speedup or quantum advantage.",
+              "query_chunk_size": 4096,
+              "type": "q_ceasc_score_kernel",
+              "version": "1.0.0"
+            }
+          },
+          "stage": "diagnosis",
+          "status": "observed"
+        }
+      ]
+    }
+  ],
+  "schema_version": "sample-trace.v1",
+  "trace_id": "q_ceasc:q_ceasc"
+}
