@@ -8,7 +8,7 @@ bash scripts/run_retacred_qceasc_formal_multi_seed.sh \
   --hardware-profile adaptive
 ```
 
-该命令固定复现 seed `13,29,53`，每张选中的物理 GPU 最多运行一个 seed，采用动态队列。每个 seed 都重新执行 disabled baseline、Q-CEASC 和 classical CEASC；不得把旧的单 seed 结果拼接进本次 L2 汇总，也不得修改数据、模型、训练轮数、batch、学习率、selector 或控制组。
+该命令固定复现 seed `13,29,53`。调度分为两个阶段：先把 `baseline(seed)` 作为独立任务并行运行；三个 baseline 全部完成后，再把六个 `(seed, selector)` 任务放入全局动态队列。默认每张选中的物理 GPU 最多运行一个重 selector（`--workers-per-gpu 1`）；未经硬件 canary 批准不得开启双进程/GPU。每个任务独立保存日志、状态、batch checkpoint 和自适应显存档位。每个 seed 都重新执行 disabled baseline、Q-CEASC 和 classical CEASC；不得把旧的单 seed 结果拼接进本次 L2 汇总，也不得修改数据、模型、训练轮数、batch、学习率、selector 或控制组。
 
 ## 执行前同步
 
@@ -36,12 +36,15 @@ git status --short --branch
 runs/retacred_qceasc_formal_multi_seed/<timestamp>/
   multi_seed_manifest.json
   multi_seed_status.json
+  multi_seed_heartbeat.json
+  task_logs/
+  task_commands/
   seed_13/
   seed_29/
   seed_53/
 ```
 
-父进程终端显示统一 dashboard；每个 seed 的完整 stdout/stderr 保存在自己的 `parent-child.log`，训练器还会写 batch checkpoint、heartbeat、metrics、case study 和 `sample_trace.v1`。可用下面命令查看状态：
+父进程终端显示统一 task-graph dashboard；子任务完整 stdout/stderr 分别写入 `task_logs/`，不会混在一个终端流中。每个 seed 的目录下训练器还会写 batch checkpoint、heartbeat、metrics、case study 和 `sample_trace.v1`。可用下面命令查看状态：
 
 ```bash
 cat runs/retacred_qceasc_formal_multi_seed/<timestamp>/multi_seed_status.json
@@ -60,9 +63,9 @@ bash scripts/run_retacred_qceasc_formal_multi_seed.sh \
   --hardware-profile adaptive
 ```
 
-调度器会跳过已有 `RUN_COMPLETE` 的 seed，只把未完成 seed 交给单 seed runner 的 batch-level `--resume`；已完成 seed 不得复制成另一 seed。
+调度器会跳过已有完整 baseline/selector artifact 的任务，只把未完成任务交给 batch-level `--resume`；已完成 seed 不得复制成另一 seed。若恢复时 GPU 集合与原任务图不同，必须显式增加 `--allow-gpu-topology-change`；这只允许物理 GPU 重新分配，不改变科学契约。
 
-任一 seed 失败时停止派发尚未开始的 seed，并保留 `MULTI_SEED_FAILED`。先检查对应 `seed_<seed>/parent-child.log` 和 run marker，再向项目方返回诊断；不要改 seed、调参或用结果救回失败运行。
+任一任务失败时停止派发尚未开始的任务，并保留 `MULTI_SEED_FAILED`。先检查对应 `task_logs/` 中的任务日志和 run marker，再向项目方返回诊断；不要改 seed、调参或用结果救回失败运行。
 
 ## L2 统计口径
 

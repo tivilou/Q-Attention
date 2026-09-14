@@ -15,6 +15,12 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 SELECTORS = ("disabled", "q_ceasc", "classical_ceasc")
 EXPECTED_SEEDS = (13, 29, 53)
+SUPPORTED_MANIFEST_SCHEMAS = {
+    "q-attention.q-ceasc.formal-task-graph.v2",
+    # Keep reports produced by the pre-task-graph runner readable during the
+    # handoff transition. New runs always emit the v2 task-graph schema.
+    "q-attention.q-ceasc.formal-multiseed-manifest.v1",
+}
 TRACE_VALIDATOR = ROOT / "scripts" / "validate_sample_trace.py"
 
 
@@ -52,6 +58,24 @@ def _trace_errors(path: Path, expected_config_sha: str) -> list[str]:
     return errors
 
 
+def _validate_group_completion(group_dir: Path) -> None:
+    """Allow the scheduler's pre-marker summary pass without weakening export gates."""
+    marker = group_dir / "MULTI_SEED_COMPLETE"
+    if marker.is_file():
+        return
+    state_path = group_dir / "multi_seed_run_summary.json"
+    if not state_path.is_file():
+        raise ValueError(f"missing MULTI_SEED_COMPLETE: {group_dir}")
+    state = load_json(state_path)
+    if state.get("success") is not True:
+        raise ValueError(f"missing MULTI_SEED_COMPLETE: {group_dir}")
+    assignments = state.get("tasks", state.get("assignments"))
+    if not isinstance(assignments, list) or not assignments:
+        raise ValueError(f"missing MULTI_SEED_COMPLETE: {group_dir}")
+    if any(not isinstance(item, dict) or item.get("status") != "complete" for item in assignments):
+        raise ValueError(f"missing MULTI_SEED_COMPLETE: {group_dir}")
+
+
 def _t_critical_95(df: int) -> float:
     values = {
         1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571,
@@ -84,14 +108,12 @@ def describe(values: list[float]) -> dict[str, Any]:
 
 
 def collect(group_dir: Path) -> dict[str, Any]:
-    marker = group_dir / "MULTI_SEED_COMPLETE"
-    if not marker.is_file():
-        raise ValueError(f"missing MULTI_SEED_COMPLETE: {group_dir}")
+    _validate_group_completion(group_dir)
     manifest = load_json(group_dir / "multi_seed_manifest.json")
     seeds = [int(seed) for seed in manifest.get("seeds", [])]
     if seeds != list(EXPECTED_SEEDS):
         raise ValueError(f"manifest seeds must be {list(EXPECTED_SEEDS)}, found {seeds}")
-    if manifest.get("schema_version") != "q-attention.q-ceasc.formal-multiseed-manifest.v1":
+    if manifest.get("schema_version") not in SUPPORTED_MANIFEST_SCHEMAS:
         raise ValueError("unsupported multi-seed manifest schema")
     commit_values: set[str] = set()
     protocol_values: set[str] = set()

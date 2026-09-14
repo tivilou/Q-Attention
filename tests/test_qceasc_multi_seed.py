@@ -50,6 +50,36 @@ def test_child_command_records_exact_target_and_physical_gpu():
     assert "--replication-child" in command
 
 
+def test_selector_resume_command_enables_adaptive_elastic_resume():
+    runner = _load("qceasc_multiseed_selector_command", RUNNER_PATH)
+    args = type("Args", (), {
+        "python_bin": "/env/bin/python",
+        "log_every_batches": 50,
+        "checkpoint_every_batches": 50,
+    })()
+    command = runner.build_selector_command(
+        seed=13,
+        selector="q_ceasc",
+        gpu_id=1,
+        config_path=ROOT / "runs/group/configs/seed_13.json",
+        seed_dir=ROOT / "runs/group/seed_13",
+        selector_dir=ROOT / "runs/group/seed_13/selectors/q_ceasc",
+        args=args,
+        profile={
+            "pair_chunk_size": None,
+            "pair_chunk_divisor": 1,
+            "micro_batch_size": 256,
+            "gradient_accumulation_steps": 1,
+            "activation_checkpointing": False,
+        },
+        adaptive=True,
+        resume=True,
+    )
+    assert "--adaptive-memory" in command
+    assert "--resume" in command
+    assert "--elastic-resume" in command
+
+
 def _write_trace(path: Path, config_sha: str, selector: str) -> None:
     observed = ("data", "preprocess", "training", "scoring", "selection", "context", "evaluation", "diagnosis")
     stages = [{"stage": name, "status": "observed", "observed_fields": {"selector": selector}} for name in observed]
@@ -82,7 +112,7 @@ def _write_trace(path: Path, config_sha: str, selector: str) -> None:
 def _write_group(group: Path, *, q_values=(0.210, 0.211, 0.212)) -> None:
     group.mkdir()
     manifest = {
-        "schema_version": "q-attention.q-ceasc.formal-multiseed-manifest.v1",
+        "schema_version": "q-attention.q-ceasc.formal-task-graph.v2",
         "git_commit": "abc",
         "seeds": [13, 29, 53],
         "protocol_fingerprint": "fixture",
@@ -127,3 +157,24 @@ def test_summary_rejects_missing_sample_trace(tmp_path: Path):
     (group / "seed_29" / "selectors" / "q_ceasc" / "sample_trace.json").unlink()
     with pytest.raises(ValueError, match="sample trace"):
         summary.collect(group)
+
+
+def test_summary_allows_scheduler_pre_marker_pass(tmp_path: Path):
+    summary = _load("qceasc_multiseed_summary_pre_marker", SUMMARY_PATH)
+    group = tmp_path / "group"
+    _write_group(group)
+    (group / "MULTI_SEED_COMPLETE").unlink()
+    (group / "multi_seed_run_summary.json").write_text(
+        json.dumps(
+            {
+                "success": True,
+                "tasks": [
+                    {"task_id": f"task-{index}", "status": "complete"}
+                    for index in range(9)
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    payload = summary.collect(group)
+    assert payload["claim_ceiling"] in {"L1_utility_candidate", "L2_reproducible_utility"}

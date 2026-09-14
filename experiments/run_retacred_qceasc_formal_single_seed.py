@@ -245,6 +245,11 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument(
+        "--baseline-only",
+        action="store_true",
+        help="materialize data and complete only the baseline stage for task-graph scheduling",
+    )
+    parser.add_argument(
         "--replication-child",
         action="store_true",
         help=argparse.SUPPRESS,
@@ -786,7 +791,7 @@ def _run_resume_contract(
 def _elastic_run_contract_compatible(
     persisted: Any, current: dict[str, Any]
 ) -> bool:
-    """Allow only one-to-many selector GPU expansion during explicit resume."""
+    """Allow explicit selector GPU reassignment or one-to-many expansion during resume."""
     if not isinstance(persisted, dict):
         return False
     persisted_semantics = persisted.get("training_semantics")
@@ -808,7 +813,7 @@ def _elastic_run_contract_compatible(
         not isinstance(old_gpu_ids, list)
         or not isinstance(new_gpu_ids, list)
         or len(old_gpu_ids) != 1
-        or len(new_gpu_ids) < 2
+        or len(new_gpu_ids) < 1
         or len(set(old_gpu_ids)) != len(old_gpu_ids)
         or len(set(new_gpu_ids)) != len(new_gpu_ids)
         or any(not isinstance(value, int) for value in old_gpu_ids + new_gpu_ids)
@@ -2580,6 +2585,30 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         (disabled_dir / "metrics.json").write_text(
             json.dumps(disabled_row, indent=2, sort_keys=True), encoding="utf-8"
         )
+    if args.baseline_only:
+        _write_json_atomic(
+            run_dir / "baseline_stage_summary.json",
+            {
+                "schema_version": "q-attention.q-ceasc-baseline-stage.v1",
+                "stage": "baseline",
+                "seed": seed,
+                "valid": baseline_valid,
+                "test": baseline_test,
+                "baseline_dir": str(baseline_dir),
+                "data_dir": str(data_dir),
+                "git_revision": git_output("rev-parse", "HEAD"),
+            },
+        )
+        _write_root_marker(
+            run_dir,
+            "BASELINE_COMPLETE",
+            stage="baseline",
+            seed=seed,
+            data_manifest=str(data_dir / "data_manifest.json"),
+            baseline_dir=str(baseline_dir),
+        )
+        print("[q-ceasc] baseline stage complete; selector tasks are deferred", flush=True)
+        return 0
     if model_parallel_devices:
         # Model-parallel mode keeps one sharded model alive and runs selectors
         # serially; independent selector workers would each duplicate the
