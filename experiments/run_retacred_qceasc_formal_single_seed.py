@@ -63,6 +63,7 @@ from q_attention.tasks.relation import load_relation_jsonl  # noqa: E402
 
 
 DEFAULT_CONFIG = ROOT / "configs" / "retacred_qceasc_formal_single_seed.json"
+REPLICATION_SEEDS = (13, 29, 53)
 RUN_MANIFEST_SCHEMA = "q-attention.q-ceasc-batch-resume-run.v1"
 DATA_MANIFEST_SCHEMA = "q-attention.q-ceasc-materialized-data.v1"
 SAFE_PAUSE_TIMEOUT_SECONDS = 15 * 60
@@ -243,6 +244,11 @@ def parse_args() -> argparse.Namespace:
         help="execution-memory profile; adaptive probes the max tier and falls back after OOM/pressure",
     )
     parser.add_argument("--seed", type=int, default=None)
+    parser.add_argument(
+        "--replication-child",
+        action="store_true",
+        help=argparse.SUPPRESS,
+    )
     parser.add_argument("--log-every-batches", type=int, default=50)
     parser.add_argument("--checkpoint-every-batches", type=int, default=50)
     parser.add_argument("--started-at-utc", default=None, help=argparse.SUPPRESS)
@@ -2293,8 +2299,13 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
     if config.get("schema_version") != "q-attention.q-ceasc-formal-single-seed.v1":
         raise ValueError("unsupported Q-CEASC formal config")
     seed = int(config["seed"] if args.seed is None else args.seed)
-    if seed != 13:
-        raise ValueError("the formal handoff contract is frozen to seed 13")
+    if args.replication_child:
+        if seed not in REPLICATION_SEEDS:
+            raise ValueError(
+                f"replication child seed must be one of {REPLICATION_SEEDS}"
+            )
+    elif seed != 13:
+        raise ValueError("the formal single-seed handoff contract is frozen to seed 13")
     selectors = list(config["selectors"])
     if selectors[0] != "disabled" or config["candidate"] not in selectors:
         raise ValueError("config must include disabled and the candidate selector")
@@ -2359,7 +2370,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
     if args.resume is not None and args.import_baseline_from is not None:
         raise ValueError("--import-baseline-from can only be used for a new run, not --resume")
     provisional_stamp = args.started_at_utc or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    run_dir = args.resume or args.output_dir or ROOT / "runs" / "retacred_qceasc_formal_single_seed" / f"{provisional_stamp}_seed13"
+    run_dir = args.resume or args.output_dir or ROOT / "runs" / "retacred_qceasc_formal_single_seed" / f"{provisional_stamp}_seed{seed}"
     run_dir = resolve_path(run_dir)
     resuming = args.resume is not None
     if resuming:
@@ -2947,7 +2958,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
     lines = [
         "# Q-CEASC Re-TACRED Formal Single Seed",
         "",
-        "This is one complete seed-13 run under the frozen natural-task contract.",
+        f"This is one complete seed-{seed} run under the frozen natural-task contract.",
         "",
         f"- candidate: `{config['candidate']}`",
         f"- matched control: `{config['matched_control']}`",
@@ -2967,7 +2978,14 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         f"- practical gain gate: `{str(gates['practical_gain_gate']).lower()}`",
         f"- matched comparator gate: `{str(gates['matched_comparator_gate']).lower()}`",
         "",
-        "The test split is evaluated only after training and validation selection. This single seed does not authorize multi-seed replication.",
+        (
+            "The test split is evaluated only after training and validation selection. "
+            + (
+                "This run is a controlled replication child under the predeclared seed set."
+                if args.replication_child
+                else "This single seed does not authorize multi-seed replication."
+            )
+        ),
     ]
     (run_dir / "run_summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     (run_dir / "RUN_PAUSED").unlink(missing_ok=True)
