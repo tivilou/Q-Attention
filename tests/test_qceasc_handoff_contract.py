@@ -33,6 +33,17 @@ def test_adaptive_policy_prefers_micro_batch_before_chunking():
     assert runner.ADAPTIVE_MEMORY_STATE_SCHEMA.endswith(".v2")
 
 
+def test_rating_policy_keeps_l1_and_relative_qi_gates_separate():
+    runner = _load("qceasc_formal_rating_contract", RUNNER_PATH)
+    config = __import__("json").loads(
+        (ROOT / "configs" / "retacred_qceasc_formal_single_seed.json").read_text(encoding="utf-8")
+    )
+    assert config["gates"]["minimum_candidate_minus_disabled_macro_f1"] == 0.001
+    assert runner.RATING_POLICY["id"] == "q-attention-utility-and-qi-v1"
+    assert runner.relative_metric_gain(0.0001, 0.2) == 0.0005
+    assert runner.relative_metric_gain(0.1, 0.0) is None
+
+
 def test_selector_worker_invocation_uses_checked_in_worker_path():
     runner = _load("qceasc_formal_runner_worker_path_contract", RUNNER_PATH)
     assert runner.SELECTOR_WORKER_PATH.name == "run_qceasc_selector_worker.py"
@@ -70,3 +81,38 @@ def test_shuffled_generation_preserves_query_and_swaps_context():
     assert torch.equal(shuffled["query"], query)
     assert torch.equal(shuffled["key"], second_key)
     assert not torch.equal(shuffled["key"], first_key)
+
+
+def test_sample_trace_validator_rejects_missing_observed_stage():
+    validator = _load("sample_trace_validator", ROOT / "scripts" / "validate_sample_trace.py")
+    trace = {
+        "schema_version": "sample-trace.v1",
+        "trace_id": "fixture",
+        "experiment": {"run_id": "run", "dataset": "valid", "code_revision": "abc", "config_sha256": "hash", "model_identity": "model"},
+        "sample_selection": {"rule": "fixed", "population_scope": "valid", "selected_count": 1, "selected_sample_ids": ["s0"]},
+        "coverage": {stage: ("not_applicable" if stage in {"retrieval", "generation"} else "observed") for stage in ("data", "preprocess", "training", "retrieval", "scoring", "selection", "context", "generation", "evaluation", "diagnosis")},
+        "samples": [{"sample_id": "s0", "stages": [{"stage": "data", "status": "observed", "observed_fields": {"tokens": ["x"]}}]}],
+    }
+    errors = validator.validate(trace)
+    assert any("observed coverage stage" in error for error in errors)
+
+
+def test_sample_trace_validator_accepts_explicit_not_applicable_stages():
+    validator = _load("sample_trace_validator_valid", ROOT / "scripts" / "validate_sample_trace.py")
+    stages = []
+    for name in ("data", "preprocess", "training", "scoring", "selection", "context", "evaluation", "diagnosis"):
+        stages.append({"stage": name, "status": "observed", "observed_fields": {"value": name}})
+    stages.extend([
+        {"stage": "retrieval", "status": "not_applicable"},
+        {"stage": "generation", "status": "not_applicable"},
+    ])
+    trace = {
+        "schema_version": "sample-trace.v1",
+        "trace_id": "fixture",
+        "experiment": {"run_id": "run", "dataset": "valid", "code_revision": "abc", "config_sha256": "hash", "model_identity": "model"},
+        "sample_selection": {"rule": "fixed", "population_scope": "valid", "selected_count": 1, "selected_sample_ids": ["s0"]},
+        "coverage": {stage: ("not_applicable" if stage in {"retrieval", "generation"} else "observed") for stage in ("data", "preprocess", "training", "retrieval", "scoring", "selection", "context", "generation", "evaluation", "diagnosis")},
+        "samples": [{"sample_id": "s0", "stages": stages}],
+    }
+    assert validator.validate(trace) == []
+    assert validator.main(["trace.json", "--expected-config-sha256", "wrong"]) == 2

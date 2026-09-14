@@ -55,6 +55,9 @@ for selector in q_ceasc classical_ceasc; do
     [[ -f "${RUN_DIR}/selectors/${selector}/metrics.json" ]] || { echo "Missing ${selector} metrics." >&2; exit 1; }
   done
   [[ -f "${RUN_DIR}/selectors/${selector}/case_study.json" ]] || { echo "Missing ${selector} case study." >&2; exit 1; }
+  [[ -f "${RUN_DIR}/selectors/${selector}/sample_trace.json" ]] || { echo "Missing ${selector} sample-trace.v1 artifact." >&2; exit 1; }
+  CONFIG_SHA256=$(sha256sum configs/retacred_qceasc_formal_single_seed.json | awk '{print $1}')
+  "${PYTHON_BIN}" scripts/validate_sample_trace.py "${RUN_DIR}/selectors/${selector}/sample_trace.json" --expected-config-sha256 "${CONFIG_SHA256}"
 done
 "${PYTHON_BIN}" - "${RUN_DIR}" <<'PY'
 import json, sys
@@ -71,6 +74,10 @@ assert isinstance(provenance, dict), "run summary must include provenance"
 required = {"git_revision", "git_branch", "started_at_utc", "torch", "cuda_available"}
 missing = sorted(required.difference(provenance))
 assert not missing, f"run provenance is missing keys: {missing}"
+policy = p.get("rating_policy")
+assert isinstance(policy, dict) and policy.get("id") and policy.get("version"), "run summary must include rating_policy"
+gates = p.get("gates")
+assert isinstance(gates, dict) and "l1_utility_gate" in gates and "quantum_inspired_relative_gain_gate" in gates, "run summary must include separated rating gates"
 PY
 
 DEFAULT_REPORT_DIR="reports/retacred_qceasc_formal_single_seed/${RUN_NAME}"
@@ -87,6 +94,7 @@ cp "${RUN_DIR}/baseline/metrics.json" "${REPORT_DIR}/metrics/baseline.json"
 for selector in q_ceasc classical_ceasc; do
   cp "${RUN_DIR}/selectors/${selector}/metrics.json" "${REPORT_DIR}/metrics/${selector}.json"
   cp "${RUN_DIR}/selectors/${selector}/case_study.json" "${REPORT_DIR}/case_study/${selector}.json"
+  cp "${RUN_DIR}/selectors/${selector}/sample_trace.json" "${REPORT_DIR}/case_study/${selector}.sample-trace.json"
 done
 printf '%s\n' "$(git rev-parse HEAD)" > "${REPORT_DIR}/reporting_commit.txt"
 "${PYTHON_BIN}" - "${RUN_DIR}/run_summary.json" "${REPORT_DIR}/provenance.json" <<'PY'

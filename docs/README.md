@@ -7,6 +7,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
+| [Q-CEASC Re-TACRED 正式多 seed 复现](current/retacred_qceasc_formal_multi_seed_zh.md) | 固定 seed 13/29/53 的完整数据 L2 复现、动态多 GPU 调度、batch 级恢复、paired 统计和审计报告导出 |
 | [Q-CEASC Re-TACRED 正式单 seed](current/retacred_qceasc_formal_single_seed_zh.md) | toy gates 通过后直接进入的完整数据、seed 13、单/多 GPU selector 并行、batch 级恢复、context-conditioned auxiliary support 与 matched classical control |
 | [MQIC shared-key covariance Re-TACRED 正式单 seed](current/retacred_mqic_shared_key_covariance_formal_single_seed_zh.md) | 完整数据、seed 13、单/多 GPU selector 并行、batch 级恢复和 shared-key query covariance 与匹配 classical control |
 | [QK coherent transport Re-TACRED 正式单 seed](current/retacred_qk_coherent_transport_formal_single_seed_zh.md) | 完整数据、seed 13、单/多 GPU selector 并行、batch 级恢复和 query-key 双寄存器 transport 与 matched classical control |

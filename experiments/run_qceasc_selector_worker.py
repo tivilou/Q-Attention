@@ -237,6 +237,7 @@ def write_case_study(
     artifacts: Any,
     device: torch.device,
     config: dict[str, Any],
+    config_path: Path,
     output_dir: Path,
     selector: str,
 ) -> None:
@@ -336,6 +337,114 @@ def write_case_study(
     }
     (output_dir / "case_study.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+
+    # Keep the project-wide sample-trace contract alongside the legacy,
+    # Q-CEASC-specific case-study payload used by existing reports.
+    stages_by_case = []
+    for case in cases:
+        sample_id = f"{selector}:{case['split']}:{case['record_index']}"
+        stages_by_case.append(
+            {
+                "sample_id": sample_id,
+                "split_position": case["record_index"],
+                "stages": [
+                    {
+                        "stage": "data",
+                        "status": "observed",
+                        "observed_fields": {
+                            "split": case["split"],
+                            "tokens": case["tokens"],
+                        },
+                    },
+                    {
+                        "stage": "preprocess",
+                        "status": "observed",
+                        "observed_fields": {"token_count": len(case["tokens"])},
+                    },
+                    {
+                        "stage": "training",
+                        "status": "observed",
+                        "observed_fields": {
+                            "selector": selector,
+                            "epochs": int(config["kernel"]["epochs"]),
+                        },
+                    },
+                    {"stage": "retrieval", "status": "not_applicable"},
+                    {
+                        "stage": "scoring",
+                        "status": "observed",
+                        "observed_fields": {
+                            "logit_delta_l2": case["logit_delta_l2"],
+                            "residual_rms_by_layer": case["residual_rms_by_layer"],
+                        },
+                    },
+                    {
+                        "stage": "selection",
+                        "status": "observed",
+                        "observed_fields": {
+                            "baseline_prediction": case["baseline_prediction"],
+                            "selector_prediction": case["selector_prediction"],
+                        },
+                    },
+                    {
+                        "stage": "context",
+                        "status": "observed",
+                        "observed_fields": {"token_count": len(case["tokens"])},
+                    },
+                    {"stage": "generation", "status": "not_applicable"},
+                    {
+                        "stage": "evaluation",
+                        "status": "observed",
+                        "observed_fields": {
+                            "label_id": case["label_id"],
+                            "baseline_correct": case["baseline_correct"],
+                            "selector_correct": case["selector_correct"],
+                        },
+                    },
+                    {
+                        "stage": "diagnosis",
+                        "status": "observed",
+                        "observed_fields": {"kernel_metadata": payload["kernel_metadata"]},
+                    },
+                ],
+            }
+        )
+    sample_trace = {
+        "schema_version": "sample-trace.v1",
+        "trace_id": f"{output_dir.name}:{selector}",
+        "experiment": {
+            "run_id": output_dir.parent.parent.name,
+            "dataset": "retacred.valid",
+            "code_revision": _git_revision(),
+            "config_sha256": _sha256(config_path),
+            "model_identity": "relation-transformer-q-ceasc",
+            "seed": int(config["seed"]),
+        },
+        "sample_selection": {
+            "rule": payload["selection_rule"],
+            "population_scope": "retacred.valid",
+            "seed": int(config["seed"]),
+            "selected_count": len(stages_by_case),
+            "selected_sample_ids": [item["sample_id"] for item in stages_by_case],
+        },
+        "coverage": {
+            "data": "observed",
+            "preprocess": "observed",
+            "training": "observed",
+            "retrieval": "not_applicable",
+            "scoring": "observed",
+            "selection": "observed",
+            "context": "observed",
+            "generation": "not_applicable",
+            "evaluation": "observed",
+            "diagnosis": "observed",
+        },
+        "samples": stages_by_case,
+    }
+    (output_dir / "sample_trace.json").write_text(
+        json.dumps(sample_trace, ensure_ascii=False, indent=2, sort_keys=True),
         encoding="utf-8",
     )
 
@@ -539,6 +648,7 @@ def main() -> int:
         artifacts=artifacts,
         device=device,
         config=config,
+        config_path=args.config,
         output_dir=args.output_dir,
         selector=args.selector,
     )

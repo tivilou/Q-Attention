@@ -63,9 +63,23 @@ from q_attention.tasks.relation import load_relation_jsonl  # noqa: E402
 
 
 DEFAULT_CONFIG = ROOT / "configs" / "retacred_qceasc_formal_single_seed.json"
+REPLICATION_SEEDS = (13, 29, 53)
 RUN_MANIFEST_SCHEMA = "q-attention.q-ceasc-batch-resume-run.v1"
 DATA_MANIFEST_SCHEMA = "q-attention.q-ceasc-materialized-data.v1"
 SAFE_PAUSE_TIMEOUT_SECONDS = 15 * 60
+RATING_POLICY = {
+    "id": "q-attention-utility-and-qi-v1",
+    "version": "2026-09-13",
+    "l1_primary_delta": "strictly positive held-out primary metric versus disabled baseline",
+    "quantum_inspired_relative_gain": "classical counterpart must exceed 1% relative gain versus disabled baseline",
+}
+
+
+def relative_metric_gain(delta: float, baseline_value: float) -> float | None:
+    """Return a signed ratio without conflating it with an absolute delta."""
+    if baseline_value == 0.0:
+        return None
+    return float(delta) / abs(float(baseline_value))
 
 AUTO_MIN_FREE_MIB = 8 * 1024
 HARDWARE_PROFILES: dict[str, dict[str, Any]] = {
@@ -230,6 +244,16 @@ def parse_args() -> argparse.Namespace:
         help="execution-memory profile; adaptive probes the max tier and falls back after OOM/pressure",
     )
     parser.add_argument("--seed", type=int, default=None)
+    parser.add_argument(
+        "--baseline-only",
+        action="store_true",
+        help="materialize data and complete only the baseline stage for task-graph scheduling",
+    )
+    parser.add_argument(
+        "--replication-child",
+        action="store_true",
+        help=argparse.SUPPRESS,
+    )
     parser.add_argument("--log-every-batches", type=int, default=50)
     parser.add_argument("--checkpoint-every-batches", type=int, default=50)
     parser.add_argument("--started-at-utc", default=None, help=argparse.SUPPRESS)
@@ -767,7 +791,7 @@ def _run_resume_contract(
 def _elastic_run_contract_compatible(
     persisted: Any, current: dict[str, Any]
 ) -> bool:
-    """Allow only one-to-many selector GPU expansion during explicit resume."""
+    """Allow explicit selector GPU reassignment or one-to-many expansion during resume."""
     if not isinstance(persisted, dict):
         return False
     persisted_semantics = persisted.get("training_semantics")
@@ -789,7 +813,7 @@ def _elastic_run_contract_compatible(
         not isinstance(old_gpu_ids, list)
         or not isinstance(new_gpu_ids, list)
         or len(old_gpu_ids) != 1
-        or len(new_gpu_ids) < 2
+        or len(new_gpu_ids) < 1
         or len(set(old_gpu_ids)) != len(old_gpu_ids)
         or len(set(new_gpu_ids)) != len(new_gpu_ids)
         or any(not isinstance(value, int) for value in old_gpu_ids + new_gpu_ids)
@@ -2280,8 +2304,13 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
     if config.get("schema_version") != "q-attention.q-ceasc-formal-single-seed.v1":
         raise ValueError("unsupported Q-CEASC formal config")
     seed = int(config["seed"] if args.seed is None else args.seed)
-    if seed != 13:
-        raise ValueError("the formal handoff contract is frozen to seed 13")
+    if args.replication_child:
+        if seed not in REPLICATION_SEEDS:
+            raise ValueError(
+                f"replication child seed must be one of {REPLICATION_SEEDS}"
+            )
+    elif seed != 13:
+        raise ValueError("the formal single-seed handoff contract is frozen to seed 13")
     selectors = list(config["selectors"])
     if selectors[0] != "disabled" or config["candidate"] not in selectors:
         raise ValueError("config must include disabled and the candidate selector")
@@ -2346,7 +2375,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
     if args.resume is not None and args.import_baseline_from is not None:
         raise ValueError("--import-baseline-from can only be used for a new run, not --resume")
     provisional_stamp = args.started_at_utc or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    run_dir = args.resume or args.output_dir or ROOT / "runs" / "retacred_qceasc_formal_single_seed" / f"{provisional_stamp}_seed13"
+    run_dir = args.resume or args.output_dir or ROOT / "runs" / "retacred_qceasc_formal_single_seed" / f"{provisional_stamp}_seed{seed}"
     run_dir = resolve_path(run_dir)
     resuming = args.resume is not None
     if resuming:
@@ -2556,6 +2585,30 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         (disabled_dir / "metrics.json").write_text(
             json.dumps(disabled_row, indent=2, sort_keys=True), encoding="utf-8"
         )
+    if args.baseline_only:
+        _write_json_atomic(
+            run_dir / "baseline_stage_summary.json",
+            {
+                "schema_version": "q-attention.q-ceasc-baseline-stage.v1",
+                "stage": "baseline",
+                "seed": seed,
+                "valid": baseline_valid,
+                "test": baseline_test,
+                "baseline_dir": str(baseline_dir),
+                "data_dir": str(data_dir),
+                "git_revision": git_output("rev-parse", "HEAD"),
+            },
+        )
+        _write_root_marker(
+            run_dir,
+            "BASELINE_COMPLETE",
+            stage="baseline",
+            seed=seed,
+            data_manifest=str(data_dir / "data_manifest.json"),
+            baseline_dir=str(baseline_dir),
+        )
+        print("[q-ceasc] baseline stage complete; selector tasks are deferred", flush=True)
+        return 0
     if model_parallel_devices:
         # Model-parallel mode keeps one sharded model alive and runs selectors
         # serially; independent selector workers would each duplicate the
@@ -2831,10 +2884,28 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
     disabled = by_name["disabled"]
     candidate_minus_disabled = metric_delta(candidate["test"]["metrics"], disabled["test"]["metrics"])
     candidate_minus_matched = metric_delta(candidate["test"]["metrics"], matched["test"]["metrics"])
+    disabled_macro_f1 = float(disabled["test"]["metrics"]["macro_f1"])
+    candidate_relative_macro_f1 = relative_metric_gain(
+        candidate_minus_disabled["delta_macro_f1"], disabled_macro_f1
+    )
+    classical_relative_macro_f1 = relative_metric_gain(
+        float(matched["test"]["metrics"]["macro_f1"]) - disabled_macro_f1,
+        disabled_macro_f1,
+    )
+    minimum_classical_relative_gain = float(
+        config["gates"].get("minimum_classical_relative_gain", 0.01)
+    )
+    minimum_candidate_delta = float(
+        config["gates"].get("minimum_candidate_minus_disabled_macro_f1", 0.0)
+    )
     gates = {
         "candidate_minus_disabled_macro_f1": candidate_minus_disabled["delta_macro_f1"],
         "candidate_minus_matched_macro_f1": candidate_minus_matched["delta_macro_f1"],
-        "practical_gain_gate": candidate_minus_disabled["delta_macro_f1"] >= float(config["gates"]["minimum_candidate_minus_disabled_macro_f1"]),
+        "candidate_relative_gain_macro_f1": candidate_relative_macro_f1,
+        "classical_relative_gain_macro_f1": classical_relative_macro_f1,
+        "l1_utility_gate": candidate_minus_disabled["delta_macro_f1"] > 0.0,
+        "practical_gain_gate": candidate_minus_disabled["delta_macro_f1"] >= minimum_candidate_delta,
+        "quantum_inspired_relative_gain_gate": classical_relative_macro_f1 is not None and classical_relative_macro_f1 > minimum_classical_relative_gain,
         "matched_comparator_gate": candidate_minus_matched["delta_macro_f1"] >= float(config["gates"]["minimum_candidate_minus_matched_macro_f1"]),
         "finite_metrics": all(row["finite"] for row in rows),
         "test_used_for_training_or_selection": False,
@@ -2878,6 +2949,12 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         "rows": rows,
         "candidate_minus_disabled": candidate_minus_disabled,
         "candidate_minus_matched": candidate_minus_matched,
+        "relative_deltas": {
+            "candidate_macro_f1_vs_disabled": candidate_relative_macro_f1,
+            "classical_macro_f1_vs_disabled": classical_relative_macro_f1,
+            "classical_quantum_inspired_threshold": minimum_classical_relative_gain,
+        },
+        "rating_policy": RATING_POLICY,
         "gates": gates,
         "test_used_for_training_or_selection": False,
         "claim_limits": config["claim_limits"],
@@ -2910,7 +2987,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
     lines = [
         "# Q-CEASC Re-TACRED Formal Single Seed",
         "",
-        "This is one complete seed-13 run under the frozen natural-task contract.",
+        f"This is one complete seed-{seed} run under the frozen natural-task contract.",
         "",
         f"- candidate: `{config['candidate']}`",
         f"- matched control: `{config['matched_control']}`",
@@ -2923,10 +3000,21 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         ] if baseline_import else []),
         f"- candidate minus disabled test macro-F1: `{candidate_minus_disabled['delta_macro_f1']:.6f}`",
         f"- candidate minus matched test macro-F1: `{candidate_minus_matched['delta_macro_f1']:.6f}`",
+        f"- candidate relative gain vs disabled: `{candidate_relative_macro_f1:.6%}`" if candidate_relative_macro_f1 is not None else "- candidate relative gain vs disabled: `n/a`",
+        f"- classical relative gain vs disabled: `{classical_relative_macro_f1:.6%}`" if classical_relative_macro_f1 is not None else "- classical relative gain vs disabled: `n/a`",
+        f"- L1 utility gate (strictly positive): `{str(gates['l1_utility_gate']).lower()}`",
+        f"- quantum-inspired relative-gain gate (>1%): `{str(gates['quantum_inspired_relative_gain_gate']).lower()}`",
         f"- practical gain gate: `{str(gates['practical_gain_gate']).lower()}`",
         f"- matched comparator gate: `{str(gates['matched_comparator_gate']).lower()}`",
         "",
-        "The test split is evaluated only after training and validation selection. This single seed does not authorize multi-seed replication.",
+        (
+            "The test split is evaluated only after training and validation selection. "
+            + (
+                "This run is a controlled replication child under the predeclared seed set."
+                if args.replication_child
+                else "This single seed does not authorize multi-seed replication."
+            )
+        ),
     ]
     (run_dir / "run_summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     (run_dir / "RUN_PAUSED").unlink(missing_ok=True)
