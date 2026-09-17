@@ -1,0 +1,154 @@
+{
+  "schema_version": "experiment-grounded-ideation.mechanism-recovery.v1",
+  "evidence_packet": {
+    "path": "https://github.com/tivilou/Q-Attention/blob/f059d82185bdc4b07070cacec28560dceddf4ee8/reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/multi_seed_summary.json",
+    "sha256": "ddfb0549396175c24c8ba570dac6cd07b7f112b5f06b83a0e09270670b0efc52",
+    "code_revision": "7fb3a6e20fd8f9feeae9a31f8afe233f2e553bec",
+    "validity_status": "mixed"
+  },
+  "case_evidence": {
+    "selection_rule": "Use the audited three-seed report and its frozen trace manifests; no case is selected after inspecting favorable outputs.",
+    "training_cases": [
+      {
+        "case_id": "qceasc-formal-seed13-training",
+        "artifact_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/seeds/seed_13/metrics/q_ceasc.json"],
+        "observation": "Q-CEASC completed training with finite geometry and a small positive held-out delta versus disabled.",
+        "interpretation_status": "observed"
+      },
+      {
+        "case_id": "qceasc-formal-seed29-training",
+        "artifact_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/seeds/seed_29/metrics/q_ceasc.json"],
+        "observation": "Q-CEASC completed training with finite geometry but a negative held-out delta versus disabled.",
+        "interpretation_status": "observed"
+      }
+    ],
+    "generation_cases": [
+      {
+        "case_id": "qceasc-formal-seed13-heldout",
+        "artifact_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/seeds/seed_13/metrics/q_ceasc.json"],
+        "observation": "The test Macro-F1 delta versus disabled is +0.000771580 and versus classical CEASC is +0.003012226.",
+        "interpretation_status": "computed"
+      },
+      {
+        "case_id": "qceasc-formal-seed29-heldout",
+        "artifact_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/seeds/seed_29/metrics/q_ceasc.json", "reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/seeds/seed_29/metrics/classical_ceasc.json"],
+        "observation": "The test Macro-F1 delta versus disabled is -0.000769271 and versus classical CEASC is -0.000287613.",
+        "interpretation_status": "computed"
+      }
+    ],
+    "interpretation_boundary": "The report supports a mixed aggregate task result and a stability hypothesis; it does not expose enough semantic intermediate tensors to attribute the seed difference to a particular example.",
+    "lesson_batches": [
+      {
+        "batch_id": "qceasc-formal-seed-level-paired-deltas",
+        "case_ids": ["qceasc-formal-seed13-heldout", "qceasc-formal-seed29-heldout"],
+        "sample_count": 3,
+        "selection_rule": "All predeclared seeds 13, 29, and 53 in the audited replication.",
+        "artifact_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/multi_seed_summary.json"],
+        "lesson_polarity": "mixed",
+        "observation": "Q-CEASC wins two seeds and loses one; the paired CI versus disabled crosses zero.",
+        "dispersion": "delta mean +0.001553982, sample standard deviation 0.002797744, paired 95% CI [-0.005396561, 0.008504524]",
+        "interpretation_status": "computed"
+      }
+    ]
+  },
+  "trace_adequacy": {
+    "status": "partial",
+    "schema_version": "sample-trace.v1",
+    "artifact_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/multi_seed_summary.json"],
+    "selection_rule": "Audited collaborator report trace manifests.",
+    "covered_stages": ["training", "scoring", "context", "generation", "evaluation", "diagnosis"],
+    "missing_stages": ["data", "preprocess", "retrieval", "selection"],
+    "target_boundary": "Targets and labels remain outside plugin inputs and trace-derived gates.",
+    "causal_links_observed": {
+      "intervention_execution": true,
+      "intended_intermediate": false,
+      "observable_output": true,
+      "task_utility": true
+    },
+    "notes": "The formal artifact is structurally traceable but incomplete for source-first semantic Case Study attribution. The new toy must emit the two-view agreement and gate explicitly."
+  },
+  "causal_trace": {
+    "intervention_execution": {
+      "claim": "Q-CEASC executes a finite, masked, zero-sum context-only residual with out-of-span projected support.",
+      "evidence_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/seeds/seed_13/metrics/q_ceasc.json", "reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/seeds/seed_29/metrics/q_ceasc.json"]
+    },
+    "intended_intermediate": {
+      "claim": "The current report does not identify which support examples are reliable; seed-level geometry suggests the intervention magnitude alone is insufficient to explain utility.",
+      "evidence_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/multi_seed_summary.json"]
+    },
+    "observable_output": {
+      "claim": "The same Q-CEASC mechanism improves or degrades held-out Macro-F1 depending on seed, and its validation-to-test transfer is inconsistent.",
+      "evidence_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/multi_seed_summary.json"]
+    },
+    "task_utility": {
+      "claim": "Mean task utility is positive but the paired uncertainty interval crosses zero, so reproducible utility is not established.",
+      "evidence_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/multi_seed_summary.json"]
+    }
+  },
+  "failure_analysis": {
+    "primary_explanation": {
+      "statement": "An unconditional support residual can be useful on some query-context states and harmful on others; the missing reliability signal produces seed-sensitive task transfer.",
+      "evidence_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/multi_seed_summary.json"],
+      "confidence": "medium"
+    },
+    "alternative_explanations": [
+      {
+        "statement": "The observed spread may be dominated by ordinary optimizer and baseline stochasticity rather than support reliability.",
+        "evidence_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/multi_seed_summary.json"],
+        "confidence": "medium"
+      },
+      {
+        "statement": "The matched classical control may capture part of the same useful geometry, limiting quantum-specific attribution.",
+        "evidence_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/multi_seed_summary.json"],
+        "confidence": "medium"
+      }
+    ],
+    "discriminating_measurement": {
+      "uncertainty": "Per-case agreement and gated residual dispersion must be measured on fixed training and generation cases before utility outcomes are inspected.",
+      "measurement": "Generate two independent label-free Q-CEASC support views, record their residual cosine agreement, apply the predeclared non-negative agreement gate, and compare to single-view and matched classical two-view controls.",
+      "primary_outcome": "Low-agreement cases receive a smaller intervention while high-agreement cases retain nonzero out-of-span support; gated residual dispersion and harmful-case rate decrease without collapsing useful support.",
+      "alternative_outcome": "Agreement is unrelated to task-aligned utility, collapses the residual, or is exactly reproduced by the classical two-view control."
+    },
+    "closed_family": {
+      "id": "unconditional-qceasc-residual-application",
+      "rejected_variant_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/multi_seed_summary.json"],
+      "closure_evidence_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/multi_seed_summary.json"],
+      "forbidden_rescue_variants": ["post-hoc max_gain sweep", "post-hoc depth or qubit sweep", "threshold selection from test results", "claiming L2 from a higher mean alone"]
+    }
+  },
+  "positive_carryovers": [
+    {
+      "id": "context-conditioned-out-of-span-support",
+      "mechanism": "Use query and active context keys to construct a label-free support vector projected outside a frozen action span.",
+      "evidence_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/seeds/seed_13/metrics/q_ceasc.json"],
+      "transport_constraint": "Preserve context-only inputs, entity masking, zero-sum residuals, and explicit out-of-span diagnostics."
+    },
+    {
+      "id": "matched-classical-two-view-control",
+      "mechanism": "Use the same two-view composition and gate with independent classical span controls.",
+      "evidence_refs": ["reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/seeds/seed_13/metrics/classical_ceasc.json", "reports/retacred_qceasc_formal_multi_seed/20260914T082402Z/seeds/seed_29/metrics/classical_ceasc.json"],
+      "transport_constraint": "Keep parameter count, data order, optimizer, masks, and evaluation protocol matched."
+    }
+  ],
+  "recovery_outcome": {
+    "disposition": "candidate",
+    "selected_candidate": {
+      "id": "q-ceasc-stability-certified-v1",
+      "title": "Stability-certified two-view Q-CEASC residual",
+      "positive_carryover_ids": ["context-conditioned-out-of-span-support", "matched-classical-two-view-control"],
+      "recovery_mode": "new_causal_path",
+      "causal_difference": "Replace unconditional residual application with a label-free agreement-certified combination of two independent support views.",
+      "changed_causal_links": ["intended_intermediate", "observable_output"],
+      "discriminating_measurement": "Per-case residual agreement, gate activity, gated residual dispersion, and paired comparison against single-view and classical two-view controls.",
+      "success_gate": "Five fixed toy seeds pass finite/mask/zero-sum/projection checks; agreement gate is non-collapsed and context-sensitive; out-of-span support remains nonzero; quantum and classical two-view budgets match; and the gated mechanism is not an exact single-view or classical replay.",
+      "kill_condition": "Kill if the gate collapses support, agreement does not predict or reduce harmful interventions, the matched classical two-view control reproduces the result, or any mask/entity/target-boundary invariant fails.",
+      "authorization_boundary": "Bounded toy implementation and review only; no production full-data run, collaborator handoff, L2 claim, or novelty claim is authorized by this dossier."
+    }
+  },
+  "limitations": [
+    "The formal report has only three seeds and its semantic case traces are incomplete.",
+    "The stability hypothesis is not yet observed; it is a falsifiable proposal derived from mixed seed-level outcomes.",
+    "Two independent views approximately double plugin compute and parameter count; all runtime and memory costs must be reported.",
+    "Exact statevector toy behavior is not evidence of hardware quantum advantage."
+  ]
+}

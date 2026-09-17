@@ -50,6 +50,12 @@ from q_attention.plugins.q_ceasc_score import (  # noqa: E402
     QCEASCScoreKernel,
     build_qceasc_score_kernel,
 )
+from q_attention.plugins.q_ceasc_counterfactual import (  # noqa: E402
+    QCEASCCounterfactualScoreKernelConfig,
+    QCEASCCounterfactualScoreKernel,
+    build_qceasc_counterfactual_score_kernel,
+    QCEASC_COUNTERFACTUAL_CONTROL_MODES,
+)
 from run_q_causal_value_evidence_relation_smoke import (  # noqa: E402
     materialize_subset,
     resolve_path,
@@ -170,6 +176,11 @@ ELASTIC_RESUME_SOURCE_FILES = (
     "batch_resume",
 )
 _DEFAULT_PAIR_CHUNK = object()
+FORMAL_CONFIG_SCHEMAS = {
+    "q-attention.q-ceasc-formal-single-seed.v1",
+    "q-attention.q-ceasc-counterfactual-formal-single-seed.v1",
+}
+COUNTERFACTUAL_MODES = set(QCEASC_COUNTERFACTUAL_CONTROL_MODES)
 
 
 def sha256(path: Path) -> str:
@@ -265,7 +276,7 @@ class RunPaused(RuntimeError):
     """The run stopped at a durable post-update checkpoint."""
 
 
-def _source_contract() -> dict[str, Any]:
+def _source_contract(*, counterfactual: bool = False) -> dict[str, Any]:
     paths = {
         "runner": ROOT / "experiments" / "run_retacred_qceasc_formal_single_seed.py",
         "worker": SELECTOR_WORKER_PATH,
@@ -307,8 +318,12 @@ def _source_contract() -> dict[str, Any]:
         / "src"
         / "q_attention"
         / "plugins"
-        / "q_ceasc.py",
+            / "q_ceasc.py",
     }
+    if counterfactual:
+        paths["q_ceasc_counterfactual"] = (
+            ROOT / "src" / "q_attention" / "plugins" / "q_ceasc_counterfactual.py"
+        )
     return {
         "git_revision": git_output("rev-parse", "HEAD"),
         "files": {name: file_contract(path) for name, path in paths.items()},
@@ -380,7 +395,9 @@ def selector_resume_contract(
             for split in ("train", "valid", "test")
         },
         "materialization": file_contract(data_dir / "data_manifest.json"),
-        "source": _source_contract(),
+        "source": _source_contract(
+            counterfactual=bool(config.get("counterfactual", False))
+        ),
     }
 
 
@@ -760,7 +777,9 @@ def _run_resume_contract(
     return {
         "schema_version": RUN_MANIFEST_SCHEMA,
         "config": file_contract(config_path),
-        "source": _source_contract(),
+        "source": _source_contract(
+            counterfactual=bool(config.get("counterfactual", False))
+        ),
         "training_semantics": {
             "seed": seed,
             "selectors": list(config["selectors"]),
@@ -2234,8 +2253,57 @@ def build_kernel(
     pair_chunk_divisor: int = 1,
     activation_checkpointing: bool | None = None,
     model_parallel_devices: tuple[torch.device, ...] = (),
-) -> QCEASCScoreKernel:
+) -> torch.nn.Module:
     kernel_config = config["kernel"]
+    counterfactual = bool(
+        config.get("counterfactual", False)
+        or config.get("schema_version") == "q-attention.q-ceasc-counterfactual-formal-single-seed.v1"
+        or mode in COUNTERFACTUAL_MODES
+    )
+    if counterfactual:
+        mode_map = {
+            "q_ceasc_counterfactual": "q_ceasc_counterfactual",
+            "classical_counterfactual": "classical_counterfactual",
+            "quantum_product_counterfactual": "quantum_product_counterfactual",
+        }
+        if mode not in mode_map:
+            raise ValueError(f"unknown Q-CEASC counterfactual selector {mode!r}")
+        config_obj = QCEASCCounterfactualScoreKernelConfig(
+            num_layers=model.config.num_layers,
+            num_heads=model.config.num_heads,
+            head_dim=model.config.dim // model.config.num_heads,
+            auxiliary_qubits=int(kernel_config["auxiliary_qubits"]),
+            depth=int(kernel_config["depth"]),
+            support_width=int(kernel_config["support_width"]),
+            action_rank=int(kernel_config["action_rank"]),
+            angle_scale=float(kernel_config["angle_scale"]),
+            max_gain=float(kernel_config["max_gain"]),
+            initial_gain=float(kernel_config["initial_gain"]),
+            span_rcond=float(kernel_config.get("span_rcond", 1e-6)),
+            query_chunk_size=(
+                int(kernel_config.get("query_chunk_size", 4096))
+                if pair_chunk_size is _DEFAULT_PAIR_CHUNK
+                else max(
+                    1,
+                    min(
+                        int(kernel_config.get("query_chunk_size", 4096)),
+                        int(pair_chunk_size)
+                        if pair_chunk_size is not None
+                        else max(
+                            1,
+                            int(kernel_config.get("query_chunk_size", 4096))
+                            // int(pair_chunk_divisor),
+                        ),
+                    ),
+                )
+            ),
+            leave_one_out_chunk_size=int(
+                kernel_config.get("leave_one_out_chunk_size", 64)
+            ),
+            seed=seed + 307,
+        )
+        del activation_checkpointing, model_parallel_devices
+        return build_qceasc_counterfactual_score_kernel(mode_map[mode], config_obj)
     mode_map = {
         "q_ceasc": "q_ceasc",
         "classical_ceasc": "classical_span",
@@ -2301,7 +2369,7 @@ def evaluate_selector(
 def _run(args: argparse.Namespace, pause: PauseController) -> int:
     config_path = args.config if args.config.is_absolute() else ROOT / args.config
     config = json.loads(config_path.read_text(encoding="utf-8"))
-    if config.get("schema_version") != "q-attention.q-ceasc-formal-single-seed.v1":
+    if config.get("schema_version") not in FORMAL_CONFIG_SCHEMAS:
         raise ValueError("unsupported Q-CEASC formal config")
     seed = int(config["seed"] if args.seed is None else args.seed)
     if args.replication_child:
@@ -2325,6 +2393,11 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
     if args.allow_code_update and args.resume is None:
         raise ValueError("--allow-code-update requires --resume")
     model_parallel_gpu_ids = parse_model_parallel_gpu_ids(args.model_parallel_gpus)
+    if model_parallel_gpu_ids and config.get("counterfactual"):
+        raise ValueError(
+            "Q-CEASC counterfactual formal handoff supports selector-parallel GPUs only; "
+            "model-parallel Case Study capture is intentionally unsupported"
+        )
     if model_parallel_gpu_ids:
         raise ValueError(
             "Q-CEASC formal handoff supports serial or selector-parallel GPUs only; "
@@ -2911,7 +2984,11 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         "test_used_for_training_or_selection": False,
     }
     summary = {
-        "schema_version": "q-attention.q-ceasc-formal-single-seed.run.v1",
+        "schema_version": (
+            "q-attention.q-ceasc-counterfactual-formal-single-seed.run.v1"
+            if config.get("counterfactual")
+            else "q-attention.q-ceasc-formal-single-seed.run.v1"
+        ),
         "name": config["name"],
         "formal_experiment": True,
         "stage": "formal_single_seed",
@@ -2962,12 +3039,22 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
             "config_path": str(config_path),
             "config_sha256": sha256(config_path),
             "plugin_sha256": sha256(
-                ROOT / "src" / "q_attention" / "plugins" / "q_ceasc_score.py"
+                ROOT
+                / "src"
+                / "q_attention"
+                / "plugins"
+                / (
+                    "q_ceasc_counterfactual.py"
+                    if config.get("counterfactual")
+                    else "q_ceasc_score.py"
+                )
             ),
             "plugin_core_sha256": sha256(
                 ROOT / "src" / "q_attention" / "plugins" / "q_ceasc.py"
             ),
-            "source_contract": _source_contract(),
+            "source_contract": _source_contract(
+                counterfactual=bool(config.get("counterfactual", False))
+            ),
             "git_revision": git_output("rev-parse", "HEAD"),
             "git_branch": git_output("branch", "--show-current"),
             "git_dirty": bool(git_output("status", "--porcelain")),

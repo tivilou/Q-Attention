@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import gc
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -233,220 +235,362 @@ def write_case_study(
     *,
     model: torch.nn.Module,
     kernel: torch.nn.Module,
-    records: list[Any],
+    records: dict[str, list[Any]],
     artifacts: Any,
     device: torch.device,
     config: dict[str, Any],
     config_path: Path,
     output_dir: Path,
     selector: str,
+    initial_state: dict[str, Any] | None = None,
+    final_state: dict[str, Any] | None = None,
 ) -> None:
-    """Record frozen validation examples and baseline-versus-selector deltas."""
-    case_config = config.get("case_study", {})
-    indices = [int(index) for index in case_config.get("record_indices", [0, 1, 2])]
-    if not indices or any(index < 0 or index >= len(records) for index in indices):
-        raise ValueError("case_study.record_indices must point inside the validation split")
-    selected = [records[index] for index in indices]
-    loader = make_relation_loader(
-        selected,
-        artifacts.vocab,
-        artifacts.label_to_id,
-        batch_size=len(selected),
-    )
-    batch = move_batch(next(iter(loader)), device)
-    model.eval()
-    kernel.eval()
-    with torch.no_grad():
-        baseline_logits = model(
-            batch["input_ids"],
-            batch["attention_mask"],
-            batch["subject_mask"],
-            batch["object_mask"],
-        )
-    captures: dict[int, tuple[torch.Tensor, torch.Tensor]] = {}
-    handles: list[torch.utils.hooks.RemovableHandle] = []
-    adapter = AttentionScoreKernelAdapter(model, model.score_module_paths, kernel)
-    try:
-        adapter.attach(hook_config(batch))
-        for layer_index, path in enumerate(model.score_module_paths):
-            def capture(
-                _module: torch.nn.Module,
-                inputs: tuple[object, ...],
-                output: object,
-                index: int = layer_index,
-            ) -> None:
-                if isinstance(inputs[0], torch.Tensor) and isinstance(output, torch.Tensor):
-                    captures[index] = (inputs[0].detach(), output.detach())
+    """Emit semantic train/valid/test traces plus detached tensor evidence.
 
-            handles.append(resolve_module(model, path).register_forward_hook(capture))
-        with torch.no_grad():
-            selector_logits = model(
-                batch["input_ids"],
-                batch["attention_mask"],
-                batch["subject_mask"],
-                batch["object_mask"],
-            )
-    finally:
-        for handle in handles:
-            handle.remove()
-        adapter.remove()
-    baseline_predictions = baseline_logits.argmax(dim=-1).cpu().tolist()
-    selector_predictions = selector_logits.argmax(dim=-1).cpu().tolist()
-    labels = batch["labels"].cpu().tolist()
-    residual_rms = {
-        str(layer): float((steered - base).square().mean().sqrt().cpu())
-        for layer, (base, steered) in captures.items()
+    The trace is replay-only: samples and checkpoints are frozen in config, and
+    no target label is passed to the selector.  Full tensors are written to a
+    private per-selector directory; the JSON payload contains only safe scalar
+    projections and manifests that the portal/exporter may consume.
+    """
+    case_config = config.get("case_study", {})
+    split_records = {
+        "train": list(case_config.get("records", {}).get("train", [])),
+        "valid": list(case_config.get("records", {}).get("valid", [])),
+        "test": list(case_config.get("records", {}).get("test", [])),
     }
-    cases = []
-    for local_index, (record_index, record) in enumerate(zip(indices, selected)):
-        cases.append(
-            {
-                "split": str(case_config.get("split", "valid")),
-                "record_index": record_index,
-                "tokens": list(record.tokens),
-                "label": record.label,
-                "label_id": int(labels[local_index]),
-                "baseline_prediction": int(baseline_predictions[local_index]),
-                "selector_prediction": int(selector_predictions[local_index]),
-                "baseline_correct": bool(baseline_predictions[local_index] == labels[local_index]),
-                "selector_correct": bool(selector_predictions[local_index] == labels[local_index]),
-                "logit_delta_l2": float(
-                    (selector_logits[local_index] - baseline_logits[local_index]).norm().cpu()
-                ),
-                "residual_rms_by_layer": residual_rms,
-            }
+    if not any(split_records.values()):
+        legacy_split = str(case_config.get("split", "valid"))
+        legacy_indices = list(case_config.get("record_indices", [0, 1, 2]))
+        # Older Q-CEASC configs froze validation examples only.  Replicate the
+        # same deterministic positions in each split so the upgraded writer
+        # remains callable for historical controls while new configs must
+        # declare split-specific samples explicitly.
+        for split in split_records:
+            split_records[split] = list(legacy_indices)
+    for split, indices in split_records.items():
+        split_records[split] = [int(index) for index in indices]
+        if any(index < 0 or index >= len(records[split]) for index in indices):
+            raise ValueError(f"case_study.records.{split} contains an out-of-range index")
+    if not all(split_records.values()):
+        raise ValueError("case_study must freeze at least one sample for train, valid, and test")
+
+    def _tensor_manifest(
+        tensor: torch.Tensor,
+        *,
+        capture_root: Path,
+        name: str,
+        axis_semantics: list[str],
+    ) -> dict[str, Any]:
+        del capture_root
+        value = tensor.detach().to(device="cpu").contiguous()
+        payload = io.BytesIO()
+        torch.save(value, payload, _use_new_zipfile_serialization=False)
+        raw = payload.getvalue()
+        relative = Path("case_study_tensors") / f"{name}.pt"
+        target = output_dir / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(raw)
+        preview_value = value.real if value.is_complex() else value
+        preview_float = preview_value.float()
+        return {
+            "id": name.rsplit("__", 1)[-1],
+            "path": str(relative),
+            "shape": list(value.shape),
+            "dtype": str(value.dtype),
+            "axis_semantics": axis_semantics,
+            "sha256": hashlib.sha256(raw).hexdigest(),
+            "byte_count": len(raw),
+            "preview": {
+                "values_first_32": preview_value.flatten()[:32].tolist(),
+                "min": float(preview_float.min().item()) if preview_float.numel() else 0.0,
+                "max": float(preview_float.max().item()) if preview_float.numel() else 0.0,
+                "mean": float(preview_float.mean().item()) if preview_float.numel() else 0.0,
+                "l2_norm": float(preview_float.norm().item()),
+            },
+        }
+
+    def _detach_map(value: Any) -> Any:
+        if isinstance(value, torch.Tensor):
+            return value.detach().cpu()
+        if isinstance(value, dict):
+            return {key: _detach_map(item) for key, item in value.items()}
+        if isinstance(value, list):
+            return [_detach_map(item) for item in value]
+        return value
+
+    def _forward_capture(
+        selected: list[Any],
+        split: str,
+        checkpoint_name: str,
+    ) -> tuple[torch.Tensor, torch.Tensor, dict[str, Any]]:
+        loader = make_relation_loader(
+            selected, artifacts.vocab, artifacts.label_to_id, batch_size=len(selected)
         )
+        batch = move_batch(next(iter(loader)), device)
+        captures: dict[str, Any] = {
+            "token_embeddings": None,
+            "hidden_states": {},
+            "qkv": {},
+            "baseline_scores": {},
+            "steered_scores": {},
+            "counterfactual": [],
+        }
+
+        def _register_common(mode: str) -> list[torch.utils.hooks.RemovableHandle]:
+            handles: list[torch.utils.hooks.RemovableHandle] = []
+            embedding = resolve_module(model, "encoder.token_embedding")
+            handles.append(
+                embedding.register_forward_hook(
+                    lambda _m, _i, out: captures.__setitem__(
+                        "token_embeddings", out.detach()
+                    )
+                )
+            )
+            for layer_index in range(int(model.config.num_layers)):
+                layer_path = f"encoder.layers.{layer_index}"
+                layer = resolve_module(model, layer_path)
+                handles.append(
+                    layer.register_forward_hook(
+                        lambda _m, _i, out, index=layer_index: captures["hidden_states"].__setitem__(
+                            index, out.detach()
+                        )
+                    )
+                )
+                for projection in ("query_proj", "key_proj", "value_proj"):
+                    path = f"encoder.layers.{layer_index}.attn.{projection}"
+                    module = resolve_module(model, path)
+                    handles.append(
+                        module.register_forward_hook(
+                            lambda _m, _i, out, index=layer_index, name=projection: captures["qkv"].__setitem__(
+                                (index, name), out.detach()
+                            )
+                        )
+                    )
+                score_path = f"encoder.layers.{layer_index}.attn.score_intervention"
+                score_module = resolve_module(model, score_path)
+
+                def score_hook(_m, inputs, output, index=layer_index, capture_mode=mode):
+                    if not inputs or not isinstance(inputs[0], torch.Tensor) or not isinstance(output, torch.Tensor):
+                        return
+                    captures[f"{capture_mode}_scores"][index] = {
+                        "input": inputs[0].detach(),
+                        "output": output.detach(),
+                    }
+
+                handles.append(score_module.register_forward_hook(score_hook))
+            return handles
+
+        model.eval()
+        kernel.eval()
+        with torch.no_grad():
+            baseline_handles = _register_common("baseline")
+            try:
+                baseline_logits = model(
+                    batch["input_ids"], batch["attention_mask"],
+                    batch["subject_mask"], batch["object_mask"]
+                )
+            finally:
+                for handle in baseline_handles:
+                    handle.remove()
+            captures["hidden_states"] = {}
+            captures["qkv"] = {}
+            if hasattr(kernel, "capture_callback"):
+                kernel.capture_callback = lambda item: captures["counterfactual"].append(_detach_map(item))
+            adapter = AttentionScoreKernelAdapter(model, model.score_module_paths, kernel)
+            adapter.attach(hook_config(batch))
+            steered_handles = _register_common("steered")
+            try:
+                selector_logits = model(
+                    batch["input_ids"], batch["attention_mask"],
+                    batch["subject_mask"], batch["object_mask"]
+                )
+            finally:
+                for handle in steered_handles:
+                    handle.remove()
+                adapter.remove()
+                if hasattr(kernel, "capture_callback"):
+                    kernel.capture_callback = None
+
+        final_hidden = captures["hidden_states"].get(int(model.config.num_layers) - 1)
+        if final_hidden is None:
+            raise RuntimeError("case-study hidden-state hook did not capture final encoder output")
+        subject_mask = batch["subject_mask"].to(dtype=final_hidden.dtype)
+        object_mask = batch["object_mask"].to(dtype=final_hidden.dtype)
+        attention_mask = batch["attention_mask"].to(dtype=final_hidden.dtype)
+        pooled = torch.cat(
+            (
+                (final_hidden * subject_mask.unsqueeze(-1)).sum(1) / subject_mask.sum(1, keepdim=True).clamp_min(1),
+                (final_hidden * object_mask.unsqueeze(-1)).sum(1) / object_mask.sum(1, keepdim=True).clamp_min(1),
+                (final_hidden * attention_mask.unsqueeze(-1)).sum(1) / attention_mask.sum(1, keepdim=True).clamp_min(1),
+            ),
+            dim=-1,
+        )
+        captures["subject_object_pooled_states"] = pooled.detach()
+        captures["input_ids"] = batch["input_ids"].detach()
+        captures["attention_mask"] = batch["attention_mask"].detach()
+        captures["subject_mask"] = batch["subject_mask"].detach()
+        captures["object_mask"] = batch["object_mask"].detach()
+        captures["probabilities_baseline"] = torch.softmax(baseline_logits, dim=-1).detach()
+        captures["probabilities_selector"] = torch.softmax(selector_logits, dim=-1).detach()
+        captures["baseline_logits"] = baseline_logits.detach()
+        captures["selector_logits"] = selector_logits.detach()
+        captures["batch"] = batch
+        captures["split"] = split
+        captures["checkpoint"] = checkpoint_name
+        return baseline_logits.detach(), selector_logits.detach(), captures
+
+    def _indices_for(split: str) -> list[int]:
+        return split_records[split]
+
+    initial_state = copy.deepcopy(initial_state or kernel.state_dict())
+    best_state = copy.deepcopy(kernel.state_dict())
+    checkpoint_states: list[tuple[str, dict[str, Any], str]] = [
+        ("initial_or_pre_training", initial_state, "initial"),
+        ("best_valid_or_declared_selection_checkpoint", best_state, "best"),
+        ("final", copy.deepcopy(final_state or best_state), "final"),
+    ]
+    # The caller invokes this function after train_kernel has loaded the best
+    # checkpoint; all three captures are therefore deterministic, with the
+    # initial state retained for the pre-training replay.
+    all_cases: list[dict[str, Any]] = []
+    stages_by_case: list[dict[str, Any]] = []
+    tensor_manifest: list[dict[str, Any]] = []
+    for checkpoint_label, state, checkpoint_slug in checkpoint_states:
+        kernel.load_state_dict(state)
+        for split in ("train", "valid", "test"):
+            selected = [records[split][index] for index in _indices_for(split)]
+            baseline_logits, selector_logits, captures = _forward_capture(
+                selected, split, checkpoint_slug
+            )
+            batch = captures["batch"]
+            for local_index, record_index in enumerate(_indices_for(split)):
+                record = selected[local_index]
+                case_id = f"{selector}:{split}:{record_index}:{checkpoint_slug}"
+                prefix = f"{split}_{record_index}_{checkpoint_slug}"
+                reps: dict[str, Any] = {}
+
+                def add_rep(rep_id: str, value: torch.Tensor, axes: list[str]) -> None:
+                    manifest = _tensor_manifest(
+                        value,
+                        capture_root=output_dir,
+                        name=f"{prefix}__{rep_id}",
+                        axis_semantics=axes,
+                    )
+                    reps[rep_id] = manifest
+                    tensor_manifest.append(manifest)
+
+                add_rep("token_embeddings", captures["token_embeddings"][local_index], ["tokens", "hidden_dim"])
+                hidden = torch.stack(
+                    [captures["hidden_states"][index][local_index] for index in sorted(captures["hidden_states"])],
+                    dim=0,
+                )
+                add_rep("encoder_hidden_states", hidden, ["layers", "tokens", "hidden_dim"])
+                add_rep("subject_object_pooled_states", captures["subject_object_pooled_states"][local_index], ["pooled_features"])
+                qkv = torch.stack(
+                    [torch.stack([captures["qkv"][(index, name)][local_index] for name in ("query_proj", "key_proj", "value_proj")], dim=0) for index in range(int(model.config.num_layers))],
+                    dim=0,
+                )
+                add_rep("attention_qkv", qkv, ["layers", "qkv", "tokens", "model_dim"])
+                base_scores = torch.stack([captures["baseline_scores"][index]["input"][local_index] for index in sorted(captures["baseline_scores"])], dim=0)
+                steered_scores = torch.stack([captures["steered_scores"][index]["output"][local_index] for index in sorted(captures["steered_scores"])], dim=0)
+                add_rep("baseline_attention_scores", base_scores, ["layers", "heads", "query_tokens", "key_tokens"])
+                add_rep("steered_attention_scores", steered_scores, ["layers", "heads", "query_tokens", "key_tokens"])
+                if captures["counterfactual"]:
+                    by_layer = {}
+                    for item in captures["counterfactual"]:
+                        by_layer.setdefault((item["layer_index"], item["head_index"]), []).append(item)
+                    for rep_id, key in (("q_ceasc_auxiliary_state", "auxiliary_state"), ("q_ceasc_observable_coefficients", "coefficients"), ("q_ceasc_projected_residual", "residual")):
+                        rows = []
+                        for layer_index in range(int(model.config.num_layers)):
+                            heads = []
+                            for head_index in range(int(model.config.num_heads)):
+                                chunks = [item[key][local_index] for item in by_layer.get((layer_index, head_index), [])]
+                                heads.append(torch.cat(chunks, dim=0) if chunks else torch.empty(0))
+                            rows.append(torch.stack(heads, dim=0))
+                        value = torch.stack(rows, dim=0)
+                        add_rep(rep_id, value, ["layers", "heads", "query_tokens", "features"])
+                add_rep("classifier_logits_probabilities", torch.stack((captures["baseline_logits"][local_index], captures["selector_logits"][local_index], captures["probabilities_baseline"][local_index], captures["probabilities_selector"][local_index])), ["variant_probability_or_logit", "labels"])
+                labels = batch["labels"].cpu().tolist()
+                baseline_prediction = int(baseline_logits.argmax(-1)[local_index].item())
+                selector_prediction = int(selector_logits.argmax(-1)[local_index].item())
+                case = {
+                    "case_id": case_id,
+                    "split": split,
+                    "checkpoint": checkpoint_label,
+                    "record_index": int(record_index),
+                    "sentence": " ".join(record.tokens),
+                    "tokens": list(record.tokens),
+                    "token_ids": batch["input_ids"][local_index].cpu().tolist(),
+                    "attention_mask": batch["attention_mask"][local_index].cpu().tolist(),
+                    "subject": {"text": " ".join(record.tokens[record.subject[0]:record.subject[1]]), "span": list(record.subject), "token_positions": torch.nonzero(batch["subject_mask"][local_index], as_tuple=False).flatten().cpu().tolist(), "entity_type": dict(record.metadata).get("subject_type", dict(record.metadata).get("subj_type"))},
+                    "object": {"text": " ".join(record.tokens[record.object[0]:record.object[1]]), "span": list(record.object), "token_positions": torch.nonzero(batch["object_mask"][local_index], as_tuple=False).flatten().cpu().tolist(), "entity_type": dict(record.metadata).get("object_type", dict(record.metadata).get("obj_type"))},
+                    "metadata": dict(record.metadata),
+                    "gold_relation": record.label,
+                    "label_access": "post_evaluation_only",
+                    "prediction_labels": {
+                        "baseline": artifacts.id_to_label.get(baseline_prediction, str(baseline_prediction)),
+                        "selector": artifacts.id_to_label.get(selector_prediction, str(selector_prediction)),
+                    },
+                    "label_id": int(labels[local_index]),
+                    "baseline_prediction": baseline_prediction,
+                    "selector_prediction": selector_prediction,
+                    "baseline_correct": baseline_prediction == int(labels[local_index]),
+                    "selector_correct": selector_prediction == int(labels[local_index]),
+                    "baseline_logits": captures["baseline_logits"][local_index].cpu().tolist(),
+                    "selector_logits": captures["selector_logits"][local_index].cpu().tolist(),
+                    "baseline_probabilities": captures["probabilities_baseline"][local_index].cpu().tolist(),
+                    "selector_probabilities": captures["probabilities_selector"][local_index].cpu().tolist(),
+                    "representations": reps,
+                }
+                all_cases.append(case)
+                stages_by_case.append({
+                    "sample_id": case_id,
+                    "split_position": int(record_index),
+                    "checkpoint": checkpoint_label,
+                    "stages": [
+                        {"stage": "data", "status": "observed", "observed_fields": {"sentence": case["sentence"], "tokens": case["tokens"], "subject": case["subject"], "object": case["object"]}},
+                        {"stage": "preprocess", "status": "observed", "observed_fields": {"token_ids": case["token_ids"], "attention_mask": case["attention_mask"], "representations": ["token_embeddings", "encoder_hidden_states", "subject_object_pooled_states"]}},
+                        {"stage": "training", "status": "observed", "observed_fields": {"selector": selector, "checkpoint": checkpoint_label, "epochs": int(config["kernel"]["epochs"]), "replay_only": True}},
+                        {"stage": "retrieval", "status": "not_applicable", "observed_fields": {"reason": "relation extraction has no retrieval stage"}},
+                        {"stage": "scoring", "status": "observed", "observed_fields": {"representations": ["attention_qkv", "baseline_attention_scores", "q_ceasc_auxiliary_state", "q_ceasc_observable_coefficients"]}},
+                        {"stage": "selection", "status": "observed", "observed_fields": {"representations": ["q_ceasc_projected_residual", "steered_attention_scores"]}},
+                        {"stage": "context", "status": "observed", "observed_fields": {"selector_prediction": selector_prediction}},
+                        {"stage": "generation", "status": "not_applicable", "observed_fields": {"reason": "relation extraction outputs a class label"}},
+                        {"stage": "evaluation", "status": "observed", "observed_fields": {"gold_relation": record.label, "baseline_prediction": baseline_prediction, "selector_prediction": selector_prediction, "representations": ["classifier_logits_probabilities"]}},
+                        {"stage": "diagnosis", "status": "observed", "observed_fields": {"kernel_metadata": kernel.metadata(), "tensor_manifest_count": len(reps)}},
+                    ],
+                })
+    kernel.load_state_dict(checkpoint_states[-1][1])
     payload = {
-        "schema_version": "q-attention.q-ceasc-case-study.v1",
+        "schema_version": "q-attention.q-ceasc-case-study.v2",
         "selector": selector,
         "status": "observed",
-        "selection_rule": "Indices are frozen in the formal config before training; this file is written after selector completion and is never used for optimization or selection.",
-        "split": str(case_config.get("split", "valid")),
-        "record_indices": indices,
+        "selection_rule": "Train/valid/test indices and checkpoint names are frozen in the formal config before execution; replay is post-training and never used for optimization or model selection.",
+        "required_splits": ["train", "valid", "test"],
+        "checkpoint_policy": [item[0] for item in checkpoint_states],
         "kernel_metadata": kernel.metadata(),
+        "representation_inventory": sorted({manifest["id"] for manifest in tensor_manifest}),
+        "tensor_manifest": tensor_manifest,
         "provenance": {
             "git_revision": _git_revision(),
-            "plugin_sha256": _sha256(
-                ROOT / "src" / "q_attention" / "plugins" / "q_ceasc_score.py"
-            ),
-            "plugin_core_sha256": _sha256(
-                ROOT / "src" / "q_attention" / "plugins" / "q_ceasc.py"
-            ),
+            "config_sha256": _sha256(config_path),
+            "plugin_sha256": _sha256(ROOT / "src" / "q_attention" / "plugins" / "q_ceasc_counterfactual.py"),
+            "full_trace": "case_study_tensors/",
+            "portal_projection": "case_study.json",
         },
-        "cases": cases,
+        "cases": all_cases,
     }
-    (output_dir / "case_study.json").write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True),
-        encoding="utf-8",
-    )
-
-    # Keep the project-wide sample-trace contract alongside the legacy,
-    # Q-CEASC-specific case-study payload used by existing reports.
-    stages_by_case = []
-    for case in cases:
-        sample_id = f"{selector}:{case['split']}:{case['record_index']}"
-        stages_by_case.append(
-            {
-                "sample_id": sample_id,
-                "split_position": case["record_index"],
-                "stages": [
-                    {
-                        "stage": "data",
-                        "status": "observed",
-                        "observed_fields": {
-                            "split": case["split"],
-                            "tokens": case["tokens"],
-                        },
-                    },
-                    {
-                        "stage": "preprocess",
-                        "status": "observed",
-                        "observed_fields": {"token_count": len(case["tokens"])},
-                    },
-                    {
-                        "stage": "training",
-                        "status": "observed",
-                        "observed_fields": {
-                            "selector": selector,
-                            "epochs": int(config["kernel"]["epochs"]),
-                        },
-                    },
-                    {"stage": "retrieval", "status": "not_applicable"},
-                    {
-                        "stage": "scoring",
-                        "status": "observed",
-                        "observed_fields": {
-                            "logit_delta_l2": case["logit_delta_l2"],
-                            "residual_rms_by_layer": case["residual_rms_by_layer"],
-                        },
-                    },
-                    {
-                        "stage": "selection",
-                        "status": "observed",
-                        "observed_fields": {
-                            "baseline_prediction": case["baseline_prediction"],
-                            "selector_prediction": case["selector_prediction"],
-                        },
-                    },
-                    {
-                        "stage": "context",
-                        "status": "observed",
-                        "observed_fields": {"token_count": len(case["tokens"])},
-                    },
-                    {"stage": "generation", "status": "not_applicable"},
-                    {
-                        "stage": "evaluation",
-                        "status": "observed",
-                        "observed_fields": {
-                            "label_id": case["label_id"],
-                            "baseline_correct": case["baseline_correct"],
-                            "selector_correct": case["selector_correct"],
-                        },
-                    },
-                    {
-                        "stage": "diagnosis",
-                        "status": "observed",
-                        "observed_fields": {"kernel_metadata": payload["kernel_metadata"]},
-                    },
-                ],
-            }
-        )
+    (output_dir / "case_study.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
     sample_trace = {
         "schema_version": "sample-trace.v1",
         "trace_id": f"{output_dir.name}:{selector}",
-        "experiment": {
-            "run_id": output_dir.parent.parent.name,
-            "dataset": "retacred.valid",
-            "code_revision": _git_revision(),
-            "config_sha256": _sha256(config_path),
-            "model_identity": "relation-transformer-q-ceasc",
-            "seed": int(config["seed"]),
-        },
-        "sample_selection": {
-            "rule": payload["selection_rule"],
-            "population_scope": "retacred.valid",
-            "seed": int(config["seed"]),
-            "selected_count": len(stages_by_case),
-            "selected_sample_ids": [item["sample_id"] for item in stages_by_case],
-        },
-        "coverage": {
-            "data": "observed",
-            "preprocess": "observed",
-            "training": "observed",
-            "retrieval": "not_applicable",
-            "scoring": "observed",
-            "selection": "observed",
-            "context": "observed",
-            "generation": "not_applicable",
-            "evaluation": "observed",
-            "diagnosis": "observed",
-        },
+        "experiment": {"run_id": output_dir.parent.parent.name, "dataset": "retacred.train+valid+test", "code_revision": _git_revision(), "config_sha256": _sha256(config_path), "model_identity": "relation-transformer-q-ceasc-counterfactual", "seed": int(config["seed"])},
+        "sample_selection": {"rule": payload["selection_rule"], "population_scope": "retacred.train+valid+test", "seed": int(config["seed"]), "selected_count": len(stages_by_case), "selected_sample_ids": [item["sample_id"] for item in stages_by_case]},
+        "coverage": {"data": "observed", "preprocess": "observed", "training": "observed", "retrieval": "not_applicable", "scoring": "observed", "selection": "observed", "context": "observed", "generation": "not_applicable", "evaluation": "observed", "diagnosis": "observed"},
+        "semantic_contract": {"version": "q-attention.case-study-trace-contract.v2", "required_roles": ["source_sample", "sequence_or_features", "task_objects", "target_or_gold", "prediction", "diagnosis"], "required_splits": ["train", "valid", "test"], "required_checkpoints": [item[0] for item in checkpoint_states], "representation_inventory": payload["representation_inventory"]},
         "samples": stages_by_case,
     }
-    (output_dir / "sample_trace.json").write_text(
-        json.dumps(sample_trace, ensure_ascii=False, indent=2, sort_keys=True),
-        encoding="utf-8",
-    )
+    (output_dir / "sample_trace.json").write_text(json.dumps(sample_trace, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
 
 
 def parse_args() -> argparse.Namespace:
@@ -556,6 +700,16 @@ def main() -> int:
         ),
     ).to(device)
     args.output_dir.mkdir(parents=True, exist_ok=True)
+    initial_state_path = args.output_dir / "initial_kernel_with_metadata.pt"
+    if args.resume and initial_state_path.is_file():
+        initial_payload = torch.load(initial_state_path, map_location="cpu", weights_only=True)
+        initial_kernel_state = initial_payload["state_dict"]
+    else:
+        initial_kernel_state = copy.deepcopy(kernel.state_dict())
+        torch.save(
+            {"state_dict": initial_kernel_state, "metadata": kernel.metadata()},
+            initial_state_path,
+        )
     train_args = argparse.Namespace(
         batch_size=logical_batch_size,
         epochs=int(kernel_config["epochs"]),
@@ -601,6 +755,12 @@ def main() -> int:
             train_args,
             args.output_dir,
         )
+        final_kernel_state_path = args.output_dir / "final_kernel.pt"
+        final_kernel_state = (
+            torch.load(final_kernel_state_path, map_location="cpu", weights_only=True)
+            if final_kernel_state_path.is_file()
+            else None
+        )
     except TrainingPaused:
         print(
             json.dumps(
@@ -644,13 +804,19 @@ def main() -> int:
     write_case_study(
         model=artifacts.model,
         kernel=kernel,
-        records=valid_records,
+        records={"train": train_records, "valid": valid_records, "test": test_records},
         artifacts=artifacts,
         device=device,
         config=config,
         config_path=args.config,
         output_dir=args.output_dir,
         selector=args.selector,
+        initial_state=initial_kernel_state,
+        final_state=final_kernel_state,
+    )
+    torch.save(
+        {"state_dict": kernel.state_dict(), "metadata": metadata},
+        args.output_dir / "final_kernel_with_metadata.pt",
     )
     row = {
         "selector": args.selector,
