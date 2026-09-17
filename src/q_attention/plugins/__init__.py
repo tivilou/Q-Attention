@@ -110,6 +110,15 @@ from .q_ceasc_score import (
     QCEASCScoreKernelConfig,
     build_qceasc_score_kernel,
 )
+from .q_ceasc_stability import (
+    QCEASC_STABILITY_CONTROL_MODES,
+    QCEASCStabilityConfig,
+    QCEASCStabilityResult,
+    QCEASCStabilityScoreKernel,
+    StabilityCertifiedQCEASC,
+    build_qceasc_stability,
+    build_qceasc_stability_score_kernel,
+)
 from .quantum_steering import (
     KEY_STEERING_CIRCUIT_CHOICES,
     PLUGIN_NAMES,
@@ -175,6 +184,13 @@ __all__ = [
     "QCEASCScoreKernel",
     "QCEASCScoreKernelConfig",
     "build_qceasc_score_kernel",
+    "QCEASC_STABILITY_CONTROL_MODES",
+    "QCEASCStabilityConfig",
+    "QCEASCStabilityResult",
+    "QCEASCStabilityScoreKernel",
+    "StabilityCertifiedQCEASC",
+    "build_qceasc_stability",
+    "build_qceasc_stability_score_kernel",
     "RelationPerturbationEchoConfig",
     "RelationPerturbationEchoCurvatureKernel",
     "LocalRelationEchoCurvatureControl",

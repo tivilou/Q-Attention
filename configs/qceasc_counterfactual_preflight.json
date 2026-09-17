@@ -1,0 +1,37 @@
+{
+  "schema_version": "q-attention.qceasc-counterfactual-preflight-config.v1",
+  "query_dim": 16,
+  "key_dim": 16,
+  "head_dim": 8,
+  "num_layers": 1,
+  "num_heads": 4,
+  "auxiliary_qubits": 3,
+  "depth": 2,
+  "support_width": 2,
+  "action_rank": 2,
+  "angle_scale": 1.0,
+  "max_gain": 0.25,
+  "initial_gain": 0.05,
+  "span_rcond": 1e-6,
+  "leave_one_out_chunk_size": 64,
+  "max_context_size": 256,
+  "seed": 13091,
+  "device": "cuda",
+  "max_peak_memory_fraction": 0.8,
+  "max_case_seconds": 180.0,
+  "max_base_evaluations_per_case": 200000,
+  "stability_context_size": 32,
+  "gradient_context_size": 16,
+  "forward_cases": [
+    {"batch_size": 1, "context_size": 16, "query_chunk_sizes": [4, 16]},
+    {"batch_size": 1, "context_size": 64, "query_chunk_sizes": [16, 64]},
+    {"batch_size": 1, "context_size": 96, "query_chunk_sizes": [16, 64]},
+    {"batch_size": 1, "context_size": 256, "query_chunk_sizes": [16, 64]},
+    {"batch_size": 2, "context_size": 96, "query_chunk_sizes": [16, 64]},
+    {"batch_size": 2, "context_size": 256, "query_chunk_sizes": [16, 64]}
+  ],
+  "dtype_cases": [
+    {"dtype": "float32", "batch_size": 1, "context_size": 16, "query_chunk_sizes": [4, 16]},
+    {"dtype": "float64", "batch_size": 1, "context_size": 16, "query_chunk_sizes": [4, 16]}
+  ]
+}

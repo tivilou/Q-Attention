@@ -851,6 +851,14 @@ def train_kernel(
         phase="train",
         **context_summary,
     )
+    # Preserve the last optimizer-step state for the formal Case Study before
+    # restoring the declared best-validation state used for final metrics.
+    final_kernel_state = {
+        name: parameter.detach().clone()
+        for name, parameter in kernel.state_dict().items()
+    }
+    atomic_torch_save(output_dir / "final_kernel.pt", final_kernel_state)
+    del final_kernel_state
     kernel.load_state_dict(torch.load(output_dir / "best_kernel.pt", map_location=device, weights_only=True))
     if manager is not None:
         manager.clear_pause_marker()
