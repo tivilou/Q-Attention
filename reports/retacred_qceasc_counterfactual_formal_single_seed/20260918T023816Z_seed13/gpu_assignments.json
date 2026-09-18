@@ -1,0 +1,212 @@
+{
+  "hardware_profile": {
+    "activation_checkpointing": true,
+    "adaptive": true,
+    "current_profile": "adaptive_chunk_64x_micro_32",
+    "current_tier": 9,
+    "gpu_inventory": [
+      {
+        "index": 0,
+        "memory_free_mib": 12032,
+        "memory_total_mib": 12282,
+        "memory_used_mib": 2,
+        "name": "NVIDIA RTX A2000 12GB"
+      },
+      {
+        "index": 1,
+        "memory_free_mib": 12032,
+        "memory_total_mib": 12282,
+        "memory_used_mib": 2,
+        "name": "NVIDIA RTX A2000 12GB"
+      },
+      {
+        "index": 2,
+        "memory_free_mib": 12032,
+        "memory_total_mib": 12282,
+        "memory_used_mib": 2,
+        "name": "NVIDIA RTX A2000 12GB"
+      }
+    ],
+    "gradient_accumulation_steps": 8,
+    "micro_batch_size": 32,
+    "name": "adaptive",
+    "pair_chunk_divisor": 64,
+    "pair_chunk_size": "all",
+    "requested_gpu_spec": "auto",
+    "selected_gpu_ids": [
+      0,
+      1,
+      2
+    ],
+    "selection_reason": "start at logical/physical batch 256 with no query chunking; after OOM use 128/64/32 physical micro-batches with accumulation, then halve the all-pairs query chunk from all when the 32-sample tier still cannot fit",
+    "tiers": [
+      {
+        "activation_checkpointing": false,
+        "gradient_accumulation_steps": 1,
+        "micro_batch_size": 256,
+        "name": "adaptive_full_batch",
+        "pair_chunk_divisor": 1,
+        "pair_chunk_size": null
+      },
+      {
+        "activation_checkpointing": true,
+        "gradient_accumulation_steps": 2,
+        "micro_batch_size": 128,
+        "name": "adaptive_micro_128",
+        "pair_chunk_divisor": 1,
+        "pair_chunk_size": null
+      },
+      {
+        "activation_checkpointing": true,
+        "gradient_accumulation_steps": 4,
+        "micro_batch_size": 64,
+        "name": "adaptive_micro_64",
+        "pair_chunk_divisor": 1,
+        "pair_chunk_size": null
+      },
+      {
+        "activation_checkpointing": true,
+        "gradient_accumulation_steps": 8,
+        "micro_batch_size": 32,
+        "name": "adaptive_micro_32",
+        "pair_chunk_divisor": 1,
+        "pair_chunk_size": null
+      },
+      {
+        "activation_checkpointing": true,
+        "gradient_accumulation_steps": 8,
+        "micro_batch_size": 32,
+        "name": "adaptive_chunk_2x_micro_32",
+        "pair_chunk_divisor": 2,
+        "pair_chunk_size": null
+      },
+      {
+        "activation_checkpointing": true,
+        "gradient_accumulation_steps": 8,
+        "micro_batch_size": 32,
+        "name": "adaptive_chunk_4x_micro_32",
+        "pair_chunk_divisor": 4,
+        "pair_chunk_size": null
+      },
+      {
+        "activation_checkpointing": true,
+        "gradient_accumulation_steps": 8,
+        "micro_batch_size": 32,
+        "name": "adaptive_chunk_8x_micro_32",
+        "pair_chunk_divisor": 8,
+        "pair_chunk_size": null
+      },
+      {
+        "activation_checkpointing": true,
+        "gradient_accumulation_steps": 8,
+        "micro_batch_size": 32,
+        "name": "adaptive_chunk_16x_micro_32",
+        "pair_chunk_divisor": 16,
+        "pair_chunk_size": null
+      },
+      {
+        "activation_checkpointing": true,
+        "gradient_accumulation_steps": 8,
+        "micro_batch_size": 32,
+        "name": "adaptive_chunk_32x_micro_32",
+        "pair_chunk_divisor": 32,
+        "pair_chunk_size": null
+      },
+      {
+        "activation_checkpointing": true,
+        "gradient_accumulation_steps": 8,
+        "micro_batch_size": 32,
+        "name": "adaptive_chunk_64x_micro_32",
+        "pair_chunk_divisor": 64,
+        "pair_chunk_size": null
+      },
+      {
+        "activation_checkpointing": true,
+        "gradient_accumulation_steps": 8,
+        "micro_batch_size": 32,
+        "name": "adaptive_chunk_128x_micro_32",
+        "pair_chunk_divisor": 128,
+        "pair_chunk_size": null
+      },
+      {
+        "activation_checkpointing": true,
+        "gradient_accumulation_steps": 8,
+        "micro_batch_size": 32,
+        "name": "adaptive_chunk_256x_micro_32",
+        "pair_chunk_divisor": 256,
+        "pair_chunk_size": null
+      },
+      {
+        "activation_checkpointing": true,
+        "gradient_accumulation_steps": 8,
+        "micro_batch_size": 32,
+        "name": "adaptive_chunk_512x_micro_32",
+        "pair_chunk_divisor": 512,
+        "pair_chunk_size": null
+      },
+      {
+        "activation_checkpointing": true,
+        "gradient_accumulation_steps": 8,
+        "micro_batch_size": 32,
+        "name": "adaptive_chunk_1024x_micro_32",
+        "pair_chunk_divisor": 1024,
+        "pair_chunk_size": null
+      }
+    ]
+  },
+  "requested_gpu_ids": [
+    0,
+    1,
+    2
+  ],
+  "workers": {
+    "classical_counterfactual": {
+      "activation_checkpointing": true,
+      "adaptive_tier": 9,
+      "duration_seconds": 16286.403,
+      "finished_at": "2026-09-18T08:34:46.135907+00:00",
+      "gpu": 1,
+      "gradient_accumulation_steps": 8,
+      "heartbeat_file": "/root/projects/Q-Attention/runs/retacred_qceasc_counterfactual_formal_single_seed/20260918T023816Z_seed13/selectors/classical_counterfactual/heartbeat.json",
+      "last_memory_profile": "adaptive_chunk_32x_micro_32",
+      "last_oom_at": "2026-09-18T04:03:19.226239+00:00",
+      "last_return_code": 86,
+      "log_file": "/root/projects/Q-Attention/runs/retacred_qceasc_counterfactual_formal_single_seed/20260918T023816Z_seed13/selectors/classical_counterfactual/worker.log",
+      "memory_pressure_retries": 0,
+      "memory_profile": "adaptive_chunk_64x_micro_32",
+      "micro_batch_size": 32,
+      "oom_retries": 9,
+      "pair_chunk_divisor": 64,
+      "pair_chunk_size": "all",
+      "pid": 40783,
+      "return_code": 0,
+      "selector": "classical_counterfactual",
+      "started_at": "2026-09-18T04:03:19.733016+00:00",
+      "status": "complete"
+    },
+    "q_ceasc_counterfactual": {
+      "activation_checkpointing": true,
+      "adaptive_tier": 9,
+      "duration_seconds": 35475.291,
+      "finished_at": "2026-09-18T14:19:47.468893+00:00",
+      "gpu": 0,
+      "gradient_accumulation_steps": 8,
+      "heartbeat_file": "/root/projects/Q-Attention/runs/retacred_qceasc_counterfactual_formal_single_seed/20260918T023816Z_seed13/selectors/q_ceasc_counterfactual/heartbeat.json",
+      "last_memory_profile": "adaptive_chunk_32x_micro_32",
+      "last_oom_at": "2026-09-18T04:28:31.670784+00:00",
+      "last_return_code": 86,
+      "log_file": "/root/projects/Q-Attention/runs/retacred_qceasc_counterfactual_formal_single_seed/20260918T023816Z_seed13/selectors/q_ceasc_counterfactual/worker.log",
+      "memory_pressure_retries": 0,
+      "memory_profile": "adaptive_chunk_64x_micro_32",
+      "micro_batch_size": 32,
+      "oom_retries": 9,
+      "pair_chunk_divisor": 64,
+      "pair_chunk_size": "all",
+      "pid": 41613,
+      "return_code": 0,
+      "selector": "q_ceasc_counterfactual",
+      "started_at": "2026-09-18T04:28:32.178202+00:00",
+      "status": "complete"
+    }
+  }
+}
