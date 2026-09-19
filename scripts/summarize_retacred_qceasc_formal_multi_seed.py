@@ -14,9 +14,11 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 SELECTORS = ("disabled", "q_ceasc", "classical_ceasc")
+COUNTERFACTUAL_SELECTORS = ("disabled", "q_ceasc_counterfactual", "classical_counterfactual")
 EXPECTED_SEEDS = (13, 29, 53)
 SUPPORTED_MANIFEST_SCHEMAS = {
     "q-attention.q-ceasc.formal-task-graph.v2",
+    "q-attention.q-ceasc-counterfactual.formal-task-graph.v1",
     # Keep reports produced by the pre-task-graph runner readable during the
     # handoff transition. New runs always emit the v2 task-graph schema.
     "q-attention.q-ceasc.formal-multiseed-manifest.v1",
@@ -110,6 +112,9 @@ def describe(values: list[float]) -> dict[str, Any]:
 def collect(group_dir: Path) -> dict[str, Any]:
     _validate_group_completion(group_dir)
     manifest = load_json(group_dir / "multi_seed_manifest.json")
+    protocol_name = str(manifest.get("protocol", "qceasc"))
+    counterfactual = protocol_name == "qceasc_counterfactual"
+    selectors = COUNTERFACTUAL_SELECTORS if counterfactual else SELECTORS
     seeds = [int(seed) for seed in manifest.get("seeds", [])]
     if seeds != list(EXPECTED_SEEDS):
         raise ValueError(f"manifest seeds must be {list(EXPECTED_SEEDS)}, found {seeds}")
@@ -117,7 +122,7 @@ def collect(group_dir: Path) -> dict[str, Any]:
         raise ValueError("unsupported multi-seed manifest schema")
     commit_values: set[str] = set()
     protocol_values: set[str] = set()
-    rows: dict[str, list[dict[str, float]]] = {selector: [] for selector in SELECTORS}
+    rows: dict[str, list[dict[str, float]]] = {selector: [] for selector in selectors}
     seed_records: list[dict[str, Any]] = []
     for seed in seeds:
         seed_dir = group_dir / f"seed_{seed}"
@@ -130,7 +135,7 @@ def collect(group_dir: Path) -> dict[str, Any]:
             raise ValueError(f"seed {seed} is not a formal single-seed run")
         if int(summary.get("seed", -1)) != seed:
             raise ValueError(f"seed summary mismatch for {seed}")
-        if summary.get("selectors") != list(SELECTORS):
+        if summary.get("selectors") != list(selectors):
             raise ValueError(f"seed {seed} selector set differs from frozen protocol")
         if summary.get("test_used_for_training_or_selection") is not False:
             raise ValueError(f"seed {seed} violates held-out test contract")
@@ -143,18 +148,19 @@ def collect(group_dir: Path) -> dict[str, Any]:
         commit_values.add(commit)
         config_path = seed_dir / "run_config.json"
         config = load_json(config_path)
-        protocol = hashlib.sha256(
+        protocol_fingerprint = hashlib.sha256(
             json.dumps(
                 {**{key: value for key, value in config.items() if key not in {"seed", "replication"}}, "seed": 0},
                 sort_keys=True,
                 separators=(",", ":"),
             ).encode()
         ).hexdigest()
-        protocol_values.add(protocol)
+        protocol_values.add(protocol_fingerprint)
         trace_status: dict[str, str] = {}
-        for selector in ("q_ceasc", "classical_ceasc"):
-            trace_path = seed_dir / "selectors" / selector / "sample_trace.json"
-            case_path = seed_dir / "selectors" / selector / "case_study.json"
+        selector_root = "selectors" if counterfactual else "selectors"
+        for selector in tuple(item for item in selectors if item != "disabled"):
+            trace_path = seed_dir / selector_root / selector / "sample_trace.json"
+            case_path = seed_dir / selector_root / selector / "case_study.json"
             if not case_path.is_file():
                 raise ValueError(f"missing case study for seed {seed}, selector {selector}")
             if not trace_path.is_file():
@@ -164,7 +170,7 @@ def collect(group_dir: Path) -> dict[str, Any]:
                 raise ValueError(f"invalid sample trace for seed {seed}, selector {selector}: {'; '.join(errors)}")
             trace_status[selector] = "complete"
         by_selector = {row.get("selector"): row for row in summary.get("rows", [])}
-        for selector in SELECTORS:
+        for selector in selectors:
             row = by_selector.get(selector)
             if not isinstance(row, dict):
                 raise ValueError(f"seed {seed} missing summary row {selector}")
@@ -174,15 +180,28 @@ def collect(group_dir: Path) -> dict[str, Any]:
             except (KeyError, TypeError, ValueError) as exc:
                 raise ValueError(f"seed {seed} has malformed {selector} metrics") from exc
             rows[selector].append({"valid_macro_f1": valid, "test_macro_f1": test})
-        seed_records.append({"seed": seed, "git_revision": commit, "config_sha256": sha256(config_path), "trace_status": trace_status})
-    if commit_values != {str(manifest.get("git_commit"))}:
-        raise ValueError(f"seed commits do not match manifest commit: {sorted(commit_values)}")
+        imported_path = seed_dir / "imported_report.json"
+        imported = imported_path.is_file()
+        imported_metadata = load_json(imported_path) if imported else None
+        if imported:
+            if not isinstance(imported_metadata, dict) or imported_metadata.get("validated_against_git_commit") != manifest.get("git_commit"):
+                raise ValueError(f"seed {seed} imported report was not validated against this scheduler commit")
+        elif commit != str(manifest.get("git_commit")):
+            raise ValueError(f"seed {seed} commit differs from manifest commit")
+        seed_records.append({"seed": seed, "git_revision": commit, "config_sha256": sha256(config_path), "trace_status": trace_status, "imported_report": imported, "import_metadata": imported_metadata})
+    if any(
+        not bool(record.get("imported_report")) and record["git_revision"] != str(manifest.get("git_commit"))
+        for record in seed_records
+    ):
+        raise ValueError(f"fresh seed commits do not match manifest commit: {sorted(commit_values)}")
     if len(protocol_values) != 1:
         raise ValueError("seed configs differ beyond the declared seed field")
 
     baseline = rows["disabled"]
-    q = rows["q_ceasc"]
-    classical = rows["classical_ceasc"]
+    candidate_selector = "q_ceasc_counterfactual" if counterfactual else "q_ceasc"
+    classical_selector = "classical_counterfactual" if counterfactual else "classical_ceasc"
+    q = rows[candidate_selector]
+    classical = rows[classical_selector]
     q_deltas = [q_item["test_macro_f1"] - base["test_macro_f1"] for q_item, base in zip(q, baseline, strict=True)]
     classical_deltas = [c_item["test_macro_f1"] - base["test_macro_f1"] for c_item, base in zip(classical, baseline, strict=True)]
     classical_relative = [delta / abs(base["test_macro_f1"]) if base["test_macro_f1"] else None for delta, base in zip(classical_deltas, baseline, strict=True)]
@@ -196,23 +215,31 @@ def collect(group_dir: Path) -> dict[str, Any]:
         }
         for selector, values in rows.items()
     }
-    aggregate["q_ceasc"]["delta_test_macro_f1_vs_disabled"] = describe(q_deltas)
-    aggregate["q_ceasc"]["relative_test_gain_vs_disabled"] = describe([float(value) for value in q_relative])
-    aggregate["classical_ceasc"]["delta_test_macro_f1_vs_disabled"] = describe(classical_deltas)
-    aggregate["classical_ceasc"]["relative_test_gain_vs_disabled"] = describe([float(value) for value in classical_relative])
-    q_delta = aggregate["q_ceasc"]["delta_test_macro_f1_vs_disabled"]
-    classical_relative_stats = aggregate["classical_ceasc"]["relative_test_gain_vs_disabled"]
+    aggregate[candidate_selector]["delta_test_macro_f1_vs_disabled"] = describe(q_deltas)
+    aggregate[candidate_selector]["relative_test_gain_vs_disabled"] = describe([float(value) for value in q_relative])
+    aggregate[classical_selector]["delta_test_macro_f1_vs_disabled"] = describe(classical_deltas)
+    aggregate[classical_selector]["relative_test_gain_vs_disabled"] = describe([float(value) for value in classical_relative])
+    q_delta = aggregate[candidate_selector]["delta_test_macro_f1_vs_disabled"]
+    classical_relative_stats = aggregate[classical_selector]["relative_test_gain_vs_disabled"]
     l2_gate = q_delta["n"] >= 3 and q_delta["mean"] > 0 and q_delta["ci95"][0] is not None and q_delta["ci95"][0] > 0
     qi_gate = classical_relative_stats["mean"] > 0.01
     return {
-        "schema_version": "q-attention.q-ceasc.formal-multiseed-summary.v1",
+        "schema_version": (
+            "q-attention.q-ceasc-counterfactual.formal-multiseed-summary.v1"
+            if counterfactual
+            else "q-attention.q-ceasc.formal-multiseed-summary.v1"
+        ),
         "stage": "replication",
         "group_dir": str(group_dir),
         "seeds": seeds,
-        "git_commit": next(iter(commit_values)),
+        "git_commit": str(manifest.get("git_commit")),
         "protocol_fingerprint": next(iter(protocol_values)),
         "seed_records": seed_records,
-        "selectors": list(SELECTORS),
+        "protocol": protocol_name,
+        "source_git_revisions": sorted(commit_values),
+        "selectors": list(selectors),
+        "candidate": candidate_selector,
+        "matched_control": classical_selector,
         "aggregate": aggregate,
         "gates": {
             "l2_reproducible_utility_gate": l2_gate,
@@ -226,8 +253,8 @@ def collect(group_dir: Path) -> dict[str, Any]:
 
 
 def write_markdown(payload: dict[str, Any], output: Path) -> None:
-    q = payload["aggregate"]["q_ceasc"]
-    c = payload["aggregate"]["classical_ceasc"]
+    candidate_selector = str(payload["candidate"])
+    classical_selector = str(payload["matched_control"])
     lines = [
         "# Q-CEASC Re-TACRED Formal Multi-Seed Summary",
         "",
@@ -238,7 +265,7 @@ def write_markdown(payload: dict[str, Any], output: Path) -> None:
         "| selector | test macro-F1 mean +/- std | delta vs disabled mean +/- std | paired 95% CI |",
         "| --- | ---: | ---: | ---: |",
     ]
-    for selector, label in (("disabled", "disabled"), ("q_ceasc", "Q-CEASC"), ("classical_ceasc", "classical CEASC")):
+    for selector, label in (("disabled", "disabled"), (candidate_selector, "Q-CEASC counterfactual" if "counterfactual" in candidate_selector else "Q-CEASC"), (classical_selector, "classical counterfactual" if "counterfactual" in classical_selector else "classical CEASC")):
         item = payload["aggregate"][selector]
         delta = item.get("delta_test_macro_f1_vs_disabled")
         delta_text = f"{delta['mean']:.6f} +/- {delta['std']:.6f}" if delta else "n/a"
