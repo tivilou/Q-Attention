@@ -5,6 +5,10 @@ ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 GROUP_DIR=
 REPORT_DIR=
 NO_COMMIT=0
+PROTOCOL=
+SELECTOR_CANDIDATE=
+SELECTOR_MATCHED=
+REPORT_ROOT=
 
 resolve_python_bin() {
   if [[ -n "${PYTHON_BIN:-}" ]]; then
@@ -57,11 +61,25 @@ git merge-base --is-ancestor origin/main HEAD || { echo "origin/main must be an 
 [[ "${GROUP_DIR}" = /* ]] || GROUP_DIR="${ROOT}/${GROUP_DIR}"
 GROUP_DIR=$(readlink -f "${GROUP_DIR}")
 case "${GROUP_DIR}" in
-  "${ROOT}/runs/retacred_qceasc_formal_multi_seed/"*) ;;
-  *) echo "Group directory must be under runs/retacred_qceasc_formal_multi_seed/." >&2; exit 1 ;;
+  "${ROOT}/runs/retacred_qceasc_formal_multi_seed/"*|"${ROOT}/runs/retacred_qceasc_counterfactual_formal_multi_seed/"*) ;;
+  *) echo "Group directory is outside a supported Q-CEASC multi-seed root." >&2; exit 1 ;;
 esac
 [[ -f "${GROUP_DIR}/MULTI_SEED_COMPLETE" ]] || { echo "Missing MULTI_SEED_COMPLETE." >&2; exit 1; }
 [[ -f "${GROUP_DIR}/multi_seed_manifest.json" && -f "${GROUP_DIR}/multi_seed_status.json" ]] || { echo "Missing multi-seed manifest/status." >&2; exit 1; }
+PROTOCOL=$(${PYTHON_BIN} - "${GROUP_DIR}/multi_seed_manifest.json" <<'PY'
+import json, sys
+print(json.load(open(sys.argv[1], encoding='utf-8')).get('protocol', 'qceasc'))
+PY
+)
+if [[ "${PROTOCOL}" == "qceasc_counterfactual" ]]; then
+  SELECTOR_CANDIDATE=q_ceasc_counterfactual
+  SELECTOR_MATCHED=classical_counterfactual
+  REPORT_ROOT="${ROOT}/reports/retacred_qceasc_counterfactual_formal_multi_seed"
+else
+  SELECTOR_CANDIDATE=q_ceasc
+  SELECTOR_MATCHED=classical_ceasc
+  REPORT_ROOT="${ROOT}/reports/retacred_qceasc_formal_multi_seed"
+fi
 "${PYTHON_BIN}" scripts/summarize_retacred_qceasc_formal_multi_seed.py \
   --group-dir "${GROUP_DIR}" \
   --output-json "${GROUP_DIR}/multi_seed_summary.json" \
@@ -78,7 +96,7 @@ for seed in ${SEEDS}; do
   for file in RUN_COMPLETE run_summary.json run_summary.md run_config.json baseline/metrics.json; do
     [[ -f "${SEED_DIR}/${file}" ]] || { echo "Missing seed ${seed}/${file}." >&2; exit 1; }
   done
-  for selector in q_ceasc classical_ceasc; do
+  for selector in "${SELECTOR_CANDIDATE}" "${SELECTOR_MATCHED}"; do
     for file in metrics.json case_study.json sample_trace.json; do
       [[ -f "${SEED_DIR}/selectors/${selector}/${file}" ]] || { echo "Missing seed ${seed}/${selector}/${file}." >&2; exit 1; }
     done
@@ -87,13 +105,13 @@ for seed in ${SEEDS}; do
   done
 done
 
-DEFAULT_REPORT_DIR="reports/retacred_qceasc_formal_multi_seed/$(basename "${GROUP_DIR}")"
+DEFAULT_REPORT_DIR="${REPORT_ROOT#"${ROOT}/"}/$(basename "${GROUP_DIR}")"
 REPORT_DIR=${REPORT_DIR:-${DEFAULT_REPORT_DIR}}
 [[ "${REPORT_DIR}" = /* ]] || REPORT_DIR="${ROOT}/${REPORT_DIR}"
 REPORT_DIR=$(readlink -m "${REPORT_DIR}")
 case "${REPORT_DIR}" in
-  "${ROOT}/reports/retacred_qceasc_formal_multi_seed/"*) ;;
-  *) echo "Report must be under the Q-CEASC multi-seed report root." >&2; exit 1 ;;
+  "${REPORT_ROOT}/"*) ;;
+  *) echo "Report must be under the selected Q-CEASC multi-seed report root." >&2; exit 1 ;;
 esac
 [[ ! -e "${REPORT_DIR}" ]] || { echo "Refusing to overwrite report directory." >&2; exit 1; }
 mkdir -p "${REPORT_DIR}/seeds"
@@ -105,12 +123,15 @@ for seed in ${SEEDS}; do
   mkdir -p "${DEST}/metrics" "${DEST}/case_study"
   cp "${SEED_DIR}/RUN_COMPLETE" "${SEED_DIR}/run_summary.json" "${SEED_DIR}/run_summary.md" "${SEED_DIR}/run_config.json" "${DEST}/"
   cp "${SEED_DIR}/baseline/metrics.json" "${DEST}/metrics/baseline.json"
-  cp "${SEED_DIR}/selectors/q_ceasc/metrics.json" "${DEST}/metrics/q_ceasc.json"
-  cp "${SEED_DIR}/selectors/classical_ceasc/metrics.json" "${DEST}/metrics/classical_ceasc.json"
-  for selector in q_ceasc classical_ceasc; do
+  cp "${SEED_DIR}/selectors/${SELECTOR_CANDIDATE}/metrics.json" "${DEST}/metrics/${SELECTOR_CANDIDATE}.json"
+  cp "${SEED_DIR}/selectors/${SELECTOR_MATCHED}/metrics.json" "${DEST}/metrics/${SELECTOR_MATCHED}.json"
+  for selector in "${SELECTOR_CANDIDATE}" "${SELECTOR_MATCHED}"; do
     cp "${SEED_DIR}/selectors/${selector}/case_study.json" "${DEST}/case_study/${selector}.json"
     cp "${SEED_DIR}/selectors/${selector}/sample_trace.json" "${DEST}/case_study/${selector}.sample-trace.json"
   done
+  [[ ! -f "${SEED_DIR}/imported_report.json" ]] || cp "${SEED_DIR}/imported_report.json" "${DEST}/imported_report.json"
+  [[ ! -f "${SEED_DIR}/data.sha256" ]] || cp "${SEED_DIR}/data.sha256" "${DEST}/data.sha256"
+  [[ ! -f "${SEED_DIR}/data_counts.txt" ]] || cp "${SEED_DIR}/data_counts.txt" "${DEST}/data_counts.txt"
   "${PYTHON_BIN}" - "${SEED_DIR}/run_summary.json" "${DEST}/provenance.json" <<'PY'
 import json, sys
 from pathlib import Path

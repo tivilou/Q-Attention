@@ -15,6 +15,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shutil
 import signal
 import subprocess
 import sys
@@ -35,6 +36,7 @@ CONFIG_PATH = ROOT / "configs" / "retacred_qceasc_formal_single_seed.json"
 GROUP_ROOT = ROOT / "runs" / "retacred_qceasc_formal_multi_seed"
 SELECTORS = ("disabled", "q_ceasc", "classical_ceasc")
 SELECTOR_TASKS = ("q_ceasc", "classical_ceasc")
+PROTOCOL = "qceasc"
 BASELINE_ARTIFACTS = ("model.pt", "vocab.json", "labels.json", "metrics.json")
 PAUSED_EXIT_CODE = 75
 CUDA_OOM_EXIT_CODE = 86
@@ -51,6 +53,243 @@ OOM_MARKERS = (
     "cublas_status_alloc_failed",
     "cudaerrormemoryallocation",
 )
+
+COUNTERFACTUAL_CONFIG_SCHEMA = "q-attention.q-ceasc-counterfactual-formal-single-seed.v1"
+COUNTERFACTUAL_GROUP_ROOT = ROOT / "runs" / "retacred_qceasc_counterfactual_formal_multi_seed"
+COUNTERFACTUAL_MANIFEST_SCHEMA = "q-attention.q-ceasc-counterfactual.formal-task-graph.v1"
+COUNTERFACTUAL_STATUS_SCHEMA = "q-attention.q-ceasc-counterfactual.formal-task-status.v1"
+COUNTERFACTUAL_RUN_SCHEMA = "q-attention.q-ceasc-counterfactual.formal-task-graph-run.v1"
+COUNTERFACTUAL_ADAPTIVE_STATE_SCHEMA = "q-attention.q-ceasc-counterfactual.task-adaptive-memory.v1"
+COUNTERFACTUAL_SOURCE_FILES = {
+    "attention_adapter": "src/q_attention/adapters/attention_scores.py",
+    "baseline_trainer": "experiments/train_relation_baseline.py",
+    "batch_resume": "src/q_attention/experiments/batch_resume.py",
+    "kernel_trainer": "experiments/run_q_causal_value_evidence_relation_transfer.py",
+    "q_ceasc": "src/q_attention/plugins/q_ceasc_score.py",
+    "q_ceasc_core": "src/q_attention/plugins/q_ceasc.py",
+    "q_ceasc_counterfactual": "src/q_attention/plugins/q_ceasc_counterfactual.py",
+    "relation_model": "src/q_attention/models/relation_transformer.py",
+    "relation_steering": "src/q_attention/experiments/relation_steering.py",
+    "relation_task": "src/q_attention/tasks/relation.py",
+    "runner": "experiments/run_retacred_qceasc_formal_single_seed.py",
+    "worker": "experiments/run_qceasc_selector_worker.py",
+}
+
+
+def configure_protocol(config_path: Path, config: dict[str, Any]) -> None:
+    """Select the task-graph contract from the frozen experiment config."""
+    global CONFIG_PATH, GROUP_ROOT, SELECTORS, SELECTOR_TASKS, PROTOCOL
+    global MANIFEST_SCHEMA, STATUS_SCHEMA, RUN_SCHEMA, ADAPTIVE_STATE_SCHEMA
+    CONFIG_PATH = config_path.resolve()
+    if config.get("counterfactual") is True:
+        PROTOCOL = "qceasc_counterfactual"
+        GROUP_ROOT = COUNTERFACTUAL_GROUP_ROOT
+        SELECTORS = tuple(str(item) for item in config.get("selectors", ()))
+        SELECTOR_TASKS = tuple(item for item in SELECTORS if item != "disabled")
+        MANIFEST_SCHEMA = COUNTERFACTUAL_MANIFEST_SCHEMA
+        STATUS_SCHEMA = COUNTERFACTUAL_STATUS_SCHEMA
+        RUN_SCHEMA = COUNTERFACTUAL_RUN_SCHEMA
+        ADAPTIVE_STATE_SCHEMA = COUNTERFACTUAL_ADAPTIVE_STATE_SCHEMA
+    else:
+        PROTOCOL = "qceasc"
+        GROUP_ROOT = ROOT / "runs" / "retacred_qceasc_formal_multi_seed"
+        SELECTORS = ("disabled", "q_ceasc", "classical_ceasc")
+        SELECTOR_TASKS = ("q_ceasc", "classical_ceasc")
+        MANIFEST_SCHEMA = "q-attention.q-ceasc.formal-task-graph.v2"
+        STATUS_SCHEMA = "q-attention.q-ceasc.formal-task-status.v2"
+        RUN_SCHEMA = "q-attention.q-ceasc.formal-task-graph-run.v1"
+        ADAPTIVE_STATE_SCHEMA = "q-attention.q-ceasc.task-adaptive-memory.v1"
+    if not SELECTORS or "disabled" not in SELECTORS or not SELECTOR_TASKS:
+        raise ValueError("formal config must declare disabled plus at least one selector")
+
+
+def _canonical_config(config: dict[str, Any]) -> dict[str, Any]:
+    value = json.loads(json.dumps(config))
+    value["seed"] = 0
+    value.pop("replication", None)
+    return value
+
+
+def _source_contract_hashes(repo_root: Path) -> dict[str, dict[str, Any]]:
+    return {
+        name: {"sha256": sha256(repo_root / relative), "path": relative}
+        for name, relative in COUNTERFACTUAL_SOURCE_FILES.items()
+    }
+
+
+def _parse_data_hashes(path: Path) -> dict[str, str]:
+    result: dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        fields = line.split()
+        if len(fields) != 2 or len(fields[0]) != 64:
+            raise ValueError(f"invalid data.sha256 row: {line!r}")
+        result[Path(fields[1]).name] = fields[0]
+    return result
+
+
+def validate_seed13_report(
+    source_dir: Path,
+    *,
+    config_path: Path,
+    config: dict[str, Any],
+    current_commit: str,
+) -> dict[str, Any]:
+    """Validate an audited seed-13 report before allowing report reuse."""
+    source_dir = source_dir.resolve()
+    if not source_dir.is_dir():
+        raise ValueError(f"seed-13 report directory does not exist: {source_dir}")
+    if not config.get("counterfactual"):
+        raise ValueError("seed-13 report reuse is available only for counterfactual Q-CEASC")
+    required = [
+        "RUN_COMPLETE",
+        "run_config.json",
+        "run_summary.json",
+        "run_summary.md",
+        "data.sha256",
+        "data_counts.txt",
+        "provenance.json",
+        "metrics/baseline.json",
+    ]
+    for selector in SELECTOR_TASKS:
+        required.extend(
+            [
+                f"metrics/{selector}.json",
+                f"case_study/{selector}.json",
+                f"case_study/{selector}.sample-trace.json",
+            ]
+        )
+    missing = [relative for relative in required if not (source_dir / relative).is_file()]
+    if missing:
+        raise ValueError("seed-13 report is incomplete: " + ", ".join(missing))
+
+    report_config = load_json(source_dir / "run_config.json")
+    if _canonical_config(report_config) != _canonical_config(config):
+        raise ValueError("seed-13 report config differs from the frozen counterfactual config")
+    if int(report_config.get("seed", -1)) != 13:
+        raise ValueError("seed-13 report run_config.json does not declare seed 13")
+
+    summary = load_json(source_dir / "run_summary.json")
+    expected_selectors = list(SELECTORS)
+    if (
+        summary.get("formal_experiment") is not True
+        or summary.get("stage") != "formal_single_seed"
+        or int(summary.get("seed", -1)) != 13
+        or summary.get("selectors") != expected_selectors
+        or summary.get("test_used_for_training_or_selection") is not False
+    ):
+        raise ValueError("seed-13 report summary violates the frozen formal contract")
+
+    provenance = load_json(source_dir / "provenance.json")
+    if provenance.get("git_dirty") is not False:
+        raise ValueError("seed-13 report provenance is dirty")
+    if provenance.get("config_sha256") != sha256(config_path):
+        raise ValueError("seed-13 report config hash differs from checked-out config")
+    recorded_files = provenance.get("source_contract", {}).get("files")
+    if not isinstance(recorded_files, dict):
+        raise ValueError("seed-13 report lacks source_contract file hashes")
+    current_files = _source_contract_hashes(ROOT)
+    for name, current in current_files.items():
+        recorded = recorded_files.get(name)
+        if not isinstance(recorded, dict) or recorded.get("sha256") != current["sha256"]:
+            raise ValueError(f"seed-13 report source hash differs for {name}")
+    source_revision = provenance.get("git_revision")
+    if not isinstance(source_revision, str) or not source_revision:
+        raise ValueError("seed-13 report lacks source git revision")
+
+    counts = (source_dir / "data_counts.txt").read_text(encoding="utf-8")
+    for split, expected in config["expected_records"].items():
+        marker = f"{int(expected)} data/relation/retacred/{split}.jsonl"
+        if marker not in counts:
+            raise ValueError(f"seed-13 report data count mismatch for {split}")
+    report_hashes = _parse_data_hashes(source_dir / "data.sha256")
+    for split in ("train", "valid", "test"):
+        data_path = (ROOT / config[f"{split}_path"]).resolve()
+        if not data_path.is_file():
+            raise ValueError(f"checked-out data file is missing: {data_path}")
+        if report_hashes.get(data_path.name) != sha256(data_path):
+            raise ValueError(f"seed-13 report data hash differs for {split}")
+
+    for selector in SELECTOR_TASKS:
+        metrics = load_json(source_dir / f"metrics/{selector}.json")
+        if metrics.get("selector") != selector or metrics.get("finite") is not True:
+            raise ValueError(f"seed-13 report metrics are invalid for {selector}")
+        if not isinstance(metrics.get("test", {}).get("metrics"), dict):
+            raise ValueError(f"seed-13 report test metrics are missing for {selector}")
+        case = load_json(source_dir / f"case_study/{selector}.json")
+        if case.get("schema_version") != "q-attention.q-ceasc-case-study.v2":
+            raise ValueError(f"seed-13 Case Study schema is invalid for {selector}")
+        if set(case.get("required_splits", [])) != {"train", "valid", "test"}:
+            raise ValueError(f"seed-13 Case Study split coverage is incomplete for {selector}")
+        if len(case.get("cases", [])) != 27:
+            raise ValueError(f"seed-13 Case Study must contain 27 cases for {selector}")
+        trace = load_json(source_dir / f"case_study/{selector}.sample-trace.json")
+        if trace.get("schema_version") != "sample-trace.v1":
+            raise ValueError(f"seed-13 sample trace schema is invalid for {selector}")
+        if trace.get("experiment", {}).get("config_sha256") != sha256(source_dir / "run_config.json"):
+            raise ValueError(f"seed-13 sample trace config hash is invalid for {selector}")
+
+    return {
+        "schema_version": "q-attention.q-ceasc-counterfactual.seed13-import.v1",
+        "seed": 13,
+        "source_report_dir": str(source_dir),
+        "source_report_commit": (
+            (source_dir / "reporting_commit.txt").read_text(encoding="utf-8").strip()
+            if (source_dir / "reporting_commit.txt").is_file()
+            else None
+        ),
+        "source_git_revision": source_revision,
+        "validated_against_git_commit": current_commit,
+        "config_sha256": sha256(config_path),
+        "data_hashes": report_hashes,
+        "mode": "audited_report_reuse",
+    }
+
+
+def import_seed13_report(
+    source_dir: Path,
+    group_dir: Path,
+    *,
+    config_path: Path,
+    config: dict[str, Any],
+    current_commit: str,
+    metadata: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    metadata = metadata or validate_seed13_report(
+        source_dir,
+        config_path=config_path,
+        config=config,
+        current_commit=current_commit,
+    )
+    seed_dir = group_dir / "seed_13"
+    if seed_dir.exists() and any(seed_dir.iterdir()):
+        raise ValueError("cannot import seed-13 report into a non-empty seed directory")
+    (seed_dir / "baseline").mkdir(parents=True, exist_ok=True)
+    for selector in SELECTOR_TASKS:
+        (seed_dir / "selectors" / selector).mkdir(parents=True, exist_ok=True)
+    copy_map = {
+        "RUN_COMPLETE": "RUN_COMPLETE",
+        "run_config.json": "run_config.json",
+        "run_summary.json": "run_summary.json",
+        "run_summary.md": "run_summary.md",
+        "data.sha256": "data.sha256",
+        "data_counts.txt": "data_counts.txt",
+        "provenance.json": "provenance.json",
+        "metrics/baseline.json": "baseline/metrics.json",
+    }
+    for selector in SELECTOR_TASKS:
+        copy_map.update(
+            {
+                f"metrics/{selector}.json": f"selectors/{selector}/metrics.json",
+                f"case_study/{selector}.json": f"selectors/{selector}/case_study.json",
+                f"case_study/{selector}.sample-trace.json": f"selectors/{selector}/sample_trace.json",
+            }
+        )
+    for source_relative, target_relative in copy_map.items():
+        target = seed_dir / target_relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source_dir / source_relative, target)
+    write_json(seed_dir / "imported_report.json", metadata)
+    return metadata
 
 
 def parse_int_list(value: str, *, label: str) -> list[int]:
@@ -725,6 +964,8 @@ def run_group(
     commit: str,
     base_config: dict[str, Any],
     resume_group: bool = False,
+    import_seed13_report_path: Path | None = None,
+    import_seed13_metadata: dict[str, Any] | None = None,
 ) -> int:
     configs_dir = group_dir / "configs"
     if resume_group:
@@ -736,6 +977,8 @@ def run_group(
             "q-attention.q-ceasc.formal-multiseed-manifest.v1",
         }:
             raise ValueError("unsupported multi-seed manifest schema")
+        if manifest.get("protocol", PROTOCOL) != PROTOCOL:
+            raise ValueError("resume group protocol differs from the checked-out formal config")
         if [int(seed) for seed in manifest.get("seeds", [])] != seeds:
             raise ValueError("resume group seed set differs from frozen 13,29,53")
         if manifest.get("git_commit") != commit:
@@ -766,6 +1009,7 @@ def run_group(
             build_seed_config(base_config, seed, configs_dir / f"seed_{seed}.json")
         manifest = {
             "schema_version": MANIFEST_SCHEMA,
+            "protocol": PROTOCOL,
             "scheduler": "two_phase_task_graph",
             "task_granularity": ["baseline(seed)", "selector(seed,name)"],
             "started_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -781,13 +1025,42 @@ def run_group(
             "max_workers_per_gpu": 1,
             "hardware_profile": args.hardware_profile,
             "checkpoint_every_batches": args.checkpoint_every_batches,
+            "imported_seed_reports": {},
         }
         write_json(group_dir / "multi_seed_manifest.json", manifest)
 
+    imported_seed_reports = manifest.get("imported_seed_reports", {})
+    if not isinstance(imported_seed_reports, dict):
+        raise ValueError("multi-seed manifest has invalid imported_seed_reports")
+    if import_seed13_report_path is not None:
+        if resume_group:
+            raise ValueError("--import-seed13-report cannot be combined with --resume-group")
+        if 13 not in seeds:
+            raise ValueError("seed-13 report reuse requires seed 13 in the replication set")
+        metadata = import_seed13_report(
+            import_seed13_report_path,
+            group_dir,
+            config_path=CONFIG_PATH,
+            config=base_config,
+            current_commit=commit,
+            metadata=import_seed13_metadata,
+        )
+        imported_seed_reports["13"] = metadata
+        manifest["imported_seed_reports"] = imported_seed_reports
+        write_json(group_dir / "multi_seed_manifest.json", manifest)
+
+    imported_seed_set = {
+        int(seed)
+        for seed in imported_seed_reports
+        if str(seed).isdigit()
+    }
     tasks = make_tasks(seeds)
     for key, item in tasks.items():
         seed = int(item["seed"])
         seed_dir = _seed_dir(group_dir, seed)
+        if seed in imported_seed_set:
+            item.update({"status": "complete", "resumed_skip": True, "imported_report": True})
+            continue
         if item["kind"] == "baseline":
             if resume_group and _baseline_complete(seed_dir):
                 item.update({"status": "complete", "resumed_skip": True})
@@ -1213,6 +1486,8 @@ def run_group(
     completed = all(item["status"] == "complete" for item in tasks.values())
     if completed:
         for seed in seeds:
+            if seed in imported_seed_set:
+                continue
             _write_seed_summary(
                 group_dir=group_dir,
                 seed=seed,
@@ -1287,6 +1562,12 @@ def run_group(
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=ROOT / "configs" / "retacred_qceasc_formal_single_seed.json",
+        help="frozen formal config; counterfactual config enables the counterfactual protocol",
+    )
     parser.add_argument("--seeds", default=",".join(map(str, DEFAULT_SEEDS)))
     parser.add_argument("--gpus", "--gpu", dest="gpus", default="auto")
     parser.add_argument(
@@ -1299,6 +1580,16 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--dashboard-interval", type=float, default=30.0)
     parser.add_argument("--output-dir", type=Path, default=None)
     parser.add_argument("--resume-group", type=Path, default=None)
+    parser.add_argument(
+        "--import-seed13-report",
+        type=Path,
+        default=None,
+        metavar="REPORT_DIR",
+        help=(
+            "reuse an audited counterfactual seed-13 report and run only fresh seeds 29 and 53; "
+            "the report is rejected unless config, data and source hashes match"
+        ),
+    )
     parser.add_argument("--allow-gpu-topology-change", action="store_true")
     parser.add_argument(
         "--workers-per-gpu",
@@ -1328,11 +1619,21 @@ def main(argv: list[str] | None = None) -> int:
             raise ValueError(
                 "overcommit mode is disabled until a hardware-specific canary approves two workers per GPU"
             )
-        if not CONFIG_PATH.is_file() or not SINGLE_RUNNER.is_file() or not SELECTOR_WORKER.is_file():
+        config_path = args.config if args.config.is_absolute() else ROOT / args.config
+        config_path = config_path.resolve()
+        if not config_path.is_file() or not SINGLE_RUNNER.is_file() or not SELECTOR_WORKER.is_file():
             raise ValueError("Q-CEASC formal runner or selector worker is missing")
-        base_config = load_json(CONFIG_PATH)
-        if base_config.get("schema_version") != "q-attention.q-ceasc-formal-single-seed.v1":
+        base_config = load_json(config_path)
+        configure_protocol(config_path, base_config)
+        if base_config.get("schema_version") not in {
+            "q-attention.q-ceasc-formal-single-seed.v1",
+            COUNTERFACTUAL_CONFIG_SCHEMA,
+        }:
             raise ValueError("unsupported Q-CEASC formal config")
+        if args.import_seed13_report is not None and not base_config.get("counterfactual"):
+            raise ValueError("--import-seed13-report requires the counterfactual formal config")
+        if args.import_seed13_report is not None and args.resume_group:
+            raise ValueError("--import-seed13-report cannot be combined with --resume-group")
         inventory = query_gpu_inventory()
         gpu_ids = resolve_gpu_ids(args.gpus, inventory)
     except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as exc:
@@ -1342,6 +1643,20 @@ def main(argv: list[str] | None = None) -> int:
         ["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=False
     )
     commit = commit_result.stdout.strip() if commit_result.returncode == 0 else "unknown"
+    import_seed13_metadata = None
+    import_seed13_report_path = None
+    if args.import_seed13_report is not None:
+        import_seed13_report_path = (
+            args.import_seed13_report
+            if args.import_seed13_report.is_absolute()
+            else ROOT / args.import_seed13_report
+        ).resolve()
+        import_seed13_metadata = validate_seed13_report(
+            import_seed13_report_path,
+            config_path=CONFIG_PATH,
+            config=base_config,
+            current_commit=commit,
+        )
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     if args.output_dir and args.resume_group:
         raise SystemExit("--output-dir and --resume-group are mutually exclusive")
@@ -1350,7 +1665,7 @@ def main(argv: list[str] | None = None) -> int:
         group_dir = ROOT / group_dir
     group_dir = group_dir.resolve()
     if not group_dir.is_relative_to(GROUP_ROOT.resolve()):
-        raise SystemExit("output directory must be under runs/retacred_qceasc_formal_multi_seed/")
+        raise SystemExit(f"output directory must be under {GROUP_ROOT}/")
     if group_dir.exists() and not args.dry_run and not args.resume_group:
         raise SystemExit(f"refusing to reuse output directory: {group_dir}")
     print(
@@ -1394,8 +1709,12 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if not args.skip_preflight:
         preflight = [
-            "bash",
-            "scripts/check_retacred_qceasc_formal_single_seed.sh",
+            args.python_bin if PROTOCOL == "qceasc_counterfactual" else "bash",
+            (
+                "scripts/check_retacred_qceasc_counterfactual_formal_single_seed.py"
+                if PROTOCOL == "qceasc_counterfactual"
+                else "scripts/check_retacred_qceasc_formal_single_seed.sh"
+            ),
             "--fresh",
             "--gpus",
             ",".join(map(str, gpu_ids)),
@@ -1413,6 +1732,8 @@ def main(argv: list[str] | None = None) -> int:
         commit=commit,
         base_config=base_config,
         resume_group=bool(args.resume_group),
+        import_seed13_report_path=import_seed13_report_path,
+        import_seed13_metadata=import_seed13_metadata,
     )
 
 
