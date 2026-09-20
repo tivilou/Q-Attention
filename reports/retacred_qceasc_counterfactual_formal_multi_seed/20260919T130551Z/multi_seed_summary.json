@@ -1,0 +1,229 @@
+{
+  "aggregate": {
+    "classical_counterfactual": {
+      "delta_test_macro_f1_vs_disabled": {
+        "ci95": [
+          -0.00017010998429939646,
+          0.00019670896580518783
+        ],
+        "mean": 1.3299490752895679e-05,
+        "n": 3,
+        "std": 7.38262908157347e-05,
+        "values": [
+          -5.295531118368335e-05,
+          -2.789415570747522e-08,
+          9.288167759807786e-05
+        ]
+      },
+      "relative_test_gain_vs_disabled": {
+        "ci95": [
+          -0.001105225082892774,
+          0.0013534061728842394
+        ],
+        "mean": 0.00012409054499573258,
+        "n": 3,
+        "std": 0.0004948261970814152,
+        "values": [
+          -0.0002967666542658726,
+          -1.6335968212107953e-07,
+          0.0006692016489351914
+        ]
+      },
+      "test_macro_f1": {
+        "ci95": [
+          0.1106238390146062,
+          0.2147285334591989
+        ],
+        "mean": 0.16267618623690255,
+        "n": 3,
+        "std": 0.020952198476001393,
+        "values": [
+          0.17838795246088968,
+          0.170752971531985,
+          0.13888763471783297
+        ]
+      },
+      "valid_macro_f1": {
+        "ci95": [
+          0.11714087600454073,
+          0.273480995862839
+        ],
+        "mean": 0.19531093593368987,
+        "n": 3,
+        "std": 0.03146514418498496,
+        "values": [
+          0.21918308972164674,
+          0.2070950087804908,
+          0.15965470929893208
+        ]
+      }
+    },
+    "disabled": {
+      "test_macro_f1": {
+        "ci95": [
+          0.11043019502215677,
+          0.2148955784701425
+        ],
+        "mean": 0.16266288674614965,
+        "n": 3,
+        "std": 0.02102479104857961,
+        "values": [
+          0.17844090777207336,
+          0.1707529994261407,
+          0.1387947530402349
+        ]
+      },
+      "valid_macro_f1": {
+        "ci95": [
+          0.1173512678874604,
+          0.27297317590124437
+        ],
+        "mean": 0.1951622218943524,
+        "n": 3,
+        "std": 0.031320596264313744,
+        "values": [
+          0.2187943768142992,
+          0.20705522899561565,
+          0.15963705987314236
+        ]
+      }
+    },
+    "q_ceasc_counterfactual": {
+      "delta_test_macro_f1_vs_disabled": {
+        "ci95": [
+          -7.34551928914054e-05,
+          0.0001178967141395118
+        ],
+        "mean": 2.2220760624053204e-05,
+        "n": 3,
+        "std": 3.8511645956628496e-05,
+        "values": [
+          6.669017602786709e-05,
+          -2.789415570747522e-08,
+          0.0
+        ]
+      },
+      "relative_test_gain_vs_disabled": {
+        "ci95": [
+          -0.0004116573587474704,
+          0.0006607072237146959
+        ],
+        "mean": 0.0001245249324836128,
+        "n": 3,
+        "std": 0.00021582499896140563,
+        "values": [
+          0.0003737381571329595,
+          -1.6335968212107953e-07,
+          0.0
+        ]
+      },
+      "test_macro_f1": {
+        "ci95": [
+          0.11039021102601598,
+          0.21498000398753142
+        ],
+        "mean": 0.1626851075067737,
+        "n": 3,
+        "std": 0.021049829812044445,
+        "values": [
+          0.17850759794810123,
+          0.170752971531985,
+          0.1387947530402349
+        ]
+      },
+      "valid_macro_f1": {
+        "ci95": [
+          0.11733409784926041,
+          0.27314194220917803
+        ],
+        "mean": 0.19523802002921922,
+        "n": 3,
+        "std": 0.031358017969923456,
+        "values": [
+          0.21897502082243125,
+          0.2070494982223276,
+          0.15968954104289884
+        ]
+      }
+    }
+  },
+  "candidate": "q_ceasc_counterfactual",
+  "claim_ceiling": "L1_utility_candidate",
+  "gates": {
+    "l2_reproducible_utility_gate": false,
+    "quantum_inspired_mean_relative_gain_gate": false,
+    "quantum_inspired_threshold": 0.01,
+    "test_used_for_training_or_selection": false
+  },
+  "git_commit": "205efca053187eed351f639db9d473769bc6f40a",
+  "group_dir": "/root/projects/Q-Attention/runs/retacred_qceasc_counterfactual_formal_multi_seed/20260919T130551Z",
+  "interpretation": "L2 requires the paired 95% CI of Q-CEASC minus disabled test macro-F1 to remain strictly above zero; otherwise retain L1.",
+  "matched_control": "classical_counterfactual",
+  "protocol": "qceasc_counterfactual",
+  "protocol_fingerprint": "20203b72434ed27b60cfd6607b6c3e366df23e212efdd7254ac03314a384982e",
+  "schema_version": "q-attention.q-ceasc-counterfactual.formal-multiseed-summary.v1",
+  "seed_records": [
+    {
+      "config_sha256": "e90fa4f5403e686182fc1065f9f747542161d1385bf9fca5c02df54c149fb4b0",
+      "git_revision": "0553c43a34ef2a760c6b4dcb22da147db208c1b9",
+      "import_metadata": {
+        "config_sha256": "e90fa4f5403e686182fc1065f9f747542161d1385bf9fca5c02df54c149fb4b0",
+        "data_hashes": {
+          "test.jsonl": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40",
+          "train.jsonl": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+          "valid.jsonl": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55"
+        },
+        "mode": "audited_report_reuse",
+        "schema_version": "q-attention.q-ceasc-counterfactual.seed13-import.v1",
+        "seed": 13,
+        "source_git_revision": "0553c43a34ef2a760c6b4dcb22da147db208c1b9",
+        "source_report_commit": "0553c43a34ef2a760c6b4dcb22da147db208c1b9",
+        "source_report_dir": "/root/projects/Q-Attention/reports/retacred_qceasc_counterfactual_formal_single_seed/20260918T023816Z_seed13",
+        "validated_against_git_commit": "205efca053187eed351f639db9d473769bc6f40a"
+      },
+      "imported_report": true,
+      "seed": 13,
+      "trace_status": {
+        "classical_counterfactual": "complete",
+        "q_ceasc_counterfactual": "complete"
+      }
+    },
+    {
+      "config_sha256": "222247fc2409593b5a82f1f70f2fde3207fd9655fa1b90b4c37d7844f2ddbc47",
+      "git_revision": "205efca053187eed351f639db9d473769bc6f40a",
+      "import_metadata": null,
+      "imported_report": false,
+      "seed": 29,
+      "trace_status": {
+        "classical_counterfactual": "complete",
+        "q_ceasc_counterfactual": "complete"
+      }
+    },
+    {
+      "config_sha256": "f858e979141765f49ce5569394fd94e64dd7bd8dbc5a4dc1df5da53daaec9513",
+      "git_revision": "205efca053187eed351f639db9d473769bc6f40a",
+      "import_metadata": null,
+      "imported_report": false,
+      "seed": 53,
+      "trace_status": {
+        "classical_counterfactual": "complete",
+        "q_ceasc_counterfactual": "complete"
+      }
+    }
+  ],
+  "seeds": [
+    13,
+    29,
+    53
+  ],
+  "selectors": [
+    "disabled",
+    "q_ceasc_counterfactual",
+    "classical_counterfactual"
+  ],
+  "source_git_revisions": [
+    "0553c43a34ef2a760c6b4dcb22da147db208c1b9",
+    "205efca053187eed351f639db9d473769bc6f40a"
+  ],
+  "stage": "replication"
+}
