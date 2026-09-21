@@ -7,6 +7,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
+| [Q-CEASC grouped counterfactual influence Re-TACRED 正式单 seed](current/retacred_qceasc_grouped_counterfactual_formal_single_seed_zh.md) | 完整数据、seed 13、固定 group size 4、量子/匹配经典/seeded random 三路对照、动态多 GPU、batch 级恢复及全链路 Case Study |
 | [Q-CEASC per-key counterfactual influence Re-TACRED 正式多 seed 复现](current/retacred_qceasc_counterfactual_formal_multi_seed_zh.md) | 复用已审计 seed 13、fresh 执行 seed 29/53 的完整数据 L2 复现、严格兼容性门禁、动态多 GPU 调度、batch 级恢复、paired 统计和审计报告导出 |
 | [Q-CEASC per-key counterfactual influence Re-TACRED 正式单 seed](current/retacred_qceasc_counterfactual_formal_single_seed_zh.md) | 完整数据、seed 13、动态多 GPU、batch 级恢复、自适应显存和 train/valid/test 全链路 Case Study |
 | [Q-CEASC Re-TACRED 正式多 seed 复现](current/retacred_qceasc_formal_multi_seed_zh.md) | 固定 seed 13/29/53 的完整数据 L2 复现、动态多 GPU 调度、batch 级恢复、paired 统计和审计报告导出 |
