@@ -24,7 +24,7 @@ import torch
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 EXPERIMENTS = ROOT / "experiments"
-SELECTOR_WORKER_PATH = EXPERIMENTS / "run_qceasc_grouped_counterfactual_selector_worker.py"
+SELECTOR_WORKER_PATH = EXPERIMENTS / "run_q_pvg_selector_worker.py"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 if str(EXPERIMENTS) not in sys.path:
@@ -177,11 +177,8 @@ ELASTIC_RESUME_SOURCE_FILES = (
     "batch_resume",
 )
 _DEFAULT_PAIR_CHUNK = object()
-FORMAL_CONFIG_SCHEMAS = {
-    "q-attention.q-ceasc-formal-single-seed.v1",
-    "q-attention.q-ceasc-grouped-counterfactual-formal-single-seed.v1",
-}
-COUNTERFACTUAL_MODES = set(QCEASC_GROUPED_COUNTERFACTUAL_CONTROL_MODES)
+FORMAL_CONFIG_SCHEMAS = {"q-attention.q-pvg-formal-single-seed.v1"}
+COUNTERFACTUAL_MODES: set[str] = set()
 
 
 def sha256(path: Path) -> str:
@@ -349,7 +346,7 @@ def selector_resume_contract(
     config = json.loads(config_path.read_text(encoding="utf-8"))
     kernel = config["kernel"]
     return {
-        "stage": "q_ceasc_selector",
+        "stage": "q_pvg_selector",
         "training_semantics": {
             "selector": selector,
             "seed": int(seed),
@@ -1564,7 +1561,7 @@ def _render_selector_dashboard(
     }
     lines = [
         (
-            f"Q-CEASC selectors: {counts['complete']}/{total} complete | "
+            f"Q-PVG selectors: {counts['complete']}/{total} complete | "
             f"{counts['running']} running | {counts['pending']} queued | "
             f"{counts['not_started']} not started | {counts['failed']} failed"
         )
@@ -2373,7 +2370,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
     config_path = args.config if args.config.is_absolute() else ROOT / args.config
     config = json.loads(config_path.read_text(encoding="utf-8"))
     if config.get("schema_version") not in FORMAL_CONFIG_SCHEMAS:
-        raise ValueError("unsupported Q-CEASC formal config")
+        raise ValueError("unsupported Q-PVG formal config")
     seed = int(config["seed"] if args.seed is None else args.seed)
     if args.replication_child:
         if seed not in REPLICATION_SEEDS:
@@ -2398,12 +2395,12 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
     model_parallel_gpu_ids = parse_model_parallel_gpu_ids(args.model_parallel_gpus)
     if model_parallel_gpu_ids and config.get("counterfactual"):
         raise ValueError(
-            "Q-CEASC counterfactual formal handoff supports selector-parallel GPUs only; "
+            "Q-PVG formal handoff supports selector-parallel GPUs only; "
             "model-parallel Case Study capture is intentionally unsupported"
         )
     if model_parallel_gpu_ids:
         raise ValueError(
-            "Q-CEASC formal handoff supports serial or selector-parallel GPUs only; "
+            "Q-PVG formal handoff supports serial or selector-parallel GPUs only; "
             "--model-parallel-gpus is intentionally unsupported"
         )
     if model_parallel_gpu_ids and args.gpus:
@@ -2601,7 +2598,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
         )
         print(
             "[q-ceasc] imported completed legacy baseline; "
-            "Q-CEASC candidate and matched control will restart from batch 0",
+            "Q-PVG candidate and matched control will restart from batch 0",
             flush=True,
         )
     baseline_complete = all(
@@ -2992,9 +2989,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
     }
     summary = {
         "schema_version": (
-            "q-attention.q-ceasc-grouped-counterfactual-formal-single-seed.run.v1"
-            if config.get("counterfactual")
-            else "q-attention.q-ceasc-formal-single-seed.run.v1"
+            "q-attention.q-pvg-formal-single-seed.run.v1"
         ),
         "name": config["name"],
         "formal_experiment": True,
@@ -3081,7 +3076,7 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
     (run_dir / "run_config.json").write_text(json.dumps(config, indent=2, sort_keys=True), encoding="utf-8")
     (run_dir / "run_summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
     lines = [
-        "# Q-CEASC Re-TACRED Formal Single Seed",
+        "# Q-PVG Re-TACRED Formal Single Seed",
         "",
         f"This is one complete seed-{seed} run under the frozen natural-task contract.",
         "",
