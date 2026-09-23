@@ -45,25 +45,9 @@ from q_attention.experiments.batch_resume import (  # noqa: E402
     fingerprint,
     file_contract,
 )
-from q_attention.plugins.q_ceasc_score import (  # noqa: E402
-    QCEASCScoreKernelConfig,
-    QCEASCScoreKernel,
-    build_qceasc_score_kernel,
-)
-from q_attention.plugins.q_ceasc_grouped_counterfactual import (  # noqa: E402
-    QCEASCGroupedCounterfactualScoreKernelConfig,
-    QCEASCGroupedCounterfactualScoreKernel,
-    build_qceasc_grouped_counterfactual_score_kernel,
-    QCEASC_GROUPED_COUNTERFACTUAL_CONTROL_MODES,
-)
 from run_q_causal_value_evidence_relation_smoke import (  # noqa: E402
     materialize_subset,
     resolve_path,
-)
-from run_q_causal_value_evidence_relation_transfer import (  # noqa: E402
-    evaluate,
-    metric_delta,
-    train_kernel,
 )
 from q_attention.tasks.relation import load_relation_jsonl  # noqa: E402
 
@@ -71,8 +55,8 @@ from q_attention.tasks.relation import load_relation_jsonl  # noqa: E402
 DEFAULT_CONFIG = ROOT / "configs" / "retacred_q_pvg_formal_single_seed.json"
 FORMAL_RUN_NAME = "retacred_q_pvg_formal_single_seed"
 REPLICATION_SEEDS = (13, 29, 53)
-RUN_MANIFEST_SCHEMA = "q-attention.q-ceasc-batch-resume-run.v1"
-DATA_MANIFEST_SCHEMA = "q-attention.q-ceasc-materialized-data.v1"
+RUN_MANIFEST_SCHEMA = "q-attention.q-pvg-batch-resume-run.v1"
+DATA_MANIFEST_SCHEMA = "q-attention.q-pvg-materialized-data.v1"
 SAFE_PAUSE_TIMEOUT_SECONDS = 15 * 60
 RATING_POLICY = {
     "id": "q-attention-utility-and-qi-v1",
@@ -276,12 +260,12 @@ class RunPaused(RuntimeError):
 
 def _source_contract(*, counterfactual: bool = False) -> dict[str, Any]:
     paths = {
-        "runner": ROOT / "experiments" / "run_retacred_qceasc_grouped_counterfactual_formal_single_seed.py",
+        "runner": ROOT / "experiments" / "run_q_pvg_formal_single_seed.py",
         "worker": SELECTOR_WORKER_PATH,
         "baseline_trainer": ROOT / "experiments" / "train_relation_baseline.py",
         "kernel_trainer": ROOT
         / "experiments"
-        / "run_q_causal_value_evidence_relation_transfer.py",
+        / "run_q_pvg_transfer_base.py",
         "batch_resume": ROOT
         / "src"
         / "q_attention"
@@ -306,21 +290,21 @@ def _source_contract(*, counterfactual: bool = False) -> dict[str, Any]:
         / "src"
         / "q_attention"
         / "adapters"
-        / "attention_scores.py",
-        "q_ceasc": ROOT
+        / "attention_context.py",
+        "q_pvg": ROOT
         / "src"
         / "q_attention"
         / "plugins"
-        / "q_ceasc_score.py",
-        "q_ceasc_core": ROOT
+        / "q_pvg.py",
+        "q_pvg_core": ROOT
         / "src"
         / "q_attention"
         / "plugins"
-            / "q_ceasc.py",
+            / "q_pvg.py",
     }
     if counterfactual:
-        paths["q_ceasc_grouped_counterfactual"] = (
-            ROOT / "src" / "q_attention" / "plugins" / "q_ceasc_grouped_counterfactual.py"
+        paths["q_pvg_context"] = (
+            ROOT / "src" / "q_attention" / "plugins" / "q_pvg.py"
         )
     return {
         "git_revision": git_output("rev-parse", "HEAD"),
@@ -2241,111 +2225,6 @@ def run_selector_workers(
     return statuses
 
 
-def build_kernel(
-    mode: str,
-    model: torch.nn.Module,
-    seed: int,
-    config: dict[str, Any],
-    *,
-    pair_chunk_size: int | None | object = _DEFAULT_PAIR_CHUNK,
-    pair_chunk_divisor: int = 1,
-    activation_checkpointing: bool | None = None,
-    model_parallel_devices: tuple[torch.device, ...] = (),
-) -> torch.nn.Module:
-    kernel_config = config["kernel"]
-    counterfactual = bool(
-        config.get("counterfactual", False)
-        or config.get("schema_version") == "q-attention.q-ceasc-grouped-counterfactual-formal-single-seed.v1"
-        or mode in COUNTERFACTUAL_MODES
-    )
-    if counterfactual:
-        mode_map = {
-            "q_ceasc_grouped_counterfactual": "q_ceasc_grouped_counterfactual",
-            "classical_grouped_counterfactual": "classical_grouped_counterfactual",
-            "random_grouped_counterfactual": "random_grouped_counterfactual",
-        }
-        if mode not in mode_map:
-            raise ValueError(f"unknown Q-CEASC counterfactual selector {mode!r}")
-        config_obj = QCEASCGroupedCounterfactualScoreKernelConfig(
-            num_layers=model.config.num_layers,
-            num_heads=model.config.num_heads,
-            head_dim=model.config.dim // model.config.num_heads,
-            auxiliary_qubits=int(kernel_config["auxiliary_qubits"]),
-            depth=int(kernel_config["depth"]),
-            support_width=int(kernel_config["support_width"]),
-            action_rank=int(kernel_config["action_rank"]),
-            angle_scale=float(kernel_config["angle_scale"]),
-            max_gain=float(kernel_config["max_gain"]),
-            initial_gain=float(kernel_config["initial_gain"]),
-            span_rcond=float(kernel_config.get("span_rcond", 1e-6)),
-            group_size=int(kernel_config.get("group_size", 4)),
-            group_intervention_chunk_size=int(
-                kernel_config.get("group_intervention_chunk_size", 64)
-            ),
-            random_group_seed=int(kernel_config.get("random_group_seed", seed + 911)),
-            query_chunk_size=(
-                int(kernel_config.get("query_chunk_size", 4096))
-                if pair_chunk_size is _DEFAULT_PAIR_CHUNK
-                else max(
-                    1,
-                    min(
-                        int(kernel_config.get("query_chunk_size", 4096)),
-                        int(pair_chunk_size)
-                        if pair_chunk_size is not None
-                        else max(
-                            1,
-                            int(kernel_config.get("query_chunk_size", 4096))
-                            // int(pair_chunk_divisor),
-                        ),
-                    ),
-                )
-            ),
-            seed=seed + 307,
-        )
-        del activation_checkpointing, model_parallel_devices
-        return build_qceasc_grouped_counterfactual_score_kernel(mode_map[mode], config_obj)
-    mode_map = {
-        "q_ceasc": "q_ceasc",
-        "classical_ceasc": "classical_span",
-        "quantum_product": "quantum_product",
-    }
-    if mode not in mode_map:
-        raise ValueError(f"unknown Q-CEASC selector {mode!r}")
-    config_obj = QCEASCScoreKernelConfig(
-        num_layers=model.config.num_layers,
-        num_heads=model.config.num_heads,
-        head_dim=model.config.dim // model.config.num_heads,
-        auxiliary_qubits=int(kernel_config["auxiliary_qubits"]),
-        depth=int(kernel_config["depth"]),
-        support_width=int(kernel_config["support_width"]),
-        action_rank=int(kernel_config["action_rank"]),
-        angle_scale=float(kernel_config["angle_scale"]),
-        max_gain=float(kernel_config["max_gain"]),
-        initial_gain=float(kernel_config["initial_gain"]),
-        span_rcond=float(kernel_config.get("span_rcond", 1e-6)),
-        query_chunk_size=(
-            int(kernel_config.get("query_chunk_size", 4096))
-            if pair_chunk_size is _DEFAULT_PAIR_CHUNK
-            else max(
-                1,
-                min(
-                    int(kernel_config.get("query_chunk_size", 4096)),
-                    int(pair_chunk_size)
-                    if pair_chunk_size is not None
-                    else int(kernel_config.get("query_chunk_size", 4096))
-                    // int(pair_chunk_divisor),
-                ),
-            )
-        ),
-        seed=seed + 307,
-    )
-    # The adaptive pair-chunk contract maps to query-token materialization
-    # chunks.  It changes only memory scheduling, not the logical batch or
-    # score residual function.
-    del activation_checkpointing, model_parallel_devices
-    return build_qceasc_score_kernel(mode_map[mode], config_obj)
-
-
 def evaluate_selector(
     model: torch.nn.Module,
     loader: Any,
@@ -3048,13 +2927,11 @@ def _run(args: argparse.Namespace, pause: PauseController) -> int:
                 / "q_attention"
                 / "plugins"
                 / (
-                    "q_ceasc_grouped_counterfactual.py"
-                    if config.get("counterfactual")
-                    else "q_ceasc_score.py"
+                    "q_pvg.py"
                 )
             ),
             "plugin_core_sha256": sha256(
-                ROOT / "src" / "q_attention" / "plugins" / "q_ceasc.py"
+                ROOT / "src" / "q_attention" / "plugins" / "q_pvg.py"
             ),
             "source_contract": _source_contract(
                 counterfactual=bool(config.get("counterfactual", False))
