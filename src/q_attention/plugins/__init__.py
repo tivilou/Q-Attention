@@ -24,6 +24,15 @@ from .attention_evidence import (
     RelationEvidenceSelectorConfig,
     build_relation_evidence_selector,
 )
+from .q_pvg import (
+    PHASE_MODES,
+    READOUT_MODES,
+    SCORE_MODES,
+    VALUE_ROUTE_MODES,
+    PhaseValueGatingKernel,
+    QPVGConfig,
+    build_q_pvg,
+)
 from .attention_score_kernel import (
     SCORE_KERNEL_CHECKPOINT_VERSION,
     SCORE_INPUT_ENCODING_CHOICES,
@@ -265,4 +274,11 @@ __all__ = [
     "save_quantum_steering_checkpoint",
     "save_relation_attention_score_kernel_checkpoint",
     "score_residual_to_query_aligned_key_delta",
+    "PHASE_MODES",
+    "READOUT_MODES",
+    "SCORE_MODES",
+    "VALUE_ROUTE_MODES",
+    "PhaseValueGatingKernel",
+    "QPVGConfig",
+    "build_q_pvg",
 ]

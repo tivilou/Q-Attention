@@ -1,0 +1,39 @@
+{
+  "schema_version": "q-attention.q-pvg-formal-single-seed.v1",
+  "name": "retacred_q_pvg_formal_single_seed",
+  "formal_experiment": true,
+  "seed": 13,
+  "train_path": "data/relation/retacred/train.jsonl",
+  "valid_path": "data/relation/retacred/valid.jsonl",
+  "test_path": "data/relation/retacred/test.jsonl",
+  "expected_records": {"train": 58465, "valid": 19584, "test": 13418},
+  "selectors": ["disabled", "q_pvg_phase_value", "q_pvg_real_only", "q_pvg_classical_complex", "q_pvg_random_phase", "q_pvg_score_value"],
+  "candidate": "q_pvg_phase_value",
+  "matched_control": "q_pvg_classical_complex",
+  "structural_control": "q_pvg_random_phase",
+  "control_definitions": {
+    "disabled": "Frozen attention baseline with no Q-PVG context intervention.",
+    "q_pvg_phase_value": "Quantum phase-sensitive query-key overlap gates a learned value route.",
+    "q_pvg_real_only": "Ablation retaining the state preparation while removing the imaginary overlap channel.",
+    "q_pvg_classical_complex": "Matched classical readout with the same prepared-state parameter shapes and no imaginary gate channel.",
+    "q_pvg_random_phase": "Seeded random phase channel control with the same state and parameter budget.",
+    "q_pvg_score_value": "Ablation that additionally applies a centered gate-derived score adjustment."
+  },
+  "baseline": {"epochs": 8, "batch_size": 16, "lr": 0.001},
+  "kernel": {
+    "epochs": 12, "batch_size": 256, "lr": 0.001,
+    "register_qubits": 2, "depth": 2, "angle_scale": 1.0,
+    "gate_temperature": 1.0, "score_gain": 0.25,
+    "value_route_mode": "branch_interpolation", "seed_offset": 3000,
+    "query_chunk_size": 256, "weight_decay": 0.0
+  },
+  "model": {"dim": 32, "num_layers": 2, "num_heads": 4, "ff_dim": 64, "dropout": 0.0},
+  "case_study": {
+    "records": {"train": [0, 1, 2], "valid": [0, 1, 2], "test": [0, 1, 2]},
+    "checkpoints": ["initial_or_pre_training", "best_valid_or_declared_selection_checkpoint", "final"],
+    "freeze_before_training": true,
+    "description": "Frozen train/valid/test examples replayed at three declared checkpoints; raw tensors remain private and the report carries safe projections."
+  },
+  "gates": {"minimum_candidate_minus_disabled_macro_f1": 0.0, "minimum_candidate_minus_matched_macro_f1": -0.0005, "minimum_classical_relative_gain": 0.01, "test_used_for_training_or_selection": false},
+  "claim_limits": {"single_seed_only": true, "natural_transfer_not_yet_reproducible": true, "quantum_specific_advantage_not_claimed": true, "multi_seed_requires_post_audit_authorization": true, "exact_statevector_is_not_hardware_speed_evidence": true, "toy_pass_promoted_directly_to_single_seed": true}
+}

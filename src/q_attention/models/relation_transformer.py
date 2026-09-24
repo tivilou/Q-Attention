@@ -35,6 +35,20 @@ class AttentionScorePassThrough(nn.Module):
         return scores
 
 
+class AttentionContextPassThrough(nn.Module):
+    """Optional hook point for value/context interventions."""
+
+    def forward(
+        self,
+        _query: torch.Tensor,
+        _key: torch.Tensor,
+        _value: torch.Tensor,
+        _scores: torch.Tensor,
+        _attention_mask: torch.Tensor | None,
+    ) -> None:
+        return None
+
+
 class SteerableSelfAttention(nn.Module):
     """Self-attention layer with an explicit key projection module."""
 
@@ -50,6 +64,7 @@ class SteerableSelfAttention(nn.Module):
         self.value_proj = nn.Linear(dim, dim)
         self.out_proj = nn.Linear(dim, dim)
         self.score_intervention = AttentionScorePassThrough()
+        self.context_intervention = AttentionContextPassThrough()
         self.dropout = nn.Dropout(dropout)
 
     def _split_heads(self, tensor: torch.Tensor) -> torch.Tensor:
@@ -63,13 +78,16 @@ class SteerableSelfAttention(nn.Module):
 
         scores = torch.matmul(query, key.transpose(-1, -2)) / math.sqrt(self.head_dim)
         scores = self.score_intervention(scores, query, key, value)
-        if attention_mask is not None:
-            key_mask = attention_mask[:, None, None, :].to(dtype=torch.bool)
-            scores = scores.masked_fill(~key_mask, torch.finfo(scores.dtype).min)
-
-        weights = torch.softmax(scores, dim=-1)
-        weights = self.dropout(weights)
-        context = torch.matmul(weights, value)
+        context = self.context_intervention(query, key, value, scores, attention_mask)
+        if context is None:
+            if attention_mask is not None:
+                key_mask = attention_mask[:, None, None, :].to(dtype=torch.bool)
+                scores = scores.masked_fill(~key_mask, torch.finfo(scores.dtype).min)
+            weights = torch.softmax(scores, dim=-1)
+            weights = self.dropout(weights)
+            context = torch.matmul(weights, value)
+        elif not isinstance(context, torch.Tensor) or context.shape != query.shape:
+            raise ValueError("context intervention must return a tensor matching query shape")
         context = context.transpose(1, 2).contiguous().view(hidden.shape)
         return self.out_proj(context)
 
@@ -217,6 +235,13 @@ class RelationExtractionModel(nn.Module):
     def score_module_paths(self) -> tuple[str, ...]:
         return tuple(
             f"encoder.layers.{idx}.attn.score_intervention"
+            for idx in range(self.config.num_layers)
+        )
+
+    @property
+    def context_module_paths(self) -> tuple[str, ...]:
+        return tuple(
+            f"encoder.layers.{idx}.attn.context_intervention"
             for idx in range(self.config.num_layers)
         )
 
