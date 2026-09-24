@@ -55,6 +55,21 @@ bash scripts/run_retacred_q_pvg_formal_single_seed.sh \
 `--allow-code-update` 只允许已发布的 execution-layer 修复迁移到恢复契约；seed、
 数据、selector、batch size、epoch 和科学配置仍必须完全一致。
 
+如果恢复时出现 `ResumeCompatibilityError: resume contract differs`，先运行只读诊断，
+不要删除 checkpoint 或新建 run：
+
+```bash
+bash scripts/check_retacred_q_pvg_resume.sh \
+  --run-dir runs/retacred_q_pvg_formal_single_seed/<timestamp>_seed13 \
+  --gpus auto \
+  --hardware-profile adaptive
+```
+
+诊断会比较原 run 与当前 checkout 的恢复契约，只输出不兼容字段路径和类别，不显示
+数据内容或契约字段值。`recommended action` 给出可用的恢复选项；若建议停止，或差异
+中包含 `config`、`data`、`materialization`、`selector`、`seed`、`batch_size`、`epochs`
+等科学契约字段，应先把诊断输出交回项目方审查，不要改参数绕过检查。
+
 完整数据实验只能由合作者执行。项目方只做代码测试、toy、preflight 和报告审计；本单 seed 审计完成前不得启动 multi-seed，也不得宣称量子优势。
 
 ## 交接前检查
