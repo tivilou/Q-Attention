@@ -36,6 +36,9 @@ _base.FORMAL_CONFIG_SCHEMAS = {
 }
 _base.COUNTERFACTUAL_MODES = set()
 _base_selector_resume_contract = _base.selector_resume_contract
+_base_selector_resume_contract_compatible = (
+    _base.selector_resume_contract_compatible
+)
 
 
 def _git_output(*args: str) -> str | None:
@@ -79,7 +82,7 @@ def selector_resume_contract(**kwargs: Any) -> dict[str, Any]:
 
 
 def selector_resume_contract_compatible(previous: dict[str, Any], current: dict[str, Any]) -> bool:
-    return _base.selector_resume_contract_compatible(previous, current)
+    return _base_selector_resume_contract_compatible(previous, current)
 
 
 # The shared scheduler calls these names through its own module namespace;
