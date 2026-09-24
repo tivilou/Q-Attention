@@ -70,6 +70,12 @@ bash scripts/check_retacred_q_pvg_resume.sh \
 中包含 `config`、`data`、`materialization`、`selector`、`seed`、`batch_size`、`epochs`
 等科学契约字段，应先把诊断输出交回项目方审查，不要改参数绕过检查。
 
+若同时显示 `source...` 和 `training_semantics.selector_gpu_ids` 差异，且建议动作为
+`resume with --allow-code-update and --allow-gpu-topology-change`，在原命令上同时加入
+这两个参数。GPU 拓扑授权支持 selector worker 从多卡切回单卡，或从单卡扩展到多卡；
+代码更新和 GPU 拓扑变化必须分别显式授权；这不会放宽 selector checkpoint 中的 seed、
+数据或训练参数契约。
+
 完整数据实验只能由合作者执行。项目方只做代码测试、toy、preflight 和报告审计；本单 seed 审计完成前不得启动 multi-seed，也不得宣称量子优势。
 
 ## 交接前检查

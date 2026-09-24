@@ -49,3 +49,31 @@ def test_invalid_json_error_does_not_echo_file_contents(tmp_path: Path) -> None:
 
     assert error == "invalid JSON (JSONDecodeError)"
     assert "must not be echoed" not in error
+
+
+def test_recommendation_requires_both_flags_for_code_and_topology_changes() -> None:
+    recommendation = diagnostic._recommended_action(
+        strict=False,
+        code_update=False,
+        topology_change=False,
+        combined_migration=True,
+        difference_paths=[
+            "source.files.runner.sha256",
+            "training_semantics.selector_gpu_ids",
+        ],
+    )
+
+    assert recommendation == "resume with --allow-code-update and --allow-gpu-topology-change"
+
+    recommendation = diagnostic._recommended_action(
+        strict=False,
+        code_update=True,
+        topology_change=False,
+        combined_migration=True,
+        difference_paths=[
+            "source.files.runner.sha256",
+            "training_semantics.selector_gpu_ids",
+        ],
+    )
+
+    assert recommendation == "resume with --allow-code-update and --allow-gpu-topology-change"
