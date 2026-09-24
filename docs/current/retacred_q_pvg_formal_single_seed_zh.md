@@ -34,6 +34,27 @@ bash scripts/run_retacred_q_pvg_formal_single_seed.sh \
   --resume runs/retacred_q_pvg_formal_single_seed/<timestamp>_seed13
 ```
 
+如果运行在首个 selector 处因旧版梯度检查器报 `missing=scalar_value_logit`
+而停止，先同步本次 execution-layer 修复，然后在原 run 目录恢复，保留已完成的
+baseline 和 batch checkpoint：
+
+```bash
+git fetch origin --prune
+git checkout 1.1
+git pull --ff-only origin 1.1
+git merge origin/main
+git push origin 1.1
+
+bash scripts/run_retacred_q_pvg_formal_single_seed.sh \
+  --gpu auto \
+  --hardware-profile adaptive \
+  --resume runs/retacred_q_pvg_formal_single_seed/<timestamp>_seed13 \
+  --allow-code-update
+```
+
+`--allow-code-update` 只允许已发布的 execution-layer 修复迁移到恢复契约；seed、
+数据、selector、batch size、epoch 和科学配置仍必须完全一致。
+
 完整数据实验只能由合作者执行。项目方只做代码测试、toy、preflight 和报告审计；本单 seed 审计完成前不得启动 multi-seed，也不得宣称量子优势。
 
 ## 交接前检查

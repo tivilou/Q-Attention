@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import importlib.util
+from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
 import torch
 import torch.nn.functional as F
 
@@ -9,6 +14,12 @@ from q_attention.adapters.attention_context import (
 )
 from q_attention.models import RelationExtractionModel, RelationTransformerConfig
 from q_attention.plugins.q_pvg import QPVGConfig, build_q_pvg
+
+_TRAINING_RUNNER = Path(__file__).resolve().parents[1] / "experiments" / "run_q_pvg_transfer_base.py"
+_TRAINING_SPEC = importlib.util.spec_from_file_location("q_pvg_training_base", _TRAINING_RUNNER)
+assert _TRAINING_SPEC is not None and _TRAINING_SPEC.loader is not None
+_TRAINING_MODULE = importlib.util.module_from_spec(_TRAINING_SPEC)
+_TRAINING_SPEC.loader.exec_module(_TRAINING_MODULE)
 
 
 def _model() -> RelationExtractionModel:
@@ -118,3 +129,89 @@ def test_q_pvg_context_adapter_captures_trace_and_finite_gradients() -> None:
     gradients = [parameter.grad for parameter in kernel.parameters() if parameter.grad is not None]
     assert gradients
     assert all(torch.isfinite(gradient).all() for gradient in gradients)
+
+
+@pytest.mark.parametrize(
+    "selector",
+    [
+        "q_pvg_phase_value",
+        "q_pvg_real_only",
+        "q_pvg_classical_complex",
+        "q_pvg_random_phase",
+        "q_pvg_score_value",
+    ],
+)
+def test_formal_selector_first_batch_satisfies_gradient_contract(selector: str) -> None:
+    model = _model()
+    for parameter in model.parameters():
+        parameter.requires_grad_(False)
+    kernel = _TRAINING_MODULE.build_kernel(
+        selector,
+        model,
+        13,
+        SimpleNamespace(
+            register_qubits=2,
+            depth=2,
+            angle_scale=1.0,
+            gate_temperature=1.0,
+            score_gain=0.25,
+            value_route_mode="branch_interpolation",
+        ),
+    )
+    assert kernel is not None
+    logits, _ = _attached_logits(model, kernel, query_chunk_size=2)
+    F.cross_entropy(logits, torch.tensor([0, 2])).backward()
+
+    _TRAINING_MODULE._validate_kernel_gradients(
+        kernel,
+        selector=selector,
+        epoch=1,
+    )
+
+
+@pytest.mark.parametrize(
+    ("route_mode", "phase_mode", "readout_mode", "active_names", "inactive_names"),
+    [
+        (
+            "branch_interpolation", "complex", "quantum",
+            {"value_branch0", "value_branch1", "gate_imag_weight"},
+            {"scalar_value_logit"},
+        ),
+        (
+            "scalar", "complex", "quantum",
+            {"scalar_value_logit", "gate_imag_weight"},
+            {"value_branch0", "value_branch1"},
+        ),
+        (
+            "branch_interpolation", "real_only", "quantum",
+            {"value_branch0", "value_branch1"},
+            {"scalar_value_logit", "gate_imag_weight"},
+        ),
+        (
+            "branch_interpolation", "complex", "classical",
+            {"value_branch0", "value_branch1"},
+            {"scalar_value_logit", "gate_imag_weight"},
+        ),
+    ],
+)
+def test_formal_gradient_expectations_follow_route_and_readout(
+    route_mode: str,
+    phase_mode: str,
+    readout_mode: str,
+    active_names: set[str],
+    inactive_names: set[str],
+) -> None:
+    kernel = build_q_pvg(
+        QPVGConfig(
+            num_layers=2,
+            num_heads=2,
+            head_dim=4,
+            value_route_mode=route_mode,
+            phase_mode=phase_mode,
+            readout_mode=readout_mode,
+        )
+    )
+    expected = _TRAINING_MODULE._expected_gradient_parameter_names(kernel)
+    assert expected is not None
+    assert active_names <= expected
+    assert not (inactive_names & expected)

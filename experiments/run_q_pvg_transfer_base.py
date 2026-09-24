@@ -50,7 +50,11 @@ from q_attention.experiments.relation_steering import (  # noqa: E402
     move_batch,
 )
 from q_attention.metrics import classification_metrics  # noqa: E402
-from q_attention.plugins.q_pvg import QPVGConfig, build_q_pvg  # noqa: E402
+from q_attention.plugins.q_pvg import (  # noqa: E402
+    PhaseValueGatingKernel,
+    QPVGConfig,
+    build_q_pvg,
+)
 from q_attention.tasks.relation import (  # noqa: E402
     PAD_TOKEN,
     RelationDataset,
@@ -280,25 +284,57 @@ def build_kernel(
     return build_q_pvg(QPVGConfig(**values))
 
 
+def _expected_gradient_parameter_names(kernel: torch.nn.Module) -> set[str] | None:
+    """Identify Q-PVG parameters active for its configured route and readout."""
+    if not isinstance(kernel, PhaseValueGatingKernel):
+        return None
+    inactive: set[str] = set()
+    if kernel.config.value_route_mode == "branch_interpolation":
+        inactive.add("scalar_value_logit")
+    else:
+        inactive.update(("value_branch0", "value_branch1"))
+    if (
+        kernel.config.readout_mode == "classical"
+        or kernel.config.phase_mode == "real_only"
+    ):
+        inactive.add("gate_imag_weight")
+    return {
+        name
+        for name, parameter in kernel.named_parameters()
+        if parameter.requires_grad and name.rsplit(".", 1)[-1] not in inactive
+    }
+
+
 def _validate_kernel_gradients(
     kernel: torch.nn.Module,
     *,
     selector: str,
     epoch: int,
 ) -> None:
-    """Reject missing or non-finite trainable gradients with parameter names.
+    """Reject missing, unexpected, or non-finite gradients with parameter names.
 
-    The Q-TRIAD ``quantum_product`` control intentionally replaces the
-    relation-dependent ``gamma`` angle with zeros.  Its ``gamma_scales``
-    parameters are therefore unused and legitimately receive no gradient;
-    every other trainable parameter must still participate in the update.
+    Kernels may declare parameters that are intentionally inactive for the
+    configured control path. The Q-TRIAD ``quantum_product`` control also
+    intentionally replaces the relation-dependent ``gamma`` angle with zeros.
+    Its ``gamma_scales`` parameters are therefore unused and legitimately receive
+    no gradient; every expected trainable parameter must still participate.
     """
     missing: list[str] = []
+    unexpected: list[str] = []
     nonfinite: list[str] = []
+    expected_gradient_names = _expected_gradient_parameter_names(kernel)
     for name, parameter in kernel.named_parameters():
         if not parameter.requires_grad:
             continue
         gradient = parameter.grad
+        expected = expected_gradient_names is None or name in expected_gradient_names
+        if not expected:
+            if gradient is not None:
+                if not torch.isfinite(gradient).all():
+                    nonfinite.append(name)
+                elif torch.count_nonzero(gradient).item() > 0:
+                    unexpected.append(name)
+            continue
         if gradient is None:
             if selector == "quantum_product" and name.endswith(".gamma_scales"):
                 continue
@@ -306,11 +342,13 @@ def _validate_kernel_gradients(
             continue
         if not torch.isfinite(gradient).all():
             nonfinite.append(name)
-    if not missing and not nonfinite:
+    if not missing and not unexpected and not nonfinite:
         return
     details: list[str] = []
     if missing:
         details.append("missing=" + ",".join(missing))
+    if unexpected:
+        details.append("unexpected=" + ",".join(unexpected))
     if nonfinite:
         details.append("non_finite=" + ",".join(nonfinite))
     raise FloatingPointError(
