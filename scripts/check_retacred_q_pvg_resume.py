@@ -85,6 +85,29 @@ def _difference_class(path: str) -> str:
     return "immutable_contract"
 
 
+def _recommended_action(
+    *,
+    strict: bool,
+    code_update: bool,
+    topology_change: bool,
+    combined_migration: bool,
+    difference_paths: list[str],
+) -> str:
+    if strict:
+        return "resume without extra flag"
+    has_code_difference = any(path.startswith("source") for path in difference_paths)
+    has_topology_difference = "training_semantics.selector_gpu_ids" in difference_paths
+    if has_code_difference and has_topology_difference:
+        if combined_migration:
+            return "resume with --allow-code-update and --allow-gpu-topology-change"
+        return "stop; combined code and GPU topology migration is not compatible"
+    if topology_change:
+        return "resume with --allow-gpu-topology-change"
+    if code_update:
+        return "resume with --allow-code-update"
+    return "stop; immutable config, data, selector, or training contract differs"
+
+
 def _build_current_contract(
     runner: Any,
     *,
@@ -289,6 +312,11 @@ def main() -> int:
     topology = bool(
         scheduler._elastic_run_contract_compatible(persisted_contract, current)
     )
+    combined = bool(
+        scheduler._combined_code_and_topology_contract_compatible(
+            persisted_contract, current
+        )
+    )
     differences = _leaf_difference_paths(persisted_contract, current)
     result["differences"] = [
         {"path": path, "class": _difference_class(path)} for path in differences
@@ -302,14 +330,13 @@ def main() -> int:
         "strict": strict,
         "allow_code_update": code_update,
         "allow_gpu_topology_change": topology,
-        "recommended": (
-            "resume without extra flag"
-            if strict
-            else "resume with --allow-gpu-topology-change"
-            if topology
-            else "resume with --allow-code-update"
-            if code_update
-            else "stop; immutable config, data, selector, or training contract differs"
+        "allow_combined_code_and_gpu_topology_change": combined,
+        "recommended": _recommended_action(
+            strict=strict,
+            code_update=code_update,
+            topology_change=topology,
+            combined_migration=combined,
+            difference_paths=differences,
         ),
     }
     return _emit(result, args.json)

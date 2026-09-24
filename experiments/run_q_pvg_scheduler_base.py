@@ -789,41 +789,65 @@ def _run_resume_contract(
     }
 
 
-def _elastic_run_contract_compatible(
+def _without_selector_gpu_ids(
     persisted: Any, current: dict[str, Any]
-) -> bool:
-    """Allow explicit selector GPU reassignment or one-to-many expansion during resume."""
+) -> tuple[dict[str, Any], dict[str, Any]] | None:
     if not isinstance(persisted, dict):
-        return False
+        return None
     persisted_semantics = persisted.get("training_semantics")
     current_semantics = current.get("training_semantics")
     if not isinstance(persisted_semantics, dict) or not isinstance(
         current_semantics, dict
     ):
-        return False
+        return None
     if (
         persisted_semantics.get("parallel_mode") != "selector_or_serial"
         or current_semantics.get("parallel_mode") != "selector_or_serial"
         or persisted_semantics.get("model_parallel_gpu_ids")
         or current_semantics.get("model_parallel_gpu_ids")
     ):
-        return False
+        return None
     old_gpu_ids = persisted_semantics.get("selector_gpu_ids")
     new_gpu_ids = current_semantics.get("selector_gpu_ids")
     if (
         not isinstance(old_gpu_ids, list)
         or not isinstance(new_gpu_ids, list)
-        or len(old_gpu_ids) != 1
-        or len(new_gpu_ids) < 1
+        or not old_gpu_ids
+        or not new_gpu_ids
+        or any(
+            not isinstance(value, int) or isinstance(value, bool) or value < 0
+            for value in old_gpu_ids + new_gpu_ids
+        )
         or len(set(old_gpu_ids)) != len(old_gpu_ids)
         or len(set(new_gpu_ids)) != len(new_gpu_ids)
-        or any(not isinstance(value, int) for value in old_gpu_ids + new_gpu_ids)
     ):
-        return False
+        return None
     persisted_without_gpu = json.loads(json.dumps(persisted))
     current_without_gpu = json.loads(json.dumps(current))
     persisted_without_gpu["training_semantics"].pop("selector_gpu_ids", None)
     current_without_gpu["training_semantics"].pop("selector_gpu_ids", None)
+    return persisted_without_gpu, current_without_gpu
+
+
+def _elastic_run_contract_compatible(
+    persisted: Any, current: dict[str, Any]
+) -> bool:
+    """Allow selector-worker GPU changes in either direction, with other fields fixed."""
+    contracts = _without_selector_gpu_ids(persisted, current)
+    if contracts is None:
+        return False
+    persisted_without_gpu, current_without_gpu = contracts
+    return execution_contract_compatible(persisted_without_gpu, current_without_gpu)
+
+
+def _combined_code_and_topology_contract_compatible(
+    persisted: Any, current: dict[str, Any]
+) -> bool:
+    """Allow a published execution update and selector GPU topology change together."""
+    contracts = _without_selector_gpu_ids(persisted, current)
+    if contracts is None:
+        return False
+    persisted_without_gpu, current_without_gpu = contracts
     return execution_contract_compatible(
         persisted_without_gpu,
         current_without_gpu,
@@ -878,15 +902,32 @@ def _validate_or_create_run_manifest(
                 allow_code_update
                 and _code_update_contract_compatible(persisted_contract, contract)
             )
-            if not (elastic_compatible or code_update_compatible):
+            combined_code_topology_compatible = (
+                allow_gpu_topology_change
+                and allow_code_update
+                and _combined_code_and_topology_contract_compatible(
+                    persisted_contract, contract
+                )
+            )
+            if not (
+                elastic_compatible
+                or code_update_compatible
+                or combined_code_topology_compatible
+            ):
                 raise ResumeCompatibilityError(
                     "resume contract differs: code, config, data, selector or training settings changed"
                 )
-            if code_update_compatible and not elastic_compatible:
+            if (
+                code_update_compatible and not elastic_compatible
+            ) or combined_code_topology_compatible:
                 migrations = list(persisted.get("resume_migrations", []))
                 migrations.append(
                     {
-                        "event": "code_update_resume",
+                        "event": (
+                            "code_and_gpu_topology_resume"
+                            if combined_code_topology_compatible
+                            else "code_update_resume"
+                        ),
                         "previous_contract_fingerprint": persisted.get(
                             "contract_fingerprint"
                         ),
