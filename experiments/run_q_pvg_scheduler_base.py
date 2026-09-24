@@ -155,6 +155,8 @@ BASELINE_ARTIFACTS = ("metrics.json", "model.pt", "vocab.json", "labels.json")
 BASELINE_IMPORT_SCHEMA = "q-attention.q-ceasc-legacy-baseline-import.v1"
 ELASTIC_RESUME_SOURCE_FILES = (
     "runner",
+    # Older Q-PVG manifests named the orchestration module separately.
+    "scheduler",
     "worker",
     "baseline_trainer",
     "kernel_trainer",

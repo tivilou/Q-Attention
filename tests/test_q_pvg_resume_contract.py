@@ -45,7 +45,11 @@ def test_elastic_resume_accepts_multigpu_to_single_gpu_but_keeps_code_fixed(
         },
         "source": {
             "git_revision": "old",
-            "files": {"runner": {"sha256": "old"}, "q_pvg": {"sha256": "same"}},
+            "files": {
+                "runner": {"sha256": "old"},
+                "scheduler": {"sha256": "old"},
+                "q_pvg": {"sha256": "same"},
+            },
         },
     }
     current = {
@@ -57,7 +61,11 @@ def test_elastic_resume_accepts_multigpu_to_single_gpu_but_keeps_code_fixed(
         },
         "source": {
             "git_revision": "new",
-            "files": {"runner": {"sha256": "new"}, "q_pvg": {"sha256": "same"}},
+            "files": {
+                "runner": {"sha256": "new"},
+                "scheduler": {"sha256": "new"},
+                "q_pvg": {"sha256": "same"},
+            },
         },
     }
 
@@ -70,6 +78,7 @@ def test_elastic_resume_accepts_multigpu_to_single_gpu_but_keeps_code_fixed(
                 "git_revision": "old",
                 "files": {
                     "runner": {"sha256": "old"},
+                    "scheduler": {"sha256": "old"},
                     "q_pvg": {"sha256": "same"},
                 },
             },
@@ -124,7 +133,11 @@ def test_manifest_resume_requires_both_flags_for_combined_migration(
         },
         "source": {
             "git_revision": "old",
-            "files": {"runner": {"sha256": "old"}, "q_pvg": {"sha256": "same"}},
+            "files": {
+                "runner": {"sha256": "old"},
+                "scheduler": {"sha256": "old"},
+                "q_pvg": {"sha256": "same"},
+            },
         },
     }
     current = {
@@ -136,7 +149,11 @@ def test_manifest_resume_requires_both_flags_for_combined_migration(
         },
         "source": {
             "git_revision": "new",
-            "files": {"runner": {"sha256": "new"}, "q_pvg": {"sha256": "same"}},
+            "files": {
+                "runner": {"sha256": "new"},
+                "scheduler": {"sha256": "new"},
+                "q_pvg": {"sha256": "same"},
+            },
         },
     }
     run_dir = tmp_path / "resume"
