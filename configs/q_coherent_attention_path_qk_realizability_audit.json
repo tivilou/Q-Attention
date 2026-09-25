@@ -1,0 +1,44 @@
+{
+  "schema_version": "q-attention.coherent-attention-path-qk-realizability.v1",
+  "experiment_name": "q_coherent_attention_path_qk_realizability_audit",
+  "seed": 7,
+  "device": "cuda",
+  "dataset": {
+    "identity": "qk_realizable_weighted_signed_path_suite_v1",
+    "size": 96,
+    "nodes": 7,
+    "weight_jitter": 0.05,
+    "nuisance_weight": 0.1,
+    "skew_score_scale": 0.12
+  },
+  "mechanism": {
+    "walk_time": 0.7853981633974483,
+    "max_transport": 2.0,
+    "initial_transport": 1.0,
+    "tie_tolerance": 0.000001
+  },
+  "selectors": [
+    "disabled",
+    "q_wap_signed",
+    "q_wap_unsigned",
+    "classical_wap_diffusion"
+  ],
+  "gate": {
+    "minimum_unique_graphs": 90,
+    "minimum_signed_path_gap": 0.1,
+    "maximum_control_path_gap": 0.00001,
+    "maximum_gauge_error": 0.00001,
+    "maximum_permutation_error": 0.00001,
+    "minimum_quantum_accuracy": 0.95,
+    "maximum_control_accuracy": 0.55,
+    "minimum_corrected_errors": 40,
+    "maximum_harmed_correct": 0,
+    "minimum_quantum_attention_gap": 0.05,
+    "maximum_qk_reconstruction_error": 0.00001,
+    "maximum_hamiltonian_reconstruction_error": 0.00001,
+    "minimum_raw_score_asymmetry": 0.05,
+    "maximum_anchor_row_perturbation": 0.00001,
+    "maximum_symmetric_qk_metric_error": 0.00001
+  },
+  "output_root": "runs/q_coherent_attention_path_qk_realizability_audit"
+}

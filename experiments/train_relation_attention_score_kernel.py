@@ -38,6 +38,7 @@ from q_attention.experiments.health import (  # noqa: E402
 )
 from q_attention.plugins import (  # noqa: E402
     SCORE_INPUT_ENCODING_CHOICES,
+    SCORE_RELATION_ANCHOR_CHOICES,
     SCORE_QUERY_SCOPE_CHOICES,
     SCORE_READOUT_CHOICES,
     RelationScoreKernelConfig,
@@ -82,12 +83,24 @@ def parse_args() -> argparse.Namespace:
         choices=SCORE_QUERY_SCOPE_CHOICES,
         default="all",
     )
+    parser.add_argument(
+        "--relation_anchor_mode",
+        choices=SCORE_RELATION_ANCHOR_CHOICES,
+        default="global_context",
+        help=(
+            "Relation anchor for the action path. global_context is the "
+            "label-free natural-task mode."
+        ),
+    )
     parser.add_argument("--epochs", type=int, default=12)
     parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--log_every_batches", type=int, default=50)
     parser.add_argument("--health_warning_patience", type=int, default=3)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--diversity_weight", type=float, default=0.0)
+    parser.add_argument("--role_regularization_weight", type=float, default=0.0)
+    parser.add_argument("--role_router_temperature", type=float, default=1.0)
+    parser.add_argument("--role_entropy_floor", type=float, default=0.35)
     parser.add_argument("--diagnostic_batches", type=int, default=0)
     parser.add_argument("--seed", type=int, default=13)
     parser.add_argument(
@@ -114,18 +127,55 @@ def resolve_data_path(value: str | None, fallback: Any, name: str) -> Path:
     return path if path.is_absolute() else ROOT / path
 
 
-def main() -> None:
-    args = parse_args()
+def validate_args(args: argparse.Namespace) -> None:
+    """Reject invalid and non-label-free natural-task configurations early."""
     if args.epochs <= 0 or args.batch_size <= 0 or args.lr <= 0:
         raise ValueError("epochs, batch_size, and lr must be positive")
     if args.diversity_weight < 0:
         raise ValueError("diversity_weight must be non-negative")
+    if args.role_regularization_weight < 0:
+        raise ValueError("role_regularization_weight must be non-negative")
     if args.diagnostic_batches < 0:
         raise ValueError("diagnostic_batches must be non-negative")
     if args.log_every_batches <= 0:
         raise ValueError("log_every_batches must be positive")
     if args.health_warning_patience <= 0:
         raise ValueError("health_warning_patience must be positive")
+    if args.relation_anchor_mode == "global_context" and args.query_scope != "all":
+        raise ValueError("label-free global_context action requires query_scope='all'")
+    if (
+        args.relation_anchor_mode == "query_conditioned_soft_role_pair"
+        and args.query_scope != "all"
+    ):
+        raise ValueError(
+            "label-free query-conditioned soft-role action requires query_scope='all'"
+        )
+
+
+def action_contract_for_anchor_mode(relation_anchor_mode: str) -> dict[str, Any]:
+    """Return the explicit action protocol for checkpoint audit metadata."""
+    protocols = {
+        "global_context": "label_free_global_context",
+        "soft_role_pair": "label_free_soft_role_pair",
+        "query_conditioned_soft_role_pair": "label_free_query_conditioned_soft_role_pair",
+        "entity_pair": "entity_pair_legacy",
+    }
+    try:
+        protocol = protocols[relation_anchor_mode]
+    except KeyError as exc:
+        raise ValueError(f"unknown relation anchor mode: {relation_anchor_mode}") from exc
+    uses_spans = relation_anchor_mode == "entity_pair"
+    return {
+        "protocol": protocol,
+        "action_uses_subject_object_masks": uses_spans,
+        "subject_object_spans_allowed_for_action": uses_spans,
+        "subject_object_spans_allowed_for_offline_evaluation": True,
+    }
+
+
+def main() -> None:
+    args = parse_args()
+    validate_args(args)
     stage = f"core_{args.kernel_type}"
     set_seed(args.seed)
     device = choose_device(args.device)
@@ -178,6 +228,9 @@ def main() -> None:
             score_readout=args.score_readout,
             input_encoding=args.input_encoding,
             query_scope=args.query_scope,
+            relation_anchor_mode=args.relation_anchor_mode,
+            role_router_temperature=args.role_router_temperature,
+            role_entropy_floor=args.role_entropy_floor,
             seed=args.seed,
         ),
     ).to(device)
@@ -240,7 +293,9 @@ def main() -> None:
         "seed": args.seed,
         "selection_metric": args.selection_metric,
         "diversity_weight": args.diversity_weight,
+        "role_regularization_weight": args.role_regularization_weight,
         "normalize_readout_energy": args.normalize_readout_energy,
+        "action_contract": action_contract_for_anchor_mode(args.relation_anchor_mode),
     }
     history: list[dict[str, Any]] = []
     best_valid: dict[str, float] | None = None
@@ -263,7 +318,10 @@ def main() -> None:
         ), start=0):
             batch = move_batch(batch, device)
             optimizer.zero_grad(set_to_none=True)
-            if args.diversity_weight > 0.0:
+            if args.diversity_weight > 0.0 or (
+                args.role_regularization_weight > 0.0
+                and args.relation_anchor_mode == "soft_role_pair"
+            ):
                 with kernel.capture_centered_kernels():
                     with adapter.steering(attention_score_hook_config(batch)):
                         logits = model(
@@ -273,8 +331,23 @@ def main() -> None:
                             batch["object_mask"],
                         )
                 task_loss = F.cross_entropy(logits, batch["labels"])
-                diversity_loss = kernel.functional_diversity_loss()
-                objective = task_loss + args.diversity_weight * diversity_loss
+                diversity_loss = (
+                    kernel.functional_diversity_loss()
+                    if args.diversity_weight > 0.0
+                    else task_loss.detach() * 0.0
+                )
+                role_loss = (
+                    kernel.last_role_regularization_loss
+                    if args.role_regularization_weight > 0.0
+                    and args.relation_anchor_mode == "soft_role_pair"
+                    and kernel.last_role_regularization_loss is not None
+                    else task_loss.detach() * 0.0
+                )
+                objective = (
+                    task_loss
+                    + args.diversity_weight * diversity_loss
+                    + args.role_regularization_weight * role_loss
+                )
                 require_finite_tensor(
                     objective,
                     "objective",

@@ -13,6 +13,7 @@ from typing import Any, Iterable, Mapping
 
 import torch
 import torch.nn.functional as F
+from torch.utils.data import DataLoader
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
@@ -31,6 +32,17 @@ from run_q_causal_value_evidence_relation_smoke import (  # noqa: E402
 from q_attention.adapters import AttentionScoreKernelAdapter  # noqa: E402
 from q_attention.adapters.encoder import resolve_module  # noqa: E402
 from q_attention.experiments.progress import tracked_batches  # noqa: E402
+from q_attention.experiments.batch_resume import (  # noqa: E402
+    BatchCheckpointManager,
+    BatchCursor,
+    PauseController,
+    RemainingBatchSampler,
+    TrainingMemoryPressure,
+    TrainingPaused,
+    atomic_torch_save,
+    capture_rng_state,
+    restore_rng_state,
+)
 from q_attention.experiments.relation_steering import (  # noqa: E402
     choose_device,
     load_relation_run,
@@ -42,7 +54,12 @@ from q_attention.plugins.q_causal_value_evidence import (  # noqa: E402
     CausalValueTransportConfig,
     build_causal_value_transport_kernel,
 )
-from q_attention.tasks.relation import load_relation_jsonl  # noqa: E402
+from q_attention.tasks.relation import (  # noqa: E402
+    PAD_TOKEN,
+    RelationDataset,
+    collate_relation_batch,
+    load_relation_jsonl,
+)
 
 
 SELECTORS = (
@@ -222,6 +239,45 @@ def build_kernel(selector: str, model: torch.nn.Module, seed: int, args: argpars
     )
 
 
+def _validate_kernel_gradients(
+    kernel: torch.nn.Module,
+    *,
+    selector: str,
+    epoch: int,
+) -> None:
+    """Reject missing or non-finite trainable gradients with parameter names.
+
+    The Q-TRIAD ``quantum_product`` control intentionally replaces the
+    relation-dependent ``gamma`` angle with zeros.  Its ``gamma_scales``
+    parameters are therefore unused and legitimately receive no gradient;
+    every other trainable parameter must still participate in the update.
+    """
+    missing: list[str] = []
+    nonfinite: list[str] = []
+    for name, parameter in kernel.named_parameters():
+        if not parameter.requires_grad:
+            continue
+        gradient = parameter.grad
+        if gradient is None:
+            if selector == "quantum_product" and name.endswith(".gamma_scales"):
+                continue
+            missing.append(name)
+            continue
+        if not torch.isfinite(gradient).all():
+            nonfinite.append(name)
+    if not missing and not nonfinite:
+        return
+    details: list[str] = []
+    if missing:
+        details.append("missing=" + ",".join(missing))
+    if nonfinite:
+        details.append("non_finite=" + ",".join(nonfinite))
+    raise FloatingPointError(
+        f"gradient check failed selector={selector} epoch={epoch} "
+        + " ".join(details)
+    )
+
+
 def hook_config(batch: Mapping[str, torch.Tensor]) -> Any:
     from q_attention.adapters.attention_scores import AttentionScoreHookConfig
 
@@ -248,12 +304,15 @@ def _capture_geometry(
         raise TypeError("geometry hook requires tensor score input and output")
     base_scores = inputs[0]
     steered_scores = output
-    base_attention = _masked_attention(base_scores, batch["attention_mask"])
-    steered_attention = _masked_attention(steered_scores, batch["attention_mask"])
-    context = batch["attention_mask"] & ~(batch["subject_mask"] | batch["object_mask"])
+    attention_mask = batch["attention_mask"].to(device=base_scores.device)
+    subject_mask = batch["subject_mask"].to(device=base_scores.device)
+    object_mask = batch["object_mask"].to(device=base_scores.device)
+    base_attention = _masked_attention(base_scores, attention_mask)
+    steered_attention = _masked_attention(steered_scores, attention_mask)
+    context = attention_mask & ~(subject_mask | object_mask)
     context_mask = context[:, None, None, :].to(dtype=base_attention.dtype)
     entity_mask = (batch["subject_mask"] | batch["object_mask"])[:, None, None, :].to(dtype=base_attention.dtype)
-    query_mask = batch["attention_mask"][:, None, :, None].to(dtype=base_attention.dtype)
+    query_mask = attention_mask[:, None, :, None].to(dtype=base_attention.dtype)
     probability_delta = (steered_attention - base_attention).abs()
     accumulator = layer_accumulators[layer_index]
     accumulator["residual_rms"].update((steered_scores - base_scores).square().mean(dim=(-1, -2, -3)).sqrt())
@@ -266,6 +325,109 @@ def _capture_geometry(
     accumulator["entity_mass_error"].update(
         ((steered_attention - base_attention) * entity_mask).sum(dim=-1).abs().masked_select(query_mask.squeeze(-1).bool())
     )
+
+
+_CONTEXT_DIAGNOSTIC_EXAMPLE_LIMIT = 32
+_CONTEXT_EVENT_ROW_LIMIT = 64
+
+
+def _new_context_diagnostics() -> dict[str, Any]:
+    return {
+        "total_rows": 0,
+        "empty_context_rows": 0,
+        "empty_context_batches": 0,
+        "reasons": {
+            "entity_covers_all_valid": 0,
+            "no_valid_tokens": 0,
+        },
+        "examples": [],
+    }
+
+
+def _emit_context_event(event: str, **fields: Any) -> None:
+    payload = {
+        "event": event,
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        **fields,
+    }
+    print(json.dumps(payload, sort_keys=True), flush=True)
+
+
+def _record_context_batch(
+    summary: dict[str, Any],
+    raw_batch: Mapping[str, torch.Tensor],
+    *,
+    selector: str,
+    phase: str,
+    epoch: int | None,
+    batch_index: int,
+    global_step: int | None,
+) -> None:
+    valid = raw_batch["attention_mask"].detach().to(dtype=torch.bool)
+    entity = (
+        raw_batch["subject_mask"].detach().to(dtype=torch.bool)
+        | raw_batch["object_mask"].detach().to(dtype=torch.bool)
+    )
+    active = valid & ~entity
+    valid_counts = valid.sum(dim=-1)
+    entity_counts = (valid & entity).sum(dim=-1)
+    active_counts = active.sum(dim=-1)
+    summary["total_rows"] += int(active.shape[0])
+    empty_rows = torch.nonzero(active_counts == 0, as_tuple=False).flatten().tolist()
+    if not empty_rows:
+        return
+
+    summary["empty_context_rows"] += len(empty_rows)
+    summary["empty_context_batches"] += 1
+    sample_indices = raw_batch.get("sample_index")
+    event_rows: list[dict[str, Any]] = []
+    for row in empty_rows:
+        valid_count = int(valid_counts[row].item())
+        entity_count = int(entity_counts[row].item())
+        active_count = int(active_counts[row].item())
+        reason = "no_valid_tokens" if valid_count == 0 else "entity_covers_all_valid"
+        summary["reasons"][reason] += 1
+        item: dict[str, Any] = {
+            "row": int(row),
+            "valid_tokens": valid_count,
+            "entity_tokens": entity_count,
+            "active_context_tokens": active_count,
+            "reason": reason,
+            "valid_token_positions": torch.nonzero(valid[row], as_tuple=False).flatten().tolist(),
+            "subject_token_positions": torch.nonzero(raw_batch["subject_mask"][row], as_tuple=False).flatten().tolist(),
+            "object_token_positions": torch.nonzero(raw_batch["object_mask"][row], as_tuple=False).flatten().tolist(),
+        }
+        if isinstance(sample_indices, torch.Tensor):
+            item["sample_index"] = int(sample_indices[row].item())
+        if len(summary["examples"]) < _CONTEXT_DIAGNOSTIC_EXAMPLE_LIMIT:
+            summary["examples"].append({**item, "batch": int(batch_index)})
+        if len(event_rows) < _CONTEXT_EVENT_ROW_LIMIT:
+            event_rows.append(item)
+    _emit_context_event(
+        "context_edge_case",
+        selector=selector,
+        phase=phase,
+        epoch=epoch,
+        batch=int(batch_index),
+        global_step=global_step,
+        empty_context_rows=len(empty_rows),
+        rows=event_rows,
+        truncated_rows=max(0, len(empty_rows) - len(event_rows)),
+        fallback="zero_residual_baseline",
+    )
+
+
+def _finalize_context_diagnostics(summary: dict[str, Any]) -> dict[str, Any]:
+    total_rows = int(summary["total_rows"])
+    finalized = dict(summary)
+    finalized["reasons"] = dict(summary["reasons"])
+    finalized["examples"] = list(summary["examples"])
+    finalized["empty_context_fraction"] = (
+        float(summary["empty_context_rows"]) / float(total_rows)
+        if total_rows
+        else 0.0
+    )
+    return finalized
 
 
 def evaluate(
@@ -287,6 +449,7 @@ def evaluate(
     labels: list[int] = []
     total_loss = 0.0
     total_items = 0
+    context_diagnostics = _new_context_diagnostics()
     layer_accumulators = [
         {
             name: ScalarAccumulator()
@@ -302,7 +465,17 @@ def evaluate(
         log_every_batches=log_every_batches,
     )
     with torch.no_grad():
-        for raw_batch in batches:
+        for batch_index, raw_batch in enumerate(batches, start=1):
+            if kernel is not None:
+                _record_context_batch(
+                    context_diagnostics,
+                    raw_batch,
+                    selector=stage,
+                    phase="evaluation",
+                    epoch=None,
+                    batch_index=batch_index,
+                    global_step=None,
+                )
             batch = move_batch(raw_batch, device)
             captures: dict[int, tuple[tuple[object, ...], object]] = {}
             handles: list[torch.utils.hooks.RemovableHandle] = []
@@ -330,7 +503,7 @@ def evaluate(
                     adapter.remove()
             if not torch.isfinite(logits).all():
                 raise FloatingPointError(f"non-finite logits during {stage}")
-            loss = F.cross_entropy(logits, batch["labels"])
+            loss = F.cross_entropy(logits, batch["labels"].to(logits.device))
             total_loss += float(loss.item()) * int(batch["labels"].shape[0])
             total_items += int(batch["labels"].shape[0])
             predictions.extend(torch.argmax(logits, dim=-1).cpu().tolist())
@@ -339,6 +512,14 @@ def evaluate(
                 _capture_geometry(layer_accumulators, layer_index, inputs, output, batch)
     metrics = classification_metrics(predictions, labels, num_labels)
     metrics["loss"] = total_loss / max(total_items, 1)
+    context_summary = _finalize_context_diagnostics(context_diagnostics)
+    if kernel is not None:
+        _emit_context_event(
+            "context_diagnostics",
+            selector=stage,
+            phase="evaluation",
+            **context_summary,
+        )
     return {
         "metrics": metrics,
         "items": total_items,
@@ -347,6 +528,7 @@ def evaluate(
             {name: accumulator.summary() for name, accumulator in layer.items()}
             for layer in layer_accumulators
         ],
+        "context_diagnostics": context_summary,
     }
 
 
@@ -368,89 +550,325 @@ def train_kernel(
     output_dir: Path,
 ) -> dict[str, Any]:
     set_seed(seed)
-    train_loader = make_relation_loader(
-        train_records,
-        artifacts.vocab,
-        artifacts.label_to_id,
-        batch_size=args.batch_size,
-        shuffle=True,
+    train_data = RelationDataset(
+        train_records, artifacts.vocab, artifacts.label_to_id
     )
+    legacy_train_loader = None
+    if not bool(getattr(args, "batch_resume", False)):
+        # Keep the established stochastic DataLoader path for callers that did
+        # not opt into the new batch-resume contract.
+        legacy_train_loader = make_relation_loader(
+            train_records,
+            artifacts.vocab,
+            artifacts.label_to_id,
+            batch_size=args.batch_size,
+            shuffle=True,
+        )
     adapter = AttentionScoreKernelAdapter(model, model.score_module_paths, kernel)
     optimizer = torch.optim.AdamW(kernel.parameters(), lr=args.kernel_lr)
     history: list[dict[str, Any]] = []
     best_valid: dict[str, float] | None = None
     best_epoch: int | None = None
     best_score = (float("-inf"), float("-inf"))
+    context_diagnostics = _new_context_diagnostics()
     started = time.perf_counter()
-    for epoch in range(1, args.epochs + 1):
-        kernel.train()
-        total_loss = 0.0
-        total_items = 0
-        for raw_batch in tracked_batches(
-            train_loader,
-            total_batches=len(train_loader),
-            stage=selector,
-            phase="train",
-            log_every_batches=args.log_every_batches,
-            epoch=epoch,
-            epochs=args.epochs,
-        ):
-            batch = move_batch(raw_batch, device)
-            optimizer.zero_grad(set_to_none=True)
-            adapter.attach(hook_config(batch))
-            try:
-                logits = model(
-                    batch["input_ids"],
-                    batch["attention_mask"],
-                    batch["subject_mask"],
-                    batch["object_mask"],
-                )
-            finally:
-                adapter.remove()
-            loss = F.cross_entropy(logits, batch["labels"])
-            if not torch.isfinite(loss):
-                raise FloatingPointError(f"non-finite loss selector={selector} epoch={epoch}")
-            loss.backward()
-            gradients = [parameter.grad for parameter in kernel.parameters()]
-            if any(gradient is None or not torch.isfinite(gradient).all() for gradient in gradients):
-                raise FloatingPointError(f"non-finite gradient selector={selector} epoch={epoch}")
-            optimizer.step()
-            if any(not torch.isfinite(parameter).all() for parameter in kernel.parameters()):
-                raise FloatingPointError(f"non-finite parameter selector={selector} epoch={epoch}")
-            total_loss += float(loss.item()) * int(batch["labels"].shape[0])
-            total_items += int(batch["labels"].shape[0])
-        valid = evaluate(
-            model,
-            valid_loader,
-            device,
-            len(artifacts.label_to_id),
-            kernel=kernel,
-            stage=selector,
-            log_every_batches=args.log_every_batches,
-            collect_geometry=False,
+    resume_enabled = bool(getattr(args, "batch_resume", False))
+    manager: BatchCheckpointManager | None = None
+    pause: PauseController | None = None
+    owns_pause = False
+    if resume_enabled:
+        checkpoint_every = int(getattr(args, "checkpoint_every_batches", 50))
+        if checkpoint_every <= 0:
+            raise ValueError("checkpoint_every_batches must be positive")
+        manager = BatchCheckpointManager(
+            output_dir,
+            contract=dict(getattr(args, "resume_contract")),
+            resume=bool(getattr(args, "resume", False)),
+            resume_contract_compatible=getattr(
+                args, "resume_contract_compatible", None
+            ),
         )
-        valid_metrics = valid["metrics"]
-        epoch_record = {
-            "epoch": epoch,
-            "train_loss": total_loss / max(total_items, 1),
-            "valid": valid_metrics,
-        }
-        history.append(epoch_record)
-        print(json.dumps({"event": "epoch_complete", "selector": selector, **epoch_record}, sort_keys=True), flush=True)
-        score = (float(valid_metrics["macro_f1"]), -float(valid_metrics["loss"]))
-        if score > best_score:
-            best_score = score
-            best_valid = dict(valid_metrics)
-            best_epoch = epoch
-            torch.save(kernel.state_dict(), output_dir / "best_kernel.pt")
+        if bool(getattr(args, "resume", False)):
+            checkpoint = manager.load()
+            kernel.load_state_dict(checkpoint["model_state"])
+            optimizer.load_state_dict(checkpoint["optimizer_state"])
+            restore_rng_state(checkpoint["rng_state"])
+            cursor = BatchCursor.from_payload(checkpoint["cursor"])
+            history = list(checkpoint.get("history", []))
+            best_valid = checkpoint.get("best_valid")
+            best_epoch = checkpoint.get("best_epoch")
+            best_score = tuple(checkpoint.get("best_score", best_score))
+            saved_context_diagnostics = checkpoint.get("context_diagnostics")
+            if isinstance(saved_context_diagnostics, dict):
+                context_diagnostics = saved_context_diagnostics
+            manager.clear_pause_marker()
+            print(
+                json.dumps(
+                    {
+                        "event": "resume_loaded",
+                        "stage": selector,
+                        "epoch": cursor.epoch,
+                        "next_batch_index": cursor.next_batch_index,
+                        "global_step": cursor.global_step,
+                    },
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
+        else:
+            cursor = BatchCursor.fresh(dataset_size=len(train_data), seed=seed)
+        pause = getattr(args, "pause", None)
+        owns_pause = pause is None
+        if owns_pause:
+            pause = PauseController()
+            pause.install()
+    else:
+        cursor = BatchCursor.fresh(dataset_size=len(train_data), seed=seed)
+        checkpoint_every = 2**63 - 1
+
+    def save_checkpoint() -> None:
+        if manager is None:
+            return
+        manager.save(
+            {
+                "stage": selector,
+                "model_state": kernel.state_dict(),
+                "optimizer_state": optimizer.state_dict(),
+                "cursor": cursor.payload(),
+                "rng_state": capture_rng_state(),
+                "history": history,
+                "best_valid": best_valid,
+                "best_epoch": best_epoch,
+                "best_score": best_score,
+                "context_diagnostics": context_diagnostics,
+            }
+        )
+
+    if manager is not None and not bool(getattr(args, "resume", False)):
+        save_checkpoint()
+    if pause is not None and pause.requested:
+        assert manager is not None
+        manager.write_paused_marker(
+            stage=selector, cursor=cursor, reason=pause.reason
+        )
+        raise TrainingPaused(f"{selector} pause requested before the first optimizer update")
+
+    try:
+        memory_pressure_monitor = getattr(args, "memory_pressure_monitor", None)
+        micro_batch_size = int(getattr(args, "micro_batch_size", args.batch_size))
+        gradient_accumulation_steps = int(
+            getattr(args, "gradient_accumulation_steps", 1)
+        )
+        if micro_batch_size <= 0 or micro_batch_size > args.batch_size:
+            raise ValueError("micro_batch_size must be in (0, batch_size]")
+        if gradient_accumulation_steps <= 0:
+            raise ValueError("gradient_accumulation_steps must be positive")
+        if micro_batch_size * gradient_accumulation_steps != args.batch_size:
+            raise ValueError(
+                "micro_batch_size * gradient_accumulation_steps must equal the logical batch size"
+            )
+        while cursor.epoch <= args.epochs:
+            epoch = cursor.epoch
+            kernel.train()
+            total_batches = (len(train_data) + args.batch_size - 1) // args.batch_size
+            if resume_enabled:
+                train_loader = DataLoader(
+                    train_data,
+                    batch_sampler=RemainingBatchSampler(
+                        cursor.permutation, args.batch_size, cursor.next_batch_index
+                    ),
+                    generator=torch.Generator(device="cpu").manual_seed(
+                        seed * 1_000_003 + epoch
+                    ),
+                    collate_fn=lambda batch: collate_relation_batch(
+                        batch, pad_id=artifacts.vocab[PAD_TOKEN]
+                    ),
+                )
+            else:
+                assert legacy_train_loader is not None
+                train_loader = legacy_train_loader
+            for raw_batch in tracked_batches(
+                train_loader,
+                total_batches=total_batches,
+                stage=selector,
+                phase="train",
+                log_every_batches=args.log_every_batches,
+                epoch=epoch,
+                epochs=args.epochs,
+                completed_batches=cursor.next_batch_index,
+            ):
+                _record_context_batch(
+                    context_diagnostics,
+                    raw_batch,
+                    selector=selector,
+                    phase="train",
+                    epoch=epoch,
+                    batch_index=cursor.next_batch_index + 1,
+                    global_step=cursor.global_step,
+                )
+                batch = move_batch(raw_batch, device)
+                optimizer.zero_grad(set_to_none=True)
+                labels = batch["labels"]
+                batch_items = int(labels.shape[0])
+                micro_count = (batch_items + micro_batch_size - 1) // micro_batch_size
+                if micro_count > gradient_accumulation_steps:
+                    raise ValueError(
+                        "logical batch requires more physical micro-batches than the configured accumulation steps"
+                    )
+                total_loss = 0.0
+                total_micro_items = 0
+                for micro_index in range(micro_count):
+                    start = micro_index * micro_batch_size
+                    stop = min(start + micro_batch_size, batch_items)
+                    micro = {name: value[start:stop] for name, value in batch.items()}
+                    adapter.attach(hook_config(micro))
+                    try:
+                        logits = model(
+                            micro["input_ids"],
+                            micro["attention_mask"],
+                            micro["subject_mask"],
+                            micro["object_mask"],
+                        )
+                    finally:
+                        adapter.remove()
+                    micro_loss = F.cross_entropy(
+                        logits, micro["labels"].to(logits.device)
+                    )
+                    if not torch.isfinite(micro_loss):
+                        raise FloatingPointError(
+                            f"non-finite loss selector={selector} epoch={epoch}"
+                        )
+                    # Preserve the mean-loss gradient of the complete logical
+                    # batch, including its final short batch.
+                    (micro_loss * (float(stop - start) / float(batch_items))).backward()
+                    total_loss += float(micro_loss.item()) * (stop - start)
+                    total_micro_items += stop - start
+                    del micro_loss, logits, micro
+                _validate_kernel_gradients(
+                    kernel,
+                    selector=selector,
+                    epoch=epoch,
+                )
+                optimizer.step()
+                if any(
+                    not torch.isfinite(parameter).all()
+                    for parameter in kernel.parameters()
+                ):
+                    raise FloatingPointError(
+                        f"non-finite parameter selector={selector} epoch={epoch}"
+                    )
+                cursor.total_loss += total_loss
+                cursor.total_items += total_micro_items
+                cursor.next_batch_index += 1
+                cursor.global_step += 1
+                pressure_restart: dict[str, Any] | None = None
+                if memory_pressure_monitor is not None:
+                    # The completed update is now durable in model/optimizer
+                    # state. These tensors are no longer needed by this
+                    # training step, so releasing them cannot alter gradients.
+                    optimizer.zero_grad(set_to_none=True)
+                    del batch, raw_batch
+                    pressure_restart = memory_pressure_monitor(
+                        epoch=epoch,
+                        total_batches=total_batches,
+                        cursor=cursor,
+                    )
+                if (
+                    cursor.next_batch_index % checkpoint_every == 0
+                    or cursor.next_batch_index == total_batches
+                    or (pause is not None and pause.requested)
+                ):
+                    save_checkpoint()
+                if pressure_restart is not None:
+                    if manager is None:
+                        raise RuntimeError(
+                            "memory-pressure restart requires batch-level checkpointing"
+                        )
+                    # A pressure restart must never rely on the periodic save
+                    # cadence: the cursor denotes the next complete batch.
+                    save_checkpoint()
+                    raise TrainingMemoryPressure(
+                        f"{selector} remained under CUDA memory pressure after safe reclaim",
+                        diagnostics=pressure_restart,
+                    )
+                if pause is not None and pause.requested:
+                    assert manager is not None
+                    manager.write_paused_marker(
+                        stage=selector, cursor=cursor, reason=pause.reason
+                    )
+                    raise TrainingPaused(
+                        f"{selector} pause requested after optimizer update"
+                    )
+            valid = evaluate(
+                model,
+                valid_loader,
+                device,
+                len(artifacts.label_to_id),
+                kernel=kernel,
+                stage=selector,
+                log_every_batches=args.log_every_batches,
+                collect_geometry=False,
+            )
+            valid_metrics = valid["metrics"]
+            epoch_record = {
+                "epoch": epoch,
+                "train_loss": cursor.total_loss / max(cursor.total_items, 1),
+                "valid": valid_metrics,
+            }
+            history.append(epoch_record)
+            print(
+                json.dumps(
+                    {"event": "epoch_complete", "selector": selector, **epoch_record},
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
+            score = (float(valid_metrics["macro_f1"]), -float(valid_metrics["loss"]))
+            if score > best_score:
+                best_score = score
+                best_valid = dict(valid_metrics)
+                best_epoch = epoch
+                atomic_torch_save(output_dir / "best_kernel.pt", kernel.state_dict())
+            cursor.advance_epoch(dataset_size=len(train_data), seed=seed)
+            save_checkpoint()
+            if pause is not None and pause.requested:
+                assert manager is not None
+                manager.write_paused_marker(
+                    stage=selector, cursor=cursor, reason=pause.reason
+                )
+                raise TrainingPaused(
+                    f"{selector} pause requested after epoch checkpoint"
+                )
+    finally:
+        if pause is not None and owns_pause:
+            pause.close()
     if best_valid is None or best_epoch is None:
         raise RuntimeError(f"selector {selector} produced no validation checkpoint")
+    context_summary = _finalize_context_diagnostics(context_diagnostics)
+    _emit_context_event(
+        "context_diagnostics",
+        selector=selector,
+        phase="train",
+        **context_summary,
+    )
+    # Preserve the last optimizer-step state for the formal Case Study before
+    # restoring the declared best-validation state used for final metrics.
+    final_kernel_state = {
+        name: parameter.detach().clone()
+        for name, parameter in kernel.state_dict().items()
+    }
+    atomic_torch_save(output_dir / "final_kernel.pt", final_kernel_state)
+    del final_kernel_state
     kernel.load_state_dict(torch.load(output_dir / "best_kernel.pt", map_location=device, weights_only=True))
+    if manager is not None:
+        manager.clear_pause_marker()
     return {
         "history": history,
         "best_valid": best_valid,
         "best_epoch": best_epoch,
+        "global_step": cursor.global_step,
         "runtime_seconds": round(time.perf_counter() - started, 3),
+        "context_diagnostics": context_summary,
     }
 
 

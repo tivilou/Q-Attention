@@ -1,0 +1,166 @@
+{
+  "schema_version": "research-plugin-architecture.plugin-plan.v2",
+  "project": "Q-Attention / stability-certified Q-CEASC toy",
+  "authorization": "implemented",
+  "baseline": {
+    "entry_point": "src/q_attention/plugins/q_ceasc.py and src/q_attention/plugins/q_ceasc_score.py",
+    "code_revision": "89e9b9e",
+    "equivalence_test": "tests/test_q_ceasc.py and tests/test_q_ceasc_score.py preserve the single-view Q-CEASC contract"
+  },
+  "core_invariants": [
+    "The plugin accepts only query, key, valid-mask, and entity-mask inputs; labels, targets, and model predictions never enter the gate.",
+    "The residual is finite, zero on invalid/entity positions, and zero-sum over active context positions.",
+    "Both views share the frozen action geometry but retain independent trainable quantum/control parameters.",
+    "The matched classical two-view control uses the same composition, parameter count, data, optimizer, and evaluation protocol.",
+    "The toy result cannot authorize a natural-task run, a collaborator handoff, an L2 claim, or a quantum-advantage claim."
+  ],
+  "interfaces": [
+    {
+      "id": "qceasc-stability-support-combiner",
+      "type": "combiner",
+      "input_schema": "query (B,Dq), key (B,N,Dk), valid/entity masks",
+      "output_schema": "residual (B,N) plus two-view agreement and gate diagnostics",
+      "invariants": ["shared frozen action projection", "non-negative agreement gate", "context-only zero-sum residual"]
+    },
+    {
+      "id": "qceasc-stability-score-kernel",
+      "type": "transformer",
+      "input_schema": "query/key (B,H,T,D), attention/entity masks (B,T)",
+      "output_schema": "zero-sum masked residual (B,H,T,T)",
+      "invariants": ["query and key shapes are preserved", "invalid/entity keys remain zero"]
+    }
+  ],
+  "plugins": [
+    {
+      "id": "q-ceasc-single-view-baseline",
+      "version": "1.0.0",
+      "role": "baseline",
+      "interface": "qceasc-stability-support-combiner",
+      "insertion_point": "src/q_attention/plugins/q_ceasc.py",
+      "hypothesis": "Single-view Q-CEASC supplies the positive carryover and the comparison reference.",
+      "input_schema": "query (B,Dq), key (B,N,Dk), valid/entity masks",
+      "output_schema": "finite context-only zero-sum residual",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "one Q-CEASC view",
+      "failure_signatures": ["nonfinite residual", "mask/entity leakage", "zero-sum violation"],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v1",
+        "stages": ["training", "scoring", "generation", "evaluation", "diagnosis"],
+        "input_fields": ["query/key tensors", "valid/entity masks"],
+        "output_fields": ["single-view residual", "attention/logit outcome"],
+        "emitted_fields": ["shape", "dtype", "residual norms", "finite and mask checks"],
+        "shape_dtype_normalization": ["record tensor shape and dtype", "center residual over active keys"],
+        "checks": ["baseline_equivalence", "finite", "mask/entity zero", "zero-sum"],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "q-ceasc-stability-certified-v1",
+      "version": "0.1.0",
+      "role": "idea",
+      "interface": "qceasc-stability-support-combiner",
+      "insertion_point": "src/q_attention/plugins/q_ceasc_stability.py",
+      "hypothesis": "Agreement between two independent label-free support views identifies when an out-of-span residual is reliable; abstaining on disagreement reduces seed-sensitive harmful interventions.",
+      "input_schema": "query (B,Dq), key (B,N,Dk), valid/entity masks",
+      "output_schema": "finite context-only zero-sum residual, view agreement, gate, and per-view norms",
+      "requires": ["q-ceasc-single-view-baseline"],
+      "conflicts": ["post-hoc gain/depth/threshold sweeps", "target-aware gating"],
+      "deterministic": true,
+      "resource_estimate": "two Q-CEASC views; approximately 2x single-view parameter and circuit-simulation cost",
+      "failure_signatures": ["agreement gate collapses", "gate does not respond to context swap", "matched classical two-view replay", "out-of-span support disappears", "mask/entity/zero-sum violation"],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v1",
+        "stages": ["training", "scoring", "generation", "evaluation", "diagnosis"],
+        "input_fields": ["sentence or synthetic case id", "tokens or query/key tensors", "subject/object spans or masks", "valid mask"],
+        "output_fields": ["view-one residual", "view-two residual", "agreement", "gate", "gated residual", "attention/logit outcome"],
+        "emitted_fields": ["shape", "dtype", "normalization", "agreement summary", "gate summary", "residual norms", "tensor slices or hashes"],
+        "shape_dtype_normalization": ["all tensors record shape and dtype", "agreement is bounded to [-1,1]", "gate is bounded to [0,1]", "residual is active-row centered"],
+        "checks": ["finite", "mask/entity zero", "zero-sum", "projection idempotence", "permutation equivariance", "deterministic replay", "target boundary"],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "classical-two-view-control",
+      "version": "0.1.0",
+      "role": "adapter",
+      "interface": "qceasc-stability-support-combiner",
+      "insertion_point": "src/q_attention/plugins/q_ceasc_stability.py",
+      "hypothesis": "Any benefit from two-view agreement alone must be measured against an identical classical span composition.",
+      "input_schema": "query (B,Dq), key (B,N,Dk), valid/entity masks",
+      "output_schema": "finite context-only zero-sum residual with the same agreement gate",
+      "requires": ["q-ceasc-stability-certified-v1"],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "two classical span views",
+      "failure_signatures": ["parameter mismatch", "different data/optimizer", "classical result omitted from the same trace"],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v1",
+        "stages": ["training", "scoring", "generation", "evaluation", "diagnosis"],
+        "input_fields": ["query/key tensors", "valid/entity masks"],
+        "output_fields": ["classical two-view residual", "agreement", "gate"],
+        "emitted_fields": ["parameter count", "agreement and gate summaries", "shape", "dtype"],
+        "shape_dtype_normalization": ["use the same active-key centering and bounded gate as the quantum candidate"],
+        "checks": ["parameter matching", "deterministic_replay", "interaction_ablation", "target boundary"],
+        "deterministic_replay": true
+      }
+    }
+  ],
+  "trace_contract": {
+    "enabled": true,
+    "schema": "sample-trace.v1",
+    "artifact_path": "reports/q_ceasc_stability_toy/<timestamp>/qceasc_stability_trace.json",
+    "sample_selection_rule": "Freeze the first training micro-batch and two generation fixtures before observing outputs; record a context-swapped mismatched-view diagnostic.",
+    "target_boundary": "Synthetic target support is evaluation-only and never enters plugin inputs, agreement, gate, or trace-derived decisions.",
+    "required_stages": ["training", "scoring", "generation", "evaluation", "diagnosis"]
+  },
+  "recovery_contract": {
+    "dossier_path": "configs/q_ceasc_stability_mechanism_recovery.json",
+    "dossier_sha256": "295f025cabdbe13da2205fb6b421752d6b6dc060203cdb4423c0d6b9f7307be1",
+    "candidate_id": "q-ceasc-stability-certified-v1",
+    "discriminating_intermediate_measurement": "Per-case agreement, gate activity, mismatched-context response, and gated residual dispersion before any task-utility conclusion."
+  },
+  "discovery": {
+    "mode": "explicit_allowlist",
+    "allowlist": ["q-ceasc-single-view-baseline", "q-ceasc-stability-certified-v1", "classical-two-view-control"]
+  },
+  "composition": {
+    "mode": "parallel",
+    "order": ["q-ceasc-single-view-baseline", "q-ceasc-stability-certified-v1", "classical-two-view-control"],
+    "merge_rule": "Run the two views independently, compute bounded cosine agreement over active context keys, then scale their mean residual by the non-negative agreement gate.",
+    "interaction_ablations": ["single-view Q-CEASC", "quantum-product two-view null", "classical two-view control", "context-swapped second view", "fixed-bank control"]
+  },
+  "validation": {
+    "baseline_equivalence": "Single-view Q-CEASC remains available and its existing tests must pass unchanged.",
+    "tests": [
+      "baseline_equivalence",
+      "plugin_isolation",
+      "deterministic_replay",
+      "interaction_ablation",
+      "single-view Q-CEASC remains unchanged",
+      "two-view plugin can be disabled without changing the baseline",
+      "repeated toy runs reproduce the same trace",
+      "single-view, product-state, classical, shuffled-context, and fixed-bank controls are executed",
+      "two-view parameter count is matched between quantum and classical controls",
+      "finite/mask/entity/zero-sum/projection invariants hold",
+      "permutation equivariance and empty-context fallback hold",
+      "agreement and gate are bounded and context-swap responsive",
+      "score wrapper preserves shape and zero-sum residual contract",
+      "toy runner emits sample-trace.v1 with training and generation stages"
+    ]
+  },
+  "reproducibility": {
+    "config_path": "configs/q_ceasc_stability_toy.json",
+    "dataset_identity": "synthetic Q-CEASC mechanism fixtures v1; frozen before outcomes",
+    "environment": "Python >=3.10, torch >=2.0, CPU or one GPU toy only",
+    "seeds": [13, 29, 53, 71, 89],
+    "output_manifest": "reports/q_ceasc_stability_toy/<timestamp>/manifest.json"
+  },
+  "limitations": [
+    "The two-view gate is a new hypothesis, not evidence of task utility.",
+    "The toy uses exact statevector simulation and cannot establish hardware speedup.",
+    "The formal Q-CEASC report has only three seeds and incomplete semantic case traces.",
+    "Complete-data experiments remain collaborator-only after review and explicit promotion."
+  ]
+}

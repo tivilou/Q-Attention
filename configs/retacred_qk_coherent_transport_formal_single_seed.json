@@ -1,0 +1,61 @@
+{
+  "schema_version": "q-attention.qk-coherent-transport-formal-single-seed.v1",
+  "name": "retacred_qk_coherent_transport_formal_single_seed",
+  "formal_experiment": true,
+  "seed": 13,
+  "train_path": "data/relation/retacred/train.jsonl",
+  "valid_path": "data/relation/retacred/valid.jsonl",
+  "test_path": "data/relation/retacred/test.jsonl",
+  "expected_records": {
+    "train": 58465,
+    "valid": 19584,
+    "test": 13418
+  },
+  "selectors": [
+    "disabled",
+    "qk_coherent_transport",
+    "classical_coherent_transport"
+  ],
+  "candidate": "qk_coherent_transport",
+  "matched_control": "classical_coherent_transport",
+  "baseline": {
+    "epochs": 8,
+    "batch_size": 16,
+    "lr": 0.001
+  },
+  "kernel": {
+    "epochs": 12,
+    "batch_size": 256,
+    "lr": 0.001,
+    "register_qubits": 1,
+    "depth": 1,
+    "angle_scale": 1.0,
+    "pair_chunk_size": 4096,
+    "max_phase": 3.141592653589793,
+    "max_post_rotation": 1.5707963267948966,
+    "max_transport": 0.25,
+    "initial_phase": 0.6,
+    "initial_post_rotation": 0.35,
+    "initial_transport": 0.05,
+    "weight_decay": 0.0
+  },
+  "model": {
+    "dim": 32,
+    "num_layers": 2,
+    "num_heads": 4,
+    "ff_dim": 64,
+    "dropout": 0.0
+  },
+  "gates": {
+    "minimum_candidate_minus_disabled_macro_f1": 0.001,
+    "minimum_candidate_minus_matched_macro_f1": -0.0005,
+    "test_used_for_training_or_selection": false
+  },
+  "claim_limits": {
+    "single_seed_only": true,
+    "natural_transfer_not_yet_reproducible": true,
+    "quantum_specific_advantage_not_claimed": true,
+    "multi_seed_requires_post_audit_authorization": true,
+    "exact_statevector_is_not_hardware_speed_evidence": true
+  }
+}

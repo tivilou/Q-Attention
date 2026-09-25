@@ -1,0 +1,41 @@
+{
+  "schema_version": "q-attention.qtriad-natural-preflight.v1",
+  "experiment_id": "retacred_qtriad_natural_preflight",
+  "stage": "preflight",
+  "train_path": "data/relation/retacred/train.jsonl",
+  "valid_path": "data/relation/retacred/valid.jsonl",
+  "max_train_records": 32,
+  "max_valid_records": 16,
+  "model": {
+    "dim": 32,
+    "num_layers": 2,
+    "num_heads": 4,
+    "ff_dim": 64,
+    "dropout": 0.0,
+    "max_length": 256
+  },
+  "qtriad": {
+    "num_qubits": 2,
+    "circuit_depth": 1,
+    "angle_scale": 1.0,
+    "max_gain": 0.5,
+    "initial_gain": 0.02,
+    "seed": 13
+  },
+  "optimization": {
+    "baseline_epochs": 1,
+    "baseline_batch_size": 8,
+    "baseline_lr": 0.001,
+    "batch_size": 4,
+    "seed": 13
+  },
+  "contract": {
+    "labels_are_used_only_for_loss": true,
+    "entity_attention_unchanged": true,
+    "context_action_is_zero_sum": true,
+    "candidate_control": "q_triad",
+    "matched_control": "classical_density_tensor",
+    "strict_quantum_attribution_not_tested": true,
+    "formal_full_data_run": false
+  }
+}

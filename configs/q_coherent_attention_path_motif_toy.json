@@ -1,0 +1,32 @@
+{
+  "schema_version": "q-attention.coherent-attention-path-motif.v1",
+  "experiment_name": "q_coherent_attention_path_motif_toy",
+  "seed": 7,
+  "device": "cuda",
+  "dataset": {
+    "identity": "signed_two_path_interference_motif_v1",
+    "size": 96,
+    "nodes": 5,
+    "anchor": 0,
+    "target_nodes": [3, 4]
+  },
+  "mechanism": {
+    "walk_time": 0.7853981633974483,
+    "max_transport": 2.0,
+    "initial_transport": 1.0
+  },
+  "selectors": [
+    "disabled",
+    "q_wap_signed",
+    "q_wap_unsigned",
+    "classical_wap_diffusion"
+  ],
+  "gate": {
+    "minimum_quantum_accuracy": 0.95,
+    "maximum_control_accuracy": 0.55,
+    "minimum_corrected_errors": 40,
+    "maximum_harmed_correct": 0
+  },
+  "output_root": "runs/q_coherent_attention_path_motif_toy"
+}
+

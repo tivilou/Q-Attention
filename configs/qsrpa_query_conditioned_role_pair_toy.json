@@ -1,0 +1,32 @@
+{
+  "schema_version": "q-attention.qsrpa-query-conditioned-role-pair-toy.v1",
+  "experiment_name": "qsrpa_query_conditioned_role_pair_toy",
+  "seeds": [7, 11, 13, 17, 23],
+  "device": "cpu",
+  "dataset": {
+    "identity": "synthetic_query_role_reversal_dynamic_address_v1",
+    "train_size": 512,
+    "valid_size": 512,
+    "queries": 2,
+    "keys": 6,
+    "dim": 4,
+    "noise": 0.08,
+    "distractor_scale": 0.35,
+    "baseline_bias": 1.2,
+    "action_delta": 1.5
+  },
+  "router": {
+    "temperature": 0.35,
+    "global_projection_seed_offset": 4013,
+    "classical_projection_seed_offset": 4071
+  },
+  "gate": {
+    "required_seed_fraction": 0.8,
+    "minimum_query_role_hit": 0.8,
+    "minimum_query_reversal_consistency": 0.8,
+    "minimum_action_alignment_gain": 0.05,
+    "minimum_query_vs_global_role_hit_gain": 0.2,
+    "maximum_candidate_vs_classical_role_hit_gap": 0.02
+  },
+  "output_root": "runs/qsrpa_query_conditioned_role_pair_toy"
+}

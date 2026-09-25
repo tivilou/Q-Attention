@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 import math
 
@@ -35,12 +36,7 @@ class AttentionScorePassThrough(nn.Module):
 
 
 class AttentionInterventionPassThrough(nn.Module):
-    """Behavior-preserving boundary for query/key/value interventions.
-
-    Plugins may transform query/key/value before score construction and may
-    transform scores/value after score construction. The default keeps the
-    baseline path exactly unchanged.
-    """
+    """Behavior-preserving boundary for query/key/value interventions."""
 
     def before_scores(
         self,
@@ -66,6 +62,20 @@ class AttentionInterventionPassThrough(nn.Module):
         return scores, value
 
 
+class AttentionContextPassThrough(nn.Module):
+    """Optional hook point for value/context interventions."""
+
+    def forward(
+        self,
+        _query: torch.Tensor,
+        _key: torch.Tensor,
+        _value: torch.Tensor,
+        _scores: torch.Tensor,
+        _attention_mask: torch.Tensor | None,
+    ) -> None:
+        return None
+
+
 class SteerableSelfAttention(nn.Module):
     """Self-attention layer with an explicit key projection module."""
 
@@ -82,6 +92,7 @@ class SteerableSelfAttention(nn.Module):
         self.out_proj = nn.Linear(dim, dim)
         self.attention_intervention = AttentionInterventionPassThrough()
         self.score_intervention = AttentionScorePassThrough()
+        self.context_intervention = AttentionContextPassThrough()
         self.dropout = nn.Dropout(dropout)
 
     def _split_heads(self, tensor: torch.Tensor) -> torch.Tensor:
@@ -117,16 +128,19 @@ class SteerableSelfAttention(nn.Module):
             layer_index=layer_index,
         )
         scores = self.score_intervention(scores, query, key, value)
-        if attention_mask is not None:
-            key_mask = attention_mask[:, None, None, :].to(dtype=torch.bool)
-            scores = scores.masked_fill(~key_mask, torch.finfo(scores.dtype).min)
-
-        weights = torch.softmax(scores, dim=-1)
-        weights = self.dropout(weights)
-        if value.ndim == 5:
-            context = torch.einsum("bhqk,bhqkd->bhqd", weights, value)
-        else:
-            context = torch.matmul(weights, value)
+        context = self.context_intervention(query, key, value, scores, attention_mask)
+        if context is None:
+            if attention_mask is not None:
+                key_mask = attention_mask[:, None, None, :].to(dtype=torch.bool)
+                scores = scores.masked_fill(~key_mask, torch.finfo(scores.dtype).min)
+            weights = torch.softmax(scores, dim=-1)
+            weights = self.dropout(weights)
+            if value.ndim == 5:
+                context = torch.einsum("bhqk,bhqkd->bhqd", weights, value)
+            else:
+                context = torch.matmul(weights, value)
+        elif not isinstance(context, torch.Tensor) or context.shape != query.shape:
+            raise ValueError("context intervention must return a tensor matching query shape")
         context = context.transpose(1, 2).contiguous().view(hidden.shape)
         return self.out_proj(context)
 
@@ -190,6 +204,89 @@ class RelationExtractionModel(nn.Module):
             nn.Dropout(config.dropout),
             nn.Linear(config.dim, config.num_labels),
         )
+        self._model_parallel_devices: tuple[torch.device, ...] = ()
+        self._model_parallel_layer_devices: tuple[torch.device, ...] = ()
+
+    @property
+    def model_parallel_enabled(self) -> bool:
+        """Whether this model is configured with explicit layer sharding."""
+        return bool(self._model_parallel_devices)
+
+    @property
+    def model_parallel_input_device(self) -> torch.device:
+        """Device receiving token IDs and the first encoder stage."""
+        if not self.model_parallel_enabled:
+            return next(self.parameters()).device
+        return self._model_parallel_devices[0]
+
+    @property
+    def model_parallel_output_device(self) -> torch.device:
+        """Device hosting the classifier and returned logits."""
+        if not self.model_parallel_enabled:
+            return next(self.parameters()).device
+        return self._model_parallel_devices[-1]
+
+    @property
+    def model_parallel_layer_devices(self) -> tuple[torch.device, ...]:
+        """Device for each encoder layer, in layer order."""
+        return self._model_parallel_layer_devices
+
+    def configure_model_parallel(
+        self, devices: Sequence[torch.device | str]
+    ) -> "RelationExtractionModel":
+        """Shard complete encoder layers across explicit devices.
+
+        This is layer/pipeline parallelism, not tensor parallelism: each layer
+        remains intact and hidden states are transferred between stages.
+        """
+        normalized = tuple(torch.device(device) for device in devices)
+        if len(normalized) < 2:
+            raise ValueError("model parallelism requires at least two devices")
+        if len(normalized) > self.config.num_layers:
+            raise ValueError(
+                "model parallel device count cannot exceed the number of encoder layers"
+            )
+        if any(device.type not in {"cpu", "cuda"} for device in normalized):
+            raise ValueError("model parallel devices must be CPU or CUDA devices")
+        if any(device.type == "cuda" and device.index is None for device in normalized):
+            raise ValueError("model parallel CUDA devices must include explicit indexes")
+        if any(device.type == "cuda" and not torch.cuda.is_available() for device in normalized):
+            raise RuntimeError("CUDA model parallelism requested but CUDA is unavailable")
+        cuda_indices = [device.index for device in normalized if device.type == "cuda"]
+        if len(cuda_indices) != len(set(cuda_indices)):
+            raise ValueError("model parallel CUDA devices must be unique")
+
+        layer_devices = tuple(
+            normalized[min(index * len(normalized) // self.config.num_layers, len(normalized) - 1)]
+            for index in range(self.config.num_layers)
+        )
+        self.encoder.token_embedding.to(normalized[0])
+        self.encoder.position_embedding.to(normalized[0])
+        self.encoder.dropout.to(normalized[0])
+        for layer, device in zip(self.encoder.layers, layer_devices):
+            layer.to(device)
+        self.classifier.to(normalized[-1])
+        self._model_parallel_devices = normalized
+        self._model_parallel_layer_devices = layer_devices
+        return self
+
+    def model_parallel_metadata(self) -> dict[str, object]:
+        """Return a JSON-safe module/device map for run provenance."""
+        if not self.model_parallel_enabled:
+            return {"enabled": False}
+        return {
+            "enabled": True,
+            "devices": [str(device) for device in self._model_parallel_devices],
+            "module_devices": {
+                "encoder.token_embedding": str(self._model_parallel_devices[0]),
+                "encoder.position_embedding": str(self._model_parallel_devices[0]),
+                **{
+                    f"encoder.layers.{index}": str(device)
+                    for index, device in enumerate(self._model_parallel_layer_devices)
+                },
+                "classifier": str(self._model_parallel_devices[-1]),
+            },
+        }
 
     @property
     def key_module_paths(self) -> tuple[str, ...]:
@@ -199,6 +296,13 @@ class RelationExtractionModel(nn.Module):
     def score_module_paths(self) -> tuple[str, ...]:
         return tuple(
             f"encoder.layers.{idx}.attn.score_intervention"
+            for idx in range(self.config.num_layers)
+        )
+
+    @property
+    def context_module_paths(self) -> tuple[str, ...]:
+        return tuple(
+            f"encoder.layers.{idx}.attn.context_intervention"
             for idx in range(self.config.num_layers)
         )
 
@@ -215,7 +319,21 @@ class RelationExtractionModel(nn.Module):
         subject_mask: torch.Tensor,
         object_mask: torch.Tensor,
     ) -> torch.Tensor:
-        hidden = self.encoder(input_ids, attention_mask)
+        if not self.model_parallel_enabled:
+            hidden = self.encoder(input_ids, attention_mask)
+        else:
+            input_device = self._model_parallel_devices[0]
+            input_ids = input_ids.to(input_device)
+            attention_mask = attention_mask.to(input_device)
+            batch, tokens = input_ids.shape
+            positions = torch.arange(tokens, device=input_device).unsqueeze(0).expand(batch, tokens)
+            hidden = self.encoder.token_embedding(input_ids) + self.encoder.position_embedding(positions)
+            hidden = self.encoder.dropout(hidden)
+            for layer_index, (layer, layer_device) in enumerate(
+                zip(self.encoder.layers, self._model_parallel_layer_devices)
+            ):
+                hidden = hidden.to(layer_device)
+                hidden = layer(hidden, attention_mask.to(layer_device), layer_index=layer_index)
         subject_repr = self._masked_mean(hidden, subject_mask)
         object_repr = self._masked_mean(hidden, object_mask)
         context_repr = self._masked_mean(hidden, attention_mask)

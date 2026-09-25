@@ -1,0 +1,50 @@
+{
+  "schema_version": "q-attention.q-coherence-destruction-differential.v1",
+  "experiment_name": "q_coherence_destruction_differential",
+  "selectors": [
+    "qcdd_coherent_differential",
+    "qcdd_dephased_null",
+    "qcdd_product_null",
+    "qcdd_sincos_control",
+    "qcdd_key_shuffle",
+    "qccw_raw_xx"
+  ],
+  "seed": 7,
+  "device": "cuda",
+  "dataset": {
+    "identity": "synthetic_dynamic_address_consensus_error_witness_v2",
+    "train_size": 512,
+    "calibration_size": 256,
+    "valid_size": 256,
+    "test_size": 256,
+    "batch_size": 128
+  },
+  "estimator": {
+    "num_key_pairs": 15,
+    "angle_scale": 1.0,
+    "seed_offset": 7331,
+    "circuit_path": "configs/q_coherence_destruction_differential_circuit.json"
+  },
+  "training": {
+    "steps": 180,
+    "lr": 0.03,
+    "weight_decay": 0.0001,
+    "pair_loss_weight": 0.5,
+    "gradient_clip": 5.0
+  },
+  "shot_estimate": {
+    "confidence_z": 1.96,
+    "measurement_settings": 3,
+    "maximum_shots_per_candidate_pair": 4096
+  },
+  "gate": {
+    "minimum_differential_abs": 0.0001,
+    "maximum_null_abs": 0.000001,
+    "minimum_pair_auc": 0.75,
+    "maximum_dephased_auc": 0.65,
+    "minimum_quantum_control_auc_margin": 0.03,
+    "minimum_key_shuffle_auc_drop": 0.05,
+    "maximum_gradient_norm": 100.0
+  },
+  "output_root": "runs/q_coherence_destruction_differential"
+}

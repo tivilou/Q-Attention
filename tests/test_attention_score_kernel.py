@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import math
+import sys
 
 import pytest
 import torch
 import torch.nn.functional as F
 
+from experiments import train_relation_attention_score_kernel
 from q_attention.adapters import AttentionScoreHookConfig, AttentionScoreKernelAdapter
 from q_attention.experiments import (
     GradientNormTracker,
@@ -60,6 +62,7 @@ def kernel_config(
     score_readout: str = "fidelity",
     input_encoding: str = "joint",
     query_scope: str = "all",
+    relation_anchor_mode: str = "entity_pair",
     normalize_readout_energy: bool = False,
 ) -> RelationScoreKernelConfig:
     return RelationScoreKernelConfig(
@@ -73,6 +76,7 @@ def kernel_config(
         score_readout=score_readout,
         input_encoding=input_encoding,
         query_scope=query_scope,
+        relation_anchor_mode=relation_anchor_mode,
         seed=13,
     )
 
@@ -81,6 +85,7 @@ def evidence_config(
     num_layers: int = 1,
     *,
     evidence_readout: str = "factorized_observable",
+    relation_anchor_mode: str = "entity_pair",
 ) -> RelationEvidenceSelectorConfig:
     return RelationEvidenceSelectorConfig(
         num_layers=num_layers,
@@ -90,6 +95,7 @@ def evidence_config(
         depth=2,
         mask_floor=0.1,
         evidence_readout=evidence_readout,
+        relation_anchor_mode=relation_anchor_mode,
         seed=41,
     )
 
@@ -262,6 +268,239 @@ def test_entity_query_scope_only_changes_relation_anchor_rows() -> None:
         torch.zeros_like(residual.masked_select(~active_queries)),
     )
     assert residual.masked_select(active_queries).abs().max() > 0.0
+
+
+def test_global_context_kernel_anchor_ignores_entity_masks() -> None:
+    torch.manual_seed(22)
+    query = torch.randn(2, 2, 5, 4)
+    key = torch.randn(2, 2, 5, 4)
+    attention, subject, object_ = relation_masks(2, 5)
+    alternate_subject = subject.roll(shifts=1, dims=-1)
+    alternate_object = object_.roll(shifts=-1, dims=-1)
+    kernel = QuantumRelationAttentionScoreKernel(
+        kernel_config(relation_anchor_mode="global_context")
+    )
+
+    original = kernel.centered_kernel(
+        query,
+        key,
+        layer_index=0,
+        attention_mask=attention,
+        subject_mask=subject,
+        object_mask=object_,
+    )
+    alternate = kernel.centered_kernel(
+        query,
+        key,
+        layer_index=0,
+        attention_mask=attention,
+        subject_mask=alternate_subject,
+        object_mask=alternate_object,
+    )
+
+    torch.testing.assert_close(original, alternate)
+
+
+def test_global_context_requires_all_query_scope() -> None:
+    with pytest.raises(
+        ValueError,
+        match="label-free global_context action requires query_scope='all'",
+    ):
+        kernel_config(
+            relation_anchor_mode="global_context",
+            query_scope="entities",
+        )
+
+
+def test_soft_role_pair_is_label_free_mask_invariant_and_noncollapsed() -> None:
+    torch.manual_seed(91)
+    query = torch.randn(2, 2, 6, 4)
+    key = torch.randn(2, 2, 6, 4)
+    attention, subject, object_ = relation_masks(2, 6, padded=True)
+    kernel = QuantumRelationAttentionScoreKernel(
+        kernel_config(relation_anchor_mode="soft_role_pair", input_encoding="factorized_shared")
+    )
+    residual = kernel(
+        query, key, layer_index=0, attention_mask=attention,
+        subject_mask=subject, object_mask=object_,
+    )
+    swapped = kernel(
+        query, key, layer_index=0, attention_mask=attention,
+        subject_mask=object_, object_mask=subject,
+    )
+    torch.testing.assert_close(residual, swapped)
+    diagnostics = kernel.relation_role_diagnostics(key, attention)
+    assert torch.isfinite(residual).all()
+    assert torch.isfinite(diagnostics["weights"]).all()
+    assert diagnostics["effective_tokens"].min() > 1.0
+    assert diagnostics["normalized_entropy"].min() > 0.0
+    assert sum(p.numel() for p in kernel.parameters()) > 0
+
+
+def test_query_conditioned_soft_role_pair_routes_per_query_without_entity_masks(
+    tmp_path,
+) -> None:
+    torch.manual_seed(92)
+    query = torch.randn(2, 2, 6, 4)
+    key = torch.randn(2, 2, 6, 4)
+    attention, subject, object_ = relation_masks(2, 6, padded=True)
+    config = kernel_config(
+        relation_anchor_mode="query_conditioned_soft_role_pair",
+        input_encoding="factorized_shared",
+    )
+    quantum = QuantumRelationAttentionScoreKernel(config)
+    classical = ClassicalRelationAttentionScoreKernel(config)
+
+    diagnostics = quantum.relation_role_diagnostics(key, attention, query)
+    reversed_query = query.roll(shifts=1, dims=2)
+    reversed_diagnostics = quantum.relation_role_diagnostics(
+        key, attention, reversed_query
+    )
+    assert diagnostics["weights"].shape == (2, 2, 6, 6, 2)
+    assert diagnostics["weights"][..., -1, :].equal(
+        torch.zeros_like(diagnostics["weights"][..., -1, :])
+    )
+    assert diagnostics["weights"][:, :, -1].equal(
+        torch.zeros_like(diagnostics["weights"][:, :, -1])
+    )
+    assert (diagnostics["weights"] - reversed_diagnostics["weights"]).abs().sum() > 1e-5
+
+    residual = quantum(
+        query,
+        key,
+        layer_index=0,
+        attention_mask=attention,
+        subject_mask=subject,
+        object_mask=object_,
+    )
+    alternate_masks = (
+        subject.roll(shifts=1, dims=-1),
+        object_.roll(shifts=-1, dims=-1),
+    )
+    alternate = quantum(
+        query,
+        key,
+        layer_index=0,
+        attention_mask=attention,
+        subject_mask=alternate_masks[0],
+        object_mask=alternate_masks[1],
+    )
+    torch.testing.assert_close(residual, alternate)
+    assert torch.equal(residual[:, :, -1], torch.zeros_like(residual[:, :, -1]))
+    assert torch.equal(residual[:, :, :, -1], torch.zeros_like(residual[:, :, :, -1]))
+    assert torch.isfinite(residual).all()
+    assert torch.allclose(
+        residual[:, :, :-1, :-1].sum(dim=-1),
+        torch.zeros(2, 2, 5),
+        atol=1e-6,
+    )
+    assert sum(p.numel() for p in quantum.parameters()) == sum(
+        p.numel() for p in classical.parameters()
+    )
+
+    checkpoint = tmp_path / "query_conditioned_soft_role_pair.pt"
+    save_relation_attention_score_kernel_checkpoint(checkpoint, quantum)
+    restored, _ = load_relation_attention_score_kernel_checkpoint(checkpoint)
+    restored_residual = restored(
+        query,
+        key,
+        layer_index=0,
+        attention_mask=attention,
+        subject_mask=subject,
+        object_mask=object_,
+    )
+    assert restored.config.relation_anchor_mode == "query_conditioned_soft_role_pair"
+    assert torch.equal(restored_residual, residual)
+
+
+def test_query_conditioned_role_entropy_broadcasts_batch_and_head_dimensions() -> None:
+    torch.manual_seed(93)
+    query = torch.randn(3, 2, 5, 4)
+    key = torch.randn(3, 2, 5, 4)
+    attention, subject, object_ = relation_masks(3, 5, padded=True)
+    kernel = QuantumRelationAttentionScoreKernel(
+        kernel_config(
+            relation_anchor_mode="query_conditioned_soft_role_pair",
+            input_encoding="factorized_shared",
+        )
+    )
+
+    diagnostics = kernel.relation_role_diagnostics(key, attention, query)
+    assert diagnostics["normalized_entropy"].shape == (3, 2, 5, 2)
+    assert torch.isfinite(diagnostics["normalized_entropy"]).all()
+
+    residual = kernel(
+        query,
+        key,
+        layer_index=0,
+        attention_mask=attention,
+        subject_mask=subject,
+        object_mask=object_,
+    )
+    assert residual.shape == (3, 2, 5, 5)
+    assert torch.isfinite(residual).all()
+
+
+def test_query_conditioned_soft_role_pair_requires_all_query_scope() -> None:
+    with pytest.raises(
+        ValueError,
+        match="label-free query-conditioned soft-role action requires query_scope='all'",
+    ):
+        kernel_config(
+            relation_anchor_mode="query_conditioned_soft_role_pair",
+            query_scope="entities",
+        )
+
+
+def test_score_kernel_training_defaults_to_label_free_global_context(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "train_relation_attention_score_kernel.py",
+            "--model_dir",
+            "baseline",
+            "--output_dir",
+            "output",
+        ],
+    )
+
+    args = train_relation_attention_score_kernel.parse_args()
+
+    assert args.relation_anchor_mode == "global_context"
+    assert args.query_scope == "all"
+    train_relation_attention_score_kernel.validate_args(args)
+
+
+def test_score_kernel_training_rejects_span_query_action_before_loading(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "train_relation_attention_score_kernel.py",
+            "--model_dir",
+            "baseline",
+            "--output_dir",
+            "output",
+            "--query_scope",
+            "entities",
+        ],
+    )
+    monkeypatch.setattr(
+        train_relation_attention_score_kernel,
+        "load_relation_run",
+        lambda *args, **kwargs: pytest.fail("baseline loading must not run"),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="label-free global_context action requires query_scope='all'",
+    ):
+        train_relation_attention_score_kernel.main()
 
 
 def test_observable_bank_is_parameter_matched_and_supports_diversity_loss(tmp_path) -> None:
@@ -574,6 +813,34 @@ def test_evidence_selectors_are_bounded_parameter_matched_and_size_matched() -> 
     assert sum(parameter.numel() for parameter in quantum.parameters()) > sum(
         parameter.numel() for parameter in joint_quantum.parameters()
     )
+
+
+def test_global_context_evidence_selector_ignores_entity_masks() -> None:
+    torch.manual_seed(44)
+    key = torch.randn(2, 2, 6, 4)
+    attention, subject, object_ = relation_masks(2, 6)
+    alternate_subject = subject.roll(shifts=2, dims=-1)
+    alternate_object = object_.roll(shifts=-2, dims=-1)
+    selector = QuantumRelationEvidenceSelector(
+        evidence_config(relation_anchor_mode="global_context")
+    )
+
+    original = selector.token_scores(
+        key,
+        layer_index=0,
+        attention_mask=attention,
+        subject_mask=subject,
+        object_mask=object_,
+    )
+    alternate = selector.token_scores(
+        key,
+        layer_index=0,
+        attention_mask=attention,
+        subject_mask=alternate_subject,
+        object_mask=alternate_object,
+    )
+
+    torch.testing.assert_close(original, alternate)
 
 
 def test_evidence_selector_composes_with_kernel_views_and_checkpoint(tmp_path) -> None:

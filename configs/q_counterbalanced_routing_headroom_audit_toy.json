@@ -1,0 +1,54 @@
+{
+  "schema_version": "q-attention.q-counterbalanced-routing.v2",
+  "experiment_name": "q_counterbalanced_routing_headroom_audit_toy",
+  "seeds": [7, 11, 13, 17, 23],
+  "device": "cuda",
+  "readout": "query",
+  "dataset": {
+    "identity": "synthetic_noisy_primary_cue_rescue_v1_counterbalanced_routing_v2",
+    "tokens": 8,
+    "train_size": 192,
+    "calibration_size": 96,
+    "valid_size": 96,
+    "batch_size": 32,
+    "evidence_positions": [4, 5],
+    "role_markers": [28, 29]
+  },
+  "baseline": {
+    "epochs": 12,
+    "lr": 0.005
+  },
+  "oracle": {
+    "steps": 80,
+    "lr": 0.15,
+    "margin_target": 0.05
+  },
+  "fit": {
+    "max_delta": 2.0
+  },
+  "evidence": {
+    "register_qubits": 3,
+    "depth": 2,
+    "angle_scale": 1.0,
+    "max_delta": 2.0,
+    "max_gain": 6.0,
+    "initial_gain": 0.1,
+    "seed_offset": 2718
+  },
+  "training": {
+    "steps": 80,
+    "lr": 0.03,
+    "weight_decay": 0.0001,
+    "margin_target": 0.05,
+    "margin_weight": 0.5,
+    "gradient_clip": 5.0
+  },
+  "gate": {
+    "baseline_accuracy_tolerance": 0.02,
+    "minimum_ablation_changed_examples": 1,
+    "minimum_headroom_corrections": 2,
+    "required_seed_fraction": 0.8,
+    "max_correct_to_wrong_rate": 0.02
+  },
+  "output_root": "runs/q_counterbalanced_routing_headroom_audit_toy"
+}

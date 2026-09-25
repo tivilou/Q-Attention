@@ -1,0 +1,31 @@
+{
+  "schema_version": "q-attention.q-identifiable-query-local-prescreen.v1",
+  "experiment_name": "q_identifiable_query_local_prescreen_toy",
+  "seed": 7,
+  "device": "cuda",
+  "dataset": {
+    "identity": "synthetic_dynamic_address_multievidence_relative_frames_v1",
+    "train_size": 512,
+    "calibration_size": 256,
+    "valid_size": 256,
+    "test_size": 256,
+    "batch_size": 128
+  },
+  "task": {
+    "queries": 2,
+    "classes": 3,
+    "keys": 6,
+    "dim": 4,
+    "evidence_keys": 2,
+    "baseline_bias": 2.0,
+    "hard_rate": 0.28,
+    "noise": 0.1,
+    "max_delta": 2.25
+  },
+  "gate": {
+    "baseline_accuracy_min": 0.7,
+    "baseline_accuracy_max": 0.9,
+    "maximum_harm_rate": 0.02
+  },
+  "output_root": "runs/q_identifiable_query_local_prescreen_toy"
+}

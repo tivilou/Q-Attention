@@ -1,0 +1,178 @@
+{
+  "schema_version": "research-plugin-architecture.plugin-plan.v1",
+  "project": "Q-Attention QCDD readout diagnostic",
+  "authorization": "approved",
+  "baseline": {
+    "entry_point": "src/q_attention/plugins/q_connected_consensus_witness.py",
+    "code_revision": "896d7b21361989cb24550e8dd1dfb60d5af2b909",
+    "equivalence_test": "raw connected-XX readout exactly matches QCCW for identical local parameters and inputs"
+  },
+  "core_invariants": [
+    "reuse synthetic_dynamic_address_consensus_error_witness_v2 and exact-disjoint streams",
+    "enumerate all fifteen unordered key pairs; labels and evidence slots are not plugin inputs",
+    "do not construct or apply an attention action in this diagnostic",
+    "keep four trainable parameters for quantum and sine/cosine controls",
+    "do not modify, rerun, or tune the failed QCCW Stage-0"
+  ],
+  "interfaces": [
+    {
+      "id": "pair_coherence_readout",
+      "type": "combiner",
+      "input_schema": "query[batch,query,dim], key[batch,query,6,dim], candidate_frames[candidate,dim,dim]",
+      "output_schema": "pair_score[batch,query,candidate,15] and named coherent/dephased/raw components",
+      "invariants": [
+        "unordered key-pair exchange symmetry",
+        "all fifteen pairs are enumerated once",
+        "no label, evidence-slot, attention-score, or gold-candidate argument"
+      ]
+    }
+  ],
+  "plugins": [
+    {
+      "id": "qcdd_coherent_differential",
+      "version": "0.1.0",
+      "role": "idea",
+      "interface": "pair_coherence_readout",
+      "insertion_point": "QCCW joint state after CZ and before pair aggregation",
+      "hypothesis": "coherent-minus-dephased four-body YYYY phase parity retains cross-feature pair information not captured by a four-parameter rank-two classical trigonometric interaction",
+      "input_schema": "query,key,candidate_frames",
+      "output_schema": "connected_YYYY_coherent_minus_dephased pair score plus secondary connected_YY diagnostic",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "4 qubits, 4 trainable parameters, 2 CZ gates, exact statevector",
+      "failure_signatures": [
+        "differential is numerically trivial",
+        "held-out pair AUC below 0.75",
+        "sine/cosine control comes within 0.02 AUC",
+        "key-shuffle AUC drop below 0.03",
+        "estimated shots exceed 4096"
+      ]
+    },
+    {
+      "id": "qcdd_dephased_null",
+      "version": "0.1.0",
+      "role": "baseline",
+      "interface": "pair_coherence_readout",
+      "insertion_point": "computational-basis dephasing on key-b register before YY readout",
+      "hypothesis": "complete dephasing of key-b removes every cross-register YYYY expectation",
+      "input_schema": "query,key,candidate_frames and frozen QCDD parameters",
+      "output_schema": "dephased connected_YYYY pair score",
+      "requires": ["qcdd_coherent_differential"],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "same state preparation; analytic density-matrix-equivalent dephasing null",
+      "failure_signatures": ["dephased absolute score exceeds 1e-6", "dephased AUC exceeds 0.70"]
+    },
+    {
+      "id": "qcdd_product_null",
+      "version": "0.1.0",
+      "role": "baseline",
+      "interface": "pair_coherence_readout",
+      "insertion_point": "QCDD state with both CZ gates removed",
+      "hypothesis": "connected YYYY is zero for the matched pure product state",
+      "input_schema": "query,key,candidate_frames and frozen QCDD parameters",
+      "output_schema": "product connected_YYYY differential",
+      "requires": ["qcdd_coherent_differential"],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "4 qubits, shared 4 local parameters, 0 two-qubit gates",
+      "failure_signatures": ["product differential absolute score exceeds 1e-6"]
+    },
+    {
+      "id": "qcdd_sincos_control",
+      "version": "0.1.0",
+      "role": "baseline",
+      "interface": "pair_coherence_readout",
+      "insertion_point": "candidate-pair readout on the same two local features",
+      "hypothesis": "a tied four-parameter sine/cosine embedding may reproduce the phase-sensitive pair ranking classically",
+      "input_schema": "query,key,candidate_frames",
+      "output_schema": "symmetric sine/cosine pair score",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "4 trainable parameters, no statevector",
+      "failure_signatures": ["comes within 0.02 AUC of QCDD on either held-out split"]
+    },
+    {
+      "id": "qcdd_key_shuffle",
+      "version": "0.1.0",
+      "role": "adapter",
+      "interface": "pair_coherence_readout",
+      "insertion_point": "second key view before QCDD encoding",
+      "hypothesis": "a fixed within-query roll of key-b destroys evidence-pair dependence while preserving one-key marginals",
+      "input_schema": "query,key,candidate_frames and frozen QCDD parameters",
+      "output_schema": "shuffled QCDD differential",
+      "requires": ["qcdd_coherent_differential"],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "same QCDD circuit and parameter budget",
+      "failure_signatures": ["held-out AUC drop below 0.03"]
+    },
+    {
+      "id": "qccw_raw_xx",
+      "version": "0.1.0",
+      "role": "adapter",
+      "interface": "pair_coherence_readout",
+      "insertion_point": "same QCDD state with connected XX instead of differential YY",
+      "hypothesis": "raw connected XX records whether QCDD adds information beyond the failed QCCW readout",
+      "input_schema": "query,key,candidate_frames and frozen QCDD parameters",
+      "output_schema": "raw connected_XX pair score",
+      "requires": ["qcdd_coherent_differential"],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "same state and parameters; readout-only control",
+      "failure_signatures": ["raw XX and differential YY are numerically identical"]
+    }
+  ],
+  "discovery": {
+    "mode": "explicit_allowlist",
+    "allowlist": [
+      "qcdd_coherent_differential",
+      "qcdd_dephased_null",
+      "qcdd_product_null",
+      "qcdd_sincos_control",
+      "qcdd_key_shuffle",
+      "qccw_raw_xx"
+    ]
+  },
+  "composition": {
+    "mode": "single",
+    "order": ["qcdd_coherent_differential"],
+    "merge_rule": "evaluate one readout at a time; no attention residual or selector composition",
+    "interaction_ablations": [
+      "qcdd_dephased_null",
+      "qcdd_product_null",
+      "qcdd_sincos_control",
+      "qcdd_key_shuffle",
+      "qccw_raw_xx"
+    ]
+  },
+  "validation": {
+    "baseline_equivalence": "raw connected XX equals QCCW for identical states and parameters",
+    "tests": [
+      "baseline_equivalence",
+      "plugin_isolation",
+      "deterministic_replay",
+      "interaction_ablation",
+      "analytic dephased YYYY null equals explicit density-matrix dephasing",
+      "unordered pair swap symmetry",
+      "quantum and sine/cosine parameter counts both equal four",
+      "finite nonzero QCDD and control gradients",
+      "smoke run writes the frozen readout manifest"
+    ]
+  },
+  "reproducibility": {
+    "config_path": "configs/q_coherence_destruction_differential.json",
+    "dataset_identity": "synthetic_dynamic_address_consensus_error_witness_v2",
+    "environment": "Python >=3.10, torch >=2.0, ideal exact statevector, CPU or one CUDA device",
+    "seeds": [7],
+    "output_manifest": "runs/q_coherence_destruction_differential/<UTC>/run_summary.json"
+  },
+  "limitations": [
+    "This is a seed-7 readout diagnostic and cannot authorize multi-seed, attention-action, or task-utility claims.",
+    "Training targets may use labels and evidence pairs, but plugin inference receives neither.",
+    "Exact statevectors and analytic dephasing remain classically simulable.",
+    "The shot calculation is an estimate, not a finite-shot execution or hardware benchmark."
+  ]
+}

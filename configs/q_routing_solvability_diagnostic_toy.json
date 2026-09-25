@@ -1,0 +1,30 @@
+{
+  "schema_version": "q-attention.q-routing-solvability-diagnostic.v1",
+  "experiment_name": "q_routing_solvability_diagnostic_toy",
+  "seed": 7,
+  "device": "cuda",
+  "readout": "query",
+  "variants": [
+    "current_reference",
+    "full_routing",
+    "neutral_distractor",
+    "masked_distractor",
+    "duplicate_selected",
+    "query_primary_upper_bound"
+  ],
+  "dataset": {
+    "identity": "synthetic_noisy_primary_cue_rescue_v1_counterbalanced_routing_v2",
+    "train_size": 192,
+    "calibration_size": 96,
+    "valid_size": 96,
+    "batch_size": 32
+  },
+  "baseline": {
+    "epochs": 12,
+    "lr": 0.005
+  },
+  "gate": {
+    "reference_tolerance": 0.02
+  },
+  "output_root": "runs/q_routing_solvability_diagnostic_toy"
+}

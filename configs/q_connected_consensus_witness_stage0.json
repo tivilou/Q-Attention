@@ -1,0 +1,51 @@
+{
+  "schema_version": "q-attention.q-connected-consensus-witness-stage0.v1",
+  "experiment_name": "q_connected_consensus_witness_stage0",
+  "selectors": [
+    "disabled",
+    "qccw_entangled",
+    "qccw_product_null",
+    "qccw_bilinear",
+    "qccw_entangler_cut",
+    "qccw_key_shuffle",
+    "independent_key_quantum"
+  ],
+  "seed": 7,
+  "device": "cuda",
+  "dataset": {
+    "identity": "synthetic_dynamic_address_consensus_error_witness_v2",
+    "train_size": 512,
+    "calibration_size": 256,
+    "valid_size": 256,
+    "test_size": 256,
+    "batch_size": 128
+  },
+  "estimator": {
+    "num_key_pairs": 15,
+    "angle_scale": 1.0,
+    "seed_offset": 7331
+  },
+  "training": {
+    "steps": 180,
+    "lr": 0.03,
+    "weight_decay": 0.0001,
+    "gradient_clip": 5.0,
+    "pair_loss_weight": 0.5
+  },
+  "gate": {
+    "baseline_accuracy_min": 0.7,
+    "baseline_accuracy_max": 0.9,
+    "minimum_pair_auc": 0.75,
+    "minimum_accuracy_delta": 0.05,
+    "maximum_harm_rate": 0.02,
+    "minimum_quantum_bilinear_margin": 0.02,
+    "minimum_ablation_margin": 0.03,
+    "minimum_entangler_cut_drop": 0.02,
+    "minimum_key_shuffle_drop": 0.02,
+    "maximum_product_connected_abs": 1e-6,
+    "minimum_connected_abs": 1e-4,
+    "maximum_gradient_norm": 100.0,
+    "residual_zero_sum_tolerance": 1e-5
+  },
+  "output_root": "runs/q_connected_consensus_witness_stage0"
+}

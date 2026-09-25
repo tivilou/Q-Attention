@@ -1,0 +1,114 @@
+{
+  "schema_version": "research-plugin-architecture.plugin-plan.v2",
+  "project": "Q-Attention",
+  "authorization": "implemented",
+  "baseline": {
+    "entry_point": "q_attention.adapters.AttentionScoreKernelAdapter",
+    "code_revision": "staging-qk-coherent-transport-v1",
+    "equivalence_test": "disabled adapter leaves fixed model score tensors unchanged"
+  },
+  "core_invariants": [
+    "Labels and relation IDs never enter the plugin.",
+    "Only valid non-entity context keys receive residual action; masked and entity keys are zero.",
+    "Every active query context row is centered to zero sum and finite.",
+    "Quantum and classical branches use identical projections, parameter count, gain bounds, masks, and pair chunk budget.",
+    "The plugin is isolated behind the existing pre-softmax score-hook adapter."
+  ],
+  "interfaces": [
+    {
+      "id": "attention-score-residual-v1",
+      "type": "enhancer",
+      "input_schema": "query,key,value?,scores?,layer_index,attention_mask,subject_mask,object_mask",
+      "output_schema": "float residual [batch,heads,query_tokens,key_tokens]",
+      "invariants": ["finite", "context-only", "query-row zero-sum", "bounded"]
+    }
+  ],
+  "plugins": [
+    {
+      "id": "disabled",
+      "version": "1.0.0",
+      "role": "baseline",
+      "interface": "attention-score-residual-v1",
+      "insertion_point": "none",
+      "hypothesis": "Original attention behavior is the reference baseline.",
+      "input_schema": "none",
+      "output_schema": "zero residual",
+      "requires": [],
+      "conflicts": ["qk_coherent_transport_quantum", "qk_coherent_transport_classical"],
+      "deterministic": true,
+      "resource_estimate": "no plugin computation",
+      "failure_signatures": ["baseline output changes when disabled"]
+    },
+    {
+      "id": "qk_coherent_transport_quantum",
+      "version": "0.2.0",
+      "role": "idea",
+      "interface": "attention-score-residual-v1",
+      "insertion_point": "pre-softmax attention score hook",
+      "hypothesis": "A direct query-key cross-register coherent transport observable can provide an input-dependent continuous pair score.",
+      "input_schema": "query,key,attention_mask,subject_mask,object_mask,query_mask?; masks are [batch,key] or [batch,query,key]; labels prohibited",
+      "output_schema": "finite bounded centered context-only residual",
+      "requires": ["disabled"],
+      "conflicts": ["q_rpec_quantum", "q_rpec_local_control", "q_triad", "qness", "q_wap", "qcdd", "qccw", "stacked_score_interventions"],
+      "deterministic": true,
+      "resource_estimate": "2*register_qubits data qubits; one independent two-qubit controlled-phase/readout pair per channel and circuit depth",
+      "failure_signatures": ["score collapses to control", "near-zero score or gradient", "permutation discriminator failure", "mask or gauge violation", "nonfinite score or gradient"],
+      "observability_contract": {
+        "trace_schema": "qk-coherent-transport-trace.v1",
+        "emitted_fields": ["pair_score_mean", "pair_score_std", "residual_rms", "gradient_norm", "quantum_control_gap", "target_key_top1", "permutation_equivariance_error"],
+        "checks": ["finite", "nonzero_score_variance", "context_zero_sum", "entity_mask_zero", "query_key_permutation_equivariance", "deterministic_replay", "parameter_match", "analytic_4x4_oracle", "phase_on_off_input_dependence", "complex_autograd_finite_difference"],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "qk_coherent_transport_classical",
+      "version": "0.2.0",
+      "role": "adapter",
+      "interface": "attention-score-residual-v1",
+      "insertion_point": "pre-softmax attention score hook",
+      "hypothesis": "A parameter- and input-matched separable interaction bank is the strong classical control.",
+      "input_schema": "query,key,attention_mask,subject_mask,object_mask,query_mask?; masks are [batch,key] or [batch,query,key]; labels prohibited",
+      "output_schema": "finite bounded centered context-only residual",
+      "requires": ["disabled"],
+      "conflicts": ["q_rpec_quantum", "q_rpec_local_control", "q_triad", "qness", "q_wap", "qcdd", "qccw", "stacked_score_interventions"],
+      "deterministic": true,
+      "resource_estimate": "same projections, trainable scalars, masks, and pair budget; no cross-register state",
+      "failure_signatures": ["control violates parameter/input matching", "nonfinite score or gradient", "mask or gauge violation"],
+      "observability_contract": {
+        "trace_schema": "qk-coherent-transport-trace.v1",
+        "emitted_fields": ["pair_score_mean", "pair_score_std", "residual_rms", "gradient_norm", "quantum_control_gap", "target_key_top1", "permutation_equivariance_error"],
+        "checks": ["finite", "nonzero_score_variance", "context_zero_sum", "entity_mask_zero", "query_key_permutation_equivariance", "deterministic_replay", "parameter_match", "analytic_4x4_oracle", "complex_autograd_finite_difference"],
+        "deterministic_replay": true
+      }
+    }
+  ],
+  "discovery": {"mode": "explicit_allowlist", "allowlist": ["disabled", "qk_coherent_transport_quantum", "qk_coherent_transport_classical"]},
+  "composition": {
+    "mode": "single",
+    "order": ["disabled", "qk_coherent_transport_quantum", "qk_coherent_transport_classical"],
+    "merge_rule": "Run exactly one entry from the allowlist per condition; never stack score residuals.",
+    "interaction_ablations": ["disabled vs quantum", "disabled vs classical", "quantum vs classical", "query/key permutation null", "relation-shuffle null"]
+  },
+  "validation": {
+    "baseline_equivalence": "Disabled condition has exact zero intervention and leaves fixed score tensors unchanged.",
+    "tests": ["baseline_equivalence", "plugin_isolation", "deterministic_replay", "interaction_ablation", "finite_values", "gradient_flow", "mask_and_gauge_invariants", "query_key_permutation_equivariance", "quantum_control_non_equivalence", "parameter_match", "analytic_4x4_oracle", "phase_on_off_input_dependence", "complex_autograd_finite_difference"]
+  },
+  "reproducibility": {
+    "config_path": "configs/qk_coherent_transport_toy.json",
+    "dataset_identity": "synthetic relative-phase retrieval toy v1 with fixed generator seeds",
+    "environment": "Python >=3.10, torch >=2.0; CPU default; optional single CUDA canary",
+    "seeds": [13, 29, 53],
+    "output_manifest": "runs/qk_coherent_transport_toy/manifest.json"
+  },
+  "recovery_contract": {
+    "dossier_path": ".ai-progress/workstreams/quantum-projector-v2/refs/20260901-post-qrpec-mechanism-recovery.json",
+    "dossier_sha256": "4756be17356e022c869d9c096bd4e9c0cb903449c455658fbdFA128e85ecece4",
+    "candidate_id": "qk-coherent-transport-v1",
+    "discriminating_intermediate_measurement": "Direct query-key transport score variance, target-key relation sensitivity, and quantum-versus-strong-classical score separation"
+  },
+  "limitations": [
+    "This plan authorizes isolated implementation and toy screening only, not complete-data training.",
+    "Exact statevector behavior is not hardware-speed or quantum-advantage evidence.",
+    "Collision risk and task utility remain unresolved until later bounded audits."
+  ]
+}
