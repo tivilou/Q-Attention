@@ -7,6 +7,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
+| [Q-EPVG Entangled Parity Value Gating Re-TACRED 正式单 seed](current/retacred_q_epvg_formal_single_seed_zh.md) | 完整数据、seed 13、27 个 Q-EPVG 变体、动态 GPU selector 调度、batch 级恢复及 train/valid/test 全链路 Case Study |
 | [Q-VRES 正式实验](current/qvres_relation_transfer_full_run_zh.md) | 五 seed、自动多 GPU 和报告提交 |
 | [合作者 Git 工作流](current/collaborator_git_workflow_zh.md) | clone、同步 `main`、维护 `1.1`、提交报告 |
 | [正式实验协议](current/experiment_protocol_zh.md) | 数据、selector、指标和交接规则 |

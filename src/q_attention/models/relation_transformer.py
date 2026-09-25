@@ -34,6 +34,38 @@ class AttentionScorePassThrough(nn.Module):
         return scores
 
 
+class AttentionInterventionPassThrough(nn.Module):
+    """Behavior-preserving boundary for query/key/value interventions.
+
+    Plugins may transform query/key/value before score construction and may
+    transform scores/value after score construction. The default keeps the
+    baseline path exactly unchanged.
+    """
+
+    def before_scores(
+        self,
+        query: torch.Tensor,
+        key: torch.Tensor,
+        value: torch.Tensor,
+        *,
+        attention_mask: torch.Tensor | None = None,
+        layer_index: int = 0,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        return query, key, value
+
+    def after_scores(
+        self,
+        scores: torch.Tensor,
+        query: torch.Tensor,
+        key: torch.Tensor,
+        value: torch.Tensor,
+        *,
+        attention_mask: torch.Tensor | None = None,
+        layer_index: int = 0,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        return scores, value
+
+
 class SteerableSelfAttention(nn.Module):
     """Self-attention layer with an explicit key projection module."""
 
@@ -48,6 +80,7 @@ class SteerableSelfAttention(nn.Module):
         self.key_proj = nn.Linear(dim, dim)
         self.value_proj = nn.Linear(dim, dim)
         self.out_proj = nn.Linear(dim, dim)
+        self.attention_intervention = AttentionInterventionPassThrough()
         self.score_intervention = AttentionScorePassThrough()
         self.dropout = nn.Dropout(dropout)
 
@@ -55,12 +88,34 @@ class SteerableSelfAttention(nn.Module):
         batch, tokens, _ = tensor.shape
         return tensor.view(batch, tokens, self.num_heads, self.head_dim).transpose(1, 2)
 
-    def forward(self, hidden: torch.Tensor, attention_mask: torch.Tensor | None = None) -> torch.Tensor:
+    def forward(
+        self,
+        hidden: torch.Tensor,
+        attention_mask: torch.Tensor | None = None,
+        *,
+        layer_index: int = 0,
+    ) -> torch.Tensor:
         query = self._split_heads(self.query_proj(hidden))
         key = self._split_heads(self.key_proj(hidden))
         value = self._split_heads(self.value_proj(hidden))
 
+        query, key, value = self.attention_intervention.before_scores(
+            query,
+            key,
+            value,
+            attention_mask=attention_mask,
+            layer_index=layer_index,
+        )
+
         scores = torch.matmul(query, key.transpose(-1, -2)) / math.sqrt(self.head_dim)
+        scores, value = self.attention_intervention.after_scores(
+            scores,
+            query,
+            key,
+            value,
+            attention_mask=attention_mask,
+            layer_index=layer_index,
+        )
         scores = self.score_intervention(scores, query, key, value)
         if attention_mask is not None:
             key_mask = attention_mask[:, None, None, :].to(dtype=torch.bool)
@@ -68,7 +123,10 @@ class SteerableSelfAttention(nn.Module):
 
         weights = torch.softmax(scores, dim=-1)
         weights = self.dropout(weights)
-        context = torch.matmul(weights, value)
+        if value.ndim == 5:
+            context = torch.einsum("bhqk,bhqkd->bhqd", weights, value)
+        else:
+            context = torch.matmul(weights, value)
         context = context.transpose(1, 2).contiguous().view(hidden.shape)
         return self.out_proj(context)
 
@@ -87,8 +145,16 @@ class SteerableEncoderLayer(nn.Module):
         self.ffn_norm = nn.LayerNorm(config.dim)
         self.dropout = nn.Dropout(config.dropout)
 
-    def forward(self, hidden: torch.Tensor, attention_mask: torch.Tensor | None = None) -> torch.Tensor:
-        hidden = self.attn_norm(hidden + self.dropout(self.attn(hidden, attention_mask)))
+    def forward(
+        self,
+        hidden: torch.Tensor,
+        attention_mask: torch.Tensor | None = None,
+        *,
+        layer_index: int = 0,
+    ) -> torch.Tensor:
+        hidden = self.attn_norm(
+            hidden + self.dropout(self.attn(hidden, attention_mask, layer_index=layer_index))
+        )
         hidden = self.ffn_norm(hidden + self.dropout(self.ffn(hidden)))
         return hidden
 
@@ -106,8 +172,8 @@ class SteerableEncoder(nn.Module):
         positions = torch.arange(tokens, device=input_ids.device).unsqueeze(0).expand(batch, tokens)
         hidden = self.token_embedding(input_ids) + self.position_embedding(positions)
         hidden = self.dropout(hidden)
-        for layer in self.layers:
-            hidden = layer(hidden, attention_mask)
+        for layer_index, layer in enumerate(self.layers):
+            hidden = layer(hidden, attention_mask, layer_index=layer_index)
         return hidden
 
 
