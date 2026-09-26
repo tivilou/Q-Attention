@@ -5,7 +5,7 @@ set -euo pipefail
 # provenance. This intentionally does not train, resume, delete, or overwrite
 # the historical report.
 
-ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "${ROOT}"
 
 RUN_DIR="runs/retacred_q_epvg_formal_single_seed/20260926T011732Z_seed13"
