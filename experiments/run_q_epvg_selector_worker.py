@@ -76,6 +76,20 @@ def _git_revision() -> str:
         return "unknown"
 
 
+def _align_tensor_to_reference(value: Any, reference: torch.Tensor) -> torch.Tensor:
+    """Move a captured trace tensor back to the score tensor's device/dtype."""
+    if not isinstance(value, torch.Tensor):
+        return torch.zeros_like(reference)
+    return value.to(device=reference.device, dtype=reference.dtype)
+
+
+def _case_study_scores(
+    score_adjustment: Any, base_scores: torch.Tensor
+) -> tuple[torch.Tensor, torch.Tensor]:
+    adjustment = _align_tensor_to_reference(score_adjustment, base_scores)
+    return adjustment, base_scores + adjustment
+
+
 class CudaMemoryPressureMonitor:
     """Reclaim only this worker's idle allocator cache after complete updates."""
 
@@ -412,9 +426,11 @@ def write_case_study(
                     k = key.view(batch_size, tokens, heads, head_dim).transpose(1, 2)
                     base_scores = torch.matmul(q, k.transpose(-1, -2)) / (head_dim ** 0.5)
                     trace = captures["epvg_trace"].get(layer_index, {})
-                    adjustment = trace.get("score_adjustment", torch.zeros_like(base_scores))
+                    adjustment, steered_scores = _case_study_scores(
+                        trace.get("score_adjustment"), base_scores
+                    )
                     captures["baseline_scores"][layer_index] = {"input": base_scores}
-                    captures["steered_scores"][layer_index] = {"input": base_scores + adjustment}
+                    captures["steered_scores"][layer_index] = {"input": steered_scores}
 
         final_hidden = captures["hidden_states"].get(int(model.config.num_layers) - 1)
         if final_hidden is None:
