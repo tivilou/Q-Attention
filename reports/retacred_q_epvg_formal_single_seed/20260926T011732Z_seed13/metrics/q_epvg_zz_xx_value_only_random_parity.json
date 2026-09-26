@@ -1,0 +1,1036 @@
+{
+  "finite": true,
+  "metadata": {
+    "control": "random_parity",
+    "id": "q_epvg_stack",
+    "layers": [
+      {
+        "conflicts": [
+          "production Re-TACRED selectors",
+          "label-aware routing"
+        ],
+        "deterministic": true,
+        "failure_signatures": [
+          "observable collapse",
+          "mask violation",
+          "classical replay",
+          "nonfinite gradients"
+        ],
+        "hypothesis": "entangled parity observables can route value, score, or query paths",
+        "id": "q_epvg",
+        "input_schema": "query,key,value,scores,attention_mask,query_mask",
+        "insertion_point": "bounded_toy_attention",
+        "observability_contract": {
+          "required_intermediates": [
+            "query",
+            "key",
+            "value",
+            "base_attention",
+            "zz",
+            "xx",
+            "observable",
+            "theta",
+            "gate",
+            "score_adjustment",
+            "attention",
+            "routed_values",
+            "query_update",
+            "output",
+            "matched_classical",
+            "random_parity"
+          ],
+          "stages": [
+            "training",
+            "scoring",
+            "generation",
+            "evaluation"
+          ],
+          "target_boundary": "labels and targets are post-evaluation only",
+          "trace_schema": "sample-trace.v1"
+        },
+        "output_schema": "output plus observable/gate/attention trace",
+        "requires": [
+          "frozen reducer",
+          "fixed linear mapping"
+        ],
+        "resource_estimate": {
+          "data_qubits": 2,
+          "observables": [
+            "zz",
+            "zz_xx",
+            "trainable_pauli_mix"
+          ]
+        },
+        "type": "attention_toy_transformer",
+        "version": "0.1.0"
+      },
+      {
+        "conflicts": [
+          "production Re-TACRED selectors",
+          "label-aware routing"
+        ],
+        "deterministic": true,
+        "failure_signatures": [
+          "observable collapse",
+          "mask violation",
+          "classical replay",
+          "nonfinite gradients"
+        ],
+        "hypothesis": "entangled parity observables can route value, score, or query paths",
+        "id": "q_epvg",
+        "input_schema": "query,key,value,scores,attention_mask,query_mask",
+        "insertion_point": "bounded_toy_attention",
+        "observability_contract": {
+          "required_intermediates": [
+            "query",
+            "key",
+            "value",
+            "base_attention",
+            "zz",
+            "xx",
+            "observable",
+            "theta",
+            "gate",
+            "score_adjustment",
+            "attention",
+            "routed_values",
+            "query_update",
+            "output",
+            "matched_classical",
+            "random_parity"
+          ],
+          "stages": [
+            "training",
+            "scoring",
+            "generation",
+            "evaluation"
+          ],
+          "target_boundary": "labels and targets are post-evaluation only",
+          "trace_schema": "sample-trace.v1"
+        },
+        "output_schema": "output plus observable/gate/attention trace",
+        "requires": [
+          "frozen reducer",
+          "fixed linear mapping"
+        ],
+        "resource_estimate": {
+          "data_qubits": 2,
+          "observables": [
+            "zz",
+            "zz_xx",
+            "trainable_pauli_mix"
+          ]
+        },
+        "type": "attention_toy_transformer",
+        "version": "0.1.0"
+      }
+    ],
+    "num_layers": 2,
+    "observable": "zz_xx",
+    "path": "value_only",
+    "selector": "q_epvg_zz_xx_value_only_random_parity",
+    "version": "0.1.0"
+  },
+  "seed": 13,
+  "selector": "q_epvg_zz_xx_value_only_random_parity",
+  "test": {
+    "batches": 53,
+    "context_diagnostics": {
+      "empty_context_batches": 0,
+      "empty_context_fraction": 0.0,
+      "empty_context_rows": 0,
+      "examples": [],
+      "reasons": {
+        "entity_covers_all_valid": 0,
+        "no_valid_tokens": 0
+      },
+      "total_rows": 13418
+    },
+    "delta_vs_baseline": {
+      "delta_accuracy": 0.0023103294082575943,
+      "delta_loss": 0.03316826368341319,
+      "delta_macro_f1": 0.0005336285696135867,
+      "delta_macro_precision": 0.005392302214163536,
+      "delta_macro_recall": 0.0013162286471854745
+    },
+    "geometry": [
+      {
+        "attention_total_variation": {
+          "count": 0,
+          "mean": null,
+          "std": null
+        },
+        "context_mass_error": {
+          "count": 0,
+          "mean": null,
+          "std": null
+        },
+        "entity_mass_error": {
+          "count": 0,
+          "mean": null,
+          "std": null
+        },
+        "residual_rms": {
+          "count": 0,
+          "mean": null,
+          "std": null
+        }
+      },
+      {
+        "attention_total_variation": {
+          "count": 0,
+          "mean": null,
+          "std": null
+        },
+        "context_mass_error": {
+          "count": 0,
+          "mean": null,
+          "std": null
+        },
+        "entity_mass_error": {
+          "count": 0,
+          "mean": null,
+          "std": null
+        },
+        "residual_rms": {
+          "count": 0,
+          "mean": null,
+          "std": null
+        }
+      }
+    ],
+    "items": 13418,
+    "metrics": {
+      "accuracy": 0.599940378595916,
+      "loss": 2.0807770693207983,
+      "macro_f1": 0.17897453634168695,
+      "macro_precision": 0.21441310722408438,
+      "macro_recall": 0.18852683324832492
+    }
+  },
+  "train": {
+    "best_epoch": 12,
+    "best_valid": {
+      "accuracy": 0.5984987745098039,
+      "loss": 1.9334812764248817,
+      "macro_f1": 0.21372419329121284,
+      "macro_precision": 0.25603838555817693,
+      "macro_recall": 0.21713634579708155
+    },
+    "context_diagnostics": {
+      "empty_context_batches": 24,
+      "empty_context_fraction": 3.4208500812451895e-05,
+      "empty_context_rows": 24,
+      "examples": [
+        {
+          "active_context_tokens": 0,
+          "batch": 15,
+          "entity_tokens": 5,
+          "object_token_positions": [
+            4
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 168,
+          "sample_index": 26739,
+          "subject_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "valid_tokens": 5
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 212,
+          "entity_tokens": 4,
+          "object_token_positions": [
+            3
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 192,
+          "sample_index": 52309,
+          "subject_token_positions": [
+            0,
+            1,
+            2
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_tokens": 4
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 180,
+          "entity_tokens": 5,
+          "object_token_positions": [
+            4
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 116,
+          "sample_index": 26739,
+          "subject_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "valid_tokens": 5
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 190,
+          "entity_tokens": 4,
+          "object_token_positions": [
+            3
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 117,
+          "sample_index": 52309,
+          "subject_token_positions": [
+            0,
+            1,
+            2
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_tokens": 4
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 19,
+          "entity_tokens": 5,
+          "object_token_positions": [
+            4
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 151,
+          "sample_index": 26739,
+          "subject_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "valid_tokens": 5
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 51,
+          "entity_tokens": 4,
+          "object_token_positions": [
+            3
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 16,
+          "sample_index": 52309,
+          "subject_token_positions": [
+            0,
+            1,
+            2
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_tokens": 4
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 126,
+          "entity_tokens": 5,
+          "object_token_positions": [
+            4
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 157,
+          "sample_index": 26739,
+          "subject_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "valid_tokens": 5
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 200,
+          "entity_tokens": 4,
+          "object_token_positions": [
+            3
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 14,
+          "sample_index": 52309,
+          "subject_token_positions": [
+            0,
+            1,
+            2
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_tokens": 4
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 63,
+          "entity_tokens": 5,
+          "object_token_positions": [
+            4
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 27,
+          "sample_index": 26739,
+          "subject_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "valid_tokens": 5
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 172,
+          "entity_tokens": 4,
+          "object_token_positions": [
+            3
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 219,
+          "sample_index": 52309,
+          "subject_token_positions": [
+            0,
+            1,
+            2
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_tokens": 4
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 144,
+          "entity_tokens": 4,
+          "object_token_positions": [
+            3
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 20,
+          "sample_index": 52309,
+          "subject_token_positions": [
+            0,
+            1,
+            2
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_tokens": 4
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 183,
+          "entity_tokens": 5,
+          "object_token_positions": [
+            4
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 100,
+          "sample_index": 26739,
+          "subject_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "valid_tokens": 5
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 23,
+          "entity_tokens": 4,
+          "object_token_positions": [
+            3
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 69,
+          "sample_index": 52309,
+          "subject_token_positions": [
+            0,
+            1,
+            2
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_tokens": 4
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 225,
+          "entity_tokens": 5,
+          "object_token_positions": [
+            4
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 20,
+          "sample_index": 26739,
+          "subject_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "valid_tokens": 5
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 105,
+          "entity_tokens": 5,
+          "object_token_positions": [
+            4
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 72,
+          "sample_index": 26739,
+          "subject_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "valid_tokens": 5
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 228,
+          "entity_tokens": 4,
+          "object_token_positions": [
+            3
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 127,
+          "sample_index": 52309,
+          "subject_token_positions": [
+            0,
+            1,
+            2
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_tokens": 4
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 3,
+          "entity_tokens": 4,
+          "object_token_positions": [
+            3
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 220,
+          "sample_index": 52309,
+          "subject_token_positions": [
+            0,
+            1,
+            2
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_tokens": 4
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 71,
+          "entity_tokens": 5,
+          "object_token_positions": [
+            4
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 210,
+          "sample_index": 26739,
+          "subject_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "valid_tokens": 5
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 133,
+          "entity_tokens": 4,
+          "object_token_positions": [
+            3
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 51,
+          "sample_index": 52309,
+          "subject_token_positions": [
+            0,
+            1,
+            2
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_tokens": 4
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 158,
+          "entity_tokens": 5,
+          "object_token_positions": [
+            4
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 179,
+          "sample_index": 26739,
+          "subject_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "valid_tokens": 5
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 14,
+          "entity_tokens": 5,
+          "object_token_positions": [
+            4
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 191,
+          "sample_index": 26739,
+          "subject_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "valid_tokens": 5
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 59,
+          "entity_tokens": 4,
+          "object_token_positions": [
+            3
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 230,
+          "sample_index": 52309,
+          "subject_token_positions": [
+            0,
+            1,
+            2
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_tokens": 4
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 88,
+          "entity_tokens": 4,
+          "object_token_positions": [
+            3
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 222,
+          "sample_index": 52309,
+          "subject_token_positions": [
+            0,
+            1,
+            2
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_tokens": 4
+        },
+        {
+          "active_context_tokens": 0,
+          "batch": 119,
+          "entity_tokens": 5,
+          "object_token_positions": [
+            4
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 139,
+          "sample_index": 26739,
+          "subject_token_positions": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "valid_tokens": 5
+        }
+      ],
+      "reasons": {
+        "entity_covers_all_valid": 24,
+        "no_valid_tokens": 0
+      },
+      "total_rows": 701580
+    },
+    "global_step": 2748,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 0.20606011204185126,
+        "valid": {
+          "accuracy": 0.5979881535947712,
+          "loss": 1.9736503035414452,
+          "macro_f1": 0.20789203530971187,
+          "macro_precision": 0.24812675710775572,
+          "macro_recall": 0.21250356183545968
+        }
+      },
+      {
+        "epoch": 2,
+        "train_loss": 0.20308319895881016,
+        "valid": {
+          "accuracy": 0.5983966503267973,
+          "loss": 1.9636247944987677,
+          "macro_f1": 0.21110411183282296,
+          "macro_precision": 0.2511495978847696,
+          "macro_recall": 0.21575942179392227
+        }
+      },
+      {
+        "epoch": 3,
+        "train_loss": 0.2011391234468743,
+        "valid": {
+          "accuracy": 0.5991625816993464,
+          "loss": 1.9561413557700862,
+          "macro_f1": 0.2101488934897405,
+          "macro_precision": 0.2515112131222414,
+          "macro_recall": 0.21468209722833084
+        }
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.19986932460041212,
+        "valid": {
+          "accuracy": 0.5988051470588235,
+          "loss": 1.9503036846522412,
+          "macro_f1": 0.20966924315899488,
+          "macro_precision": 0.2505480349507424,
+          "macro_recall": 0.21366727408169456
+        }
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.19902700732274856,
+        "valid": {
+          "accuracy": 0.5986519607843137,
+          "loss": 1.945852338878158,
+          "macro_f1": 0.21121779320659778,
+          "macro_precision": 0.25249996925012963,
+          "macro_recall": 0.2151902198856462
+        }
+      },
+      {
+        "epoch": 6,
+        "train_loss": 0.1984609161743114,
+        "valid": {
+          "accuracy": 0.5980902777777778,
+          "loss": 1.9425489014270259,
+          "macro_f1": 0.21163224870296848,
+          "macro_precision": 0.2531524062769906,
+          "macro_recall": 0.21547441038784276
+        }
+      },
+      {
+        "epoch": 7,
+        "train_loss": 0.19807246346362772,
+        "valid": {
+          "accuracy": 0.5979881535947712,
+          "loss": 1.9398241845610875,
+          "macro_f1": 0.211979664480947,
+          "macro_precision": 0.25372396138896114,
+          "macro_recall": 0.21571525530648286
+        }
+      },
+      {
+        "epoch": 8,
+        "train_loss": 0.1977967233085086,
+        "valid": {
+          "accuracy": 0.5980392156862745,
+          "loss": 1.9378803945055194,
+          "macro_f1": 0.21271941969580954,
+          "macro_precision": 0.2546846884916436,
+          "macro_recall": 0.21624055404058362
+        }
+      },
+      {
+        "epoch": 9,
+        "train_loss": 0.1975946554919055,
+        "valid": {
+          "accuracy": 0.5983455882352942,
+          "loss": 1.9362520088557325,
+          "macro_f1": 0.21262331507974896,
+          "macro_precision": 0.2539909586240167,
+          "macro_recall": 0.21660581435090548
+        }
+      },
+      {
+        "epoch": 10,
+        "train_loss": 0.19744207858555046,
+        "valid": {
+          "accuracy": 0.5981924019607843,
+          "loss": 1.9350835918601041,
+          "macro_f1": 0.21281084616226137,
+          "macro_precision": 0.2546809801352984,
+          "macro_recall": 0.21627806697792437
+        }
+      },
+      {
+        "epoch": 11,
+        "train_loss": 0.19732431069514733,
+        "valid": {
+          "accuracy": 0.5982945261437909,
+          "loss": 1.934171384456111,
+          "macro_f1": 0.2134192386457819,
+          "macro_precision": 0.25545823705661386,
+          "macro_recall": 0.21687424975415145
+        }
+      },
+      {
+        "epoch": 12,
+        "train_loss": 0.1972342514618626,
+        "valid": {
+          "accuracy": 0.5984987745098039,
+          "loss": 1.9334812764248817,
+          "macro_f1": 0.21372419329121284,
+          "macro_precision": 0.25603838555817693,
+          "macro_recall": 0.21713634579708155
+        }
+      }
+    ],
+    "runtime_seconds": 600.291
+  },
+  "trainable_parameters": 8,
+  "valid": {
+    "batches": 77,
+    "context_diagnostics": {
+      "empty_context_batches": 1,
+      "empty_context_fraction": 5.1062091503267975e-05,
+      "empty_context_rows": 1,
+      "examples": [
+        {
+          "active_context_tokens": 0,
+          "batch": 36,
+          "entity_tokens": 3,
+          "object_token_positions": [
+            0
+          ],
+          "reason": "entity_covers_all_valid",
+          "row": 228,
+          "sample_index": 9188,
+          "subject_token_positions": [
+            1,
+            2
+          ],
+          "valid_token_positions": [
+            0,
+            1,
+            2
+          ],
+          "valid_tokens": 3
+        }
+      ],
+      "reasons": {
+        "entity_covers_all_valid": 1,
+        "no_valid_tokens": 0
+      },
+      "total_rows": 19584
+    },
+    "geometry": [
+      {
+        "attention_total_variation": {
+          "count": 0,
+          "mean": null,
+          "std": null
+        },
+        "context_mass_error": {
+          "count": 0,
+          "mean": null,
+          "std": null
+        },
+        "entity_mass_error": {
+          "count": 0,
+          "mean": null,
+          "std": null
+        },
+        "residual_rms": {
+          "count": 0,
+          "mean": null,
+          "std": null
+        }
+      },
+      {
+        "attention_total_variation": {
+          "count": 0,
+          "mean": null,
+          "std": null
+        },
+        "context_mass_error": {
+          "count": 0,
+          "mean": null,
+          "std": null
+        },
+        "entity_mass_error": {
+          "count": 0,
+          "mean": null,
+          "std": null
+        },
+        "residual_rms": {
+          "count": 0,
+          "mean": null,
+          "std": null
+        }
+      }
+    ],
+    "items": 19584,
+    "metrics": {
+      "accuracy": 0.5984987745098039,
+      "loss": 1.9334812764248817,
+      "macro_f1": 0.21372419329121284,
+      "macro_precision": 0.25603838555817693,
+      "macro_recall": 0.21713634579708155
+    }
+  }
+}

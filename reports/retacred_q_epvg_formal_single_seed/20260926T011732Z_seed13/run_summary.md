@@ -1,0 +1,9 @@
+# Q-EPVG Re-TACRED Formal Single Seed
+
+- candidate: `q_epvg_zz_xx_value_only_quantum`
+- matched classical control: `q_epvg_zz_xx_value_only_classical`
+- structural phase control: `q_epvg_zz_xx_value_only_random_parity`
+- selectors: `disabled, q_epvg_zz_value_only_quantum, q_epvg_zz_value_only_classical, q_epvg_zz_value_only_random_parity, q_epvg_zz_score_value_quantum, q_epvg_zz_score_value_classical, q_epvg_zz_score_value_random_parity, q_epvg_zz_query_quantum, q_epvg_zz_query_classical, q_epvg_zz_query_random_parity, q_epvg_zz_xx_value_only_quantum, q_epvg_zz_xx_value_only_classical, q_epvg_zz_xx_value_only_random_parity, q_epvg_zz_xx_score_value_quantum, q_epvg_zz_xx_score_value_classical, q_epvg_zz_xx_score_value_random_parity, q_epvg_zz_xx_query_quantum, q_epvg_zz_xx_query_classical, q_epvg_zz_xx_query_random_parity, q_epvg_trainable_pauli_mix_value_only_quantum, q_epvg_trainable_pauli_mix_value_only_classical, q_epvg_trainable_pauli_mix_value_only_random_parity, q_epvg_trainable_pauli_mix_score_value_quantum, q_epvg_trainable_pauli_mix_score_value_classical, q_epvg_trainable_pauli_mix_score_value_random_parity, q_epvg_trainable_pauli_mix_query_quantum, q_epvg_trainable_pauli_mix_query_classical, q_epvg_trainable_pauli_mix_query_random_parity`
+- test used for training or selection: `False`
+
+This report is a single complete seed under a frozen collaborator-only contract; no multi-seed claim is authorized by this handoff.
