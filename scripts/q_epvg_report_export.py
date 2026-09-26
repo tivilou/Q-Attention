@@ -60,24 +60,67 @@ def _write_data_identity(run_dir: Path, stage_dir: Path) -> None:
 def _attempt_state_path(report_dir: Path) -> Path:
     key = hashlib.sha256(str(report_dir).encode("utf-8")).hexdigest()
     state_dir = Path(tempfile.gettempdir()) / "q-epvg-report-export-state"
-    state_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        state_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise ExportError(f"cannot create exporter attempt journal directory: {state_dir}") from exc
     return state_dir / f"{key}.json"
 
 
-def _load_attempts(path: Path) -> list[dict[str, object]]:
+def _load_attempts(
+    path: Path,
+    *,
+    run_dir: Path,
+    report_dir: Path,
+    config_sha256: str,
+    reporting_commit: str,
+) -> list[dict[str, object]]:
     if not path.is_file():
         return []
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return []
-    return payload if isinstance(payload, list) and all(isinstance(item, dict) for item in payload) else []
+    except Exception as exc:
+        raise ExportError(f"invalid exporter attempt journal: {path}") from exc
+    if not isinstance(payload, list) or not all(isinstance(item, dict) for item in payload):
+        raise ExportError(f"invalid exporter attempt journal shape: {path}")
+    expected = {
+        "source_run": str(run_dir),
+        "report_identity": str(report_dir),
+        "config_sha256": config_sha256,
+        "exporter_revision": reporting_commit,
+    }
+    for item in payload:
+        for key, value in expected.items():
+            if item.get(key) != value:
+                raise ExportError(
+                    f"exporter attempt journal identity mismatch for {key}: {path}"
+                )
+    return payload
 
 
 def _save_attempts(path: Path, attempts: list[dict[str, object]]) -> None:
     temporary = path.with_suffix(f"{path.suffix}.tmp-{os.getpid()}")
-    temporary.write_text(json.dumps(attempts, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    temporary.replace(path)
+    try:
+        temporary.write_text(
+            json.dumps(attempts, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
+        temporary.replace(path)
+    except OSError as exc:
+        raise ExportError(f"cannot persist exporter attempt journal: {path}") from exc
+
+
+def _cleanup_staging(report_dir: Path) -> list[str]:
+    cleaned: list[str] = []
+    for path in sorted(report_dir.parent.glob(f".{report_dir.name}.staging-*")):
+        try:
+            if path.is_dir() and not path.is_symlink():
+                shutil.rmtree(path)
+            else:
+                path.unlink()
+        except OSError as exc:
+            raise ExportError(f"cannot remove stale exporter staging path: {path}") from exc
+        cleaned.append(str(path))
+    return cleaned
 
 
 def _source_run_revision(run_dir: Path) -> str | None:
@@ -101,7 +144,9 @@ def _write_export_manifest(
     run_dir: Path,
     report_dir: Path,
     reporting_commit: str,
+    config_sha256: str,
     attempts: list[dict[str, object]],
+    stale_staging_cleaned: list[str],
 ) -> None:
     failures = [item for item in attempts if item.get("status") == "failed"]
     last_failure = failures[-1].get("failure_reason") if failures else None
@@ -111,11 +156,13 @@ def _write_export_manifest(
         "source_run": str(run_dir),
         "source_run_revision": _source_run_revision(run_dir),
         "exporter_revision": reporting_commit,
+        "config_sha256": config_sha256,
         "report_identity": str(report_dir),
         "attempt_count": len(attempts),
         "retry_count": max(0, len(attempts) - 1),
         "failure_reason": last_failure,
         "failures": failures,
+        "stale_staging_cleaned": stale_staging_cleaned,
         "completed_at": datetime.now(timezone.utc).isoformat(),
     }
     (stage_dir / "export_manifest.json").write_text(
@@ -179,24 +226,35 @@ def export_report(
     report_dir.parent.mkdir(parents=True, exist_ok=True)
     if report_dir.exists():
         raise ExportError(f"refusing to overwrite report directory: {report_dir}")
+    config_sha256 = hashlib.sha256(config_path.read_bytes()).hexdigest()
+    stale_staging_cleaned = _cleanup_staging(report_dir)
 
     stage_dir = Path(
         tempfile.mkdtemp(prefix=f".{report_dir.name}.staging-", dir=report_dir.parent)
     )
     state_path = _attempt_state_path(report_dir)
-    attempts = _load_attempts(state_path)
+    attempts = _load_attempts(
+        state_path,
+        run_dir=run_dir,
+        report_dir=report_dir,
+        config_sha256=config_sha256,
+        reporting_commit=reporting_commit,
+    )
     attempt = {
         "attempt": len(attempts) + 1,
         "status": "running",
         "started_at": datetime.now(timezone.utc).isoformat(),
         "source_run": str(run_dir),
+        "report_identity": str(report_dir),
+        "config_sha256": config_sha256,
         "exporter_revision": reporting_commit,
     }
     attempts.append(attempt)
     try:
         _save_attempts(state_path, attempts)
-    except OSError:
-        pass
+    except Exception:
+        shutil.rmtree(stage_dir, ignore_errors=True)
+        raise
     copy_count = 0
 
     def copy_one(source: Path, destination: Path) -> None:
@@ -236,7 +294,9 @@ def export_report(
             run_dir=run_dir,
             report_dir=report_dir,
             reporting_commit=reporting_commit,
+            config_sha256=config_sha256,
             attempts=attempts,
+            stale_staging_cleaned=stale_staging_cleaned,
         )
         _validate_stage(stage_dir, selectors)
         if report_dir.exists():
@@ -255,9 +315,8 @@ def export_report(
         attempt["failure_reason"] = str(exc)
         try:
             _save_attempts(state_path, attempts)
-        except OSError:
-            pass
-        shutil.rmtree(stage_dir, ignore_errors=True)
+        finally:
+            shutil.rmtree(stage_dir, ignore_errors=True)
         raise
 
 

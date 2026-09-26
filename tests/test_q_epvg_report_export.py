@@ -22,6 +22,7 @@ def write(path: Path, text: str = "ok\n") -> None:
 
 
 def build_fixture(root: Path) -> tuple[Path, Path, Path]:
+    root.mkdir(parents=True, exist_ok=True)
     config = root / "config.json"
     selectors = ["disabled", "selector_a", "selector_b"]
     config.write_text(json.dumps({"selectors": selectors}), encoding="utf-8")
@@ -70,6 +71,46 @@ def test_failed_export_cleans_staging_and_retry_reuses_completed_run(tmp_path: P
     assert (report / "data.sha256").is_file()
     manifest = json.loads((report / "export_manifest.json").read_text(encoding="utf-8"))
     assert manifest["source_run"] == str(run.resolve())
+    assert manifest["config_sha256"]
     assert manifest["retry_count"] == 1
     assert "injected" in manifest["failure_reason"]
     assert not list(report.parent.glob(f".{report.name}.staging-*"))
+
+
+def test_stale_staging_is_cleaned_and_attempt_identity_is_bound(tmp_path: Path) -> None:
+    module = load_module()
+    run, config, report = build_fixture(tmp_path)
+    stale = report.parent / f".{report.name}.staging-stale"
+    write(stale / "leftover.txt")
+
+    module.export_report(
+        run_dir=run,
+        report_dir=report,
+        config_path=config,
+        reporting_commit="abc123",
+    )
+    manifest = json.loads((report / "export_manifest.json").read_text(encoding="utf-8"))
+    assert not stale.exists()
+    assert str(stale) in manifest["stale_staging_cleaned"]
+
+    second_run, second_config, second_report = build_fixture(tmp_path / "second")
+    with pytest.raises(module.ExportError):
+        module.export_report(
+            run_dir=second_run,
+            report_dir=second_report,
+            config_path=second_config,
+            reporting_commit="abc123",
+            inject_failure_after=1,
+        )
+    state_path = module._attempt_state_path(second_report.resolve())
+    attempts = json.loads(state_path.read_text(encoding="utf-8"))
+    attempts[0]["source_run"] = str(run.resolve())
+    state_path.write_text(json.dumps(attempts), encoding="utf-8")
+    with pytest.raises(module.ExportError, match="identity mismatch"):
+        module.export_report(
+            run_dir=second_run,
+            report_dir=second_report,
+            config_path=second_config,
+            reporting_commit="abc123",
+        )
+    state_path.unlink(missing_ok=True)
