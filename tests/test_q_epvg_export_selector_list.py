@@ -1,41 +1,27 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 from pathlib import Path
-import os
-import shutil
-import subprocess
-
-import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs" / "retacred_q_epvg_formal_single_seed.json"
-EXPORTER = ROOT / "scripts" / "export_q_epvg_report.sh"
+EXPORTER = ROOT / "scripts" / "q_epvg_report_export.py"
 
 
-def test_exporter_selector_mapfile_emits_one_selector_per_line() -> None:
-    bash = shutil.which("bash")
-    if bash is None:
-        pytest.skip("bash is required to exercise the exporter shell path")
+def load_export_module():
+    spec = importlib.util.spec_from_file_location("q_epvg_report_export", EXPORTER)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
-    line = next(
-        line for line in EXPORTER.read_text(encoding="utf-8").splitlines()
-        if line.startswith("mapfile -t SELECTORS < <(")
-    )
+
+def test_selector_names_are_loaded_as_structured_lines() -> None:
+    module = load_export_module()
     expected = json.loads(CONFIG.read_text(encoding="utf-8"))["selectors"][1:]
-    command = "set -euo pipefail\n" + line + '\nprintf \'%s\\n\' "${SELECTORS[@]}"\n'
-    env = os.environ.copy()
-    env["PYTHON_BIN"] = shutil.which("python3") or shutil.which("python") or "python3"
-    result = subprocess.run(
-        [bash, "-c", command],
-        cwd=ROOT,
-        env=env,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-
-    actual = result.stdout.splitlines()
-    assert actual == expected
-    assert all("\\n" not in selector for selector in actual)
+    assert module._selector_names(CONFIG) == expected
+    shell = (ROOT / "scripts/export_q_epvg_report.sh").read_text(encoding="utf-8")
+    assert "q_epvg_report_export.py" in shell
+    assert "mapfile -t SELECTORS" not in shell

@@ -34,28 +34,20 @@ case "${REPORT_DIR}" in
   *) echo "Report must be under the Q-EPVG report root." >&2; exit 1;;
 esac
 [[ ! -e "${REPORT_DIR}" ]] || { echo "Refusing to overwrite report directory." >&2; exit 1; }
-mkdir -p "${REPORT_DIR}/metrics" "${REPORT_DIR}/case_study"
-cp "${RUN_DIR}/RUN_COMPLETE" "${RUN_DIR}/run_summary.json" "${RUN_DIR}/run_summary.data" "${RUN_DIR}/run_summary.md" "${REPORT_DIR}/"
-cp "${RUN_DIR}/gpu_assignments.json" "${REPORT_DIR}/gpu_assignments.json"
-cp configs/retacred_q_epvg_formal_single_seed.json "${REPORT_DIR}/run_config.json"
-cp "${RUN_DIR}/baseline/metrics.json" "${REPORT_DIR}/metrics/baseline.json"
-mapfile -t SELECTORS < <("${PYTHON_BIN}" -c 'import json, sys; c=json.load(open(sys.argv[1], encoding="utf-8")); print("\n".join(c["selectors"][1:]))' configs/retacred_q_epvg_formal_single_seed.json)
-for selector in "${SELECTORS[@]}"; do
-  cp "${RUN_DIR}/selectors/${selector}/metrics.json" "${REPORT_DIR}/metrics/${selector}.json"
-  cp "${RUN_DIR}/selectors/${selector}/case_study.json" "${REPORT_DIR}/case_study/${selector}.json"
-  cp "${RUN_DIR}/selectors/${selector}/sample_trace.json" "${REPORT_DIR}/case_study/${selector}.sample-trace.json"
-done
-printf '%s\n' "$(git rev-parse HEAD)" > "${REPORT_DIR}/reporting_commit.txt"
-for split in train valid test; do
-  src="${RUN_DIR}/data/${split}.jsonl"
-  [[ -f "${src}" ]] || { echo "Missing materialized ${split} data." >&2; exit 1; }
-  printf '%s %s\n' "${src}" "$(wc -l < "${src}")"
-done > "${REPORT_DIR}/data_counts.txt"
-sha256sum "${RUN_DIR}/data/train.jsonl" "${RUN_DIR}/data/valid.jsonl" "${RUN_DIR}/data/test.jsonl" > "${REPORT_DIR}/data.sha256"
-[[ -s "${REPORT_DIR}/run_summary.data" ]] || { echo "run_summary.data is missing or empty." >&2; exit 1; }
-[[ -s "${REPORT_DIR}/data_counts.txt" ]] || { echo "data_counts.txt is missing or empty." >&2; exit 1; }
-[[ -s "${REPORT_DIR}/data.sha256" ]] || { echo "data.sha256 is missing or empty." >&2; exit 1; }
-if find "${REPORT_DIR}" -type f \( -name '*.pt' -o -name '*.pth' -o -name '*.ckpt' -o -name '*.bin' -o -name '*.safetensors' -o -name '*.jsonl' \) | grep -q .; then echo "Forbidden private artifact found in report." >&2; exit 1; fi
+EXPORT_ARGS=(
+  scripts/q_epvg_report_export.py
+  --run-dir "${RUN_DIR}"
+  --report-dir "${REPORT_DIR}"
+  --config configs/retacred_q_epvg_formal_single_seed.json
+  --reporting-commit "$(git rev-parse HEAD)"
+)
+if [[ -n "${Q_EPVG_EXPORT_INJECT_FAILURE_AFTER:-}" ]]; then
+  EXPORT_ARGS+=(--inject-failure-after "${Q_EPVG_EXPORT_INJECT_FAILURE_AFTER}")
+fi
+if [[ "${Q_EPVG_EXPORT_INJECT_VALIDATION_FAILURE:-0}" == 1 ]]; then
+  EXPORT_ARGS+=(--inject-validation-failure)
+fi
+"${PYTHON_BIN}" "${EXPORT_ARGS[@]}"
 REPORT_REL=${REPORT_DIR#"${ROOT}/"}
 git add -- "${REPORT_REL}"
 git diff --cached --check

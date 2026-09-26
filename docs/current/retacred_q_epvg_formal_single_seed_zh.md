@@ -63,6 +63,23 @@ checkpoint replay。Case Study 会生成样本语义字段、token/实体位置�
 exporter。exporter 只允许提交 `reports/retacred_q_epvg_formal_single_seed/<timestamp>_seed13/`
 下的审计报告子集，并检查 `data.sha256`、`data_counts.txt` 和非空 `run_summary.data`。
 
+## 已完成 seed-13 的 exporter-only 重试
+
+如果项目方要求为已经完成的
+`20260926T011732Z_seed13` run 补齐生命周期 provenance，不要重新训练或删除旧报告，
+在干净的 `1.1` 工作树中直接运行：
+
+```bash
+bash scripts/retry_retacred_q_epvg_formal_single_seed_report.sh
+```
+
+该脚本会自动同步 `origin/1.1` 与 `origin/main`，定位同一 completed run，先执行一次
+受控的 exporter 清理失败，再从同一 run 重试导出，检查 `export_manifest.json` 的
+`source_run`、`attempt_count`、`retry_count` 和失败原因，最后只提交并推送
+`reports/retacred_q_epvg_formal_single_seed/20260926T011732Z_seed13_retry/` 到 `1.1`。
+脚本不会修改 checkpoints、数据、配置、selector 或旧报告目录；若网络或 Git 发布步骤
+中断，再次运行同一脚本会复用已完成的 retry report 并只重试发布。
+
 ## 停止门禁
 
 - `CUDA OOM` 或显存压力：让自适应档位按既定顺序降级，不要手工改 batch 或 selector。
