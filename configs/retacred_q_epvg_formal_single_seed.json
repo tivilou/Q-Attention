@@ -1,0 +1,46 @@
+{
+  "schema_version": "q-attention.q-epvg-formal-single-seed.v1",
+  "name": "retacred_q_epvg_formal_single_seed",
+  "formal_experiment": true,
+  "seed": 13,
+  "train_path": "data/relation/retacred/train.jsonl",
+  "valid_path": "data/relation/retacred/valid.jsonl",
+  "test_path": "data/relation/retacred/test.jsonl",
+  "expected_records": {"train": 58465, "valid": 19584, "test": 13418},
+  "selectors": [
+    "disabled",
+    "q_epvg_zz_value_only_quantum", "q_epvg_zz_value_only_classical", "q_epvg_zz_value_only_random_parity",
+    "q_epvg_zz_score_value_quantum", "q_epvg_zz_score_value_classical", "q_epvg_zz_score_value_random_parity",
+    "q_epvg_zz_query_quantum", "q_epvg_zz_query_classical", "q_epvg_zz_query_random_parity",
+    "q_epvg_zz_xx_value_only_quantum", "q_epvg_zz_xx_value_only_classical", "q_epvg_zz_xx_value_only_random_parity",
+    "q_epvg_zz_xx_score_value_quantum", "q_epvg_zz_xx_score_value_classical", "q_epvg_zz_xx_score_value_random_parity",
+    "q_epvg_zz_xx_query_quantum", "q_epvg_zz_xx_query_classical", "q_epvg_zz_xx_query_random_parity",
+    "q_epvg_trainable_pauli_mix_value_only_quantum", "q_epvg_trainable_pauli_mix_value_only_classical", "q_epvg_trainable_pauli_mix_value_only_random_parity",
+    "q_epvg_trainable_pauli_mix_score_value_quantum", "q_epvg_trainable_pauli_mix_score_value_classical", "q_epvg_trainable_pauli_mix_score_value_random_parity",
+    "q_epvg_trainable_pauli_mix_query_quantum", "q_epvg_trainable_pauli_mix_query_classical", "q_epvg_trainable_pauli_mix_query_random_parity"
+  ],
+  "candidate": "q_epvg_zz_xx_value_only_quantum",
+  "matched_control": "q_epvg_zz_xx_value_only_classical",
+  "structural_control": "q_epvg_zz_xx_value_only_random_parity",
+  "control_definitions": {
+    "disabled": "Frozen attention baseline with no Q-EPVG intervention.",
+    "quantum": "Parity-sensitive ZZ+XX observable drives the declared intervention path.",
+    "classical": "Matched product-parity control with the same path and parameter budget.",
+    "random_parity": "Deterministic parity-sign control preserving the execution path without learned quantum coupling."
+  },
+  "baseline": {"epochs": 8, "batch_size": 16, "lr": 0.001},
+  "kernel": {
+    "epochs": 12, "batch_size": 256, "lr": 0.001,
+    "gate_scale": 1.0, "score_gain": 0.2, "seed_offset": 3000,
+    "pair_chunk_size": 256, "weight_decay": 0.0
+  },
+  "model": {"dim": 32, "num_layers": 2, "num_heads": 4, "ff_dim": 64, "dropout": 0.0},
+  "case_study": {
+    "records": {"train": [0, 1, 2], "valid": [0, 1, 2], "test": [0, 1, 2]},
+    "checkpoints": ["initial_or_pre_training", "best_valid_or_declared_selection_checkpoint", "final"],
+    "freeze_before_training": true,
+    "description": "Frozen train/valid/test examples replayed at declared initial, best-validation, and final checkpoints; detached tensors remain exchange-only and the portal receives a safe projection."
+  },
+  "gates": {"minimum_candidate_minus_disabled_macro_f1": 0.0, "minimum_candidate_minus_matched_macro_f1": -0.0005, "minimum_classical_relative_gain": 0.01, "test_used_for_training_or_selection": false},
+  "claim_limits": {"single_seed_only": true, "natural_transfer_not_yet_reproducible": true, "quantum_specific_advantage_not_claimed": true, "multi_seed_requires_post_audit_authorization": true, "exact_statevector_is_not_hardware_speed_evidence": true, "toy_pass_promoted_directly_to_single_seed": true}
+}

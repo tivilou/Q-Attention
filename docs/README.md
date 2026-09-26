@@ -7,6 +7,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
+| [Q-EPVG Entangled Parity Value Gating Re-TACRED 正式单 seed](current/retacred_q_epvg_formal_single_seed_zh.md) | 完整数据、seed 13、27 个 Q-EPVG 变体、动态 GPU selector 调度、batch 级恢复及 train/valid/test 全链路 Case Study |
 | [Q-PVG Phase-Sensitive Value Gating Re-TACRED 正式单 seed](current/retacred_q_pvg_formal_single_seed_zh.md) | 完整数据、seed 13、value/context hook、六路 selector、动态多 GPU、batch 级恢复及 train/valid/test 全链路 Case Study |
 | [Q-CEASC grouped counterfactual influence Re-TACRED 正式单 seed](current/retacred_qceasc_grouped_counterfactual_formal_single_seed_zh.md) | 完整数据、seed 13、固定 group size 4、量子/匹配经典/seeded random 三路对照、动态多 GPU、batch 级恢复及全链路 Case Study |
 | [Q-CEASC per-key counterfactual influence Re-TACRED 正式多 seed 复现](current/retacred_qceasc_counterfactual_formal_multi_seed_zh.md) | 复用已审计 seed 13、fresh 执行 seed 29/53 的完整数据 L2 复现、严格兼容性门禁、动态多 GPU 调度、batch 级恢复、paired 统计和审计报告导出 |
