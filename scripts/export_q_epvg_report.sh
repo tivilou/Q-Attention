@@ -39,7 +39,7 @@ cp "${RUN_DIR}/RUN_COMPLETE" "${RUN_DIR}/run_summary.json" "${RUN_DIR}/run_summa
 cp "${RUN_DIR}/gpu_assignments.json" "${REPORT_DIR}/gpu_assignments.json"
 cp configs/retacred_q_epvg_formal_single_seed.json "${REPORT_DIR}/run_config.json"
 cp "${RUN_DIR}/baseline/metrics.json" "${REPORT_DIR}/metrics/baseline.json"
-mapfile -t SELECTORS < <("${PYTHON_BIN}" -c 'import json, sys; c=json.load(open(sys.argv[1], encoding="utf-8")); print("\\n".join(c["selectors"][1:]))' configs/retacred_q_epvg_formal_single_seed.json)
+mapfile -t SELECTORS < <("${PYTHON_BIN}" -c 'import json, sys; c=json.load(open(sys.argv[1], encoding="utf-8")); print("\n".join(c["selectors"][1:]))' configs/retacred_q_epvg_formal_single_seed.json)
 for selector in "${SELECTORS[@]}"; do
   cp "${RUN_DIR}/selectors/${selector}/metrics.json" "${REPORT_DIR}/metrics/${selector}.json"
   cp "${RUN_DIR}/selectors/${selector}/case_study.json" "${REPORT_DIR}/case_study/${selector}.json"
