@@ -238,3 +238,23 @@ def test_case_study_validator_rejects_incomplete_required_stage() -> None:
     scoring["status"] = "failed"
     with pytest.raises(module.ExportError, match="required stage is not fully observed"):
         module._validate_case_study_payload(payload, trace, selector="selector_a")
+
+
+def test_source_tensor_checksum_failure_is_recorded_and_retryable(tmp_path: Path) -> None:
+    module = load_module()
+    run, config, report = build_fixture(tmp_path)
+    case = json.loads((run / "selectors/selector_a/case_study.json").read_text(encoding="utf-8"))
+    tensor = run / "selectors/selector_a" / case["tensor_manifest"][0]["path"]
+    original = tensor.read_bytes()
+    tensor.write_bytes(b"tampered\n")
+    with pytest.raises(module.ExportError, match="checksum mismatch"):
+        module.export_report(run_dir=run, report_dir=report, config_path=config, reporting_commit="abc123")
+    assert not report.exists()
+    assert not list(report.parent.glob(f".{report.name}.staging-*"))
+    attempts = json.loads(module._attempt_state_path(report.resolve()).read_text(encoding="utf-8"))
+    assert attempts[-1]["status"] == "failed"
+    tensor.write_bytes(original)
+    module.export_report(run_dir=run, report_dir=report, config_path=config, reporting_commit="abc123")
+    manifest = json.loads((report / "export_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["retry_count"] == 1
+    assert "checksum mismatch" in manifest["failure_reason"]
