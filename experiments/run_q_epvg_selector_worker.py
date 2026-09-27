@@ -519,6 +519,7 @@ def write_case_study(
                     "q_epvg_query_update": "attention_intervention",
                     "q_epvg_output": "context",
                     "classifier_logits_probabilities": "classifier",
+                    "q_epvg_kernel_parameters": "training",
                 }
 
                 def add_rep(rep_id: str, value: torch.Tensor, axes: list[str]) -> None:
