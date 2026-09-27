@@ -10,11 +10,290 @@ import os
 import shutil
 import tempfile
 from datetime import datetime, timezone
+import math
 from pathlib import Path
+import re
+from typing import Any
 
 
 class ExportError(RuntimeError):
     """Raised when a report cannot be staged or validated."""
+
+
+_CASE_SPLITS = ("train", "valid", "test")
+_CASE_CHECKPOINTS = (
+    "initial_or_pre_training",
+    "best_valid_or_declared_selection_checkpoint",
+    "final",
+)
+_CASE_REQUIRED_STAGES = (
+    "data",
+    "preprocess",
+    "embedding",
+    "encoder",
+    "training",
+    "attention_baseline",
+    "scoring",
+    "selection",
+    "context",
+    "classifier",
+    "evaluation",
+    "diagnosis",
+)
+_CASE_OPTIONAL_STAGES = {"retrieval", "generation", "attention_intervention"}
+_CASE_SEMANTIC_REFS = {
+    "source_sample",
+    "token_ids",
+    "attention_mask",
+    "subject_mask",
+    "object_mask",
+    "gold_relation",
+    "diagnosis",
+}
+_SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+
+
+def _read_json(path: Path, *, description: str) -> dict[str, Any]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise ExportError(f"invalid {description}: {path}: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise ExportError(f"invalid {description}: {path}: expected an object")
+    return payload
+
+
+def _manifest_ref(value: object) -> str | None:
+    if isinstance(value, str):
+        return value
+    if isinstance(value, dict) and isinstance(value.get("ref"), str):
+        return value["ref"]
+    return None
+
+
+def _validate_manifest(manifest: object, *, where: str) -> str:
+    if not isinstance(manifest, dict):
+        raise ExportError(f"{where}: tensor manifest entry must be an object")
+    required = ("id", "manifest_id", "path", "shape", "dtype", "axis_semantics", "sha256", "byte_count", "preview")
+    missing = [key for key in required if key not in manifest]
+    if missing:
+        raise ExportError(f"{where}: tensor manifest missing {', '.join(missing)}")
+    semantic_id = manifest["id"]
+    manifest_id = manifest["manifest_id"]
+    if not isinstance(semantic_id, str) or not semantic_id:
+        raise ExportError(f"{where}: tensor manifest id must be a non-empty string")
+    if not isinstance(manifest_id, str) or not manifest_id:
+        raise ExportError(f"{where}: tensor manifest_id must be a non-empty string")
+    path = manifest["path"]
+    if not isinstance(path, str) or not path or Path(path).is_absolute() or ".." in Path(path).parts:
+        raise ExportError(f"{where}: unsafe tensor manifest path: {path!r}")
+    if not path.replace("\\", "/").startswith("case_study_tensors/"):
+        raise ExportError(f"{where}: tensor manifest path must be under case_study_tensors/: {path!r}")
+    shape = manifest["shape"]
+    axes = manifest["axis_semantics"]
+    if not isinstance(shape, list) or not all(isinstance(item, int) and item >= 0 for item in shape):
+        raise ExportError(f"{where}: tensor shape must be a list of non-negative integers")
+    if not isinstance(axes, list) or len(axes) != len(shape) or not all(isinstance(item, str) and item for item in axes):
+        raise ExportError(f"{where}: tensor axis_semantics must match shape dimensions")
+    if not isinstance(manifest["dtype"], str) or not manifest["dtype"]:
+        raise ExportError(f"{where}: tensor dtype must be a non-empty string")
+    if not isinstance(manifest["sha256"], str) or not _SHA256_RE.fullmatch(manifest["sha256"]):
+        raise ExportError(f"{where}: tensor sha256 must be a lowercase 64-character digest")
+    if not isinstance(manifest["byte_count"], int) or manifest["byte_count"] <= 0:
+        raise ExportError(f"{where}: tensor byte_count must be positive")
+    preview = manifest["preview"]
+    if not isinstance(preview, dict):
+        raise ExportError(f"{where}: tensor preview must be an object")
+    for key in ("min", "max", "mean", "l2_norm"):
+        value = preview.get(key)
+        if not isinstance(value, (int, float)) or not math.isfinite(float(value)):
+            raise ExportError(f"{where}: tensor preview.{key} must be finite")
+    producer = manifest.get("producer_stage")
+    if not isinstance(producer, str) or not producer:
+        raise ExportError(f"{where}: tensor producer_stage is required")
+    return manifest_id
+
+
+def _validate_stage_ref(
+    value: object,
+    *,
+    where: str,
+    case_manifest_ids: set[str],
+    manifest_by_id: dict[str, dict[str, Any]],
+) -> None:
+    ref = _manifest_ref(value)
+    if ref is None:
+        raise ExportError(f"{where}: stage reference must be a string or object with ref")
+    if ref in _CASE_SEMANTIC_REFS:
+        return
+    if ref not in case_manifest_ids:
+        raise ExportError(f"{where}: dangling stage reference {ref!r}")
+    if isinstance(value, dict) and value.get("kind") == "representation":
+        producer = value.get("producer_stage")
+        expected = manifest_by_id[ref].get("producer_stage")
+        if producer != expected:
+            raise ExportError(
+                f"{where}: producer stage mismatch for {ref!r}: {producer!r} != {expected!r}"
+            )
+
+
+def _validate_case_study_payload(
+    payload: dict[str, Any],
+    sample_trace: dict[str, Any],
+    *,
+    selector: str,
+) -> None:
+    """Validate one selector's source-first semantic trace.
+
+    The report is public safe projection, but it must still retain enough
+    producer-owned lineage to prove that every displayed stage came from the
+    same frozen sample/checkpoint and that no representation name is dangling.
+    """
+
+    if payload.get("schema_version") != "q-attention.Q-EPVG-case-study.v2":
+        raise ExportError(
+            f"case_study/{selector}.json: unsupported schema_version; "
+            "new reports require q-attention.Q-EPVG-case-study.v2"
+        )
+    if payload.get("lineage_schema_version") != "q-attention.case-study-lineage.v1":
+        raise ExportError(f"case_study/{selector}.json: missing producer-owned lineage schema")
+    if payload.get("selector") != selector:
+        raise ExportError(f"case_study/{selector}.json: selector identity mismatch")
+    if payload.get("status") != "observed":
+        raise ExportError(f"case_study/{selector}.json: status must be observed")
+
+    manifests = payload.get("tensor_manifest")
+    if not isinstance(manifests, list) or not manifests:
+        raise ExportError(f"case_study/{selector}.json: tensor_manifest is empty")
+    manifest_by_id: dict[str, dict[str, Any]] = {}
+    for index, manifest in enumerate(manifests):
+        manifest_id = _validate_manifest(manifest, where=f"case_study/{selector}.tensor_manifest[{index}]")
+        if manifest_id in manifest_by_id:
+            raise ExportError(f"case_study/{selector}.json: duplicate tensor manifest_id {manifest_id!r}")
+        manifest_by_id[manifest_id] = manifest  # type: ignore[assignment]
+    inventory = payload.get("manifest_inventory")
+    if not isinstance(inventory, list) or set(inventory) != set(manifest_by_id):
+        raise ExportError(f"case_study/{selector}.json: manifest_inventory does not match tensor_manifest")
+
+    cases = payload.get("cases")
+    if not isinstance(cases, list) or not cases:
+        raise ExportError(f"case_study/{selector}.json: cases is empty")
+    case_ids: set[str] = set()
+    observed_splits: set[str] = set()
+    observed_checkpoints: set[str] = set()
+    for index, case in enumerate(cases):
+        where = f"case_study/{selector}.cases[{index}]"
+        if not isinstance(case, dict):
+            raise ExportError(f"{where}: case must be an object")
+        for key in ("case_id", "split", "checkpoint", "sentence", "tokens", "token_ids", "subject", "object", "gold_relation", "representations"):
+            if key not in case:
+                raise ExportError(f"{where}: missing {key}")
+        case_id = case["case_id"]
+        split = case["split"]
+        checkpoint = case["checkpoint"]
+        if not isinstance(case_id, str) or not case_id or case_id in case_ids:
+            raise ExportError(f"{where}: case_id must be unique and non-empty")
+        if split not in _CASE_SPLITS:
+            raise ExportError(f"{where}: invalid split {split!r}")
+        if checkpoint not in _CASE_CHECKPOINTS:
+            raise ExportError(f"{where}: invalid checkpoint {checkpoint!r}")
+        if not isinstance(case["sentence"], str) or not case["sentence"].strip():
+            raise ExportError(f"{where}: sentence is empty")
+        if not isinstance(case["tokens"], list) or not case["tokens"] or not all(isinstance(item, str) for item in case["tokens"]):
+            raise ExportError(f"{where}: tokens must be a non-empty string list")
+        if not isinstance(case["token_ids"], list) or len(case["token_ids"]) != len(case["tokens"]):
+            raise ExportError(f"{where}: token_ids must align with tokens")
+        for entity_name in ("subject", "object"):
+            entity = case[entity_name]
+            if not isinstance(entity, dict) or not isinstance(entity.get("span"), list) or not isinstance(entity.get("token_positions"), list):
+                raise ExportError(f"{where}: {entity_name} span/token_positions are required")
+        representations = case["representations"]
+        if not isinstance(representations, dict) or not representations:
+            raise ExportError(f"{where}: representations is empty")
+        case_manifest_ids: set[str] = set()
+        for rep_id, manifest in representations.items():
+            if not isinstance(rep_id, str) or not isinstance(manifest, dict):
+                raise ExportError(f"{where}: invalid representation {rep_id!r}")
+            manifest_id = manifest.get("manifest_id")
+            if not isinstance(manifest_id, str) or manifest_id not in manifest_by_id:
+                raise ExportError(f"{where}: representation {rep_id!r} has dangling manifest_id")
+            if manifest.get("id") != rep_id:
+                raise ExportError(f"{where}: representation id mismatch for {rep_id!r}")
+            canonical_manifest = manifest_by_id[manifest_id]
+            for key in ("path", "shape", "dtype", "axis_semantics", "sha256", "byte_count", "producer_stage"):
+                if manifest.get(key) != canonical_manifest.get(key):
+                    raise ExportError(f"{where}: representation {rep_id!r} disagrees with tensor_manifest.{key}")
+            case_manifest_ids.add(manifest_id)
+        stages = case.get("stages")
+        if not isinstance(stages, list):
+            raise ExportError(f"{where}: stages must be a list")
+        stage_names = [stage.get("stage") for stage in stages if isinstance(stage, dict)]
+        if len(stage_names) != len(set(stage_names)):
+            raise ExportError(f"{where}: duplicate stage names")
+        missing_stages = [name for name in _CASE_REQUIRED_STAGES if name not in stage_names]
+        if missing_stages:
+            raise ExportError(f"{where}: missing stages {', '.join(missing_stages)}")
+        stage_order = list(_CASE_REQUIRED_STAGES[:4]) + ["training", "retrieval", "attention_baseline", "scoring", "selection", "attention_intervention", "context", "classifier", "generation", "evaluation", "diagnosis"]
+        positions = [stage_order.index(name) for name in stage_names if name in stage_order]
+        if positions != sorted(positions):
+            raise ExportError(f"{where}: stages are not in producer order")
+        for stage_index, stage in enumerate(stages):
+            stage_where = f"{where}.stages[{stage_index}]"
+            if not isinstance(stage, dict) or not isinstance(stage.get("stage"), str):
+                raise ExportError(f"{stage_where}: invalid stage")
+            status = stage.get("status")
+            if status not in {"observed", "not_applicable", "failed"}:
+                raise ExportError(f"{stage_where}: invalid status {status!r}")
+            if stage["stage"] in _CASE_REQUIRED_STAGES and status != "observed":
+                raise ExportError(f"{stage_where}: required stage is not fully observed ({status})")
+            if stage["stage"] not in _CASE_REQUIRED_STAGES and stage["stage"] not in _CASE_OPTIONAL_STAGES:
+                raise ExportError(f"{stage_where}: unknown stage name {stage['stage']!r}")
+            if status == "not_applicable" and stage["stage"] not in _CASE_OPTIONAL_STAGES:
+                raise ExportError(f"{stage_where}: only optional stages may be not_applicable")
+            for direction in ("input_refs", "output_refs"):
+                refs = stage.get(direction)
+                if not isinstance(refs, list):
+                    raise ExportError(f"{stage_where}: {direction} must be a list")
+                for ref_index, ref in enumerate(refs):
+                    _validate_stage_ref(ref, where=f"{stage_where}.{direction}[{ref_index}]", case_manifest_ids=case_manifest_ids, manifest_by_id=manifest_by_id)
+            for direction in ("inputs", "outputs"):
+                value = stage.get(direction)
+                if not isinstance(value, dict):
+                    raise ExportError(f"{stage_where}: {direction} must be an object")
+                reps = value.get("representations", [])
+                if not isinstance(reps, list):
+                    raise ExportError(f"{stage_where}.{direction}.representations must be a list")
+                for rep_index, rep in enumerate(reps):
+                    if not isinstance(rep, dict):
+                        raise ExportError(f"{stage_where}.{direction}.representations[{rep_index}] must be an object")
+                    ref = rep.get("manifest_id")
+                    if ref not in case_manifest_ids:
+                        raise ExportError(f"{stage_where}.{direction}.representations[{rep_index}] has dangling manifest_id")
+            if status == "observed" and stage["stage"] in _CASE_REQUIRED_STAGES:
+                if not stage.get("output_refs") and stage["stage"] not in {"data", "training"}:
+                    raise ExportError(f"{stage_where}: observed stage has no output_refs")
+        case_ids.add(case_id)
+        observed_splits.add(split)
+        observed_checkpoints.add(checkpoint)
+    if observed_splits != set(_CASE_SPLITS):
+        raise ExportError(f"case_study/{selector}.json: split coverage must include train, valid, and test")
+    if observed_checkpoints != set(_CASE_CHECKPOINTS):
+        raise ExportError(f"case_study/{selector}.json: checkpoint coverage is incomplete")
+
+    if sample_trace.get("schema_version") != "sample-trace.v1":
+        raise ExportError(f"case_study/{selector}.sample-trace.json: unsupported schema_version")
+    contract = sample_trace.get("semantic_contract")
+    if not isinstance(contract, dict) or contract.get("version") != "q-attention.case-study-trace-contract.v3" or contract.get("lineage") != "producer_owned_stage_input_output":
+        raise ExportError(f"case_study/{selector}.sample-trace.json: lineage contract is missing")
+    trace_samples = sample_trace.get("samples")
+    if not isinstance(trace_samples, list) or {item.get("sample_id") for item in trace_samples if isinstance(item, dict)} != case_ids:
+        raise ExportError(f"case_study/{selector}.sample-trace.json: sample IDs do not match case study cases")
+    coverage = sample_trace.get("coverage")
+    if not isinstance(coverage, dict):
+        raise ExportError(f"case_study/{selector}.sample-trace.json: coverage is missing")
+    for stage in _CASE_REQUIRED_STAGES:
+        if coverage.get(stage) not in {"observed", "not_applicable"}:
+            raise ExportError(f"case_study/{selector}.sample-trace.json: coverage for {stage} is incomplete")
 
 
 def _required_file(path: Path) -> Path:
@@ -206,6 +485,16 @@ def _validate_stage(stage_dir: Path, selectors: list[str]) -> None:
     ]
     if forbidden:
         raise ExportError(f"forbidden private artifacts in staged report: {forbidden}")
+    # The public projection is intentionally JSON-only, but the JSON must
+    # carry a complete, source-first trace.  Validate this after all files are
+    # staged so a malformed selector can never be published as an apparently
+    # complete report.
+    for selector in selectors:
+        case_path = stage_dir / "case_study" / f"{selector}.json"
+        trace_path = stage_dir / "case_study" / f"{selector}.sample-trace.json"
+        case_payload = _read_json(case_path, description=f"case study for {selector}")
+        trace_payload = _read_json(trace_path, description=f"sample trace for {selector}")
+        _validate_case_study_payload(case_payload, trace_payload, selector=selector)
 
 
 def export_report(

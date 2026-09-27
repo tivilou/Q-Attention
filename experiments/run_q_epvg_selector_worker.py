@@ -293,6 +293,7 @@ def write_case_study(
         capture_root: Path,
         name: str,
         axis_semantics: list[str],
+        producer_stage: str,
     ) -> dict[str, Any]:
         del capture_root
         value = tensor.detach().to(device="cpu").contiguous()
@@ -307,6 +308,12 @@ def write_case_study(
         preview_float = preview_value.float()
         return {
             "id": name.rsplit("__", 1)[-1],
+            # ``id`` is the stable semantic representation name.  A case
+            # contains the same representation at several checkpoints, so a
+            # second, producer-owned identity is required for unambiguous
+            # stage lineage and export validation.
+            "manifest_id": name,
+            "producer_stage": producer_stage,
             "path": str(relative),
             "shape": list(value.shape),
             "dtype": str(value.dtype),
@@ -490,12 +497,37 @@ def write_case_study(
                 prefix = f"{split}_{record_index}_{checkpoint_slug}"
                 reps: dict[str, Any] = {}
 
+                producer_stage_by_rep = {
+                    "token_embeddings": "embedding",
+                    "encoder_hidden_states": "encoder",
+                    "subject_object_pooled_states": "encoder",
+                    "attention_qkv": "attention_baseline",
+                    "baseline_attention_scores": "attention_baseline",
+                    "steered_attention_scores": "selection",
+                    "q_epvg_query": "scoring",
+                    "q_epvg_key": "scoring",
+                    "q_epvg_value": "scoring",
+                    "q_epvg_zz": "scoring",
+                    "q_epvg_xx": "scoring",
+                    "q_epvg_observable": "scoring",
+                    "q_epvg_theta": "scoring",
+                    "q_epvg_gate": "scoring",
+                    "q_epvg_base_attention": "attention_baseline",
+                    "q_epvg_score_adjustment": "scoring",
+                    "q_epvg_attention": "selection",
+                    "q_epvg_routed_values": "attention_intervention",
+                    "q_epvg_query_update": "attention_intervention",
+                    "q_epvg_output": "context",
+                    "classifier_logits_probabilities": "classifier",
+                }
+
                 def add_rep(rep_id: str, value: torch.Tensor, axes: list[str]) -> None:
                     manifest = _tensor_manifest(
                         value,
                         capture_root=output_dir,
                         name=f"{prefix}__{rep_id}",
                         axis_semantics=axes,
+                        producer_stage=producer_stage_by_rep.get(rep_id, "unknown"),
                     )
                     reps[rep_id] = manifest
                     tensor_manifest.append(manifest)
@@ -542,6 +574,21 @@ def write_case_study(
                     if rows:
                         add_rep(rep_id, torch.stack(rows, dim=0), axes)
                 add_rep("classifier_logits_probabilities", torch.stack((captures["baseline_logits"][local_index], captures["selector_logits"][local_index], captures["probabilities_baseline"][local_index], captures["probabilities_selector"][local_index])), ["variant_probability_or_logit", "labels"])
+                # A compact parameter snapshot closes the training/replay
+                # boundary without publishing a checkpoint.  It is kept in
+                # the private tensor bundle and exposed only through shape,
+                # dtype, and summary statistics in the safe projection.
+                parameter_parts = [
+                    value.detach().reshape(-1)
+                    for value in state.values()
+                    if isinstance(value, torch.Tensor) and value.is_floating_point()
+                ]
+                if parameter_parts:
+                    add_rep(
+                        "q_epvg_kernel_parameters",
+                        torch.cat(parameter_parts),
+                        ["parameters"],
+                    )
                 labels = batch["labels"].cpu().tolist()
                 baseline_prediction = int(baseline_logits.argmax(-1)[local_index].item())
                 selector_prediction = int(selector_logits.argmax(-1)[local_index].item())
@@ -575,26 +622,206 @@ def write_case_study(
                     "representations": reps,
                 }
                 all_cases.append(case)
+                manifest_ids = {
+                    rep_id: manifest["manifest_id"]
+                    for rep_id, manifest in reps.items()
+                }
+
+                def _ref(rep_id: str, *, kind: str = "representation") -> dict[str, str]:
+                    return {
+                        "ref": manifest_ids[rep_id] if rep_id in manifest_ids else rep_id,
+                        "kind": kind,
+                        "producer_stage": producer_stage_by_rep.get(rep_id, "semantic"),
+                    }
+
+                def _refs(*rep_ids: str) -> list[dict[str, str]]:
+                    return [_ref(rep_id) for rep_id in rep_ids if rep_id in manifest_ids]
+
+                def _safe_rep(rep_id: str) -> dict[str, Any]:
+                    # Stage I/O is a human-facing safe projection.  Keep the
+                    # manifest identity and tensor shape/statistics here; the
+                    # full detached tensor remains under case_study_tensors.
+                    manifest = reps[rep_id]
+                    preview = manifest.get("preview", {})
+                    return {
+                        "id": manifest["id"],
+                        "manifest_id": manifest["manifest_id"],
+                        "shape": manifest["shape"],
+                        "dtype": manifest["dtype"],
+                        "axis_semantics": manifest["axis_semantics"],
+                        "producer_stage": manifest["producer_stage"],
+                        "preview": {
+                            key: preview[key]
+                            for key in ("min", "max", "mean", "l2_norm")
+                            if key in preview
+                        },
+                    }
+
+                def _safe_reps(*rep_ids: str) -> list[dict[str, Any]]:
+                    return [_safe_rep(rep_id) for rep_id in rep_ids if rep_id in reps]
+
+                def _stage(
+                    name: str,
+                    *,
+                    status: str,
+                    inputs: dict[str, Any] | None = None,
+                    outputs: dict[str, Any] | None = None,
+                    input_refs: list[dict[str, str]] | None = None,
+                    output_refs: list[dict[str, str]] | None = None,
+                    reason: str | None = None,
+                ) -> dict[str, Any]:
+                    result: dict[str, Any] = {
+                        "stage": name,
+                        "status": status,
+                        "input_refs": input_refs or [],
+                        "output_refs": output_refs or [],
+                        "inputs": inputs or {},
+                        "outputs": outputs or {},
+                    }
+                    if reason:
+                        result["reason"] = reason
+                    return result
+
                 stages_by_case.append({
                     "sample_id": case_id,
                     "split_position": int(record_index),
                     "checkpoint": checkpoint_label,
                     "stages": [
-                        {"stage": "data", "status": "observed", "observed_fields": {"sentence": case["sentence"], "tokens": case["tokens"], "subject": case["subject"], "object": case["object"]}},
-                        {"stage": "preprocess", "status": "observed", "observed_fields": {"token_ids": case["token_ids"], "attention_mask": case["attention_mask"], "representations": ["token_embeddings", "encoder_hidden_states", "subject_object_pooled_states"]}},
-                        {"stage": "training", "status": "observed", "observed_fields": {"selector": selector, "checkpoint": checkpoint_label, "epochs": int(config["kernel"]["epochs"]), "replay_only": True}},
-                        {"stage": "retrieval", "status": "not_applicable", "observed_fields": {"reason": "relation extraction has no retrieval stage"}},
-                        {"stage": "scoring", "status": "observed", "observed_fields": {"representations": ["attention_qkv", "baseline_attention_scores", "q_epvg_alignment_real", "q_epvg_alignment_imag", "q_epvg_gate"]}},
-                        {"stage": "selection", "status": "observed", "observed_fields": {"representations": ["q_epvg_score_adjustment", "steered_attention_scores"]}},
-                        {"stage": "context", "status": "observed", "observed_fields": {"representations": ["q_epvg_routed_values", "q_epvg_output"], "selector_prediction": selector_prediction}},
-                        {"stage": "generation", "status": "not_applicable", "observed_fields": {"reason": "relation extraction outputs a class label"}},
-                        {"stage": "evaluation", "status": "observed", "observed_fields": {"gold_relation": record.label, "baseline_prediction": baseline_prediction, "selector_prediction": selector_prediction, "representations": ["classifier_logits_probabilities"]}},
-                        {"stage": "diagnosis", "status": "observed", "observed_fields": {"kernel_metadata": kernel.metadata(), "tensor_manifest_count": len(reps)}},
+                        _stage(
+                            "data",
+                            status="observed",
+                            output_refs=[{"ref": "source_sample", "kind": "semantic", "producer_stage": "data"}],
+                            outputs={
+                                "sentence": case["sentence"],
+                                "tokens": case["tokens"],
+                                "subject": case["subject"],
+                                "object": case["object"],
+                            },
+                        ),
+                        _stage(
+                            "preprocess",
+                            status="observed",
+                            input_refs=[{"ref": "source_sample", "kind": "semantic", "producer_stage": "data"}],
+                            output_refs=[
+                                {"ref": "token_ids", "kind": "semantic", "producer_stage": "preprocess"},
+                                {"ref": "attention_mask", "kind": "semantic", "producer_stage": "preprocess"},
+                            ],
+                            inputs={"sentence": case["sentence"], "tokens": case["tokens"], "subject": case["subject"], "object": case["object"]},
+                            outputs={"token_ids": case["token_ids"], "attention_mask": case["attention_mask"], "subject": case["subject"], "object": case["object"]},
+                        ),
+                        _stage(
+                            "embedding",
+                            status="observed" if "token_embeddings" in reps else "failed",
+                            input_refs=[{"ref": "token_ids", "kind": "semantic", "producer_stage": "preprocess"}],
+                            output_refs=_refs("token_embeddings"),
+                            inputs={"token_ids": case["token_ids"]},
+                            outputs={"representations": _safe_reps("token_embeddings")},
+                            reason=None if "token_embeddings" in reps else "token embedding was not captured",
+                        ),
+                        _stage(
+                            "encoder",
+                            status="observed" if "encoder_hidden_states" in reps else "failed",
+                            input_refs=_refs("token_embeddings"),
+                            output_refs=_refs("encoder_hidden_states", "subject_object_pooled_states"),
+                            inputs={"representations": _safe_reps("token_embeddings")},
+                            outputs={"representations": _safe_reps("encoder_hidden_states", "subject_object_pooled_states")},
+                            reason=None if "encoder_hidden_states" in reps else "encoder hidden states were not captured",
+                        ),
+                        _stage(
+                            "training",
+                            status="observed" if "q_epvg_kernel_parameters" in reps else "failed",
+                            input_refs=_refs("token_embeddings", "encoder_hidden_states", "subject_object_pooled_states"),
+                            output_refs=_refs("q_epvg_kernel_parameters"),
+                            inputs={"selector": selector, "checkpoint": checkpoint_label, "epochs": int(config["kernel"]["epochs"]), "replay_only": True},
+                            outputs={"checkpoint": checkpoint_label, "replay_only": True, "observation_mode": "post_training_replay", "representations": _safe_reps("q_epvg_kernel_parameters")},
+                            reason=None if "q_epvg_kernel_parameters" in reps else "kernel checkpoint parameters were not captured",
+                        ),
+                        _stage(
+                            "retrieval",
+                            status="not_applicable",
+                            reason="relation extraction has no retrieval stage",
+                        ),
+                        _stage(
+                            "attention_baseline",
+                            status="observed" if "baseline_attention_scores" in reps else "failed",
+                            input_refs=_refs("attention_qkv"),
+                            output_refs=_refs("baseline_attention_scores"),
+                            inputs={"representations": _safe_reps("attention_qkv")},
+                            outputs={"representations": _safe_reps("baseline_attention_scores")},
+                            reason=None if "baseline_attention_scores" in reps else "baseline attention scores were not captured",
+                        ),
+                        _stage(
+                            "scoring",
+                            status="observed" if any(name in reps for name in ("q_epvg_zz", "q_epvg_xx", "q_epvg_observable", "q_epvg_gate", "q_epvg_score_adjustment")) else "failed",
+                            input_refs=_refs("attention_qkv", "baseline_attention_scores", "q_epvg_query", "q_epvg_key", "q_epvg_value"),
+                            output_refs=_refs("q_epvg_zz", "q_epvg_xx", "q_epvg_observable", "q_epvg_theta", "q_epvg_gate", "q_epvg_score_adjustment"),
+                            inputs={"representations": _safe_reps("attention_qkv", "baseline_attention_scores", "q_epvg_query", "q_epvg_key", "q_epvg_value")},
+                            outputs={"representations": _safe_reps("q_epvg_zz", "q_epvg_xx", "q_epvg_observable", "q_epvg_theta", "q_epvg_gate", "q_epvg_score_adjustment")},
+                            reason=None if any(name in reps for name in ("q_epvg_zz", "q_epvg_xx", "q_epvg_observable", "q_epvg_gate", "q_epvg_score_adjustment")) else "Q-EPVG observable trace was not captured",
+                        ),
+                        _stage(
+                            "selection",
+                            status="observed" if "steered_attention_scores" in reps else "failed",
+                            input_refs=_refs("baseline_attention_scores", "q_epvg_score_adjustment", "q_epvg_gate"),
+                            output_refs=_refs("steered_attention_scores", "q_epvg_attention"),
+                            inputs={"representations": _safe_reps("baseline_attention_scores", "q_epvg_score_adjustment", "q_epvg_gate")},
+                            outputs={"representations": _safe_reps("steered_attention_scores", "q_epvg_attention")},
+                            reason=None if "steered_attention_scores" in reps else "steered attention scores were not captured",
+                        ),
+                        _stage(
+                            "attention_intervention",
+                            status="observed" if any(name in reps for name in ("q_epvg_routed_values", "q_epvg_query_update")) else "not_applicable",
+                            input_refs=_refs("q_epvg_gate", "q_epvg_attention"),
+                            output_refs=_refs("q_epvg_routed_values", "q_epvg_query_update"),
+                            inputs={"representations": _safe_reps("q_epvg_gate", "q_epvg_attention")},
+                            outputs={"representations": _safe_reps("q_epvg_routed_values", "q_epvg_query_update")},
+                            reason=None if any(name in reps for name in ("q_epvg_routed_values", "q_epvg_query_update")) else "selector path does not expose a routed-value or query-update tensor",
+                        ),
+                        _stage(
+                            "context",
+                            status="observed" if "q_epvg_output" in reps else "failed",
+                            input_refs=_refs("q_epvg_routed_values", "q_epvg_attention"),
+                            output_refs=_refs("q_epvg_output"),
+                            inputs={"representations": _safe_reps("q_epvg_routed_values", "q_epvg_attention")},
+                            outputs={"representations": _safe_reps("q_epvg_output")},
+                            reason=None if "q_epvg_output" in reps else "Q-EPVG context output was not captured",
+                        ),
+                        _stage(
+                            "classifier",
+                            status="observed" if "classifier_logits_probabilities" in reps else "failed",
+                            input_refs=_refs("encoder_hidden_states", "subject_object_pooled_states", "q_epvg_output"),
+                            output_refs=_refs("classifier_logits_probabilities"),
+                            inputs={"representations": _safe_reps("encoder_hidden_states", "subject_object_pooled_states", "q_epvg_output")},
+                            outputs={"representations": _safe_reps("classifier_logits_probabilities")},
+                            reason=None if "classifier_logits_probabilities" in reps else "classifier logits/probabilities were not captured",
+                        ),
+                        _stage(
+                            "generation",
+                            status="not_applicable",
+                            reason="relation extraction outputs a class label",
+                        ),
+                        _stage(
+                            "evaluation",
+                            status="observed",
+                            input_refs=_refs("classifier_logits_probabilities"),
+                            output_refs=[{"ref": "gold_relation", "kind": "semantic", "producer_stage": "evaluation"}],
+                            inputs={"baseline_prediction": baseline_prediction, "selector_prediction": selector_prediction},
+                            outputs={"gold_relation": record.label, "baseline_prediction": baseline_prediction, "selector_prediction": selector_prediction, "baseline_correct": baseline_prediction == int(labels[local_index]), "selector_correct": selector_prediction == int(labels[local_index])},
+                        ),
+                        _stage(
+                            "diagnosis",
+                            status="observed",
+                            input_refs=[{"ref": manifest_id, "kind": "representation", "producer_stage": reps[rep_id].get("producer_stage", "unknown")} for rep_id, manifest_id in manifest_ids.items()],
+                            output_refs=[{"ref": "diagnosis", "kind": "semantic", "producer_stage": "diagnosis"}],
+                            inputs={"representation_count": len(reps), "representation_ids": list(manifest_ids.values())},
+                            outputs={"kernel_metadata": kernel.metadata(), "tensor_manifest_count": len(reps)},
+                        ),
                     ],
                 })
     kernel.load_state_dict(checkpoint_states[-1][1])
     payload = {
-        "schema_version": "q-attention.Q-EPVG-case-study.v1",
+        "schema_version": "q-attention.Q-EPVG-case-study.v2",
+        "lineage_schema_version": "q-attention.case-study-lineage.v1",
         "selector": selector,
         "status": "observed",
         "selection_rule": "Train/valid/test indices and checkpoint names are frozen in the formal config before execution; replay is post-training and never used for optimization or model selection.",
@@ -602,6 +829,7 @@ def write_case_study(
         "checkpoint_policy": [item[0] for item in checkpoint_states],
         "kernel_metadata": kernel.metadata(),
         "representation_inventory": sorted({manifest["id"] for manifest in tensor_manifest}),
+        "manifest_inventory": sorted({manifest["manifest_id"] for manifest in tensor_manifest}),
         "tensor_manifest": tensor_manifest,
         "provenance": {
             "git_revision": _git_revision(),
@@ -613,13 +841,26 @@ def write_case_study(
         "cases": all_cases,
     }
     (output_dir / "case_study.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+    coverage_by_stage: dict[str, set[str]] = {}
+    for sample in stages_by_case:
+        for stage in sample.get("stages", []):
+            if isinstance(stage, dict) and isinstance(stage.get("stage"), str):
+                coverage_by_stage.setdefault(stage["stage"], set()).add(str(stage.get("status", "unavailable")))
+    coverage = {
+        stage: (
+            "failed" if "failed" in statuses
+            else "observed" if "observed" in statuses
+            else "not_applicable"
+        )
+        for stage, statuses in coverage_by_stage.items()
+    }
     sample_trace = {
         "schema_version": "sample-trace.v1",
         "trace_id": f"{output_dir.name}:{selector}",
         "experiment": {"run_id": output_dir.parent.parent.name, "dataset": "retacred.train+valid+test", "code_revision": _git_revision(), "config_sha256": _sha256(config_path), "model_identity": "relation-transformer-Q-EPVG", "seed": int(config["seed"])},
         "sample_selection": {"rule": payload["selection_rule"], "population_scope": "retacred.train+valid+test", "seed": int(config["seed"]), "selected_count": len(stages_by_case), "selected_sample_ids": [item["sample_id"] for item in stages_by_case]},
-        "coverage": {"data": "observed", "preprocess": "observed", "training": "observed", "retrieval": "not_applicable", "scoring": "observed", "selection": "observed", "context": "observed", "generation": "not_applicable", "evaluation": "observed", "diagnosis": "observed"},
-        "semantic_contract": {"version": "q-attention.case-study-trace-contract.v2", "required_roles": ["source_sample", "sequence_or_features", "task_objects", "target_or_gold", "prediction", "diagnosis"], "required_splits": ["train", "valid", "test"], "required_checkpoints": [item[0] for item in checkpoint_states], "representation_inventory": payload["representation_inventory"]},
+        "coverage": coverage,
+        "semantic_contract": {"version": "q-attention.case-study-trace-contract.v3", "lineage": "producer_owned_stage_input_output", "required_roles": ["source_sample", "sequence_or_features", "task_objects", "target_or_gold", "prediction", "diagnosis"], "required_splits": ["train", "valid", "test"], "required_checkpoints": [item[0] for item in checkpoint_states], "representation_inventory": payload["representation_inventory"], "manifest_inventory": payload["manifest_inventory"]},
         "samples": stages_by_case,
     }
     (output_dir / "sample_trace.json").write_text(json.dumps(sample_trace, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
