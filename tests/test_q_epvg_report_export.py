@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 
@@ -131,6 +132,11 @@ def build_fixture(root: Path) -> tuple[Path, Path, Path]:
     for selector in selectors[1:]:
         write(run / "selectors" / selector / "metrics.json")
         payload, trace = case_payload(selector)
+        for manifest in payload["tensor_manifest"]:
+            raw = f"tensor:{manifest['manifest_id']}\n".encode("utf-8")
+            manifest["sha256"] = hashlib.sha256(raw).hexdigest()
+            manifest["byte_count"] = len(raw)
+            write(run / "selectors" / selector / manifest["path"], raw.decode("utf-8"))
         (run / "selectors" / selector / "case_study.json").write_text(json.dumps(payload), encoding="utf-8")
         (run / "selectors" / selector / "sample_trace.json").write_text(json.dumps(trace), encoding="utf-8")
     for split in ("train", "valid", "test"):

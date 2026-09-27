@@ -296,6 +296,31 @@ def _validate_case_study_payload(
             raise ExportError(f"case_study/{selector}.sample-trace.json: coverage for {stage} is incomplete")
 
 
+def _validate_source_tensor_files(run_dir: Path, selectors: list[str]) -> None:
+    """Check each safe manifest against its private source tensor before export."""
+    for selector in selectors:
+        case_path = run_dir / "selectors" / selector / "case_study.json"
+        payload = _read_json(case_path, description=f"source case study for {selector}")
+        manifests = payload.get("tensor_manifest")
+        if not isinstance(manifests, list):
+            raise ExportError(f"source case study for {selector}: tensor_manifest is missing")
+        for index, manifest in enumerate(manifests):
+            manifest_id = _validate_manifest(manifest, where=f"source case_study/{selector}.tensor_manifest[{index}]")
+            relative = Path(str(manifest["path"]))
+            source = (run_dir / "selectors" / selector / relative).resolve()
+            selector_root = (run_dir / "selectors" / selector).resolve()
+            try:
+                source.relative_to(selector_root)
+            except ValueError as exc:
+                raise ExportError(f"source case study for {selector}: tensor path escapes selector directory: {manifest_id}") from exc
+            if not source.is_file():
+                raise ExportError(f"source case study for {selector}: missing tensor artifact {relative}")
+            raw = source.read_bytes()
+            digest = hashlib.sha256(raw).hexdigest()
+            if len(raw) != manifest["byte_count"] or digest != manifest["sha256"]:
+                raise ExportError(f"source case study for {selector}: tensor checksum mismatch for {manifest_id}")
+
+
 def _required_file(path: Path) -> Path:
     if not path.is_file():
         raise ExportError(f"missing required source file: {path}")
@@ -516,6 +541,7 @@ def export_report(
     if report_dir.exists():
         raise ExportError(f"refusing to overwrite report directory: {report_dir}")
     config_sha256 = hashlib.sha256(config_path.read_bytes()).hexdigest()
+    _validate_source_tensor_files(run_dir, selectors)
     stale_staging_cleaned = _cleanup_staging(report_dir)
 
     stage_dir = Path(
