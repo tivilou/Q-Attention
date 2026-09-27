@@ -269,6 +269,13 @@ def _validate_case_study_payload(
                     ref = rep.get("manifest_id")
                     if ref not in case_manifest_ids:
                         raise ExportError(f"{stage_where}.{direction}.representations[{rep_index}] has dangling manifest_id")
+                    rep_id = rep.get("id")
+                    canonical_rep = next((item for item in case.get("representations", {}).values() if isinstance(item, dict) and item.get("manifest_id") == ref), None)
+                    if not isinstance(rep_id, str) or not isinstance(canonical_rep, dict) or canonical_rep.get("id") != rep_id:
+                        raise ExportError(f"{stage_where}.{direction}.representations[{rep_index}] disagrees with case representation identity")
+                    for key in ("shape", "dtype", "axis_semantics", "producer_stage"):
+                        if rep.get(key) != canonical_rep.get(key):
+                            raise ExportError(f"{stage_where}.{direction}.representations[{rep_index}] disagrees with case representation.{key}")
             if status == "observed" and stage["stage"] in _CASE_REQUIRED_STAGES:
                 if not stage.get("output_refs") and stage["stage"] not in {"data", "training"}:
                     raise ExportError(f"{stage_where}: observed stage has no output_refs")
