@@ -449,6 +449,16 @@ def _source_run_revision(run_dir: Path) -> str | None:
     return None
 
 
+def _source_run_provenance(run_dir: Path) -> dict[str, Any]:
+    summary = _read_json(
+        run_dir / "run_summary.json", description="source run summary"
+    )
+    provenance = summary.get("provenance")
+    if not isinstance(provenance, dict):
+        raise ExportError("source run summary lacks provenance object")
+    return provenance
+
+
 def _write_export_manifest(
     stage_dir: Path,
     *,
@@ -485,6 +495,7 @@ def _validate_stage(stage_dir: Path, selectors: list[str]) -> None:
     required = [
         "RUN_COMPLETE",
         "run_summary.json",
+        "provenance.json",
         "run_summary.data",
         "run_summary.md",
         "gpu_assignments.json",
@@ -509,6 +520,14 @@ def _validate_stage(stage_dir: Path, selectors: list[str]) -> None:
             raise ExportError(f"staged report is missing {relative}")
         if path.stat().st_size == 0 and relative != "RUN_COMPLETE":
             raise ExportError(f"staged report contains an empty file: {relative}")
+    summary_payload = _read_json(
+        stage_dir / "run_summary.json", description="staged run summary"
+    )
+    provenance_payload = _read_json(
+        stage_dir / "provenance.json", description="staged provenance"
+    )
+    if summary_payload.get("provenance") != provenance_payload:
+        raise ExportError("staged provenance differs from run_summary.json")
     forbidden_suffixes = (".pt", ".pth", ".ckpt", ".bin", ".safetensors", ".jsonl")
     forbidden = [
         path.relative_to(stage_dir)
@@ -595,6 +614,16 @@ def export_report(
             "gpu_assignments.json",
         ):
             copy_one(run_dir / name, Path(name))
+        (stage_dir / "provenance.json").write_text(
+            json.dumps(
+                _source_run_provenance(run_dir),
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
         copy_one(config_path, Path("run_config.json"))
         copy_one(run_dir / "baseline" / "metrics.json", Path("metrics/baseline.json"))
         for selector in selectors:

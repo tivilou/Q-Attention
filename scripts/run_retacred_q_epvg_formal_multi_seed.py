@@ -59,6 +59,7 @@ OOM_MARKERS = (
 )
 
 QEPVG_CONFIG_SCHEMA = "q-attention.q-epvg-formal-single-seed.v1"
+PROVENANCE_PROJECTION_SCHEMA = "q-attention.provenance-projection.v1"
 QEPVG_SOURCE_FILES = {
     "attention_adapter": "src/q_attention/adapters/q_epvg_attention.py",
     "baseline_trainer": "experiments/train_relation_baseline.py",
@@ -136,6 +137,29 @@ def _parse_data_hashes(path: Path) -> dict[str, str]:
     return result
 
 
+def _seed13_provenance(source_dir: Path, summary: dict[str, Any]) -> tuple[dict[str, Any], str]:
+    """Read provenance from its projection or the canonical run summary."""
+    provenance_path = source_dir / "provenance.json"
+    embedded = summary.get("provenance")
+    if provenance_path.is_file():
+        provenance = load_json(provenance_path)
+        if not isinstance(provenance, dict):
+            raise ValueError("seed-13 report provenance.json must contain an object")
+        if embedded is not None and embedded != provenance:
+            raise ValueError("seed-13 report provenance.json differs from run_summary.json")
+        return provenance, "provenance.json"
+    if not isinstance(embedded, dict):
+        raise ValueError("seed-13 report lacks provenance.json and run_summary.json provenance")
+    return embedded, "run_summary.json:provenance"
+
+
+def _provenance_sha256(provenance: dict[str, Any]) -> str:
+    payload = json.dumps(
+        provenance, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
 def validate_seed13_report(
     source_dir: Path,
     *,
@@ -157,7 +181,6 @@ def validate_seed13_report(
         "run_summary.md",
         "data.sha256",
         "data_counts.txt",
-        "provenance.json",
         "export_manifest.json",
         "metrics/baseline.json",
     ]
@@ -190,7 +213,7 @@ def validate_seed13_report(
     ):
         raise ValueError("seed-13 report summary violates the frozen formal contract")
 
-    provenance = load_json(source_dir / "provenance.json")
+    provenance, provenance_source = _seed13_provenance(source_dir, summary)
     if provenance.get("git_dirty") is not False:
         raise ValueError("seed-13 report provenance is dirty")
     if provenance.get("config_sha256") != sha256(config_path):
@@ -261,6 +284,9 @@ def validate_seed13_report(
             else None
         ),
         "source_git_revision": source_revision,
+        "provenance_source": provenance_source,
+        "provenance_sha256": _provenance_sha256(provenance),
+        "provenance_projection_schema": PROVENANCE_PROJECTION_SCHEMA,
         "validated_against_git_commit": current_commit,
         "config_sha256": sha256(config_path),
         "data_hashes": report_hashes,
@@ -283,6 +309,7 @@ def import_seed13_report(
         config=config,
         current_commit=current_commit,
     )
+    metadata = dict(metadata)
     seed_dir = group_dir / "seed_13"
     if seed_dir.exists() and any(seed_dir.iterdir()):
         raise ValueError("cannot import seed-13 report into a non-empty seed directory")
@@ -297,7 +324,6 @@ def import_seed13_report(
         "run_summary.md": "run_summary.md",
         "data.sha256": "data.sha256",
         "data_counts.txt": "data_counts.txt",
-        "provenance.json": "provenance.json",
         "export_manifest.json": "export_manifest.json",
         "metrics/baseline.json": "baseline/metrics.json",
     }
@@ -313,6 +339,16 @@ def import_seed13_report(
         target = seed_dir / target_relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source_dir / source_relative, target)
+    summary = load_json(source_dir / "run_summary.json")
+    provenance, provenance_source = _seed13_provenance(source_dir, summary)
+    metadata.update(
+        {
+            "provenance_source": provenance_source,
+            "provenance_sha256": _provenance_sha256(provenance),
+            "provenance_projection_schema": PROVENANCE_PROJECTION_SCHEMA,
+        }
+    )
+    write_json(seed_dir / "provenance.json", provenance)
     write_json(seed_dir / "imported_report.json", metadata)
     return metadata
 

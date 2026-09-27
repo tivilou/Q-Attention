@@ -13,8 +13,10 @@ bash scripts/run_retacred_q_epvg_formal_multi_seed.sh \
 ```
 
 `<audited_seed13_report_dir>` 必须是通过新版 v2/v3 Case Study、`run_summary.data`、
-`data_counts.txt`、`data.sha256` 和 `export_manifest.json` 校验的报告目录；旧版 v1 或
-缺少身份文件的报告会被拒绝，不能静默复用。
+`data_counts.txt`、`data.sha256` 和 `export_manifest.json` 校验的报告目录。provenance 可来自
+顶层 `provenance.json`；兼容已审计的旧报告时，也可从 `run_summary.json.provenance` 读取，且会
+校验规范化内容哈希，并在导入副本中写为顶层文件。导入元数据会记录来源、内容哈希和投影规则版本；两处同时存在但内容不一致时会拒绝。旧版 v1 Case Study
+或缺少真实 provenance/数据身份文件的报告会被拒绝，不能静默复用。
 
 若项目方明确要求三个 seed 都从头执行，可省略 `--import-seed13-report`；seed 集合仍固定为
 `13,29,53`。正式完整数据运行只能在合作者服务器执行，不得在本项目服务器启动。
@@ -72,7 +74,8 @@ producer-owned 输入/输出引用。所有决策相关张量都通过 manifest 
 
 ## 导出与回传
 
-训练和 summary 完成后，一键 runner 会自动调用 exporter。exporter 只允许审计白名单：
+训练和 summary 完成后，一键 runner 会自动调用 exporter。单 seed exporter 从
+`run_summary.json.provenance` 生成并校验顶层 `provenance.json`。exporter 只允许审计白名单：
 metrics、Case Study safe projection、sample trace、summary、配置、provenance、数据计数与
 哈希；不允许提交 `runs/`、权重、checkpoint、预测、JSONL、tensor 二进制或完整日志。
 

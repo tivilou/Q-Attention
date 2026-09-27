@@ -126,8 +126,12 @@ def build_fixture(root: Path) -> tuple[Path, Path, Path]:
     selectors = ["disabled", "selector_a", "selector_b"]
     config.write_text(json.dumps({"selectors": selectors}), encoding="utf-8")
     run = root / "run"
-    for name in ("RUN_COMPLETE", "run_summary.json", "run_summary.data", "run_summary.md", "gpu_assignments.json"):
+    for name in ("RUN_COMPLETE", "run_summary.data", "run_summary.md", "gpu_assignments.json"):
         write(run / name)
+    provenance = {"git_dirty": False, "git_revision": "abc123"}
+    (run / "run_summary.json").write_text(
+        json.dumps({"provenance": provenance}), encoding="utf-8"
+    )
     write(run / "baseline" / "metrics.json")
     for selector in selectors[1:]:
         write(run / "selectors" / selector / "metrics.json")
@@ -220,6 +224,22 @@ def test_stale_staging_is_cleaned_and_attempt_identity_is_bound(tmp_path: Path) 
             reporting_commit="abc123",
         )
     state_path.unlink(missing_ok=True)
+
+
+def test_export_projects_canonical_run_provenance(tmp_path: Path) -> None:
+    module = load_module()
+    run, config, report = build_fixture(tmp_path)
+
+    module.export_report(
+        run_dir=run,
+        report_dir=report,
+        config_path=config,
+        reporting_commit="abc123",
+    )
+
+    summary = json.loads((report / "run_summary.json").read_text(encoding="utf-8"))
+    provenance = json.loads((report / "provenance.json").read_text(encoding="utf-8"))
+    assert provenance == summary["provenance"]
 
 
 def test_case_study_validator_rejects_dangling_representation_reference() -> None:
