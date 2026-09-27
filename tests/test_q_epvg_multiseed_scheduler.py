@@ -33,6 +33,19 @@ def test_selector_queue_is_seed_round_robin() -> None:
     ]
 
 
+def test_runtime_wrapper_exports_shared_hardware_contract() -> None:
+    scheduler = load_scheduler()
+    runtime = scheduler._runtime_module()
+
+    assert callable(runtime.choose_hardware_profile)
+    assert callable(runtime._adaptive_profile_at)
+
+    profile = runtime.choose_hardware_profile("adaptive", {}, [0], [])
+    assert profile["name"] == "adaptive"
+    assert profile["adaptive"] is True
+    assert runtime._adaptive_profile_at(profile, 0)["name"] == "adaptive_full_batch"
+
+
 def test_selector_queue_skips_completed_tasks_without_reordering_remaining_seeds() -> None:
     scheduler = load_scheduler()
     scheduler.SELECTOR_TASKS = ("selector_a", "selector_b")
