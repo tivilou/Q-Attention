@@ -753,9 +753,9 @@ def write_case_study(
                             "attention_baseline",
                             status="observed" if "baseline_attention_scores" in reps else "failed",
                             input_refs=_refs("attention_qkv"),
-                            output_refs=_refs("baseline_attention_scores"),
+                            output_refs=_refs("baseline_attention_scores", "q_epvg_base_attention"),
                             inputs={"representations": _safe_reps("attention_qkv")},
-                            outputs={"representations": _safe_reps("baseline_attention_scores")},
+                            outputs={"representations": _safe_reps("baseline_attention_scores", "q_epvg_base_attention")},
                             reason=None if "baseline_attention_scores" in reps else "baseline attention scores were not captured",
                         ),
                         _stage(
