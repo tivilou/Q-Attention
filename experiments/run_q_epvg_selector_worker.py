@@ -652,9 +652,16 @@ def write_case_study(
                         "axis_semantics": manifest["axis_semantics"],
                         "producer_stage": manifest["producer_stage"],
                         "preview": {
-                            key: preview[key]
-                            for key in ("min", "max", "mean", "l2_norm")
-                            if key in preview
+                            **{
+                                key: preview[key]
+                                for key in ("min", "max", "mean", "l2_norm")
+                                if key in preview
+                            },
+                            **(
+                                {"values_first_8": preview["values_first_32"][:8]}
+                                if isinstance(preview.get("values_first_32"), list)
+                                else {}
+                            ),
                         },
                     }
 
