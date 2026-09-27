@@ -34,6 +34,10 @@ _base.FORMAL_RUN_NAME = "retacred_q_epvg_formal_single_seed"
 _base.FORMAL_CONFIG_SCHEMAS = {
     "q-attention.q-epvg-formal-single-seed.v1",
 }
+# The multi-seed scheduler imports this wrapper as its runtime module. Keep
+# the shared hardware-policy API explicit for adaptive dispatch.
+choose_hardware_profile = _base.choose_hardware_profile
+_adaptive_profile_at = _base._adaptive_profile_at
 _base.COUNTERFACTUAL_MODES = set()
 _base_selector_resume_contract = _base.selector_resume_contract
 _base_selector_resume_contract_compatible = (
