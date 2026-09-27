@@ -559,7 +559,7 @@ def write_case_study(
                     ("q_epvg_observable", "observable", ["layers", "heads", "query_tokens", "key_tokens"]),
                     ("q_epvg_theta", "theta", ["layers", "heads", "query_tokens", "key_tokens"]),
                     ("q_epvg_gate", "gate", ["layers", "heads", "query_tokens", "key_tokens"]),
-                    ("q_epvg_base_attention", "base_attention", ["heads", "query_tokens", "key_tokens"]),
+                    ("q_epvg_base_attention", "base_attention", ["layers", "heads", "query_tokens", "key_tokens"]),
                     ("q_epvg_score_adjustment", "score_adjustment", ["layers", "heads", "query_tokens", "key_tokens"]),
                     ("q_epvg_attention", "attention", ["layers", "heads", "query_tokens", "key_tokens"]),
                     ("q_epvg_routed_values", "routed_values", ["layers", "heads", "query_tokens", "key_tokens", "value_dim"]),
