@@ -541,7 +541,6 @@ def export_report(
     if report_dir.exists():
         raise ExportError(f"refusing to overwrite report directory: {report_dir}")
     config_sha256 = hashlib.sha256(config_path.read_bytes()).hexdigest()
-    _validate_source_tensor_files(run_dir, selectors)
     stale_staging_cleaned = _cleanup_staging(report_dir)
 
     stage_dir = Path(
@@ -580,6 +579,7 @@ def export_report(
             raise ExportError(f"injected copy failure after {copy_count} files")
 
     try:
+        _validate_source_tensor_files(run_dir, selectors)
         for name in (
             "RUN_COMPLETE",
             "run_summary.json",
