@@ -622,7 +622,6 @@ def write_case_study(
                     "selector_probabilities": captures["probabilities_selector"][local_index].cpu().tolist(),
                     "representations": reps,
                 }
-                all_cases.append(case)
                 manifest_ids = {
                     rep_id: manifest["manifest_id"]
                     for rep_id, manifest in reps.items()
@@ -690,7 +689,7 @@ def write_case_study(
                         result["reason"] = reason
                     return result
 
-                stages_by_case.append({
+                stage_record = {
                     "sample_id": case_id,
                     "split_position": int(record_index),
                     "checkpoint": checkpoint_label,
@@ -825,7 +824,14 @@ def write_case_study(
                             outputs={"kernel_metadata": kernel.metadata(), "tensor_manifest_count": len(reps)},
                         ),
                     ],
-                })
+                }
+                # The public Case Study projection and the detached sample
+                # trace describe the same sample. Keep the producer-owned
+                # stage lineage in both representations so the exporter can
+                # validate and the portal can display the complete chain.
+                case["stages"] = stage_record["stages"]
+                all_cases.append(case)
+                stages_by_case.append(stage_record)
     kernel.load_state_dict(checkpoint_states[-1][1])
     payload = {
         "schema_version": "q-attention.Q-EPVG-case-study.v2",
