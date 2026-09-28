@@ -90,6 +90,91 @@ def _case_study_scores(
     return adjustment, base_scores + adjustment
 
 
+def _case_study_score_views(
+    score_adjustment: Any,
+    pre_intervention_scores: torch.Tensor,
+    model_scores: torch.Tensor,
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """Keep the historical pre-intervention score view beside actual model scores."""
+    if pre_intervention_scores.shape != model_scores.shape:
+        raise ValueError("pre-intervention and model score tensors must have the same shape")
+    adjustment = _align_tensor_to_reference(score_adjustment, model_scores)
+    return adjustment, pre_intervention_scores + adjustment, model_scores + adjustment
+
+
+def _q_epvg_model_scores(
+    trace: Any,
+    base_scores: torch.Tensor,
+    *,
+    head_dim: int,
+    layer_index: int,
+) -> torch.Tensor:
+    if not isinstance(trace, dict):
+        raise RuntimeError(f"Q-EPVG trace is missing at layer {layer_index}; cannot capture model scores")
+    query = trace.get("query")
+    key = trace.get("key")
+    if not isinstance(query, torch.Tensor) or not isinstance(key, torch.Tensor):
+        raise RuntimeError(
+            f"Q-EPVG query/key tensors are missing at layer {layer_index}; "
+            "refusing to substitute baseline scores for model scores"
+        )
+    if (
+        query.ndim != 4
+        or key.ndim != 4
+        or query.shape[:3] != base_scores.shape[:3]
+        or key.shape[:2] != base_scores.shape[:2]
+        or key.shape[-2] != base_scores.shape[-1]
+        or query.shape[-1] != key.shape[-1]
+        or query.shape[-1] != head_dim
+    ):
+        raise RuntimeError(
+            f"Q-EPVG query/key trace shape mismatch at layer {layer_index}: "
+            f"query={tuple(query.shape)}, key={tuple(key.shape)}, "
+            f"base_scores={tuple(base_scores.shape)}, head_dim={head_dim}"
+        )
+    return torch.matmul(query, key.transpose(-1, -2)) / (head_dim**0.5)
+
+
+def _case_study_tolerances(dtype: torch.dtype) -> tuple[float, float]:
+    if dtype in {torch.float16, torch.bfloat16}:
+        return 2e-2, 2e-3
+    return 1e-4, 1e-5
+
+
+def _context_to_head_layout(context: torch.Tensor, num_heads: int) -> torch.Tensor:
+    """Restore the captured pre-output-projection context to [B,H,Q,D]."""
+    if context.ndim != 3 or num_heads <= 0 or context.shape[-1] % num_heads:
+        raise ValueError(
+            f"captured attention context must be [batch,tokens,hidden] with a divisible hidden size; "
+            f"shape={tuple(context.shape)}, num_heads={num_heads}"
+        )
+    batch, tokens, hidden = context.shape
+    return context.reshape(batch, tokens, num_heads, hidden // num_heads).transpose(1, 2).contiguous()
+
+
+def _sample_context_to_head_layout(
+    context: torch.Tensor, *, sample_index: int, num_heads: int
+) -> torch.Tensor:
+    """Convert the full captured batch before selecting one sample as [H,Q,D]."""
+    batch_context = _context_to_head_layout(context, num_heads)
+    if not 0 <= sample_index < batch_context.shape[0]:
+        raise IndexError(
+            f"sample_index {sample_index} is outside captured context batch of size {batch_context.shape[0]}"
+        )
+    return batch_context[sample_index]
+
+
+def _model_attention_from_scores(scores: torch.Tensor, attention_mask: torch.Tensor) -> torch.Tensor:
+    """Reproduce the relation-transformer key-mask softmax for one sample."""
+    if scores.ndim != 3 or attention_mask.ndim != 1 or scores.shape[-1] != attention_mask.numel():
+        raise ValueError(
+            "attention reconstruction expects scores [heads,queries,keys] and a matching 1-D key mask"
+        )
+    key_mask = attention_mask.to(device=scores.device, dtype=torch.bool).view(1, 1, -1)
+    masked_scores = scores.masked_fill(~key_mask, torch.finfo(scores.dtype).min)
+    return torch.softmax(masked_scores, dim=-1)
+
+
 class CudaMemoryPressureMonitor:
     """Reclaim only this worker's idle allocator cache after complete updates."""
 
@@ -353,7 +438,9 @@ def write_case_study(
             "qkv": {},
             "baseline_scores": {},
             "steered_scores": {},
+            "steered_pre_intervention_scores": {},
             "epvg_trace": {},
+            "context_outputs": {},
         }
 
         def _register_common(mode: str) -> list[torch.utils.hooks.RemovableHandle]:
@@ -376,6 +463,15 @@ def write_case_study(
                         )
                     )
                 )
+                if mode == "steered":
+                    output_projection = resolve_module(model, f"{layer_path}.attn.out_proj")
+
+                    def _capture_context(_module: torch.nn.Module, inputs: tuple[Any, ...], index: int = layer_index) -> None:
+                        if not inputs or not isinstance(inputs[0], torch.Tensor):
+                            raise RuntimeError(f"attention context hook received invalid input at layer {index}")
+                        captures["context_outputs"][index] = inputs[0].detach()
+
+                    handles.append(output_projection.register_forward_pre_hook(_capture_context))
                 for projection in ("query_proj", "key_proj", "value_proj"):
                     path = f"encoder.layers.{layer_index}.attn.{projection}"
                     module = resolve_module(model, path)
@@ -420,24 +516,32 @@ def write_case_study(
                     if isinstance(trace, dict)
                 }
                 # The explicit intervention API does not expose a score-only
-                # module hook. Reconstruct the baseline score tensor from the
-                # captured projected Q/K and use the EPVG trace adjustment for
-                # the steered score projection.
+                # module hook. Reconstruct scores from the Q/K tensors actually
+                # passed to the attention layer after any query intervention.
                 for layer_index in range(int(model.config.num_layers)):
-                    query = captures["qkv"][(layer_index, "query_proj")]
-                    key = captures["qkv"][(layer_index, "key_proj")]
-                    batch_size, tokens, _ = query.shape
+                    projected_query = captures["qkv"][(layer_index, "query_proj")]
+                    projected_key = captures["qkv"][(layer_index, "key_proj")]
+                    batch_size, tokens, _ = projected_query.shape
                     heads = int(model.config.num_heads)
                     head_dim = int(model.config.dim // heads)
-                    q = query.view(batch_size, tokens, heads, head_dim).transpose(1, 2)
-                    k = key.view(batch_size, tokens, heads, head_dim).transpose(1, 2)
-                    base_scores = torch.matmul(q, k.transpose(-1, -2)) / (head_dim ** 0.5)
+                    projected_q = projected_query.view(batch_size, tokens, heads, head_dim).transpose(1, 2)
+                    projected_k = projected_key.view(batch_size, tokens, heads, head_dim).transpose(1, 2)
+                    base_scores = torch.matmul(projected_q, projected_k.transpose(-1, -2)) / (head_dim ** 0.5)
                     trace = captures["epvg_trace"].get(layer_index, {})
-                    adjustment, steered_scores = _case_study_scores(
-                        trace.get("score_adjustment"), base_scores
+                    model_scores = _q_epvg_model_scores(
+                        trace,
+                        base_scores,
+                        head_dim=head_dim,
+                        layer_index=layer_index,
+                    )
+                    adjustment, pre_intervention_scores, steered_scores = _case_study_score_views(
+                        trace.get("score_adjustment"), base_scores, model_scores
                     )
                     captures["baseline_scores"][layer_index] = {"input": base_scores}
                     captures["steered_scores"][layer_index] = {"input": steered_scores}
+                    captures["steered_pre_intervention_scores"][layer_index] = {
+                        "input": pre_intervention_scores
+                    }
 
         final_hidden = captures["hidden_states"].get(int(model.config.num_layers) - 1)
         if final_hidden is None:
@@ -515,6 +619,8 @@ def write_case_study(
                     "q_epvg_base_attention": "attention_baseline",
                     "q_epvg_score_adjustment": "scoring",
                     "q_epvg_attention": "selection",
+                    "q_epvg_model_attention": "selection",
+                    "q_epvg_model_scores": "selection",
                     "q_epvg_routed_values": "attention_intervention",
                     "q_epvg_query_update": "attention_intervention",
                     "q_epvg_output": "context",
@@ -547,8 +653,46 @@ def write_case_study(
                 add_rep("attention_qkv", qkv, ["layers", "qkv", "tokens", "model_dim"])
                 base_scores = torch.stack([captures["baseline_scores"][index]["input"][local_index] for index in sorted(captures["baseline_scores"])], dim=0)
                 steered_scores = torch.stack([captures["steered_scores"][index]["input"][local_index] for index in sorted(captures["steered_scores"])], dim=0)
+                pre_intervention_scores = torch.stack(
+                    [captures["steered_pre_intervention_scores"][index]["input"][local_index] for index in sorted(captures["steered_pre_intervention_scores"])],
+                    dim=0,
+                )
                 add_rep("baseline_attention_scores", base_scores, ["layers", "heads", "query_tokens", "key_tokens"])
-                add_rep("steered_attention_scores", steered_scores, ["layers", "heads", "query_tokens", "key_tokens"])
+                add_rep("steered_attention_scores", pre_intervention_scores, ["layers", "heads", "query_tokens", "key_tokens"])
+                add_rep("q_epvg_model_scores", steered_scores, ["layers", "heads", "query_tokens", "key_tokens"])
+                model_attention = torch.stack(
+                    [
+                        _model_attention_from_scores(
+                            captures["steered_scores"][index]["input"][local_index],
+                            batch["attention_mask"][local_index],
+                        )
+                        for index in sorted(captures["steered_scores"])
+                    ],
+                    dim=0,
+                )
+                add_rep(
+                    "q_epvg_model_attention",
+                    model_attention,
+                    ["layers", "heads", "query_tokens", "key_tokens"],
+                )
+                context_outputs = captures.get("context_outputs", {})
+                context_layers = []
+                for layer_index in range(int(model.config.num_layers)):
+                    layer_context = context_outputs.get(layer_index)
+                    if not isinstance(layer_context, torch.Tensor):
+                        raise RuntimeError(
+                            f"case-study context hook did not capture layer {layer_index} "
+                            f"for {selector}:{split}:{record_index}:{checkpoint_slug}"
+                        )
+                    context_layers.append(
+                        _sample_context_to_head_layout(
+                            layer_context,
+                            sample_index=local_index,
+                            num_heads=int(model.config.num_heads),
+                        )
+                    )
+                context_output = torch.stack(context_layers, dim=0)
+                add_rep("q_epvg_output", context_output, ["layers", "heads", "query_tokens", "value_dim"])
                 trace_by_layer = captures.get("epvg_trace", {})
                 for rep_id, trace_key, axes in (
                     ("q_epvg_query", "query", ["layers", "heads", "query_tokens", "head_dim"]),
@@ -564,7 +708,6 @@ def write_case_study(
                     ("q_epvg_attention", "attention", ["layers", "heads", "query_tokens", "key_tokens"]),
                     ("q_epvg_routed_values", "routed_values", ["layers", "heads", "query_tokens", "key_tokens", "value_dim"]),
                     ("q_epvg_query_update", "query_update", ["layers", "heads", "query_tokens", "head_dim"]),
-                    ("q_epvg_output", "output", ["layers", "heads", "query_tokens", "value_dim"]),
                 ):
                     rows = []
                     for layer_index in range(int(model.config.num_layers)):
@@ -574,6 +717,31 @@ def write_case_study(
                         rows.append(trace[trace_key][local_index])
                     if rows:
                         add_rep(rep_id, torch.stack(rows, dim=0), axes)
+                routed_rows = []
+                for layer_index in range(int(model.config.num_layers)):
+                    trace = trace_by_layer.get(layer_index)
+                    routed = trace.get("routed_values") if isinstance(trace, dict) else None
+                    if not isinstance(routed, torch.Tensor):
+                        raise RuntimeError(
+                            f"Q-EPVG routed values were not captured for {selector}:{split}:{record_index}:{checkpoint_slug}"
+                        )
+                    routed_rows.append(routed[local_index])
+                routed_values = torch.stack(routed_rows, dim=0)
+                recomputed_context = torch.einsum(
+                    "lhqk,lhqkd->lhqd", model_attention, routed_values
+                )
+                context_rtol, context_atol = _case_study_tolerances(context_output.dtype)
+                if not torch.allclose(
+                    recomputed_context.float(),
+                    context_output.float(),
+                    rtol=context_rtol,
+                    atol=context_atol,
+                ):
+                    max_error = float((recomputed_context - context_output).abs().max().item())
+                    raise RuntimeError(
+                        "captured Q-EPVG context disagrees with the model attention and routed values "
+                        f"for {selector}:{split}:{record_index}:{checkpoint_slug} (max_abs_error={max_error})"
+                    )
                 add_rep("classifier_logits_probabilities", torch.stack((captures["baseline_logits"][local_index], captures["selector_logits"][local_index], captures["probabilities_baseline"][local_index], captures["probabilities_selector"][local_index])), ["variant_probability_or_logit", "labels"])
                 # A compact parameter snapshot closes the training/replay
                 # boundary without publishing a checkpoint.  It is kept in
@@ -590,6 +758,16 @@ def write_case_study(
                         torch.cat(parameter_parts),
                         ["parameters"],
                     )
+                semantic_roles = {
+                    "steered_attention_scores": "historical_pre_intervention_score_view_and_query_semantics_witness",
+                    "q_epvg_model_scores": "post_intervention_scores_used_to_compute_model_attention",
+                    "q_epvg_attention": "plugin_attention_trace_for_comparison_only",
+                    "q_epvg_model_attention": "model_attention_weights_used_for_context",
+                    "q_epvg_output": "captured_model_context_before_output_projection",
+                }
+                for rep_id, semantic_role in semantic_roles.items():
+                    if rep_id in reps:
+                        reps[rep_id]["semantic_role"] = semantic_role
                 labels = batch["labels"].cpu().tolist()
                 baseline_prediction = int(baseline_logits.argmax(-1)[local_index].item())
                 selector_prediction = int(selector_logits.argmax(-1)[local_index].item())
@@ -650,6 +828,11 @@ def write_case_study(
                         "dtype": manifest["dtype"],
                         "axis_semantics": manifest["axis_semantics"],
                         "producer_stage": manifest["producer_stage"],
+                        **(
+                            {"semantic_role": manifest["semantic_role"]}
+                            if isinstance(manifest.get("semantic_role"), str)
+                            else {}
+                        ),
                         "preview": {
                             **{
                                 key: preview[key]
@@ -768,28 +951,28 @@ def write_case_study(
                         ),
                         _stage(
                             "selection",
-                            status="observed" if "steered_attention_scores" in reps else "failed",
-                            input_refs=_refs("baseline_attention_scores", "q_epvg_score_adjustment", "q_epvg_gate"),
-                            output_refs=_refs("steered_attention_scores", "q_epvg_attention"),
-                            inputs={"representations": _safe_reps("baseline_attention_scores", "q_epvg_score_adjustment", "q_epvg_gate")},
-                            outputs={"representations": _safe_reps("steered_attention_scores", "q_epvg_attention")},
-                            reason=None if "steered_attention_scores" in reps else "steered attention scores were not captured",
+                            status="observed" if "q_epvg_model_scores" in reps else "failed",
+                            input_refs=_refs("baseline_attention_scores", "q_epvg_score_adjustment", "q_epvg_query", "q_epvg_key", "q_epvg_gate"),
+                            output_refs=_refs("steered_attention_scores", "q_epvg_model_scores", "q_epvg_attention", "q_epvg_model_attention"),
+                            inputs={"representations": _safe_reps("baseline_attention_scores", "q_epvg_score_adjustment", "q_epvg_query", "q_epvg_key", "q_epvg_gate")},
+                            outputs={"representations": _safe_reps("steered_attention_scores", "q_epvg_model_scores", "q_epvg_attention", "q_epvg_model_attention")},
+                            reason=None if "q_epvg_model_scores" in reps else "actual model attention scores were not captured",
                         ),
                         _stage(
                             "attention_intervention",
-                            status="observed" if any(name in reps for name in ("q_epvg_routed_values", "q_epvg_query_update")) else "not_applicable",
-                            input_refs=_refs("q_epvg_gate", "q_epvg_attention"),
+                            status="observed" if "q_epvg_routed_values" in reps else "failed",
+                            input_refs=_refs("q_epvg_gate"),
                             output_refs=_refs("q_epvg_routed_values", "q_epvg_query_update"),
-                            inputs={"representations": _safe_reps("q_epvg_gate", "q_epvg_attention")},
+                            inputs={"representations": _safe_reps("q_epvg_gate")},
                             outputs={"representations": _safe_reps("q_epvg_routed_values", "q_epvg_query_update")},
-                            reason=None if any(name in reps for name in ("q_epvg_routed_values", "q_epvg_query_update")) else "selector path does not expose a routed-value or query-update tensor",
+                            reason=None if "q_epvg_routed_values" in reps else "Q-EPVG path did not expose its required routed-values tensor",
                         ),
                         _stage(
                             "context",
                             status="observed" if "q_epvg_output" in reps else "failed",
-                            input_refs=_refs("q_epvg_routed_values", "q_epvg_attention"),
+                            input_refs=_refs("q_epvg_model_attention", "q_epvg_routed_values"),
                             output_refs=_refs("q_epvg_output"),
-                            inputs={"representations": _safe_reps("q_epvg_routed_values", "q_epvg_attention")},
+                            inputs={"representations": _safe_reps("q_epvg_model_attention", "q_epvg_routed_values")},
                             outputs={"representations": _safe_reps("q_epvg_output")},
                             reason=None if "q_epvg_output" in reps else "Q-EPVG context output was not captured",
                         ),
