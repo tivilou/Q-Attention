@@ -141,6 +141,27 @@ def _case_study_tolerances(dtype: torch.dtype) -> tuple[float, float]:
     return 1e-4, 1e-5
 
 
+def _recompute_case_study_context(
+    model_attention: torch.Tensor,
+    routed_values: torch.Tensor,
+    captured_context: torch.Tensor,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Use one promoted float dtype for the evidence contraction and comparison."""
+    tensors = (model_attention, routed_values, captured_context)
+    if any(not value.is_floating_point() for value in tensors):
+        raise TypeError("Q-EPVG context evidence tensors must have floating-point dtypes")
+    common_dtype = torch.promote_types(
+        torch.promote_types(model_attention.dtype, routed_values.dtype),
+        captured_context.dtype,
+    )
+    recomputed = torch.einsum(
+        "lhqk,lhqkd->lhqd",
+        model_attention.to(dtype=common_dtype),
+        routed_values.to(dtype=common_dtype),
+    )
+    return recomputed, captured_context.to(dtype=common_dtype)
+
+
 def _context_to_head_layout(context: torch.Tensor, num_heads: int) -> torch.Tensor:
     """Restore the captured pre-output-projection context to [B,H,Q,D]."""
     if context.ndim != 3 or num_heads <= 0 or context.shape[-1] % num_heads:
@@ -727,17 +748,17 @@ def write_case_study(
                         )
                     routed_rows.append(routed[local_index])
                 routed_values = torch.stack(routed_rows, dim=0)
-                recomputed_context = torch.einsum(
-                    "lhqk,lhqkd->lhqd", model_attention, routed_values
+                recomputed_context, comparable_context = _recompute_case_study_context(
+                    model_attention, routed_values, context_output
                 )
                 context_rtol, context_atol = _case_study_tolerances(context_output.dtype)
                 if not torch.allclose(
-                    recomputed_context.float(),
-                    context_output.float(),
+                    recomputed_context,
+                    comparable_context,
                     rtol=context_rtol,
                     atol=context_atol,
                 ):
-                    max_error = float((recomputed_context - context_output).abs().max().item())
+                    max_error = float((recomputed_context - comparable_context).abs().max().item())
                     raise RuntimeError(
                         "captured Q-EPVG context disagrees with the model attention and routed values "
                         f"for {selector}:{split}:{record_index}:{checkpoint_slug} (max_abs_error={max_error})"

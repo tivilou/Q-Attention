@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 import sys
+from types import SimpleNamespace
 
 import torch
 import pytest
@@ -16,11 +18,14 @@ from run_q_epvg_selector_worker import (
     _context_to_head_layout,
     _model_attention_from_scores,
     _q_epvg_model_scores,
+    _recompute_case_study_context,
     _sample_context_to_head_layout,
+    write_case_study,
 )
 from q_attention.adapters.q_epvg_attention import QEPVGAttentionAdapter
 from q_attention.models import RelationExtractionModel, RelationTransformerConfig
 from q_attention.plugins.q_epvg import QEPVGConfig, build_q_epvg
+from q_attention.tasks.relation import RelationRecord, build_vocab
 
 
 def _cross_device_reference() -> torch.device:
@@ -235,6 +240,122 @@ def test_captured_batch_context_selects_sample_after_head_layout_conversion() ->
 def test_context_layout_rejects_hidden_size_not_divisible_by_heads() -> None:
     with pytest.raises(ValueError, match="divisible hidden size"):
         _context_to_head_layout(torch.zeros(1, 5, 10), num_heads=3)
+
+
+@pytest.mark.parametrize(
+    ("attention_dtype", "routed_dtype", "captured_dtype", "expected_dtype"),
+    [
+        (torch.float32, torch.bfloat16, torch.bfloat16, torch.float32),
+        (torch.float16, torch.bfloat16, torch.float16, torch.float32),
+        (torch.bfloat16, torch.bfloat16, torch.bfloat16, torch.bfloat16),
+    ],
+)
+def test_context_evidence_contraction_promotes_mixed_dtypes_without_mutating_captures(
+    attention_dtype: torch.dtype,
+    routed_dtype: torch.dtype,
+    captured_dtype: torch.dtype,
+    expected_dtype: torch.dtype,
+) -> None:
+    model_attention = torch.full((1, 1, 2, 2), 0.5, dtype=attention_dtype)
+    routed_values = torch.arange(8, dtype=torch.float32).reshape(1, 1, 2, 2, 2).to(routed_dtype)
+    expected_context = torch.tensor([[[[1.0, 2.0], [5.0, 6.0]]]])
+    captured_context = expected_context.to(dtype=captured_dtype)
+    original_dtypes = (model_attention.dtype, routed_values.dtype, captured_context.dtype)
+
+    recomputed, comparable = _recompute_case_study_context(
+        model_attention, routed_values, captured_context
+    )
+
+    assert recomputed.dtype == expected_dtype
+    assert comparable.dtype == expected_dtype
+    assert torch.allclose(recomputed, expected_context.to(dtype=expected_dtype))
+    assert (model_attention.dtype, routed_values.dtype, captured_context.dtype) == original_dtypes
+
+
+def test_write_case_study_emits_linked_observed_selection_and_context_stages(tmp_path: Path) -> None:
+    record = RelationRecord(
+        tokens=("Acme", "acquired", "Beta"),
+        subject=(0, 1),
+        object=(2, 3),
+        label="org:acquired",
+    )
+    vocab = build_vocab([record])
+    model = RelationExtractionModel(
+        RelationTransformerConfig(
+            vocab_size=len(vocab),
+            num_labels=1,
+            dim=8,
+            num_layers=1,
+            num_heads=2,
+            ff_dim=16,
+            dropout=0.0,
+            max_length=8,
+        )
+    ).eval()
+    class TinyKernelStack(torch.nn.ModuleList):
+        def metadata(self) -> dict[str, str]:
+            return {"selector": "q_epvg_test"}
+
+    kernel = TinyKernelStack(
+        [build_q_epvg(QEPVGConfig(num_layers=1, num_heads=2, head_dim=4, path="query"))]
+    )
+    artifacts = SimpleNamespace(
+        vocab=vocab,
+        label_to_id={"org:acquired": 0},
+        id_to_label={0: "org:acquired"},
+    )
+    config = {
+        "seed": 13,
+        "kernel": {"epochs": 1},
+        "case_study": {
+            "records": {"train": [0], "valid": [0], "test": [0]},
+        },
+    }
+    config_path = tmp_path / "config.json"
+    config_path.write_text(json.dumps(config), encoding="utf-8")
+    output_dir = tmp_path / "selector-output"
+    output_dir.mkdir()
+
+    write_case_study(
+        model=model,
+        kernel=kernel,
+        records={"train": [record], "valid": [record], "test": [record]},
+        artifacts=artifacts,
+        device=torch.device("cpu"),
+        config=config,
+        config_path=config_path,
+        output_dir=output_dir,
+        selector="q_epvg_test",
+    )
+
+    case_study = json.loads((output_dir / "case_study.json").read_text(encoding="utf-8"))
+    sample_trace = json.loads((output_dir / "sample_trace.json").read_text(encoding="utf-8"))
+    case = case_study["cases"][0]
+    stages = {stage["stage"]: stage for stage in case["stages"]}
+    selection = stages["selection"]
+    intervention = stages["attention_intervention"]
+    context = stages["context"]
+
+    assert selection["status"] == intervention["status"] == context["status"] == "observed"
+    selection_inputs = {item["id"]: item for item in selection["inputs"]["representations"]}
+    selection_outputs = {item["id"]: item for item in selection["outputs"]["representations"]}
+    context_inputs = {item["id"]: item for item in context["inputs"]["representations"]}
+    intervention_outputs = {item["id"]: item for item in intervention["outputs"]["representations"]}
+    for rep_id in ("q_epvg_query", "q_epvg_key", "q_epvg_score_adjustment"):
+        assert rep_id in selection_inputs
+    assert "q_epvg_model_scores" in selection_outputs
+    assert "q_epvg_model_attention" in selection_outputs
+    assert context_inputs["q_epvg_model_attention"]["manifest_id"] == selection_outputs[
+        "q_epvg_model_attention"
+    ]["manifest_id"]
+    assert context_inputs["q_epvg_routed_values"]["manifest_id"] == intervention_outputs[
+        "q_epvg_routed_values"
+    ]["manifest_id"]
+    assert "q_epvg_output" in {item["id"]: item for item in context["outputs"]["representations"]}
+    trace_sample = sample_trace["samples"][0]
+    trace_stages = {stage["stage"]: stage for stage in trace_sample["stages"]}
+    assert trace_stages["selection"]["status"] == "observed"
+    assert trace_stages["context"]["status"] == "observed"
 
 
 def test_model_attention_uses_post_intervention_scores_and_masks_only_keys() -> None:
