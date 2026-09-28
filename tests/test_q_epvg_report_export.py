@@ -41,9 +41,14 @@ def case_payload(selector: str) -> tuple[dict, dict]:
                 "encoder_hidden_states": "encoder",
                 "attention_qkv": "attention_baseline",
                 "baseline_attention_scores": "attention_baseline",
+                "q_epvg_query": "scoring",
+                "q_epvg_key": "scoring",
                 "q_epvg_gate": "scoring",
                 "q_epvg_score_adjustment": "scoring",
                 "steered_attention_scores": "selection",
+                "q_epvg_model_scores": "selection",
+                "q_epvg_model_attention": "selection",
+                "q_epvg_routed_values": "attention_intervention",
                 "q_epvg_output": "context",
                 "classifier_logits_probabilities": "classifier",
                 "q_epvg_kernel_parameters": "training",
@@ -51,15 +56,39 @@ def case_payload(selector: str) -> tuple[dict, dict]:
             representations = {}
             for rep_id, producer in rep_names.items():
                 manifest_id = f"{split}_0_{slug}__{rep_id}"
+                shape_by_rep = {
+                    "q_epvg_query": [1, 2, 3, 4],
+                    "q_epvg_key": [1, 2, 3, 4],
+                    "q_epvg_score_adjustment": [1, 2, 3, 3],
+                    "steered_attention_scores": [1, 2, 3, 3],
+                    "q_epvg_model_scores": [1, 2, 3, 3],
+                    "q_epvg_model_attention": [1, 2, 3, 3],
+                    "q_epvg_routed_values": [1, 2, 3, 3, 4],
+                    "q_epvg_output": [1, 2, 3, 4],
+                }
+                axes_by_rep = {
+                    "q_epvg_query": ["layers", "heads", "query_tokens", "head_dim"],
+                    "q_epvg_key": ["layers", "heads", "key_tokens", "head_dim"],
+                    "q_epvg_score_adjustment": ["layers", "heads", "query_tokens", "key_tokens"],
+                    "steered_attention_scores": ["layers", "heads", "query_tokens", "key_tokens"],
+                    "q_epvg_model_scores": ["layers", "heads", "query_tokens", "key_tokens"],
+                    "q_epvg_model_attention": ["layers", "heads", "query_tokens", "key_tokens"],
+                    "q_epvg_routed_values": ["layers", "heads", "query_tokens", "key_tokens", "value_dim"],
+                    "q_epvg_output": ["layers", "heads", "query_tokens", "value_dim"],
+                }
                 manifest = {
                     "id": rep_id, "manifest_id": manifest_id,
                     "producer_stage": producer,
                     "path": f"case_study_tensors/{manifest_id}.pt",
-                    "shape": [2, 3], "dtype": "torch.float32",
-                    "axis_semantics": ["rows", "features"],
+                    "shape": shape_by_rep.get(rep_id, [2, 3]), "dtype": "torch.float32",
+                    "axis_semantics": axes_by_rep.get(rep_id, ["rows", "features"]),
                     "sha256": "a" * 64, "byte_count": 24,
                     "preview": {"min": 0.0, "max": 1.0, "mean": 0.5, "l2_norm": 1.0},
                 }
+                if rep_id == "q_epvg_model_attention":
+                    manifest["semantic_role"] = "model_attention_weights_used_for_context"
+                if rep_id == "q_epvg_output":
+                    manifest["semantic_role"] = "model_context_reconstructed_from_verified_attention_and_values"
                 representations[rep_id] = manifest
                 manifests.append(manifest)
 
@@ -86,9 +115,9 @@ def case_payload(selector: str) -> tuple[dict, dict]:
                 stage("retrieval", "not_applicable"),
                 stage("attention_baseline", inputs=["attention_qkv"], outputs=["baseline_attention_scores"]),
                 stage("scoring", inputs=["attention_qkv", "baseline_attention_scores"], outputs=["q_epvg_gate", "q_epvg_score_adjustment"]),
-                stage("selection", inputs=["baseline_attention_scores", "q_epvg_score_adjustment"], outputs=["steered_attention_scores"]),
-                stage("attention_intervention", inputs=["q_epvg_gate"], outputs=["q_epvg_output"]),
-                stage("context", inputs=["q_epvg_output"], outputs=["q_epvg_output"]),
+                stage("selection", inputs=["q_epvg_query", "q_epvg_key", "q_epvg_score_adjustment"], outputs=["steered_attention_scores", "q_epvg_model_scores", "q_epvg_model_attention"]),
+                stage("attention_intervention", inputs=["q_epvg_gate"], outputs=["q_epvg_routed_values"]),
+                stage("context", inputs=["q_epvg_model_attention", "q_epvg_routed_values"], outputs=["q_epvg_output"]),
                 stage("classifier", inputs=["encoder_hidden_states", "q_epvg_output"], outputs=["classifier_logits_probabilities"]),
                 stage("generation", "not_applicable"),
                 stage("evaluation", inputs=["classifier_logits_probabilities"], outputs=[], semantic_output="gold_relation"),
@@ -178,6 +207,15 @@ def test_failed_export_cleans_staging_and_retry_reuses_completed_run(tmp_path: P
     assert destination == report.resolve()
     assert (report / "metrics/selector_a.json").is_file()
     assert (report / "case_study/selector_b.sample-trace.json").is_file()
+    exported_case = json.loads((report / "case_study/selector_a.json").read_text(encoding="utf-8"))
+    assert "q_epvg_model_scores" in exported_case["cases"][0]["representations"]
+    attention = exported_case["cases"][0]["representations"]["q_epvg_model_attention"]
+    assert attention["semantic_role"] == "model_attention_weights_used_for_context"
+    assert attention["axis_semantics"] == ["layers", "heads", "query_tokens", "key_tokens"]
+    selection = next(stage for stage in exported_case["cases"][0]["stages"] if stage["stage"] == "selection")
+    context = next(stage for stage in exported_case["cases"][0]["stages"] if stage["stage"] == "context")
+    assert attention["manifest_id"] in selection["output_refs"]
+    assert attention["manifest_id"] in context["input_refs"]
     assert (report / "data.sha256").is_file()
     manifest = json.loads((report / "export_manifest.json").read_text(encoding="utf-8"))
     assert manifest["source_run"] == str(run.resolve())
