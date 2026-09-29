@@ -48,6 +48,7 @@ REQUIRED_STAGES = (
     "diagnosis",
 )
 OPTIONAL_STAGES = {"retrieval", "generation", "attention_intervention"}
+REPAIR_OWNED_STAGES = {"preprocess", "selection", "attention_intervention", "context"}
 STAGE_ORDER = (
     "data",
     "preprocess",
@@ -195,6 +196,30 @@ def _one_stage(stages: object, name: str, *, where: str) -> dict[str, Any]:
     if len(matches) != 1:
         raise ValueError(f"{where}: expected exactly one {name!r} stage, found {len(matches)}")
     return matches[0]
+
+
+def _merge_repair_owned_stage_updates(
+    existing: list[Any],
+    original: list[Any],
+    repaired: list[Any],
+    *,
+    where: str,
+) -> list[Any]:
+    """Accept only differences in stages owned by this compatibility repair."""
+
+    if len(existing) != len(original) or len(original) != len(repaired):
+        raise ValueError(f"{where}: stage lists have incompatible lengths")
+    for index, (old, source, updated) in enumerate(zip(existing, original, repaired)):
+        if not isinstance(old, dict) or not isinstance(source, dict) or not isinstance(updated, dict):
+            raise ValueError(f"{where}: stages[{index}] is not an object")
+        name = source.get("stage")
+        if old.get("stage") != name or updated.get("stage") != name:
+            raise ValueError(f"{where}: stage identity changed at index {index}")
+        if old != source and name not in REPAIR_OWNED_STAGES:
+            raise ValueError(
+                f"{where}: existing complete stage {name!r} differs outside the repair-owned boundary"
+            )
+    return json.loads(json.dumps(repaired))
 
 
 def _repair_token_alignment(
@@ -995,6 +1020,7 @@ def _prepare_one(selector_dir: Path, *, staged_tensor_dir: Path) -> dict[str, An
         raise ValueError(f"{trace_path}: unsupported sample trace schema")
     case_payload = json.loads(json.dumps(source_case_payload))
     trace_payload = json.loads(json.dumps(source_trace_payload))
+    original_trace_payload = json.loads(json.dumps(source_trace_payload))
     cases = case_payload.get("cases")
     samples = trace_payload.get("samples")
     if not isinstance(cases, list) or not cases:
@@ -1073,12 +1099,24 @@ def _prepare_one(selector_dir: Path, *, staged_tensor_dir: Path) -> dict[str, An
                 where=f"{case_path}: {case_id}",
             )
             if existing_error is None:
-                if existing != trace_stages:
-                    raise ValueError(
-                        f"{case_path}: {case_id}.stages is semantically complete "
-                        "but disagrees with sample_trace.json"
-                    )
-                already_complete += 1
+                original_sample = next(
+                    item for item in original_trace_payload["samples"]
+                    if isinstance(item, dict) and item.get("sample_id") == case_id
+                )
+                original_trace_stages = original_sample["stages"]
+                # Preserve a previous valid repair, but only merge differences
+                # in stages owned by this repairer. Unknown edits fail closed.
+                merged_stages = _merge_repair_owned_stage_updates(
+                    existing,
+                    original_trace_stages,
+                    trace_stages,
+                    where=f"{case_path}: {case_id}",
+                )
+                if existing != merged_stages:
+                    case["stages"] = merged_stages
+                    updated += 1
+                else:
+                    already_complete += 1
             else:
                 case["stages"] = json.loads(json.dumps(trace_stages))
                 replaced += 1
