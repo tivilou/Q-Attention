@@ -1,0 +1,125 @@
+{
+  "baseline": {
+    "batch_size": 16,
+    "epochs": 8,
+    "lr": 0.001
+  },
+  "candidate": "q_epvg_zz_xx_value_only_quantum",
+  "case_study": {
+    "checkpoints": [
+      "initial_or_pre_training",
+      "best_valid_or_declared_selection_checkpoint",
+      "final"
+    ],
+    "description": "Frozen train/valid/test examples replayed at declared initial, best-validation, and final checkpoints; detached tensors remain exchange-only and the portal receives a safe projection.",
+    "freeze_before_training": true,
+    "records": {
+      "test": [
+        0,
+        1,
+        2
+      ],
+      "train": [
+        0,
+        1,
+        2
+      ],
+      "valid": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  "claim_limits": {
+    "exact_statevector_is_not_hardware_speed_evidence": true,
+    "multi_seed_requires_post_audit_authorization": true,
+    "natural_transfer_not_yet_reproducible": true,
+    "quantum_specific_advantage_not_claimed": true,
+    "single_seed_only": true,
+    "toy_pass_promoted_directly_to_single_seed": true
+  },
+  "control_definitions": {
+    "classical": "Matched product-parity control with the same path and parameter budget.",
+    "disabled": "Frozen attention baseline with no Q-EPVG intervention.",
+    "quantum": "Parity-sensitive ZZ+XX observable drives the declared intervention path.",
+    "random_parity": "Deterministic parity-sign control preserving the execution path without learned quantum coupling."
+  },
+  "expected_records": {
+    "test": 13418,
+    "train": 58465,
+    "valid": 19584
+  },
+  "formal_experiment": true,
+  "gates": {
+    "minimum_candidate_minus_disabled_macro_f1": 0.0,
+    "minimum_candidate_minus_matched_macro_f1": -0.0005,
+    "minimum_classical_relative_gain": 0.01,
+    "test_used_for_training_or_selection": false
+  },
+  "kernel": {
+    "batch_size": 256,
+    "epochs": 12,
+    "gate_scale": 1.0,
+    "lr": 0.001,
+    "pair_chunk_size": 256,
+    "score_gain": 0.2,
+    "seed_offset": 3000,
+    "weight_decay": 0.0
+  },
+  "matched_control": "q_epvg_zz_xx_value_only_classical",
+  "model": {
+    "dim": 32,
+    "dropout": 0.0,
+    "ff_dim": 64,
+    "num_heads": 4,
+    "num_layers": 2
+  },
+  "name": "retacred_q_epvg_formal_single_seed",
+  "replication": {
+    "child_seed": 29,
+    "parent_contract": "3a0c8f00f2f06303b8f44efad3d899d799d028fd1d568a0a8e04718de7e5a927",
+    "schema_version": "q-attention.q-epvg-replication-child.v1",
+    "seed_set": [
+      13,
+      29,
+      53
+    ]
+  },
+  "schema_version": "q-attention.q-epvg-formal-single-seed.v1",
+  "seed": 29,
+  "selectors": [
+    "disabled",
+    "q_epvg_zz_value_only_quantum",
+    "q_epvg_zz_value_only_classical",
+    "q_epvg_zz_value_only_random_parity",
+    "q_epvg_zz_score_value_quantum",
+    "q_epvg_zz_score_value_classical",
+    "q_epvg_zz_score_value_random_parity",
+    "q_epvg_zz_query_quantum",
+    "q_epvg_zz_query_classical",
+    "q_epvg_zz_query_random_parity",
+    "q_epvg_zz_xx_value_only_quantum",
+    "q_epvg_zz_xx_value_only_classical",
+    "q_epvg_zz_xx_value_only_random_parity",
+    "q_epvg_zz_xx_score_value_quantum",
+    "q_epvg_zz_xx_score_value_classical",
+    "q_epvg_zz_xx_score_value_random_parity",
+    "q_epvg_zz_xx_query_quantum",
+    "q_epvg_zz_xx_query_classical",
+    "q_epvg_zz_xx_query_random_parity",
+    "q_epvg_trainable_pauli_mix_value_only_quantum",
+    "q_epvg_trainable_pauli_mix_value_only_classical",
+    "q_epvg_trainable_pauli_mix_value_only_random_parity",
+    "q_epvg_trainable_pauli_mix_score_value_quantum",
+    "q_epvg_trainable_pauli_mix_score_value_classical",
+    "q_epvg_trainable_pauli_mix_score_value_random_parity",
+    "q_epvg_trainable_pauli_mix_query_quantum",
+    "q_epvg_trainable_pauli_mix_query_classical",
+    "q_epvg_trainable_pauli_mix_query_random_parity"
+  ],
+  "structural_control": "q_epvg_zz_xx_value_only_random_parity",
+  "test_path": "data/relation/retacred/test.jsonl",
+  "train_path": "data/relation/retacred/train.jsonl",
+  "valid_path": "data/relation/retacred/valid.jsonl"
+}
