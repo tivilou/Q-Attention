@@ -60,6 +60,30 @@ def test_token_alignment_repair_rejects_unproven_mismatch() -> None:
         module._repair_token_alignment(case, sample, where="fixture")
 
 
+def test_stage_merge_allows_only_repair_owned_differences() -> None:
+    module = load_repairer()
+    original = [
+        {"stage": "data", "status": "observed"},
+        {"stage": "context", "status": "failed"},
+    ]
+    existing = [
+        {"stage": "data", "status": "observed"},
+        {"stage": "context", "status": "observed", "capture_mode": "reconstructed"},
+    ]
+    repaired = [
+        {"stage": "data", "status": "observed"},
+        {"stage": "context", "status": "observed", "capture_mode": "reconstructed"},
+    ]
+    assert module._merge_repair_owned_stage_updates(existing, original, repaired, where="fixture") == repaired
+
+    bad_existing = [
+        {"stage": "data", "status": "changed"},
+        original[1],
+    ]
+    with pytest.raises(ValueError, match="outside the repair-owned boundary"):
+        module._merge_repair_owned_stage_updates(bad_existing, original, repaired, where="fixture")
+
+
 def _make_group(
     tmp_path: Path,
     *,
