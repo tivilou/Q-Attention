@@ -50,7 +50,7 @@ cd "$ROOT"
 git merge-base --is-ancestor origin/1.1 HEAD || { echo "origin/1.1 must be an ancestor of HEAD." >&2; exit 1; }
 git merge-base --is-ancestor origin/main HEAD || { echo "origin/main must be an ancestor of HEAD." >&2; exit 1; }
 [ -n "$GROUP_DIR" ] || { echo "--group-dir is required." >&2; exit 2; }
-[ "$GROUP_DIR" = /* ] || GROUP_DIR="$ROOT/$GROUP_DIR"
+[[ "$GROUP_DIR" == /* ]] || GROUP_DIR="$ROOT/$GROUP_DIR"
 GROUP_DIR=$(readlink -f "$GROUP_DIR")
 case "$GROUP_DIR" in
   "$ROOT/runs/retacred_q_epvg_formal_multi_seed/"*) ;;
@@ -59,7 +59,7 @@ esac
 [ -f "$GROUP_DIR/MULTI_SEED_COMPLETE" ] || { echo "Missing MULTI_SEED_COMPLETE." >&2; exit 1; }
 [ -f "$GROUP_DIR/multi_seed_manifest.json" ] && [ -f "$GROUP_DIR/multi_seed_status.json" ] || { echo "Missing multi-seed manifest/status." >&2; exit 1; }
 if [ -z "$REPORT_DIR" ]; then REPORT_DIR="$ROOT/reports/retacred_q_epvg_formal_multi_seed/$(basename "$GROUP_DIR")"; fi
-[ "$REPORT_DIR" = /* ] || REPORT_DIR="$ROOT/$REPORT_DIR"
+[[ "$REPORT_DIR" == /* ]] || REPORT_DIR="$ROOT/$REPORT_DIR"
 REPORT_DIR=$(readlink -m "$REPORT_DIR")
 case "$REPORT_DIR" in
   "$ROOT/reports/retacred_q_epvg_formal_multi_seed/"*) ;;
