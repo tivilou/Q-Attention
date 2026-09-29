@@ -197,6 +197,65 @@ def _one_stage(stages: object, name: str, *, where: str) -> dict[str, Any]:
     return matches[0]
 
 
+def _repair_token_alignment(
+    case: dict[str, Any],
+    trace_sample: dict[str, Any],
+    *,
+    where: str,
+) -> dict[str, Any] | None:
+    """Remove only producer-proven batch padding from legacy token IDs.
+
+    Older workers serialized the complete padded batch row as ``token_ids``
+    while ``tokens`` represented the unpadded source record.  The attention
+    mask is the only accepted witness for this compatibility repair: it must
+    be a prefix of ones, its active length must equal ``len(tokens)``, and the
+    trace's preprocess projection must contain the same padded IDs.  Any other
+    mismatch remains a hard error.
+    """
+
+    tokens = case.get("tokens")
+    token_ids = case.get("token_ids")
+    attention_mask = case.get("attention_mask")
+    # Minimal reconstruction fixtures may omit public semantic fields; leave
+    # those untouched because this helper only owns legacy alignment repair.
+    if tokens is None and token_ids is None:
+        return None
+    if not isinstance(tokens, list) or not all(isinstance(item, str) for item in tokens):
+        raise ValueError(f"{where}: tokens must be a string list")
+    if not isinstance(token_ids, list) or not all(isinstance(item, int) and not isinstance(item, bool) for item in token_ids):
+        raise ValueError(f"{where}: token_ids must be an integer list")
+    if len(token_ids) == len(tokens):
+        return None
+    if len(token_ids) < len(tokens):
+        raise ValueError(f"{where}: token_ids are shorter than tokens and cannot be reconstructed")
+    if not isinstance(attention_mask, list) or len(attention_mask) != len(token_ids):
+        raise ValueError(f"{where}: token_ids/token attention mask lengths are incompatible")
+    if not all(isinstance(item, (bool, int)) and item in (0, 1) for item in attention_mask):
+        raise ValueError(f"{where}: attention_mask is not a binary list")
+    active_length = sum(int(item) for item in attention_mask)
+    if active_length != len(tokens) or attention_mask[:active_length] != [1] * active_length or any(attention_mask[active_length:]):
+        raise ValueError(
+            f"{where}: token_ids mismatch is not producer-proven batch padding "
+            f"(tokens={len(tokens)}, ids={len(token_ids)}, active={active_length})"
+        )
+
+    preprocess = _one_stage(trace_sample.get("stages"), "preprocess", where=where)
+    outputs = preprocess.get("outputs")
+    if not isinstance(outputs, dict) or outputs.get("token_ids") != token_ids:
+        raise ValueError(f"{where}: preprocess token_ids do not match the Case Study token_ids witness")
+
+    trimmed = token_ids[:active_length]
+    case["token_ids"] = trimmed
+    outputs["token_ids"] = list(trimmed)
+    return {
+        "case_id": case.get("case_id"),
+        "original_token_id_count": len(token_ids),
+        "trimmed_token_id_count": len(trimmed),
+        "padding_count": len(token_ids) - len(trimmed),
+        "witness": "attention_mask_prefix_and_original_token_count",
+    }
+
+
 def _load_verified_tensor(
     selector_dir: Path,
     manifest: dict[str, Any],
@@ -961,6 +1020,7 @@ def _prepare_one(selector_dir: Path, *, staged_tensor_dir: Path) -> dict[str, An
     attention_trace_roles: dict[str, str] = {}
     stage_lineage_updates: list[dict[str, Any]] = []
     tensor_artifacts: list[dict[str, Any]] = []
+    token_alignment_repairs: list[dict[str, Any]] = []
     case_ids: set[str] = set()
     repaired_cases = case_payload["cases"]
     for index, case in enumerate(repaired_cases):
@@ -973,6 +1033,13 @@ def _prepare_one(selector_dir: Path, *, staged_tensor_dir: Path) -> dict[str, An
         sample = sample_by_id.get(case_id)
         if sample is None:
             raise ValueError(f"{case_path}: no matching sample_trace entry for {case_id!r}")
+        token_alignment = _repair_token_alignment(
+            case,
+            sample,
+            where=f"{case_path}: {case_id}",
+        )
+        if token_alignment is not None:
+            token_alignment_repairs.append(token_alignment)
         reconstruction = _reconstruct_context_output(
             selector_dir,
             case_payload,
@@ -1063,6 +1130,7 @@ def _prepare_one(selector_dir: Path, *, staged_tensor_dir: Path) -> dict[str, An
         "attention_trace_roles": attention_trace_roles,
         "stage_lineage_updates": stage_lineage_updates,
         "tensor_artifacts": tensor_artifacts,
+        "token_alignment_repairs": token_alignment_repairs,
         "case_changed": case_changed,
         "trace_changed": trace_changed,
         "before_sha256": case_before_sha256,
@@ -1109,6 +1177,7 @@ def repair_group(group_dir: Path, *, apply: bool, root: Path) -> dict[str, Any]:
             "replaced_case_count": sum(int(item["replaced_cases"]) for item in plans),
             "already_complete_case_count": sum(int(item["already_complete_cases"]) for item in plans),
             "reconstructed_context_count": sum(len(item["reconstructed_context_cases"]) for item in plans),
+            "token_alignment_repair_count": sum(len(item["token_alignment_repairs"]) for item in plans),
             "reconstructed_context_cases": [
                 case_id
                 for plan in plans

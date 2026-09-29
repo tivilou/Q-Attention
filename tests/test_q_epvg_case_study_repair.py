@@ -19,6 +19,47 @@ def load_repairer():
     return module
 
 
+def test_legacy_padded_token_ids_are_trimmed_only_with_mask_witness() -> None:
+    module = load_repairer()
+    case = {
+        "case_id": "selector_a:test:0:final",
+        "tokens": ["Alice", "works"],
+        "token_ids": [7, 8, 0],
+        "attention_mask": [1, 1, 0],
+    }
+    sample = {
+        "stages": [
+            {
+                "stage": "preprocess",
+                "outputs": {"token_ids": [7, 8, 0]},
+            }
+        ]
+    }
+    repair = module._repair_token_alignment(case, sample, where="fixture")
+    assert repair == {
+        "case_id": "selector_a:test:0:final",
+        "original_token_id_count": 3,
+        "trimmed_token_id_count": 2,
+        "padding_count": 1,
+        "witness": "attention_mask_prefix_and_original_token_count",
+    }
+    assert case["token_ids"] == [7, 8]
+    assert sample["stages"][0]["outputs"]["token_ids"] == [7, 8]
+
+
+def test_token_alignment_repair_rejects_unproven_mismatch() -> None:
+    module = load_repairer()
+    case = {
+        "case_id": "selector_a:test:0:final",
+        "tokens": ["Alice", "works"],
+        "token_ids": [7, 8, 9],
+        "attention_mask": [1, 1, 1],
+    }
+    sample = {"stages": [{"stage": "preprocess", "outputs": {"token_ids": [7, 8, 9]}}]}
+    with pytest.raises(ValueError, match="not producer-proven batch padding"):
+        module._repair_token_alignment(case, sample, where="fixture")
+
+
 def _make_group(
     tmp_path: Path,
     *,
