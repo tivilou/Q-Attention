@@ -68,15 +68,20 @@ STAGE_ORDER = (
 ALLOWED_STATUSES = {"observed", "not_applicable", "failed"}
 
 
-def _is_value_only_selector(selector: Any) -> bool:
-    """Return whether the selector declares the value-only intervention path.
+def _selector_intervention_path(selector: Any) -> str | None:
+    """Extract the declared Q-EPVG intervention path from a selector id.
 
-    The selector id is producer-owned metadata in the uploaded Case Study.  We
-    use it only to choose the path-specific query-update witness policy; the
-    attention and context tensors are still recomputed and verified below.
+    The selector id is producer-owned metadata in the uploaded Case Study.  The
+    path controls only the query-update witness policy; attention and context
+    are still recomputed and verified below.
     """
 
-    return isinstance(selector, str) and "value_only" in selector
+    if not isinstance(selector, str):
+        return None
+    for path in ("value_only", "score_value", "query"):
+        if f"_{path}_" in f"_{selector}_":
+            return path
+    return None
 
 
 def _load(path: Path) -> Any:
@@ -380,7 +385,12 @@ def _reconstruct_context_output(
         "final": "final",
     }
     case_selector = case_payload.get("selector")
-    value_only_path = _is_value_only_selector(case_selector)
+    intervention_path = _selector_intervention_path(case_selector)
+    # Legacy synthetic fixtures and older exports may not encode the path in
+    # the selector id. Keep the historical strict query-update behavior for
+    # those records instead of silently treating them as non-query paths.
+    query_intervention_path = intervention_path in {None, "query"}
+    non_query_path = intervention_path in {"value_only", "score_value"}
     case_split = case.get("split")
     record_index = case.get("record_index")
     checkpoint_slug = checkpoint_slugs.get(str(case.get("checkpoint")))
@@ -476,9 +486,9 @@ def _reconstruct_context_output(
     if query.ndim != 4 or key.ndim != 4:
         raise ValueError(f"case {case.get('case_id')}: query/key/update tensors have unexpected ranks or shapes")
     query_update_is_zero = not bool(torch.count_nonzero(query_update).item())
-    if not value_only_path and query_update.shape != query.shape:
+    if query_intervention_path and query_update.shape != query.shape:
         raise ValueError(f"case {case.get('case_id')}: query/key/update tensors have unexpected ranks or shapes")
-    if value_only_path and not query_update_is_zero:
+    if non_query_path and not query_update_is_zero:
         raise ValueError(
             f"case {case.get('case_id')}: value_only query_update witness is nonzero; "
             "refusing to infer query semantics"
@@ -506,8 +516,8 @@ def _reconstruct_context_output(
     )
     model_scores = torch.matmul(query, key.transpose(-1, -2)) / math.sqrt(query.shape[-1])
     model_scores = model_scores + score_adjustment
-    if value_only_path:
-        # The value-only path never changes Q.  The malformed zero witness is
+    if non_query_path:
+        # Non-query paths never change Q. The malformed zero witness is
         # retained for provenance but must not be broadcast or subtracted.
         expected_pre_intervention_scores = model_scores
     else:
@@ -542,8 +552,8 @@ def _reconstruct_context_output(
     model_attention = torch.softmax(
         model_scores.masked_fill(~key_mask, torch.finfo(model_scores.dtype).min), dim=-1
     )
-    if value_only_path:
-        # A malformed value-only witness cannot be used to form a legacy
+    if non_query_path:
+        # A malformed non-query witness cannot be used to form a legacy
         # query-intervention score tensor.  Keep this comparison explicit so
         # a shape error cannot be hidden by broadcasting.
         legacy_trace_attention = model_attention
@@ -571,8 +581,12 @@ def _reconstruct_context_output(
             "masked softmax nor the legacy query-trace formula"
         )
     trace_attention_role = (
-        "model_attention_aligned_value_only_zero_malformed_query_update"
-        if value_only_path and trace_matches_model
+        (
+            "model_attention_aligned_value_only_zero_malformed_query_update"
+            if intervention_path == "value_only"
+            else "model_attention_aligned_score_value_zero_malformed_query_update"
+        )
+        if non_query_path and trace_matches_model
         else
         "model_and_legacy_formulas_aligned"
         if trace_matches_model and trace_matches_legacy_plugin
@@ -632,12 +646,12 @@ def _reconstruct_context_output(
                 "source_sha256": query_witness_hashes,
                 "equation": (
                     "steered_attention_scores ~= q_epvg_query @ q_epvg_key.T / sqrt(head_dim) + q_epvg_score_adjustment"
-                    if value_only_path
+                    if non_query_path
                     else "steered_attention_scores ~= (q_epvg_query - q_epvg_query_update) @ q_epvg_key.T / sqrt(head_dim) + q_epvg_score_adjustment"
                 ),
                 "query_update_policy": (
-                    "ignored_value_only_zero_witness_shape_mismatch"
-                    if value_only_path
+                    "ignored_non_query_zero_witness_shape_mismatch"
+                    if non_query_path
                     else "applied_shape_compatible_query_update"
                 ),
                 "query_update_shape": list(query_update.shape),
@@ -823,14 +837,14 @@ def _reconstruct_context_output(
         "method": "verified_model_attention_weighted_routed_value_contraction",
         "equation": "context = sum_key(softmax(masked(query @ key.T / sqrt(head_dim) + score_adjustment)) * routed_values)",
         "query_capture_semantics": (
-            "q_epvg_query is the query actually used by the model; value_only has no query intervention"
-            if value_only_path
+            "q_epvg_query is the query actually used by the model; this path has no query intervention"
+            if non_query_path
             else "q_epvg_query is the query actually used by the model after any query intervention"
         ),
         "query_update_witness": {
             "policy": (
-                "ignored_value_only_zero_witness_shape_mismatch"
-                if value_only_path
+                "ignored_non_query_zero_witness_shape_mismatch"
+                if non_query_path
                 else "applied_shape_compatible_query_update"
             ),
             "shape": list(query_update.shape),
@@ -838,8 +852,8 @@ def _reconstruct_context_output(
             "is_zero": query_update_is_zero,
             "note": (
                 "The producer-saved query_update is retained as a legacy trace witness; "
-                "it is not used to reconstruct value-only attention."
-                if value_only_path
+                "it is not used to reconstruct non-query attention."
+                if non_query_path
                 else "The producer-saved query_update participates in the query-intervention witness."
             ),
         },

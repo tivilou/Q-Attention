@@ -513,7 +513,16 @@ def test_repair_marks_attention_formulas_aligned_when_query_update_is_zero(tmp_p
     assert context["reconstruction"]["legacy_attention_trace_comparison"] == role
 
 
-def test_repair_value_only_ignores_zero_malformed_query_update_witness(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "selector_name",
+    [
+        "q_epvg_zz_value_only_quantum",
+        "q_epvg_trainable_pauli_mix_score_value_classical",
+    ],
+)
+def test_repair_non_query_path_ignores_zero_malformed_query_update_witness(
+    tmp_path: Path, selector_name: str
+) -> None:
     module = load_repairer()
     group, expected_attention, expected_context = _make_context_reconstruction_group(
         tmp_path, zero_query_update=True
@@ -525,8 +534,8 @@ def test_repair_value_only_ignores_zero_malformed_query_update_witness(tmp_path:
     trace_payload = json.loads(trace_path.read_text(encoding="utf-8"))
     case = case_payload["cases"][0]
     old_id = case["case_id"]
-    new_id = "q_epvg_zz_value_only_quantum:test:0:final"
-    case_payload["selector"] = "q_epvg_zz_value_only_quantum"
+    new_id = f"{selector_name}:test:0:final"
+    case_payload["selector"] = selector_name
     case["case_id"] = new_id
     trace_payload["samples"][0]["sample_id"] = new_id
     query_update = torch.zeros((1, 1, 3, 2), dtype=torch.float32)
@@ -544,7 +553,7 @@ def test_repair_value_only_ignores_zero_malformed_query_update_witness(tmp_path:
     assert context["status"] == "observed"
     assert context["capture_mode"] == "reconstructed_from_checksum_verified_tensors"
     witness = context["reconstruction"]["query_update_witness"]
-    assert witness["policy"] == "ignored_value_only_zero_witness_shape_mismatch"
+    assert witness["policy"] == "ignored_non_query_zero_witness_shape_mismatch"
     assert witness["shape"] == [1, 1, 3, 2]
     assert witness["expected_shape"] == [1, 1, 2, 2]
     assert manifest["reconstructed_context_count"] == 1
