@@ -511,8 +511,45 @@ def test_repair_marks_attention_formulas_aligned_when_query_update_is_zero(tmp_p
     role = "model_and_legacy_formulas_aligned"
     assert manifest["selectors"][0]["attention_trace_roles"]["selector_a:test:0:final"] == role
     assert context["reconstruction"]["legacy_attention_trace_comparison"] == role
+
+
+def test_repair_value_only_ignores_zero_malformed_query_update_witness(tmp_path: Path) -> None:
+    module = load_repairer()
+    group, expected_attention, expected_context = _make_context_reconstruction_group(
+        tmp_path, zero_query_update=True
+    )
+    selector = group / "seed_13/selectors/selector_a"
+    case_path = selector / "case_study.json"
+    trace_path = selector / "sample_trace.json"
+    case_payload = json.loads(case_path.read_text(encoding="utf-8"))
+    trace_payload = json.loads(trace_path.read_text(encoding="utf-8"))
+    case = case_payload["cases"][0]
+    old_id = case["case_id"]
+    new_id = "q_epvg_zz_value_only_quantum:test:0:final"
+    case_payload["selector"] = "q_epvg_zz_value_only_quantum"
+    case["case_id"] = new_id
+    trace_payload["samples"][0]["sample_id"] = new_id
+    query_update = torch.zeros((1, 1, 3, 2), dtype=torch.float32)
+    _replace_rep_tensor(selector, case_payload, "q_epvg_query_update", query_update)
+    case_path.write_text(json.dumps(case_payload), encoding="utf-8")
+    trace_path.write_text(json.dumps(trace_payload), encoding="utf-8")
+
+    manifest = module.repair_group(group, apply=True, root=group)
+
+    repaired_case = json.loads(case_path.read_text(encoding="utf-8"))["cases"][0]
+    context = next(stage for stage in repaired_case["stages"] if stage["stage"] == "context")
+    output_manifest = repaired_case["representations"]["q_epvg_output"]
+    actual = torch.load(selector / output_manifest["path"], map_location="cpu", weights_only=True)
+    assert torch.equal(actual, expected_context)
+    assert context["status"] == "observed"
+    assert context["capture_mode"] == "reconstructed_from_checksum_verified_tensors"
+    witness = context["reconstruction"]["query_update_witness"]
+    assert witness["policy"] == "ignored_value_only_zero_witness_shape_mismatch"
+    assert witness["shape"] == [1, 1, 3, 2]
+    assert witness["expected_shape"] == [1, 1, 2, 2]
+    assert manifest["reconstructed_context_count"] == 1
     actual_attention = torch.load(
-        selector / case_payload["cases"][0]["representations"]["q_epvg_model_attention"]["path"],
+        selector / repaired_case["representations"]["q_epvg_model_attention"]["path"],
         map_location="cpu",
         weights_only=True,
     )

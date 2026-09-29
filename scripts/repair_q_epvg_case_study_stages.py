@@ -68,6 +68,17 @@ STAGE_ORDER = (
 ALLOWED_STATUSES = {"observed", "not_applicable", "failed"}
 
 
+def _is_value_only_selector(selector: Any) -> bool:
+    """Return whether the selector declares the value-only intervention path.
+
+    The selector id is producer-owned metadata in the uploaded Case Study.  We
+    use it only to choose the path-specific query-update witness policy; the
+    attention and context tensors are still recomputed and verified below.
+    """
+
+    return isinstance(selector, str) and "value_only" in selector
+
+
 def _load(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -369,6 +380,7 @@ def _reconstruct_context_output(
         "final": "final",
     }
     case_selector = case_payload.get("selector")
+    value_only_path = _is_value_only_selector(case_selector)
     case_split = case.get("split")
     record_index = case.get("record_index")
     checkpoint_slug = checkpoint_slugs.get(str(case.get("checkpoint")))
@@ -461,8 +473,16 @@ def _reconstruct_context_output(
     trace_attention = tensors["q_epvg_attention"]
     saved_pre_intervention_scores = tensors["steered_attention_scores"]
     routed_values = tensors["q_epvg_routed_values"]
-    if query.ndim != 4 or key.ndim != 4 or query_update.shape != query.shape:
+    if query.ndim != 4 or key.ndim != 4:
         raise ValueError(f"case {case.get('case_id')}: query/key/update tensors have unexpected ranks or shapes")
+    query_update_is_zero = not bool(torch.count_nonzero(query_update).item())
+    if not value_only_path and query_update.shape != query.shape:
+        raise ValueError(f"case {case.get('case_id')}: query/key/update tensors have unexpected ranks or shapes")
+    if value_only_path and not query_update_is_zero:
+        raise ValueError(
+            f"case {case.get('case_id')}: value_only query_update witness is nonzero; "
+            "refusing to infer query semantics"
+        )
     if query.shape[:2] != key.shape[:2] or query.shape[-1] != key.shape[-1]:
         raise ValueError(f"case {case.get('case_id')}: query/key layer, head, or feature dimensions differ")
     expected_score_shape = (*query.shape[:3], key.shape[-2])
@@ -484,10 +504,17 @@ def _reconstruct_context_output(
     compare_rtol, compare_atol = (
         (2e-2, 2e-3) if query.dtype in {torch.bfloat16, torch.float16} else (2e-3, 2e-4)
     )
-    pre_intervention_query = query - query_update
-    expected_pre_intervention_scores = (
-        torch.matmul(pre_intervention_query, key.transpose(-1, -2)) / math.sqrt(query.shape[-1])
-    ) + score_adjustment
+    model_scores = torch.matmul(query, key.transpose(-1, -2)) / math.sqrt(query.shape[-1])
+    model_scores = model_scores + score_adjustment
+    if value_only_path:
+        # The value-only path never changes Q.  The malformed zero witness is
+        # retained for provenance but must not be broadcast or subtracted.
+        expected_pre_intervention_scores = model_scores
+    else:
+        pre_intervention_query = query - query_update
+        expected_pre_intervention_scores = (
+            torch.matmul(pre_intervention_query, key.transpose(-1, -2)) / math.sqrt(query.shape[-1])
+        ) + score_adjustment
     if not torch.allclose(
         saved_pre_intervention_scores.float(),
         expected_pre_intervention_scores.float(),
@@ -499,8 +526,6 @@ def _reconstruct_context_output(
             "q_epvg_query is the post-intervention query"
         )
 
-    model_scores = torch.matmul(query, key.transpose(-1, -2)) / math.sqrt(query.shape[-1])
-    model_scores = model_scores + score_adjustment
     saved_scores_match_post_query = torch.allclose(
         saved_pre_intervention_scores.float(),
         model_scores.float(),
@@ -517,12 +542,18 @@ def _reconstruct_context_output(
     model_attention = torch.softmax(
         model_scores.masked_fill(~key_mask, torch.finfo(model_scores.dtype).min), dim=-1
     )
-    legacy_trace_scores = model_scores + (
-        torch.matmul(query_update, key.transpose(-1, -2)) / math.sqrt(query.shape[-1])
-    )
-    legacy_trace_attention = torch.softmax(
-        legacy_trace_scores.masked_fill(~key_mask, torch.finfo(legacy_trace_scores.dtype).min), dim=-1
-    )
+    if value_only_path:
+        # A malformed value-only witness cannot be used to form a legacy
+        # query-intervention score tensor.  Keep this comparison explicit so
+        # a shape error cannot be hidden by broadcasting.
+        legacy_trace_attention = model_attention
+    else:
+        legacy_trace_scores = model_scores + (
+            torch.matmul(query_update, key.transpose(-1, -2)) / math.sqrt(query.shape[-1])
+        )
+        legacy_trace_attention = torch.softmax(
+            legacy_trace_scores.masked_fill(~key_mask, torch.finfo(legacy_trace_scores.dtype).min), dim=-1
+        )
     trace_matches_model = torch.allclose(
         trace_attention.float(), model_attention.float(), rtol=compare_rtol, atol=compare_atol
     )
@@ -540,6 +571,9 @@ def _reconstruct_context_output(
             "masked softmax nor the legacy query-trace formula"
         )
     trace_attention_role = (
+        "model_attention_aligned_value_only_zero_malformed_query_update"
+        if value_only_path and trace_matches_model
+        else
         "model_and_legacy_formulas_aligned"
         if trace_matches_model and trace_matches_legacy_plugin
         else "model_attention_aligned"
@@ -596,7 +630,19 @@ def _reconstruct_context_output(
             "query_semantics_witness": {
                 "source_manifest_ids": query_witness_ids,
                 "source_sha256": query_witness_hashes,
-                "equation": "steered_attention_scores ~= (q_epvg_query - q_epvg_query_update) @ q_epvg_key.T / sqrt(head_dim) + q_epvg_score_adjustment",
+                "equation": (
+                    "steered_attention_scores ~= q_epvg_query @ q_epvg_key.T / sqrt(head_dim) + q_epvg_score_adjustment"
+                    if value_only_path
+                    else "steered_attention_scores ~= (q_epvg_query - q_epvg_query_update) @ q_epvg_key.T / sqrt(head_dim) + q_epvg_score_adjustment"
+                ),
+                "query_update_policy": (
+                    "ignored_value_only_zero_witness_shape_mismatch"
+                    if value_only_path
+                    else "applied_shape_compatible_query_update"
+                ),
+                "query_update_shape": list(query_update.shape),
+                "query_shape": list(query.shape),
+                "query_update_is_zero": query_update_is_zero,
             },
             "attention_trace_comparison": {
                 "manifest_id": attention_comparison["manifest_id"],
@@ -776,7 +822,27 @@ def _reconstruct_context_output(
     repaired_context["reconstruction"] = {
         "method": "verified_model_attention_weighted_routed_value_contraction",
         "equation": "context = sum_key(softmax(masked(query @ key.T / sqrt(head_dim) + score_adjustment)) * routed_values)",
-        "query_capture_semantics": "q_epvg_query is the query actually used by the model after any query intervention",
+        "query_capture_semantics": (
+            "q_epvg_query is the query actually used by the model; value_only has no query intervention"
+            if value_only_path
+            else "q_epvg_query is the query actually used by the model after any query intervention"
+        ),
+        "query_update_witness": {
+            "policy": (
+                "ignored_value_only_zero_witness_shape_mismatch"
+                if value_only_path
+                else "applied_shape_compatible_query_update"
+            ),
+            "shape": list(query_update.shape),
+            "expected_shape": list(query.shape),
+            "is_zero": query_update_is_zero,
+            "note": (
+                "The producer-saved query_update is retained as a legacy trace witness; "
+                "it is not used to reconstruct value-only attention."
+                if value_only_path
+                else "The producer-saved query_update participates in the query-intervention witness."
+            ),
+        },
         "legacy_attention_trace_comparison": trace_attention_role,
         "source_manifest_ids": [
             model_attention_id,
