@@ -24,6 +24,11 @@ if [[ "$GROUP_DIR" != /* ]]; then
   GROUP_DIR="$ROOT_DIR/$GROUP_DIR"
 fi
 
+echo "[repair] preflight (read-only): $GROUP_DIR"
+"$PYTHON_CMD" "$SCRIPT_DIR/repair_q_epvg_case_study_stages.py" \
+  --group-dir "$GROUP_DIR"
+
+echo "[repair] applying checksum-verified reconstruction: $GROUP_DIR"
 "$PYTHON_CMD" "$SCRIPT_DIR/repair_q_epvg_case_study_stages.py" \
   --group-dir "$GROUP_DIR" --apply
 
