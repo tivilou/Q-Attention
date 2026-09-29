@@ -792,6 +792,8 @@ def write_case_study(
                 labels = batch["labels"].cpu().tolist()
                 baseline_prediction = int(baseline_logits.argmax(-1)[local_index].item())
                 selector_prediction = int(selector_logits.argmax(-1)[local_index].item())
+                valid_token_count = int(batch["attention_mask"][local_index].sum().item())
+                model_token_ids = batch["input_ids"][local_index].cpu().tolist()
                 case = {
                     "case_id": case_id,
                     "split": split,
@@ -799,7 +801,9 @@ def write_case_study(
                     "record_index": int(record_index),
                     "sentence": " ".join(record.tokens),
                     "tokens": list(record.tokens),
-                    "token_ids": batch["input_ids"][local_index].cpu().tolist(),
+                    # Keep semantic token IDs aligned with the source record;
+                    # retain the full padded attention mask for tensor shapes.
+                    "token_ids": model_token_ids[:valid_token_count],
                     "attention_mask": batch["attention_mask"][local_index].cpu().tolist(),
                     "subject": {"text": " ".join(record.tokens[record.subject[0]:record.subject[1]]), "span": list(record.subject), "token_positions": torch.nonzero(batch["subject_mask"][local_index], as_tuple=False).flatten().cpu().tolist(), "entity_type": dict(record.metadata).get("subject_type", dict(record.metadata).get("subj_type"))},
                     "object": {"text": " ".join(record.tokens[record.object[0]:record.object[1]]), "span": list(record.object), "token_positions": torch.nonzero(batch["object_mask"][local_index], as_tuple=False).flatten().cpu().tolist(), "entity_type": dict(record.metadata).get("object_type", dict(record.metadata).get("obj_type"))},
