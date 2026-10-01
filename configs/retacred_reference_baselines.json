@@ -1,0 +1,77 @@
+{
+  "schema": "q-attention.retacred-reference-baseline-registry.v1",
+  "task": "relation_extraction",
+  "dataset": "Re-TACRED",
+  "comparison_protocol": {
+    "splits": ["train", "valid", "test"],
+    "seeds": [13],
+    "metrics": [
+      "micro_precision",
+      "micro_recall",
+      "micro_f1",
+      "accuracy",
+      "macro_precision",
+      "macro_recall",
+      "macro_f1",
+      "loss"
+    ],
+    "test_used_for_training_or_selection": false,
+    "status": "planned"
+  },
+  "candidates": [
+    {
+      "id": "luke",
+      "method": "LUKE",
+      "role": "task-matched first-tier reference candidate",
+      "paper": "LUKE: Deep Contextualized Entity Representations with Entity-aware Self-attention",
+      "official_repository": "https://github.com/studio-ousia/luke",
+      "provenance_mode": "source",
+      "source_commit": null,
+      "checkpoint": null,
+      "status": "planned",
+      "comparable": false,
+      "adaptation_boundary": "To be frozen after task/dataset qualification; no silent tokenizer, label, or split changes.",
+      "run_command": null,
+      "required_gates": ["source_commit_locked", "checkpoint_hash_locked", "fixed_input_forward", "common_protocol"]
+    },
+    {
+      "id": "spanbert",
+      "method": "SpanBERT",
+      "role": "classic span-representation reference candidate",
+      "paper": "SpanBERT: Improving Pre-training by Representing and Predicting Spans",
+      "official_repository": "https://github.com/facebookresearch/SpanBERT",
+      "provenance_mode": "source",
+      "source_commit": null,
+      "checkpoint": null,
+      "status": "planned",
+      "comparable": false,
+      "adaptation_boundary": "To be frozen after task/dataset qualification; relation head and entity-span handling must be explicit.",
+      "run_command": null,
+      "required_gates": ["source_commit_locked", "checkpoint_hash_locked", "checkpoint_load", "common_protocol"]
+    },
+    {
+      "id": "bert_reference",
+      "method": "BERT-base reference classifier",
+      "role": "generic transformer reference",
+      "paper": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "official_repository": "https://github.com/google-research/bert",
+      "provenance_mode": "source",
+      "source_commit": null,
+      "checkpoint": null,
+      "status": "planned",
+      "comparable": false,
+      "adaptation_boundary": "Use the same Re-TACRED label map, entity markers, splits, seed, and held-out evaluator after approval.",
+      "run_command": null,
+      "required_gates": ["source_commit_locked", "checkpoint_hash_locked", "adapter_contract", "common_protocol"]
+    }
+  ],
+  "interpretation": {
+    "unverified_entries_must_not_supply_sota_scores": true,
+    "strict_comparison_requires": [
+      "qualified_task_and_dataset",
+      "pinned_source_or_paper_fidelity_artifact",
+      "common_protocol_run",
+      "report_audit"
+    ]
+  }
+}
