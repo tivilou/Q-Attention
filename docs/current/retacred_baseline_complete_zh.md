@@ -47,18 +47,18 @@ bash scripts/run_retacred_baseline_complete.sh \
   --model-dir runs/<existing-baseline-dir>
 ```
 
-runner 在完整评估成功后自动生成 `RUN_COMPLETE`，并写出 `run_summary.data`。报告导出只允许安全摘要文件：
+runner 在完整评估成功后自动生成 `RUN_COMPLETE`，写出 `run_summary.data`，调用 exporter 生成安全报告，并只暂存对应报告目录后提交、推送到 `origin/1.1`。
+
+导出、staged diff 检查、commit 和 push 任一步失败都会停止后续动作。训练和评估不会因为推送失败而重跑；此时 runner 会保留报告和本地 commit，并给出 `git push origin 1.1` 重试命令。`EXPORT_COMPLETE`、`COMMIT_COMPLETE` 和 `PUSH_COMPLETE` 分别记录在 raw run 中，便于定位中断位置。
+
+诊断模式：`--skip-export` 只完成 raw run；`--no-push` 完成导出和本地 commit，但不联网推送。独立审计或历史 run 仍可直接调用：
 
 ```bash
 bash scripts/export_retacred_baseline_report.sh \
   runs/retacred_baseline_complete/<timestamp>_seed13
-git add reports/retacred_baseline_complete/<timestamp>_seed13
-git diff --cached --check
-git commit -m "report: add complete Re-TACRED baseline evaluation"
-git push origin 1.1
 ```
 
-不要提交 `runs/`、checkpoint、预测文件、数据集或完整日志。exporter 会拒绝缺失/空的 `run_summary.data`、不完整指标、失败运行和私有文件。
+不要提交 `runs/`、checkpoint、预测文件、数据集或完整日志。exporter 会拒绝缺失/空的 `run_summary.data`、不完整指标、失败运行和私有文件；runner 只会暂存 `reports/retacred_baseline_complete/<timestamp>_seed13/`。
 
 ## 报告文件
 

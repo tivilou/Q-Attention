@@ -19,6 +19,8 @@ MODEL_DIR=
 SKIP_PREFLIGHT=0
 DRY_RUN=0
 WRITE_PREDICTIONS=0
+SKIP_EXPORT=0
+NO_PUSH=0
 
 usage() {
   cat <<'EOF'
@@ -31,6 +33,8 @@ Options:
   --model-dir PATH      Reuse an existing completed baseline checkpoint; no training
   --skip-preflight      Skip environment/data/test checks
   --write-predictions  Keep private split predictions in the run directory
+  --skip-export         Stop after the raw run; do not create or publish a report
+  --no-push             Export and commit the report, but do not push to origin/1.1
   --dry-run             Print the planned commands without running them
   -h|--help             Show this help
 EOF
@@ -44,6 +48,8 @@ while [[ $# -gt 0 ]]; do
     --model-dir) MODEL_DIR=$2; shift ;;
     --skip-preflight) SKIP_PREFLIGHT=1 ;;
     --write-predictions) WRITE_PREDICTIONS=1 ;;
+    --skip-export) SKIP_EXPORT=1 ;;
+    --no-push) NO_PUSH=1 ;;
     --dry-run) DRY_RUN=1 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown argument: $1" >&2; usage >&2; exit 2 ;;
@@ -76,6 +82,9 @@ if [[ ${DRY_RUN} -eq 0 && -e "${RUN_DIR}" ]]; then
   echo "Refusing to reuse output directory: ${RUN_DIR}" >&2
   exit 1
 fi
+RUN_BASENAME=$(basename "${RUN_DIR}")
+REPORT_DIR=${ROOT}/reports/retacred_baseline_complete/${RUN_BASENAME}
+REPORT_REL=${REPORT_DIR#${ROOT}/}
 
 BASELINE_DIR=${MODEL_DIR:-${RUN_DIR}/baseline}
 EVALUATION_DIR=${RUN_DIR}/evaluation
@@ -108,6 +117,19 @@ if [[ ${DRY_RUN} -eq 1 ]]; then
   printf '\n[dry-run] CUDA_VISIBLE_DEVICES=%q ' "${GPU_SPEC}"
   printf '%q ' "${EVAL_COMMAND[@]}"
   printf '\n'
+  if [[ ${SKIP_EXPORT} -eq 0 ]]; then
+    printf '[dry-run] bash scripts/export_retacred_baseline_report.sh %q %q\n' "${RUN_DIR}" "${REPORT_DIR}"
+    printf '[dry-run] git add -- %q\n' "${REPORT_REL}"
+    printf '[dry-run] git diff --cached --check\n'
+    printf '[dry-run] git commit -m %q\n' "report: add complete Re-TACRED baseline evaluation (${RUN_BASENAME})"
+    if [[ ${NO_PUSH} -eq 0 ]]; then
+      printf '[dry-run] git push origin 1.1\n'
+    else
+      printf '[dry-run] push skipped (--no-push)\n'
+    fi
+  else
+    printf '[dry-run] export and publish skipped (--skip-export)\n'
+  fi
   exit 0
 fi
 
@@ -130,3 +152,64 @@ cp "${EVALUATION_DIR}/run_config.json" "${RUN_DIR}/run_config.json"
 printf '%s\n' "$(date -Iseconds)" > "${RUN_DIR}/RUN_COMPLETE"
 printf 'STATUS=complete\nSEED=%s\nGPU_ID=%s\nCOMPLETED_AT=%s\n' "${SEED}" "${GPU_SPEC}" "$(date -Iseconds)" > "${RUN_DIR}/status/run.env"
 echo "RUN_DIR=${RUN_DIR}"
+
+if [[ ${SKIP_EXPORT} -eq 1 ]]; then
+  printf 'STATUS=skipped\nREASON=skip-export\nAT=%s\n' "$(date -Iseconds)" > "${RUN_DIR}/status/export.env"
+  echo "Report export skipped (--skip-export)."
+  exit 0
+fi
+
+if ! bash scripts/export_retacred_baseline_report.sh "${RUN_DIR}" "${REPORT_DIR}" 2>&1 | tee "${RUN_DIR}/logs/report_export.log"; then
+  printf 'STATUS=failed\nAT=%s\n' "$(date -Iseconds)" > "${RUN_DIR}/status/export.env"
+  echo "Report export failed; no commit or push was attempted." >&2
+  exit 1
+fi
+printf 'STATUS=complete\nREPORT_DIR=%s\nAT=%s\n' "${REPORT_DIR}" "$(date -Iseconds)" > "${RUN_DIR}/status/export.env"
+printf '%s\n' "$(date -Iseconds)" > "${RUN_DIR}/EXPORT_COMPLETE"
+
+if ! git add -- "${REPORT_REL}"; then
+  printf 'STATUS=failed\nREASON=git-add\nAT=%s\n' "$(date -Iseconds)" > "${RUN_DIR}/status/publish.env"
+  echo "Failed to stage the exported report; no commit or push was attempted." >&2
+  exit 1
+fi
+if ! git diff --cached --check; then
+  printf 'STATUS=failed\nREASON=staged-diff-check\nAT=%s\n' "$(date -Iseconds)" > "${RUN_DIR}/status/publish.env"
+  echo "Staged report failed git diff --check; no commit or push was attempted." >&2
+  exit 1
+fi
+STAGED_FILES=$(git diff --cached --name-only)
+while IFS= read -r STAGED_FILE; do
+  [[ -z "${STAGED_FILE}" ]] && continue
+  [[ "${STAGED_FILE}" == "${REPORT_REL}" || "${STAGED_FILE}" == "${REPORT_REL}"/* ]] || {
+    printf 'STATUS=failed\nREASON=unexpected-staged-file\nAT=%s\n' "$(date -Iseconds)" > "${RUN_DIR}/status/publish.env"
+    echo "Unexpected staged file outside report directory: ${STAGED_FILE}" >&2
+    exit 1
+  }
+done <<< "${STAGED_FILES}"
+
+COMMIT_MESSAGE="report: add complete Re-TACRED baseline evaluation (${RUN_BASENAME})"
+if ! git commit -m "${COMMIT_MESSAGE}" 2>&1 | tee "${RUN_DIR}/logs/report_commit.log"; then
+  printf 'STATUS=failed\nREASON=commit\nAT=%s\n' "$(date -Iseconds)" > "${RUN_DIR}/status/publish.env"
+  echo "Report export is staged but commit failed; rerun git commit after fixing Git configuration." >&2
+  exit 1
+fi
+COMMIT_SHA=$(git rev-parse HEAD)
+printf 'STATUS=commit-complete\nCOMMIT=%s\nAT=%s\n' "${COMMIT_SHA}" "$(date -Iseconds)" > "${RUN_DIR}/status/publish.env"
+printf '%s\n' "${COMMIT_SHA}" > "${RUN_DIR}/COMMIT_COMPLETE"
+
+if [[ ${NO_PUSH} -eq 1 ]]; then
+  printf 'STATUS=push-skipped\nCOMMIT=%s\nAT=%s\n' "${COMMIT_SHA}" "$(date -Iseconds)" > "${RUN_DIR}/status/publish.env"
+  echo "Report committed locally (${COMMIT_SHA}); push skipped (--no-push)."
+  echo "Retry with: git push origin 1.1"
+  exit 0
+fi
+
+if ! git push origin 1.1 2>&1 | tee "${RUN_DIR}/logs/report_push.log"; then
+  printf 'STATUS=push-failed\nCOMMIT=%s\nAT=%s\n' "${COMMIT_SHA}" "$(date -Iseconds)" > "${RUN_DIR}/status/publish.env"
+  echo "Report commit ${COMMIT_SHA} is retained locally; push failed and training will not be repeated." >&2
+  echo "Retry with: git push origin 1.1" >&2
+  exit 1
+fi
+printf 'STATUS=push-complete\nCOMMIT=%s\nAT=%s\n' "${COMMIT_SHA}" "$(date -Iseconds)" > "${RUN_DIR}/status/publish.env"
+printf '%s\n' "$(date -Iseconds)" > "${RUN_DIR}/PUSH_COMPLETE"
+echo "Report exported, committed, and pushed: ${REPORT_DIR}"

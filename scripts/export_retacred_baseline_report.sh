@@ -87,6 +87,7 @@ case "${REPORT_DIR}" in
 esac
 [[ ! -e "${REPORT_DIR}" ]] || { echo "Refusing to overwrite ${REPORT_DIR}." >&2; exit 1; }
 
+mkdir -p "${ROOT}/reports"
 TMP_DIR=$(mktemp -d "${ROOT}/reports/.baseline-export.XXXXXX")
 cleanup() { rm -rf "${TMP_DIR}"; }
 trap cleanup EXIT
@@ -140,4 +141,4 @@ mkdir -p "$(dirname "${REPORT_DIR}")"
 mv "${TMP_DIR}" "${REPORT_DIR}"
 trap - EXIT
 echo "Baseline report ready: ${REPORT_DIR}"
-echo "Next: git add ${REPORT_DIR} && git diff --cached --check"
+echo "Standalone export complete; the runner adds, commits, and pushes this report automatically."
