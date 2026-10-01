@@ -13,13 +13,8 @@ def test_runner_contains_automatic_export_and_publish_contract():
         "--skip-export",
         "--no-push",
         "bash scripts/export_retacred_baseline_report.sh",
-        "git add --",
-        "git diff --cached --check",
-        "git commit -m",
-        "git push origin 1.1",
+        "bash scripts/publish_retacred_baseline_report.sh",
         "EXPORT_COMPLETE",
-        "COMMIT_COMPLETE",
-        "PUSH_COMPLETE",
     ):
         assert token in text
 
@@ -43,8 +38,7 @@ def test_dry_run_prints_publication_steps_without_running_them():
     )
     assert result.returncode == 0, result.stderr
     assert "scripts/export_retacred_baseline_report.sh" in result.stdout
-    assert "git diff --cached --check" in result.stdout
-    assert "git push origin 1.1" in result.stdout
+    assert "publish_retacred_baseline_report.sh" in result.stdout
 
 
 def test_dry_run_can_skip_publication():

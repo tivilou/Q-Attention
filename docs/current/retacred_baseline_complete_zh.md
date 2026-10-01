@@ -38,7 +38,7 @@ bash scripts/run_retacred_baseline_complete.sh \
   --gpu 0
 ```
 
-可以通过 `PYTHON_BIN=/path/to/python` 指定环境解释器。若已有经过审计的冻结 baseline checkpoint，可使用 `--model-dir` 跳过训练，仅重新评估三个 split：
+可以通过 `PYTHON_BIN=/path/to/python` 指定环境解释器。若已有经过审计的冻结 baseline checkpoint，可使用 `--model-dir` 跳过训练，仅重新评估三个 split。runner 会在创建新 run 之前验证 checkpoint 文件、seed 和冻结训练参数是否匹配：
 
 ```bash
 bash scripts/run_retacred_baseline_complete.sh \
@@ -47,9 +47,14 @@ bash scripts/run_retacred_baseline_complete.sh \
   --model-dir runs/<existing-baseline-dir>
 ```
 
-runner 在完整评估成功后自动生成 `RUN_COMPLETE`，写出 `run_summary.data`，调用 exporter 生成安全报告，并只暂存对应报告目录后提交、推送到 `origin/1.1`。
+runner 在完整评估成功后自动生成 `RUN_COMPLETE`，写出 `run_summary.data`，调用 exporter 生成安全报告，并只暂存对应报告目录后提交、推送到 `origin/1.1`。发布由 `scripts/publish_retacred_baseline_report.sh` 执行；如果 commit 或 push 失败，修复原因后用同一个 raw run 重新调用该脚本，它会重新检查暂存范围或复用已完成的 commit，不会重跑训练：
 
-导出、staged diff 检查、commit 和 push 任一步失败都会停止后续动作。训练和评估不会因为推送失败而重跑；此时 runner 会保留报告和本地 commit，并给出 `git push origin 1.1` 重试命令。`EXPORT_COMPLETE`、`COMMIT_COMPLETE` 和 `PUSH_COMPLETE` 分别记录在 raw run 中，便于定位中断位置。
+```bash
+bash scripts/publish_retacred_baseline_report.sh \
+  --run-dir runs/retacred_baseline_complete/<timestamp>_seed13
+```
+
+导出、staged diff 检查、commit 和 push 任一步失败都会停止后续动作。训练和评估不会因为推送失败而重跑；报告、已完成的本地 commit 和状态历史会保留。`EXPORT_COMPLETE`、`COMMIT_COMPLETE` 和 `PUSH_COMPLETE` 分别记录在 raw run 中，便于定位中断位置。
 
 诊断模式：`--skip-export` 只完成 raw run；`--no-push` 完成导出和本地 commit，但不联网推送。独立审计或历史 run 仍可直接调用：
 

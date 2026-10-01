@@ -40,6 +40,9 @@ for FILE in \
   experiments/evaluate_relation_baseline.py \
   src/q_attention/metrics.py \
   scripts/run_retacred_baseline_complete.sh \
+  scripts/check_retacred_baseline_publish_preflight.sh \
+  scripts/validate_retacred_baseline_checkpoint.py \
+  scripts/publish_retacred_baseline_report.sh \
   scripts/export_retacred_baseline_report.sh; do
   [[ -f "${FILE}" ]] || { echo "Missing ${FILE}" >&2; exit 1; }
 done
