@@ -1,0 +1,47 @@
+{
+  "schema": "q-attention.retacred-baseline-complete-config.v1",
+  "name": "retacred_baseline_complete",
+  "formal_experiment": true,
+  "task": "relation_extraction",
+  "train_path": "data/relation/retacred/train.jsonl",
+  "valid_path": "data/relation/retacred/valid.jsonl",
+  "test_path": "data/relation/retacred/test.jsonl",
+  "expected_records": {
+    "train": 58465,
+    "valid": 19584,
+    "test": 13418
+  },
+  "baseline": {
+    "epochs": 12,
+    "batch_size": 128,
+    "dim": 128,
+    "num_layers": 4,
+    "num_heads": 8,
+    "ff_dim": 256,
+    "dropout": 0.1,
+    "lr": 0.0005,
+    "max_length": 128,
+    "selection_metric": "macro_f1_then_loss"
+  },
+  "evaluation": {
+    "batch_size": 256,
+    "splits": ["train", "valid", "test"],
+    "test_used_for_training_or_selection": false
+  },
+  "report_contract": {
+    "metrics": [
+      "micro_precision",
+      "micro_recall",
+      "micro_f1",
+      "accuracy",
+      "macro_precision",
+      "macro_recall",
+      "macro_f1",
+      "loss"
+    ],
+    "per_class": ["precision", "recall", "f1", "support", "predicted_support"],
+    "confusion_matrix": true,
+    "data_hashes": true,
+    "checkpoint_hash": true
+  }
+}
