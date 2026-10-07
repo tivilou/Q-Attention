@@ -28,7 +28,7 @@ def test_reference_registry_freezes_reported_top_five_without_claiming_formal_re
     }
 
     for candidate in candidates:
-        assert candidate["status"] == "planned"
+        assert candidate["status"] in {"planned", "blocked_source_and_protocol"}
         assert candidate["strict_comparison_eligible"] is False
         assert 0.0 < candidate["reported_in_paper"]["test_micro_f1"] < 1.0
         assert candidate["paper_url"].startswith("https://")
@@ -36,6 +36,14 @@ def test_reference_registry_freezes_reported_top_five_without_claiming_formal_re
 
     assert payload["excluded_or_non_strict"]
     assert payload["interpretation"]["reported_scores_are_not_project_measurements"] is True
+
+    routing = next(row for row in candidates if row["method_family"] == "sequence_routing")
+    assert routing["status"] == "blocked_source_and_protocol"
+    assert routing["source_commit"] == "cc95c4ad20b9ed46b978ffa4e88e31ce28c7ed20"
+    assert routing["reported_in_paper"]["test_micro_f1"] == .922
+    assert routing["reported_score_rank_eligible"] is False
+    assert routing["reported_in_paper"]["evaluator_binding"] == "unverified"
+    assert "including_no_relation" in routing["released_source_metric"]
 
 
 def test_first_reproduction_manifest_keeps_source_and_adaptation_gates_separate() -> None:

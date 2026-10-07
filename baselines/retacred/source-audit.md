@@ -8,7 +8,7 @@ scores are historical selection aids, never project measurements.
 | --- | --- | --- |
 | Improved Baseline | `wzhouad/RE_improved_baseline@fe00781116ab4c34cbcd9a2ae5b02513afae87ee` | Four active marker variants imported; `RETACREDProcessor` adds typed markers during tokenization, requiring resize **after** data encoding and **before** optimizer creation. Source mechanism tested on tiny RoBERTa architecture. Full checkpoint/GPU gate remains collaborator-side. |
 | PTR | active code `thunlp/PTR@76f4685f4204f9d469ba1f82ce1dd02ad52aab42`; recovered metadata `thunlp/PTR@420926b83025f313f27d77dbb5c74d7089121b89` | `run_prompt.py` loss is **mean of five verbalizer CE objectives PLUS relation-level CE on the summed raw logits**; omitting the latter is not faithful. Two AdamW optimizers. The cloud share is expired; official history contains the hash-locked 40-row verbalizer and 40-class mapping. **Normal adapter implemented; full-weight/CUDA gates pending.** Reverse recipe remains unverified. `input_flags` are all zero in released tokenization; do not invent an active soft-prompt branch. See `ptr-mechanism-contract.md`. No fork raw train/test data substituted. |
-| Sequence Routing | `bahramiramazan/re-representation@cc95c4ad20b9ed46b978ffa4e88e31ce28c7ed20` | `Experiments.py` imports missing `Abstraction`; `rc_util.py` opens missing `essential_files/Relation_counter_retacred.json`. `get_settings` declares `n_class=41`, `h3_embed_size=41`. Our canonical data has 40 classes. `RC_Model` depends on external Heinsen routing and all 25 hidden states. Exact published H3/Mix recipe and license must be recovered before an adapter can be labelled faithful. |
+| Sequence Routing | `bahramiramazan/re-representation@cc95c4ad20b9ed46b978ffa4e88e31ce28c7ed20`; historical `Abstraction.py@6065881f` recovered | Active experiment4 is H3/Mix, **H3 output512 overrides the initial41**, classifier remains41 vs canonical40. Missing metadata is generated later, but factory reads it before generation. Source budget24/5 differs from paper64/6. Released evaluator includes null labels; all-label micro-F1 equals accuracy. The published92.2 binding is unverified, not certified same-metric ranking. Dependency experiment revision/main license unresolved. See `sequence-routing-contract.md`; row remains blocked, no source patch/model substitution. |
 | CTL-DRP | `Viva28/CTl-DRP@2db67a258c266fba3ee0e2cbcdb88ccbc45cf40d` | Only `README.md` containing “Coming soon”; both reported supervised and unsupervised configurations remain blocked. |
 | MetaEntail-RE | [author paper](https://aclanthology.org/2025.naacl-long.165.pdf), footnote 1 | Official link `https://github.com/wphogan/metaentail-re` returns 404; clone says repository not found. Exact hypotheses, meta-class graph, type-pair filtering and grouped selection cannot be replaced with an ordinary classifier. Evaluation convention needs checking before ranking against non-null benchmark F1. |
 | Curriculum Learning | [author paper](https://arxiv.org/abs/2107.09332) | No verified executable official repository identified. Cross-review difficulty estimation and curriculum scheduling need a declared paper implementation contract, assumptions and independent mechanism review. |
@@ -43,6 +43,26 @@ plus relation CE, retains both optimizer/scheduler states, FP32 and zero flags,
 and records actual masked-state projections. Sequence Routing recovery remains separate.
 A paper reconstruction must declare assumptions and evidence limits before
 entering a separate run set.
+
+## Sequence Routing recovery and metric correction
+
+- Official historical tree recovered `Abstraction.py`; its locked SHA256 is
+  `df4c064ee65ba840e5edbb91df89a4dc0672a990e3eaf8cd8d1e0869767d82dc`.
+  It stays outside the active checkout and public Git, and is never executed.
+- Bounded official/public inspection found29 default-branch commits, inspected
+  16 historical trees, one branch, no tags/forks. Histories for the two exact
+  missing metadata paths and root LICENSE were empty. This is a bounded finding,
+  not proof of absence from private or uninspected refs.
+- `rc_data` can generate relation files but has a clean-checkout bootstrap
+  ordering problem. First-occurrence label/token order and41-output policy have
+  not been certified; no fabricated metadata is promoted as original.
+- Actual source metric assignment on a fixed fixture gives .9 all-label
+  micro-F1/accuracy versus0 benchmark non-null micro-F1. Historical ranks/scores
+  stay visible, with Sequence Routing explicitly ineligible for same-metric rank.
+- Recovery CLI: `python -m baselines.retacred.sequence_resources`;
+  offline cache validation: add `--verify-only`. Offline readiness audit:
+  `python -m baselines.retacred.sequence_audit`, expected exit2/not_verifiable.
+  Neither imports upstream code nor launches training; source pin remains clean.
 
 ## PTR recovery provenance
 

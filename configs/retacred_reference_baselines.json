@@ -3,16 +3,22 @@
   "task": "relation_extraction",
   "dataset": "Re-TACRED",
   "selection": {
-    "basis": "publicly_reported_full_supervised_retacred_test_micro_f1",
+    "basis": "historical_reported_configurations_metric_conventions_not_certified_equal",
     "metric": "micro_f1",
-    "ranking_scope": "reported_configurations",
-    "verified_on": "2026-10-03",
+    "ranking_scope": "frozen_historical_order_not_same_metric_sota_ranking",
+    "verified_on": "2026-10-07",
     "scores_are_formal_project_results": false,
     "deduplication_note": "CTL-DRP supervised and unsupervised rows are configurations of one method family; they are retained to make the reported-score cutoff explicit, not as two independent methods."
   },
   "comparison_protocol": {
-    "splits": ["train", "valid", "test"],
-    "seeds": [13],
+    "splits": [
+      "train",
+      "valid",
+      "test"
+    ],
+    "seeds": [
+      13
+    ],
     "input_contract": "sentence tokens plus the two annotated entity spans",
     "output_contract": "single-label Re-TACRED relation classification",
     "expected_relation_classes": 40,
@@ -36,30 +42,35 @@
       "id": "sequence_routing_roberta_large_h3",
       "method": "Sequence Routing / Dynamic Routing with RoBERTa-large (H3)",
       "method_family": "sequence_routing",
-      "role": "provisional highest reported reference",
+      "role": "historical_reported_reference_metric_comparability_unverified",
       "paper": "Re-Representation in Sentential Relation Extraction with Sequence Routing Algorithm",
       "paper_url": "https://arxiv.org/abs/2508.21049",
-      "official_repository": null,
-      "provenance_mode": "paper",
-      "source_status": "not_verified",
-      "source_commit": null,
+      "official_repository": "https://github.com/bahramiramazan/re-representation",
+      "provenance_mode": "source",
+      "source_status": "pinned_source_partial_resource_recovery_protocol_unresolved",
+      "source_commit": "cc95c4ad20b9ed46b978ffa4e88e31ce28c7ed20",
       "checkpoint": null,
       "reported_in_paper": {
         "test_micro_f1": 0.922,
         "test_macro_f1": 0.801,
         "metric_unit": "fraction",
-        "evidence_url": "https://arxiv.org/html/2508.21049"
+        "evidence_url": "https://arxiv.org/html/2508.21049",
+        "evaluator_binding": "unverified",
+        "benchmark_comparable": false
       },
-      "status": "planned",
+      "status": "blocked_source_and_protocol",
       "strict_comparison_eligible": false,
       "comparable": false,
       "adaptation_boundary": "Do not change routing computation, backbone, entity representation, or evaluator; project adaptation is limited to the frozen Re-TACRED file interface.",
       "required_gates": [
-        "paper_mechanism_contract",
-        "source_or_paper_fidelity",
-        "common_protocol",
-        "multi_seed_uncertainty"
-      ]
+        "source_recipe_and_label_boundary",
+        "metric_comparability",
+        "source_fidelity",
+        "common_protocol"
+      ],
+      "reported_score_rank_eligible": false,
+      "released_source_metric": "all_label_micro_f1_including_no_relation_equals_accuracy",
+      "audit_contract": "baselines/retacred/sequence-routing-contract.md"
     },
     {
       "rank": 2,

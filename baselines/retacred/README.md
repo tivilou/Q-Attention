@@ -15,6 +15,14 @@ Every unavailable or unported configuration remains
 visible. `--models all` fails before launching work; it never substitutes a
 generic encoder or pretends the remaining methods ran.
 
+Sequence Routing's missing `Abstraction.py` is now recoverable from official
+history without modifying the source pin. H3/Mix output512 is confirmed, but
+41-vs-40 labels, paper/source budgets and metadata bootstrap remain unresolved.
+Released all-label micro-F1 equals accuracy, not the project's non-null micro-F1;
+the reported92.2 is not certified same-metric rank evidence. See
+`sequence-routing-contract.md`. `python -m baselines.retacred.sequence_audit`
+is an offline/read-only check and intentionally exits2 while admission is blocked.
+
 ## Mechanism vs experiment protocol
 
 Per-model manifests, `mechanism-contract.md` and `adaptation-diff.md` freeze
@@ -69,6 +77,8 @@ completed shards are reused, partial shards retry from the beginning.
 - `fidelity.py`: fixed-input runtime equivalence gate.
 - `ptr_resources.py`: recovered official historical metadata.
 - `ptr.py`, `ptr_fidelity.py`: normal PTR source adapter and runtime gate.
+- `sequence_resources.py`: isolated hash-locked historical file recovery, not an adapter.
+- `sequence_audit.py`: static source/recipe/metric audit; no import or training side effects.
 - `updates.py`: mandatory named dual optimizer/scheduler recovery.
 - `adapters.py`: explicit allowlist of source adapters, no silent substitutions.
 - `train.py`: logical-batch trainer and post-update recovery.

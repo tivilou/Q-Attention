@@ -5,8 +5,10 @@ typed_marker_punct、typed_marker、entity_marker_punct、entity_marker、ptr。
 完整候选及阻塞原因在 `baselines/retacred/cohort.json`。普通 PTR 保留官方五项 prompt
 CE 加关系 CE、双 optimizer/scheduler 和 FP32，已通过小模型 CPU 行为门槛；
 完整权重 CUDA 门槛仍待完成，reversed 版本尚缺原始转换配方。
-Sequence Routing
-缺 `Abstraction.py` 和 Re-TACRED relation 文件，且源码配置 41 类而非本项目的 40 类。
+Sequence Routing 的 `Abstraction.py` 已从官方历史恢复，H3/Mix 的输出维度512已确认，
+但分类器41类与 canonical40类的边界、relation 文件的生成前读取问题、论文64batch/6epoch
+与源码24batch/5epoch的差异仍待厘清。公开源码的全标签 micro-F1包含 no_relation，
+等于 accuracy，并非本项目非空关系 micro-F1；论文92.2的评估绑定尚未认证，不作为同口径排名。
 CTL-DRP 官方仓库仅 README；MetaEntail-RE 论文源码
 链接返回 404；Curriculum 与 LUKE 对照变体仍缺可核实的完整配置。不会静默替换。
 
@@ -128,5 +130,8 @@ git log --oneline origin/1.1..HEAD
 `publication.json` 的 pushed 才代表结果上传 GitHub 成功。
 
 只读检查计划：`bash scripts/run_retacred_reference_suite.sh --dry-run`。
+离线审计 Sequence Routing：`python -m baselines.retacred.sequence_audit`，预期打印
+`not_verifiable` 并退出2，不启动模型；它不是训练失败或“已经复现”。单独恢复历史文件用
+`python -m baselines.retacred.sequence_resources`，验证缓存加 `--verify-only`，不会覆盖官方源码。
 只读查看所有候选与缺口：`bash scripts/check_retacred_reference_suite.sh --inventory`。
 `--models all --dry-run` 会指出缺源码/未接入方法并退出，不会把不完整 cohort 算全完成。
