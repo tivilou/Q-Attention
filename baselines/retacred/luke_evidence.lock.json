@@ -1,0 +1,452 @@
+{
+  "schema": "luke-variants-evidence.v1",
+  "audited_on": "2026-10-07",
+  "core_paper": {
+    "url": "https://aclanthology.org/2022.naacl-main.224.pdf",
+    "sha256": "f5907adf6eefe51694bb581c3d789993eeb24a3061e3a8a049b06e08f1c0856c",
+    "micro_table": 3,
+    "macro_table": 2,
+    "aggregation": "median_five_training_runs",
+    "unmodified_luke": {
+      "micro_f1": 0.903,
+      "macro_f1": 0.802
+    },
+    "scores_are_project_measurements": false,
+    "retacred_train_dev_test_counts": [
+      58465,
+      19584,
+      13418
+    ],
+    "retacred_classes": 40
+  },
+  "reported_luke_rows": {
+    "luke_core": {
+      "micro_f1": 0.909,
+      "macro_f1": 0.816
+    },
+    "luke_cfie": {
+      "micro_f1": 0.905,
+      "macro_f1": 0.804
+    },
+    "luke_resample": {
+      "micro_f1": 0.905,
+      "macro_f1": 0.805
+    },
+    "luke_focal": {
+      "micro_f1": 0.904,
+      "macro_f1": 0.803
+    }
+  },
+  "core_source": {
+    "repository": "https://github.com/vanoracai/CoRE",
+    "commit": "c98d69472110d2514458e3b58a6a82f9793974aa",
+    "files": {
+      "core.py": "d52b9ed9f6220f62443629e580c1d0adbb61dacc4d0b18fa7a04dcabcb6ad47b",
+      "README.md": "636e71d98c0caedf1af1646988e6172860e6ccdab2e9e9546fab884b141364a2"
+    },
+    "checkpoint": "studio-ousia/luke-large-finetuned-tacred",
+    "dataset": "repository_TACRED_test",
+    "evaluation": "gold_conditioned_entity_only_error_challenge_macro",
+    "probability_coefficients": {
+      "entity_only": -1.6,
+      "label_only": 0.1
+    },
+    "preprocess_producer_recovered": false
+  },
+  "cfie_paper": {
+    "url": "https://arxiv.org/pdf/2109.05213v1",
+    "version": "v1",
+    "sha256": "65558a7fc7473524f15cf794b4ec272d181febc106438cbf3621a329d5b2b595",
+    "title": "Uncovering Main Causalities for Long-tailed Information Extraction"
+  },
+  "cfie_source": {
+    "repository": "https://github.com/HeyyyyyyG/CFIE",
+    "branch": "RE",
+    "default_branch": "NER",
+    "commit": "17583143a4d70eb4c12e07461620b24dfe376198",
+    "root_license": "Apache-2.0",
+    "third_party_notice_review": "pending",
+    "author_link_binding": "original_paper_section1_exact_repository_url",
+    "default_dataset": "NYT24",
+    "selected_files": {
+      "README.md": {
+        "file": "cfie-README.md",
+        "sha256": "4740a15cfddff8e50c16563e9158e776f543b780e9ff92d867fe23006ab9a694",
+        "git_blob": "52d2306c407e5e91ac66627c40a5cb4b7e04c9fd",
+        "size_bytes": 4823
+      },
+      "LICENSE": {
+        "file": "cfie-LICENSE",
+        "sha256": "6441eed3983ec680dd2bff460c3d90e5dd0798a653f1940c8dfc1d4017e82f2c",
+        "git_blob": "3fe37ba98e9fb84a2e7bcb8d53f17ccc55e3c940",
+        "size_bytes": 603
+      },
+      "model/trainer.py": {
+        "file": "cfie-model--trainer.py",
+        "sha256": "8a157466e6745a3013d7a336e7bfafe1aca161572646078c8f7e2f1bfb032767",
+        "git_blob": "b7ea468bc2f888d369485b33a7c2e72bbb9a06df",
+        "size_bytes": 20185
+      },
+      "model/counterfactual.py": {
+        "file": "cfie-model--counterfactual.py",
+        "sha256": "ede6b480867808fe530dddf43f4c73d976c6eea841ddd2107fd481f30972b62d",
+        "git_blob": "858407a3e1de79ef0db9a3976fea2eb7b4842674",
+        "size_bytes": 5241
+      },
+      "model/bert.py": {
+        "file": "cfie-model--bert.py",
+        "sha256": "ddb54e64d3ec653d3ca603541bcff7c6cb157680a17c438c6d653d548558ae21",
+        "git_blob": "b48c018edea042dc5e47c5eb0a356da928f0d9bc",
+        "size_bytes": 15760
+      },
+      "train.py": {
+        "file": "cfie-train.py",
+        "sha256": "f625b5cf75330862cd7c21ee6d93404581fd5e2d50803439e1667061ee1289d5",
+        "git_blob": "235c53ae9739ccacc88e895f1eb99bbec5af8c45",
+        "size_bytes": 19263
+      },
+      "model/gcn.py": {
+        "file": "cfie-model--gcn.py",
+        "sha256": "a73d898e3af71ba4ac1562e89111f96e3d6e1c0d88f46643b08b376cd5abccc6",
+        "git_blob": "5816e4d83730b13fbe1a9dfc0de5e5da78f21725",
+        "size_bytes": 34097
+      },
+      "utils/scorer.py": {
+        "file": "cfie-utils--scorer.py",
+        "sha256": "334298cd6fff3d0cbd9cef20af6639c4e82e3f29ae17dfb6cc109a6e1569e2f6",
+        "git_blob": "da76bac1986774bf80c4011c07b26b3ccdf8919e",
+        "size_bytes": 12216
+      },
+      "data/loader.py": {
+        "file": "cfie-data--loader.py",
+        "sha256": "78d0418994ccca72589102f5b7ad65f6bfdc486f06dd2c65e5e2e455ff52f876",
+        "git_blob": "afad77895b839f822614a30e5ecf1be8c7b7988b",
+        "size_bytes": 29592
+      },
+      "utils/constant.py": {
+        "file": "cfie-utils--constant.py",
+        "sha256": "5dbff85f6ceee1a8681dbab643057c39fc479f923e69fdee8ba418716fb979a3",
+        "git_blob": "741b53aeb59139ae6b492c44ffe5f8a8a91704dd",
+        "size_bytes": 22151
+      },
+      "utils/ClassAwareSampler.py": {
+        "file": "cfie-utils--ClassAwareSampler.py",
+        "sha256": "1ed6289acec7c05181c4a14b7b3ef1d98c035c871fc96536677b5df107617d21",
+        "git_blob": "864857250709e3e0ccef94f31a16f28b6c644949",
+        "size_bytes": 2715
+      },
+      "model/tree.py": {
+        "file": "cfie-model--tree.py",
+        "sha256": "96df103d933eb15e3023d2f012d23aed0eb2709cdaf0686609519d8b69842f0f",
+        "git_blob": "084c733f0032d366eb1de96355e5d1f7930382b5",
+        "size_bytes": 5165
+      }
+    },
+    "source_importability_verified": false,
+    "luke_retacred_port_verified": false,
+    "selected_branch_mechanism": "GCN/BERT branch-specific losses and interventions; not an unbound LUKE port"
+  },
+  "luke_official_discovery": {
+    "repository": "https://github.com/studio-ousia/luke",
+    "commit": "251654548a15b9a8ddc708a53b715bdf3a112102",
+    "readme": "examples/relation_classification/README.md",
+    "config": "examples/relation_classification/configs/lib/base.libsonnet",
+    "training_stack": "AllenNLP_entity_aware_attention",
+    "base_dataset": "TACRED",
+    "pretrained_model": "studio-ousia/luke-large",
+    "base_recipe": {
+      "epochs": 5,
+      "optimizer": "adamw",
+      "lr": 1e-05,
+      "weight_decay": 0.01,
+      "warmup_ratio": 0.06,
+      "physical_batch": 4,
+      "accumulation": 8,
+      "validation_metric": "+micro_fscore",
+      "seed": 0
+    },
+    "core_authors_retacred_recipe_verified": false
+  },
+  "blockers": [
+    "LUKE_reader_model_entity_attention_and_weight_identity_runtime_gate",
+    "CoRE_authors_exact_ReTACRED_training_port_and_selection",
+    "CFIE_LUKE_branch_causal_heads_losses_masks_and_tuning",
+    "CoRE_preprocess_label_only_and_type_constraint_producers",
+    "dev_only_coefficient_selection_and_full_test_evaluator_binding",
+    "LUKE_resample_distribution_and_budget",
+    "LUKE_focal_alpha_gamma_and_reduction",
+    "branch_specific_source_paper_equation_reconciliation",
+    "partial_source_recovery_and_dependency_third_party_notice_review"
+  ],
+  "collection": {
+    "requests_used": 24,
+    "max_requests": 24,
+    "max_retries": 0,
+    "max_browser_escalations": 0,
+    "min_inter_request_delay_seconds": 1,
+    "requests": [
+      {
+        "method": "GET",
+        "url": "https://aclanthology.org/2022.naacl-main.224.pdf",
+        "time_utc": "2026-10-07T13:09:18.466758+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "core-paper.pdf",
+        "sha256": "f5907adf6eefe51694bb581c3d789993eeb24a3061e3a8a049b06e08f1c0856c",
+        "size_bytes": 399974
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/search/repositories?q=CFIE&per_page=20",
+        "time_utc": "2026-10-07T13:11:19.073562+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-repository-search.json",
+        "sha256": "f50affc14ed77ff74f3de6bde68760a6e787360b6ae76776c7b497c6d5108df8",
+        "size_bytes": 101043
+      },
+      {
+        "method": "GET",
+        "url": "https://arxiv.org/abs/2109.05213",
+        "time_utc": "2026-10-07T13:11:53.512424+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-paper-abs.html",
+        "sha256": "2c04876252b083530d1a80b75237bbe92bd326aa02ebd5341bc1a08c465bf5f7",
+        "size_bytes": 41655
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/repos/HeyyyyyyG/CFIE/branches?per_page=100",
+        "time_utc": "2026-10-07T13:11:56.106409+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-branches.json",
+        "sha256": "3ae62e66d3c0a5a5e1ff6018fe7506e4395065f0bc7c4ccdfbc6cf2b0c790433",
+        "size_bytes": 388
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/repos/HeyyyyyyG/CFIE/git/trees/HEAD?recursive=1",
+        "time_utc": "2026-10-07T13:11:57.106795+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-default-tree.json",
+        "sha256": "15a75da4f48d2a2795c9a20854f978e48ffa64a27c4fbfd7aeedf53c9cd7b002",
+        "size_bytes": 22534
+      },
+      {
+        "method": "GET",
+        "url": "https://arxiv.org/pdf/2109.05213v1",
+        "time_utc": "2026-10-07T13:12:51.260214+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-paper.pdf",
+        "sha256": "65558a7fc7473524f15cf794b4ec272d181febc106438cbf3621a329d5b2b595",
+        "size_bytes": 1069594
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/repos/HeyyyyyyG/CFIE/git/trees/17583143a4d70eb4c12e07461620b24dfe376198?recursive=1",
+        "time_utc": "2026-10-07T13:13:49.267662+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-re-tree.json",
+        "sha256": "c76fab7c424fd2d402274adb2886bf2afeb7acf5d74a8a25626b77cb0c62eac3",
+        "size_bytes": 14760
+      },
+      {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/HeyyyyyyG/CFIE/17583143a4d70eb4c12e07461620b24dfe376198/README.md",
+        "time_utc": "2026-10-07T13:14:46.404088+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-README.md",
+        "sha256": "4740a15cfddff8e50c16563e9158e776f543b780e9ff92d867fe23006ab9a694",
+        "size_bytes": 4823
+      },
+      {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/HeyyyyyyG/CFIE/17583143a4d70eb4c12e07461620b24dfe376198/LICENSE",
+        "time_utc": "2026-10-07T13:14:47.404468+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-LICENSE",
+        "sha256": "6441eed3983ec680dd2bff460c3d90e5dd0798a653f1940c8dfc1d4017e82f2c",
+        "size_bytes": 603
+      },
+      {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/HeyyyyyyG/CFIE/17583143a4d70eb4c12e07461620b24dfe376198/model/trainer.py",
+        "time_utc": "2026-10-07T13:14:48.404750+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-model--trainer.py",
+        "sha256": "8a157466e6745a3013d7a336e7bfafe1aca161572646078c8f7e2f1bfb032767",
+        "size_bytes": 20185
+      },
+      {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/HeyyyyyyG/CFIE/17583143a4d70eb4c12e07461620b24dfe376198/model/counterfactual.py",
+        "time_utc": "2026-10-07T13:14:49.405113+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-model--counterfactual.py",
+        "sha256": "ede6b480867808fe530dddf43f4c73d976c6eea841ddd2107fd481f30972b62d",
+        "size_bytes": 5241
+      },
+      {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/HeyyyyyyG/CFIE/17583143a4d70eb4c12e07461620b24dfe376198/model/bert.py",
+        "time_utc": "2026-10-07T13:14:50.405452+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-model--bert.py",
+        "sha256": "ddb54e64d3ec653d3ca603541bcff7c6cb157680a17c438c6d653d548558ae21",
+        "size_bytes": 15760
+      },
+      {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/HeyyyyyyG/CFIE/17583143a4d70eb4c12e07461620b24dfe376198/train.py",
+        "time_utc": "2026-10-07T13:14:51.405549+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-train.py",
+        "sha256": "f625b5cf75330862cd7c21ee6d93404581fd5e2d50803439e1667061ee1289d5",
+        "size_bytes": 19263
+      },
+      {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/HeyyyyyyG/CFIE/17583143a4d70eb4c12e07461620b24dfe376198/eval.py",
+        "time_utc": "2026-10-07T13:14:52.405659+00:00",
+        "status": "failed",
+        "classification": "transport_error",
+        "access_mode": "public_https",
+        "failure_reason": "URLError: <urlopen error _ssl.c:990: The handshake operation timed out>"
+      },
+      {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/HeyyyyyyG/CFIE/17583143a4d70eb4c12e07461620b24dfe376198/model/gcn.py",
+        "time_utc": "2026-10-07T13:16:04.647256+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-model--gcn.py",
+        "sha256": "a73d898e3af71ba4ac1562e89111f96e3d6e1c0d88f46643b08b376cd5abccc6",
+        "size_bytes": 34097
+      },
+      {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/HeyyyyyyG/CFIE/17583143a4d70eb4c12e07461620b24dfe376198/utils/scorer.py",
+        "time_utc": "2026-10-07T13:16:05.647605+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-utils--scorer.py",
+        "sha256": "334298cd6fff3d0cbd9cef20af6639c4e82e3f29ae17dfb6cc109a6e1569e2f6",
+        "size_bytes": 12216
+      },
+      {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/HeyyyyyyG/CFIE/17583143a4d70eb4c12e07461620b24dfe376198/data/loader.py",
+        "time_utc": "2026-10-07T13:17:12.319705+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-data--loader.py",
+        "sha256": "78d0418994ccca72589102f5b7ad65f6bfdc486f06dd2c65e5e2e455ff52f876",
+        "size_bytes": 29592
+      },
+      {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/HeyyyyyyG/CFIE/17583143a4d70eb4c12e07461620b24dfe376198/utils/constant.py",
+        "time_utc": "2026-10-07T13:17:13.320146+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-utils--constant.py",
+        "sha256": "5dbff85f6ceee1a8681dbab643057c39fc479f923e69fdee8ba418716fb979a3",
+        "size_bytes": 22151
+      },
+      {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/HeyyyyyyG/CFIE/17583143a4d70eb4c12e07461620b24dfe376198/utils/loss.py",
+        "time_utc": "2026-10-07T13:17:14.320467+00:00",
+        "status": "failed",
+        "classification": "transport_error",
+        "access_mode": "public_https",
+        "failure_reason": "URLError: <urlopen error _ssl.c:990: The handshake operation timed out>"
+      },
+      {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/HeyyyyyyG/CFIE/17583143a4d70eb4c12e07461620b24dfe376198/utils/ClassAwareSampler.py",
+        "time_utc": "2026-10-07T13:17:44.510384+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-utils--ClassAwareSampler.py",
+        "sha256": "1ed6289acec7c05181c4a14b7b3ef1d98c035c871fc96536677b5df107617d21",
+        "size_bytes": 2715
+      },
+      {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/HeyyyyyyG/CFIE/17583143a4d70eb4c12e07461620b24dfe376198/model/tree.py",
+        "time_utc": "2026-10-07T13:17:45.510784+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cfie-model--tree.py",
+        "sha256": "96df103d933eb15e3023d2f012d23aed0eb2709cdaf0686609519d8b69842f0f",
+        "size_bytes": 5165
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/repos/studio-ousia/luke/git/trees/HEAD?recursive=1",
+        "time_utc": "2026-10-07T13:20:03.044787+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "luke-official-tree.json",
+        "sha256": "2e92f833f85a50a3d23434e5c9cebce2a005fde7b07ab0b7a4bd49485f11ff14",
+        "size_bytes": 64728
+      },
+      {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/studio-ousia/luke/251654548a15b9a8ddc708a53b715bdf3a112102/examples/relation_classification/README.md",
+        "time_utc": "2026-10-07T13:20:45.824103+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "luke-relation-README.md",
+        "sha256": "54bff0835362b0c64b8e602db85eea1b69ad13a0adda8f09845b7e69d5ff5f3b",
+        "size_bytes": 4453
+      },
+      {
+        "method": "GET",
+        "url": "https://raw.githubusercontent.com/studio-ousia/luke/251654548a15b9a8ddc708a53b715bdf3a112102/examples/relation_classification/configs/lib/base.libsonnet",
+        "time_utc": "2026-10-07T13:20:46.824384+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "luke-relation-base.libsonnet",
+        "sha256": "d7aa55f687f8f51d8d814b86cdcb9d258825a7e0570ce145f16f7c7bb15e461e",
+        "size_bytes": 1819
+      }
+    ]
+  },
+  "adapter_implemented": false,
+  "strict_comparison_eligible": false
+}

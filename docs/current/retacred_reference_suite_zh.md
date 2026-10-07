@@ -20,7 +20,14 @@ CTL-DRP 官方仓库仅 README；MetaEntail-RE 论文源码
 +审计契约见 `baselines/retacred/curriculum-contract.md`，离线审计
 +`python -m baselines.retacred.curriculum_audit`预期 exit2 / not_verifiable / 零训练任务。
 
-## 默认运行指令
+LUKE/CFIE 的作者仓库已找到并锁定：默认分支为NER，关系抽取在RE分支。
++该源码使用NYT24上的GCN/BERT，尚未绑定CoRE论文中的LUKE/Re-TACRED移植配置。
++CoRE发布脚本是TACRED checkpoint＋按gold标签筛选挑战子集＋macro-F1，
++与论文全量Re-TACRED micro-F1不是同一运行路径。论文同时报告macro和micro，
++聚合方式是五次训练的中位数，不是单seed或均值。四个LUKE候选继续阻塞，
++默认五个任务不变；审计见 `baselines/retacred/luke-variants-contract.md`。
++
++## 默认运行指令
 
 完成下方同步、环境与 token 配置后，在项目根目录执行：
 

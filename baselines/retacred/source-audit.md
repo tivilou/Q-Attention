@@ -12,8 +12,8 @@ scores are historical selection aids, never project measurements.
 | CTL-DRP | `Viva28/CTl-DRP@2db67a258c266fba3ee0e2cbcdb88ccbc45cf40d` | Only `README.md` containing “Coming soon”; both reported supervised and unsupervised configurations remain blocked. |
 | MetaEntail-RE | [author paper](https://aclanthology.org/2025.naacl-long.165.pdf), footnote 1 | Official link `https://github.com/wphogan/metaentail-re` returns 404; clone says repository not found. Exact hypotheses, meta-class graph, type-pair filtering and grouped selection cannot be replaced with an ordinary classifier. Evaluation convention needs checking before ranking against non-null benchmark F1. |
 | Curriculum Learning | [paper v2](https://arxiv.org/pdf/2107.09332v2);16 bounded public requests, two candidate trees | Paper method includes dependency GAT + bilinear classifier and reviewers trained on their own disjoint subsets. Table2 own baseline91.2 -> curriculum91.4 (+0.2pp). Candidate handle identity unverified and inspected entries describe different methods. Fold-count ambiguity, graph equations, pacing, exact recipe and scorer remain unresolved. See `curriculum-contract.md`; blocked, no marker-only substitute. |
-| LUKE + CoRE | `vanoracai/CoRE@c98d69472110d2514458e3b58a6a82f9793974aa` | Released `core.py` directly runs `studio-ousia/luke-large-finetuned-tacred` on repository TACRED `test.json`, with `preprocess.data` precomputed scores/constraints. It does not provide the Re-TACRED train/final-selection pipeline behind the reported row. Precomputed test assets are not substituted for project data. |
-| LUKE + CFIE / resampling / focal | comparison rows in [CoRE paper](https://arxiv.org/abs/2205.03784) | Not three implementations in CoRE. Original CFIE, sampling distribution and focal alpha/gamma, backbone/initialization and budgets remain unpinned. Arbitrary textbook losses would be interpretive controls, not certified reproductions. |
+| LUKE + CoRE | `vanoracai/CoRE@c98d6947`; paper Tables2/3 | Released code selects gold-conditioned entity-bias challenge examples and runs macro scorer on a TACRED-finetuned checkpoint; not full Re-TACRED micro reproduction. Cached preprocessing producer/full training/dev selection missing. See `luke-variants-contract.md`. |
+| LUKE + CFIE / resampling / focal | Official `HeyyyyyyG/CFIE` **RE** branch@17583143; original paper author link verified | Default branch is NER; RE source uses NYT24 GCN/BERT, branch-specific losses/interventions. No verified LUKE/Re-TACRED port. Sampler existence is not the CoRE resampling recipe; focal loss fetch failed. Tables3/2 bind micro/macro and five-run medians, not project outputs. |
 | 2025 RoBERTa marker comparison | [paper](https://arxiv.org/abs/2509.11374) | Same architecture family as Improved; separate recipe not locked. Keep duplicate configuration visible without claiming another independent model. |
 
 ## Runtime findings repaired in the new adapter
@@ -105,3 +105,24 @@ entering a separate run set.
   jobs. Add `--verify-cache <cache>` to check all fifteen successful public
   response hashes without fetching or importing downloaded code. Rank/evaluator
   eligibility remains unverified; defaults remain five adapters.
+
+## LUKE variant score/source binding
+
+- CoRE paper Table3 micro: unmodified LUKE90.3, resample90.5, focal90.4,
+  CFIE90.5, CoRE90.9; Table2 macro:80.2/80.5/80.3/80.4/81.6. Reported
+  aggregation is median of five training runs, not a single seed or mean±SD.
+- Source `challenge_set` depends on gold labels; released `getF1` is macro
+  over the gold numeric range with first entry excluded and absent-class P/R1.
+  Small actual AST-slice fixtures demonstrate different denominators and
+  source1/3 macro versus4/7 benchmark micro. These are fixtures, not project
+  measurements or a claim that the paper's intended full-test result is invalid.
+- Original CFIE author repository/RE commit recovered; twelve selected files
+  hash-locked and never fully imported. Branch-specific loss and intervention
+  expressions require source/paper reconciliation before any LUKE adaptation.
+- Official LUKE training README/base configuration separately discovered at
+  studio-ousia/luke@25165454. Its TACRED route is not the missing CoRE Re-TACRED
+  port. Next gate is reader/model/attention and original checkpoint identity.
+-24 paced HTTP requests,22 successful, two TLS failures retained without retry.
+  No raw dataset or pretrained weights downloaded. Offline audit
+  `python -m baselines.retacred.luke_audit` exits2/not_verifiable/zero jobs;
+  optional `--verify-cache <cache>` verifies public bytes, not model fidelity.

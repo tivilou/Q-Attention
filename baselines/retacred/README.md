@@ -36,6 +36,14 @@ Curriculum Learning's paper model includes **dependency GAT + bilinear
 +see `curriculum-contract.md`. `python -m baselines.retacred.curriculum_audit`
 +is offline/read-only, expected exit2, no model launch or substitute.
 +
++LUKE/CFIE original author source was recovered on the **RE** branch, not its
++default NER branch. The released CoRE example is a gold-conditioned TACRED
++challenge **macro** analysis, not the paper's full Re-TACRED **micro** result.
++The exact LUKE ports/training recipes remain blocked; see
++`luke-variants-contract.md`. `python -m baselines.retacred.luke_audit` is an
++offline audit (exit2), executes only scalar scorer/selection AST fixtures,
++and never loads a model, pickle or dataset. Default five models stay unchanged.
++
 +## Mechanism vs experiment protocol
 
 Per-model manifests, `mechanism-contract.md` and `adaptation-diff.md` freeze
@@ -90,6 +98,7 @@ completed shards are reused, partial shards retry from the beginning.
 - `fidelity.py`: fixed-input runtime equivalence gate.
 - `ptr_resources.py`: recovered official historical metadata.
 - `ptr.py`, `ptr_fidelity.py`: normal PTR source adapter and runtime gate.
+- `luke_audit.py`: source/score/port audit, not a LUKE training adapter.
 - `curriculum_audit.py`: paper/source readiness audit, not a curriculum adapter.
 - `ptr_reversed_audit.py`: pinned-source/changed-task audit, not a reversed adapter.
 - `sequence_resources.py`: isolated hash-locked historical file recovery, not an adapter.
