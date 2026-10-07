@@ -1,0 +1,108 @@
+{
+  "schema_version": "baseline-reproduction-fidelity.v1",
+  "baseline_id": "entity_marker",
+  "provenance": {
+    "mode": "source",
+    "paper": {
+      "citation": "Zhou and Chen, An Improved Baseline for Sentence-level Relation Extraction (2021)",
+      "url": "https://arxiv.org/abs/2102.01373"
+    },
+    "upstream": {
+      "source_url": "https://github.com/wzhouad/RE_improved_baseline",
+      "revision": "fe00781116ab4c34cbcd9a2ae5b02513afae87ee",
+      "license": "MIT",
+      "entrypoints": [
+        "prepro.RETACREDProcessor.tokenize",
+        "model.REModel.forward",
+        "utils.collate_fn"
+      ],
+      "checkpoint": {
+        "url": "https://huggingface.co/FacebookAI/roberta-large/tree/722cf37b1afa9454edce342e7895e588b6ff1d59",
+        "sha256": "36a10a8b694fadf9bf4f9049d14e257e88be45313ae02d882af9e60f39b8b2e8"
+      }
+    },
+    "artifacts": [
+      {
+        "path": "model.py",
+        "sha256": "ee8072d85a811e5a9e82aa5153419901b1cea1255e08db21a595c85f5d0fedcc"
+      },
+      {
+        "path": "prepro.py",
+        "sha256": "ac94b0dd23d8358193fd25fea640b04b9f91672dafec6f83a3c89f9e9a1fa452"
+      },
+      {
+        "path": "utils.py",
+        "sha256": "eb6d704f23a0c07bb2bfb5bd23a37475f861e9fdeaec169e9ee47ef8da8171b9"
+      },
+      {
+        "path": "train_retacred.py",
+        "sha256": "cb92b26efdbc8825f517d026c1af2bbdb87fd6c3611237425b48aede26e19f28"
+      }
+    ]
+  },
+  "mechanism_contract": {
+    "entrypoints": [
+      "baselines/retacred/improved.py",
+      "baselines/retacred/mechanism-contract.md"
+    ],
+    "invariants": [
+      "input_format=entity_marker",
+      "subject/object marker pooling, concatenation and upstream MLP/CE",
+      "40 classes, no_relation=0, no output repair",
+      "no EMA/noise schedule/generative sampler"
+    ],
+    "assumptions": [
+      "Common adapted protocol; not an exact published-score replay",
+      "Full-weight CUDA runtime and AMP are pending collaborator-side certification"
+    ],
+    "unknowns": [
+      "Published-score replication under this separate common budget is not measured"
+    ]
+  },
+  "adaptation": {
+    "allowed_changes": [
+      "Canonical task interface, path/device placement, observability",
+      "Declared common batch/update/checkpoint/final-selection protocol"
+    ],
+    "forbidden_changes": [
+      "Change marker/pooling/classifier/loss",
+      "Test-based output constraints/checkpoint selection",
+      "Silent source/checkpoint/optimizer fallback"
+    ],
+    "postprocessing_rules": []
+  },
+  "equivalence": {
+    "status": "not_verifiable",
+    "scope": "Tiny official-source mechanism fixtures passed; full-weight CUDA/AMP and protocol certification pending. Do not promote from the file's existence.",
+    "tolerances": {
+      "fixture_rtol": 0.00001,
+      "fixture_atol": 0.000001
+    }
+  },
+  "validation": {
+    "gates": {
+      "provenance_locked": true,
+      "mechanism_contract_reviewed": true,
+      "adaptation_boundary_reviewed": true,
+      "no_postprocessing_rules": true,
+      "manifest_frozen": true,
+      "upstream_fixture_checked": true,
+      "forward_checked": true,
+      "gradient_checked": true,
+      "optimizer_update_checked": true,
+      "sampler_checked": true,
+      "checkpoint_checked": false,
+      "full_weight_runtime_checked": false,
+      "cuda_amp_checked": false,
+      "common_protocol_runtime_checked": false
+    },
+    "commands": [
+      "python -m pytest tests/test_retacred_reference_suite.py -q"
+    ],
+    "evidence_files": [
+      "baselines/retacred/mechanism-contract.md",
+      "baselines/retacred/adaptation-diff.md",
+      "tests/test_retacred_reference_suite.py"
+    ]
+  }
+}

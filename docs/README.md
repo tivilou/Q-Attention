@@ -7,6 +7,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
+| [Re-TACRED 外部 reference 统一入口](current/retacred_reference_suite_zh.md) | 十五个已讨论配置的源码审计、四个 marker adapter、真实 train/test 张量、18084 权重获取、GPU 队列、batch 恢复和自动报告推送；缺源码方法明确阻塞 |
 | [Re-TACRED 核心 baseline 完整评估](current/retacred_baseline_complete_zh.md) | Disabled / baseline 的完整指标、逐类结果、报告导出和合作者执行协议 |
 | [Re-TACRED Improved Baseline 外部 reference](current/retacred_reference_improved_baseline_zh.md) | 锁定 RoBERTa-large typed entity marker 上游实现、source fidelity gate、完整指标、case study 和合作者一键 runner |
 | [Q-EPVG Entangled Parity Value Gating Re-TACRED 正式多 seed](current/retacred_q_epvg_formal_multi_seed_zh.md) | 固定 seed 13/29/53 的完整数据复现、seed 轮转动态多 GPU、batch 级恢复、paired 统计及 train/valid/test 全链路 Case Study 审计导出 |
