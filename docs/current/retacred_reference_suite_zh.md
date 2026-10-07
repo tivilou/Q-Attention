@@ -4,7 +4,9 @@
 typed_marker_punct、typed_marker、entity_marker_punct、entity_marker、ptr。
 完整候选及阻塞原因在 `baselines/retacred/cohort.json`。普通 PTR 保留官方五项 prompt
 CE 加关系 CE、双 optimizer/scheduler 和 FP32，已通过小模型 CPU 行为门槛；
-完整权重 CUDA 门槛仍待完成，reversed 版本尚缺原始转换配方。
+完整权重 CUDA 门槛仍待完成。PTR reversed 是部分关系反向后的**变更任务设置**，
+作者明确说明不应与常规设置直接比较；论文91.9保留为参考，不列为本任务同协议 SOTA。
+原始完整反转列表、逆关系 verbalizer 与转换入口仍未恢复，不用普通 PTR 冒充。
 Sequence Routing 的 `Abstraction.py` 已从官方历史恢复，H3/Mix 的输出维度512已确认，
 但分类器41类与 canonical40类的边界、relation 文件的生成前读取问题、论文64batch/6epoch
 与源码24batch/5epoch的差异仍待厘清。公开源码的全标签 micro-F1包含 no_relation，
@@ -135,3 +137,7 @@ git log --oneline origin/1.1..HEAD
 `python -m baselines.retacred.sequence_resources`，验证缓存加 `--verify-only`，不会覆盖官方源码。
 只读查看所有候选与缺口：`bash scripts/check_retacred_reference_suite.sh --inventory`。
 `--models all --dry-run` 会指出缺源码/未接入方法并退出，不会把不完整 cohort 算全完成。
+
+PTR reversed 离线审计：`python -m baselines.retacred.ptr_reversed_audit`，预期退出2、
+`not_verifiable`、零任务启动。它不是训练脚本；证据与边界见
+`baselines/retacred/ptr-reversed-contract.md`。若未来复现变更任务，应单独建数据协议与结果表。

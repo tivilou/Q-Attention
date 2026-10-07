@@ -23,6 +23,12 @@ the reported92.2 is not certified same-metric rank evidence. See
 `sequence-routing-contract.md`. `python -m baselines.retacred.sequence_audit`
 is an offline/read-only check and intentionally exits2 while admission is blocked.
 
+PTR Reversed is a **changed-task reference**, not a canonical-task strict baseline.
+The repository member explicitly distinguishes its selective inverse relations
+from the conventional setting. Its reported91.9 remains visible but is rank-ineligible.
+See `ptr-reversed-contract.md`; `python -m baselines.retacred.ptr_reversed_audit`
+is an offline audit, expected exit2, no model jobs or normal-PTR substitution.
+
 ## Mechanism vs experiment protocol
 
 Per-model manifests, `mechanism-contract.md` and `adaptation-diff.md` freeze
@@ -77,6 +83,7 @@ completed shards are reused, partial shards retry from the beginning.
 - `fidelity.py`: fixed-input runtime equivalence gate.
 - `ptr_resources.py`: recovered official historical metadata.
 - `ptr.py`, `ptr_fidelity.py`: normal PTR source adapter and runtime gate.
+- `ptr_reversed_audit.py`: pinned-source/changed-task audit, not a reversed adapter.
 - `sequence_resources.py`: isolated hash-locked historical file recovery, not an adapter.
 - `sequence_audit.py`: static source/recipe/metric audit; no import or training side effects.
 - `updates.py`: mandatory named dual optimizer/scheduler recovery.
