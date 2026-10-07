@@ -29,7 +29,14 @@ from the conventional setting. Its reported91.9 remains visible but is rank-inel
 See `ptr-reversed-contract.md`; `python -m baselines.retacred.ptr_reversed_audit`
 is an offline audit, expected exit2, no model jobs or normal-PTR substitution.
 
-## Mechanism vs experiment protocol
+Curriculum Learning's paper model includes **dependency GAT + bilinear
++classifier**, not marker-only training with a sorting callback. Cross reviewers
++train on their own subsets. Its reported91.4 is +0.2 percentage points over
++its own91.2 baseline. Source identity, equations, pacing and scorer are unresolved;
++see `curriculum-contract.md`. `python -m baselines.retacred.curriculum_audit`
++is offline/read-only, expected exit2, no model launch or substitute.
++
++## Mechanism vs experiment protocol
 
 Per-model manifests, `mechanism-contract.md` and `adaptation-diff.md` freeze
 the source facts and evidence ceiling. Full-weight formal certification remains
@@ -83,6 +90,7 @@ completed shards are reused, partial shards retry from the beginning.
 - `fidelity.py`: fixed-input runtime equivalence gate.
 - `ptr_resources.py`: recovered official historical metadata.
 - `ptr.py`, `ptr_fidelity.py`: normal PTR source adapter and runtime gate.
+- `curriculum_audit.py`: paper/source readiness audit, not a curriculum adapter.
 - `ptr_reversed_audit.py`: pinned-source/changed-task audit, not a reversed adapter.
 - `sequence_resources.py`: isolated hash-locked historical file recovery, not an adapter.
 - `sequence_audit.py`: static source/recipe/metric audit; no import or training side effects.

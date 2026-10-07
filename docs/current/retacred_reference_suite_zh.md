@@ -12,7 +12,13 @@ Sequence Routing 的 `Abstraction.py` 已从官方历史恢复，H3/Mix 的输�
 与源码24batch/5epoch的差异仍待厘清。公开源码的全标签 micro-F1包含 no_relation，
 等于 accuracy，并非本项目非空关系 micro-F1；论文92.2的评估绑定尚未认证，不作为同口径排名。
 CTL-DRP 官方仓库仅 README；MetaEntail-RE 论文源码
-链接返回 404；Curriculum 与 LUKE 对照变体仍缺可核实的完整配置。不会静默替换。
+链接返回 404；LUKE 对照变体仍缺可核实的完整配置。
++Curriculum 论文的91.4来自实体编码＋依存图 GAT＋双线性分类器＋跨模型课程学习，
++其自身 baseline 为91.2，增益为0.2个百分点。reviewer分别只用自身独立子集训练，
++不是常规 OOF 或按单模型 loss 排序。候选源码尚未绑定作者身份与该论文，GAT细节、
++reviewer数量、课程调度和评估器仍未核实；不使用普通 marker 冒充。
++审计契约见 `baselines/retacred/curriculum-contract.md`，离线审计
++`python -m baselines.retacred.curriculum_audit`预期 exit2 / not_verifiable / 零训练任务。
 
 ## 默认运行指令
 

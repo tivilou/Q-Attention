@@ -11,7 +11,7 @@ scores are historical selection aids, never project measurements.
 | Sequence Routing | `bahramiramazan/re-representation@cc95c4ad20b9ed46b978ffa4e88e31ce28c7ed20`; historical `Abstraction.py@6065881f` recovered | Active experiment4 is H3/Mix, **H3 output512 overrides the initial41**, classifier remains41 vs canonical40. Missing metadata is generated later, but factory reads it before generation. Source budget24/5 differs from paper64/6. Released evaluator includes null labels; all-label micro-F1 equals accuracy. The published92.2 binding is unverified, not certified same-metric ranking. Dependency experiment revision/main license unresolved. See `sequence-routing-contract.md`; row remains blocked, no source patch/model substitution. |
 | CTL-DRP | `Viva28/CTl-DRP@2db67a258c266fba3ee0e2cbcdb88ccbc45cf40d` | Only `README.md` containing “Coming soon”; both reported supervised and unsupervised configurations remain blocked. |
 | MetaEntail-RE | [author paper](https://aclanthology.org/2025.naacl-long.165.pdf), footnote 1 | Official link `https://github.com/wphogan/metaentail-re` returns 404; clone says repository not found. Exact hypotheses, meta-class graph, type-pair filtering and grouped selection cannot be replaced with an ordinary classifier. Evaluation convention needs checking before ranking against non-null benchmark F1. |
-| Curriculum Learning | [author paper](https://arxiv.org/abs/2107.09332) | No verified executable official repository identified. Cross-review difficulty estimation and curriculum scheduling need a declared paper implementation contract, assumptions and independent mechanism review. |
+| Curriculum Learning | [paper v2](https://arxiv.org/pdf/2107.09332v2);16 bounded public requests, two candidate trees | Paper method includes dependency GAT + bilinear classifier and reviewers trained on their own disjoint subsets. Table2 own baseline91.2 -> curriculum91.4 (+0.2pp). Candidate handle identity unverified and inspected entries describe different methods. Fold-count ambiguity, graph equations, pacing, exact recipe and scorer remain unresolved. See `curriculum-contract.md`; blocked, no marker-only substitute. |
 | LUKE + CoRE | `vanoracai/CoRE@c98d69472110d2514458e3b58a6a82f9793974aa` | Released `core.py` directly runs `studio-ousia/luke-large-finetuned-tacred` on repository TACRED `test.json`, with `preprocess.data` precomputed scores/constraints. It does not provide the Re-TACRED train/final-selection pipeline behind the reported row. Precomputed test assets are not substituted for project data. |
 | LUKE + CFIE / resampling / focal | comparison rows in [CoRE paper](https://arxiv.org/abs/2205.03784) | Not three implementations in CoRE. Original CFIE, sampling distribution and focal alpha/gamma, backbone/initialization and budgets remain unpinned. Arbitrary textbook losses would be interpretive controls, not certified reproductions. |
 | 2025 RoBERTa marker comparison | [paper](https://arxiv.org/abs/2509.11374) | Same architecture family as Improved; separate recipe not locked. Keep duplicate configuration visible without claiming another independent model. |
@@ -86,3 +86,22 @@ entering a separate run set.
 - Paper v3 section4.2 and Table5 alter entity/relation direction. Active source only implements normal order; three inspected historical trees share the same normal metadata blob. No raw train/test files were fetched.
 - Preserve historical91.9 and its row, but set same-task rank/comparability false; `ready` remains5. No global entity swap, guessed inverse mapping or normal-PTR fallback is admitted.
 - Offline audit: `python -m baselines.retacred.ptr_reversed_audit`, expected exit2 with zero model jobs. Gold-conditioned orientation is a target-input risk to test in any future changed-task contract, not evidence of leakage in normal PTR.
+
+## Curriculum Learning mechanism and source audit
+
+- The reported91.4 binds to RoBERTa entity encodings **plus dependency GAT and
+  a bilinear classifier**. Its own GAT baseline reports91.2. Do not substitute
+  the existing marker MLP or claim +0.5 over its typed-marker reimplementation
+  is the curriculum's isolated gain.
+- Cross-review trains each reviewer on its own independent subset and reviews
+  the others. Paper reviewer-count notation is inconsistent; exact groups,
+  pacing and reviewer budgets remain unspecified. Ordinary OOF/loss sorting
+  and antecedent-paper defaults are not recovered Re-TACRED facts.
+- Sixteen paced public requests, one invalid422 query, no retries/browser.
+  Candidate account identity is unverified; inspected RE_MTB/RelationExtraction
+  entries describe different approaches. This is not a global source-absence
+  claim. Original public bytes stay outside Git; hashes are locked.
+- `python -m baselines.retacred.curriculum_audit` exits2/not_verifiable, zero
+  jobs. Add `--verify-cache <cache>` to check all fifteen successful public
+  response hashes without fetching or importing downloaded code. Rank/evaluator
+  eligibility remains unverified; defaults remain five adapters.

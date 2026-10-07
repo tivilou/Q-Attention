@@ -110,23 +110,32 @@
       "paper_url": "https://arxiv.org/abs/2107.09332",
       "official_repository": null,
       "provenance_mode": "paper",
-      "source_status": "not_verified",
+      "source_status": "bounded_public_search_unverified",
       "source_commit": null,
       "checkpoint": null,
       "reported_in_paper": {
         "test_micro_f1": 0.914,
-        "metric_unit": "fraction"
+        "metric_unit": "fraction",
+        "own_baseline_f1": 0.912,
+        "gain_percentage_points": 0.2,
+        "evaluator_binding": "unverified",
+        "metric_convention_verified": false
       },
-      "status": "planned",
+      "status": "blocked_source_and_protocol",
       "strict_comparison_eligible": false,
       "comparable": false,
-      "adaptation_boundary": "Preserve difficulty scoring, curriculum schedule, encoder, relation head, and checkpoint-selection rule; project changes may only adapt the frozen Re-TACRED interface.",
+      "adaptation_boundary": "Preserve dependency-graph GAT, bilinear classifier, own-subset cross-review and curriculum pacing; no marker-only or conventional OOF substitute. Exact graph/recipe/scorer gaps remain blocked.",
       "required_gates": [
         "paper_mechanism_contract",
         "assumption_register",
         "reported_result_reproduction",
-        "common_protocol"
-      ]
+        "common_protocol",
+        "dependency_gat_bilinear_contract",
+        "reviewer_membership_and_schedule_contract",
+        "evaluator_binding"
+      ],
+      "reported_score_rank_eligible": false,
+      "audit_contract": "baselines/retacred/curriculum-contract.md"
     },
     {
       "rank": 4,

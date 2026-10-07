@@ -1,0 +1,296 @@
+{
+  "schema": "curriculum-paper-evidence.v1",
+  "audited_on": "2026-10-07",
+  "paper": {
+    "title": "Improving Sentence-Level Relation Extraction Through Curriculum Learning",
+    "url": "https://arxiv.org/pdf/2107.09332v2",
+    "version": "v2",
+    "pdf_sha256": "3ca6f606e386769a00872b4bd7906d272e55786cc979d23b3f42cdd054ad1a85",
+    "reported": {
+      "table": 2,
+      "dataset": "Re-TACRED",
+      "scores_are_project_measurements": false,
+      "typed_marker_reimplementation": {
+        "precision": 0.906,
+        "recall": 0.913,
+        "f1": 0.909
+      },
+      "cited_typed_marker": {
+        "f1": 0.911
+      },
+      "own_baseline": {
+        "precision": 0.917,
+        "recall": 0.907,
+        "f1": 0.912
+      },
+      "curriculum": {
+        "precision": 0.913,
+        "recall": 0.915,
+        "f1": 0.914
+      },
+      "evaluator_binding": "not_specified_in_paper_or_recovered_source"
+    }
+  },
+  "paper_facts": {
+    "sections": [
+      "2.1",
+      "2.2",
+      "3.1",
+      "Table 2"
+    ],
+    "forward_components": [
+      "roberta_large",
+      "punctuation_entity_encoding",
+      "dependency_graph_gat",
+      "concatenate_graph_and_entity_encodings",
+      "bilinear_classifier"
+    ],
+    "marker_tokens_and_type_alignment": "not_fully_specified",
+    "corpus_partition": "without_replacement",
+    "reviewer_training": "each_model_on_its_own_disjoint_subset",
+    "reviewer_evaluation": "other_subsets_only",
+    "difficulty_signal": "reviewer_prediction_correctness",
+    "difficulty_direction": "more_incorrect_predictions_means_harder_or_noisier",
+    "progression": "easy_to_hard_groups_eventually_entire_corpus",
+    "reported_recipe": {
+      "hidden_size": 1024,
+      "dropout": 0.1,
+      "learning_rate": 0.0005,
+      "layer_decay": 0.7,
+      "optimizer": "AdamW"
+    },
+    "reviewer_count": "ambiguous_0_to_n_indexing_and_n_minus_1_predictions"
+  },
+  "source_recovery": {
+    "official_executable_source_verified": false,
+    "candidate_account": "https://github.com/a163912",
+    "candidate_account_author_identity": "unverified_handle_match_only",
+    "candidate_repository_count": 19,
+    "inspected_candidate_trees": [
+      {
+        "repository": "https://github.com/a163912/RE_MTB",
+        "tree": "4b04c281e205fb7236b7642ecbc2004026cf3ccb",
+        "truncated": false,
+        "readme_blob": "adb58dbfd1fb6330db06d30b732d34043604a4a9",
+        "train_blob": "cf0b4a32d851ea4b28a243bbf5aedadbbec1f55a",
+        "finding": "README is MTB/TACRED; selected trainer is shuffled Adam/cosine, not verified curriculum source; models.Model absent from inspected tree"
+      },
+      {
+        "repository": "https://github.com/a163912/RelationExtraction",
+        "tree": "f39600e0e163f29fef43ebcc379cb8a5f28ed45c",
+        "truncated": false,
+        "readme_blob": "dee565ddfbe517a5528f75c5031248a0337be88c",
+        "finding": "README is Korean context-masking multitask/soft-voting submission, not a verified curriculum implementation"
+      }
+    ],
+    "cross_review_antecedent": {
+      "url": "https://aclanthology.org/2020.acl-main.542/",
+      "role": "cited_mechanism_antecedent_not_retacred_source_or_recipe"
+    },
+    "failed_query_contributes_absence_evidence": false,
+    "no_global_absence_claim": true
+  },
+  "unresolved": [
+    "official_executable_source_and_license",
+    "exact_markers_and_dependency_alignment",
+    "gat_and_bilinear_equations",
+    "reviewer_count_index_ambiguity",
+    "reviewer_budgets_seeds_and_initialization",
+    "difficulty_aggregation_and_pacing",
+    "layerwise_lr_group_mapping",
+    "loss_batch_epoch_seed_checkpoint_recipe",
+    "canonical_data_and_label_mapping",
+    "evaluator_binding"
+  ],
+  "bounded_collection": {
+    "allowed_origins": [
+      "api.github.com",
+      "raw.githubusercontent.com",
+      "arxiv.org",
+      "aclanthology.org"
+    ],
+    "max_requests": 16,
+    "requests_used": 16,
+    "max_retries": 0,
+    "max_browser_escalations": 0,
+    "min_inter_request_delay_seconds": 1,
+    "requests": [
+      {
+        "method": "GET",
+        "url": "https://arxiv.org/abs/2107.09332",
+        "time_utc": "2026-10-07T12:46:58.481217+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "paper-abs.html",
+        "sha256": "6b0466f5690e677c205246be0b1142cbf2eaa4aa317c1bfdeccb992468933a7f",
+        "size_bytes": 39827
+      },
+      {
+        "method": "GET",
+        "url": "https://arxiv.org/pdf/2107.09332v2",
+        "time_utc": "2026-10-07T12:47:20.571670+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "curriculum-paper.pdf",
+        "sha256": "3ca6f606e386769a00872b4bd7906d272e55786cc979d23b3f42cdd054ad1a85",
+        "size_bytes": 238732
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/search/repositories?q=curriculum%20relation%20extraction&per_page=20",
+        "time_utc": "2026-10-07T12:48:16.005382+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "repository-search.json",
+        "sha256": "4af480b8ee5b87b369a76c49bd22c9a783908272ebffbe97898f8ab0f0772a5f",
+        "size_bytes": 55
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/search/repositories?q=%22Sentence-Level%22%20%22Curriculum%22&per_page=20",
+        "time_utc": "2026-10-07T12:51:35.456653+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "title-search.json",
+        "sha256": "4af480b8ee5b87b369a76c49bd22c9a783908272ebffbe97898f8ab0f0772a5f",
+        "size_bytes": 55
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/search/repositories?q=%22Seongsik%22&per_page=20",
+        "time_utc": "2026-10-07T12:51:41.130913+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "author-search.json",
+        "sha256": "bed82f5bf3c720f818987685a0512981ef3ad29e1a6671550607964670563278",
+        "size_bytes": 72073
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/search/repositories?q=relation%20extraction%20user%3AKONKUK-NLP&per_page=20",
+        "time_utc": "2026-10-07T12:51:42.422488+00:00",
+        "status": 422,
+        "classification": "http_error",
+        "access_mode": "public_https",
+        "failure_reason": "HTTP Error 422: Unprocessable Entity"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/search/users?q=a163912&per_page=10",
+        "time_utc": "2026-10-07T12:52:26.440819+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "author-id-search.json",
+        "sha256": "beeba1c0c0181bbf5c608743aa6a21180e1a4c17da5515b2493fcb51e0d0974b",
+        "size_bytes": 988
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/search/repositories?q=%222107.09332%22%20in%3Areadme&per_page=20",
+        "time_utc": "2026-10-07T12:52:27.441084+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "paper-id-search.json",
+        "sha256": "4af480b8ee5b87b369a76c49bd22c9a783908272ebffbe97898f8ab0f0772a5f",
+        "size_bytes": 55
+      },
+      {
+        "method": "GET",
+        "url": "https://aclanthology.org/2020.acl-main.542/",
+        "time_utc": "2026-10-07T12:52:28.115978+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "cross-review-antecedent.html",
+        "sha256": "8658e3265be283bdef7906add8a6d24a760985dfc2cd78ce8d1c193b6b6937b8",
+        "size_bytes": 42088
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/users/a163912",
+        "time_utc": "2026-10-07T12:53:06.674862+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "candidate-author-profile.json",
+        "sha256": "ddd355a1f1386c6483b64f410fb7fe6cf6a9d39702381c99212897808b66afb1",
+        "size_bytes": 1173
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/users/a163912/repos?per_page=100&sort=full_name",
+        "time_utc": "2026-10-07T12:53:07.675310+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "candidate-author-repos.json",
+        "sha256": "e2b96c667aadbd77074b7a1a5cc6931761d4f5aa7fcd6e8cfe17a4cad1440389",
+        "size_bytes": 97006
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/repos/a163912/RE_MTB/git/trees/HEAD?recursive=1",
+        "time_utc": "2026-10-07T12:53:51.784022+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "re-mtb-tree.json",
+        "sha256": "0f302fcd7c730358b84109814056398e58e81d646e8b2a43c7dbebc065853829",
+        "size_bytes": 6682
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/repos/a163912/RelationExtraction/git/trees/HEAD?recursive=1",
+        "time_utc": "2026-10-07T12:53:52.784278+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "relation-extraction-tree.json",
+        "sha256": "41dec7aba645f1ff556910451bef678652421e3a5b4c356a4498161e2583b62f",
+        "size_bytes": 2310
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/repos/a163912/RE_MTB/git/blobs/adb58dbfd1fb6330db06d30b732d34043604a4a9",
+        "time_utc": "2026-10-07T12:54:19.020160+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "re-mtb-readme-blob.json",
+        "sha256": "be3e29ea817de61c300c8c7bfd8bc4a968bfd8d0fc0c2c9968cb6e5267f79402",
+        "size_bytes": 1698
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/repos/a163912/RelationExtraction/git/blobs/dee565ddfbe517a5528f75c5031248a0337be88c",
+        "time_utc": "2026-10-07T12:54:20.021194+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "relation-extraction-readme-blob.json",
+        "sha256": "3e19713546adef7177bd28a3f05e8704480e44320c685a4f5c81ca783f0884ea",
+        "size_bytes": 13845
+      },
+      {
+        "method": "GET",
+        "url": "https://api.github.com/repos/a163912/RE_MTB/git/blobs/cf0b4a32d851ea4b28a243bbf5aedadbbec1f55a",
+        "time_utc": "2026-10-07T12:54:21.021572+00:00",
+        "status": 200,
+        "classification": "content",
+        "access_mode": "public_https",
+        "file": "re-mtb-train-blob.json",
+        "sha256": "e329551c9dd1432a9984719ec1e81b8717ac89ca253a1fbd32f3523cb71722e1",
+        "size_bytes": 11012
+      }
+    ]
+  },
+  "model_implemented": false,
+  "strict_comparison_eligible": false
+}
