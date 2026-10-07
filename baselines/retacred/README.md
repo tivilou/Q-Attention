@@ -8,7 +8,10 @@ pretrained weights or credentials.
 configurations**, not a certified global leaderboard or fifteen independent
 models. A sixteenth classic entity-marker anchor is included. Four marker
 variants are implemented through the exact pinned upstream `REModel` and
-`RETACREDProcessor`. Every unavailable or unported configuration remains
+`RETACREDProcessor`. Normal PTR imports source forward, objective and two
+optimizers (see `ptr-mechanism-contract.md` and `ptr-adaptation-diff.md`). Its
+tiny CPU source/trace/resume gates passed; full-weight CUDA certification is pending.
+Every unavailable or unported configuration remains
 visible. `--models all` fails before launching work; it never substitutes a
 generic encoder or pretends the remaining methods ran.
 
@@ -28,9 +31,13 @@ recorded; a tiny fixture or imported class is not a formal certificate.
   physical micro-batches, final-epoch selection and no intermediate test access.
   It does not retain upstream's first-batch/off-by-one accumulation update,
   dropped tail or periodic test evaluation. These are declared adaptations.
-- Five epochs, LR 3e-5, Adam epsilon 1e-6, weight decay 0, bias correction,
+- Marker configurations: five epochs, LR 3e-5, Adam epsilon 1e-6, weight decay 0, bias correction,
   gradient clip 1 and 10% linear warmup are frozen. CUDA retains upstream
   autocast and GradScaler. No silent PyTorch-AdamW fallback.
+- PTR retains source FP32, five verbalizer CE plus relation CE, dual AdamW
+  LR3e-5/1e-5, encoder decay.01 with bias/LayerNorm exclusions, extra decay0,
+  epsilon1e-6 and warmup500. Its extra-token flags stay zero. This differs from
+  marker optimization; a common budget is not an identical source recipe.
 - Physical micro-batch size and checkpointing are immutable resume controls:
   dropout prevents a claim of bit-exact equivalence after changing the partition.
   GPU topology may change because each `(model,seed)` is an isolated task. OOM
@@ -60,7 +67,10 @@ completed shards are reused, partial shards retry from the beginning.
 - `common.py`: source pinning, identity, complete benchmark/all-label metrics.
 - `improved.py`: upstream wrapper and real-batch tensor hooks.
 - `fidelity.py`: fixed-input runtime equivalence gate.
-- `ptr_resources.py`: recovered official historical metadata; PTR adapter pending.
+- `ptr_resources.py`: recovered official historical metadata.
+- `ptr.py`, `ptr_fidelity.py`: normal PTR source adapter and runtime gate.
+- `updates.py`: mandatory named dual optimizer/scheduler recovery.
+- `adapters.py`: explicit allowlist of source adapters, no silent substitutions.
 - `train.py`: logical-batch trainer and post-update recovery.
 - `orchestrate.py`: one heavy worker per GPU, safe pause, dynamic queue.
 - `report.py`: mandatory tensor upload, atomic whitelist export, commit/push.

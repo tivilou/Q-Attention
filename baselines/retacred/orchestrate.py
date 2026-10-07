@@ -166,7 +166,7 @@ def run_queue(jobs: list[dict], devices: list[str], args, checkpoint: Path, data
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--models", default="ready", help="ready (four marker variants), explicit IDs or all (rejects unavailable entries)")
+    parser.add_argument("--models", default="ready", help="ready (four marker variants + normal PTR), explicit IDs or all (rejects unavailable entries)")
     parser.add_argument("--seeds", default="13")
     parser.add_argument("--gpu", default="auto")
     parser.add_argument("--data-dir", type=Path, default=ROOT / "data/relation/retacred")
@@ -233,7 +233,11 @@ def main():
     checkpoint, prepared = Path("canary"), Path("canary")
     if not args.canary:
         from .assets import fetch
-        pin_source("improved")
+        for source_key in sorted({row["source"] for row in rows}):
+            pin_source(source_key)
+        if any(row["id"] == "ptr" for row in rows):
+            from .ptr_resources import fetch_resources
+            fetch_resources()
         checkpoint = fetch()
         prepared = args.run_dir / "prepared_data"
         if not args.resume:

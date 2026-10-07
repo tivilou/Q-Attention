@@ -1,10 +1,11 @@
 # Re-TACRED 参考模型复现：统一入口
 
-当前默认只执行已经接入的四个官方实体标记配置，**不是十五种方法已全部复现**：
-typed_marker_punct、typed_marker、entity_marker_punct、entity_marker。
-完整候选及阻塞原因在 `baselines/retacred/cohort.json`。PTR 的 verbalizer/40 类映射
-已从官方历史提交恢复并校验，但五目标 prompt、双 optimizer 适配尚未完成；
-不能把它算作已可运行。Sequence Routing
+当前默认配置包含四个官方实体标记模型和普通 PTR，**不是十五种方法已全部复现**：
+typed_marker_punct、typed_marker、entity_marker_punct、entity_marker、ptr。
+完整候选及阻塞原因在 `baselines/retacred/cohort.json`。普通 PTR 保留官方五项 prompt
+CE 加关系 CE、双 optimizer/scheduler 和 FP32，已通过小模型 CPU 行为门槛；
+完整权重 CUDA 门槛仍待完成，reversed 版本尚缺原始转换配方。
+Sequence Routing
 缺 `Abstraction.py` 和 Re-TACRED relation 文件，且源码配置 41 类而非本项目的 40 类。
 CTL-DRP 官方仓库仅 README；MetaEntail-RE 论文源码
 链接返回 404；Curriculum 与 LUKE 对照变体仍缺可核实的完整配置。不会静默替换。
@@ -53,12 +54,13 @@ SHA-256。首次约 1.4 GB，缓存后复用。项目附带 CA，绝不跳过 HT
 
 保持官方 marker、编码器、实体位置读出、MLP 和 loss。来源固定到官方 commit。
 每个配置先执行真实权重的固定输入 forward/loss/gradient/AdamW 更新与 trace
-透明性检查；通过后才训练。训练采用单独声明的统一协议（5 epoch、logical batch64、
+透明性检查；通过后才训练。训练采用单独声明的共有预算（5 epoch、logical batch64、
 micro batch4），而不是宣称原论文训练循环完全等价。选择 final epoch，不用 test
 选模型。benchmark micro P/R/F1 排除 no_relation；同时记录全标签 accuracy、
 micro、macro、逐类和混淆矩阵及 loss。论文报告值不填成实际复现结果。
 
-完整权重的 fidelity 检查至少要求 **12 GiB 可用系统内存**，不是显存；低于此值会
+完整权重的 fidelity 检查至少要求 **24 GiB 可用系统内存**，不是显存；同时保留两份
+模型、梯度和 Adam 状态的需求远高于单份推理。低于此值会
 在模型加载前拒绝，避免 OOM 影响其他服务。项目服务器目前只能做小模型 CPU 机制
 和行为测试，尚未证明完整 RoBERTa/GPU gate。Attention 明确固定 eager 实现，以
 记录实际进入 softmax 的 attention scores 和输出概率，而非事后重建。
@@ -68,6 +70,13 @@ micro、macro、逐类和混淆矩阵及 loss。论文报告值不填成实际�
 不能把小模型测试或 CPU 固定输入检查当成完整权重 CUDA/AMP 认证。本批代码
 尚不满足正式交付门槛；发布前须补齐相关门槛证据。本协议训练预算也不同于
 此前冻结编码器的核心 baseline，不能据此直接宣称某注意力机制的因果优势。
+
+PTR 的原始优化细节不强行统一成 marker 的参数：encoder LR3e-5、extra LR1e-5、
+双 scheduler warmup500、encoder decay.01（bias/LayerNorm 除外），FP32。其 flags
+为0的 extra-token 分支保持原样，不为了让其“起作用”擅自激活。loss 记录包含
+五项 prompt CE 的均值**加**关系 CE。按标签名称对齐指标，PTR 数字标签顺序不同。
+PTR 记录五个 mask 的真实 hidden、verbalizer 词向量投影、各项 logits、关系输出和
+梯度，并在 train/test 中分别保存完整数字张量。双优化器及 scheduler 全部进入续跑文件。
 
 `--checkpointing` 开启激活重算，适合 12GB 显卡；显存充足可在**新运行开始前**省略。
 OOM 保留 checkpoint 并报错，不偷偷改变物理 batch/dropout 分区。下一次运行如改变

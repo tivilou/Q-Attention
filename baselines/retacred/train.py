@@ -13,8 +13,9 @@ import signal
 import sys
 import time
 
-from .common import ROOT, atomic_json, digest, fingerprint, git, metrics, pin_source, select_models
-from .improved import Improved, SampleCapture
+from .common import ROOT, atomic_json, cohort, digest, fingerprint, git, metrics, pin_source, select_models
+from .improved import SampleCapture
+from .adapters import build, metadata_identity
 
 PAUSED = 75
 
@@ -74,9 +75,7 @@ def trace(adapter, batch, record, capture, *, phase, sample_index, step, directo
     capture.save("task_output.probabilities", probabilities)
     capture.values["task_output.loss"] = loss.detach().cpu().clone()
     if phase == "train":
-        for name, parameter in adapter.model.classifier.named_parameters():
-            if parameter.grad is not None:
-                capture.values["classifier.parameter_gradient." + name] = parameter.grad.detach().cpu().clone()
+        capture.values.update(adapter.parameter_trace())
     path = directory / (key + ".pt")
     save_torch(path, capture.values)
     row = capture.row
@@ -87,12 +86,12 @@ def trace(adapter, batch, record, capture, *, phase, sample_index, step, directo
                "sample_index": sample_index, "optimizer_update": step,
                "raw_input": record, "token_ids": batch["input_ids"][row].detach().cpu().tolist(),
                "token_strings": adapter.tokenizer.convert_ids_to_tokens(batch["input_ids"][row].detach().cpu().tolist()),
-               "entity_marker_positions": {"subject": int(batch["ss"][row]), "object": int(batch["os"][row])},
                "target": adapter.labels[gold], "predicted_relation": adapter.labels[guessed],
                "target_access": "training_loss_only_or_post_prediction_evaluation",
                "tensor_artifact": path.name, "sha256": digest(path), "size_bytes": path.stat().st_size,
                "batch_context": {"physical_batch_size": len(batch["labels"]), "selected_row": row},
                "loss_scope": "actual_physical_batch_mean_cross_entropy_not_selected_sample_only",
+               **adapter.trace_fields(batch, row),
                **capture.metadata()}
     atomic_json(directory / (key + ".json"), payload)
     return payload
@@ -160,17 +159,22 @@ def main():
     source = pin_source(row["source"], fetch=False)
     paths = {"train": args.data_dir / "train.json", "valid": args.data_dir / "dev.json", "test": args.data_dir / "test.json"}
     data_identity = {name: digest(path) for name, path in paths.items()}
-    source_identity = {name: digest(source/name) for name in ("model.py", "prepro.py", "utils.py")}
+    source_identity = {name: digest(source/name) for name in cohort()["sources"][row["source"]]["files"]}
+    is_ptr = row["id"] == "ptr"
+    from .ptr import PTR
+    from .improved import Improved
+    kind = PTR if is_ptr else Improved
     weight_identity = {path.name: digest(path) for path in sorted(args.checkpoint.iterdir()) if path.is_file()}
     contract = {"schema": "reference-training-contract.v1", "model": args.model, "seed": args.seed,
                 "data": data_identity, "source": source_identity, "weights": weight_identity,
                 "epochs": args.epochs, "logical_batch": args.logical_batch,
-                "selection": "final_epoch", "protocol": "common_adapted_v1",
-                "project_code": {name: digest(Path(__file__).parent/name) for name in ("train.py", "improved.py", "common.py")},
-                "optimizer": "transformers_AdamW_correct_bias_true_weight_decay_0_lr3e-5_eps1e-6",
+                "selection": "final_epoch", "protocol": kind.protocol,
+                "project_code": {name: digest(Path(__file__).parent/name) for name in (
+                    "train.py", "improved.py", "common.py", "adapters.py", "ptr.py", "updates.py", "ptr_resources.py")},
+                "optimizer": kind.optimizer_contract, "metadata": metadata_identity(row),
                 "physical_partition": args.micro_batch, "checkpointing": args.checkpointing,
                 "attention_implementation": "eager_upstream_style_with_actual_softmax_trace",
-                "precision": "upstream_cuda_autocast_fp16_gradscaler"}
+                "precision": kind.precision_contract}
     contract["environment"] = {"torch":torch.__version__, "transformers":__import__('transformers').__version__, "numpy":np.__version__}
     contract_path = args.run_dir / "contract.json"
     if contract_path.exists() and json.loads(contract_path.read_text()) != contract:
@@ -179,7 +183,7 @@ def main():
     random.seed(args.seed); np.random.seed(args.seed); torch.manual_seed(args.seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(args.seed)
-    adapter = Improved(source, args.checkpoint, row["input_format"], device=args.device, checkpointing=args.checkpointing)
+    adapter = build(row, source, args.checkpoint, device=args.device, checkpointing=args.checkpointing)
     # This trainer intentionally uses the common logical-batch update convention,
     # not upstream's step % accumulation == 0 off-by-one. Difference is explicit.
     try:
@@ -189,10 +193,13 @@ def main():
     raw = {split: json.loads(path.read_text()) for split, path in paths.items()}
     features = {split: adapter.encode(items) for split, items in raw.items()}
     adapter.finalize_vocabulary()
-    optimizer = AdamW(adapter.model.parameters(), lr=3e-5, eps=1e-6, weight_decay=0, correct_bias=True)
     total = math.ceil(len(features["train"])/args.logical_batch)*args.epochs
-    scheduler = get_linear_schedule_with_warmup(optimizer, int(total*.1), total)
-    scaler = torch.amp.GradScaler("cuda", enabled=args.device == "cuda")
+    if is_ptr:
+        optimizer, scheduler = adapter.make_updates(math.ceil(len(features["train"])/args.logical_batch), args.epochs)
+    else:
+        optimizer = AdamW(adapter.model.parameters(), lr=3e-5, eps=1e-6, weight_decay=0, correct_bias=True)
+        scheduler = get_linear_schedule_with_warmup(optimizer, int(total*.1), total)
+    scaler = torch.amp.GradScaler("cuda", enabled=args.device == "cuda" and adapter.amp_enabled)
     saved = args.run_dir / "checkpoints/latest.pt"
     state = {"epoch": 0, "cursor": 0, "permutation": None, "update": 0, "traces": []}
     if args.resume:
@@ -291,7 +298,7 @@ def main():
                "contract":contract, "splits":splits, "updates":state["update"],
                "data_manifest":json.loads((args.data_dir/"data_manifest.json").read_text()),
                "case_study": {"status":"complete_local", "schema":"sample-trace.v2", "traces":state["traces"]},
-               "adaptations":["common_protocol_logical_batches_not_upstream_off_by_one_accumulation",
+               "adaptations":["declared_common_logical_batches_preserve_source_objective_and_update_components",
                               "final_epoch_selection_no_intermediate_test_access", "real_train_test_observability"],
                "fidelity":"upstream_forward_imported_runtime_certificate_separate",
                "environment":{"torch":torch.__version__, "transformers":__import__('transformers').__version__}}

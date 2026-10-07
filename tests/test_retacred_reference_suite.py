@@ -25,7 +25,7 @@ def test_manifests_do_not_promote_tiny_fixtures_to_formal_certificates():
         assert manifest["equivalence"]["status"] == "not_verifiable"
         assert manifest["adaptation"]["postprocessing_rules"] == []
         assert not manifest["validation"]["gates"]["cuda_amp_checked"]
-        source = common.pin_source("improved",fetch=False)
+        source = common.pin_source(common.select_models(name)[0]["source"],fetch=False)
         for item in manifest["provenance"]["artifacts"]:
             assert common.digest(source/item["path"]) == item["sha256"]
 
@@ -42,13 +42,13 @@ def test_recovered_ptr_metadata_identity_and_class_interface():
     assert result["labels"]["no_relation"] == processor.LABEL_TO_ID["no_relation"] == 0
     assert len(result["verbalizers"]) == 40
     assert all(len(words) == 5 for words in result["verbalizers"].values())
-    assert result["status"] == "metadata_verified_adapter_pending"
+    assert result["status"] == "metadata_verified"
 
 
 def test_cohort_preserves_blockers_and_deduplicates():
     data = common.cohort()
     assert len([row for row in data["models"] if row["rank"] is not None]) == 15
-    assert len(common.select_models("ready")) == 4
+    assert len(common.select_models("ready")) == 5
     with pytest.raises(ValueError, match="not runnable"):
         common.select_models("all")
     with pytest.raises(ValueError, match="duplicates"):
@@ -127,7 +127,7 @@ RECORD = {"token":["Alice","works","for","Acme","."],"subj_start":0,"subj_end":0
           "obj_start":3,"obj_end":3,"subj_type":"PERSON","obj_type":"ORGANIZATION","relation":"per:employee_of"}
 
 
-@pytest.mark.parametrize("model",common.cohort()["default_models"])
+@pytest.mark.parametrize("model",[row["id"] for row in common.select_models("ready") if row["source"] == "improved"])
 def test_actual_upstream_forward_gradient_update_and_capture(model,tiny_checkpoint):
     import torch
     torch.set_num_threads(2)

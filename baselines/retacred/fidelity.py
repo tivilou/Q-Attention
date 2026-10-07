@@ -84,13 +84,18 @@ def main():
     # A full RoBERTa-large double-model/gradient/update comparison has a much
     # higher RAM footprint than a tiny architecture fixture. Fail before any
     # model allocation, not by killing a low-memory exchange host.
-    if (args.checkpoint/"pytorch_model.bin").exists() and (args.checkpoint/"pytorch_model.bin").stat().st_size > 1024**3 and available < 12*1024**3:
-        raise RuntimeError("full-weight fidelity gate requires at least 12 GiB available RAM; no formal training started")
-    source = pin_source("improved", fetch=False)
-    adapter = Improved(source, args.checkpoint, row["input_format"], device=args.device)
+    if (args.checkpoint/"pytorch_model.bin").exists() and (args.checkpoint/"pytorch_model.bin").stat().st_size > 1024**3 and available < 24*1024**3:
+        raise RuntimeError("full-weight fidelity gate requires at least 24 GiB available RAM for two models/gradients/Adam states; no formal training started")
+    from .adapters import build
+    source = pin_source(row["source"], fetch=False)
+    adapter = build(row, source, args.checkpoint, device=args.device)
     record = {"token":["Alice", "works", "for", "Acme", "."], "subj_start":0, "subj_end":0,
               "obj_start":3, "obj_end":3, "subj_type":"PERSON", "obj_type":"ORGANIZATION", "relation":"per:employee_of"}
-    result = compare(adapter, adapter.batch(adapter.encode([record])))
+    comparison = compare
+    if row["id"] == "ptr":
+        from .ptr_fidelity import compare_ptr
+        comparison = compare_ptr
+    result = comparison(adapter, adapter.batch(adapter.encode([record])))
     result.update({"schema":"retacred-source-fidelity.v1", "status":"source_faithful_adapted",
                    "scope":"fixed_input_source_mechanism_only_not_full_formal_certification",
                    "device":args.device, "formal_certificate_status":"not_verifiable",

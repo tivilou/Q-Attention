@@ -18,6 +18,10 @@ def load_module(source: Path, name: str):
 
 
 class Improved:
+    amp_enabled = True
+    protocol = "common_adapted_v1"
+    optimizer_contract = "transformers_AdamW_correct_bias_true_weight_decay_0_lr3e-5_eps1e-6"
+    precision_contract = "upstream_cuda_autocast_fp16_gradscaler"
     def __init__(self, source: Path, checkpoint: Path, input_format: str, *, device: str, checkpointing: bool = False):
         import torch
         from transformers import AutoConfig, AutoTokenizer
@@ -72,6 +76,13 @@ class Improved:
     def source_manifest(self) -> dict:
         return {name: digest(self.source / name) for name in ("prepro.py", "model.py", "utils.py", "train_retacred.py")}
 
+    def trace_fields(self, batch, row):
+        return {"entity_marker_positions": {"subject": int(batch["ss"][row]), "object": int(batch["os"][row])}}
+
+    def parameter_trace(self):
+        return {"classifier.parameter_gradient." + name: parameter.grad.detach().cpu().clone()
+                for name, parameter in self.model.classifier.named_parameters() if parameter.grad is not None}
+
 
 def leaves(value, prefix=""):
     import torch
@@ -111,6 +122,25 @@ class SampleCapture:
         class ActualSoftmaxObserver(TorchDispatchMode):
             def __torch_dispatch__(self, func, types, args=(), kwargs=None):
                 result = func(*args, **(kwargs or {}))
+                verbalizers = getattr(capture.model, "prompt_label_idx", None)
+                if (str(func) == "aten.where.self" and verbalizers is not None
+                        and args[2].ndim == 3 and "ptr_embedding_selection" not in capture.counts):
+                    capture.counts["ptr_embedding_selection"] = 1
+                    key = "functional.ptr_embedding_selection"
+                    capture.nodes.append({"id": key, "module": "actual_zero_flag_raw_embedding_selection",
+                        "inputs": [capture.save(key+".flags", args[0]), capture.save(key+".extra", args[1]),
+                                   capture.save(key+".raw", args[2])],
+                        "outputs": [capture.save(key+".selected", result)]})
+                position = capture.counts.get("ptr_projection", 0)
+                if (str(func) == "aten.mm.default" and verbalizers is not None and position < len(verbalizers)
+                        and args[0].shape == (capture.batch_size, capture.model.model.config.hidden_size)
+                        and args[1].shape == (capture.model.model.config.hidden_size, len(verbalizers[position]))):
+                    capture.counts["ptr_projection"] = position + 1
+                    key = f"functional.ptr_verbalizer_projection.position{position}"
+                    capture.nodes.append({"id": key, "module": "actual_mask_hidden_to_tied_verbalizer_logits",
+                        "inputs": [capture.save(key+".hidden", args[0]),
+                                   capture.save(key+".decoder", args[1])],
+                        "outputs": [capture.save(key+".logits", result)]})
                 classifier = getattr(capture.model, "classifier", None)
                 if (str(func) == "aten.cat.default" and classifier is not None
                         and len(args[0]) == 2 and result.ndim == 2
@@ -155,8 +185,9 @@ class SampleCapture:
                 self.nodes.append(node)
             return record
         for name, module in self.model.named_modules():
-            if name and (not list(module.children()) or name in ("encoder.embeddings", "encoder", "classifier")):
-                self.handles.append(module.register_forward_hook(hook(name)))
+            if not name or not list(module.children()) or name in (
+                    "encoder.embeddings", "encoder", "classifier", "model.embeddings", "model", "model.encoder"):
+                self.handles.append(module.register_forward_hook(hook(name or "source_model")))
         return self
 
     def __exit__(self, *exception):

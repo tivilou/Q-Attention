@@ -7,7 +7,7 @@ scores are historical selection aids, never project measurements.
 | Family | Official artifact inspected | Concrete implementation boundary |
 | --- | --- | --- |
 | Improved Baseline | `wzhouad/RE_improved_baseline@fe00781116ab4c34cbcd9a2ae5b02513afae87ee` | Four active marker variants imported; `RETACREDProcessor` adds typed markers during tokenization, requiring resize **after** data encoding and **before** optimizer creation. Source mechanism tested on tiny RoBERTa architecture. Full checkpoint/GPU gate remains collaborator-side. |
-| PTR | active code `thunlp/PTR@76f4685f4204f9d469ba1f82ce1dd02ad52aab42`; recovered metadata `thunlp/PTR@420926b83025f313f27d77dbb5c74d7089121b89` | `run_prompt.py` loss is **mean of five verbalizer CE objectives PLUS relation-level CE on the summed raw logits**; omitting the latter is not faithful. Two AdamW optimizers. The cloud share is expired; official history contains the hash-locked 40-row verbalizer and 40-class mapping. **Normal resources recovered; adapter pending.** Reverse recipe remains unverified. `input_flags` are all zero in released tokenization; do not invent an active soft-prompt branch. See `ptr-mechanism-contract.md`. No fork raw train/test data substituted. |
+| PTR | active code `thunlp/PTR@76f4685f4204f9d469ba1f82ce1dd02ad52aab42`; recovered metadata `thunlp/PTR@420926b83025f313f27d77dbb5c74d7089121b89` | `run_prompt.py` loss is **mean of five verbalizer CE objectives PLUS relation-level CE on the summed raw logits**; omitting the latter is not faithful. Two AdamW optimizers. The cloud share is expired; official history contains the hash-locked 40-row verbalizer and 40-class mapping. **Normal adapter implemented; full-weight/CUDA gates pending.** Reverse recipe remains unverified. `input_flags` are all zero in released tokenization; do not invent an active soft-prompt branch. See `ptr-mechanism-contract.md`. No fork raw train/test data substituted. |
 | Sequence Routing | `bahramiramazan/re-representation@cc95c4ad20b9ed46b978ffa4e88e31ce28c7ed20` | `Experiments.py` imports missing `Abstraction`; `rc_util.py` opens missing `essential_files/Relation_counter_retacred.json`. `get_settings` declares `n_class=41`, `h3_embed_size=41`. Our canonical data has 40 classes. `RC_Model` depends on external Heinsen routing and all 25 hidden states. Exact published H3/Mix recipe and license must be recovered before an adapter can be labelled faithful. |
 | CTL-DRP | `Viva28/CTl-DRP@2db67a258c266fba3ee0e2cbcdb88ccbc45cf40d` | Only `README.md` containing “Coming soon”; both reported supervised and unsupervised configurations remain blocked. |
 | MetaEntail-RE | [author paper](https://aclanthology.org/2025.naacl-long.165.pdf), footnote 1 | Official link `https://github.com/wphogan/metaentail-re` returns 404; clone says repository not found. Exact hypotheses, meta-class graph, type-pair filtering and grouped selection cannot be replaced with an ordinary classifier. Evaluation convention needs checking before ranking against non-null benchmark F1. |
@@ -33,13 +33,14 @@ scores are historical selection aids, never project measurements.
 
 ## Promotion boundary
 
-The default suite is only the four implemented marker configurations. Their
+The default suite contains four marker configurations and normal PTR. Normal
+PTR passed tiny CPU source, numeric trace and dual-state recovery gates. Their
 checked-in manifests remain `not_verifiable` for full-weight formal
 certification; tiny source fixtures are not promoted into CUDA/AMP evidence.
 The complete cohort remains unfinished. `--models all` rejects admission
-before any worker starts. Next: **wrap the official PTR five-objective path
-using the recovered metadata**, retaining its two optimizers and validating
-train/test traces and recovery. Sequence Routing recovery remains separate.
+before any worker starts. Normal PTR imports the five verbalizer objectives
+plus relation CE, retains both optimizer/scheduler states, FP32 and zero flags,
+and records actual masked-state projections. Sequence Routing recovery remains separate.
 A paper reconstruction must declare assumptions and evidence limits before
 entering a separate run set.
 
@@ -55,5 +56,6 @@ entering a separate run set.
   mapping SHA-256 `bedf6ac6216a4098a0d174c610dec086d59ae455b5fb81dbd48a8d16ce83ce89`.
 - Recovery CLI: `python -m baselines.retacred.ptr_resources`; validate-only:
   `python -m baselines.retacred.ptr_resources --verify-only`.
-- This corrects the earlier resource-unavailable finding. It does not certify
-  the reversed variant or make `ptr` runnable in the formal queue.
+- This corrects the earlier resource-unavailable finding. The normal adapter
+  is now implemented; full-weight CUDA gates are still pending and this does
+  not define or certify the reversed variant.

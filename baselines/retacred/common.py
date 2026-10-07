@@ -67,7 +67,12 @@ def select_models(raw: str) -> list[dict]:
 
 def pin_source(key: str, *, fetch: bool = True) -> Path:
     spec = cohort()["sources"][key]
-    path = ROOT / ".external" / "retacred" / key
+    relative = Path(spec.get("cache_dir", ".external/retacred/" + key))
+    if relative.is_absolute() or ".." in relative.parts or relative.parts[0] != ".external":
+        raise ValueError("source cache must be a project-relative .external path")
+    path = ROOT / relative
+    from .assets import reject_symlinks
+    reject_symlinks(path)
     if not path.exists():
         if not fetch:
             raise FileNotFoundError(path)

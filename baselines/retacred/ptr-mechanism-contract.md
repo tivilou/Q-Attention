@@ -1,9 +1,18 @@
-# PTR source mechanism contract — adapter pending
+# PTR source mechanism contract — normal adapter, formal gates pending
 
 Active source revision: `76f4685f4204f9d469ba1f82ce1dd02ad52aab42` in
 [official PTR](https://github.com/thunlp/PTR). Metadata revision is separately
 locked to `420926b83025f313f27d77dbb5c74d7089121b89` in `ptr_resources.py`.
-This is a source contract, **not an implemented/certified model**.
+Normal PTR is wrapped by `ptr.py`; this is **not a full-weight CUDA or reported-score certificate**.
+
+## Imported active path
+
+`SourceRuntime` imports pinned module definitions with an isolated arguments
+binding. The upstream top-level runner is never executed: only its exact loss
+block is AST-extracted, ending after relation CE. The unsafe dataset constructor
+using `eval(line)` is bypassed; original `get_labels`, `tokenize` and `list2tensor`
+receive canonical structured JSON and entity names. The one hardcoded `.cuda()`
+placement is changed to the selected device, with an exact-one-anchor assertion.
 
 ## Tokenization and vocabulary
 
@@ -50,8 +59,11 @@ The official Re-TACRED shell specifies RoBERTa-large, sequence512, batch8 per
 GPU x8, five epochs, encoder LR3e-5, extra LR1e-5, warmup500, weight-decay.01,
 epsilon1e-6. Each has its own linear scheduler; gradient clip is1. Final epoch
 is tested, while development scores are tracked. The complete project
-protocol and resume states for **both** optimizers/schedulers remain to be
-implemented and separately declared, not borrowed silently from Improved.
+protocol and resume states for **both** optimizers/schedulers are implemented
+as named bundles in `updates.py`, separately declared in `ptr-adaptation-diff.md`.
+FP32 is retained; the trainer disables GradScaler for PTR. Checkpointing and
+physical batch are immutable per run. Warmup0 is only a nonzero-update fixture
+override; actual training always uses the source warmup500.
 
 Required fixture gates: upstream tokenization + input target-invariance,
 five masked positions/verbalizer identity, five logits/relation logits/loss,

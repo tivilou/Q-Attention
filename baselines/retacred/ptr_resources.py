@@ -34,7 +34,7 @@ def validate_resources(directory: Path) -> dict:
             or len(rows) != 40 or any(len(row) != 7 for row in rows)
             or len({row[1] for row in rows}) != 40 or {row[1] for row in rows} != set(labels)):
         raise ValueError("PTR verbalizer / canonical 40-label interface mismatch")
-    return {"status": "metadata_verified_adapter_pending", "classes": 40, "masked_objectives": 5,
+    return {"status": "metadata_verified", "classes": 40, "masked_objectives": 5,
             "labels": labels, "verbalizers": {row[1]: row[2:] for row in rows}}
 
 
