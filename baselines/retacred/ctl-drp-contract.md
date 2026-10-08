@@ -135,3 +135,58 @@ exits2 with `official_candidates_bound_paper_mapping_unconfirmed`; malformed
 evidence exits1. Optional `--verify-cache PATH --tokenizer-fixture` runs only
 tokenizers byte-BPE on synthetic strings. No train/model/weights/Git/network.
 Both CTL rows and all existing strict/rank gates remain unchanged.
+
+
+## Cited RECENT aggregation: recovered source, explicit CTL adaptation
+
+CTL's bibliography identifies Lyu/Chen arXiv2105.08393. Its original paper
+links [Saintfe/RECENT](https://github.com/Saintfe/RECENT/tree/4742c9e80517acbd1466a6fb3d5bcb4678e56c47).
+Twelve public originals and six selected source blobs are locked. No raw task
+dataset, example split or weights are fetched; no full upstream script runs.
+
+The paper's operational algorithm groups learning samples by their exact ordered
+entity-type pair and aggregates relation labels within each group. Both released
+SpanBERT/GCN preprocessors contain the same r/s/o/t and set-aggregation AST.
+Only that pure memory fragment is extracted and executed on synthetic fixtures.
+This is not a per-relation Cartesian product of separately observed subject and
+object types. Domain notation alone does not justify enlarging observed pairs.
+
+The released preprocessing separately aggregates train/dev/test gold labels,
+excludes no_relation rows from semantic groups, and for certain two-label groups
+creates test semantic outputs directly from that split's relation set. The
+evaluation path combines semantic outputs with a binary classifier. These
+heldout-label-dependent operations are **not imported** into CTL. Observing these
+source paths is not a measured estimate of leakage impact or a blanket verdict
+on the original paper's results.
+
+The released constant file has13multiclass type groups/33unique positive TACRED
+labels. Six are outside canonical Re-TACRED;12canonical positive labels are
+missing from these multiclass constants. Single-positive groups follow another
+source branch, and old headquarters/parent/subsidiary/alternate-name labels
+are not an interchangeable complete40-class Re-TACRED H table.
+
+`fit_train_pairs(rows, source_split="train")` implements an isolated declared
+train-only observed-pair primitive; runner-side physical split/hash binding is
+still pending. It preserves exact type/label strings, rejects heldout fitting,
+retains all training rows, adds NA unconditionally, and orders candidates by
+the canonical40 IDs. These CTL/project boundaries are explicit adaptations;
+the RECENT binary gate, direct-label shortcut and fixed TACRED maps are absent.
+
+`candidate_labels(table, subject_type, object_type)` takes no gold label.
+Known NA-only pairs remain valid. An unseen pair raises a diagnostic instead
+of inventing all classes/NA-only/alias repair. Separately, coverage_diagnostic
+reports unseen-pair/excluded-gold indices, never repairs candidates or skips a
+sample. A one-positive known pair still competes with NA using CTL Eq2; it is
+not a forced positive prediction. Tables carry semantic support hashes/counts
+and explicit false physical-identity/exact-author-H/formal-admission flags.
+
+The exact CTL author's H table/producer remains unconfirmed; citing RECENT is
+not proof that CTL copied every source branch. Do not promote this primitive to
+paper-faithful reconstruction without an explicit assumption review/sensitivity
+plan plus exact checkpoint, recipe, scorer and neural/lifecycle evidence.
+
+Portable check_retacred_ctl_drp_candidates.sh verifies source provenance and
+the actual aggregation fragment offline; pending exit2, malformed evidence1,
+descriptor0. No model training, checkpoint, dependency install or network.
+Both CTL rows/default-five remain unchanged. Next: freeze a single explicit
+paper-interpretive reconstruction assumptions/gates record before neural coding.
