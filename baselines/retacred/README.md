@@ -120,3 +120,18 @@ checks source/head interface fixtures without loading Torch or weights.
 See `luke-foundation-contract.md` and `luke-foundation-adaptation.md`.
 Real backbone/tokenizer/update/resume/trace/CUDA gates remain pending. Four LUKE
 variants stay blocked; this support module adds no new cohort model or default job.
+
+## LUKE pretrained asset mirror
+
+`luke_assets.py` and `luke_assets.lock.json` cover all eight pinned luke-large
+assets. `scripts/fetch_retacred_luke_assets.sh` performs authenticated HTTPS
+fetch, shard checksum verification, atomic reconstruction and original asset
+identity validation. All twelve parts are <=512MiB. Exchange URL/token are
+environment-only, not in the asset lock. No Torch/model loading occurs.
+Cached complete files are rechecked and need no credentials/network. Corrupt
+existing files are preserved and rejected, never silently replaced.
+
+This asset proof does not certify the LUKE forward, optimizer or formal recipe.
+Historical foundation lock preparation flags describe the earlier snapshot;
+current materialized asset evidence is the separate luke_assets.lock.json.
+The default five configurations and blocked four LUKE variants are unchanged.

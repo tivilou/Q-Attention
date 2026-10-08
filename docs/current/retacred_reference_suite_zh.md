@@ -166,3 +166,27 @@ PTR reversed 离线审计：`python -m baselines.retacred.ptr_reversed_audit`，
 
 当前仍运行默认5个配置。LUKE 四个变体继续在启动前拦截；完整单seed
 仍交给合作者，暂不追加任何 LUKE 正式实验命令。
+
+## LUKE 资源镜像（2026-10-08）
+
+已准备锁定版本的预训练 luke-large 权重与分词资源，共8个文件、12个
+不超过512MiB的分片。原始文件、上传回执、下载分片及重组文件均校验
+尺寸和哈希。新镜像独立于现有 RoBERTa 资源，不修改默认任务队列。
+
+将来发布这项资源获取支持后，在项目根目录执行：
+
+```bash
+bash scripts/fetch_retacred_luke_assets.sh
+```
+
+缺失资源时，从环境读取 `PROJECT_EXCHANGE_URL` 与
+`PROJECT_EXCHANGE_TOKEN`，使用项目 CA 验证 HTTPS；两者均不写入 Git。
+已校验的完整缓存可直接复用，无须令牌。项目内默认缓存为
+`.external/assets/luke/<锁定revision>/model/`，可用 `--cache-dir` 指定
+缓存根目录。脚本从 `PYTHON_BIN` 或当前 `python`/`python3` 解析环境，
+不依赖我们服务器上的绝对路径。它只获取资源，不启动训练。
+
+这里只证明资源传输完整；真实主干、梯度、优化器、断点恢复、数值
+case study 与 CUDA/AMP 仍需独立验证。源代码的准备期 manifest 不会
+因资源镜像完成而被升级为模型保真证书。代码回滚保留镜像，服务端
+对象保持不可覆盖/不可删除的既有交换协议。
