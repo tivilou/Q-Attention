@@ -190,3 +190,17 @@ the actual aggregation fragment offline; pending exit2, malformed evidence1,
 descriptor0. No model training, checkpoint, dependency install or network.
 Both CTL rows/default-five remain unchanged. Next: freeze a single explicit
 paper-interpretive reconstruction assumptions/gates record before neural coding.
+
+
+## Explicit reconstruction assumptions and acceptance matrix
+
+See [the reconstruction matrix](ctl-drp-reconstruction.md) and its dedicated
+`ctl_drp_reconstruction.json` design record. They distinguish recovered facts,
+unimplemented proposals, sensitivity tests and pending acceptance evidence.
+Their status is assumptions_prepared_neural_pending, not a runnable/certified
+baseline. The current evidence grade remains not_verifiable; a future runnable
+reconstruction starts as paper_interpretive. Exact author checkpoint/H and
+paper scorer binding remain unconfirmed. Ready-five and both blocked CTL rows
+are unchanged. No existing runner reads this record as a configuration/admission
+override. Next is synthetic tiny joint-encoder/Eq2 FP32 testing, not full-data
+training, weight loading or publication; independent review remains pending.
