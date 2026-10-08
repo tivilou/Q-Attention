@@ -4,6 +4,19 @@ This directory owns external baseline adapters, provenance and the shared
 collaborator lifecycle. It does not contain datasets, upstream vendored code,
 pretrained weights or credentials.
 
+## Bounded runtime handoff
+
+`bash scripts/check_retacred_reference_runtime.sh --upload` serially prepares
+and checks the LUKE foundation and MetaEntail MNLI foundation. It reuses the
+locked asset clients, prepares only the pinned LUKE source files, and validates
+child exit/status, train/test numeric artifact identities and recovery evidence.
+Resource or dependency gaps exit2; failed checks/delivery exit1; diagnostic-only
+success exits0. `--describe` is read-only; `--offline` disables acquisition;
+`--upload-only RUN_DIRECTORY` retries evidence delivery without model execution.
+Private artifacts are hash-declared and large tensors/checkpoints are sharded.
+This entry never launches formal training, changes Git or admits any of the
+blocked methods. See `docs/current/retacred_reference_runtime_zh.md`.
+
 `cohort.json` preserves the fifteen previously discussed **reported
 configurations**, not a certified global leaderboard or fifteen independent
 models. A sixteenth classic entity-marker anchor is included. Four marker
