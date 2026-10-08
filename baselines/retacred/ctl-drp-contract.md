@@ -84,5 +84,54 @@ offline and exits2/recipe_neural_unresolved. Invalid evidence exits1; descriptor
 exits0. No network/weights/Git/train action. All fifteen rows/ready-five retained,
 both CTL-DRP rows remain blocked and rank-ineligible. Independent review and
 assumption sensitivities are required before any materially underspecified neural
-paper reconstruction is certified. Next: bind sup/unsup checkpoint identity and
-explicit H provenance, then implement the candidate-conditioned encoder/lifecycle.
+paper reconstruction is certified. Next: resolve explicit H producer/provenance and remaining paper recipe; exact
+checkpoint mapping still needs author-level evidence before neural admission.
+
+
+## Official SimCSE candidates: checkpoint/token/readout boundary
+
+The pinned [official SimCSE repository](https://github.com/princeton-nlp/SimCSE/tree/49fa580a853752ede55b8c76d9debf748e214d3f)
+links both public RoBERTa-large candidates. `ctl_drp_simcse.lock.json` binds 24
+public metadata/source/tokenizer originals; small-file local SHA256 and Git blob
+hashes are verified. Nothing fetched is imported as model code.
+
+| Variant | Official candidate | Observed immutable revision | Weight status |
+|---|---|---|---|
+| sup | princeton-nlp/sup-simcse-roberta-large | 96d164d9950b72f4ce179cb1eb3414de0910953f | provider LFS hash only |
+| unsup | princeton-nlp/unsup-simcse-roberta-large | d3f863b476c59b0673264042f159cea15842e265 | provider LFS hash only |
+
+These are **official candidates**, not author-confirmed CTL initialization
+identities. The CTL paper's literal `smi` names remain unchanged; correcting them
+to `simcse` and selecting an exact revision would be an explicit assumption.
+No large checkpoint is downloaded, deserialized, resized or numerically loaded.
+Both candidate `.bin` sizes are 1,421,571,527 bytes, with distinct provider hashes.
+
+Both configs report RobertaModel, 24 layers, width1024, vocabulary50265,
+positions514. Their vocab, merges, tokenizer_config and special-token-map bytes
+are identical; token IDs are <s>0, <pad>1, </s>2, <unk>3, <mask>50264. Public
+tokenizer maximum is512 and add_prefix_space isfalse. The real byte-BPE fixture
+checks single/pair boundaries, leading space, Unicode and lengths512/513 without
+choosing truncation. It is not a recovered CTL prompt-joining convention, marker
+registration/initialization, or original Transformers-version equivalence.
+
+Official sentence-embedding evaluation recommends pooled linear+tanh `cls` for
+sup and raw `cls_before_pooler` for unsup. The convenience tool also defaults to
+L2 normalization. **Those are not the CTL downstream readout.** CTL sectionII-B
+specifies the first subtoken of the final Transformer layer for both variants:
+`last_hidden_state[:,0,:]`, then its own scalar head. Importing SimCSE tool output,
+`pooler_output`, mean pooling or normalization silently changes this mechanism.
+The source converter renames `mlp` keys to `pooler` and removes the backbone
+prefix; do not apply this converter to an already-converted RobertaModel file.
+This source witness is not a numeric state-dict/loading-equivalence certificate.
+
+The supervised config's _name_or_path mentions bs512/lr1e-5; the unsupervised
+one mentions bs128/gpu4/lr3e-5/l32. These are config literals, not proof of the
+downstream recipe or a reason to overwrite CTL's batch512/lr1e-5/epochs10. The
+official run examples initialize BERT-base, not these RoBERTa-large releases;
+their seeds/lengths/optimizer or SimCSE objective must not become CTL defaults.
+
+`check_retacred_ctl_drp_simcse.sh --describe` needs no backend/assets. Its audit
+exits2 with `official_candidates_bound_paper_mapping_unconfirmed`; malformed
+evidence exits1. Optional `--verify-cache PATH --tokenizer-fixture` runs only
+tokenizers byte-BPE on synthetic strings. No train/model/weights/Git/network.
+Both CTL rows and all existing strict/rank gates remain unchanged.
