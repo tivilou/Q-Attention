@@ -126,3 +126,14 @@ entering a separate run set.
   No raw dataset or pretrained weights downloaded. Offline audit
   `python -m baselines.retacred.luke_audit` exits2/not_verifiable/zero jobs;
   optional `--verify-cache <cache>` verifies public bytes, not model fidelity.
+
+## LUKE foundation prepared — 2026-10-08
+
+Official reader/model/entity-aware attention and15 selected files locked at
+251654548a15b9a8ddc708a53b715bdf3a112102. Pretrained luke-large identity at
+0729d044dfe301d9ecabc222d60633f92ac450eb, provider SHA/size recorded for all
+eight required assets;2.246GB weights not downloaded. Prepared wrapper executes
+the actual parser and author HF classifier; uses inclusive role-ordered entity
+positions and40-class biased head, not CLS. Scalar/vector fixture checks do not
+certify BPE/backbone/autograd/weights/training lifecycle. All four LUKE comparison
+ports remain blocked. No new cohort row or score is synthesized.

@@ -154,3 +154,15 @@ git log --oneline origin/1.1..HEAD
 PTR reversed 离线审计：`python -m baselines.retacred.ptr_reversed_audit`，预期退出2、
 `not_verifiable`、零任务启动。它不是训练脚本；证据与边界见
 `baselines/retacred/ptr-reversed-contract.md`。若未来复现变更任务，应单独建数据协议与结果表。
+
+## LUKE 基础适配器进度（2026-10-08，尚未加入正式任务队列）
+
+新增 `baselines/retacred/luke.py`，直接执行锁定的作者解析器和分类器。
+保留两实体最终表示拼接、实体感知注意力、带偏置40类头与交叉熵；
+实体位置包含两侧标记，并按 batch 的最大实体长度补 -1，不截成30。
+已锁定作者源码、预训练 luke-large 的 revision 与八个资源的身份。
+没有下载2.246GB权重；真实分词/主干/梯度/更新/恢复/数值张量记录/AMP
+门槛尚待验证。这里没有新增 selector，也不是 CoRE/CFIE 等变体的复现。
+
+当前仍运行默认5个配置。LUKE 四个变体继续在启动前拦截；完整单seed
+仍交给合作者，暂不追加任何 LUKE 正式实验命令。

@@ -111,3 +111,12 @@ completed shards are reused, partial shards retry from the beginning.
 
 Formal full-data training is collaborator-run only. See
 `docs/current/retacred_reference_suite_zh.md` for the one-command handoff.
+
+## LUKE foundation preparation (not formal admission)
+
+`luke.py` executes the pinned author's parser and HF classifier; `luke_fidelity.py`
+checks source/head interface fixtures without loading Torch or weights.
+`luke_foundation.lock.json` pins official source and checkpoint asset identities.
+See `luke-foundation-contract.md` and `luke-foundation-adaptation.md`.
+Real backbone/tokenizer/update/resume/trace/CUDA gates remain pending. Four LUKE
+variants stay blocked; this support module adds no new cohort model or default job.
