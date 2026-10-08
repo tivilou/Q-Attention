@@ -1,0 +1,87 @@
+{
+  "schema": "metaentail-checkpoint-contract.v1",
+  "provenance_mode": "paper",
+  "fidelity_status": "not_verifiable",
+  "strict_comparison_eligible": false,
+  "neural_runtime_verified": false,
+  "checkpoint": {
+    "repository": "FacebookAI/roberta-large-mnli",
+    "revision": "2a8f12d27941090092df78e4ba6f0928eb5eac98",
+    "license": "mit",
+    "selected_weight_file": "model.safetensors",
+    "files": {
+      "README.md": {"size_bytes":10712,"sha256":"76a907e0f4d96f4141bd8660e545726031be1fcfbb9301beb381a30ecc2b75b3","git_blob":"35c3157699aebb98a6c37ae47a7e139c34f789d3"},
+      "config.json": {"size_bytes":688,"sha256":"8257a87d5b4677a17c727ffcd4d1bbc9f0dd4b6ec4e0e2a5af30f94a5e253464","git_blob":"2720f2d9d516d6cab2018518932f823713fa580d"},
+      "merges.txt": {"size_bytes":456318,"sha256":"1ce1664773c50f3e0cc8842619a93edc4624525b728b188a9e0be33b7726adc5","git_blob":"226b0752cac7789c48f0cb3ec53eda48b7be36cc"},
+      "vocab.json": {"size_bytes":898823,"sha256":"9e7f63c2d15d666b52e21d250d2e513b87c9b713cfa6987a82ed89e5e6e50655","git_blob":"5606f48548d99a9829d10a96cd364b816b02cd21"},
+      "tokenizer.json": {"size_bytes":1355863,"sha256":"847bbeab6174d66a88898f729d52fa8d355fafe1bea101cf960dd404581df70e","git_blob":"ad0bcbeb288f0d1373d88e0762e66357f55b8311"},
+      "tokenizer_config.json": {"size_bytes":25,"sha256":"994f46754c5bf4014f1aa92d34b1374319c3a6b3f702105cd5b742beaecd18ce","git_blob":"34ddbd64a4cd3f2d9d8a9120d3662d0bf91baead"}
+    },
+    "weights": {
+      "model.safetensors": {"size_bytes":1425698116,"sha256":"f4dbab1bceb16f9800f7b9a9c96b187d5400511b66982e4e845de920f69b89b5","git_blob":"7da41e853def7c01b92e5960c7cdea660c975e1e","hash_evidence":"official_HF_LFS_metadata","locally_downloaded":false,"locally_verified":false},
+      "pytorch_model.bin": {"size_bytes":1425744429,"sha256":"5a7be848f7dd81983947515b3209f9b4960d06eac3dde368b1aa7a4b8c0b08b7","git_blob":"ade77588767daf514c10d1f87fe2b4b049aca9a0","hash_evidence":"official_HF_LFS_metadata","locally_downloaded":false,"locally_verified":false}
+    }
+  },
+  "config": {
+    "architectures": ["RobertaForSequenceClassification"],
+    "model_type": "roberta",
+    "hidden_size": 1024,
+    "num_hidden_layers": 24,
+    "num_attention_heads": 16,
+    "vocab_size": 50265,
+    "max_position_embeddings": 514,
+    "pad_token_id": 1,
+    "bos_token_id": 0,
+    "eos_token_id": 2,
+    "_num_labels": 3,
+    "id2label": {"0":"CONTRADICTION","1":"NEUTRAL","2":"ENTAILMENT"},
+    "label2id": {"CONTRADICTION":0,"NEUTRAL":1,"ENTAILMENT":2}
+  },
+  "input": {
+    "tokenizer_model_max_length": 512,
+    "max_pair_tokens_including_specials": 512,
+    "pair_special_tokens": 4,
+    "pair_layout": "<s> premise </s></s> hypothesis </s>",
+    "add_prefix_space": false,
+    "entity_surface_abstraction": false,
+    "overflow_policy": "reject_with_length_diagnostic_no_truncation_or_drop",
+    "length_policy_provenance": "checkpoint_compatibility_preflight_choice_not_recovered_paper_recipe"
+  },
+  "planned_neural_loading": {
+    "factory": "RobertaForSequenceClassification.from_pretrained",
+    "local_files_only": true,
+    "ignore_mismatched_sizes": false,
+    "num_labels_override": false,
+    "classifier_reinitialization": false,
+    "embedding_resize": false,
+    "required_loaded_head": ["classifier.dense.weight","classifier.dense.bias","classifier.out_proj.weight","classifier.out_proj.bias"],
+    "runtime_loading_keys_and_weight_equality": "pending"
+  },
+  "budget": {
+    "unit": "expanded_feasible_premise_hypothesis_pairs",
+    "loss": "three_class_cross_entropy",
+    "loss_weighting": "mean_over_pairs_in_actual_optimizer_window",
+    "drop_last": false,
+    "flush_accumulation_at_epoch_end": true,
+    "original_relation_group_weight_equalization": false,
+    "training_epochs_batch_lr_optimizer_scheduler": "unresolved_for_general_domain",
+    "budget_policy_provenance": "explicit_proposed_adapter_choice_not_recovered_paper_recipe"
+  },
+  "collection": {
+    "date": "2026-10-08",
+    "metadata_url": "https://huggingface.co/api/models/FacebookAI/roberta-large-mnli?blobs=true",
+    "immutable_file_url_prefix": "https://huggingface.co/FacebookAI/roberta-large-mnli/resolve/2a8f12d27941090092df78e4ba6f0928eb5eac98/",
+    "requests": 7,
+    "retries": 0,
+    "browser_escalations": 0,
+    "private_record": ".external/retacred/metaentail-checkpoint-20261008B/collection.json"
+  },
+  "pending": [
+    "weights_download_mirror_hash_and_loaded_NLI_head_fidelity",
+    "general_domain_optimizer_schedule_epochs_seed_selection_and_length_overflow_recipe",
+    "neural_forward_cross_entropy_gradients_update_and_exact_expanded_pair_resume",
+    "actual_train_and_test_complete_numeric_case_traces",
+    "canonical_all_example_abstention_evaluator_binding",
+    "independent_review_full_weight_CUDA_and_published_score_multi_seed_evidence"
+  ]
+}

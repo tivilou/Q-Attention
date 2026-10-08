@@ -62,8 +62,15 @@ Canonical numeric relation IDs match the pinned Improved RETACREDProcessor.
 
 Table6 is captioned BioLinkBERT, not explicitly the general-domain RoBERTa
 recipe. Its1024 limit must not be sent silently to a standard RoBERTa checkpoint.
-Checkpoint revision/weights, tokenizer length policy, NLI-head loading, source
-optimizer/schedule/model selection, and expanded-NLI training budget need binding.
+Official checkpoint metadata is now pinned in metaentail_checkpoint.lock.json.
+Six actual small files match provider Git blobs and SHA256; the config binds
+three-way NLI order and512-token pair capacity. Real fast-BPE sentence-pair
+boundary checks and explicit expanded-pair budget arithmetic are prepared in
+metaentail_checkpoint.py. Weight hashes are provider metadata only; no neural
+loading/fidelity claim follows. See metaentail-neural-contract.md for the
+distinct paper facts, proposed interface choices and remaining runtime gates.
+Actual weights, NLI-head loading, source optimizer/schedule/model selection,
+and the general-domain expanded-NLI training recipe still need binding.
 Do not replace the pretrained MNLI head without a declared initialization law.
 
 The paper says only gold/predicted entail instances map back for evaluation;
