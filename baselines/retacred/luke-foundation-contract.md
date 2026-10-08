@@ -43,7 +43,9 @@ not studio-ousia/luke-large-finetuned-tacred. Pretrained architecture LukeForMas
 word50267, entity500000, entity width256, hidden1024,24layers/16heads.
 Provider's pytorch_model.bin size2246566835 and SHA256
 9ea73dbb7e0625e88c646f26230902c3df000e71320139e99b0703e1654f7bcc.
-Large weights and entity vocabulary were not downloaded or locally verified.
+The historical foundation lock records metadata-only preparation. Subsequent
+asset evidence at16b122e verifies eight originals and twelve mirrored parts;
+that resource verification does not constitute a model load/runtime certificate.
 Eight required assets are identity-locked. Constructor streams local size/hash
 validation, prohibits remote fallback, validates loading-key sets, preserves
 pretrained entity attention, and creates the only new40-class head.
@@ -77,5 +79,33 @@ Before admission: real BPE/indexer, entity-attention fixed-input forward/loss,
 gradients/update/scheduler/dropout, actual local checkpoint-key/weight comparison,
 exact post-update resume, actual numeric train/test SampleCapture integration,
 common-protocol and CUDA/AMP gates. Flags remain false until literal runtime
-evidence exists. The existing generic SampleCapture is reusable, but this adapter
-has not yet recorded an actual model trace or been wired into the formal runner.
+evidence exists. SampleCapture now accepts both Sequential and Linear classifier
+heads and observes LUKE word/entity embedding and encoder container outputs.
+The foundation remains outside the formal runner; each runtime evidence file
+must say whether actual full weights or only a tiny random architecture ran.
+
+## Bounded runtime validation entry
+
+`bash scripts/check_retacred_luke_runtime.sh --describe` performs no backend,
+weight, network or output-file access. `--mode tiny --output-dir PATH` uses the
+actual pinned author classifier and actual installed HF entity-aware backbone
+with a two-layer random32-wide synthetic-ID architecture. It does not establish
+tokenizer/real-weight/AllenNLP/published-score fidelity.
+
+`--mode full --device cuda --output-dir PATH` uses the existing hash-locked
+LUKE-large assets and real BPE on exactly two synthetic raw records. It requires
+24GiB available host/cgroup headroom before Torch imports or weight reads.
+Insufficient memory produces `pending_memory_gate` evidence and exit2. It does
+not fetch assets, train on task splits, tune coefficients, publish or push.
+
+Both modes compare direct-source and traced adapter forward/loss, all gradient
+hashes and dropout RNG exactly; require nonzero word/entity/entity-aware-query/
+head gradients; perform two diagnostic FP32 AdamW updates; and compare model,
+optimizer, scheduler, RNG and output after restoring the post-first-update
+checkpoint. Actual train/test numeric tensors are saved and reopened. Only one
+model is resident: continuation is restored sequentially, not in a second model.
+
+The diagnostic AdamW1e-5/eps1e-8/decay.01, zero-warmup four-step schedule is
+explicitly NOT the source AllenNLP training recipe. The nonzero-LR gate avoids
+a vacuous first-update test; source optimizer/warmup/common-loop and complete
+method/recipe admission remain pending even after diagnostic success.

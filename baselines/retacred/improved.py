@@ -142,10 +142,16 @@ class SampleCapture:
                                    capture.save(key+".decoder", args[1])],
                         "outputs": [capture.save(key+".logits", result)]})
                 classifier = getattr(capture.model, "classifier", None)
+                # Marker adapters use Sequential; the author's LUKE head is Linear.
+                head_width = getattr(classifier, "in_features", None)
+                if head_width is None and classifier is not None:
+                    head_width = next((getattr(layer, "in_features", None)
+                                       for layer in classifier.children()
+                                       if getattr(layer, "in_features", None) is not None), None)
                 if (str(func) == "aten.cat.default" and classifier is not None
                         and len(args[0]) == 2 and result.ndim == 2
-                        and all(value.ndim == 2 and value.shape[-1]*2 == classifier[0].in_features for value in args[0])
-                        and result.shape[-1] == classifier[0].in_features
+                        and all(value.ndim == 2 and value.shape[-1]*2 == head_width for value in args[0])
+                        and result.shape[-1] == head_width
                         and "entity_readout" not in capture.counts):
                     # Observe the exact source operands: never recompute entity
                     # pooling from a stored encoder state after the event.
@@ -186,7 +192,8 @@ class SampleCapture:
             return record
         for name, module in self.model.named_modules():
             if not name or not list(module.children()) or name in (
-                    "encoder.embeddings", "encoder", "classifier", "model.embeddings", "model", "model.encoder"):
+                    "encoder.embeddings", "encoder", "classifier", "model.embeddings", "model", "model.encoder",
+                    "luke.embeddings", "luke.entity_embeddings", "luke.encoder", "luke"):
                 self.handles.append(module.register_forward_hook(hook(name or "source_model")))
         return self
 
