@@ -122,3 +122,17 @@ LOCAL_VERIFIED_MNLI --inspect-only` verifies full asset bytes and selected tenso
 headers/hashes, without loading Torch. Without --inspect-only the entry attempts
 the foundation loader; insufficient verified headroom prints pending_memory and
 exits3 before weight reads/backend import. Neither entry performs training/push.
+
+The bounded runtime entry is `bash scripts/check_retacred_metaentail_runtime.sh`.
+It records a complete private `.pt` tensor artifact and human-readable JSON for
+one selected train group and one selected test group. Each selected group keeps
+all feasible candidate pairs, original raw record, premise/hypothesis, BPE IDs,
+attention mask, hidden states, attention probabilities, CLS readout, dense and
+out-projection inputs/outputs, NLI probabilities and grouped relation decision.
+The train artifact additionally contains targets, loss, activation/parameter
+gradients, the post-update checkpoint and exact resumed second update. Test reads
+no gold relation for the model path and contains no target/loss tensors. The
+script uses `--mode tiny` only for a synthetic architecture fixture and
+`--mode full` for the pinned model; current project server remains blocked by its
+1GiB cgroup before backend import. These are diagnostic artifacts, not formal
+results or a substitute for the collaborator's full run.
