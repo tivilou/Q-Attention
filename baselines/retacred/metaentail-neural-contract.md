@@ -1,17 +1,23 @@
 # MetaEntail neural adapter preparation
 
-Status: paper provenance; not_verifiable; formal admission closed. This contract
-locks checkpoint metadata and a tested encoding/budget boundary. It does not
-certify model loading, a neural adapter, the paper's94.3 result or CUDA execution.
+Status: paper provenance; not_verifiable; formal admission closed. Checkpoint
+bytes/private delivery and a dedicated neural foundation are prepared. Actual
+model loading/forward/autograd, the paper's94.3 result and CUDA execution remain
+uncertified. The foundation is not dispatched through the formal suite.
 
 ## Checkpoint facts
 
 Section5.3 and footnote6 identify FacebookAI/roberta-large-mnli. The official
 snapshot is2a8f12d27941090092df78e4ba6f0928eb5eac98, MIT,24-layer1024-wide
 RoBERTa. Six small files match both provider Git blobs and locally computed
-SHA256/length; weights have provider LFS SHA256/size only. No weight bytes were
-downloaded, mirrored, opened or loaded in this preparation. Prefer the locked
-model.safetensors when subsequently fetching weights; do not switch to the
+SHA256/length. The selected model.safetensors is now streamed and hash-verified
+in full; seven files are mirrored as nine <=512MiB shards on the authenticated
+exchange. metaentail_assets.lock.json binds exact originals/shards; mnli_assets.py
+and fetch_retacred_mnli_assets.sh fetch and assemble atomically, preserve corrupt
+caches for diagnosis and verify complete original hashes. Six actual head/word/
+position tensor shapes and raw byte hashes are inspected without importing a
+neural backend; this is not loaded-tensor equality or numerical inference.
+Prefer the locked model.safetensors; do not switch to the
 project's plain RoBERTa asset or use an unpinned main revision.
 
 Config NLI IDs are0=CONTRADICTION,1=NEUTRAL,2=ENTAILMENT. Training targets must
@@ -73,8 +79,21 @@ its output a proposed adapter choice. It does not choose a formal configuration.
 
 ## Integration gates still pending
 
-- Distinct MNLI asset routing, authenticated18084 mirror and complete original
-  SHA verification before any model allocation; no weights/tokens in Git.
+metaentail_neural.MetaEntailFoundation now implements the dedicated local
+three-class pretrained loader, group-pair expansion, dynamic pad1/attention0,
+native NLI CE forward, group decision, actual-event SampleCapture interface
+and classifier parameter-gradient capture. Loader preserves MNLI dense/out_proj;
+it checks loading reports and exact source head/embedding tensor equality before
+device transfer. Eager attention is explicit for inspectable actual attention
+scores/probabilities; no weights or objective change is implied. Numerical
+fidelity/trace perturbation evidence remains required. A conservative unchanged
+12GiB pre-import gate prevents model allocation in the current1GiB container;
+do not read a header/loader implementation as a successful neural runtime test.
+The suite still rejects MetaEntail before launching any formal worker.
+
+- Distinct MNLI assets/mirror/original hash checks are prepared. Before formal
+  suite admission, bind this route into the owning runner and retain hashes
+  before allocation; no weights/tokens in Git.
 - A dedicated neural forward on three-way logits plus pair CE, original-group
   decoding through existing grouped_prediction, and all-example metrics with
   abstentions/coverage. Do not use a zero-shot pipeline with alternate scoring.
@@ -92,6 +111,14 @@ its output a proposed adapter choice. It does not choose a formal configuration.
   evaluator reconciliation. The entail-only published denominator and94.3
   remain unverified. Formal workers stay blocked until owning gates pass.
 
-Offline command: `python -m baselines.retacred.metaentail_checkpoint
+Offline metadata command: `python -m baselines.retacred.metaentail_checkpoint
 --metadata-dir LOCAL_PINNED_SMALL_FILES`. It verifies metadata only, with zero
 network/model jobs; a passing result does not imply neural runtime fidelity.
+
+Asset command: `bash scripts/fetch_retacred_mnli_assets.sh`; requires the existing
+PROJECT_EXCHANGE_URL/TOKEN only for missing files, supports explicit --cache-dir.
+Inspection: `python -m baselines.retacred.metaentail_neural --checkpoint
+LOCAL_VERIFIED_MNLI --inspect-only` verifies full asset bytes and selected tensor
+headers/hashes, without loading Torch. Without --inspect-only the entry attempts
+the foundation loader; insufficient verified headroom prints pending_memory and
+exits3 before weight reads/backend import. Neither entry performs training/push.

@@ -67,9 +67,13 @@ Six actual small files match provider Git blobs and SHA256; the config binds
 three-way NLI order and512-token pair capacity. Real fast-BPE sentence-pair
 boundary checks and explicit expanded-pair budget arithmetic are prepared in
 metaentail_checkpoint.py. Weight hashes are provider metadata only; no neural
-loading/fidelity claim follows. See metaentail-neural-contract.md for the
+loading/fidelity claim follows. The later metaentail_assets.lock.json now binds
+full SHA-verified safetensors and private nine-shard delivery; mnli_assets.py
+provides atomic retrieval and metaentail_neural.py prepares a dedicated pretrained
+NLI foundation. Actual neural runtime remains memory-gated and formal suite
+admission stays closed. See metaentail-neural-contract.md for the
 distinct paper facts, proposed interface choices and remaining runtime gates.
-Actual weights, NLI-head loading, source optimizer/schedule/model selection,
+Actual NLI-head loading, source optimizer/schedule/model selection,
 and the general-domain expanded-NLI training recipe still need binding.
 Do not replace the pretrained MNLI head without a declared initialization law.
 
