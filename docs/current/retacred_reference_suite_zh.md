@@ -161,8 +161,9 @@ PTR reversed 离线审计：`python -m baselines.retacred.ptr_reversed_audit`，
 保留两实体最终表示拼接、实体感知注意力、带偏置40类头与交叉熵；
 实体位置包含两侧标记，并按 batch 的最大实体长度补 -1，不截成30。
 已锁定作者源码、预训练 luke-large 的 revision 与八个资源的身份。
-没有下载2.246GB权重；真实分词/主干/梯度/更新/恢复/数值张量记录/AMP
-门槛尚待验证。这里没有新增 selector，也不是 CoRE/CFIE 等变体的复现。
+这一步完成时尚未下载2.246GB权重；后续资源镜像已经完成。
+主干/梯度/更新/恢复/数值张量记录/AMP门槛尚待验证。
+这里没有新增 selector，也不是 CoRE/CFIE 等变体的复现。
 
 当前仍运行默认5个配置。LUKE 四个变体继续在启动前拦截；完整单seed
 仍交给合作者，暂不追加任何 LUKE 正式实验命令。
@@ -190,3 +191,26 @@ bash scripts/fetch_retacred_luke_assets.sh
 case study 与 CUDA/AMP 仍需独立验证。源代码的准备期 manifest 不会
 因资源镜像完成而被升级为模型保真证书。代码回滚保留镜像，服务端
 对象保持不可覆盖/不可删除的既有交换协议。
+
+## LUKE 真实分词接口验证（独立于模型验证）
+
+使用真实本地 `LukeTokenizer` 与锁定的作者实体位置方法，验证原始
+token到BPE子词、token id、两实体位置及batch补齐的链路。只读取7个
+分词资源文件，不读取模型权重、不导入Torch、不启动训练或网络请求。
+在独立进程中执行：
+
+```bash
+python -m baselines.retacred.luke_tokenizer_fidelity \
+  --output .external/retacred/luke-tokenizer-evidence.json
+```
+
+可用 `--source-cache` 与 `--checkpoint` 显式指定锁定源码缓存和本地
+资源目录。输出记录合成样本的完整句子、BPE token、token id、实体
+位置和各项校验结果；已有证据文件会保留，重跑时选择新的输出路径。
+覆盖实体前后顺序、相邻实体、标点与Unicode、子词展开、超过30个
+位置的实体、512/513-token边界、batch补齐和标签不进入模型输入。
+
+此处直接执行作者的实体位置方法，但其AllenNLP字段载体用列表替代，
+尚未验证实际AllenNLP分词包装器、indexer和张量化路径。结果只能标为
+分词/接口证据，不能升级完整模型保真等级或解锁LUKE四个正式变体。
+使用现有环境，不安装AllenNLP或修改容器内存限制。

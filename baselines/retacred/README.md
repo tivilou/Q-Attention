@@ -135,3 +135,17 @@ This asset proof does not certify the LUKE forward, optimizer or formal recipe.
 Historical foundation lock preparation flags describe the earlier snapshot;
 current materialized asset evidence is the separate luke_assets.lock.json.
 The default five configurations and blocked four LUKE variants are unchanged.
+
+## Offline real LUKE tokenizer gate
+
+`luke_tokenizer_fidelity.py` loads the seven hash-verified tokenizer assets
+locally, never the weight file. In a dedicated process it disables model
+backends and blocks their imports. It checks actual HF BPE IDs against the
+pinned author's `text_to_instance` span method on list-only field carriers.
+Fixtures cover reversed/adjacent roles, punctuation, Unicode, subword expansion,
+long mentions, mixed-batch padding, label isolation and the512-token boundary.
+The optional evidence file contains complete fixture IDs/tokens/positions.
+
+This is a tokenizer/interface proof, NOT actual AllenNLP wrapper/indexer or
+complete model runtime equivalence. No cohort admission or manifest promotion
+follows from this gate. The source preparation snapshot remains historical.
