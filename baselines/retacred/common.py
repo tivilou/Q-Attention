@@ -92,8 +92,8 @@ def pin_source(key: str, *, fetch: bool = True) -> Path:
     return path
 
 
-def metrics(gold: list[int], predicted: list[int], labels: list[str], loss: float) -> dict:
-    if not gold or len(gold) != len(predicted) or not 0 <= loss < float("inf"):
+def metrics(gold: list[int], predicted: list[int], labels: list[str], loss: float | None) -> dict:
+    if not gold or len(gold) != len(predicted) or loss is not None and not 0 <= loss < float("inf"):
         raise ValueError("invalid metric inputs")
     n = len(labels)
     confusion = [[0] * n for _ in range(n)]
