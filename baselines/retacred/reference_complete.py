@@ -8,6 +8,7 @@ from .common import ROOT,PACKAGE,atomic_json,digest,fingerprint,cohort,git
 from .reference_recipes import recipe,inventory
 
 REVIEW_FILES=('reference_complete.py','reference_recipes.py','reference_models.py','reference_mechanisms.py',
+ 'reference_storage.py','reference_archive.py',
  'reference_preflight.py','reference_worker.py','reference_nli.py','reference_trace.py','reference_resources.py','reference_resources.lock.json',
  'ctl_drp_runner.py','ctl_drp_task.py','ctl_drp_neural.py','ctl_drp_trace.py','ctl_drp_pretrained.py',
  'assets.py','luke_assets.py','mnli_assets.py','train.py','preflight.py','cohort.json','requirements-reference-complete.txt','../../scripts/run_retacred_all_references.sh','../../scripts/check_retacred_all_references.sh',
@@ -70,6 +71,10 @@ def validate_task(path):
     path=Path(path)
     if not (path/'RUN_COMPLETE').is_file():raise ValueError('worker completion missing')
     s=json.loads((path/'run_summary.json').read_text())
+    from .reference_archive import load as load_archive
+    archived=load_archive(path)
+    if archived and archived['status']=='complete' and (archived.get('summary_sha256')!=digest(path/'run_summary.json') or archived.get('validated_trace_identity')!=fingerprint(s['case_study']['traces'])):
+        raise ValueError('sealed completed archive/result identity drift')
     if s['status']!='complete' or s.get('diagnostic') or s['case_study']['status']!='complete_local':raise ValueError('not a completed formal task')
     from .reference_trace import validate
     if s['model'].startswith('ctl_drp_'):
@@ -103,6 +108,17 @@ def queue(jobs,devices,args,assets,prepared):
             if paused[0]:break
             for gpu in devices:
                 if gpu in active or not pending:continue
+                if os.environ.get('QATTN_REFERENCE_STORAGE_ROOT'):
+                    from .reference_storage import task_peak, owned_bytes, FLOOR, durable_json
+                    free=shutil.disk_usage(args.run_dir).free
+                    candidate=pending[0]
+                    committed=sum(max(0,task_peak(j['model'])-owned_bytes(j['directory'])) for _,j,_ in active.values())
+                    additional=max(0,task_peak(candidate['model'])-owned_bytes(candidate['directory']))
+                    if free<additional+committed+FLOOR:
+                        if active:continue
+                        durable_json(args.run_dir/'STORAGE_PAUSED.json',{'status':'paused','task':candidate['id'],
+                            'free_bytes':free,'additional_estimate_bytes':additional,'recovery':'free space, then resume same suite'})
+                        paused[0]=True;break
                 job=pending.popleft();log=args.run_dir/'logs'/f"{job['id']}.log";log.parent.mkdir(parents=True,exist_ok=True)
                 handle=log.open('a');argv=command(job,args,assets,prepared)
                 atomic_json(log.with_suffix('.command.json'),{'argv':argv,'cwd':str(ROOT),'gpu':gpu})
@@ -115,8 +131,14 @@ def queue(jobs,devices,args,assets,prepared):
                 if rc is None:continue
                 handle.close();del active[gpu]
                 if rc==0:
-                    try:validate_task(job['directory']);done.append(job['id'])
+                    try:
+                        validate_task(job['directory'])
+                        if os.environ.get('QATTN_REFERENCE_STORAGE_ROOT'):
+                            from .reference_archive import archive_completed
+                            archive_completed(job['directory'])
+                        done.append(job['id'])
                     except Exception as error:failures.append({'task':job['id'],'error':str(error)})
+                elif rc==75:paused[0]=True
                 else:failures.append({'task':job['id'],'exit_code':rc})
             if failures:break
             rows=[]
@@ -200,6 +222,8 @@ def suite(args,names,seeds):
         if json.loads(manifest.read_text())!=contract:raise ValueError('immutable suite mismatch; only GPU assignment may change')
     elif args.run_dir.exists():raise ValueError('existing suite requires resume')
     args.run_dir.mkdir(parents=True,exist_ok=True);atomic_json(manifest,contract)
+    from .reference_storage import configure
+    configure(args.run_dir)
     jobs=[{'id':f'{n}_seed{s}','model':n,'seed':s,'directory':args.run_dir/'tasks'/f'{n}_seed{s}'} for n in names for s in seeds]
     if not args.export_only:
         from .reference_preflight import check
@@ -210,7 +234,10 @@ def suite(args,names,seeds):
         if args.prepare_only:print('[references] inputs and assets prepared; no training started');return 0
         devices=gpu_ids(args.gpu);remaining=[]
         for job in jobs:
-            if (job['directory']/'RUN_COMPLETE').exists():validate_task(job['directory'])
+            if (job['directory']/'RUN_COMPLETE').exists():
+                validate_task(job['directory'])
+                from .reference_archive import archive_completed
+                archive_completed(job['directory'])
             else:remaining.append(job)
         result=queue(remaining,devices,args,asset_path,prepared)
         if result:return result
@@ -222,6 +249,12 @@ def suite(args,names,seeds):
     export_and_publish(args.run_dir,jobs,no_push=args.no_push)
     return 0
 
-def main(argv=None):return _main(argv)
+def main(argv=None):
+    from .reference_storage import pause_cli, ENV
+    before=os.environ.get(ENV)
+    try:return pause_cli(lambda:_main(argv))
+    finally:
+        if before is None:os.environ.pop(ENV,None)
+        else:os.environ[ENV]=before
 
 if __name__=='__main__':raise SystemExit(main())

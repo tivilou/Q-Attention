@@ -139,7 +139,9 @@ def validate(run,traces):
         path=Path(run)/'case_study'/t['path']
         if path.name!=t['path'] or digest(path)!=t['sha256']:raise ValueError('unsafe or changed trace manifest')
         value=json.loads(path.read_text());tensor=path.parent/value['tensor_artifact']
-        if tensor.parent!=path.parent or tensor.is_symlink() or digest(tensor)!=value['sha256']:raise ValueError('changed tensor evidence')
+        if tensor.parent!=path.parent or tensor.is_symlink():raise ValueError('changed tensor evidence')
+        from .reference_archive import verify_available
+        verify_available(tensor,value['sha256'],value['size_bytes'])
         if value.get('status')!='complete' or any(r['value_status']!='complete_values' for r in value['representations']):
             raise ValueError('metadata-only or partial evidence')
 
@@ -150,8 +152,10 @@ class ValueReader:
         self.path=Path(path);self.trace=json.loads(self.path.read_text());name=self.trace['tensor_artifact']
         if Path(name).name!=name:raise ValueError('unsafe artifact name')
         artifact=self.path.parent/name
-        if artifact.is_symlink() or digest(artifact)!=self.trace['sha256']:raise ValueError('artifact hash drift')
-        self.values=torch.load(artifact,map_location='cpu',weights_only=True,mmap=True)
+        from .reference_archive import verify_available, materialize
+        verify_available(artifact,self.trace['sha256'],self.trace['size_bytes'])
+        with materialize(artifact) as local:
+            self.values=torch.load(local,map_location='cpu',weights_only=True,mmap=True)
     def read(self,key,*,prefix=(),window=None):
         import math
         tensor=self.values[key]

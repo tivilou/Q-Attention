@@ -151,6 +151,8 @@ def fetch(lock_path=LOCK_PATH, *, cache_dir=None):
             atomic_json(cache/'fetch-verification.json',receipt)
             print('[luke-assets] verified '+row['name'],flush=True)
     verify_checkpoint(model)
+    from .reference_storage import clean_verified_parts
+    for row in spec['files']:clean_verified_parts(model/row['name'],row,cache/'parts')
     receipt.update(status='verified',files={row['name']:{'sha256':row['sha256'],'size_bytes':row['size_bytes']} for row in spec['files']})
     atomic_json(cache/'fetch-verification.json',receipt)
     return model

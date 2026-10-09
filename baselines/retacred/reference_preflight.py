@@ -5,11 +5,9 @@ from urllib.request import Request,urlopen
 from urllib.parse import quote
 from .common import ROOT,PACKAGE
 
-def disk_requirement(names,seeds):
-    # Full FP32 weights, Adam moments, atomic latest staging, dev best and
-    # selected train/test numerical events. Curriculum retains three reviewers.
-    gib=sum(60 if n=='curriculum' else 20 for n in names)*len(seeds)+12
-    return gib*1024**3
+def disk_requirement(names,seeds,*,slots=1,resume=None):
+    from .reference_storage import disk_plan
+    return disk_plan(names,seeds,slots=slots,resume=resume)['required_additional_bytes']
 
 def check(names,seeds,data_dir,gpu,*,network=True,review_receipt=None,resume=None):
     from .reference_complete import require_review
@@ -31,8 +29,10 @@ def check(names,seeds,data_dir,gpu,*,network=True,review_receipt=None,resume=Non
     remaining=list(names)
     if resume:
         remaining=[n for n in names if any(not (Path(resume)/'tasks'/f'{n}_seed{s}'/'RUN_COMPLETE').exists() for s in seeds)]
-    required=disk_requirement(remaining,seeds);free=shutil.disk_usage(ROOT).free
-    if free<required:raise ValueError(f'insufficient free disk: require {required/1024**3:.0f}GiB conservative reserve, available {free/1024**3:.1f}GiB; preserve existing evidence')
+    from .reference_storage import disk_plan
+    plan=disk_plan(names,seeds,slots=len(devices),resume=resume);required=plan['required_additional_bytes'];free=shutil.disk_usage(ROOT).free
+    if free<plan['hard_start_bytes']:raise ValueError(f'insufficient disk for missing shared assets: require {plan["hard_start_bytes"]/1024**3:.2f}GiB, free {free/1024**3:.2f}GiB; existing runs preserved')
+    print(f'[storage] free {free/1024**3:.2f}GiB | estimated concurrent peak {required/1024**3:.2f}GiB | dynamic admission/offload enabled',flush=True)
     if network:
         from .assets import CA
         url=os.environ.get('PROJECT_EXCHANGE_URL','');token=os.environ.get('PROJECT_EXCHANGE_TOKEN','')
@@ -53,7 +53,7 @@ def check(names,seeds,data_dir,gpu,*,network=True,review_receipt=None,resume=Non
                 request=Request(url.rstrip('/')+'/files/'+row['namespace']+'/'+quote(part['name']),method='HEAD',headers={'Authorization':'Bearer '+token})
                 with urlopen(request,context=context,timeout=25) as response:
                     if int(response.headers['Content-Length'])!=part['size_bytes']:raise ValueError('locked resource transport size drift')
-    return {'status':'passed','versions':versions,'devices':devices,'disk_reserve_bytes':required,'free_bytes':free,'network_authenticated':network,'formal_updates':0}
+    return {'status':'passed','versions':versions,'devices':devices,'disk_reserve_bytes':required,'disk_plan':plan,'free_bytes':free,'network_authenticated':network,'formal_updates':0}
 
 def main(argv=None):
     from .reference_complete import model_ids

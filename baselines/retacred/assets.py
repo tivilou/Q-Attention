@@ -182,6 +182,8 @@ def fetch(lock_path: Path = PACKAGE / "assets.lock.json") -> Path:
     for row in spec["files"]:
         target = model / safe_name(row["name"])
         if target.is_file() and not target.is_symlink() and digest(target) == row["sha256"] and target.stat().st_size == row["size_bytes"]:
+            from .reference_storage import clean_verified_parts
+            clean_verified_parts(target,row,cache/'parts')
             continue
         parts = []
         for part in row["parts"]:
@@ -191,6 +193,8 @@ def fetch(lock_path: Path = PACKAGE / "assets.lock.json") -> Path:
                             expected=part["sha256"], size=part["size_bytes"], token=token, context=context)
             parts.append(path)
         assemble(parts, target, row["sha256"], row["size_bytes"])
+        from .reference_storage import clean_verified_parts
+        clean_verified_parts(target,row,cache/'parts')
     return model
 
 

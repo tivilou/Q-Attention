@@ -149,7 +149,9 @@ class TraceObserver:
         required=inventory(self.adapter.model.encoder.config.num_hidden_layers,self.phase)
         missing=[key for _,key,*_ in required if key not in values]
         if missing:raise ValueError("trace_incomplete: required actual tensors absent: "+repr(missing))
-        with path.open("xb") as output:torch.save(values,output)
+        if path.exists():raise ValueError('fresh actual trace required')
+        from .train import save_torch
+        save_torch(path,values)
         artifact={"path":path.name,"sha256":digest(path),"bytes":path.stat().st_size,"visibility":"private"}
         representations=[]
         for rep,key,stage,label,meaning in required:
@@ -222,9 +224,10 @@ class ValueReader:
         for name, spec in artifacts.items():
             if Path(name).name!=name or name in (".",".."):raise ValueError("unsafe numeric artifact name")
             path=self.trace.parent/name
-            if path.resolve()!=path or any(p.is_symlink() for p in path.parents) or digest(path)!=spec["sha256"] or path.stat().st_size!=spec["bytes"]:
-                raise ValueError("numeric artifact integrity drift")
-            self.values[name]=torch.load(path,map_location="cpu",weights_only=True,mmap=True)
+            from .reference_archive import verify_available, materialize
+            verify_available(path,spec['sha256'],spec['bytes'])
+            with materialize(path) as local:
+                self.values[name]=torch.load(local,map_location="cpu",weights_only=True,mmap=True)
 
     def tensor(self, rep):
         import torch
@@ -251,6 +254,8 @@ class ValueReader:
 
 
 def validate(path, *, layers):
+    from .reference_archive import ctl_archived_validation
+    if ctl_archived_validation(path,layers):return
     reader=ValueReader(path);payload=reader.payload
     sample=payload["samples"][0];required={r[0] for r in inventory(layers,sample["split"])}
     if (payload.get("schema_version")!="sample-trace.v2" or set(payload["task_contract"]["required_value_representations"])!=required

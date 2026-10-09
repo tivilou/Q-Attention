@@ -104,6 +104,8 @@ def fetch(lock_path=LOCK, *, cache_dir=None):
             atomic_json(cache/'fetch-verification.json',receipt)
             print('[mnli-assets] verified '+row['name'],flush=True)
     evidence=verify_checkpoint(model)
+    from .reference_storage import clean_verified_parts
+    for row in spec['files']:clean_verified_parts(model/row['name'],row,cache/'parts')
     receipt.update(status='verified',files=evidence['files'],weights_locally_verified=True)
     atomic_json(cache/'fetch-verification.json',receipt)
     return model

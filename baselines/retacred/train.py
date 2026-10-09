@@ -22,12 +22,19 @@ PAUSED = 75
 
 def save_torch(path, value):
     import torch
+    from .reference_storage import write_reservation, serialized_bytes, fsync_parent, regular
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(path.name + ".tmp")
-    torch.save(value, temporary)
-    with temporary.open("rb") as handle:
-        os.fsync(handle.fileno())
-    os.replace(temporary, path)
+    regular(path);regular(temporary)
+    with write_reservation(path, serialized_bytes(value)):
+        try:
+            torch.save(value, temporary)
+            with temporary.open("rb") as handle:
+                os.fsync(handle.fileno())
+            os.replace(temporary, path)
+            fsync_parent(path)
+        finally:
+            temporary.unlink(missing_ok=True)
 
 
 def rng_state():

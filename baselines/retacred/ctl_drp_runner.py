@@ -88,9 +88,36 @@ def initial_snapshot(adapter, optimizer, contract):
 
 
 def checkpoint(adapter, optimizer, run, contract, cursor, traces, *, prior=None):
+    from .reference_storage import owner, write_reservation, serialized_bytes, clean_abandoned_ctl_stages
+    directory=run/'checkpoints';directory.mkdir(exist_ok=True)
+    clean_abandoned_ctl_stages(run,contract)
+    size=16*1024**2 if cursor==0 else serialized_bytes({'model':adapter.model.state_dict(),'optimizer':optimizer.state_dict()})
+    with write_reservation(directory/'state.pt',size):
+        result=_checkpoint(adapter,optimizer,run,contract,cursor,traces,prior=prior)
+    if owner(run) is not None:
+        from .reference_archive import archive_files, archive_traces
+        # Preserve sampled pre/post snapshots remotely, but leave one live latest.
+        for p in list(directory.iterdir()):
+            if not re.fullmatch(r'update\d{8}-[A-Za-z0-9_]+',p.name) or p.name==result['generation']:continue
+            if safe(p).parent!=directory:raise ValueError('foreign checkpoint path')
+            meta=json.loads((p/'state.json').read_text())
+            if meta['contract_sha256']!=fingerprint(contract) or meta['generation']!=p.name:raise ValueError('foreign checkpoint generation')
+            if p.name in result['pinned_generations']:
+                if (p/'state.pt').is_file():
+                    archive_files(run,[p/'state.pt',p/'state.json'])
+                    archive_files(run,[p/'state.pt'],remove=True)
+                # Keep tiny source receipts locally; only numeric latest remains.
+            else:shutil.rmtree(p)
+        if traces and (prior is None or len(traces)>len(prior['traces'])):archive_traces(run,traces)
+    return result
+
+
+def _checkpoint(adapter, optimizer, run, contract, cursor, traces, *, prior=None):
     import torch
     directory=run/"checkpoints";directory.mkdir(exist_ok=True)
     stage=Path(tempfile.mkdtemp(prefix=".generation-",dir=directory))
+    from .reference_storage import durable_json
+    durable_json(stage/'storage-owner.json',{'schema':'ctl-owned-stage.v1','contract_sha256':fingerprint(contract)})
     target=directory/(f"update{cursor:08d}-"+stage.name.removeprefix(".generation-"))
     weights=stage/"state.pt"
     if cursor==0:
@@ -109,6 +136,7 @@ def checkpoint(adapter, optimizer, run, contract, cursor, traces, *, prior=None)
              "weights_sha256":digest(weights),"traces":copy.deepcopy(traces),"pinned_generations":pinned}
     atomic_json(stage/"state.json",receipt);sync_dir(stage)
     os.rename(stage,target);sync_dir(directory)
+    (target/'storage-owner.json').unlink();sync_dir(target)
     pointer={"generation":target.name,"state_sha256":digest(target/"state.json")}
     atomic_json(run/"latest.json",pointer);sync_dir(run)
     # Two rolling generations plus source snapshots pinned for the sampled train
@@ -203,7 +231,7 @@ def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget
     observe=observability(adapter)
     contract={"schema":"ctl-runner-contract.v1","task":adapter.contract,"budget_updates":budget,
               "runtime":runtime(adapter),"observability":observe,"diagnostic":adapter.diagnostic,
-              "checkpoint_policy":"every_completed_logical_update; two_rolling_plus_sample_event_pins",
+              "checkpoint_policy":("every_completed_logical_update; latest_local; sample_event_pins_verified_archive" if os.environ.get('QATTN_REFERENCE_STORAGE_ROOT') else "every_completed_logical_update; two_rolling_plus_sample_event_pins"),
               "complete_cohort_review_sha256":digest(Path(formal_review_receipt)) if formal_review_receipt else None,
               "source":{name:digest(Path(__file__).with_name(name)) for name in ("ctl_drp_runner.py","ctl_drp_trace.py")}}
     # Configuration maps may use integer keys/tuples in Python; JSON receipts
@@ -217,11 +245,19 @@ def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget
         if not resume:
             atomic_json(run_dir/"contract.json",contract);atomic_json(run_dir/"observability.json",observe)
         optimizer=adapter.make_optimizer()
+        from .reference_storage import initial_save_pending,durable_json,fsync_parent
+        initial_marker=run_dir/'INITIALIZATION_PENDING.json'
+        if resume and not (run_dir/'latest.json').exists() and initial_save_pending(run_dir,contract):
+            seed_runtime(adapter.seed);adapter.model.train()
+            checkpoint(adapter,optimizer,run_dir,contract,0,[])
+            initial_marker.unlink();fsync_parent(initial_marker)
         if resume:
             state=restore(adapter,optimizer,run_dir,contract)
         else:
             seed_runtime(adapter.seed);adapter.model.train()
+            durable_json(initial_marker,{'schema':'reference-initial-save.v1','contract_sha256':fingerprint(contract),'completed_updates':0})
             state=checkpoint(adapter,optimizer,run_dir,contract,0,[])
+            initial_marker.unlink();fsync_parent(initial_marker)
         complete="DIAGNOSTIC_COMPLETE" if adapter.diagnostic else "COMPUTE_COMPLETE"
         if (run_dir/complete).exists():
             validate_complete(run_dir,adapter)

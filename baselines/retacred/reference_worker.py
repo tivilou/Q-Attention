@@ -103,6 +103,9 @@ def train_standard(adapter,data,run,r,seed,micro,*,resume=False,pause_after=None
     path=run/'checkpoints'/'latest.pt';state={'cursor':0,'traces':[],'best_dev':-1.,'best_cursor':None,'best_sha256':None,'best_file':None}
     def save():
         save_torch(path,dict(contract=contract,model=adapter.model.state_dict(),optimizer=opt.state_dict(),scheduler=sched.state_dict(),rng=rng_state(),state=state))
+    from .reference_storage import initialize_checkpoint,initial_save_pending
+    if resume and not path.is_file() and initial_save_pending(run,contract):
+        initialize_checkpoint(run,path,contract,save)
     if resume:
         if not path.is_file():raise ValueError('explicit resume checkpoint missing')
         saved=torch.load(path,map_location='cpu',weights_only=False,mmap=True)
@@ -116,9 +119,13 @@ def train_standard(adapter,data,run,r,seed,micro,*,resume=False,pause_after=None
             if p.name not in declared:
                 if p.is_symlink() or p.suffix not in ('.json','.pt'):raise ValueError('foreign trace attempt')
                 quarantine=run/'orphaned_trace_attempts';quarantine.mkdir(exist_ok=True);p.rename(quarantine/(str(time.time_ns())+'-'+p.name))
+        if r['model']!='curriculum':
+            from .reference_archive import archive_orphans,archive_traces
+            archive_orphans(run)
+            if state['traces']:archive_traces(run,state['traces'])
     else:
         if run.exists() and any(run.iterdir()):raise ValueError('existing worker run needs resume')
-        run.mkdir(parents=True,exist_ok=True);atomic_json(run/'contract.json',contract);save()
+        run.mkdir(parents=True,exist_ok=True);initialize_checkpoint(run,path,contract,save)
     selected=next((i for i,f in enumerate(features['train']) if f['labels']!=0),0)
     pause=[False];handlers={s:signal.getsignal(s) for s in (signal.SIGINT,signal.SIGTERM,signal.SIGHUP)}
     for s in handlers:signal.signal(s,lambda *_:pause.__setitem__(0,True))
@@ -155,6 +162,9 @@ def train_standard(adapter,data,run,r,seed,micro,*,resume=False,pause_after=None
                     state['best_sha256']=digest(run/'checkpoints'/state['best_file'])
                 atomic_json(run/f'dev_epoch{ep}.json',dev)
             save() # the cursor, RNG and optimizer belong to the same committed batch
+            if pending and r['model']!='curriculum':
+                from .reference_archive import archive_traces
+                archive_traces(run,state['traces'])
             for old in (run/'checkpoints').glob('best-u*.pt'):
                 if old.name!=state['best_file'] and old.name[6:-3].isdigit() and not old.is_symlink():old.unlink()
             elapsed=time.monotonic()-start;speed=(state['cursor']-initial)/max(elapsed,1e-9)
@@ -166,36 +176,73 @@ def train_standard(adapter,data,run,r,seed,micro,*,resume=False,pause_after=None
     finally:
         for s,h in handlers.items():signal.signal(s,h)
 
+def reviewer_storage(task,folder):
+    from .reference_storage import owner
+    if owner(task) is None:return
+    from .reference_archive import archive_files
+    paths=[folder/'review-complete.private.json']+sorted((folder/'checkpoints').glob('*.pt'))
+    archive_files(task,paths)
+    archive_files(task,[p for p in paths if p.suffix=='.pt'],remove=True)
+
 def cross_review(args,assets,data,r):
-    """Each reviewer trains only its own subset; heldout votes train-only."""
-    root=args.run_dir/'reviewers';folds=reviewer_partition(len(data['train']),args.seed,r['reviewer_count']);votes={str(i):[] for i in range(len(data['train']))};review_traces=[]
+    """Durable reviewer votes allow optimizer offload without retraining a reviewer."""
+    from .reference_archive import source_identity, verify_available
+    from .reference_storage import durable_json
+    root=args.run_dir/'reviewers';folds=reviewer_partition(len(data['train']),args.seed,r['reviewer_count'])
+    votes={str(i):[] for i in range(len(data['train']))};review_traces=[]
     selected=next((i for i,row in enumerate(data['train']) if row['relation']!='no_relation'),0)
     for k,own in enumerate(folds):
-        seed_all(args.seed+1000+k);adapter=make('curriculum',assets,data['train'],device=args.device,checkpointing=True)
-        folder=root/str(k);train=[data['train'][i] for i in own]
-        reviewer_recipe={**r,'model':'curriculum_reviewer','epochs':r['reviewer_epochs'],'selection':'final_epoch'}
-        result=train_standard(adapter,{'train':train,'valid':train},folder,reviewer_recipe,args.seed+1000+k,args.micro_batch,
-            resume=(folder/'checkpoints/latest.pt').is_file(),stage=f'reviewer{k}',case=False)
-        if result is None:return None
-        import torch
-        adapter.model.eval();membership=set(own);held=[i for i in range(len(data['train'])) if i not in membership]
-        features=adapter.encode([data['train'][i] for i in held])
-        with torch.no_grad():
-            for s in range(0,len(held),args.micro_batch):
-                ids=held[s:s+args.micro_batch];batch=adapter.batch(features[s:s+args.micro_batch])
-                cap=Capture(adapter.model,[ids.index(selected)],len(ids)) if selected in ids else None
-                with cap if cap else nullcontext():
-                    _,logits=adapter.forward(batch)
-                    if cap:cap.snapshot_mechanism()
-                if cap:review_traces.append(emit(adapter,batch,[data['train'][selected]],cap,phase='test',step=result[1]['cursor'],event=100000+k,
-                    directory=args.run_dir/'auxiliary_case_study',loss=None,logits=logits,
-                    extra={'stage':'curriculum_review','source_split':'train','reviewer':k,'own_subset_training':True,'heldout_selected_index':selected}))
-                for i,p in zip(ids,logits.argmax(-1).tolist()):votes[str(i)].append({'reviewer':k,'predicted':p,'correct':p==LABELS.index(data['train'][i]['relation'])})
-        del adapter
-        if torch.cuda.is_available():torch.cuda.empty_cache()
+        folder=root/str(k);held=[i for i in range(len(data['train'])) if i not in set(own)]
+        ledger=folder/'review-complete.private.json'
+        identity=fingerprint({'own':own,'held':held,'seed':args.seed+1000+k,'micro':args.micro_batch,
+            'recipe':r,'data':fingerprint(data['train']),'assets':assets.get('verified_assets',{}),'source':source_identity()})
+        if ledger.exists():
+            completed=json.loads(ledger.read_text())
+            if completed.get('identity')!=identity or set(completed['votes'])!={str(i) for i in held}:
+                raise ValueError('completed reviewer contract drift')
+            for event in completed['traces']:
+                path=args.run_dir/'auxiliary_case_study'/event['path']
+                if digest(path)!=event['sha256']:raise ValueError('completed reviewer trace drift')
+                payload=json.loads(path.read_text());verify_available(path.parent/payload['tensor_artifact'],payload['sha256'],payload['size_bytes'])
+            reviewer_storage(args.run_dir,folder)
+        else:
+            seed_all(args.seed+1000+k);adapter=make('curriculum',assets,data['train'],device=args.device,checkpointing=True)
+            train=[data['train'][i] for i in own]
+            reviewer_recipe={**r,'model':'curriculum_reviewer','epochs':r['reviewer_epochs'],'selection':'final_epoch'}
+            result=train_standard(adapter,{'train':train,'valid':train},folder,reviewer_recipe,args.seed+1000+k,args.micro_batch,
+                resume=(folder/'checkpoints/latest.pt').is_file(),stage=f'reviewer{k}',case=False)
+            if result is None:return None
+            import torch
+            adapter.model.eval();features=adapter.encode([data['train'][i] for i in held]);own_votes={};events=[]
+            # A crash before this ledger commits may repeat evaluation, not optimizer updates.
+            for path in list((args.run_dir/'auxiliary_case_study').glob('*')):
+                if f'-event{100000+k}' in path.stem:
+                    from .reference_storage import regular
+                    regular(path)
+                    quarantine=args.run_dir/'orphaned_trace_attempts';quarantine.mkdir(exist_ok=True)
+                    path.rename(quarantine/(str(time.time_ns())+'-'+path.name))
+            with torch.no_grad():
+                for s in range(0,len(held),args.micro_batch):
+                    ids=held[s:s+args.micro_batch];batch=adapter.batch(features[s:s+args.micro_batch])
+                    cap=Capture(adapter.model,[ids.index(selected)],len(ids)) if selected in ids else None
+                    with cap if cap else nullcontext():
+                        _,logits=adapter.forward(batch)
+                        if cap:cap.snapshot_mechanism()
+                    if cap:events.append(emit(adapter,batch,[data['train'][selected]],cap,phase='test',step=result[1]['cursor'],event=100000+k,
+                        directory=args.run_dir/'auxiliary_case_study',loss=None,logits=logits,
+                        extra={'stage':'curriculum_review','source_split':'train','reviewer':k,'own_subset_training':True,'heldout_selected_index':selected}))
+                    for i,pred in zip(ids,logits.argmax(-1).tolist()):
+                        own_votes[str(i)]={'reviewer':k,'predicted':pred,'correct':pred==LABELS.index(data['train'][i]['relation'])}
+            completed={'identity':identity,'votes':own_votes,'traces':events,'optimizer_updates_complete':result[1]['cursor']}
+            durable_json(ledger,completed)
+            reviewer_storage(args.run_dir,folder)
+            del adapter
+            if torch.cuda.is_available():torch.cuda.empty_cache()
+        for i,v in completed['votes'].items():votes[i].append(v)
+        review_traces+=completed['traces']
     difficulty=[sum(not x['correct'] for x in votes[str(i)]) for i in range(len(data['train']))]
     receipt={'folds':folds,'votes':votes,'difficulty':difficulty,'traces':review_traces,'training_membership':'own_subset_only','test_access':False,'seed':args.seed}
-    atomic_json(args.run_dir/'cross_review.private.json',receipt);return difficulty
+    durable_json(args.run_dir/'cross_review.private.json',receipt);return difficulty
 
 def tune(adapter,features,records,r,micro):
     import torch
@@ -296,6 +343,8 @@ def run_worker(args):
     finish_summary(args.run_dir,args.model,args.seed,r,splits,state['cursor'],traces,args.data_dir,assets,diagnostic=args.diagnostic)
     return 0
 
-def main(argv=None):return _parse_and_run(argv)
+def main(argv=None):
+    from .reference_storage import pause_cli
+    return pause_cli(lambda:_parse_and_run(argv))
 
 if __name__=='__main__':raise SystemExit(main())

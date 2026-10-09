@@ -31,6 +31,9 @@ def run(args,assets,data,r):
     run=Path(args.run_dir);path=run/'checkpoints/latest.pt';opt,sched=optimizer_for(adapter,r,len(plan))
     state={'cursor':0,'traces':[],'captured_candidates':[],'best_dev':-1.,'best_cursor':None,'best_sha256':None,'best_file':None}
     def save():save_torch(path,dict(contract=contract,model=adapter.model.state_dict(),optimizer=opt.state_dict(),scheduler=sched.state_dict(),rng=rng_state(),state=state))
+    from .reference_storage import initialize_checkpoint,initial_save_pending
+    if args.resume and not path.is_file() and initial_save_pending(run,contract):
+        initialize_checkpoint(run,path,contract,save)
     if args.resume:
         saved=torch.load(path,map_location='cpu',weights_only=False,mmap=True)
         if saved['contract']!=contract:raise ValueError('immutable NLI pair/filter/data/recipe drift')
@@ -41,9 +44,12 @@ def run(args,assets,data,r):
             if orphan.name not in declared:
                 if orphan.is_symlink() or orphan.suffix not in ('.json','.pt'):raise ValueError('foreign NLI trace attempt')
                 quarantine=run/'orphaned_trace_attempts';quarantine.mkdir(exist_ok=True);orphan.rename(quarantine/(str(time.time_ns())+'-'+orphan.name))
+        from .reference_archive import archive_orphans,archive_traces
+        archive_orphans(run)
+        if state['traces']:archive_traces(run,state['traces'])
     else:
         if run.exists() and any(run.iterdir()):raise ValueError('existing NLI run needs resume')
-        run.mkdir(parents=True);atomic_json(run/'contract.json',contract);save()
+        run.mkdir(parents=True);initialize_checkpoint(run,path,contract,save)
     pause=[False];handlers={s:signal.getsignal(s) for s in (signal.SIGINT,signal.SIGTERM,signal.SIGHUP)}
     for s in handlers:signal.signal(s,lambda *_:pause.__setitem__(0,True))
     try:
@@ -77,6 +83,9 @@ def run(args,assets,data,r):
                     save_torch(run/'checkpoints'/state['best_file'],adapter.model.state_dict());state['best_sha256']=digest(run/'checkpoints'/state['best_file'])
                 atomic_json(run/f'dev_epoch{epoch}.json',dev)
             save()
+            if pending:
+                from .reference_archive import archive_traces
+                archive_traces(run,state['traces'])
             for old in (run/'checkpoints').glob('best-u*.pt'):
                 if old.name!=state['best_file'] and old.name[6:-3].isdigit() and not old.is_symlink():old.unlink()
             atomic_json(run/'heartbeat.json',{'phase':'NLI_pairs','batch':state['cursor'],'batches':len(plan),'loss':batch_loss})

@@ -30,8 +30,9 @@ def test_dynamic_queue_fault_cancel_and_resume(tmp_path,monkeypatch):
 
 def test_disk_estimator_retains_reviewers_and_atomic_generations():
     from baselines.retacred.reference_preflight import disk_requirement
-    assert disk_requirement(['curriculum'],[13])>disk_requirement(['luke_core'],[13])
-    assert disk_requirement(suite.model_ids('all'),[13])==352*1024**3
+    from baselines.retacred.reference_storage import task_peak
+    assert task_peak('curriculum')>task_peak('typed_marker')
+    assert disk_requirement(suite.model_ids('all'),[13])<352*1024**3
 
 def test_nli_actual_tiny_batch_pause_resume_and_grouped_trace(tmp_path,monkeypatch):
     import torch

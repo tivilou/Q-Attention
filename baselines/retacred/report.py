@@ -35,6 +35,9 @@ def publication_preflight(*, no_push: bool, allowed_report: Path | None = None):
 
 
 def upload_evidence(run: Path, jobs: list[dict]) -> dict:
+    if jobs and all((j['directory']/'run_summary.json').is_file() and json.loads((j['directory']/'run_summary.json').read_text()).get('schema')=='retacred-reference-result.v2' for j in jobs):
+        from .reference_archive import aggregate
+        return aggregate(run,jobs)
     receipt_path = run / "exchange_manifest.json"
     declared = []
     identities = {}

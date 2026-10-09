@@ -15,6 +15,8 @@ def fetch_file(row,root):
     target=root/name
     if target.exists():
         if target.is_symlink() or digest(target)!=row['sha256'] or target.stat().st_size!=row['size_bytes']:raise ValueError('corrupt resource cache preserved')
+        from .reference_storage import clean_verified_parts
+        clean_verified_parts(target,row,root/'parts')
         return target
     url=os.environ.get('PROJECT_EXCHANGE_URL','');token=os.environ.get('PROJECT_EXCHANGE_TOKEN','')
     if not url.startswith('https://') or not token:raise ValueError('configure HTTPS project exchange before missing asset fetch')
@@ -25,7 +27,10 @@ def fetch_file(row,root):
         path=root/'parts'/p['name']
         stream_download(url.rstrip('/')+'/files/'+row['namespace']+'/'+quote(p['name']),path,expected=p['sha256'],size=p['size_bytes'],token=token,context=context)
         parts.append(path)
-    assemble(parts,target,row['sha256'],row['size_bytes']);return target
+    assemble(parts,target,row['sha256'],row['size_bytes'])
+    from .reference_storage import clean_verified_parts
+    clean_verified_parts(target,row,root/'parts')
+    return target
 
 def prepare(models):
     lock=json.loads(LOCK.read_text());cache=ROOT/'.external/assets/reference_resources'/lock['revision']
