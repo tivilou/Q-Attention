@@ -181,7 +181,7 @@ def restore(adapter,optimizer,run,contract):
     return state
 
 
-def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget=2, inject_after_update=None):
+def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget=2, inject_after_update=None, formal_review_receipt=None):
     import fcntl
     run_dir=safe(directory)
     if run_dir.exists() and not resume:raise ValueError("fresh run required; existing run needs explicit --resume")
@@ -191,13 +191,20 @@ def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget
         budget=min(diagnostic_budget,adapter.plan.total)
     else:
         # Candidate rows remain blocked until independent review/admission.
-        select_models(formal_model_id(adapter.initialization))
+        if formal_review_receipt is None:
+            select_models(formal_model_id(adapter.initialization))
+        else:
+            from .reference_complete import require_review
+            require_review(formal_review_receipt)
+            if formal_model_id(adapter.initialization) not in ('ctl_drp_supervised','ctl_drp_unsupervised'):
+                raise ValueError('complete-cohort gate only accepts a pinned CTL variant')
         budget=adapter.plan.total
     configure_determinism()
     observe=observability(adapter)
     contract={"schema":"ctl-runner-contract.v1","task":adapter.contract,"budget_updates":budget,
               "runtime":runtime(adapter),"observability":observe,"diagnostic":adapter.diagnostic,
               "checkpoint_policy":"every_completed_logical_update; two_rolling_plus_sample_event_pins",
+              "complete_cohort_review_sha256":digest(Path(formal_review_receipt)) if formal_review_receipt else None,
               "source":{name:digest(Path(__file__).with_name(name)) for name in ("ctl_drp_runner.py","ctl_drp_trace.py")}}
     # Configuration maps may use integer keys/tuples in Python; JSON receipts
     # use string keys/lists. Freeze the same serialized identity on both sides.

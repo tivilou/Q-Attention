@@ -57,6 +57,10 @@ def validate_job(path: Path, *, canary: bool = False):
     if canary:
         return
     summary = json.loads((path / "run_summary.json").read_text())
+    if summary.get('schema') == 'retacred-reference-result.v2':
+        from .reference_complete import validate_task
+        validate_task(path)
+        return
     if summary["status"] != "complete" or summary["case_study"]["status"] != "complete_local":
         raise ValueError("child metrics or traces incomplete")
     for item in summary["case_study"]["traces"]:

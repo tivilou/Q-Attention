@@ -23,7 +23,7 @@ def publication_preflight(*, no_push: bool, allowed_report: Path | None = None):
     prefix = str(allowed_report.relative_to(ROOT)).replace("\\","/")+"/" if allowed_report else None
     if staged and (not prefix or any(not name.startswith(prefix) for name in staged)):
         raise ValueError("Git index contains unrelated pre-existing staged changes")
-    dirty = git("status","--porcelain","--untracked-files=all")
+    dirty = subprocess.check_output(["git","status","--porcelain","--untracked-files=all"],cwd=ROOT,text=True).rstrip("\n")
     if dirty:
         prefix = str(allowed_report.relative_to(ROOT)).replace("\\","/")+"/" if allowed_report else None
         if not prefix or any(not line[3:].startswith(prefix) for line in dirty.splitlines()):
@@ -124,7 +124,8 @@ def export_report(run: Path, jobs: list[dict], exchange: dict, report: Path):
             (destination/"data_counts.txt").write_text("".join(f"{split} {value['records']}\n" for split,value in split_identity.items()))
             (destination/"run_summary.data").write_text(f"status=complete\nmodel={job['model']}\nseed={job['seed']}\ncase_study=complete_exchanged\n")
             test = summary["splits"]["test"]
-            rows.append(f"| {job['model']} | {job['seed']} | {test['micro_f1']:.6f} | {test['accuracy']:.6f} | {test['macro_f1']:.6f} | {test['loss']:.6f} |")
+            loss_text=f"{test['loss']:.6f}" if test.get('loss') is not None else 'N/A (see loss_scope)'
+            rows.append(f"| {job['model']} | {job['seed']} | {test['micro_f1']:.6f} | {test['accuracy']:.6f} | {test['macro_f1']:.6f} | {loss_text} |")
         # Only compact receipts; no token, raw samples or tensors enter Git.
         receipt = {key:exchange[key] for key in ("schema_version","status","exchange_url","target_dir","files","artifact_identity")}
         atomic_json(staging / "exchange_manifest.json", receipt)

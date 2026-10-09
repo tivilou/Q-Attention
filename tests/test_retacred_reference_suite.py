@@ -33,7 +33,7 @@ def test_manifests_do_not_promote_tiny_fixtures_to_formal_certificates():
 def test_recovered_ptr_metadata_identity_and_class_interface():
     from baselines.retacred.improved import load_module
     from types import SimpleNamespace
-    directory = common.ROOT/".external/retacred/ptr_metadata"/ptr_resources.REVISION
+    directory = Path(os.environ.get("RETACRED_TEST_PTR_METADATA",str(common.ROOT/".external/retacred/ptr_metadata"/ptr_resources.REVISION)))
     result = ptr_resources.validate_resources(directory)
     processor = load_module(common.pin_source("improved",fetch=False),"prepro").RETACREDProcessor(
         SimpleNamespace(input_format="typed_entity_marker_punct"), SimpleNamespace(add_tokens=lambda _:None))
@@ -112,7 +112,7 @@ def tiny_checkpoint(tmp_path_factory):
     import torch
     from transformers import RobertaConfig, RobertaModel, RobertaTokenizer
     root = tmp_path_factory.mktemp("tiny-roberta")
-    pinned = common.ROOT/".external/assets"/assets.REVISION/"model"
+    pinned = Path(os.environ.get("RETACRED_TEST_BPE_CACHE",str(common.ROOT/".external/assets"/assets.REVISION/"model")))
     assert (pinned/"vocab.json").exists(), "run asset preparation before runtime source tests"
     torch.manual_seed(7)
     config = RobertaConfig(vocab_size=50265,hidden_size=16,num_hidden_layers=1,num_attention_heads=4,
@@ -330,7 +330,7 @@ def test_publication_index_guard_is_exact(tmp_path,monkeypatch):
     repository = tmp_path/"repo"; repository.mkdir()
     def command(*args):
         return subprocess.run(["git",*args],cwd=repository,check=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
-    command("init","-b","1.1")
+    command("init"); command("checkout","-b","1.1")
     command("config","user.name","Test User"); command("config","user.email","test@example.invalid")
     (repository/"code.txt").write_text("source")
     command("add","code.txt"); command("commit","-m","initial")
