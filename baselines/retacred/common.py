@@ -51,7 +51,7 @@ def select_models(raw: str) -> list[dict]:
     registry = cohort()
     names = registry["default_models"] if raw == "ready" else [x.strip() for x in raw.split(",")]
     if raw == "all":
-        names = [row["id"] for row in registry["models"]]
+        names = [row["id"] for row in registry["models"] if row.get("run_eligible", True)]
     index = {row["id"]: row for row in registry["models"]}
     if not names or len(set(names)) != len(names):
         raise ValueError("model list is empty or contains duplicates")

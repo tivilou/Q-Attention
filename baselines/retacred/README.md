@@ -162,3 +162,25 @@ The optional evidence file contains complete fixture IDs/tokens/positions.
 This is a tokenizer/interface proof, NOT actual AllenNLP wrapper/indexer or
 complete model runtime equivalence. No cohort admission or manifest promotion
 follows from this gate. The source preparation snapshot remains historical.
+
+
+## Owner-approved practical reproduction scope
+
+Missing author implementation details may use reasonable frozen, explicit
+choices. Such methods are separately labeled paper-interpreted references,
+not exact author implementations or strict-fidelity certificates. Core
+mechanisms, heldout isolation and actual runtime evidence remain mandatory.
+
+PTR Reversed is now excluded_noncomparable/run_eligible=false: the historical
+row is retained, but --models all omits it and explicit requests are rejected
+before any job. The execution target currently has15 configurations including
+the classic anchor; five implemented defaults remain unchanged. More exclusions
+require demonstrated task incompatibility, not simply missing source details.
+
+CTL-DRP now has an actual injected-encoder scalar Eq2 neural core, real BPE and
+four paper marker tokens, synthetic train/test numeric captures and CPU FP32
+post-update recovery. `check_retacred_ctl_drp_neural.sh --describe` is backend-
+free; execution requires explicit private output/cache/native-source paths.
+See ctl_drp_runtime_choices.json for actual tiny scope and explicit full-recipe
+proposals. Large pretrained loading and full task integration are still pending.
+This diagnostic neither downloads assets nor runs benchmark/full-data training.

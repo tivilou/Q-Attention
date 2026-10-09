@@ -1,0 +1,79 @@
+{
+  "schema": "ctl-drp-runtime-choices.v1",
+  "provenance_mode": "paper",
+  "status": "tiny_core_implemented_full_adapter_pending",
+  "current_evidence_grade": "not_verifiable",
+  "intended_full_reference_grade": "paper_interpretive",
+  "owner_approved_reasonable_gap_filling": true,
+  "formal_comparison_admitted": false,
+  "strict_comparison_eligible": false,
+  "author_exact_checkpoint_H_claim": false,
+  "joint_input": {
+    "entity_markers": [
+      "[u1]",
+      "[u2]",
+      "[u3]",
+      "[u4]"
+    ],
+    "type_rendering": "lowercase_and_underscore_to_space",
+    "annotation_location": "inside_closing_marker_after_entity",
+    "pair_boundary": "RobertaProcessing_sentence_pair_explicit_interpretation",
+    "max_length": 512,
+    "overflow": "diagnostic_error_no_silent_truncation",
+    "candidate_support": "frozen_physical_train_only_ordered_pairs_plus_unconditional_NA"
+  },
+  "model": {
+    "readout": "last_hidden_state[:,0,:]",
+    "pooler": false,
+    "l2_normalization": false,
+    "head": "one_shared_scalar_affine",
+    "loss": "candidate_softmax_then_mean_sentence_NLL",
+    "tie": "first_in_canonical_ID_order",
+    "head_init": {
+      "seed": 13,
+      "normal_std": 0.02,
+      "bias": 0
+    }
+  },
+  "proposed_full_recipe": {
+    "effective_batch_sentences": 512,
+    "learning_rate": 1e-05,
+    "epochs": 10,
+    "optimizer": "torch.optim.AdamW",
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "weight_decay": 0.0,
+    "scheduler": "constant",
+    "warmup": 0,
+    "gradient_clipping": null,
+    "seeds": [
+      13,
+      29,
+      53
+    ]
+  },
+  "recipe_boundary": "batch_number_LR_epochs_are_paper_facts; other_values_are_our_frozen_interpretations; full_recipe_not_executed",
+  "tiny_actual_scope": {
+    "initialization": "random_Roberta_not_pretrained_SimCSE",
+    "device": "CPU",
+    "precision": "FP32",
+    "layers": 2,
+    "width": 32,
+    "synthetic_sentences": 2,
+    "optimizer_updates": 2,
+    "replayed_updates": 1,
+    "complete_numeric_train_test_capture": true,
+    "resume_scope": "CPU_FP32_post_update_model_optimizer_rng_cursor_only"
+  },
+  "pending": [
+    "actual_SimCSE_weight_load",
+    "qualified_physical_train_H_and_overflow_coverage",
+    "complete_task_adapter_and_full_runner",
+    "actual_CUDA_AMP_topology_resume",
+    "private_exchange_tensor_delivery_and_final_export",
+    "independent_mechanism_review_before_certification"
+  ]
+}

@@ -204,3 +204,30 @@ paper scorer binding remain unconfirmed. Ready-five and both blocked CTL rows
 are unchanged. No existing runner reads this record as a configuration/admission
 override. Next is synthetic tiny joint-encoder/Eq2 FP32 testing, not full-data
 training, weight loading or publication; independent review remains pending.
+
+
+## Actual tiny neural core and owner-approved reconstruction policy
+
+The original design matrix is a dated pre-implementation snapshot. Current
+choices are in ctl_drp_runtime_choices.json; actual code is ctl_drp_neural.py
+and ctl_drp_smoke.py. Owner permits reasonable declared gap filling. Exact
+author checkpoint/H identity is not a prerequisite for an explicitly labeled
+paper-interpretive reference, but it remains unconfirmed, never renamed exact.
+
+The marker placement is now directly bound to the native example: [u1] subject
+name (subject type) [u2], analogously [u3]/[u4] for object. Lowercase type text,
+underscore-to-space and sentence-pair joining are explicit rendering choices.
+Raw role/span/type metadata is retained. Inference encoding never reads gold.
+
+Injected RoBERTa jointly encodes each candidate. Raw first final-layer token
+feeds one shared affine scalar head; each sentence owns its Eq2 denominator.
+Loss is mean NLL across sentences, not candidate-row-weighted or in-batch CE.
+Known NA-only has p1/loss0; malformed grouping/overflow/missing gold fail without
+candidate repair or sample skipping. Tiny initialization is random, not SimCSE.
+
+Synthetic train/test traces contain actual word embeddings, Q/K/V, attention
+scores/probabilities, intermediate layer/head I/O, candidate probabilities,
+gold/prediction/loss and training parameter gradients. CPU FP32 post-update
+model/optimizer/RNG/cursor recovery is a diagnostic, not CUDA/topology proof.
+Core tests and canary evidence do not imply full-task data qualification,
+large checkpoint loading, full runner integration or formal score reproduction.
