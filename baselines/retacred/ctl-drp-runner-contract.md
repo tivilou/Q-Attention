@@ -89,3 +89,16 @@ hash-checked; repeated export is idempotent only for the same run identity.
 This module makes no implicit Git commit/push. Formal one-command publication,
 independent review, actual exchange and qualification binding remain separate
 release tasks. Default-ready cohort remains five.
+
+## Unified diagnostic dispatch
+
+The suite's explicit `ctl-preflight` subcommand executes ctl_drp_preflight,
+not the generic marker/PTR trainer. Modes tiny/pretrained/data are separate
+diagnostics. Describe has no effects, pretrained uses a locked explicit weight
+and one isolated visible CUDA device, and data audits an external physical
+qualification before any model load. No formal cohort admission is changed.
+Parent and child commands/exit codes are recorded privately. A timeout/pause
+stops only the child's dedicated process group, retaining durable checkpoints.
+Pretrained diagnostic defaults to one synthetic update and uses the same
+immutable cursor/value-readiness runner. The full combined lane needs its own
+actual runtime evidence; prior backbone and tiny tests alone do not certify it.

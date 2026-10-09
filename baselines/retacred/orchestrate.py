@@ -183,6 +183,11 @@ def parse_args():
 
 
 def main():
+    # Separate diagnostic lane, dispatched before formal cohort/data/Git gates.
+    # This never changes ready/all admission or routes CTL into the marker trainer.
+    if sys.argv[1:2] == ["ctl-preflight"]:
+        from .ctl_drp_preflight import main as ctl_preflight
+        raise SystemExit(ctl_preflight(sys.argv[2:]))
     args = parse_args()
     rows = select_models(args.models)  # complete admission check before launching anything
     seeds = [int(item) for item in args.seeds.split(",")]

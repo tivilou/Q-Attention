@@ -182,5 +182,33 @@ four paper marker tokens, synthetic train/test numeric captures and CPU FP32
 post-update recovery. `check_retacred_ctl_drp_neural.sh --describe` is backend-
 free; execution requires explicit private output/cache/native-source paths.
 See ctl_drp_runtime_choices.json for actual tiny scope and explicit full-recipe
-proposals. Large pretrained loading and full task integration are still pending.
+proposals. The pinned supervised pretrained CUDA backbone and bounded task
+runner are verified separately; formal task admission remains pending.
 This diagnostic neither downloads assets nor runs benchmark/full-data training.
+
+## CTL diagnostic lane through the unified suite entry
+
+`bash scripts/run_retacred_reference_suite.sh ctl-preflight --describe`
+is read-only/backend-free. This separate lane leaves `--models ready` at five
+and `--models ctl_drp_supervised`/`--models all` blocked. CTL never falls back to the
+marker model's trainer,64-sentence budget or RoBERTa asset.
+
+Modes are `--mode tiny`, `--mode pretrained`, `--mode data`. Every execution
+requires explicit private `--run-dir`, verified `--cache`, and `--paper-source`.
+Tiny mode supports CPU or one selected CUDA GPU. Pretrained mode requires an
+explicit hash-locked `--weight`, CUDA, and defaults to one synthetic update;
+it uses the genuine24-layer encoder, not a tiny weight substitute. Neither
+training mode accepts a real qualification receipt or runs real data.
+
+Data mode requires `--qualification` in ctl-drp-physical-splits.v1 format;
+it verifies physical counts/hashes, train-only H and whole-split token overflow,
+without loading a model or training. It never creates/qualifies real datasets.
+Synthetic data-audit receipts remain clearly labelled diagnostic.
+
+For training diagnostics, `--gpu auto` selects one visible GPU and isolates its
+child; `--pause-after 0` or1 and `--resume` use the same run and parent contract.
+Only post-update checkpoints count. `--local-export-dir PRIVATE` automatically
+exports the private diagnostic whitelist, not public reports. One child log and
+command/exit receipt live in the sibling `<run>.ctl-control` directory.
+No downloads, credentials, exchange upload, Git actions or formal completion.
+Production dispatcher/publication and independent review remain release gates.
