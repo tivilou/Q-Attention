@@ -17,6 +17,22 @@ from .common import atomic_json, digest, fingerprint, git, select_models
 from .ctl_drp_task import CTLDRPTask, LABELS, PhysicalSplits
 from .ctl_drp_trace import TraceObserver, observability, validate
 
+VARIANT_MODELS = {"sup": "ctl_drp_supervised", "unsup": "ctl_drp_unsupervised"}
+
+
+def formal_model_id(initialization):
+    """Resolve only exact locked checkpoint IDs, never sup/unsup abbreviations."""
+    from .ctl_drp_simcse import load_lock
+    models = load_lock()["facts"]["models"]
+    for variant, spec in models.items():
+        if initialization.get("id") == spec["id"]:
+            if (initialization.get("revision") != spec["revision"]
+                    or initialization.get("weight_sha256") != spec["weight"]["sha256"]
+                    or initialization.get("strict_parameter_equality") is not True):
+                raise ValueError("formal initialization identity differs from pinned checkpoint")
+            return VARIANT_MODELS[variant]
+    raise ValueError("formal initialization is not an exact locked variant ID")
+
 
 def safe(path):
     path=Path(path).absolute()
@@ -175,7 +191,7 @@ def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget
         budget=min(diagnostic_budget,adapter.plan.total)
     else:
         # Candidate rows remain blocked until independent review/admission.
-        select_models("ctl_drp_"+adapter.initialization["id"].split("/")[-1].split("-")[0])
+        select_models(formal_model_id(adapter.initialization))
         budget=adapter.plan.total
     configure_determinism()
     observe=observability(adapter)
@@ -241,7 +257,8 @@ def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget
             traces=state["traces"]+[{"phase":"test","name":observer.path.name,"sha256":digest(observer.path)}]
             summary={"schema":"ctl-drp-run-summary.v1","status":"diagnostic_complete" if adapter.diagnostic else "compute_complete",
                      "formal_training":not adapter.diagnostic,"formal_comparison_admitted":False,"updates":budget,
-                     "model":"ctl_drp","seed":adapter.seed,"splits":{"dev":dev,"test":test},"contract_sha256":fingerprint(contract),
+                     "model":"ctl_drp" if adapter.diagnostic else formal_model_id(adapter.initialization),
+                     "seed":adapter.seed,"splits":{"dev":dev,"test":test},"contract_sha256":fingerprint(contract),
                      "data":adapter.data.identity,"case_study":{"status":"complete_local_values_verified","schema":"sample-trace.v2","traces":traces}}
             atomic_json(run_dir/"predictions.private.json",predictions);atomic_json(run_dir/"run_summary.json",summary)
             validate_complete(run_dir,adapter,require_marker=False)

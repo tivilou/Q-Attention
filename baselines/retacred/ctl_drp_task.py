@@ -63,6 +63,9 @@ class PhysicalSplits:
             raise ValueError("qualified explicit canonical physical split receipt required")
         self.records, self.identity = {}, {"qualification_sha256": digest(receipt),
                                           "task": spec["task"], "synthetic": spec["synthetic"], "splits": {}}
+        if "parent_qualification" in spec:
+            self.identity["interface_qualification"] = {"parent": copy.deepcopy(spec["parent_qualification"]),
+                                                        "adaptations": copy.deepcopy(spec["adaptations"])}
         paths, all_ids = set(), set()
         for split in ("train", "dev", "test"):
             entry = spec["splits"][split]
@@ -98,6 +101,9 @@ class PhysicalSplits:
                 marked_sentence(row)  # validate roles/spans before any model load
             self.records[split] = rows
             self.identity["splits"][split] = {"sha256": entry["sha256"], "count": len(rows), "format": entry["format"]}
+            for key in ("qualified_prepared_sha256", "declared_canonical_source_sha256"):
+                if key in entry:
+                    self.identity["splits"][split][key] = entry[key]
         self.table = fit_train_pairs(self.records["train"], source_split="train")
         # Do not mutate the historical primitive's table flags; bind physical
         # identity in this owner-side wrapper and freeze its semantic fingerprint.

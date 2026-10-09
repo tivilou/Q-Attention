@@ -1,8 +1,9 @@
 # CTL-DRP bounded runner / evidence lifecycle
 
 This is a callable candidate lifecycle, not formal admission or a published
-benchmark reproduction. CLI execution requires explicit `--tiny`; production
-adapters fail the existing cohort admission gate before starting a job.
+benchmark reproduction. The diagnostic CLI requires explicit `--tiny`; the
+separate unified `ctl-run` bridge retains the existing cohort admission and
+source-hash-bound independent review gate before starting a production job.
 No real dataset receipt is present on the development server. The production
 checkpoint/transport path needs independent review and real-data preflight.
 
@@ -86,9 +87,12 @@ No raw samples, predictions, numeric values, checkpoints, token, environment URL
 or arbitrary upload payload enters it. Diagnostic export is explicit, local-only
 and rejected under public reports/. Every report file is bounded to1MiB and
 hash-checked; repeated export is idempotent only for the same run identity.
-This module makes no implicit Git commit/push. Formal one-command publication,
-independent review, actual exchange and qualification binding remain separate
-release tasks. Default-ready cohort remains five.
+This low-level module makes no implicit Git commit/push. The separate ctl-run
+bridge supplies qualification binding, the frozen512-sentence/ten-epoch recipe,
+single-GPU child isolation and required-delivery/report-only publication.
+Default-ready cohort remains five; implementing the interface admits no
+candidate. Independent review, real complete data and actual exchange evidence
+remain release gates, not successful-fixture claims.
 
 ## Unified diagnostic dispatch
 
@@ -102,3 +106,37 @@ stops only the child's dedicated process group, retaining durable checkpoints.
 Pretrained diagnostic defaults to one synthetic update and uses the same
 immutable cursor/value-readiness runner. The full combined lane needs its own
 actual runtime evidence; prior backbone and tiny tests alone do not certify it.
+
+## Gated production bridge and finalization recovery
+
+`ctl-run --describe` is backend-free and reports exact registry IDs
+ctl_drp_supervised/ctl_drp_unsupervised, current admission status and1150
+logical updates. Actual execution requires both cohort admission and an
+external ctl-drp-independent-review.v1 receipt covering the current code/locks,
+requested model and explicit paper_interpretive grade. It does not promote
+the reconstruction to paper_faithful or a strict baseline.
+
+Native physical qualification is accepted directly. The optional prepared-data
+bridge inherits an existing qualified suite receipt and checks its complete
+split count/hash manifest. It renames valid to dev, never follows foreign
+absolute output paths, preserves valid IDs, and assigns deterministic
+split/ordinal/content-hash IDs only where absent. It validates all rows and H
+before atomically exposing the receipt; synthetic fixtures remain diagnostic.
+Original declared canonical hashes, physically checked prepared hashes and
+interface-adaptation hashes remain distinct in the exported data identity.
+
+One variant/seed uses one visible GPU and immutable physical micro-batch. There
+is no OOM rechunking, AMP, multi-GPU topology migration or throughput claim.
+The parent checks conservative disk headroom for rolling/pinned/staging
+checkpoints. A pre-initialization worker failure can retry the same parent via
+resume without pretending a nonexistent numeric checkpoint was restored.
+
+`--export-only` validates existing complete compute without any model load,
+GPU selection, weight read, training update or heldout reevaluation. Delivery
+checks exact names/hashes/sizes/counts/namespace and ordered whole-file shard
+joins; cached complete receipts avoid duplicate transport. A crash after atomic
+report rename but before RUN_COMPLETE is repaired only after rechecking both
+the export and delivery evidence. Publication stages exactly the seven report
+whitelist files; existing unrelated staged/dirty changes fail preflight. Push
+failure retries export/publication only. No token, samples or tensor values are
+staged. Publication retains the project's collaborator1.1 policy.

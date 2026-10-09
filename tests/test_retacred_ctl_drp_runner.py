@@ -199,12 +199,14 @@ def test_diagnostic_identity_cannot_be_promoted_by_changing_completion_flags(com
 
 def test_required_transport_receipt_and_retry_without_training(tmp_path):
     # Transport-unit fixture only: neither a formal run nor an actual service call.
-    files={"fixture.pt":"1"*64};expected={"ctl_drp_seed13/fixture.pt":"1"*64}
-    bad={"status":"complete","artifact_identity":expected,"files":[{"uploaded":False}]}
+    (tmp_path/"case_study").mkdir();file=tmp_path/"case_study/fixture.pt";file.write_bytes(b"transport-unit-fixture")
+    files={"fixture.pt":digest(file)};expected={"ctl_drp_seed13/fixture.pt":digest(file)}
+    item={"path":"ctl_drp_seed13/fixture.pt","sha256":digest(file),"size_bytes":file.stat().st_size,"uploaded":False}
+    bad={"status":"complete","target_dir":f"q-attention/retacred-reference-suite/{tmp_path.name}","artifact_identity":expected,"files":[item]}
     with pytest.raises(ValueError,match="delivery failed"):
         export.deliver_required(tmp_path,{"seed":13},files,lambda:bad)
     assert json.loads((tmp_path/"ctl_delivery_pending.json").read_text())["status"]=="pending"
-    good={"status":"complete","artifact_identity":expected,"files":[{"uploaded":True}]}
+    good={**bad,"files":[{**item,"uploaded":True}]}
     assert export.deliver_required(tmp_path,{"seed":13},files,lambda:good)==good
     assert json.loads((tmp_path/"ctl_delivery_pending.json").read_text())["status"]=="complete"
     assert not (tmp_path/"RUN_COMPLETE").exists()

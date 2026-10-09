@@ -7,6 +7,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
+| [Re-TACRED CTL-DRP 独立任务接口（待准入）](current/retacred_ctl_drp_reference_zh.md) | 外部资格记录绑定、固定配方、单 GPU 恢复、必需张量交付与报告发布；审查及 cohort 准入后才可执行 |
 | [Re-TACRED LUKE / MetaEntail 一键运行预检](current/retacred_reference_runtime_zh.md) | 两类模型的锁定源码与权重、tiny/full 串行诊断、失败汇总和私有证据上传；不触发全量训练或 Git 推送 |
 | [Re-TACRED 外部 reference 统一入口](current/retacred_reference_suite_zh.md) | 十五个已讨论配置的源码审计、四个 marker adapter、真实 train/test 张量、18084 权重获取、GPU 队列、batch 恢复和自动报告推送；缺源码方法明确阻塞 |
 | [Re-TACRED 核心 baseline 完整评估](current/retacred_baseline_complete_zh.md) | Disabled / baseline 的完整指标、逐类结果、报告导出和合作者执行协议 |

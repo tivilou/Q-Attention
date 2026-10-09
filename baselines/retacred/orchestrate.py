@@ -188,8 +188,13 @@ def main():
     if sys.argv[1:2] == ["ctl-preflight"]:
         from .ctl_drp_preflight import main as ctl_preflight
         raise SystemExit(ctl_preflight(sys.argv[2:]))
+    if sys.argv[1:2] == ["ctl-run"]:
+        from .ctl_drp_formal import main as ctl_formal
+        raise SystemExit(ctl_formal(sys.argv[2:]))
     args = parse_args()
     rows = select_models(args.models)  # complete admission check before launching anything
+    if any(row["id"] in ("ctl_drp_supervised", "ctl_drp_unsupervised") for row in rows):
+        raise ValueError("CTL jobs require the dedicated ctl-run qualification/recipe/review path, not the marker/PTR queue")
     seeds = [int(item) for item in args.seeds.split(",")]
     if not seeds or len(seeds) != len(set(seeds)) or min(seeds) < 0:
         raise ValueError("invalid seeds")
