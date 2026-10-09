@@ -20,6 +20,9 @@ HEAD_SHAPES = {'classifier.dense.weight':[1024,1024], 'classifier.dense.bias':[1
                'roberta.embeddings.position_embeddings.weight':[514,1024]}
 
 
+UNUSED_POOLER_SHAPES = {'roberta.pooler.dense.weight': [1024, 1024],
+                        'roberta.pooler.dense.bias': [1024]}
+
 def inspect_safetensors(path):
     """Bounded header/selected tensor byte hashes; no torch or numeric inference.
 
@@ -51,7 +54,15 @@ def inspect_safetensors(path):
         if (not ordered or ordered[0][0]!=0 or ordered[-1][1]!=total
                 or any(a[1]!=b[0] for a,b in zip(ordered,ordered[1:]))):
             raise ValueError('safetensors overlaps/holes invalid')
-        for name,expected in HEAD_SHAPES.items():
+        # The pinned official checkpoint stores a pooler that this classifier
+        # never instantiates or calls. Validate its bytes before permitting
+        # this exact pair in Transformers' unexpected-key report.
+        present = set(UNUSED_POOLER_SHAPES).intersection(summary)
+        if present and present != set(UNUSED_POOLER_SHAPES):
+            raise ValueError('incomplete official unused pooler pair')
+        selected = dict(HEAD_SHAPES)
+        if present: selected.update(UNUSED_POOLER_SHAPES)
+        for name,expected in selected.items():
             if summary.get(name)!={'shape':expected,'dtype':'F32'}:
                 raise ValueError('pretrained MNLI head/embedding shape mismatch: '+name)
             start,end=header[name]['data_offsets']; handle.seek(8+size+start)
@@ -63,15 +74,30 @@ def inspect_safetensors(path):
             tensor_hashes[name]=value.hexdigest()
     return {'status':'safetensors_structure_verified','header_bytes':size,'tensor_count':len(summary),
             'selected_tensors':{name:dict(summary[name],sha256=tensor_hashes[name]) for name in HEAD_SHAPES},
+            'verified_unused_pooler': {name:dict(summary[name],sha256=tensor_hashes[name])
+                                      for name in present},
             'neural_runtime_verified':False}
 
 
-def loading_keys_checked(info):
+def loading_keys_checked(info, *, verified_unused_pooler=None):
     keys=('missing_keys','unexpected_keys','mismatched_keys','error_msgs')
     if not isinstance(info,dict) or any(key not in info or not isinstance(info[key],list) for key in keys):
         raise ValueError('explicit pretrained loading report required')
-    if any(info[key] for key in keys):
+    if any(info[key] for key in ('missing_keys','mismatched_keys','error_msgs')):
         raise ValueError('MNLI pretrained loading keys must match exactly')
+    unexpected=info['unexpected_keys']
+    if unexpected:
+        if len(unexpected)!=2 or set(unexpected)!=set(UNUSED_POOLER_SHAPES):
+            raise ValueError('MNLI unexpected keys outside verified unused pooler')
+        if not isinstance(verified_unused_pooler,dict) or set(verified_unused_pooler)!=set(UNUSED_POOLER_SHAPES):
+            raise ValueError('unused pooler header and byte verification required')
+        for name,shape in UNUSED_POOLER_SHAPES.items():
+            row=verified_unused_pooler[name]
+            if (not isinstance(row,dict) or row.get('shape')!=shape or row.get('dtype')!='F32'
+                    or not isinstance(row.get('sha256'),str) or len(row['sha256'])!=64
+                    or any(c not in '0123456789abcdef' for c in row['sha256'])):
+                raise ValueError('unused pooler verified shape/dtype/hash mismatch')
+    return {'ignored_unused_pooler': sorted(unexpected), 'active_parameters_exact':True}
 
 
 def encoded_group(record, feasibility, tokenizer, nli_order, *, split, max_length):
@@ -142,7 +168,8 @@ class MetaEntailFoundation:
         self.model,self.loading_info=RobertaForSequenceClassification.from_pretrained(
             self.checkpoint,local_files_only=True,output_loading_info=True,use_safetensors=True,
             ignore_mismatched_sizes=False,attn_implementation='eager')
-        loading_keys_checked(self.loading_info)
+        self.loading_adaptation=loading_keys_checked(self.loading_info,
+            verified_unused_pooler=self.tensor_evidence['verified_unused_pooler'])
         actual=self.model.config
         if (actual.num_labels!=3 or actual.hidden_size!=1024 or actual.vocab_size!=50265
                 or {str(k):v for k,v in actual.id2label.items()}!=config['id2label']
@@ -188,6 +215,7 @@ class MetaEntailFoundation:
     def identity(self):
         return {'checkpoint_sha256':self.asset_evidence['files'],'nli_order':list(self.nli_order),
                 'loaded_tensor_equality':self.loaded_tensor_equality,'protocol':self.protocol,
+                'loading_adaptation':self.loading_adaptation,
                 'formal_admission':False,'identity_sha256':fingerprint(self.asset_evidence['files'])}
 
 
