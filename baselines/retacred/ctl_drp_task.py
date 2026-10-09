@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+from contextlib import nullcontext
 import hashlib
 import json
 import math
@@ -221,7 +222,7 @@ class CTLDRPTask:
         return torch.optim.AdamW(self.model.parameters(), lr=RECIPE["learning_rate"], betas=tuple(RECIPE["betas"]),
                                  eps=RECIPE["eps"], weight_decay=RECIPE["weight_decay"], foreach=False, fused=False)
 
-    def train_update(self, indices, optimizer):
+    def train_update(self, indices, optimizer, *, observer=None):
         """One complete logical batch; tail weights use its actual sentence count.
 
         Micro-batch partitions are immutable for resume because dropout changes.
@@ -245,18 +246,24 @@ class CTLDRPTask:
         value = 0.
         for start in range(0, len(groups), self.micro_batch):
             part = groups[start:start+self.micro_batch]
-            result = self.model(**collate_groups(part, device=self.device), gold=[g["gold"] for g in part])
-            scaled = result["loss"] * (len(part) / len(groups))
-            if not bool(torch.isfinite(scaled)):
-                raise ValueError("nonfinite CTL loss; optimizer update not performed")
-            scaled.backward()
-            value += float(scaled.detach())
+            batch = collate_groups(part, device=self.device)
+            scale = len(part) / len(groups)
+            context = observer.context("train", part, batch, scale) if observer else nullcontext()
+            with context:
+                result = self.model(**batch, gold=[g["gold"] for g in part])
+                if observer: observer.forward(result)
+                scaled = result["loss"] * scale
+                if not bool(torch.isfinite(scaled)):
+                    raise ValueError("nonfinite CTL loss; optimizer update not performed")
+                scaled.backward()
+                value += float(scaled.detach())
             del result, scaled
         optimizer.step()
+        if observer: observer.post_update()
         return {"loss": value, "sentences": len(groups), "pairs": sum(len(g["pairs"]) for g in groups),
                 "micro_batches": math.ceil(len(groups)/self.micro_batch), "optimizer_updates": 1}
 
-    def evaluate(self, split):
+    def evaluate(self, split, *, observer=None):
         """Complete split classification metrics; test access is runner-gated.
 
         For heldout gold outside H, probability is exactly zero. Such samples
@@ -274,7 +281,12 @@ class CTLDRPTask:
                 for start in range(0, len(self.data.records[split]), self.micro_batch):
                     indices = list(range(start, min(start+self.micro_batch, len(self.data.records[split]))))
                     groups = self.encode(split, indices)
-                    result = self.model(**collate_groups(groups, device=self.device))
+                    batch = collate_groups(groups, device=self.device)
+                    context = observer.context(split, groups, batch, 1.) if observer else nullcontext()
+                    with context:
+                        result = self.model(**batch)
+                        if observer: observer.forward(result)
+                    if observer: observer.post_evaluation()
                     offset = 0
                     for index, group, prob, name in zip(indices, groups, result["probabilities"], result["predictions"]):
                         true = self.data.records[split][index]["relation"]
