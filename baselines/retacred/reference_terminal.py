@@ -27,7 +27,7 @@ class Dashboard:
     def render(self, completed, rows, pending, *, status='RUNNING'):
         now=self.clock();width=max(20,shutil.get_terminal_size((140,24)).columns-1)
         by_gpu={row['gpu']:row for row in rows}
-        lines=[f'REFERENCE SUITE | {len(completed)}/{self.total} complete | {len(rows)} running | '
+        lines=[f'REFERENCE SUITE | {len(completed)}/{self.total} complete | {len({r["task"] for r in rows})} running | '
                f'{len(pending)} pending | {duration(now-self.started)} | {status}']
         for gpu in self.devices:
             row=by_gpu.get(gpu)
@@ -48,13 +48,14 @@ class Dashboard:
             progress=f'{batch if batch is not None else "-"}/{batches or "-"}'
             tier=row.get('execution_tier')
             execution=f' | T{tier} m{row.get("physical_micro")} OOM{row.get("oom_retries",0)} save@{row.get("checkpoint_batch","-")}' if tier is not None else ''
+            rank=f' DDP{row.get("rank",0)+1}/{row["world_size"]}' if row.get('world_size',1)>1 else ''
             if width<110:
                 # Keep rate and memory visible on a typical 80-column SSH pane.
                 task=row['task']
                 task=task if len(task)<=22 else task[:19]+'...'
-                lines.append(f'GPU {gpu} | {task} | {progress} {percent:4.0%} | {speed} | VRAM {vram}')
+                lines.append(f'GPU {gpu}{rank} | {task} | {progress} {percent:4.0%} | {speed} | VRAM {vram}')
             else:
-                lines.append(f'GPU {gpu} | {row["task"]} | {row.get("phase","initializing")} | '
+                lines.append(f'GPU {gpu}{rank} | {row["task"]} | {row.get("phase","initializing")} | '
                              f'[{bar}] {progress} {percent:5.1%} | {speed} | '
                              f'ETA {duration(row.get("eta_seconds"))} | VRAM {vram}{execution}{quiet}')
         lines+=self.queue_lines('PENDING',pending,width)

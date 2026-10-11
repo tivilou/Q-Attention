@@ -105,6 +105,74 @@ def test_crash_after_final_evaluation_retries_only_finalization(tmp_path,assets,
     assert runner.run(fresh,tmp_path/"run",resume=True)["updates"]==2
 
 
+@pytest.mark.parametrize("corrupt",[False,True])
+def test_native_completed_retry_preserves_committed_test_values_without_restore(tmp_path,assets,monkeypatch,corrupt):
+    directory=tmp_path/"run"
+    expected=runner.run(make(tmp_path/"data",assets),directory)
+    # This is the boundary before generic normalization publishes RUN_COMPLETE.
+    assert not (directory/"RUN_COMPLETE").exists()
+    test_file=next((directory/"case_study").glob("test*.json"))
+    if corrupt:test_file.write_bytes(test_file.read_bytes()+b" ")
+    files=[p for p in directory.rglob("*") if p.is_file()]
+    before={p.relative_to(directory).as_posix():digest(p) for p in files}
+    fresh=make(tmp_path/"data",assets)
+    def forbidden(*_a,**_k):pytest.fail("completed retry performed training/evaluation/checkpoint restoration")
+    monkeypatch.setattr(fresh,"make_optimizer",forbidden)
+    monkeypatch.setattr(fresh,"train_update",forbidden)
+    monkeypatch.setattr(fresh,"evaluate",forbidden)
+    monkeypatch.setattr(runner,"restore",forbidden)
+    if corrupt:
+        with pytest.raises(ValueError,match="trace integrity drift"):
+            runner.run(fresh,directory,resume=True)
+    else:
+        assert runner.run(fresh,directory,resume=True)==expected
+    after={p.relative_to(directory).as_posix():digest(p) for p in directory.rglob("*") if p.is_file()}
+    assert after==before and not (directory/"orphaned_trace_attempts").exists()
+
+
+def test_ctl_worker_retries_interrupted_normalization_without_retraining(tmp_path,assets,monkeypatch):
+    from types import SimpleNamespace
+    from baselines.retacred import reference_complete as suite,reference_execution,ctl_drp_qualification
+    directory=tmp_path/"run";data=tmp_path/"data"
+    first=make(data,assets)
+    first.contract.pop("physical_micro_batch_sentences")
+    first.contract.pop("execution_memory")
+    first.contract['execution_policy']=None
+    first.contract_sha256=fingerprint(first.contract)
+    native=runner.run(first,directory)
+    atomic_json(directory/"native_run_summary.json",native)
+    # Simulate the generic summary written before its final RUN_COMPLETE marker.
+    atomic_json(directory/"run_summary.json",{"schema":"interrupted-generic-normalization"})
+    asset_file=tmp_path/"assets.json"
+    atomic_json(asset_file,dict(ctl_cache="fixture",ctl_paper="fixture",ctl_sup="fixture"))
+    adapter=make(data,assets)
+    # The production worker removes physical fields before native comparison.
+    adapter.contract["execution_memory"]="synthetic-test-only"
+    adapter.contract["execution_policy"]=None
+    before={p.name:digest(p) for p in (directory/"case_study").iterdir()}
+    monkeypatch.setattr(suite,"require_review",lambda *_:None)
+    monkeypatch.setattr(ctl_drp_qualification,"materialize",lambda *_a,**_k:data)
+    monkeypatch.setattr(suite,"recipe",lambda *_:{"synthetic_fixture":True})
+    monkeypatch.setattr(CTLDRPTask,"from_assets",lambda *_a,**_k:adapter)
+    monkeypatch.setattr(reference_execution,"attach",lambda *_:None)
+    def forbidden(*_a,**_k):pytest.fail("normalization retry repeated model work")
+    monkeypatch.setattr(adapter,"make_optimizer",forbidden)
+    monkeypatch.setattr(adapter,"train_update",forbidden)
+    monkeypatch.setattr(adapter,"evaluate",forbidden)
+    monkeypatch.setattr(runner,"restore",forbidden)
+    normalized=[]
+    def finish(*args):
+        normalized.append(args)
+        (directory/"RUN_COMPLETE").touch()
+    monkeypatch.setattr(suite,"finish_summary",finish)
+    args=SimpleNamespace(run_dir=directory,assets=asset_file,data_dir=data,models="ctl_drp_supervised",
+        seed=13,micro_batch=2,activation_checkpointing=True,execution_policy=None,review_receipt=None,resume=directory)
+    assert suite.ctl_worker(args)==0
+    assert len(normalized)==1 and normalized[0][5]==2
+    assert {p.name:digest(p) for p in (directory/"case_study").iterdir()}==before
+    assert (directory/"RUN_COMPLETE").is_file() and not (directory/"orphaned_trace_attempts").exists()
+
+
 def test_contract_and_corrupt_checkpoint_rejected_before_parameter_rng_mutation(tmp_path,assets):
     import torch
     runner.run(make(tmp_path/"data",assets),tmp_path/"run",pause_after=1)

@@ -47,10 +47,16 @@ def prepare(args, model, logical):
     seconds = getattr(args, 'checkpoint_seconds', 120.)
     if not math.isfinite(seconds) or seconds < 0:
         raise ValueError('checkpoint seconds must be finite and nonnegative')
+    cap = getattr(args,'physical_sentence_cap',logical)
+    if type(cap) is not int or not 1<=cap<=logical:
+        raise ValueError('invalid per-rank sentence cap')
+    tier_request='auto' if requested=='auto' else str(min(int(requested),cap))
     policy = dict(schema='reference-execution-tiers.v1', model=model,
                   seed=args.seed, requested_micro=requested,
-                  tiers=tiers(model, logical, requested), checkpoint_seconds=seconds,
+                  tiers=tiers(model, cap, tier_request), checkpoint_seconds=seconds,
                   guarantee='full_state_restore; tier_changes_not_bitwise_identical')
+    if cap!=logical:
+        policy.update(logical_batch=logical,per_rank_sentence_cap=cap)
     path = ledger_path(args.run_dir)
     if path.is_symlink():
         raise ValueError('symlinked execution ledger')

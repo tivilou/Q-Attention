@@ -51,7 +51,9 @@ def sync_dir(path):
 def runtime(adapter):
     import torch
     import numpy as np
-    if adapter.device=="cuda:0":
+    if getattr(adapter,'distributed',None) is not None:
+        result=adapter.distributed.runtime
+    elif adapter.device=="cuda:0":
         from .ctl_drp_cuda_checkpoint import runtime as cuda_runtime
         result=cuda_runtime()
     elif adapter.device=="cpu" and adapter.diagnostic:
@@ -92,7 +94,7 @@ def checkpoint(adapter, optimizer, run, contract, cursor, traces, *, prior=None)
     from .reference_storage import owner, write_reservation, serialized_bytes, clean_abandoned_ctl_stages
     directory=run/'checkpoints';directory.mkdir(exist_ok=True)
     clean_abandoned_ctl_stages(run,contract)
-    size=16*1024**2 if cursor==0 else serialized_bytes({'model':adapter.model.state_dict(),'optimizer':optimizer.state_dict()})
+    size=16*1024**2 if cursor==0 and not getattr(adapter,'distributed',None) else serialized_bytes({'model':adapter.model.state_dict(),'optimizer':optimizer.state_dict()})
     with write_reservation(directory/'state.pt',size):
         result=_checkpoint(adapter,optimizer,run,contract,cursor,traces,prior=prior)
     if owner(run) is not None and traces and (prior is None or len(traces)>len(prior['traces'])):
@@ -123,7 +125,9 @@ def _checkpoint(adapter, optimizer, run, contract, cursor, traces, *, prior=None
     durable_json(stage/'storage-owner.json',{'schema':'ctl-owned-stage.v1','contract_sha256':fingerprint(contract)})
     target=directory/(f"update{cursor:08d}-"+stage.name.removeprefix(".generation-"))
     weights=stage/"state.pt"
-    if cursor==0:
+    if getattr(adapter,'distributed',None) is not None:
+        adapter.distributed.save(weights,optimizer,contract=contract,cursor=cursor)
+    elif cursor==0:
         with weights.open("xb") as f:torch.save(initial_snapshot(adapter,optimizer,contract),f)
     elif adapter.device=="cuda:0":
         from .ctl_drp_cuda_checkpoint import save
@@ -176,7 +180,9 @@ def restore(adapter,optimizer,run,contract):
         validate(trace,layers=adapter.model.encoder.config.num_hidden_layers)
     weights=safe(directory/"state.pt")
     if digest(weights)!=state["weights_sha256"]:raise ValueError("checkpoint numeric integrity drift")
-    if cursor==0:
+    if getattr(adapter,'distributed',None) is not None:
+        adapter.distributed.restore(weights,optimizer,contract=contract,cursor=cursor)
+    elif cursor==0:
         value=torch.load(weights,map_location="cpu",weights_only=True,mmap=True)
         if value.get("schema")!="ctl-initial-reconstructible.v1" or value.get("contract")!=contract or value.get("cursor")!=0 or optimizer.state or value["initial_model_sha256"]!=state_hash(adapter.model.state_dict()):
             raise ValueError("initial reconstruction drift before mutation")
@@ -236,7 +242,7 @@ def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget
               "runtime":runtime(adapter),"observability":observe,"diagnostic":adapter.diagnostic,
               "checkpoint_policy":getattr(adapter,'execution_policy',None) or ("every_completed_logical_update; latest_local; sample_event_pins_verified_archive" if os.environ.get('QATTN_REFERENCE_STORAGE_ROOT') else "every_completed_logical_update; two_rolling_plus_sample_event_pins"),
               "complete_cohort_review_sha256":digest(Path(formal_review_receipt)) if formal_review_receipt else None,
-              "source":{name:digest(Path(__file__).with_name(name)) for name in ("ctl_drp_runner.py","ctl_drp_trace.py")}}
+              "source":{name:digest(Path(__file__).with_name(name)) for name in ("ctl_drp_runner.py","ctl_drp_trace.py","ctl_drp_ddp.py")}}
     # Configuration maps may use integer keys/tuples in Python; JSON receipts
     # use string keys/lists. Freeze the same serialized identity on both sides.
     contract=json.loads(json.dumps(contract,sort_keys=True,allow_nan=False))
@@ -247,6 +253,13 @@ def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget
         except BlockingIOError as exc:raise ValueError("this run already has an active owner") from exc
         if not resume:
             atomic_json(run_dir/"contract.json",contract);atomic_json(run_dir/"observability.json",observe)
+        complete="DIAGNOSTIC_COMPLETE" if adapter.diagnostic else "COMPUTE_COMPLETE"
+        if (run_dir/complete).exists():
+            # A committed result owns its final test trace through the summary,
+            # not the last training checkpoint. Validate it before any restore
+            # cleanup; normalization retries must not quarantine valid evidence
+            # or reload an optimizer that will never perform another update.
+            return validate_complete(run_dir,adapter)
         optimizer=adapter.make_optimizer()
         from .reference_storage import initial_save_pending,durable_json,fsync_parent
         initial_marker=run_dir/'INITIALIZATION_PENDING.json'
@@ -261,10 +274,6 @@ def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget
             durable_json(initial_marker,{'schema':'reference-initial-save.v1','contract_sha256':fingerprint(contract),'completed_updates':0})
             state=checkpoint(adapter,optimizer,run_dir,contract,0,[])
             initial_marker.unlink();fsync_parent(initial_marker)
-        complete="DIAGNOSTIC_COMPLETE" if adapter.diagnostic else "COMPUTE_COMPLETE"
-        if (run_dir/complete).exists():
-            validate_complete(run_dir,adapter)
-            return json.loads((run_dir/"run_summary.json").read_text())
         pause=[False]
         handlers={s:signal.getsignal(s) for s in (signal.SIGINT,signal.SIGTERM,signal.SIGHUP)}
         for s in handlers:signal.signal(s,lambda *_:pause.__setitem__(0,True))
@@ -306,6 +315,8 @@ def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget
                 if adapter.device=="cuda:0":
                     import torch
                     heartbeat.update(memory_allocated_bytes=torch.cuda.memory_allocated(0),memory_reserved_bytes=torch.cuda.memory_reserved(0))
+                if getattr(adapter,'distributed',None):
+                    heartbeat.update(world_size=adapter.distributed.world_size,rank_memory=adapter.distributed.last_memory)
                 atomic_json(run_dir/"heartbeat.json",heartbeat)
                 print(f"[CTL-DRP] {state['cursor']}/{budget} | {rate:.2f} batch/s | ETA {heartbeat['eta_seconds']:.1f}s | loss {update['loss']:.6f}",flush=True)
             if not state["traces"]:raise ValueError("required selected training event never captured")

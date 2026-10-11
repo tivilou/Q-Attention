@@ -1,0 +1,256 @@
+{
+  "schema": "retacred-CTL-DDP-hardware-validation.v1",
+  "date": "2026-10-11",
+  "hardware": {
+    "model": "GeForce GTX TITAN X",
+    "cards": 3,
+    "vram_gib": 12,
+    "capability": "sm50"
+  },
+  "environment": {
+    "python": "3.10",
+    "torch": "2.7.1+cu118",
+    "transformers": "4.44.0",
+    "numpy": "1.26.4"
+  },
+  "cases": {
+    "numeric2-final": {
+      "status": "passed",
+      "mode": "numeric",
+      "world_size": 2,
+      "comparisons": [
+        {
+          "sentences": 3,
+          "max_weight_error": 2.9103830456733704e-11,
+          "max_gradient_error": 1.1641532182693481e-10
+        },
+        {
+          "sentences": 1,
+          "max_weight_error": 0.0,
+          "max_gradient_error": 0.0
+        }
+      ]
+    },
+    "numeric3b": {
+      "status": "passed",
+      "mode": "numeric",
+      "world_size": 3,
+      "comparisons": [
+        {
+          "sentences": 3,
+          "max_weight_error": 2.9103830456733704e-11,
+          "max_gradient_error": 1.1641532182693481e-10
+        },
+        {
+          "sentences": 1,
+          "max_weight_error": 0.0,
+          "max_gradient_error": 0.0
+        }
+      ]
+    },
+    "lifecycle3-final": {
+      "status": "passed",
+      "mode": "lifecycle",
+      "world_size": 3,
+      "complete_train_test_values": true,
+      "exact_resume": true,
+      "updates": 2
+    },
+    "mixed3-final": {
+      "status": "passed",
+      "three_gpu_mixed_2_plus_1": true,
+      "actual_cuda_oom_retry": true,
+      "child_exit_76_preserved": true,
+      "same_group": [
+        [
+          "0",
+          "1"
+        ],
+        [
+          "0",
+          "1"
+        ]
+      ],
+      "resumed_updates": 2,
+      "complete_train_test_values": true
+    },
+    "observer-error3": {
+      "status": "passed",
+      "mode": "observer-error",
+      "world_size": 3,
+      "non_oom_error_coordinated": true
+    },
+    "pretrained-unsup2": {
+      "status": "passed",
+      "mode": "pretrained",
+      "world_size": 2,
+      "pretrained_identity": {
+        "id": "princeton-nlp/unsup-simcse-roberta-large",
+        "revision": "d3f863b476c59b0673264042f159cea15842e265",
+        "weight_sha256": "e97309faca8405660e1fa1af95a60be2da040d70def25e4f749c663c6e3f5829",
+        "weight_bytes": 1421571527,
+        "safe_weights_only": true,
+        "strict_parameter_equality": true,
+        "removed_constant_buffers": [
+          "embeddings.position_ids: verified constant version-boundary buffer"
+        ],
+        "removed_pooler": "verified official pooler; intentionally unused by raw CLS CTL readout",
+        "marker_seed": 13,
+        "marker_std": 0.02,
+        "marker_ids": [
+          50265,
+          50266,
+          50267,
+          50268
+        ],
+        "original_embedding_rows_unchanged": true,
+        "old_vocabulary_forward_exact": true,
+        "paper_exact_checkpoint_identity": false,
+        "intended_grade": "paper_interpretive"
+      },
+      "updates": 2,
+      "complete_train_test_values": true,
+      "rank_memory": [
+        {
+          "loss": 0.3178916275501251,
+          "sentences": 1,
+          "allocated": 7160433664,
+          "reserved": 7975469056
+        },
+        {
+          "loss": 0.8893190324306488,
+          "sentences": 2,
+          "allocated": 7154928640,
+          "reserved": 7977566208
+        }
+      ],
+      "trace_representation_counts": [
+        253,
+        249
+      ]
+    },
+    "pretrained-sup3": {
+      "status": "passed",
+      "mode": "pretrained",
+      "world_size": 3,
+      "pretrained_identity": {
+        "id": "princeton-nlp/sup-simcse-roberta-large",
+        "revision": "96d164d9950b72f4ce179cb1eb3414de0910953f",
+        "weight_sha256": "b97bbd5aa01a5ab66f6e2d8bb96bb78aa01f81238787cfa9dc28b3f950f3da78",
+        "weight_bytes": 1421571527,
+        "safe_weights_only": true,
+        "strict_parameter_equality": true,
+        "removed_constant_buffers": [
+          "embeddings.position_ids: verified constant version-boundary buffer"
+        ],
+        "removed_pooler": "verified official pooler; intentionally unused by raw CLS CTL readout",
+        "marker_seed": 13,
+        "marker_std": 0.02,
+        "marker_ids": [
+          50265,
+          50266,
+          50267,
+          50268
+        ],
+        "original_embedding_rows_unchanged": true,
+        "old_vocabulary_forward_exact": true,
+        "paper_exact_checkpoint_identity": false,
+        "intended_grade": "paper_interpretive"
+      },
+      "updates": 2,
+      "complete_train_test_values": true,
+      "rank_memory": [
+        {
+          "loss": 0.09559060633182526,
+          "sentences": 1,
+          "allocated": 7160433664,
+          "reserved": 7975469056
+        },
+        {
+          "loss": 0.19968661665916443,
+          "sentences": 1,
+          "allocated": 7154928640,
+          "reserved": 7977566208
+        },
+        {
+          "loss": 0.3134666979312897,
+          "sentences": 1,
+          "allocated": 7154560000,
+          "reserved": 7935623168
+        }
+      ],
+      "trace_representation_counts": [
+        253,
+        249
+      ]
+    },
+    "completed-retry3": {
+      "status": "passed",
+      "mode": "completed-retry",
+      "world_size": 3,
+      "updates": 2,
+      "complete_train_test_values": true,
+      "completed_retry_without_model_work": true,
+      "committed_trace_hashes_unchanged": true
+    }
+  },
+  "regressions_passed": 47,
+  "final_boundary_regressions_passed": 40,
+  "formal_updates": 0,
+  "limits": [
+    "Synthetic three-train/two-dev/two-test sentence probes with up to2 optimizer updates; no complete Re-TACRED run.",
+    "Pretrained CTL variants use full hash-locked24-layer weights and FP32; no full-data throughput or score claim.",
+    "Six-card allocation tested deterministically; actual hardware tests cover2/3cards.4..6card DDP not hardware certified.",
+    "No elastic GPU-group/world-size migration or old-checkpoint conversion.",
+    "Full pretrained/core probes preceded the isolated completed-result retry amendment; final40 regressions and an actual3card completed retry verify that amendment.",
+    "The tiny adaptive fault canary already uses recomputation; it verifies one physical-micro downgrade, not the recomputation-off/on transition.",
+    "Private canary bypasses only formal-data/archive/publication gates, not native train/update/save/load/trace validation."
+  ],
+  "final_source_sha256": {
+    "reference_complete.py": "f1f5ede62d1bb2aeb324c0b570e68fb79c24d46fcc75e07d81feadaf304b86ca",
+    "reference_recipes.py": "05cb9cd0f224abe6a1cf0db45d5f9aa82e05e47e297f60f60c4b5f49ecca6ed7",
+    "reference_models.py": "bed5055be4684c93c694e3c4c5314f00f9b98738692a35147829abb3a72bb815",
+    "reference_mechanisms.py": "e787419d1f688bcd0d0e3436218e2b27e391ea90772844cacb7a288945e14af8",
+    "reference_execution.py": "cf98a46693ee610a073a2a4feabdbe482e822be70d844c1a20e9b19d5600ac26",
+    "reference_storage.py": "ff5d018314905e50d12cbb3d1074bc437760a00fa2706bea1d242338585f6b1f",
+    "reference_archive.py": "1e233a8df4afa6b3a6bfa4c3bfc6295afd01ea2d2ad427ac9b40d30b04818799",
+    "reference_terminal.py": "e55dbcf2b3d43778c1d89e0001c5ef8455f6f73b919f5e9d5960f9aa9dbf585b",
+    "reference_mixed_queue.py": "48e9890ecce1a13190beb2658ebd235251d5c25d14c3b2708063ce4128225cbf",
+    "ctl_drp_ddp.py": "aa37390ea5fcefeaac0056e323643aad1836d5bae1059e69c86ee57266c568b2",
+    "ctl_drp_ddp_smoke.py": "687e6eef7f8421efdc48b69c3224a806f2d5f2f6fcd4eb4c3a4db687e7ca0416",
+    "reference_preflight.py": "975b3298fc38ef6e82169e15306b40dfa8024d5976d2ff5219b08023fe2816d4",
+    "reference_worker.py": "062e4553f08aca3af3839a9e15018840cf91b5ab30b40062a8658c9cfcfd1c25",
+    "reference_nli.py": "613f81318d3242241d9cda21133f3a23d3d47d24974eb5bd5f8a3855198f88da",
+    "reference_trace.py": "4c385164d4288d4765a1af520c28568e99b4d2ffb2481834ecd701b0cc6e6cbb",
+    "reference_resources.py": "30818d11f57fd35220540e8d06c307c8162a69b83c261ce557c0c142471837bb",
+    "reference_resources.lock.json": "8aac11e2b00ba5d04415feafb2a45068dae304d939efdd5ca710bd54350b6b12",
+    "ctl_drp_runner.py": "fafc7a9832676c3bd7becc14c8d5e64318c6852cc83f0d993998a4e8188f26a5",
+    "ctl_drp_task.py": "48916aba83ae7b5437ab2bbeef51bb49fce6a2d9d4187ab2a3c7b2141bfe2e24",
+    "ctl_drp_neural.py": "745e020be5ff11e03740a90e9be154758da99376b997a576c397a8984ae19918",
+    "ctl_drp_trace.py": "10b158e0bfde246221888776fe1d03356d735d95593ddd54acfb9842aa2bf858",
+    "ctl_drp_pretrained.py": "d968f0a63f1f8f2e107a0dc9e3b06ddddb6e161a3a26364a9fe8b73d8f6102e2",
+    "assets.py": "36ffbe01bb503d94e7ac0b63d2185354ac89433f88a46ae59a5fa24a655b8e45",
+    "luke_assets.py": "56c6a29bdb3f95ea78e219acfb4721b93b7aac1ba3610eb2d26e0885eef6ddf5",
+    "mnli_assets.py": "3d819c0fdee2a7422595ad802cd48d5b11ffffb10a9b2d7728e2c556df8eb9a3",
+    "train.py": "93b4489bf44c3ed2ffc1fd49f3e86bfba5d8b2ad30dd166b7617e8f4e63743e4",
+    "preflight.py": "93e4e77ca83e3e5c107712068ac3bc760f3b14f897122f3204d515422c4f52e8",
+    "cohort.json": "208c54a38ab5814519002f1295b1093fb42580225c914b8f62bc4951344a600e",
+    "requirements-reference-complete.txt": "9c7b3926820747db79674e631484139c11c0c62a384494eaa3c2102eeca3d94a",
+    "../../scripts/run_retacred_all_references.sh": "c67d2d9cebe85d02316f3dcfa68e0c04276e2654b8d571638c2793a94c7a03bb",
+    "../../scripts/check_retacred_all_references.sh": "c3964fb17d2f0d11b4f45167c5ce0c05c014db815a992bb83a52da473185b7b8",
+    "assets.lock.json": "f4df917253d14c7b31e564d3bfc946b55b63d5fcb3f9377b059c5e5abe46314f",
+    "luke_assets.lock.json": "bc822ed724db63503a207ba2c2e7cf0e8f06ee7c3a997131ef1e92ddad71c403",
+    "metaentail_assets.lock.json": "1ea945b37b73f2927734f5376e8950a4b588362423d5d0c479d6a0164896eea1",
+    "metaentail_paper.lock.json": "f4afa21c75214152d942540c51f27a8cf688639c154b9e63ddceceae4c220d50",
+    "sequence_routing_resources.lock.json": "bcc91e8dfc360bdff2228befe312f6f9252fe5916c3158631d633dbebd5c520e",
+    "metaentail.py": "81f5ab5a6822593c6113152f822f386e837d5341d67fb2e4a8532a8c41e537ca",
+    "metaentail_neural.py": "3d20880d22fb8b6c0afe083f8273a718486b6fd90358eb67ec7f1785e929f9db",
+    "luke.py": "0847800d70a67d419a740342c5ab0c8157e33f1ae5dac15d8c3eba0d88344f8f",
+    "ptr.py": "8b89c009e6696381901d982b8ca29cddfcd6c0109b447ad7c45a708e99662963",
+    "improved.py": "f38c88417dc1fbd1c0243cde63b5fb18d141645bcfedf2317df6f3ae0c2c8994",
+    "report.py": "1ef51a43f224952935b02cb754303e023cae7dc3aff3dbe2f9bf43324c2b3b46",
+    "common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9",
+    "orchestrate.py": "8eff204f919b60b677ed9237c6400d1c59a2da50cbb13c329577ff8a8178edc0"
+  },
+  "review_verdict": "PASS"
+}

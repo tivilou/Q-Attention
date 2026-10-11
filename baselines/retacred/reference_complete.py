@@ -8,7 +8,7 @@ from .common import ROOT,PACKAGE,atomic_json,digest,fingerprint,cohort,git
 from .reference_recipes import recipe,inventory
 
 REVIEW_FILES=('reference_complete.py','reference_recipes.py','reference_models.py','reference_mechanisms.py','reference_execution.py',
- 'reference_storage.py','reference_archive.py','reference_terminal.py',
+ 'reference_storage.py','reference_archive.py','reference_terminal.py','reference_mixed_queue.py','ctl_drp_ddp.py','ctl_drp_ddp_smoke.py',
  'reference_preflight.py','reference_worker.py','reference_nli.py','reference_trace.py','reference_resources.py','reference_resources.lock.json',
  'ctl_drp_runner.py','ctl_drp_task.py','ctl_drp_neural.py','ctl_drp_trace.py','ctl_drp_pretrained.py',
  'assets.py','luke_assets.py','mnli_assets.py','train.py','preflight.py','cohort.json','requirements-reference-complete.txt','../../scripts/run_retacred_all_references.sh','../../scripts/check_retacred_all_references.sh',
@@ -98,9 +98,15 @@ def command(job,args,assets,prepared):
         '--checkpoint-seconds',str(getattr(args,'checkpoint_seconds',120.))]
     if module.endswith('reference_complete'):argv+=['--ctl-worker','--review-receipt',str(args.review_receipt)]
     if (job['directory']/'checkpoints/latest.pt').exists() or (job['directory']/'contract.json').exists():argv.append('--resume')
+    if len(job.get('gpu_ids',[]))>1:
+        if not job['model'].startswith('ctl_drp_'):raise ValueError('DDP is currently validated for CTL only')
+        argv=[sys.executable,'-u','-m','baselines.retacred.ctl_drp_ddp','--world-size',str(len(job['gpu_ids'])),'--']+argv[4:]
     return argv
 
 def queue(jobs,devices,args,assets,prepared):
+    if getattr(args,'ctl_gpus_per_task','1')!='1':
+        from .reference_mixed_queue import queue as mixed_queue
+        return mixed_queue(jobs,devices,args,assets,prepared)
     from .reference_terminal import Dashboard
     dashboard=Dashboard(devices,len(jobs))
     pending=deque(jobs);active={};paused=[False];failures=[];done=[]
@@ -214,6 +220,11 @@ def ctl_worker(args):
     adapter.contract.pop('execution_memory')
     adapter.contract['execution_policy']=args.execution_policy
     adapter.contract_sha256=fingerprint(adapter.contract)
+    from .ctl_drp_ddp import CURRENT
+    if CURRENT is not None:
+        CURRENT.bind(adapter,dict(receipt=str(q),cache=assets['ctl_cache'],paper=assets['ctl_paper'],
+            weight=assets['ctl_'+variant],variant=variant,seed=args.seed,micro=args.micro_batch,
+            checkpointing=args.activation_checkpointing,audit_cache=str(q.with_name('encoding-audit.json'))))
     # Normalize only after native compute validation. An interrupted normalization
     # never sends the generic schema back into native checkpoint validation.
     if (args.run_dir/'native_run_summary.json').exists() and not (args.run_dir/'RUN_COMPLETE').exists():
@@ -230,6 +241,8 @@ def _main(argv=None):
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--models','--model',default='all');p.add_argument('--seeds',default='13');p.add_argument('--seed',type=int,default=13)
     p.add_argument('--gpu',default='auto');p.add_argument('--micro-batch',default='auto')
+    p.add_argument('--ctl-gpus-per-task',choices=('auto','1','2','3','4','5','6'),default='auto',
+        help='auto reserves up to2 GPUs per CTL task; other models remain single-GPU')
     p.add_argument('--checkpoint-seconds',type=float,default=120.)
     p.add_argument('--run-dir',type=Path);p.add_argument('--resume',type=Path,nargs='?',const=Path('.'))
     p.add_argument('--data-dir',type=Path,default=ROOT/'data/relation/retacred');p.add_argument('--assets',type=Path)
@@ -238,6 +251,9 @@ def _main(argv=None):
     p.add_argument('--export-only',action='store_true');p.add_argument('--no-push',action='store_true');p.add_argument('--ctl-worker',action='store_true',help=argparse.SUPPRESS)
     args=p.parse_args(argv)
     if args.ctl_worker:
+        from .ctl_drp_ddp import CURRENT
+        if CURRENT is not None:
+            args.physical_sentence_cap=math.ceil(recipe(args.models)['logical_batch']/CURRENT.world_size)
         from .reference_worker import exclusive
         from .reference_execution import adaptive_cli
         with exclusive(args.run_dir):
@@ -250,7 +266,9 @@ def _main(argv=None):
     if any(n.startswith('ctl_drp_') for n in names) and any(s not in (13,29,53) for s in seeds):raise ValueError('CTL frozen seed set is13,29,53')
     if args.dry_run:
         print(json.dumps({'models':names,'configurations':len(names),'seeds':seeds,'recipes':[recipe(n) for n in names],
-            'not_a_certified_top15':True,'formal_runs_started':0,'excluded':[r['id'] for r in cohort()['models'] if not r.get('run_eligible',True)]},indent=2));return 0
+            'not_a_certified_top15':True,'formal_runs_started':0,'ctl_gpus_per_task':args.ctl_gpus_per_task,
+            'scheduler':'atomic_CTL_GPU_groups_with_long_jobs_first_and_independent_single_GPU_jobs',
+            'excluded':[r['id'] for r in cohort()['models'] if not r.get('run_eligible',True)]},indent=2));return 0
     require_review(args.review_receipt)
     if args.export_only and not args.resume:raise ValueError('export-only requires completed suite resume directory')
     args.run_dir=(args.resume or args.run_dir or ROOT/'runs/retacred_reference_complete'/datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')).resolve()
@@ -264,6 +282,7 @@ def suite(args,names,seeds):
     publication_preflight(no_push=args.no_push,allowed_report=report if args.export_only else None)
     contract={'schema':'retacred-reference-suite.v2','models':names,'seeds':seeds,'source':identity(),
         'physical_micro':args.micro_batch,'checkpoint_seconds':args.checkpoint_seconds,
+        'ctl_gpus_per_task':args.ctl_gpus_per_task,
         'data':{s:digest(args.data_dir/(s+'.jsonl')) for s in ('train','valid','test')}}
     manifest=args.run_dir/'run_manifest.json'
     if args.resume:
@@ -274,13 +293,16 @@ def suite(args,names,seeds):
     configure(args.run_dir)
     jobs=[{'id':f'{n}_seed{s}','model':n,'seed':s,'directory':args.run_dir/'tasks'/f'{n}_seed{s}'} for n in names for s in seeds]
     if not args.export_only:
+        from .orchestrate import gpu_ids
+        from .reference_mixed_queue import group_size
+        devices=gpu_ids(args.gpu)
+        group_size(args.ctl_gpus_per_task,devices)
         from .reference_preflight import check
         check(names,seeds,args.data_dir,args.gpu,review_receipt=args.review_receipt,resume=args.run_dir if args.resume else None)
         from .reference_resources import prepare
-        from .orchestrate import gpu_ids
         prepared=prepare_data(args.data_dir,args.run_dir);assets=prepare(names);asset_path=args.run_dir/'assets.private.json';atomic_json(asset_path,assets)
         if args.prepare_only:print('[references] inputs and assets prepared; no training started');return 0
-        devices=gpu_ids(args.gpu);remaining=[]
+        remaining=[]
         for job in jobs:
             if (job['directory']/'RUN_COMPLETE').exists():
                 validate_task(job['directory'])
