@@ -18,7 +18,7 @@
     "reference_archive.py": "1e233a8df4afa6b3a6bfa4c3bfc6295afd01ea2d2ad427ac9b40d30b04818799",
     "reference_terminal.py": "b8dc69a4573a63d97555745fefb5987e46c7e5f174d709ace9f09cc5ba5d11c9",
     "reference_preflight.py": "975b3298fc38ef6e82169e15306b40dfa8024d5976d2ff5219b08023fe2816d4",
-    "reference_worker.py": "49f73f12cc73c59edcb78729fe2ce48ff9e508f717661653fbad99a1ab8bdba4",
+    "reference_worker.py": "062e4553f08aca3af3839a9e15018840cf91b5ab30b40062a8658c9cfcfd1c25",
     "reference_nli.py": "613f81318d3242241d9cda21133f3a23d3d47d24974eb5bd5f8a3855198f88da",
     "reference_trace.py": "4c385164d4288d4765a1af520c28568e99b4d2ffb2481834ecd701b0cc6e6cbb",
     "reference_resources.py": "30818d11f57fd35220540e8d06c307c8162a69b83c261ce557c0c142471837bb",
@@ -130,5 +130,14 @@
     "reviewed_execution_source_sha256": "e505bbd0be83f5e3c67c6557451b71796b97395ec8a10036c8c05eda091a810f",
     "current_execution_source_sha256": "f29d7b9002f2eb1808c5be4dfd5b98ded7b36ece3b42a8d2580a46ae0f73a110",
     "test": "test_finite_exhaustion_and_h3_padding_guard"
+  },
+  "dev_tuning_interface_amendment": {
+    "scope": "pass loss=None to required metrics argument in CoRE/CFIE validation coefficient fitting",
+    "external_review_claim": false,
+    "reason": "small interface defect found by actual all-reference GPU timing; owner permits focused validation without another model consultation",
+    "prior_reference_worker_sha256": "49f73f12cc73c59edcb78729fe2ce48ff9e508f717661653fbad99a1ab8bdba4",
+    "current_reference_worker_sha256": "062e4553f08aca3af3839a9e15018840cf91b5ab30b40062a8658c9cfcfd1c25",
+    "verification": "tests/test_reference_dev_tuning.py: 2 passed; correct nonzero coefficients selected by actual fitter",
+    "mechanism_boundary": "training, loss computation, candidate scores, validation F1 criterion and budgets unchanged"
   }
 }

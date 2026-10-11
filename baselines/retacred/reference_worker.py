@@ -270,7 +270,7 @@ def tune(adapter,features,records,r,micro):
     for coefficients in grid:
         from .reference_mechanisms import core_scores
         scores=core_scores(*arrays,coefficients,torch.cat(masks)) if r['model']=='luke_core' else arrays[0]-coefficients*arrays[1]
-        f1=metrics(gold,scores.argmax(-1).tolist(),LABELS)['micro_f1']
+        f1=metrics(gold,scores.argmax(-1).tolist(),LABELS,None)['micro_f1']
         if f1>best:best=f1;chosen=coefficients
     adapter.coefficients=chosen
     if r['model']=='luke_cfie':adapter.model.alpha=chosen

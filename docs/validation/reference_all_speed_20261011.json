@@ -1,0 +1,653 @@
+{
+  "schema": "retacred-reference-rtx3060-timing.v1",
+  "date": "2026-10-11",
+  "scope": "real_sample_complete_pretrained_weights_bounded_updates_not_formal_results",
+  "source_base_commit": "a90ea2e6e95b82d0731d2b2a6fe031aec357462f",
+  "dev_tuning_interface_worker_sha256": "062e4553f08aca3af3839a9e15018840cf91b5ab30b40062a8658c9cfcfd1c25",
+  "device": "NVIDIA GeForce RTX 3060 12GiB",
+  "warmup_updates": 1,
+  "timed_updates_per_configuration": 2,
+  "full_counts": {
+    "train": 58465,
+    "valid": 19584,
+    "test": 13418
+  },
+  "sample_counts": {
+    "train": 632,
+    "valid": 128,
+    "test": 128
+  },
+  "full_nli_pairs": {
+    "train": 304501,
+    "valid": 103784,
+    "test": 72879
+  },
+  "configurations": [
+    {
+      "model": "metaentail",
+      "status": "estimated_from_measured_steps",
+      "logical_batch": 32,
+      "unit": "NLI_pair",
+      "micro": 32,
+      "activation_checkpointing": false,
+      "tier": 0,
+      "seconds_per_update": 1.0590185523033142,
+      "compute_batches_per_second": 0.9442705208752465,
+      "budget_estimate": 28548,
+      "budget_bounds": [
+        28548,
+        28548
+      ],
+      "peak_vram_gib": 10.821569442749023,
+      "hours": 11.575345269005043,
+      "sensitivity_hours": [
+        8.681508951753782,
+        17.363017903507565
+      ],
+      "components_seconds": {
+        "training": 30232.861631155014,
+        "evaluation": 5848.515036453915,
+        "special_stages": 3646.6375389882965,
+        "preprocessing": 329.61748780204437,
+        "loading": 10.430058926343918,
+        "latest_saves": 1596.8691152632236,
+        "best_saves": 6.312099829316139
+      },
+      "checkpoint_seconds": 6.213498502969742,
+      "checkpoint_gb": 4.264884889,
+      "latest_save_count_estimate": 257,
+      "actual_oom_attempts": 0,
+      "limitations": [
+        "Only1warmup+2timed logical updates; sampled sentence-length variation.",
+        "Selected tensor capture/serialization, HTTP uploads/downloads and Git publication not timed.",
+        "Longer unseen batches may trigger another tier; sensitivity range is not a bound.",
+        "Full curriculum difficulty distribution unknown; reviewer cost uses same measured architecture."
+      ]
+    },
+    {
+      "model": "sequence_routing_h3",
+      "status": "estimated_from_measured_steps",
+      "logical_batch": 24,
+      "unit": "sentence",
+      "micro": 1,
+      "activation_checkpointing": false,
+      "tier": 0,
+      "seconds_per_update": 5.174721457064152,
+      "compute_batches_per_second": 0.1932471164481468,
+      "budget_estimate": 12185,
+      "budget_bounds": [
+        12185,
+        12185
+      ],
+      "peak_vram_gib": 5.895384311676025,
+      "hours": 21.410224516074667,
+      "sensitivity_hours": [
+        16.057668387056,
+        32.115336774112
+      ],
+      "components_seconds": {
+        "training": 63053.98095432669,
+        "evaluation": 9640.270406686468,
+        "special_stages": 0.0,
+        "preprocessing": 32.71176067513187,
+        "loading": 6.1349207907915115,
+        "latest_saves": 4330.345032513142,
+        "best_saves": 13.365182876586914
+      },
+      "checkpoint_seconds": 8.392141535878181,
+      "checkpoint_gb": 4.380989757,
+      "latest_save_count_estimate": 516,
+      "actual_oom_attempts": 0,
+      "limitations": [
+        "Only1warmup+2timed logical updates; sampled sentence-length variation.",
+        "Selected tensor capture/serialization, HTTP uploads/downloads and Git publication not timed.",
+        "Longer unseen batches may trigger another tier; sensitivity range is not a bound.",
+        "Full curriculum difficulty distribution unknown; reviewer cost uses same measured architecture."
+      ]
+    },
+    {
+      "model": "ctl_drp_supervised",
+      "status": "estimated_from_measured_steps",
+      "logical_batch": 512,
+      "unit": "sentence",
+      "micro": 1,
+      "activation_checkpointing": false,
+      "tier": 9,
+      "seconds_per_update": 105.27047941833735,
+      "compute_batches_per_second": 0.009499339278451195,
+      "budget_estimate": 1150,
+      "budget_bounds": [
+        1150,
+        1150
+      ],
+      "peak_vram_gib": 8.540255546569824,
+      "hours": 37.478131390122314,
+      "sensitivity_hours": [
+        28.108598542591732,
+        56.217197085183464
+      ],
+      "components_seconds": {
+        "training": 121061.05133108795,
+        "evaluation": 2212.9405636652373,
+        "special_stages": 0.0,
+        "preprocessing": 230.15326012318602,
+        "loading": 22.332614794373512,
+        "latest_saves": 11394.795234769583,
+        "best_saves": 0.0
+      },
+      "checkpoint_seconds": 19.71417860686779,
+      "checkpoint_gb": 4.252311217,
+      "latest_save_count_estimate": 578,
+      "actual_oom_attempts": 9,
+      "limitations": [
+        "Only1warmup+2timed logical updates; sampled sentence-length variation.",
+        "Selected tensor capture/serialization, HTTP uploads/downloads and Git publication not timed.",
+        "Longer unseen batches may trigger another tier; sensitivity range is not a bound.",
+        "Full curriculum difficulty distribution unknown; reviewer cost uses same measured architecture."
+      ]
+    },
+    {
+      "model": "typed_marker_comparison_2025",
+      "status": "estimated_from_measured_steps",
+      "logical_batch": 64,
+      "unit": "sentence",
+      "micro": 16,
+      "activation_checkpointing": false,
+      "tier": 2,
+      "seconds_per_update": 2.124418832361698,
+      "compute_batches_per_second": 0.4707169719863143,
+      "budget_estimate": 4570,
+      "budget_bounds": [
+        4570,
+        4570
+      ],
+      "peak_vram_gib": 9.64628267288208,
+      "hours": 3.3427678488932084,
+      "sensitivity_hours": [
+        2.5070758866699063,
+        5.014151773339813
+      ],
+      "components_seconds": {
+        "training": 9708.59406389296,
+        "evaluation": 1426.7546954655554,
+        "special_stages": 0.0,
+        "preprocessing": 243.46837200893944,
+        "loading": 4.333314746618271,
+        "latest_saves": 638.8172347545624,
+        "best_saves": 11.996575146913528
+      },
+      "checkpoint_seconds": 7.177721738815308,
+      "checkpoint_gb": 4.282121907,
+      "latest_save_count_estimate": 89,
+      "actual_oom_attempts": 2,
+      "limitations": [
+        "Only1warmup+2timed logical updates; sampled sentence-length variation.",
+        "Selected tensor capture/serialization, HTTP uploads/downloads and Git publication not timed.",
+        "Longer unseen batches may trigger another tier; sensitivity range is not a bound.",
+        "Full curriculum difficulty distribution unknown; reviewer cost uses same measured architecture."
+      ]
+    },
+    {
+      "model": "curriculum",
+      "status": "estimated_from_measured_steps",
+      "logical_batch": 32,
+      "unit": "sentence",
+      "micro": 16,
+      "activation_checkpointing": false,
+      "tier": 1,
+      "seconds_per_update": 1.2765085026621819,
+      "compute_batches_per_second": 0.783386869663995,
+      "budget_estimate": 10970,
+      "budget_bounds": [
+        7316,
+        14624
+      ],
+      "peak_vram_gib": 10.490916728973389,
+      "hours": 6.210466672199208,
+      "sensitivity_hours": [
+        3.68610790649782,
+        11.259184203601984
+      ],
+      "components_seconds": {
+        "training": 14003.298274204135,
+        "evaluation": 1579.3729727675673,
+        "special_stages": 2470.6986122508533,
+        "preprocessing": 3002.3705117683353,
+        "loading": 25.993000984191895,
+        "latest_saves": 1234.1685706973076,
+        "best_saves": 41.778077244758606
+      },
+      "checkpoint_seconds": 9.210213214159012,
+      "checkpoint_gb": 5.398391463,
+      "latest_save_count_estimate": 134,
+      "actual_oom_attempts": 1,
+      "limitations": [
+        "Only1warmup+2timed logical updates; sampled sentence-length variation.",
+        "Selected tensor capture/serialization, HTTP uploads/downloads and Git publication not timed.",
+        "Longer unseen batches may trigger another tier; sensitivity range is not a bound.",
+        "Full curriculum difficulty distribution unknown; reviewer cost uses same measured architecture."
+      ]
+    },
+    {
+      "model": "ctl_drp_unsupervised",
+      "status": "estimated_from_measured_steps",
+      "logical_batch": 512,
+      "unit": "sentence",
+      "micro": 1,
+      "activation_checkpointing": false,
+      "tier": 9,
+      "seconds_per_update": 104.53408718109131,
+      "compute_batches_per_second": 0.00956625754303124,
+      "budget_estimate": 1150,
+      "budget_bounds": [
+        1150,
+        1150
+      ],
+      "peak_vram_gib": 8.540255546569824,
+      "hours": 37.315148431453515,
+      "sensitivity_hours": [
+        27.986361323590135,
+        55.97272264718027
+      ],
+      "components_seconds": {
+        "training": 120214.200258255,
+        "evaluation": 2203.859814471798,
+        "special_stages": 0.0,
+        "preprocessing": 241.85894575664724,
+        "loading": 24.054138094186783,
+        "latest_saves": 11650.561196655035,
+        "best_saves": 0.0
+      },
+      "checkpoint_seconds": 20.156680271029472,
+      "checkpoint_gb": 4.252311217,
+      "latest_save_count_estimate": 578,
+      "actual_oom_attempts": 9,
+      "limitations": [
+        "Only1warmup+2timed logical updates; sampled sentence-length variation.",
+        "Selected tensor capture/serialization, HTTP uploads/downloads and Git publication not timed.",
+        "Longer unseen batches may trigger another tier; sensitivity range is not a bound.",
+        "Full curriculum difficulty distribution unknown; reviewer cost uses same measured architecture."
+      ]
+    },
+    {
+      "model": "typed_marker_punct",
+      "status": "estimated_from_measured_steps",
+      "logical_batch": 64,
+      "unit": "sentence",
+      "micro": 16,
+      "activation_checkpointing": false,
+      "tier": 2,
+      "seconds_per_update": 2.1149249002337456,
+      "compute_batches_per_second": 0.47283002809673197,
+      "budget_estimate": 4570,
+      "budget_bounds": [
+        4570,
+        4570
+      ],
+      "peak_vram_gib": 9.64628267288208,
+      "hours": 3.3304965356603065,
+      "sensitivity_hours": [
+        2.49787240174523,
+        4.99574480349046
+      ],
+      "components_seconds": {
+        "training": 9665.206794068217,
+        "evaluation": 1414.1432923125103,
+        "special_stages": 0.0,
+        "preprocessing": 236.81937373343956,
+        "loading": 3.9908503741025925,
+        "latest_saves": 657.0383430421352,
+        "best_saves": 12.588874846696854
+      },
+      "checkpoint_seconds": 7.382453292608261,
+      "checkpoint_gb": 4.282121907,
+      "latest_save_count_estimate": 89,
+      "actual_oom_attempts": 2,
+      "limitations": [
+        "Only1warmup+2timed logical updates; sampled sentence-length variation.",
+        "Selected tensor capture/serialization, HTTP uploads/downloads and Git publication not timed.",
+        "Longer unseen batches may trigger another tier; sensitivity range is not a bound.",
+        "Full curriculum difficulty distribution unknown; reviewer cost uses same measured architecture."
+      ]
+    },
+    {
+      "model": "ptr",
+      "status": "estimated_from_measured_steps",
+      "logical_batch": 64,
+      "unit": "sentence",
+      "micro": 2,
+      "activation_checkpointing": false,
+      "tier": 5,
+      "seconds_per_update": 14.217005088925362,
+      "compute_batches_per_second": 0.07033830217722657,
+      "budget_estimate": 4570,
+      "budget_bounds": [
+        4570,
+        4570
+      ],
+      "peak_vram_gib": 9.000833511352539,
+      "hours": 21.53053616419272,
+      "sensitivity_hours": [
+        16.14790212314454,
+        32.29580424628908
+      ],
+      "components_seconds": {
+        "training": 64971.7132563889,
+        "evaluation": 9061.818594898563,
+        "special_stages": 0.0,
+        "preprocessing": 159.78209625018408,
+        "loading": 4.215790957212448,
+        "latest_saves": 3299.4136880636215,
+        "best_saves": 12.986764535307884
+      },
+      "checkpoint_seconds": 6.394212573766708,
+      "checkpoint_gb": 4.281599205,
+      "latest_save_count_estimate": 516,
+      "actual_oom_attempts": 5,
+      "limitations": [
+        "Only1warmup+2timed logical updates; sampled sentence-length variation.",
+        "Selected tensor capture/serialization, HTTP uploads/downloads and Git publication not timed.",
+        "Longer unseen batches may trigger another tier; sensitivity range is not a bound.",
+        "Full curriculum difficulty distribution unknown; reviewer cost uses same measured architecture."
+      ]
+    },
+    {
+      "model": "luke_resample",
+      "status": "estimated_from_measured_steps",
+      "logical_batch": 32,
+      "unit": "sentence",
+      "micro": 8,
+      "activation_checkpointing": false,
+      "tier": 2,
+      "seconds_per_update": 1.6735960841178894,
+      "compute_batches_per_second": 0.5975157384089334,
+      "budget_estimate": 9140,
+      "budget_bounds": [
+        9140,
+        9140
+      ],
+      "peak_vram_gib": 11.201655387878418,
+      "hours": 5.205840615873316,
+      "sensitivity_hours": [
+        3.9043804619049873,
+        7.808760923809975
+      ],
+      "components_seconds": {
+        "training": 15296.66820883751,
+        "evaluation": 1886.7018964805175,
+        "special_stages": 0.0,
+        "preprocessing": 106.04876755615948,
+        "loading": 10.550040423870087,
+        "latest_saves": 1424.155222401023,
+        "best_saves": 16.902081444859505
+      },
+      "checkpoint_seconds": 10.54929794371128,
+      "checkpoint_gb": 6.710018955,
+      "latest_save_count_estimate": 135,
+      "actual_oom_attempts": 2,
+      "limitations": [
+        "Only1warmup+2timed logical updates; sampled sentence-length variation.",
+        "Selected tensor capture/serialization, HTTP uploads/downloads and Git publication not timed.",
+        "Longer unseen batches may trigger another tier; sensitivity range is not a bound.",
+        "Full curriculum difficulty distribution unknown; reviewer cost uses same measured architecture."
+      ]
+    },
+    {
+      "model": "typed_marker",
+      "status": "estimated_from_measured_steps",
+      "logical_batch": 64,
+      "unit": "sentence",
+      "micro": 16,
+      "activation_checkpointing": false,
+      "tier": 2,
+      "seconds_per_update": 1.990348681807518,
+      "compute_batches_per_second": 0.502424529500961,
+      "budget_estimate": 4570,
+      "budget_bounds": [
+        4570,
+        4570
+      ],
+      "peak_vram_gib": 9.368926048278809,
+      "hours": 3.127525163364017,
+      "sensitivity_hours": [
+        2.3456438725230124,
+        4.691287745046025
+      ],
+      "components_seconds": {
+        "training": 9095.893475860357,
+        "evaluation": 1337.8258449020796,
+        "special_stages": 0.0,
+        "preprocessing": 218.32554618963923,
+        "loading": 4.085976421833038,
+        "latest_saves": 590.2987063974142,
+        "best_saves": 12.661038339138031
+      },
+      "checkpoint_seconds": 7.1120326071977615,
+      "checkpoint_gb": 4.282564275,
+      "latest_save_count_estimate": 83,
+      "actual_oom_attempts": 2,
+      "limitations": [
+        "Only1warmup+2timed logical updates; sampled sentence-length variation.",
+        "Selected tensor capture/serialization, HTTP uploads/downloads and Git publication not timed.",
+        "Longer unseen batches may trigger another tier; sensitivity range is not a bound.",
+        "Full curriculum difficulty distribution unknown; reviewer cost uses same measured architecture."
+      ]
+    },
+    {
+      "model": "entity_marker_punct",
+      "status": "estimated_from_measured_steps",
+      "logical_batch": 64,
+      "unit": "sentence",
+      "micro": 16,
+      "activation_checkpointing": false,
+      "tier": 2,
+      "seconds_per_update": 1.9973773881793022,
+      "compute_batches_per_second": 0.5006565138456605,
+      "budget_estimate": 4570,
+      "budget_bounds": [
+        4570,
+        4570
+      ],
+      "peak_vram_gib": 9.369545936584473,
+      "hours": 3.1485291308091337,
+      "sensitivity_hours": [
+        2.3613968481068506,
+        4.722793696213701
+      ],
+      "components_seconds": {
+        "training": 9128.014663979411,
+        "evaluation": 1360.3011174399871,
+        "special_stages": 0.0,
+        "preprocessing": 226.5873535707895,
+        "loading": 3.9155707359313965,
+        "latest_saves": 602.605057939887,
+        "best_saves": 13.281107246875763
+      },
+      "checkpoint_seconds": 7.260301902890205,
+      "checkpoint_gb": 4.282121907,
+      "latest_save_count_estimate": 83,
+      "actual_oom_attempts": 2,
+      "limitations": [
+        "Only1warmup+2timed logical updates; sampled sentence-length variation.",
+        "Selected tensor capture/serialization, HTTP uploads/downloads and Git publication not timed.",
+        "Longer unseen batches may trigger another tier; sensitivity range is not a bound.",
+        "Full curriculum difficulty distribution unknown; reviewer cost uses same measured architecture."
+      ]
+    },
+    {
+      "model": "luke_focal",
+      "status": "estimated_from_measured_steps",
+      "logical_batch": 32,
+      "unit": "sentence",
+      "micro": 8,
+      "activation_checkpointing": false,
+      "tier": 2,
+      "seconds_per_update": 1.6337521076202393,
+      "compute_batches_per_second": 0.612087963244695,
+      "budget_estimate": 9140,
+      "budget_bounds": [
+        9140,
+        9140
+      ],
+      "peak_vram_gib": 10.44786024093628,
+      "hours": 5.096885801291975,
+      "sensitivity_hours": [
+        3.822664350968982,
+        7.645328701937964
+      ],
+      "components_seconds": {
+        "training": 14932.494263648987,
+        "evaluation": 1759.1112219642382,
+        "special_stages": 0.0,
+        "preprocessing": 110.92354519801164,
+        "loading": 11.200255379080772,
+        "latest_saves": 1515.2647429704666,
+        "best_saves": 19.79485549032688
+      },
+      "checkpoint_seconds": 11.479278355836868,
+      "checkpoint_gb": 6.710018955,
+      "latest_save_count_estimate": 132,
+      "actual_oom_attempts": 2,
+      "limitations": [
+        "Only1warmup+2timed logical updates; sampled sentence-length variation.",
+        "Selected tensor capture/serialization, HTTP uploads/downloads and Git publication not timed.",
+        "Longer unseen batches may trigger another tier; sensitivity range is not a bound.",
+        "Full curriculum difficulty distribution unknown; reviewer cost uses same measured architecture."
+      ]
+    },
+    {
+      "model": "entity_marker",
+      "status": "estimated_from_measured_steps",
+      "logical_batch": 64,
+      "unit": "sentence",
+      "micro": 16,
+      "activation_checkpointing": false,
+      "tier": 2,
+      "seconds_per_update": 1.979753591120243,
+      "compute_batches_per_second": 0.5051133658679968,
+      "budget_estimate": 4570,
+      "budget_bounds": [
+        4570,
+        4570
+      ],
+      "peak_vram_gib": 9.36612844467163,
+      "hours": 3.0975350295336654,
+      "sensitivity_hours": [
+        2.323151272150249,
+        4.646302544300498
+      ],
+      "components_seconds": {
+        "training": 9047.47391141951,
+        "evaluation": 1332.8994452650659,
+        "special_stages": 0.0,
+        "preprocessing": 208.495402559487,
+        "loading": 3.8929033130407333,
+        "latest_saves": 547.4078868180513,
+        "best_saves": 10.9565569460392
+      },
+      "checkpoint_seconds": 6.595275744795799,
+      "checkpoint_gb": 4.282171059,
+      "latest_save_count_estimate": 83,
+      "actual_oom_attempts": 2,
+      "limitations": [
+        "Only1warmup+2timed logical updates; sampled sentence-length variation.",
+        "Selected tensor capture/serialization, HTTP uploads/downloads and Git publication not timed.",
+        "Longer unseen batches may trigger another tier; sensitivity range is not a bound.",
+        "Full curriculum difficulty distribution unknown; reviewer cost uses same measured architecture."
+      ]
+    },
+    {
+      "model": "luke_core",
+      "status": "estimated_from_measured_steps",
+      "logical_batch": 32,
+      "unit": "sentence",
+      "micro": 8,
+      "activation_checkpointing": false,
+      "tier": 2,
+      "seconds_per_update": 1.690759301185608,
+      "compute_batches_per_second": 0.5914502432716306,
+      "budget_estimate": 9140,
+      "budget_bounds": [
+        9140,
+        9140
+      ],
+      "peak_vram_gib": 10.447888374328613,
+      "hours": 6.615294935189341,
+      "sensitivity_hours": [
+        4.961471201392005,
+        9.92294240278401
+      ],
+      "components_seconds": {
+        "training": 15453.540012836456,
+        "evaluation": 5409.4032159331255,
+        "special_stages": 961.6675684154034,
+        "preprocessing": 657.1372642460203,
+        "loading": 10.798032626509666,
+        "latest_saves": 1303.4479970037937,
+        "best_saves": 19.06767562031746
+      },
+      "checkpoint_seconds": 9.514218956232071,
+      "checkpoint_gb": 6.710018955,
+      "latest_save_count_estimate": 137,
+      "actual_oom_attempts": 2,
+      "limitations": [
+        "Only1warmup+2timed logical updates; sampled sentence-length variation.",
+        "Selected tensor capture/serialization, HTTP uploads/downloads and Git publication not timed.",
+        "Longer unseen batches may trigger another tier; sensitivity range is not a bound.",
+        "Full curriculum difficulty distribution unknown; reviewer cost uses same measured architecture."
+      ]
+    },
+    {
+      "model": "luke_cfie",
+      "status": "estimated_from_measured_steps",
+      "logical_batch": 32,
+      "unit": "sentence",
+      "micro": 8,
+      "activation_checkpointing": false,
+      "tier": 2,
+      "seconds_per_update": 1.5828449055552483,
+      "compute_batches_per_second": 0.6317738374052565,
+      "budget_estimate": 9140,
+      "budget_bounds": [
+        9140,
+        9140
+      ],
+      "peak_vram_gib": 10.448991298675537,
+      "hours": 5.842778994395382,
+      "sensitivity_hours": [
+        4.382084245796537,
+        8.764168491593074
+      ],
+      "components_seconds": {
+        "training": 14467.20243677497,
+        "evaluation": 3531.516404871829,
+        "special_stages": 549.3415545076132,
+        "preprocessing": 1169.6432869532523,
+        "loading": 11.825398355722427,
+        "latest_saves": 1286.5342432111502,
+        "best_saves": 17.94105514883995
+      },
+      "checkpoint_seconds": 9.97313366830349,
+      "checkpoint_gb": 6.710594395,
+      "latest_save_count_estimate": 129,
+      "actual_oom_attempts": 2,
+      "limitations": [
+        "Only1warmup+2timed logical updates; sampled sentence-length variation.",
+        "Selected tensor capture/serialization, HTTP uploads/downloads and Git publication not timed.",
+        "Longer unseen batches may trigger another tier; sensitivity range is not a bound.",
+        "Full curriculum difficulty distribution unknown; reviewer cost uses same measured architecture."
+      ]
+    }
+  ],
+  "total_estimated_gpu_hours": 174.3275064980578,
+  "exclusions": [
+    "case tensor capture/serialization",
+    "HTTP transfer",
+    "Git publication"
+  ],
+  "sensitivities": "0.75..1.5x plus curriculum pacing budget; not confidence intervals or guaranteed bounds",
+  "dev_tuning_fix": {
+    "change": "metrics(..., loss=None)",
+    "validation": "2 focused behavior tests passed plus real CoRE/CFIE GPU and dev tuning"
+  }
+}
