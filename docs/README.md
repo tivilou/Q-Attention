@@ -7,7 +7,12 @@
 | 文档 | 用途 |
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
+| [Re-TACRED 全套十五配置一键运行](current/retacred_all_reference_models_zh.md) | 解释性重建/源码适配、完整指标及数值 trace、单/多 GPU batch 恢复、18084 下载上传和报告自动推送 |
+| [Re-TACRED CTL-DRP 独立任务接口（待准入）](current/retacred_ctl_drp_reference_zh.md) | 外部资格记录绑定、固定配方、单 GPU 恢复、必需张量交付与报告发布；审查及 cohort 准入后才可执行 |
+| [Re-TACRED LUKE / MetaEntail 一键运行预检](current/retacred_reference_runtime_zh.md) | 两类模型的锁定源码与权重、tiny/full 串行诊断、失败汇总和私有证据上传；不触发全量训练或 Git 推送 |
+| [Re-TACRED 外部 reference 统一入口](current/retacred_reference_suite_zh.md) | 十五个已讨论配置的源码审计、四个 marker adapter、真实 train/test 张量、18084 权重获取、GPU 队列、batch 恢复和自动报告推送；缺源码方法明确阻塞 |
 | [Re-TACRED 核心 baseline 完整评估](current/retacred_baseline_complete_zh.md) | Disabled / baseline 的完整指标、逐类结果、报告导出和合作者执行协议 |
+| [Re-TACRED Improved Baseline 外部 reference](current/retacred_reference_improved_baseline_zh.md) | 锁定 RoBERTa-large typed entity marker 上游实现、source fidelity gate、完整指标、case study 和合作者一键 runner |
 | [Q-EPVG Entangled Parity Value Gating Re-TACRED 正式多 seed](current/retacred_q_epvg_formal_multi_seed_zh.md) | 固定 seed 13/29/53 的完整数据复现、seed 轮转动态多 GPU、batch 级恢复、paired 统计及 train/valid/test 全链路 Case Study 审计导出 |
 | [Q-EPVG Entangled Parity Value Gating Re-TACRED 正式单 seed](current/retacred_q_epvg_formal_single_seed_zh.md) | 完整数据、seed 13、27 个 Q-EPVG 变体、动态 GPU selector 调度、batch 级恢复及 train/valid/test 全链路 Case Study |
 | [Q-PVG Phase-Sensitive Value Gating Re-TACRED 正式单 seed](current/retacred_q_pvg_formal_single_seed_zh.md) | 完整数据、seed 13、value/context hook、六路 selector、动态多 GPU、batch 级恢复及 train/valid/test 全链路 Case Study |

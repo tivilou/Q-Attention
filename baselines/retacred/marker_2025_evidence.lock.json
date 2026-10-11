@@ -1,0 +1,118 @@
+{
+  "schema": "retacred-marker-2025-paper-evidence.v1",
+  "paper_id": "2509.11374v1",
+  "provenance_mode": "paper",
+  "collection_sha256": "cdf1af64e0534310d2fa7625b373fb7b83b43da0a6c442c3e8c367f56d63587b",
+  "artifacts": [
+    {
+      "url": "https://arxiv.org/abs/2509.11374",
+      "path": "response-8663bcafbccf81b5.txt",
+      "sha256": "9c330c6984752463ceb63b5ea8d36394941963484fd25689d22fe9b71a62441d",
+      "bytes": 41619,
+      "at": "2026-10-08T11:31:27.967597+00:00",
+      "status": 200
+    },
+    {
+      "url": "https://arxiv.org/pdf/2509.11374",
+      "path": "response-7266f1b629c91d8d.pdf",
+      "sha256": "4de5c4e4a3ff321e9a805f597b65fbfe13933f486c9e44b19c75a68c458f3a69",
+      "bytes": 1349820,
+      "at": "2026-10-08T11:31:29.527923+00:00",
+      "status": 200
+    },
+    {
+      "url": "https://arxiv.org/html/2509.11374v1",
+      "path": "response-08f470bf6cc44716.txt",
+      "sha256": "f0ebce251bf4300ac9d71bded46f98d785933614a9bc2de4ee81b4988679f557",
+      "bytes": 76448,
+      "at": "2026-10-08T11:33:05.874331+00:00",
+      "status": 200
+    },
+    {
+      "url": "https://arxiv.org/src/2509.11374v1",
+      "path": "response-64d3df0e35ab6512.txt",
+      "sha256": "e5138ef0e4cde47481961753f7b2c718ab5a57e254f6221e211231a41b8eff63",
+      "bytes": 954153,
+      "at": "2026-10-08T11:33:07.437038+00:00",
+      "status": 200
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=2509.11374&per_page=20",
+      "path": "response-8e1eff443f5d481a.txt",
+      "sha256": "4af480b8ee5b87b369a76c49bd22c9a783908272ebffbe97898f8ab0f0772a5f",
+      "bytes": 55,
+      "at": "2026-10-08T11:33:09.529935+00:00",
+      "status": 200
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=%22Transformer%20Enhanced%20Relation%20Classification%22&per_page=20",
+      "path": "response-9812f13cc67ec825.txt",
+      "sha256": "4af480b8ee5b87b369a76c49bd22c9a783908272ebffbe97898f8ab0f0772a5f",
+      "bytes": 55,
+      "at": "2026-10-08T11:33:11.086667+00:00",
+      "status": 200
+    }
+  ],
+  "source_tex": {
+    "member": "acl_latex.tex",
+    "bytes": 23076,
+    "sha256": "fff931f282e4e1a08aaf61518611e4e4b68cb8b5fb203bdd7604ed9163ef82da"
+  },
+  "published": {
+    "table": 1,
+    "model": "RoBERTa",
+    "metric_name": "micro_f1",
+    "percentage_scores": {
+      "TACRED": 74.84,
+      "TACREV": 83.09,
+      "Re-TACRED": 91.53
+    },
+    "retacred_counts": {
+      "train": 58465,
+      "dev": 19584,
+      "test": 13418,
+      "classes": 40
+    },
+    "retacred_training_and_evaluation": true,
+    "input_family": "entity_preserving_typed_punctuation",
+    "grid_search_mentioned": true,
+    "grid_or_selected_numeric_recipe_bound": false,
+    "no_relation_denominator_bound": false,
+    "checkpoint_size_revision_bound": false,
+    "seed_aggregation_bound": false
+  },
+  "source_search": {
+    "scope": "official_abs_pdf_html_tex_and_two_exact_public_repository_queries",
+    "repository_queries": [
+      "https://api.github.com/search/repositories?q=2509.11374&per_page=20",
+      "https://api.github.com/search/repositories?q=%22Transformer%20Enhanced%20Relation%20Classification%22&per_page=20"
+    ],
+    "total_counts": [
+      0,
+      0
+    ],
+    "incomplete_results": [
+      false,
+      false
+    ],
+    "author_repository_identified": false,
+    "global_source_absence_inferred": false
+  },
+  "unresolved": [
+    "checkpoint_and_tokenizer_identity",
+    "entity_type_normalization",
+    "representation_pooling_classifier_loss",
+    "optimizer_learning_rate_scheduler_warmup_dropout",
+    "batch_accumulation_epoch_budget",
+    "seed_set_and_aggregation",
+    "grid_and_checkpoint_selection",
+    "maximum_length_overflow",
+    "label_order_and_no_relation_scorer_denominator"
+  ],
+  "status": "paper_recipe_unverified",
+  "architecture_equivalence": "input_family_only_not_certified",
+  "formal_comparison_admitted": false,
+  "reported_score_rank_eligible": false,
+  "model_jobs": 0,
+  "scores_are_project_measurements": false
+}

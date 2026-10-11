@@ -1,0 +1,142 @@
+# CTL-DRP bounded runner / evidence lifecycle
+
+This is a callable candidate lifecycle, not formal admission or a published
+benchmark reproduction. The diagnostic CLI requires explicit `--tiny`; the
+separate unified `ctl-run` bridge retains the existing cohort admission and
+source-hash-bound independent review gate before starting a production job.
+No real dataset receipt is present on the development server. The production
+checkpoint/transport path needs independent review and real-data preflight.
+
+## Portable bounded entry
+
+`scripts/check_retacred_ctl_drp_runner.sh` resolves its repository root and
+`PYTHON_BIN`, then python/python3. `--describe` performs no training/network/Git
+action. Explicit `--tiny --cache CACHE --paper-source NATIVE --run-dir PRIVATE`
+runs only two random tiny-model updates, with device cuda:0 by default or cpu
+for diagnostics. Source/cache/weight paths are never hardcoded into this entry.
+Optional `--pause-after 1` pauses after the first durable update and exits75;
+repeat the same arguments plus `--resume` without pause-after to continue.
+`--local-export-dir PRIVATE_REPORT` adds automatic private diagnostic whitelist
+export on completion. It does not upload, commit or push.
+
+## Checkpoint transactions
+
+- The immutable contract includes physical data/H, description and source hashes,
+  model/dropout configuration, physical micro-batch, recipe, sampled IDs,
+  precision, environment and actual diagnostic budget. Formal budget remains
+  the frozen complete ten epochs; tiny budget does not become a full-run claim.
+- Initial generation stores exact RNG and an initialization signature, allowing
+  reconstruction of cursor0 from the verified initializer without a redundant
+  full-model file. Positive generations use the existing CPU diagnostic or
+  strict single-visible-GPU FP32 backend; GPU UUID/runtime must remain identical.
+- A generation writes state.pt and its hashed receipt, fsyncs them, renames the
+  directory, then atomically publishes latest.json. Failed unpublished writes
+  do not advance the completed-logical-update cursor.
+- Two rolling generations are retained, plus source generations before/after
+  the selected train event for replay. Full pretrained checkpoints are several
+  GiB: budget sufficient disk on the collaborator, including one staging file.
+- An advisory run lock prevents two owners. Checksum/contract drift fails before
+  checkpoint restoration; there is no automatic fallback to an older cursor.
+- Event files written before an unpublished checkpoint are quarantined on
+  resume, never mistaken for durable samples or silently overwritten. Final
+  evaluation failure resumes finalization from the last update, not training.
+- CPU is diagnostic-only. CUDA scope is unchanged single GPU, FP32 AdamW,
+  no AMP/topology migration. OOM exits with the last durable update intact;
+  no new batch/chunk search is claimed here.
+
+## Frozen observability and actual values
+
+Before updates, freeze the first sample ID in lexical order from train and test.
+The training sample is captured from its first real forward/backward event;
+the test sample is captured at final post-update evaluation. No second forward
+manufactures a historical training trace. Each sample retains every candidate
+row, original sentence/tokens, entities with roles/types/spans, descriptions,
+BPE tokens/IDs/masks/positions, correct and predicted relation.
+
+Required numeric inventory derives from the implemented layer count, independent
+of whichever keys happen to be captured: token IDs/mask; word, position and type
+embeddings and combined embedding output; every layer's input, raw Q/K/V,
+attention scores/probabilities, recombined context, attention-block output,
+feedforward activation and layer output; raw first token, scalar scores and
+candidate probabilities. Train additionally requires actual selected loss,
+pre-update head, aggregate weighted-logical-batch head gradient and post-update
+head. Other actual leaf I/O and activation gradients remain in detached audit
+evidence. Parameter gradients are not falsely attributed to one selected sample.
+
+JSON conforms to `sample-trace.v2`, with human-purpose/help text and explicit
+producer input/output references. Numeric values stay in hash-checked private
+.pt, not JSON previews. `ValueReader` verifies the artifact and serves arbitrary
+prefix-axis matrix/vector/scalar slices bounded to4096 elements. Readiness opens
+all required states, checks complete element counts, compares first/last reader
+coordinates and actual layer/CLS/probability lineage. This is a verified local
+reader, not a deployed portal route. Authenticated delivery/portal binding are
+separate gates and are not claimed from local fixtures.
+
+## Export / publication boundary
+
+Diagnostic success writes DIAGNOSTIC_COMPLETE, never COMPUTE_COMPLETE or
+RUN_COMPLETE. Formal computation would write COMPUTE_COMPLETE only after all
+updates and train/test value readiness. Required authenticated hash/size delivery
+uses the existing sharding uploader; pending manifests survive a failure and
+export retry does not retrain. Only successful required delivery and atomic
+whitelist export may produce RUN_COMPLETE.
+
+The whitelist contains metrics.json, run_summary.json, data_identity.json,
+data.sha256, data_counts.txt, run_summary.data, plus their export_manifest.json.
+No raw samples, predictions, numeric values, checkpoints, token, environment URL
+or arbitrary upload payload enters it. Diagnostic export is explicit, local-only
+and rejected under public reports/. Every report file is bounded to1MiB and
+hash-checked; repeated export is idempotent only for the same run identity.
+This low-level module makes no implicit Git commit/push. The separate ctl-run
+bridge supplies qualification binding, the frozen512-sentence/ten-epoch recipe,
+single-GPU child isolation and required-delivery/report-only publication.
+Default-ready cohort remains five; implementing the interface admits no
+candidate. Independent review, real complete data and actual exchange evidence
+remain release gates, not successful-fixture claims.
+
+## Unified diagnostic dispatch
+
+The suite's explicit `ctl-preflight` subcommand executes ctl_drp_preflight,
+not the generic marker/PTR trainer. Modes tiny/pretrained/data are separate
+diagnostics. Describe has no effects, pretrained uses a locked explicit weight
+and one isolated visible CUDA device, and data audits an external physical
+qualification before any model load. No formal cohort admission is changed.
+Parent and child commands/exit codes are recorded privately. A timeout/pause
+stops only the child's dedicated process group, retaining durable checkpoints.
+Pretrained diagnostic defaults to one synthetic update and uses the same
+immutable cursor/value-readiness runner. The full combined lane needs its own
+actual runtime evidence; prior backbone and tiny tests alone do not certify it.
+
+## Gated production bridge and finalization recovery
+
+`ctl-run --describe` is backend-free and reports exact registry IDs
+ctl_drp_supervised/ctl_drp_unsupervised, current admission status and1150
+logical updates. Actual execution requires both cohort admission and an
+external ctl-drp-independent-review.v1 receipt covering the current code/locks,
+requested model and explicit paper_interpretive grade. It does not promote
+the reconstruction to paper_faithful or a strict baseline.
+
+Native physical qualification is accepted directly. The optional prepared-data
+bridge inherits an existing qualified suite receipt and checks its complete
+split count/hash manifest. It renames valid to dev, never follows foreign
+absolute output paths, preserves valid IDs, and assigns deterministic
+split/ordinal/content-hash IDs only where absent. It validates all rows and H
+before atomically exposing the receipt; synthetic fixtures remain diagnostic.
+Original declared canonical hashes, physically checked prepared hashes and
+interface-adaptation hashes remain distinct in the exported data identity.
+
+One variant/seed uses one visible GPU and immutable physical micro-batch. There
+is no OOM rechunking, AMP, multi-GPU topology migration or throughput claim.
+The parent checks conservative disk headroom for rolling/pinned/staging
+checkpoints. A pre-initialization worker failure can retry the same parent via
+resume without pretending a nonexistent numeric checkpoint was restored.
+
+`--export-only` validates existing complete compute without any model load,
+GPU selection, weight read, training update or heldout reevaluation. Delivery
+checks exact names/hashes/sizes/counts/namespace and ordered whole-file shard
+joins; cached complete receipts avoid duplicate transport. A crash after atomic
+report rename but before RUN_COMPLETE is repaired only after rechecking both
+the export and delivery evidence. Publication stages exactly the seven report
+whitelist files; existing unrelated staged/dirty changes fail preflight. Push
+failure retries export/publication only. No token, samples or tensor values are
+staged. Publication retains the project's collaborator1.1 policy.

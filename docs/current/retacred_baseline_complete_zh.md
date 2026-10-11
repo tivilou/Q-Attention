@@ -71,7 +71,23 @@ bash scripts/export_retacred_baseline_report.sh \
 
 ## 外部 SOTA/reference
 
-外部 reference baseline 尚未在本协议中宣称已复现。候选、任务可比性、官方来源、待锁定 source commit、checkpoint、适配边界和 fidelity gate 统一登记在 [`configs/retacred_reference_baselines.json`](../../configs/retacred_reference_baselines.json)。只有完成 source/paper fidelity 审计并通过共同协议，才能进入正式比较表；没有实测分数的条目必须保持 `planned` 或 `not_verifiable`。
+外部 reference baseline 现在按公开论文在完整监督式 Re-TACRED 测试集上的 **micro-F1** 冻结为五个报告配置。这里的分数只是论文报告值，不是本项目实测值，也不是已经完成公平复现的排行榜：
+
+| 排名 | 配置 | 论文报告 micro-F1 | 当前状态 |
+| --- | --- | ---: | --- |
+| 1 | Sequence Routing / Dynamic Routing + RoBERTa-large (H3) | 92.2% | 2025 预印本，paper-only，待机制审计 |
+| 2 | CTL-DRP supervised | 91.6% | 官方仓库尚未提供可执行实现，待审计 |
+| 3 | Curriculum Learning relation extraction | 91.4% | paper-only，待源码/机制审计 |
+| 4 | CTL-DRP unsupervised configuration | 91.2% | CTL-DRP 方法族的配置变体，不独立计方法 |
+| 5 | RoBERTa-large + typed entity marker (punct) | 91.1% | 有官方仓库，作为第一优先级严格复现目标 |
+
+候选的论文链接、官方仓库、source/paper provenance、适配边界、报告值和 fidelity gate 统一登记在 [`configs/retacred_reference_baselines.json`](../../configs/retacred_reference_baselines.json)。每次开始外部 baseline 工作前先运行：
+
+```bash
+bash scripts/check_retacred_reference_baselines.sh
+```
+
+只有完成 source/paper fidelity 审计、锁定 source commit 与 checkpoint、通过共同数据/训练/评估协议并导出审计报告后，候选才可以从 `planned` 变为严格比较项。`REBEL`、RAG4RE 等生成式或检索增强方法改变了本项目的给定实体对分类输出契约，保留在 registry 的非严格参考区，不进入这张表的公平比较。
 
 ## 状态门槛
 

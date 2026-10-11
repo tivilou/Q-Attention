@@ -1,0 +1,455 @@
+{
+  "schema": "retacred-ctl-drp-reconstruction-plan.v1",
+  "status": "assumptions_prepared_neural_pending",
+  "current_evidence_grade": "not_verifiable",
+  "intended_reconstruction_grade": "paper_interpretive",
+  "provenance_mode": "paper",
+  "record_kind": "design_only_not_runtime_admission",
+  "baseline_revision": "051e333f05b8a3ceb4948f878bca0a4a3d9e4cb5",
+  "applies_to": [
+    "ctl_drp_supervised",
+    "ctl_drp_unsupervised"
+  ],
+  "formal_comparison_admitted": false,
+  "reported_score_rank_eligible": false,
+  "neural_runtime_verified": false,
+  "paper_checkpoint_identity_bound": false,
+  "ctl_exact_H_author_mapping_recovered": false,
+  "ready_cohort_count": 5,
+  "evidence_locks": {
+    "paper": {
+      "path": "baselines/retacred/ctl_drp_paper.lock.json",
+      "sha256": "e55e0c93a22ed0c2b9459c1d0488c6393c35a101d2b0030102421916a7acc6f9"
+    },
+    "simcse": {
+      "path": "baselines/retacred/ctl_drp_simcse.lock.json",
+      "sha256": "36e8dec6ea09944e80069cfe1caa79f38f71a7d2e963edcb5aadeae1319bd3d0"
+    },
+    "candidates": {
+      "path": "baselines/retacred/ctl_drp_candidates.lock.json",
+      "sha256": "e59026c6cd7479c2b0214de1037fc55e2886e098e81d061823f62d1c19bddad8"
+    }
+  },
+  "bound_recipe": {
+    "batch_size": 512,
+    "learning_rate": 1e-05,
+    "epochs": 10,
+    "batch_unit": "unbound"
+  },
+  "candidate_initializations": {
+    "sup": {
+      "id": "princeton-nlp/sup-simcse-roberta-large",
+      "revision": "96d164d9950b72f4ce179cb1eb3414de0910953f",
+      "identity_status": "official_candidate_not_author_confirmed"
+    },
+    "unsup": {
+      "id": "princeton-nlp/unsup-simcse-roberta-large",
+      "revision": "d3f863b476c59b0673264042f159cea15842e265",
+      "identity_status": "official_candidate_not_author_confirmed"
+    }
+  },
+  "assumptions": [
+    {
+      "id": "A01",
+      "item": "初始化身份",
+      "evidence": [
+        "paper",
+        "simcse"
+      ],
+      "recovered_fact": "论文原字面为 sup-smi-roberta-large / unsup-smi-roberta-large；官方 SimCSE 候选已锁定，但与作者初始化的精确对应未确认。",
+      "proposed_choice": "分别采用锁中两个官方不可变 revision 作为解释性候选，不替换成通用 RoBERTa/MNLI；将作者身份对应始终单独标记为未确认。",
+      "choice_status": "proposal_not_implemented",
+      "sensitivity_or_negative_test": "sup/unsup 作为独立行；保存实际权重 SHA、加载键差异和参数差异。候选下载或成功加载本身不证明作者使用它。",
+      "required_gates": [
+        "G07",
+        "G09"
+      ]
+    },
+    {
+      "id": "A02",
+      "item": "H 的生成规则",
+      "evidence": [
+        "paper",
+        "candidates"
+      ],
+      "recovered_fact": "论文要求类型约束；RECENT 的纯聚合片段按有序类型对收集关系。精确 CTL H 未确认；现有 primitive 只接受声明 train，尚未绑定物理 split。",
+      "proposed_choice": "使用已资格审查的物理训练 split 拟合 observed-pair 支持表，冻结 SHA；NA 无条件加入。此为显式适配，不是已恢复作者 H。",
+      "choice_status": "proposal_not_implemented",
+      "sensitivity_or_negative_test": "改变 dev/test gold 后表及预测输入保持不变；subject/object 交换不隐式同义；不采用 TACRED 常量或 RECENT 二分类/强制正类分支。",
+      "required_gates": [
+        "G02",
+        "G05",
+        "G06"
+      ]
+    },
+    {
+      "id": "A03",
+      "item": "未知类型对与缺失 gold",
+      "evidence": [
+        "paper",
+        "candidates"
+      ],
+      "recovered_fact": "现有查询无 gold 参数；未知类型对报诊断，known NA-only 合法；gold 覆盖审计与预测路径分离。",
+      "proposed_choice": "先做完整覆盖审计；未知 pair 或 excluded gold 均停止该资格检查并报告索引/计数。不给 all-label、NA-only 或 gold 重插的隐式修补。",
+      "choice_status": "proposal_not_implemented",
+      "sensitivity_or_negative_test": "heldout 诊断只决定是否具备评估资格，不调 H 或超参、不跳样本；如真实覆盖不完整，该方案不进入完整比较，另立假设后再评审。",
+      "required_gates": [
+        "G05",
+        "G06",
+        "G09"
+      ]
+    },
+    {
+      "id": "A04",
+      "item": "实体标记与角色/类型",
+      "evidence": [
+        "paper",
+        "simcse"
+      ],
+      "recovered_fact": "论文指定四个新 role-specific 符号，保留实体名，实体后括号含角色/类型；不是旧 punctuation marker。具体字节、空格和初始化未恢复。",
+      "proposed_choice": "暂定 u1/u2 为 subject、u3/u4 为 object 的四个专用注册 token；原 span 边界和角色保留。具体文本模板在 token fixture 前独立冻结。",
+      "choice_status": "proposal_not_implemented",
+      "sensitivity_or_negative_test": "逐字 token-id/offset fixture 覆盖实体顺序互换、Unicode、空格和多词 span；非法/重叠 span 显式诊断而非自动重排。",
+      "required_gates": [
+        "G02",
+        "G03",
+        "G07"
+      ]
+    },
+    {
+      "id": "A05",
+      "item": "关系描述与提示拼接",
+      "evidence": [
+        "paper",
+        "simcse"
+      ],
+      "recovered_fact": "附录 46 条描述经显式 alias 覆盖 canonical40；NA 为负叙述。句子与候选描述共同编码；精确拼接边界未恢复。",
+      "proposed_choice": "主候选采用 tokenizer 的 sentence-pair 编码：marked sentence 为 A、prompt+description 为 B；描述由已锁 native TeX 提取，不自行改写。",
+      "choice_status": "proposal_not_implemented",
+      "sensitivity_or_negative_test": "对单序列拼接与 pair 边界做有界敏感性比较，先冻结模板与分隔字节；不把 pair 边界称为作者事实；六 extras 不加输出类。",
+      "required_gates": [
+        "G02",
+        "G03",
+        "G08"
+      ]
+    },
+    {
+      "id": "A06",
+      "item": "编码与读出",
+      "evidence": [
+        "paper",
+        "simcse"
+      ],
+      "recovered_fact": "每个候选联合编码，取 final-layer first subtoken，使用一套共享 affine scalar head；sup/unsup downstream 同为标签监督。",
+      "proposed_choice": "直接读取 last_hidden_state[:,0,:]；不采用 SimCSE pooler、L2 normalization、mean pooling 或缓存句向量后单独点积。",
+      "choice_status": "proposal_not_implemented",
+      "sensitivity_or_negative_test": "固定小张量逐候选联合编码与批处理比较；梯度同时进入联合编码器及共享 head；错误 pooler/独立描述路径须被反例捕获。",
+      "required_gates": [
+        "G02",
+        "G04",
+        "G07"
+      ]
+    },
+    {
+      "id": "A07",
+      "item": "Eq2 与损失归约",
+      "evidence": [
+        "paper"
+      ],
+      "recovered_fact": "单句 allowed candidates+NA 内 softmax/gold NLL；共享 bias 消去；NA-only gold loss/gradient 为零。",
+      "proposed_choice": "采用稳定 logsumexp；先算每句 NLL，再按真实句数等权平均。候选数不同不额外加权、不混入其他句的分母。",
+      "choice_status": "proposal_not_implemented",
+      "sensitivity_or_negative_test": "neural loss/gradient 对现有 scalar reference；1/2/多候选、极端 logits、NA-only、bias 零梯度及 batch permutation 检验。",
+      "required_gates": [
+        "G04"
+      ]
+    },
+    {
+      "id": "A08",
+      "item": "batch512 的单位",
+      "evidence": [
+        "paper"
+      ],
+      "recovered_fact": "batch512、LR1e-5、epochs10 被论文明确给出；512 是句数还是 expanded pairs 未恢复。",
+      "proposed_choice": "主解释为 effective batch512 句；physical micro-batch 只控制内存，不重定义 Eq2 或句权重。pair512 作为单独解释性敏感性分支。",
+      "choice_status": "proposal_not_implemented",
+      "sensitivity_or_negative_test": "对比两个 batch 单位的 optimizer-step 数、句暴露量、候选对量和指标；若 pair512 模式未定义句组边界，先补规范而非拆断 Eq2。",
+      "required_gates": [
+        "G02",
+        "G04",
+        "G08",
+        "G11"
+      ]
+    },
+    {
+      "id": "A09",
+      "item": "micro-batch 与候选 chunk",
+      "evidence": [
+        "paper"
+      ],
+      "recovered_fact": "作者 accumulation/chunk 策略未恢复；显存优化不得改变每句归一化候选集合。",
+      "proposed_choice": "先实现 FP32、无 AMP 的聚焦基准；候选联合 logits 齐备后算 Eq2。训练期 chunk/重计算优化暂不启用，不能沿用独立 chunk softmax。",
+      "choice_status": "proposal_not_implemented",
+      "sensitivity_or_negative_test": "在 dropout disabled 下检查 loss/gradient/update 等价；启用 dropout 后声明 RNG/统计差异，不伪称逐位等价；尾批按真实句数归约。",
+      "required_gates": [
+        "G04",
+        "G08",
+        "G11"
+      ]
+    },
+    {
+      "id": "A10",
+      "item": "optimizer 与 scheduler",
+      "evidence": [
+        "paper"
+      ],
+      "recovered_fact": "仅 LR1e-5 和 10epochs 已恢复；optimizer/betas/eps/decay/warmup/scheduler 未恢复。",
+      "proposed_choice": "可测试主候选 AdamW(beta1=.9,beta2=.999,eps=1e-8)，weight_decay=0、constant LR、warmup=0、无额外 clipping。全部为假设，非论文默认。",
+      "choice_status": "proposal_not_implemented",
+      "sensitivity_or_negative_test": "分别对 weight_decay=.01、linear schedule/6% warmup、clip1 做预声明有界敏感性测试；不得以 test 得分选配置。记录实际 update 序列。",
+      "required_gates": [
+        "G02",
+        "G04",
+        "G08"
+      ]
+    },
+    {
+      "id": "A11",
+      "item": "长度与溢出",
+      "evidence": [
+        "paper",
+        "simcse"
+      ],
+      "recovered_fact": "候选 tokenizer 上限512；CTL maxlen/截断政策未恢复。tokenizer 512 不是已恢复下游 recipe。",
+      "proposed_choice": "聚焦实现以512为明确实验上限，默认检测溢出并报诊断，不静默截断/丢样本；完整数据截断方案尚未采纳。",
+      "choice_status": "proposal_not_implemented",
+      "sensitivity_or_negative_test": "512/513边界；必须同时保留两个实体及完整 prompt/description。若需 entity-preserving crop，记录原位置/窗口，并先冻结与审查，再单独敏感性比较。",
+      "required_gates": [
+        "G02",
+        "G03",
+        "G05",
+        "G08"
+      ]
+    },
+    {
+      "id": "A12",
+      "item": "新增 token/head 初始化及 dropout",
+      "evidence": [
+        "paper",
+        "simcse"
+      ],
+      "recovered_fact": "候选 configs 的 dropout=.1、initializer_range=.02 为候选资产事实，不是 CTL 下游选择；新 token/head 初始化未恢复。",
+      "proposed_choice": "主候选保留候选 config dropout；新 embedding/head 用显式 seeded Normal(0,.02)，bias0；仅允许四个新 token 行，不重置已有权重。",
+      "choice_status": "proposal_not_implemented",
+      "sensitivity_or_negative_test": "加载前后已有 embedding 行差异0；固定 seed 重复初始化；初始化与 dropout0/.1 的敏感性结果分开记录。",
+      "required_gates": [
+        "G03",
+        "G04",
+        "G07",
+        "G08"
+      ]
+    },
+    {
+      "id": "A13",
+      "item": "dev 选择与 inference ties",
+      "evidence": [
+        "paper"
+      ],
+      "recovered_fact": "推理 argmax 已恢复；dev checkpoint policy 和 tie law 未恢复。scalar reference 返回全部并列最大值。",
+      "proposed_choice": "主候选使用 dev 非NA micro-F1 选 checkpoint，等分先选较早 update；推理 logits 精确相同时按 canonical ID 选最小 ID，并记录 tie。",
+      "choice_status": "proposal_not_implemented",
+      "sensitivity_or_negative_test": "last-epoch vs dev-best 的预声明比较；禁止 test 选 checkpoint/阈值；tie fixture 与 scalar 最大值集合一致。",
+      "required_gates": [
+        "G02",
+        "G08",
+        "G09"
+      ]
+    },
+    {
+      "id": "A14",
+      "item": "评测口径",
+      "evidence": [
+        "paper"
+      ],
+      "recovered_fact": "论文写 micro-F1，但 null-class 分母及原 scorer 未恢复；论文分数不是项目实测。",
+      "proposed_choice": "项目报告非NA micro P/R/F1、all40 accuracy、all40 macro-F1、loss 和每类 TP/FP/FN/support；另列 all-label micro 等于 accuracy 的说明。",
+      "choice_status": "proposal_not_implemented",
+      "sensitivity_or_negative_test": "混淆矩阵已知 fixture；NA-only/错误NA/错正类/零支持定义明确。原论文 scorer 未确认前，不把同名分数视为 exact comparable。",
+      "required_gates": [
+        "G09"
+      ]
+    },
+    {
+      "id": "A15",
+      "item": "seed 与预算",
+      "evidence": [
+        "paper"
+      ],
+      "recovered_fact": "论文均值来自 several unspecified seeds，无 seed 列表或 SD。",
+      "proposed_choice": "项目候选 seed13/29/53 作为明确项目选择；首个完整 seed 和后续多seed仍交合作者，绝不声称作者 seeds；预算不可默默降低。",
+      "choice_status": "proposal_not_implemented",
+      "sensitivity_or_negative_test": "逐 seed 全指标、mean±sample SD、失败尝试和预算/暴露量；原结果仅用于带口径限制的对照，不承诺复现原值。",
+      "required_gates": [
+        "G08",
+        "G09",
+        "G12"
+      ]
+    },
+    {
+      "id": "A16",
+      "item": "case study / checkpoint / 导出",
+      "evidence": [
+        "paper"
+      ],
+      "recovered_fact": "原论文未恢复运行生命周期；项目要求真实 train/test 数值证据、post-update batch resume 和审计报告。",
+      "proposed_choice": "另行实现样本 lineage：raw→marked/prompt→token ids/masks→embedding→layer states→first token→scalar logits→候选概率→pred/gold/loss；train 另含梯度/update 时点。",
+      "choice_status": "proposal_not_implemented",
+      "sensitivity_or_negative_test": "实际数值 tensor 在私有 exchange 可取且 SHA 匹配；摘要/hash/placeholders 不等于张量；恢复绑定 H/data/模板/checkpoint/optimizer/RNG/游标，拒绝漂移。",
+      "required_gates": [
+        "G10",
+        "G11",
+        "G12"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "id": "G01",
+      "title": "已恢复证据边界",
+      "status": "bounded_evidence_available",
+      "depends_on": [],
+      "acceptance_evidence": "已锁 paper/SimCSE/RECENT 原始响应和 primitive 测试；本矩阵验证这些锁的 SHA，不冒充新增 neural 证据。",
+      "failure_action": "锁或证据变更时重审受影响条目，保留原记录。"
+    },
+    {
+      "id": "G02",
+      "title": "解释性机制与假设审查",
+      "status": "pending",
+      "depends_on": [
+        "G01"
+      ],
+      "acceptance_evidence": "独立审查报告逐项检查联合编码/H/Eq2/梯度/batch/数据隔离；未恢复选择和敏感性计划明确获批。",
+      "failure_action": "保留 not_verifiable 状态和历史行；文档存在不等于审查完成。"
+    },
+    {
+      "id": "G03",
+      "title": "真实 tokenizer/标记/模板",
+      "status": "pending",
+      "depends_on": [
+        "G01"
+      ],
+      "acceptance_evidence": "真实 byte-BPE+四注册 token；role/span/offset/prompt边界/512溢出逐字 fixture；最终模板/描述提取代码 SHA。",
+      "failure_action": "不静默 alias、裁剪或丢样本；输出失败定位。"
+    },
+    {
+      "id": "G04",
+      "title": "tiny neural Eq2 与 update",
+      "status": "pending",
+      "depends_on": [
+        "G01",
+        "G03"
+      ],
+      "acceptance_evidence": "随机 tiny encoder 合成数据 FP32；forward/loss/gradient/一次 update 对独立 reference（初始 atol1e-6/rtol1e-5，调整需证据）；NA-only/bias/批量与分块反例。",
+      "failure_action": "tiny 通过只证明方程翻译，不证明 large checkpoint 或正式训练速度/准确率。"
+    },
+    {
+      "id": "G05",
+      "title": "物理数据资格",
+      "status": "pending",
+      "depends_on": [
+        "G01"
+      ],
+      "acceptance_evidence": "qualified task/data manifest、train/dev/test hashes/counts/40-label map、role/type/span校验；全量 overflow/候选覆盖报告。",
+      "failure_action": "覆盖缺口或资格失败时不进入完整比较；诊断不修 H、不跳样本。"
+    },
+    {
+      "id": "G06",
+      "title": "训练支持表隔离",
+      "status": "primitive_available_physical_binding_pending",
+      "depends_on": [
+        "G05"
+      ],
+      "acceptance_evidence": "H 输入绑定物理 train hash；表 hash/counts可复算；变更 heldout gold 不变表/预测输入，unknown/excluded gold计数为0或资格失败。",
+      "failure_action": "禁止 heldout fitting、gold reinsertion、NA-only未知回退、强制正类及完整 RECENT 脚本复用。"
+    },
+    {
+      "id": "G07",
+      "title": "实际资产加载与作者身份边界",
+      "status": "pending",
+      "depends_on": [
+        "G01"
+      ],
+      "acceptance_evidence": "实际权重本地 SHA/加载差异/旧embedding不变/完整encoder数值证据；另有独立字段证明作者 checkpoint/H 身份，当前仍未确认。",
+      "failure_action": "可在明确候选身份下做解释性 smoke；仅候选加载通过不升级 exact_author_mapping。"
+    },
+    {
+      "id": "G08",
+      "title": "recipe 与敏感性",
+      "status": "pending",
+      "depends_on": [
+        "G02",
+        "G04",
+        "G05",
+        "G06",
+        "G07"
+      ],
+      "acceptance_evidence": "冻结完整有效 recipe、batch单位/update数、预声明单因素敏感性/失败记录；只用 train/dev 作选择。",
+      "failure_action": "未实施敏感性不能用准备好的计划冒充 paper-faithful。"
+    },
+    {
+      "id": "G09",
+      "title": "scorer / 结果证据",
+      "status": "pending",
+      "depends_on": [
+        "G05",
+        "G06",
+        "G08"
+      ],
+      "acceptance_evidence": "项目全指标fixture与真实结果；原paper scorer口径单独确认；合作者完整单seed及多seed不确定性/至少一个reported result对照或明确缺口说明。",
+      "failure_action": "不将 paper 均值当 single seed，不以相近数值倒推 scorer/H/初始化正确。"
+    },
+    {
+      "id": "G10",
+      "title": "运行恢复与完整张量",
+      "status": "pending",
+      "depends_on": [
+        "G03",
+        "G04"
+      ],
+      "acceptance_evidence": "train/test完整所选样本链路实际 tensor，私有下载验SHA；未中断与post-update resume等价；上下游 tensor边保持可追踪。",
+      "failure_action": "partial/只有摘要/hash/无下载实值即不满足完整case；汇总/导出不得伪造未采集阶段。"
+    },
+    {
+      "id": "G11",
+      "title": "资源/CUDA精度",
+      "status": "pending",
+      "depends_on": [
+        "G04",
+        "G07",
+        "G10"
+      ],
+      "acceptance_evidence": "合适内存环境full-weight smoke；CUDA/AMP溢出与optimizer-step/恢复实证；GPU拓扑/physical batch变化不静默改有效batch。",
+      "failure_action": "当前1GiB限制不变；不降低门槛或操作无关进程；CPU/tiny通过不称CUDA认证。"
+    },
+    {
+      "id": "G12",
+      "title": "单独正式准入/发布",
+      "status": "pending",
+      "depends_on": [
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08",
+        "G09",
+        "G10",
+        "G11"
+      ],
+      "acceptance_evidence": "独立 fidelity report明确paper-faithful是否成立；具备严格资格后单独更新cohort并获发布许可；完整实验仅合作者执行。",
+      "failure_action": "保持cohort ready5和两CTL行blocked；文档/flags不能自动打开runner或推送main。"
+    }
+  ],
+  "next_step": "Implement synthetic tiny joint-encoder/Eq2 FP32 fixtures under explicit interpretive assumptions, without large-weight loading, formal admission or full-data training."
+}

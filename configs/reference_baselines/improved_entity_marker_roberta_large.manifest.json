@@ -1,0 +1,75 @@
+{
+  "schema": "q-attention.baseline-manifest.v1",
+  "id": "improved_entity_marker_roberta_large",
+  "task": "relation_extraction",
+  "dataset": "Re-TACRED",
+  "paper": {
+    "title": "An Improved Baseline for Sentence-level Relation Extraction",
+    "url": "https://arxiv.org/abs/2102.01373",
+    "reported_test_micro_f1": 0.911
+  },
+  "provenance": {
+    "mode": "source",
+    "repository": "https://github.com/wzhouad/RE_improved_baseline",
+    "commit": "fe00781116ab4c34cbcd9a2ae5b02513afae87ee",
+    "checkpoint": null,
+    "source_files": [
+      "train_retacred.py",
+      "prepro.py",
+      "model.py",
+      "utils.py",
+      "evaluation.py"
+    ]
+  },
+  "mechanism": {
+    "backbone": "roberta-large",
+    "input_format": "typed_entity_marker_punct",
+    "entity_readout": "hidden states at subject/object marker positions",
+    "classifier": "two-layer MLP over concatenated entity representations",
+    "objective": "cross_entropy",
+    "optimizer": "AdamW",
+    "scheduler": "linear warmup and decay",
+    "gradient_checkpointing": true,
+    "amp": true
+  },
+  "adaptation_boundary": {
+    "allowed": [
+      "map canonical project JSONL to upstream TACRED-style JSON fields",
+      "place train/dev/test files under the upstream data directory",
+      "wrap upstream logs and metrics into the project report schema"
+    ],
+    "forbidden": [
+      "changing typed marker construction",
+      "changing the upstream label IDs",
+      "changing the entity-position readout",
+      "changing the loss, optimizer, scheduler, or selection rule",
+      "using test data for training or checkpoint selection"
+    ]
+  },
+  "fidelity_gates": {
+    "status": "planned",
+    "required": [
+      "source_commit_verified",
+      "fixed_input_forward_and_logits",
+      "checkpoint_load_and_hash",
+      "common_protocol_run",
+      "audited_report"
+    ],
+    "evidence": []
+  },
+  "comparison": {
+    "strict_comparison_eligible": false,
+    "status": "planned",
+    "seed": 13,
+    "metrics": [
+      "micro_precision",
+      "micro_recall",
+      "micro_f1",
+      "accuracy",
+      "macro_precision",
+      "macro_recall",
+      "macro_f1",
+      "loss"
+    ]
+  }
+}
