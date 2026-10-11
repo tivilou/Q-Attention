@@ -52,6 +52,7 @@ def run(args,assets,data,r):
         run.mkdir(parents=True);initialize_checkpoint(run,path,contract,save)
     pause=[False];handlers={s:signal.getsignal(s) for s in (signal.SIGINT,signal.SIGTERM,signal.SIGHUP)}
     for s in handlers:signal.signal(s,lambda *_:pause.__setitem__(0,True))
+    started=time.monotonic();start_cursor=state['cursor']
     try:
         while state['cursor']<len(plan):
             if pause[0] or args.pause_after is not None and state['cursor']>=args.pause_after or args.diagnostic and state['cursor']>=args.diagnostic_updates:
@@ -88,7 +89,13 @@ def run(args,assets,data,r):
                 archive_traces(run,state['traces'])
             for old in (run/'checkpoints').glob('best-u*.pt'):
                 if old.name!=state['best_file'] and old.name[6:-3].isdigit() and not old.is_symlink():old.unlink()
-            atomic_json(run/'heartbeat.json',{'phase':'NLI_pairs','batch':state['cursor'],'batches':len(plan),'loss':batch_loss})
+            speed=(state['cursor']-start_cursor)/max(time.monotonic()-started,1e-9)
+            heartbeat={'phase':'NLI_pairs','batch':state['cursor'],'batches':len(plan),'loss':batch_loss,
+                       'batches_per_second':speed,'eta_seconds':(len(plan)-state['cursor'])/max(speed,1e-9)}
+            if str(args.device).startswith('cuda'):
+                heartbeat.update(memory_allocated_bytes=torch.cuda.memory_allocated(0),
+                                 memory_reserved_bytes=torch.cuda.memory_reserved(0))
+            atomic_json(run/'heartbeat.json',heartbeat)
             print(f"[MetaEntail] {state['cursor']}/{len(plan)} pair updates | loss {batch_loss:.5f}",flush=True)
         if set(state['captured_candidates'])!=required:raise ValueError('selected training sample did not record all feasible hypotheses')
         adapter.model.load_state_dict(torch.load(run/'checkpoints'/state['best_file'],map_location='cpu',weights_only=True,mmap=True),strict=True)

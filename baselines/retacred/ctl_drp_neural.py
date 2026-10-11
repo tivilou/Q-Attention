@@ -151,16 +151,26 @@ def collate_groups(groups, *, device="cpu"):
             "candidate_groups": [list(group["candidates"]) for group in groups]}
 
 
-def joint_model(encoder, *, head_seed=13):
+def joint_model(encoder, *, head_seed=13, memory_efficient=True):
     """One injected encoder and one shared scalar head; not a 40-output head."""
     import torch
     from torch import nn
     canonical = paper_lock()["canonical_labels"]
+    if memory_efficient:
+        # Keep every candidate and FP32 operation. Recompute layer activations
+        # during backward with the original dropout RNG instead of retaining
+        # all 24 layers on the GPU. Actual case values are copied by hooks.
+        encoder.gradient_checkpointing_enable(gradient_checkpointing_kwargs={
+            "use_reentrant": False, "preserve_rng_state": True})
 
     class JointModel(nn.Module):
         def __init__(self):
             super().__init__()
             self.encoder = encoder
+            self.execution_memory = {"activation_checkpointing": bool(memory_efficient),
+                                     "checkpoint_use_reentrant": False,
+                                     "checkpoint_preserve_rng_state": True,
+                                     "returned_layer_collections": not memory_efficient}
             # Initialize on CPU without consuming the caller's dropout RNG.
             with torch.random.fork_rng(devices=[]):
                 torch.manual_seed(head_seed)
@@ -188,7 +198,8 @@ def joint_model(encoder, *, head_seed=13):
                 if gold is not None and gold[i] not in names:
                     raise ValueError("gold excluded; no repair")
             encoded = self.encoder(input_ids=input_ids, attention_mask=attention_mask,
-                                   output_hidden_states=True, output_attentions=True, return_dict=True)
+                                   output_hidden_states=not memory_efficient,
+                                   output_attentions=not memory_efficient, return_dict=True)
             first = encoded.last_hidden_state[:,0,:]
             scores = self.head(first).squeeze(-1)
             probabilities, losses, predictions = [], [], []

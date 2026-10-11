@@ -188,6 +188,7 @@ class CTLDRPTask:
             "description_sha256": fingerprint(descriptions), "recipe": copy.deepcopy(RECIPE),
             "seed": seed, "physical_micro_batch_sentences": micro_batch, "initialization": self.initialization,
             "model_configuration": copy.deepcopy(self.model.encoder.config.to_dict()),
+            "execution_memory": copy.deepcopy(self.model.execution_memory),
             "diagnostic": diagnostic, "formal_comparison_admitted": False,
             "encoding_audit": copy.deepcopy(encoding_audit),
             "project_code": {name: digest(Path(__file__).with_name(name)) for name in (
@@ -261,8 +262,11 @@ class CTLDRPTask:
                 scaled = result["loss"] * scale
                 if not bool(torch.isfinite(scaled)):
                     raise ValueError("nonfinite CTL loss; optimizer update not performed")
-                scaled.backward()
-                value += float(scaled.detach())
+            # Stop forward observation before activation recomputation. Tensor
+            # gradient hooks remain attached to the original forward graph, so
+            # actual gradients are still recorded without duplicate forwards.
+            scaled.backward()
+            value += float(scaled.detach())
             del result, scaled
         optimizer.step()
         if observer: observer.post_update()

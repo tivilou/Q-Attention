@@ -8,7 +8,7 @@ from .common import ROOT,PACKAGE,atomic_json,digest,fingerprint,cohort,git
 from .reference_recipes import recipe,inventory
 
 REVIEW_FILES=('reference_complete.py','reference_recipes.py','reference_models.py','reference_mechanisms.py',
- 'reference_storage.py','reference_archive.py',
+ 'reference_storage.py','reference_archive.py','reference_terminal.py',
  'reference_preflight.py','reference_worker.py','reference_nli.py','reference_trace.py','reference_resources.py','reference_resources.lock.json',
  'ctl_drp_runner.py','ctl_drp_task.py','ctl_drp_neural.py','ctl_drp_trace.py','ctl_drp_pretrained.py',
  'assets.py','luke_assets.py','mnli_assets.py','train.py','preflight.py','cohort.json','requirements-reference-complete.txt','../../scripts/run_retacred_all_references.sh','../../scripts/check_retacred_all_references.sh',
@@ -100,7 +100,10 @@ def command(job,args,assets,prepared):
     return argv
 
 def queue(jobs,devices,args,assets,prepared):
+    from .reference_terminal import Dashboard
+    dashboard=Dashboard(devices,len(jobs))
     pending=deque(jobs);active={};paused=[False];failures=[];done=[]
+    pauses=[]
     handlers={s:signal.getsignal(s) for s in (signal.SIGINT,signal.SIGTERM,signal.SIGHUP)}
     for s in handlers:signal.signal(s,lambda *_:paused.__setitem__(0,True))
     try:
@@ -137,10 +140,15 @@ def queue(jobs,devices,args,assets,prepared):
                             from .reference_archive import archive_completed
                             archive_completed(job['directory'])
                         done.append(job['id'])
-                    except Exception as error:failures.append({'task':job['id'],'error':str(error)})
-                elif rc==75:paused[0]=True
-                else:failures.append({'task':job['id'],'exit_code':rc})
-            if failures:break
+                    except Exception as error:failures.append({'task':job['id'],'gpu':gpu,'error':str(error),
+                                                               'log':str(args.run_dir/'logs'/f"{job['id']}.log")})
+                elif rc==75:
+                    paused[0]=True;pauses.append({'task':job['id'],'gpu':gpu,'exit_code':rc})
+                else:failures.append({'task':job['id'],'gpu':gpu,'exit_code':rc,
+                                     'log':str(args.run_dir/'logs'/f"{job['id']}.log")})
+            if failures:
+                dashboard.notice('[FAILED] Worker failed; stopping other workers at their checkpoint boundary.')
+                break
             rows=[]
             for gpu,(_,job,_) in active.items():
                 hb=job['directory']/'heartbeat.json'
@@ -148,9 +156,8 @@ def queue(jobs,devices,args,assets,prepared):
                 except json.JSONDecodeError:value={}
                 rows.append({'gpu':gpu,'task':job['id'],**value})
             atomic_json(args.run_dir/'queue_status.json',{'completed':done,'active':rows,'pending':[j['id'] for j in pending]})
-            print(f"[reference cohort] {len(done)}/{len(jobs)} | running {len(active)} | pending {len(pending)}",flush=True)
-            for row in rows:print(f"  GPU {row['gpu']} | {row['task']} | {row.get('phase','initializing')} | {row.get('batch','-')}/{row.get('batches','-')} | {row.get('batches_per_second',0):.2f} batch/s | VRAM {row.get('memory_allocated_bytes',0)/1024**3:.2f}GiB",flush=True)
-            time.sleep(10 if active else .1)
+            dashboard.render(len(done),rows,len(pending),status='PAUSING' if paused[0] else 'RUNNING')
+            time.sleep(2 if active and dashboard.live else 10 if active else .1)
     finally:
         for process,_,_ in active.values():
             if process.poll() is None:
@@ -162,8 +169,21 @@ def queue(jobs,devices,args,assets,prepared):
             handle.close()
         for sig,handler in handlers.items():signal.signal(sig,handler)
     if failures or paused[0]:
-        atomic_json(args.run_dir/'RUN_FAILED.json',{'failures':failures,'paused':paused[0],'training_restarts':False})
+        atomic_json(args.run_dir/'RUN_FAILED.json',{'failures':failures,'paused':paused[0],
+                    'pause_sources':pauses,'pending':[j['id'] for j in pending],'training_restarts':False})
+        dashboard.notice(f'[{"FAILED" if failures else "PAUSED"}] {len(done)}/{len(jobs)} complete | run: {args.run_dir}')
+        for failure in failures:
+            dashboard.notice(f"  GPU {failure['gpu']} | {failure['task']} | exit {failure.get('exit_code','validation')} | {failure.get('error','worker error')}")
+            log=Path(failure['log']);dashboard.notice(f'  log: {log}')
+            try:
+                # Show only the final bounded portion, without loading GB logs.
+                with log.open('rb') as reader:
+                    reader.seek(max(0,log.stat().st_size-8192));tail=reader.read().decode('utf-8',errors='replace')
+                for line in tail.splitlines()[-8:]:dashboard.notice('  '+line)
+            except OSError:pass
+        if not failures:dashboard.notice('  '+(', '.join(p['task']+' requested pause' for p in pauses) or 'signal or disk pressure; see pause markers'))
         return 75 if paused[0] else 1
+    dashboard.notice(f'[COMPUTE COMPLETE] {len(done)}/{len(jobs)} | validating and exporting reports next')
     return 0
 
 def ctl_worker(args):
