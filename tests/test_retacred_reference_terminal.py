@@ -20,32 +20,58 @@ def row():
 def test_tty_keeps_one_gpu_block_and_shows_nonzero_slow_rate(monkeypatch):
     monkeypatch.setenv('TERM','xterm-256color')
     stream=Terminal();dashboard=Dashboard(['0','1','2'],15,stream=stream)
-    dashboard.render(0,[row()],12)
+    pending=[f'pending{i}_seed13' for i in range(12)]
+    dashboard.render([],[row()],pending)
     first=stream.getvalue()
-    assert first.count('GPU ')==3 and '\x1b[4A' not in first
-    dashboard.render(0,[dict(row(),batch=5)],12)
+    assert first.count('GPU ')==3 and '\x1b[12A' not in first
+    assert 'PENDING (12)' in first and 'COMPLETED (0)' in first
+    dashboard.render(['finished_seed13'],[dict(row(),batch=5)],pending[1:])
     second=stream.getvalue()[len(first):]
-    assert second.startswith('\x1b[4A')
-    assert second.count('\x1b[2K')==4
+    assert second.startswith('\x1b[12A')
+    assert second.count('\x1b[2K')==12
     assert '0.003/s' in second and '5.00G' in second
+    assert 'PENDING (11)' in second and 'COMPLETED (1)' in second and 'finished_seed13' in second
     dashboard.notice('[FAILED] ctl_drp_supervised_seed13 | CUDA OOM')
     assert stream.getvalue().endswith('[FAILED] ctl_drp_supervised_seed13 | CUDA OOM\n')
 
 
 def test_redirected_output_is_plain_and_missing_telemetry_is_unknown():
     stream=io.StringIO();dashboard=Dashboard(['0'],15,stream=stream)
-    dashboard.render(0,[{'gpu':'0','task':'metaentail_seed13','batch':2,'batches':100}],14)
+    dashboard.render([],[{'gpu':'0','task':'metaentail_seed13','batch':2,'batches':100}],['next_seed13'])
     assert '\x1b' not in stream.getvalue()
     assert '--/s' in stream.getvalue() and 'VRAM --' in stream.getvalue()
 
 
 def test_narrow_terminal_keeps_rate_and_memory_visible(monkeypatch):
     from baselines.retacred import reference_terminal
+    monkeypatch.setenv('TERM','xterm-256color')
     monkeypatch.setattr(reference_terminal.shutil,'get_terminal_size',lambda _:os.terminal_size((80,24)))
     stream=Terminal();dashboard=Dashboard(['0'],15,stream=stream)
-    dashboard.render(0,[row()],12)
-    line=stream.getvalue().splitlines()[-1]
+    dashboard.render([],[row()],['next_seed13'])
+    line=stream.getvalue().replace('\r\x1b[2K','').splitlines()[1]
     assert '0.003/s' in line and '5.00G' in line
+
+
+def test_queue_order_overflow_and_empty_areas_have_fixed_height(monkeypatch):
+    from baselines.retacred import reference_terminal
+    monkeypatch.setenv('TERM','xterm-256color')
+    monkeypatch.setattr(reference_terminal.shutil,'get_terminal_size',lambda _:os.terminal_size((80,24)))
+    stream=Terminal();dashboard=Dashboard(['0','1','2'],15,stream=stream)
+    pending=[f'long_reference_model_{i}_seed13' for i in range(15)]
+    completed=['first_completed_seed13','last_completed_seed13']
+    dashboard.render(completed,[],pending)
+    lines=stream.getvalue().replace('\r\x1b[2K','').splitlines()
+    assert len(lines)==12
+    assert 'PENDING (15)' in lines[4] and '01. long_reference_model_0_seed13' in lines[5]
+    assert '+10 more' in lines[7]
+    assert 'COMPLETED (2)' in lines[8]
+    assert lines[9].index('last_completed_seed13')<lines[9].index('first_completed_seed13')
+    assert all(len(line.replace('\r\x1b[2K',''))<=79 for line in lines)
+    before=len(stream.getvalue())
+    dashboard.render([],[],[])
+    final=stream.getvalue()[before:]
+    assert final.startswith('\x1b[12A') and final.count('\x1b[2K')==12
+    assert final.count('(empty)')==2
 
 
 def test_worker_failure_displays_exception_and_exact_log(tmp_path,monkeypatch,capsys):

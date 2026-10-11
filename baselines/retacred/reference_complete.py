@@ -156,7 +156,7 @@ def queue(jobs,devices,args,assets,prepared):
                 except json.JSONDecodeError:value={}
                 rows.append({'gpu':gpu,'task':job['id'],**value})
             atomic_json(args.run_dir/'queue_status.json',{'completed':done,'active':rows,'pending':[j['id'] for j in pending]})
-            dashboard.render(len(done),rows,len(pending),status='PAUSING' if paused[0] else 'RUNNING')
+            dashboard.render(done,rows,[j['id'] for j in pending],status='PAUSING' if paused[0] else 'RUNNING')
             time.sleep(2 if active and dashboard.live else 10 if active else .1)
     finally:
         for process,_,_ in active.values():

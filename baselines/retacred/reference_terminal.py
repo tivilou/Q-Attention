@@ -15,6 +15,8 @@ def duration(seconds):
 
 
 class Dashboard:
+    QUEUE_ROWS=3
+
     def __init__(self, devices, total, *, stream=None, clock=time.monotonic):
         self.devices=list(devices);self.total=total
         self.stream=sys.stdout if stream is None else stream
@@ -25,8 +27,8 @@ class Dashboard:
     def render(self, completed, rows, pending, *, status='RUNNING'):
         now=self.clock();width=max(20,shutil.get_terminal_size((140,24)).columns-1)
         by_gpu={row['gpu']:row for row in rows}
-        lines=[f'REFERENCE SUITE | {completed}/{self.total} complete | {len(rows)} running | '
-               f'{pending} pending | {duration(now-self.started)} | {status}']
+        lines=[f'REFERENCE SUITE | {len(completed)}/{self.total} complete | {len(rows)} running | '
+               f'{len(pending)} pending | {duration(now-self.started)} | {status}']
         for gpu in self.devices:
             row=by_gpu.get(gpu)
             if row is None:
@@ -53,6 +55,8 @@ class Dashboard:
                 lines.append(f'GPU {gpu} | {row["task"]} | {row.get("phase","initializing")} | '
                              f'[{bar}] {progress} {percent:5.1%} | {speed} | '
                              f'ETA {duration(row.get("eta_seconds"))} | VRAM {vram}{quiet}')
+        lines+=self.queue_lines('PENDING',pending,width)
+        lines+=self.queue_lines('COMPLETED',completed,width,newest_first=True)
         lines=[line if len(line)<=width else line[:width-3]+'...' for line in lines]
         if self.live:
             if self.height:self.stream.write(f'\x1b[{self.height}A')
@@ -61,6 +65,31 @@ class Dashboard:
         else:
             self.stream.write('\n'.join(lines)+'\n')
         self.stream.flush()
+
+    def queue_lines(self, title, tasks, width, *, newest_first=False):
+        """Stable-height task areas; never wrap into or scroll the GPU block."""
+        entries=list(enumerate(tasks,1))
+        if newest_first:entries.reverse()
+        capacity=width-2
+        packed=[[] for _ in range(self.QUEUE_ROWS)]
+        row=0;shown=0
+        for index,task in entries:
+            entry=f'{index:02d}. {task}'
+            if len(entry)>capacity:entry=entry[:capacity-3]+'...'
+            if packed[row] and len(' | '.join(packed[row]+[entry]))>capacity:
+                row+=1
+                if row==self.QUEUE_ROWS:break
+            packed[row].append(entry);shown+=1
+        hidden=len(entries)-shown
+        if hidden:
+            last=packed[-1]
+            suffix=f'... +{hidden} more'
+            while last and len(' | '.join(last+[suffix]))>capacity:
+                last.pop();hidden+=1;suffix=f'... +{hidden} more'
+            last.append(suffix)
+        elif not entries:packed[0].append('(empty)')
+        order='latest first' if newest_first else 'next to run'
+        return [f'{title} ({len(tasks)}) | {order}']+['  '+' | '.join(line) for line in packed]
 
     def notice(self, message):
         # Leave the final GPU snapshot visible, then put a permanent outcome
