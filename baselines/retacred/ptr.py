@@ -133,7 +133,7 @@ class PTR:
             [ids.to(self.device) for ids in self.processor.prompt_label_idx]).to(self.device)
         self.config = self.model.model.config
         if checkpointing:
-            self.model.model.gradient_checkpointing_enable()
+            self.model.model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False,'preserve_rng_state':True})
         self.criterion = torch.nn.CrossEntropyLoss()
 
     def fresh_source_model(self):

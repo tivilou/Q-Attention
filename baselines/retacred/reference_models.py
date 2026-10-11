@@ -68,7 +68,7 @@ class SequenceRouting:
             transformer=RobertaForMaskedLM(config)
         transformer.resize_token_embeddings(len(self.tokenizer));h=transformer.config.hidden_size
         depth=transformer.config.num_hidden_layers+1
-        if checkpointing:transformer.gradient_checkpointing_enable()
+        if checkpointing:transformer.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False,'preserve_rng_state':True})
         routing_size=256 if config is None else 4;output_size=512 if config is None else 8
         head=RoutingHead({'d_depth':depth},[
             {'n_inp':-1,'n_out':routing_size,'d_inp':h,'d_out':h},
@@ -83,7 +83,9 @@ class SequenceRouting:
             def forward(self,input_ids,attention_mask,labels=None):
                 # Original H3 stacks all hidden depths and routes position+depth.
                 # Padding participation is retained (source does not mask H3).
-                depths=self.transformer(input_ids=input_ids,attention_mask=attention_mask,output_hidden_states=True).hidden_states
+                # The vocabulary prediction head is not consumed by H3. Keep
+                # its parameters/source names but execute only the encoder.
+                depths=self.transformer.roberta(input_ids=input_ids,attention_mask=attention_mask,output_hidden_states=True).hidden_states
                 stack=torch.stack(depths,dim=-2);representation=self.head_3(stack);logits=self.classifier(representation)
                 self.last={'depth_stack':stack,'routing_representation':representation,'logits':logits}
                 return torch.nn.functional.cross_entropy(logits,labels) if labels is not None else None,logits
@@ -120,7 +122,7 @@ class SyntaxCurriculum:
         self.device=device;self.labels=LABELS;self.parser=parser
         self.tokenizer=AutoTokenizer.from_pretrained(checkpoint,local_files_only=True,use_fast=True,add_prefix_space=True)
         encoder=AutoModel.from_pretrained(checkpoint,local_files_only=True,attn_implementation='eager') if config is None else RobertaModel(config)
-        if checkpointing:encoder.gradient_checkpointing_enable()
+        if checkpointing:encoder.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False,'preserve_rng_state':True})
         h=encoder.config.hidden_size;heads=4;hd=128 if config is None else 4
         gat1=graph_attention_module(h,heads,hd);gat2=graph_attention_module(heads*hd,heads,hd)
         class Model(nn.Module):

@@ -41,7 +41,7 @@ class Improved:
         self.upstream = load_module(source, "model")
         self.model = self.upstream.REModel(self.args, self.config)
         if checkpointing:
-            self.model.encoder.gradient_checkpointing_enable()
+            self.model.encoder.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False,'preserve_rng_state':True})
         self.model.to(self.device)
         self.collate = load_module(source, "utils").collate_fn
 

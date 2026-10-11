@@ -46,6 +46,8 @@ class Dashboard:
             stale=now-self.last_change.get(identity,now)
             quiet=f' | no update {duration(stale)}' if stale>=60 else ''
             progress=f'{batch if batch is not None else "-"}/{batches or "-"}'
+            tier=row.get('execution_tier')
+            execution=f' | T{tier} m{row.get("physical_micro")} OOM{row.get("oom_retries",0)} save@{row.get("checkpoint_batch","-")}' if tier is not None else ''
             if width<110:
                 # Keep rate and memory visible on a typical 80-column SSH pane.
                 task=row['task']
@@ -54,7 +56,7 @@ class Dashboard:
             else:
                 lines.append(f'GPU {gpu} | {row["task"]} | {row.get("phase","initializing")} | '
                              f'[{bar}] {progress} {percent:5.1%} | {speed} | '
-                             f'ETA {duration(row.get("eta_seconds"))} | VRAM {vram}{quiet}')
+                             f'ETA {duration(row.get("eta_seconds"))} | VRAM {vram}{execution}{quiet}')
         lines+=self.queue_lines('PENDING',pending,width)
         lines+=self.queue_lines('COMPLETED',completed,width,newest_first=True)
         lines=[line if len(line)<=width else line[:width-3]+'...' for line in lines]

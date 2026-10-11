@@ -184,7 +184,7 @@ class MetaEntailFoundation:
                 if parameter.dtype!=torch.float32 or not torch.equal(parameter,source):
                     raise ValueError('loaded pretrained tensor mismatch: '+name)
                 self.loaded_tensor_equality[name]=True
-        if checkpointing: self.model.gradient_checkpointing_enable()
+        if checkpointing: self.model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False,'preserve_rng_state':True})
         self.model.to(self.device)
 
     def encode(self, record, feasibility, *, split, max_length=512):

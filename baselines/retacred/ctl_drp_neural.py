@@ -170,7 +170,7 @@ def joint_model(encoder, *, head_seed=13, memory_efficient=True):
             self.execution_memory = {"activation_checkpointing": bool(memory_efficient),
                                      "checkpoint_use_reentrant": False,
                                      "checkpoint_preserve_rng_state": True,
-                                     "returned_layer_collections": not memory_efficient}
+                                     "returned_layer_collections": False}
             # Initialize on CPU without consuming the caller's dropout RNG.
             with torch.random.fork_rng(devices=[]):
                 torch.manual_seed(head_seed)
@@ -198,19 +198,20 @@ def joint_model(encoder, *, head_seed=13, memory_efficient=True):
                 if gold is not None and gold[i] not in names:
                     raise ValueError("gold excluded; no repair")
             encoded = self.encoder(input_ids=input_ids, attention_mask=attention_mask,
-                                   output_hidden_states=not memory_efficient,
-                                   output_attentions=not memory_efficient, return_dict=True)
+                                   output_hidden_states=False,
+                                   output_attentions=False, return_dict=True)
             first = encoded.last_hidden_state[:,0,:]
             scores = self.head(first).squeeze(-1)
-            probabilities, losses, predictions = [], [], []
+            probabilities, losses, choices = [], [], []
             cursor = 0
             for i, names in enumerate(candidate_groups):
                 logp = torch.log_softmax(scores[cursor:cursor+len(names)],dim=0)
                 probabilities.append(logp.exp())
-                predictions.append(names[int(logp.argmax())])
+                choices.append(logp.argmax())
                 if gold is not None:
                     losses.append(-logp[names.index(gold[i])])
                 cursor += len(names)
+            predictions=[names[j] for names,j in zip(candidate_groups,torch.stack(choices).tolist())]
             return {"scores":scores, "probabilities":probabilities, "predictions":predictions,
                     "first_token":first, "hidden_states":encoded.hidden_states,
                     "attentions":encoded.attentions,

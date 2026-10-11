@@ -1,13 +1,13 @@
 """Portable complete reference queue. Formal data runs are collaborator-only."""
 from __future__ import annotations
-import argparse,json,os,sys,subprocess,signal,time,shutil,tempfile
+import argparse,json,os,sys,subprocess,signal,time,shutil,tempfile,math
 from datetime import datetime,timezone
 from pathlib import Path
 from collections import deque
 from .common import ROOT,PACKAGE,atomic_json,digest,fingerprint,cohort,git
 from .reference_recipes import recipe,inventory
 
-REVIEW_FILES=('reference_complete.py','reference_recipes.py','reference_models.py','reference_mechanisms.py',
+REVIEW_FILES=('reference_complete.py','reference_recipes.py','reference_models.py','reference_mechanisms.py','reference_execution.py',
  'reference_storage.py','reference_archive.py','reference_terminal.py',
  'reference_preflight.py','reference_worker.py','reference_nli.py','reference_trace.py','reference_resources.py','reference_resources.lock.json',
  'ctl_drp_runner.py','ctl_drp_task.py','ctl_drp_neural.py','ctl_drp_trace.py','ctl_drp_pretrained.py',
@@ -94,7 +94,8 @@ def validate_task(path):
 def command(job,args,assets,prepared):
     module='baselines.retacred.reference_complete' if job['model'].startswith('ctl_drp_') else 'baselines.retacred.reference_worker'
     argv=[sys.executable,'-u','-m',module,'--model',job['model'],'--seed',str(job['seed']),
-        '--data-dir',str(prepared),'--assets',str(assets),'--run-dir',str(job['directory']),'--micro-batch',str(args.micro_batch)]
+        '--data-dir',str(prepared),'--assets',str(assets),'--run-dir',str(job['directory']),'--micro-batch',str(args.micro_batch),
+        '--checkpoint-seconds',str(getattr(args,'checkpoint_seconds',120.))]
     if module.endswith('reference_complete'):argv+=['--ctl-worker','--review-receipt',str(args.review_receipt)]
     if (job['directory']/'checkpoints/latest.pt').exists() or (job['directory']/'contract.json').exists():argv.append('--resume')
     return argv
@@ -111,10 +112,13 @@ def queue(jobs,devices,args,assets,prepared):
             if paused[0]:break
             for gpu in devices:
                 if gpu in active or not pending:continue
+                # CTL restoration checks the physical CUDA identity. A retry
+                # must stay on its failed device, even if another slot frees.
+                candidate=next((j for j in pending if j.get('retry_gpu',gpu)==gpu),None)
+                if candidate is None:continue
                 if os.environ.get('QATTN_REFERENCE_STORAGE_ROOT'):
                     from .reference_storage import task_peak, owned_bytes, FLOOR, durable_json
                     free=shutil.disk_usage(args.run_dir).free
-                    candidate=pending[0]
                     committed=sum(max(0,task_peak(j['model'])-owned_bytes(j['directory'])) for _,j,_ in active.values())
                     additional=max(0,task_peak(candidate['model'])-owned_bytes(candidate['directory']))
                     if free<additional+committed+FLOOR:
@@ -122,7 +126,7 @@ def queue(jobs,devices,args,assets,prepared):
                         durable_json(args.run_dir/'STORAGE_PAUSED.json',{'status':'paused','task':candidate['id'],
                             'free_bytes':free,'additional_estimate_bytes':additional,'recovery':'free space, then resume same suite'})
                         paused[0]=True;break
-                job=pending.popleft();log=args.run_dir/'logs'/f"{job['id']}.log";log.parent.mkdir(parents=True,exist_ok=True)
+                job=candidate;pending.remove(job);log=args.run_dir/'logs'/f"{job['id']}.log";log.parent.mkdir(parents=True,exist_ok=True)
                 handle=log.open('a');argv=command(job,args,assets,prepared)
                 atomic_json(log.with_suffix('.command.json'),{'argv':argv,'cwd':str(ROOT),'gpu':gpu})
                 env={**os.environ,'CUDA_VISIBLE_DEVICES':gpu,'CUDA_DEVICE_ORDER':'PCI_BUS_ID','PYTHONDONTWRITEBYTECODE':'1',
@@ -142,6 +146,14 @@ def queue(jobs,devices,args,assets,prepared):
                         done.append(job['id'])
                     except Exception as error:failures.append({'task':job['id'],'gpu':gpu,'error':str(error),
                                                                'log':str(args.run_dir/'logs'/f"{job['id']}.log")})
+                elif rc==76:
+                    from .reference_execution import ledger_path
+                    state=json.loads(ledger_path(job['directory']).read_text())
+                    if not state['events'] or state['events'][-1]['to_tier']!=state['index']:
+                        raise ValueError('OOM retry without a committed tier transition')
+                    job['retry_gpu']=gpu
+                    pending.appendleft(job)
+                    dashboard.notice(f'[OOM] {job["id"]}: tier {state["index"]}; restoring last durable batch')
                 elif rc==75:
                     paused[0]=True;pauses.append({'task':job['id'],'gpu':gpu,'exit_code':rc})
                 else:failures.append({'task':job['id'],'gpu':gpu,'exit_code':rc,
@@ -194,7 +206,14 @@ def ctl_worker(args):
     from .ctl_drp_runner import run
     assets=json.loads(args.assets.read_text());variant='sup' if args.models=='ctl_drp_supervised' else 'unsup'
     q=materialize(args.data_dir/'dataset_qualification.json',prepared=args.data_dir,output=args.run_dir.with_name(args.run_dir.name+'.physical'))
-    adapter=CTLDRPTask.from_assets(q,assets['ctl_cache'],assets['ctl_paper'],assets['ctl_'+variant],variant=variant,seed=args.seed,micro_batch=args.micro_batch,device='cuda:0')
+    adapter=CTLDRPTask.from_assets(q,assets['ctl_cache'],assets['ctl_paper'],assets['ctl_'+variant],variant=variant,seed=args.seed,micro_batch=args.micro_batch,device='cuda:0',memory_efficient=args.activation_checkpointing,audit_cache=q.with_name('encoding-audit.json'))
+    from .reference_execution import attach
+    attach(adapter,args)
+    # Execution tiers are separate from the scientific task fingerprint.
+    adapter.contract.pop('physical_micro_batch_sentences')
+    adapter.contract.pop('execution_memory')
+    adapter.contract['execution_policy']=args.execution_policy
+    adapter.contract_sha256=fingerprint(adapter.contract)
     # Normalize only after native compute validation. An interrupted normalization
     # never sends the generic schema back into native checkpoint validation.
     if (args.run_dir/'native_run_summary.json').exists() and not (args.run_dir/'RUN_COMPLETE').exists():
@@ -210,16 +229,24 @@ def ctl_worker(args):
 def _main(argv=None):
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--models','--model',default='all');p.add_argument('--seeds',default='13');p.add_argument('--seed',type=int,default=13)
-    p.add_argument('--gpu',default='auto');p.add_argument('--micro-batch',type=int,default=1)
+    p.add_argument('--gpu',default='auto');p.add_argument('--micro-batch',default='auto')
+    p.add_argument('--checkpoint-seconds',type=float,default=120.)
     p.add_argument('--run-dir',type=Path);p.add_argument('--resume',type=Path,nargs='?',const=Path('.'))
     p.add_argument('--data-dir',type=Path,default=ROOT/'data/relation/retacred');p.add_argument('--assets',type=Path)
     p.add_argument('--review-receipt',type=Path,default=PACKAGE/'reference_review.json')
     p.add_argument('--dry-run','--describe',action='store_true');p.add_argument('--prepare-only',action='store_true')
     p.add_argument('--export-only',action='store_true');p.add_argument('--no-push',action='store_true');p.add_argument('--ctl-worker',action='store_true',help=argparse.SUPPRESS)
     args=p.parse_args(argv)
-    if args.ctl_worker:return ctl_worker(args)
+    if args.ctl_worker:
+        from .reference_worker import exclusive
+        from .reference_execution import adaptive_cli
+        with exclusive(args.run_dir):
+            return adaptive_cli(args,args.models,recipe(args.models)['logical_batch'],lambda:ctl_worker(args))
     names=model_ids(args.models);seeds=[int(x) for x in args.seeds.split(',')]
-    if args.micro_batch<1 or not seeds or len(seeds)!=len(set(seeds)) or min(seeds)<0:raise ValueError('invalid seeds/physical batch')
+    from .reference_execution import tiers
+    if not seeds or len(seeds)!=len(set(seeds)) or min(seeds)<0:raise ValueError('invalid seeds')
+    for name in names:tiers(name,recipe(name)['logical_batch'],str(args.micro_batch))
+    if not math.isfinite(args.checkpoint_seconds) or args.checkpoint_seconds<0:raise ValueError('checkpoint seconds must be finite and nonnegative')
     if any(n.startswith('ctl_drp_') for n in names) and any(s not in (13,29,53) for s in seeds):raise ValueError('CTL frozen seed set is13,29,53')
     if args.dry_run:
         print(json.dumps({'models':names,'configurations':len(names),'seeds':seeds,'recipes':[recipe(n) for n in names],
@@ -236,7 +263,8 @@ def suite(args,names,seeds):
     report=ROOT/'reports/retacred_reference_suite'/args.run_dir.name
     publication_preflight(no_push=args.no_push,allowed_report=report if args.export_only else None)
     contract={'schema':'retacred-reference-suite.v2','models':names,'seeds':seeds,'source':identity(),
-        'physical_micro':args.micro_batch,'data':{s:digest(args.data_dir/(s+'.jsonl')) for s in ('train','valid','test')}}
+        'physical_micro':args.micro_batch,'checkpoint_seconds':args.checkpoint_seconds,
+        'data':{s:digest(args.data_dir/(s+'.jsonl')) for s in ('train','valid','test')}}
     manifest=args.run_dir/'run_manifest.json'
     if args.resume:
         if json.loads(manifest.read_text())!=contract:raise ValueError('immutable suite mismatch; only GPU assignment may change')

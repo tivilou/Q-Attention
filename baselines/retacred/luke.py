@@ -259,7 +259,7 @@ class LUKE:
         # RNG call order/common seeds remain a declared adaptation, not bitwise identity.
         self.model.classifier.reset_parameters()
         if checkpointing:
-            self.model.luke.gradient_checkpointing_enable()
+            self.model.luke.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False,'preserve_rng_state':True})
         self.model.to(self.device)
 
     def encode(self, records):

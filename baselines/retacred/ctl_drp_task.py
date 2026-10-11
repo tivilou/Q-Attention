@@ -12,6 +12,7 @@ from contextlib import nullcontext
 import hashlib
 import json
 import math
+from collections import OrderedDict
 from pathlib import Path
 import random
 
@@ -142,6 +143,35 @@ def audit_encodings(data, tokenizer, descriptions):
     return audits
 
 
+def cached_encoding_audit(data, tokenizer, descriptions, path=None):
+    """Reuse only receipt/tokenizer/source-bound successful full-split audits."""
+    if path is None:
+        return audit_encodings(data,tokenizer,descriptions)
+    from .common import atomic_json
+    path=Path(path)
+    if path.is_symlink():raise ValueError('symlinked encoding audit')
+    identity={'data_H':data.binding,'descriptions':fingerprint(descriptions),
+              'tokenizer':fingerprint(tokenizer.to_str()),
+              'source':{name:digest(Path(__file__).with_name(name)) for name in
+                        ('ctl_drp_task.py','ctl_drp_neural.py','ctl_drp_candidates.py','common.py')}}
+    if path.exists():
+        value=json.loads(path.read_text())
+        if value.get('schema')!='ctl-encoding-audit-cache.v1' or value.get('identity')!=identity:
+            raise ValueError('immutable encoding audit identity drift')
+        audit=value['audit']
+        if value.get('audit_sha256')!=fingerprint(audit) or set(audit)!=set(data.records):
+            raise ValueError('encoding audit integrity drift')
+        for split,rows in data.records.items():
+            item=audit[split]
+            if item['sentences']!=len(rows) or item['rows_dropped']!=0 or not 1<=item['max_pair_length']<=512:
+                raise ValueError('cached complete encoding audit invalid')
+        return audit
+    audit=audit_encodings(data,tokenizer,descriptions)
+    atomic_json(path,{'schema':'ctl-encoding-audit-cache.v1','identity':identity,
+                      'audit':audit,'audit_sha256':fingerprint(audit)})
+    return audit
+
+
 class UpdatePlan:
     """Random-access post-update cursor without global RNG consumption.
 
@@ -155,6 +185,7 @@ class UpdatePlan:
         self.count, self.seed, self.batch_size, self.epochs = count, seed, batch_size, epochs
         self.per_epoch = math.ceil(count / batch_size)
         self.total = self.per_epoch * epochs
+        self._epoch=None;self._order=None
 
     def at(self, cursor):
         if type(cursor) is not int or not 0 <= cursor <= self.total:
@@ -162,8 +193,11 @@ class UpdatePlan:
         if cursor == self.total:
             return None
         epoch, batch = divmod(cursor, self.per_epoch)
-        order = list(range(self.count))
-        random.Random(self.seed + epoch).shuffle(order)
+        if self._epoch!=epoch:
+            self._order=list(range(self.count))
+            random.Random(self.seed + epoch).shuffle(self._order)
+            self._epoch=epoch
+        order=self._order
         return {"epoch": epoch, "batch": batch, "update": cursor,
                 "indices": order[batch*self.batch_size:(batch+1)*self.batch_size]}
 
@@ -183,6 +217,8 @@ class CTLDRPTask:
         self.model, self.seed, self.micro_batch, self.device = model.to(device), seed, micro_batch, device
         self.initialization, self.diagnostic = copy.deepcopy(initialization), diagnostic
         self.plan = UpdatePlan(len(data.records["train"]), seed)
+        self._encoded_cache=OrderedDict();self._encoded_bytes=0
+        self.encoding_cache_bytes=256*1024**2
         self.contract = {
             "schema": "ctl-drp-task-contract.v1", "data_H": copy.deepcopy(data.binding),
             "description_sha256": fingerprint(descriptions), "recipe": copy.deepcopy(RECIPE),
@@ -197,7 +233,7 @@ class CTLDRPTask:
         self.contract_sha256 = fingerprint(self.contract)
 
     @classmethod
-    def from_assets(cls, receipt, cache, paper_source, weight, *, variant="sup", seed=13, micro_batch=4, device="cuda:0"):
+    def from_assets(cls, receipt, cache, paper_source, weight, *, variant="sup", seed=13, micro_batch=4, device="cuda:0",memory_efficient=True,audit_cache=None):
         if seed not in RECIPE["seeds"] or type(micro_batch) is not int or not 1 <= micro_batch <= 512:
             raise ValueError("frozen seed and supported micro-batch required before weight loading")
         data = PhysicalSplits(receipt)
@@ -205,10 +241,10 @@ class CTLDRPTask:
             raise ValueError("pretrained task factory requires real qualified data")
         tokenizer = tokenizer_from_cache(cache, variant=variant)
         descriptions = descriptions_from_native(paper_source)
-        audit = audit_encodings(data, tokenizer, descriptions)
+        audit = cached_encoding_audit(data, tokenizer, descriptions,audit_cache)
         from .ctl_drp_pretrained import load_encoder
         encoder, initialization = load_encoder(weight, cache, variant=variant, marker_seed=seed)
-        return cls(data, tokenizer, descriptions, joint_model(encoder, head_seed=seed), seed=seed,
+        return cls(data, tokenizer, descriptions, joint_model(encoder, head_seed=seed,memory_efficient=memory_efficient), seed=seed,
                    micro_batch=micro_batch, device=device, initialization=initialization, diagnostic=False, encoding_audit=audit)
 
     def encode(self, split, indices):
@@ -218,11 +254,22 @@ class CTLDRPTask:
         if any(type(i) is not int or not 0 <= i < len(rows) for i in indices):
             raise ValueError("sample index out of bounds")
         # Eval gold is omitted from the producer input, not just ignored later.
-        selected = [copy.deepcopy(rows[i]) for i in indices]
-        if split != "train":
-            for row in selected:
-                row.pop("relation")
-        return encode_groups(selected, self.data.table, self.tokenizer, self.descriptions, split=split)
+        groups=[]
+        for i in indices:
+            key=(split,i)
+            if key in self._encoded_cache:
+                group,size=self._encoded_cache.pop(key);self._encoded_cache[key]=(group,size)
+            else:
+                row=copy.deepcopy(rows[i])
+                if split!='train':row.pop('relation')
+                group=encode_groups([row],self.data.table,self.tokenizer,self.descriptions,split=split)[0]
+                size=4096+sum(80*(len(p['input_ids'])+len(p['attention_mask']))+4096 for p in group['pairs'])
+                if size<=self.encoding_cache_bytes:
+                    while self._encoded_cache and self._encoded_bytes+size>self.encoding_cache_bytes:
+                        _,(_,old)=self._encoded_cache.popitem(last=False);self._encoded_bytes-=old
+                    self._encoded_cache[key]=(group,size);self._encoded_bytes+=size
+            groups.append(group)
+        return groups
 
     def make_optimizer(self):
         import torch
@@ -232,9 +279,9 @@ class CTLDRPTask:
     def train_update(self, indices, optimizer, *, observer=None):
         """One complete logical batch; tail weights use its actual sentence count.
 
-        Micro-batch partitions are immutable for resume because dropout changes.
-        No OOM retry or mid-update checkpoint is implemented here. A runner must
-        recover a failed update from its last complete durable checkpoint.
+        A declared execution policy may change the physical partition on CUDA
+        OOM; dropout/rounding can differ. The runner restores the last durable
+        full state and replays complete updates, never a partial optimizer step.
         """
         import torch
         expected_params = list(self.model.parameters())

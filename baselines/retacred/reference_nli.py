@@ -9,11 +9,13 @@ from .reference_trace import Capture,emit,validate
 from .train import save_torch,rng_state,restore_rng
 from .reference_worker import seed_all,optimizer_for
 from .metaentail import fit_type_filter,nli_target
+from .reference_execution import Cadence,attach,metadata,poll_archives
 
 def run(args,assets,data,r):
     import torch
     from .metaentail_neural import MetaEntailFoundation
-    seed_all(args.seed);adapter=MetaEntailFoundation(assets['mnli'],device=args.device,checkpointing=True)
+    seed_all(args.seed);adapter=MetaEntailFoundation(assets['mnli'],device=args.device,checkpointing=getattr(args,'activation_checkpointing',True))
+    attach(adapter,args)
     adapter.model_id='metaentail';adapter.parameter_trace=lambda:head_gradients(adapter.model)
     feasibility=fit_type_filter(data['train'],split='train')
     groups={s:[adapter.encode(row,feasibility,split='dev' if s=='valid' else s,max_length=512) for row in rows] for s,rows in data.items()}
@@ -23,7 +25,7 @@ def run(args,assets,data,r):
     orders=[]
     for ep in range(r['epochs']):order=list(range(len(pairs)));random.Random(args.seed+ep).shuffle(order);orders.append(order)
     plan=[(ep,order[i:i+r['logical_batch']]) for ep,order in enumerate(orders) for i in range(0,len(order),r['logical_batch'])]
-    contract={'schema':'reference-metaentail-execution.v1','recipe':r,'seed':args.seed,'physical_pairs':args.micro_batch,
+    contract={'schema':'reference-metaentail-execution.v2','recipe':r,'seed':args.seed,'physical_pairs':getattr(args,'execution_policy',args.micro_batch),
         'data':{s:fingerprint(rows) for s,rows in data.items()},'filter':feasibility.to_dict(),'pairs':len(pairs),
         'orders':fingerprint(orders),'budget':len(plan),'assets':adapter.identity(),
         'source':{p.name:digest(p) for p in sorted(PACKAGE.glob('reference_*.py'))},
@@ -50,12 +52,15 @@ def run(args,assets,data,r):
     else:
         if run.exists() and any(run.iterdir()):raise ValueError('existing NLI run needs resume')
         run.mkdir(parents=True);initialize_checkpoint(run,path,contract,save)
+    cadence=Cadence(getattr(args,'execution_policy',None),cursor=state['cursor'])
     pause=[False];handlers={s:signal.getsignal(s) for s in (signal.SIGINT,signal.SIGTERM,signal.SIGHUP)}
     for s in handlers:signal.signal(s,lambda *_:pause.__setitem__(0,True))
     started=time.monotonic();start_cursor=state['cursor']
     try:
         while state['cursor']<len(plan):
+            poll_archives()
             if pause[0] or args.pause_after is not None and state['cursor']>=args.pause_after or args.diagnostic and state['cursor']>=args.diagnostic_updates:
+                if state['cursor']!=cadence.cursor:save();cadence.saved(state['cursor'])
                 atomic_json(run/'RUN_PAUSED.json',{'cursor':state['cursor'],'phase':'NLI_pairs'});return 75
             epoch,ids=plan[state['cursor']];adapter.model.train();opt.zero_grad(set_to_none=True);pending=[];batch_loss=0.
             for start in range(0,len(ids),args.micro_batch):
@@ -66,7 +71,7 @@ def run(args,assets,data,r):
                 with cap if cap else __import__('contextlib').nullcontext():
                     loss,logits,_=adapter.forward(batch);scaled=loss*len(part)/len(ids)
                     if not torch.isfinite(scaled):raise ValueError('nonfinite NLI pair loss')
-                    scaled.backward();batch_loss+=float(scaled.detach())
+                scaled.backward();batch_loss+=float(scaled.detach())
                 if cap:pending.append((batch,part,cap,loss.detach(),logits.detach(),before))
             torch.nn.utils.clip_grad_norm_(adapter.model.parameters(),r['max_grad_norm']);opt.step();sched.step()
             for batch,part,cap,loss,logits,before in pending:
@@ -77,13 +82,14 @@ def run(args,assets,data,r):
                            'candidate_relations':candidates,'nli_order':list(adapter.nli_order),'training_unit':'expanded_pair'}))
                 state['captured_candidates']+=candidates
             state['cursor']+=1
-            if state['cursor']==len(plan) or plan[state['cursor']][0]!=epoch:
+            end_epoch=state['cursor']==len(plan) or plan[state['cursor']][0]!=epoch
+            if end_epoch:
                 dev,_=evaluate(adapter,groups['valid'],data['valid'],args.micro_batch)
                 if dev['micro_f1']>state['best_dev']:
                     state['best_dev']=dev['micro_f1'];state['best_cursor']=state['cursor'];state['best_file']=f"best-u{state['cursor']}.pt"
                     save_torch(run/'checkpoints'/state['best_file'],adapter.model.state_dict());state['best_sha256']=digest(run/'checkpoints'/state['best_file'])
                 atomic_json(run/f'dev_epoch{epoch}.json',dev)
-            save()
+            if cadence.due() or pending or end_epoch:save();cadence.saved(state['cursor'])
             if pending:
                 from .reference_archive import archive_traces
                 archive_traces(run,state['traces'])
@@ -91,12 +97,14 @@ def run(args,assets,data,r):
                 if old.name!=state['best_file'] and old.name[6:-3].isdigit() and not old.is_symlink():old.unlink()
             speed=(state['cursor']-start_cursor)/max(time.monotonic()-started,1e-9)
             heartbeat={'phase':'NLI_pairs','batch':state['cursor'],'batches':len(plan),'loss':batch_loss,
-                       'batches_per_second':speed,'eta_seconds':(len(plan)-state['cursor'])/max(speed,1e-9)}
+                       'batches_per_second':speed,'eta_seconds':(len(plan)-state['cursor'])/max(speed,1e-9),
+                       **metadata(adapter,state['cursor'],cadence.cursor)}
             if str(args.device).startswith('cuda'):
                 heartbeat.update(memory_allocated_bytes=torch.cuda.memory_allocated(0),
                                  memory_reserved_bytes=torch.cuda.memory_reserved(0))
             atomic_json(run/'heartbeat.json',heartbeat)
             print(f"[MetaEntail] {state['cursor']}/{len(plan)} pair updates | loss {batch_loss:.5f}",flush=True)
+        if state['cursor']!=cadence.cursor:save();cadence.saved(state['cursor'])
         if set(state['captured_candidates'])!=required:raise ValueError('selected training sample did not record all feasible hypotheses')
         adapter.model.load_state_dict(torch.load(run/'checkpoints'/state['best_file'],map_location='cpu',weights_only=True,mmap=True),strict=True)
         splits={};traces=state['traces']
@@ -109,6 +117,8 @@ def run(args,assets,data,r):
             report,events=evaluate(adapter,gs,data[s],args.micro_batch,case_index=selected_test,
                 run=run,step=state['cursor'],event_start=len(traces))
             splits[s]=report;traces+=events
+        from .reference_execution import drain_archives
+        drain_archives()
         validate(run,traces)
         from .reference_complete import finish_summary
         finish_summary(run,args.model,args.seed,r,splits,state['cursor'],traces,args.data_dir,assets,diagnostic=args.diagnostic)

@@ -1,4 +1,4 @@
-"""One independent reference/seed with every-completed-batch recovery."""
+"""One reference/seed with full-state recovery and execution-only OOM tiers."""
 from __future__ import annotations
 import argparse,copy,json,math,random,signal,time,fcntl
 from contextlib import contextmanager
@@ -21,6 +21,7 @@ from .reference_mechanisms import reviewer_partition,curriculum_order,resampled_
 from .reference_recipes import recipe
 from .reference_trace import Capture,emit,validate,head_snapshot
 from .train import rng_state,restore_rng,save_torch
+from .reference_execution import Cadence,attach,metadata,poll_archives
 
 def seed_all(seed):
     import numpy as np,torch
@@ -94,7 +95,8 @@ def train_standard(adapter,data,run,r,seed,micro,*,resume=False,pause_after=None
     orders=orders_for(r['model'],features['train'],seed,r['epochs'],difficulty)
     plan=[(ep,order[s:s+r['logical_batch']]) for ep,order in enumerate(orders) for s in range(0,len(order),r['logical_batch'])]
     budget=len(plan);opt,sched=optimizer_for(adapter,r,budget)
-    contract={'schema':'reference-execution-contract.v2','recipe':r,'seed':seed,'physical_micro':micro,
+    policy=getattr(adapter,'execution_policy',None)
+    contract={'schema':'reference-execution-contract.v3','recipe':r,'seed':seed,'physical_micro':policy or micro,
         'asset_identity':getattr(adapter,'initialization_identity',{}),
         'data':{s:fingerprint(rows) for s,rows in data.items()},'order':fingerprint(orders),'stage':stage,
         'source':{p.name:digest(p) for p in sorted(PACKAGE.glob('reference_*.py'))},
@@ -126,13 +128,16 @@ def train_standard(adapter,data,run,r,seed,micro,*,resume=False,pause_after=None
     else:
         if run.exists() and any(run.iterdir()):raise ValueError('existing worker run needs resume')
         run.mkdir(parents=True,exist_ok=True);initialize_checkpoint(run,path,contract,save)
+    cadence=Cadence(policy,cursor=state['cursor'])
     selected=next((i for i,f in enumerate(features['train']) if f['labels']!=0),0)
     pause=[False];handlers={s:signal.getsignal(s) for s in (signal.SIGINT,signal.SIGTERM,signal.SIGHUP)}
     for s in handlers:signal.signal(s,lambda *_:pause.__setitem__(0,True))
     start=time.monotonic();initial=state['cursor']
     try:
         while state['cursor']<budget:
+            poll_archives()
             if pause[0] or pause_after is not None and state['cursor']>=pause_after or max_updates is not None and state['cursor']>=max_updates:
+                if state['cursor']!=cadence.cursor:save();cadence.saved(state['cursor'])
                 atomic_json(run/'RUN_PAUSED.json',{'cursor':state['cursor'],'phase':stage});return None
             ep,indices=plan[state['cursor']];adapter.model.train();opt.zero_grad(set_to_none=True);loss_value=0.;pending=[]
             for s in range(0,len(indices),micro):
@@ -144,7 +149,7 @@ def train_standard(adapter,data,run,r,seed,micro,*,resume=False,pause_after=None
                     loss,logits=adapter.forward(batch);scaled=loss*len(ids)/len(indices)
                     if capture:capture.snapshot_mechanism()
                     if not torch.isfinite(scaled):raise ValueError('nonfinite loss before optimizer update')
-                    scaled.backward();loss_value+=float(scaled.detach())
+                scaled.backward();loss_value+=float(scaled.detach())
                 if capture:pending.append((batch,capture,loss.detach(),logits.detach(),before))
             torch.nn.utils.clip_grad_norm_(adapter.model.parameters(),r['max_grad_norm']);opt.step()
             if not r['scheduler'].startswith('source_LinearLR'):sched.step()
@@ -161,16 +166,21 @@ def train_standard(adapter,data,run,r,seed,micro,*,resume=False,pause_after=None
                     save_torch(run/'checkpoints'/state['best_file'],adapter.model.state_dict())
                     state['best_sha256']=digest(run/'checkpoints'/state['best_file'])
                 atomic_json(run/f'dev_epoch{ep}.json',dev)
-            save() # the cursor, RNG and optimizer belong to the same committed batch
+            # Sample events and epoch-selection state are committed immediately.
+            # Ordinary updates use the declared time window, not full writes per step.
+            if cadence.due() or pending or end_epoch:
+                save();cadence.saved(state['cursor'])
             if pending and r['model']!='curriculum':
                 from .reference_archive import archive_traces
                 archive_traces(run,state['traces'])
             for old in (run/'checkpoints').glob('best-u*.pt'):
                 if old.name!=state['best_file'] and old.name[6:-3].isdigit() and not old.is_symlink():old.unlink()
             elapsed=time.monotonic()-start;speed=(state['cursor']-initial)/max(elapsed,1e-9)
-            hb={'phase':stage,'batch':state['cursor'],'batches':budget,'batches_per_second':speed,'eta_seconds':(budget-state['cursor'])/max(speed,1e-9),'loss':loss_value}
+            hb={'phase':stage,'batch':state['cursor'],'batches':budget,'batches_per_second':speed,'eta_seconds':(budget-state['cursor'])/max(speed,1e-9),'loss':loss_value,
+                **metadata(adapter,state['cursor'],cadence.cursor)}
             if torch.cuda.is_available():hb.update(memory_allocated_bytes=torch.cuda.memory_allocated(),memory_reserved_bytes=torch.cuda.memory_reserved())
             atomic_json(run/'heartbeat.json',hb);print(f"[{r['model']} {stage}] {state['cursor']}/{budget} | {speed:.2f} batch/s | loss {loss_value:.5f}",flush=True)
+        if state['cursor']!=cadence.cursor:save();cadence.saved(state['cursor'])
         if r['selection']!='final_epoch':adapter.model.load_state_dict(torch.load(run/'checkpoints'/state['best_file'],map_location='cpu',weights_only=True,mmap=True),strict=True)
         return features,state
     finally:
@@ -194,7 +204,7 @@ def cross_review(args,assets,data,r):
     for k,own in enumerate(folds):
         folder=root/str(k);held=[i for i in range(len(data['train'])) if i not in set(own)]
         ledger=folder/'review-complete.private.json'
-        identity=fingerprint({'own':own,'held':held,'seed':args.seed+1000+k,'micro':args.micro_batch,
+        identity=fingerprint({'own':own,'held':held,'seed':args.seed+1000+k,'micro':getattr(args,'execution_policy',args.micro_batch),
             'recipe':r,'data':fingerprint(data['train']),'assets':assets.get('verified_assets',{}),'source':source_identity()})
         if ledger.exists():
             completed=json.loads(ledger.read_text())
@@ -206,7 +216,8 @@ def cross_review(args,assets,data,r):
                 payload=json.loads(path.read_text());verify_available(path.parent/payload['tensor_artifact'],payload['sha256'],payload['size_bytes'])
             reviewer_storage(args.run_dir,folder)
         else:
-            seed_all(args.seed+1000+k);adapter=make('curriculum',assets,data['train'],device=args.device,checkpointing=True)
+            seed_all(args.seed+1000+k);adapter=make('curriculum',assets,data['train'],device=args.device,checkpointing=getattr(args,'activation_checkpointing',True))
+            attach(adapter,args)
             train=[data['train'][i] for i in own]
             reviewer_recipe={**r,'model':'curriculum_reviewer','epochs':r['reviewer_epochs'],'selection':'final_epoch'}
             result=train_standard(adapter,{'train':train,'valid':train},folder,reviewer_recipe,args.seed+1000+k,args.micro_batch,
@@ -269,11 +280,14 @@ def _parse_and_run(argv=None):
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--model',required=True);p.add_argument('--seed',type=int,default=13)
     for name in ('assets','data-dir','run-dir'):p.add_argument('--'+name,type=Path,required=True)
-    p.add_argument('--micro-batch',type=int,default=1);p.add_argument('--resume',action='store_true');p.add_argument('--device',default='cuda:0')
+    p.add_argument('--micro-batch',default='auto');p.add_argument('--checkpoint-seconds',type=float,default=120.)
+    p.add_argument('--resume',action='store_true');p.add_argument('--device',default='cuda:0')
     p.add_argument('--pause-after',type=int);p.add_argument('--diagnostic',action='store_true');p.add_argument('--diagnostic-updates',type=int,default=2)
     args=p.parse_args(argv)
-    if args.micro_batch<1 or args.seed<0:raise ValueError('positive physical batch and nonnegative seed required')
-    with exclusive(args.run_dir):return run_worker(args)
+    if args.seed<0:raise ValueError('nonnegative seed required')
+    from .reference_execution import adaptive_cli
+    with exclusive(args.run_dir):
+        return adaptive_cli(args,args.model,recipe(args.model)['logical_batch'],lambda:run_worker(args))
 
 def run_worker(args):
     assets=json.loads(args.assets.read_text());r=recipe(args.model)
@@ -298,7 +312,8 @@ def run_worker(args):
             # Stage directories are separate from the target model's checkpoint.
             args.run_dir.mkdir(parents=True,exist_ok=True);difficulty=cross_review(args,assets,data,r)
             if difficulty is None:return 75
-    seed_all(args.seed);adapter=make(args.model,assets,data['train'],device=args.device,checkpointing=True)
+    seed_all(args.seed);adapter=make(args.model,assets,data['train'],device=args.device,checkpointing=getattr(args,'activation_checkpointing',True))
+    attach(adapter,args)
     adapter.initialization_identity=assets.get('verified_assets',{});adapter.model_id=args.model
     target=args.run_dir/'target' if args.model=='curriculum' else args.run_dir
     if target!=args.run_dir and (args.run_dir/'case_study').exists() and not (target/'case_study').exists():
@@ -309,7 +324,9 @@ def run_worker(args):
     features,state=result
     if args.model in ('luke_core','luke_cfie'):atomic_json(args.run_dir/'dev_tuning.json',tune(adapter,features['valid'],data['valid'],r,args.micro_batch))
     splits={};traces=state['traces']
-    for split in ('train','valid','test'):
+    # Final train-split inference does not select/check this reference. Training
+    # loss and sampled gradients are already recorded; keep full dev/test only.
+    for split in ('valid','test'):
         report,events=evaluate(adapter,features[split],data[split],r,args.micro_batch,case_index=0 if split=='test' else None,run=target,step=state['cursor'],events=traces)
         splits[split]=report;traces+=events
     if target!=args.run_dir:
@@ -338,6 +355,8 @@ def run_worker(args):
             'post_prediction_votes':review['votes'][str(selected)],'difficulty':review['difficulty'][selected],
             'pacing':r['curriculum_pacing'],'target_events':[e for e in traces if e not in review['traces']],
             'purpose':'同一个训练样本经独立reviewer真实前向评分、预测后比对得到难度，再参与分阶段target训练；全部观测张量在链接的私有事件中。'})
+    from .reference_execution import drain_archives
+    drain_archives()
     validate(args.run_dir,traces)
     from .reference_complete import finish_summary
     finish_summary(args.run_dir,args.model,args.seed,r,splits,state['cursor'],traces,args.data_dir,assets,diagnostic=args.diagnostic)

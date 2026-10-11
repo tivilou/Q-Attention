@@ -182,6 +182,13 @@ def _archive_files(task, paths, *, remove=False):
 
 
 def archive_traces(task, traces, *, directory='case_study'):
+    import copy
+    from .reference_execution import schedule_archive
+    frozen=copy.deepcopy(traces)
+    return schedule_archive(lambda:_archive_traces(task,frozen,directory=directory))
+
+
+def _archive_traces(task, traces, *, directory='case_study'):
     if owner(task) is None:return
     paths=[];certificates={}
     for event in traces:

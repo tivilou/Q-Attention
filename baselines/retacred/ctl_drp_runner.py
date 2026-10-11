@@ -16,6 +16,7 @@ import time
 from .common import atomic_json, digest, fingerprint, git, select_models
 from .ctl_drp_task import CTLDRPTask, LABELS, PhysicalSplits
 from .ctl_drp_trace import TraceObserver, observability, validate
+from .reference_execution import Cadence,metadata,poll_archives,schedule_archive
 
 VARIANT_MODELS = {"sup": "ctl_drp_supervised", "unsup": "ctl_drp_unsupervised"}
 
@@ -94,22 +95,24 @@ def checkpoint(adapter, optimizer, run, contract, cursor, traces, *, prior=None)
     size=16*1024**2 if cursor==0 else serialized_bytes({'model':adapter.model.state_dict(),'optimizer':optimizer.state_dict()})
     with write_reservation(directory/'state.pt',size):
         result=_checkpoint(adapter,optimizer,run,contract,cursor,traces,prior=prior)
-    if owner(run) is not None:
-        from .reference_archive import archive_files, archive_traces
-        # Preserve sampled pre/post snapshots remotely, but leave one live latest.
-        for p in list(directory.iterdir()):
-            if not re.fullmatch(r'update\d{8}-[A-Za-z0-9_]+',p.name) or p.name==result['generation']:continue
-            if safe(p).parent!=directory:raise ValueError('foreign checkpoint path')
-            meta=json.loads((p/'state.json').read_text())
-            if meta['contract_sha256']!=fingerprint(contract) or meta['generation']!=p.name:raise ValueError('foreign checkpoint generation')
-            if p.name in result['pinned_generations']:
-                if (p/'state.pt').is_file():
-                    archive_files(run,[p/'state.pt',p/'state.json'])
-                    archive_files(run,[p/'state.pt'],remove=True)
-                # Keep tiny source receipts locally; only numeric latest remains.
-            else:shutil.rmtree(p)
-        if traces and (prior is None or len(traces)>len(prior['traces'])):archive_traces(run,traces)
+    if owner(run) is not None and traces and (prior is None or len(traces)>len(prior['traces'])):
+        frozen=copy.deepcopy(result)
+        schedule_archive(lambda:_archive_sample_pins(run,frozen))
     return result
+
+
+def _archive_sample_pins(run,result):
+    from .reference_archive import archive_files,_archive_traces
+    # Pin identities are immutable. Never scan/delete rolling generations in
+    # the background: the training thread may have published a newer latest.
+    for name in result['pinned_generations']:
+        p=safe(run/'checkpoints'/name)
+        if (p/'state.pt').is_file():
+            archive_files(run,[p/'state.pt',p/'state.json'])
+            # A sampled post-update pin may still be the live latest.
+            latest=json.loads((run/'latest.json').read_text())['generation']
+            if name!=latest:archive_files(run,[p/'state.pt'],remove=True)
+    _archive_traces(run,result['traces'])
 
 
 def _checkpoint(adapter, optimizer, run, contract, cursor, traces, *, prior=None):
@@ -231,7 +234,7 @@ def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget
     observe=observability(adapter)
     contract={"schema":"ctl-runner-contract.v1","task":adapter.contract,"budget_updates":budget,
               "runtime":runtime(adapter),"observability":observe,"diagnostic":adapter.diagnostic,
-              "checkpoint_policy":("every_completed_logical_update; latest_local; sample_event_pins_verified_archive" if os.environ.get('QATTN_REFERENCE_STORAGE_ROOT') else "every_completed_logical_update; two_rolling_plus_sample_event_pins"),
+              "checkpoint_policy":getattr(adapter,'execution_policy',None) or ("every_completed_logical_update; latest_local; sample_event_pins_verified_archive" if os.environ.get('QATTN_REFERENCE_STORAGE_ROOT') else "every_completed_logical_update; two_rolling_plus_sample_event_pins"),
               "complete_cohort_review_sha256":digest(Path(formal_review_receipt)) if formal_review_receipt else None,
               "source":{name:digest(Path(__file__).with_name(name)) for name in ("ctl_drp_runner.py","ctl_drp_trace.py")}}
     # Configuration maps may use integer keys/tuples in Python; JSON receipts
@@ -269,12 +272,20 @@ def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget
                     "code_revision":git("rev-parse","HEAD"),"config_sha256":fingerprint(contract),
                     "model_identity":adapter.initialization or "random_tiny_not_pretrained","seed":adapter.seed}
         started=time.monotonic();start_cursor=state["cursor"]
+        cadence=Cadence(getattr(adapter,'execution_policy',None),cursor=state['cursor'])
         try:
             while state["cursor"]<budget:
+                poll_archives()
                 if pause[0] or pause_after is not None and state["cursor"]>=pause_after:
+                    if state['cursor']!=cadence.cursor:
+                        state=checkpoint(adapter,optimizer,run_dir,contract,state['cursor'],state['traces'],prior=state)
+                        cadence.saved(state['cursor'])
                     atomic_json(run_dir/"RUN_PAUSED.json",{"cursor":state["cursor"],"reason":"post_update_pause"})
                     return {"status":"paused","updates":state["cursor"]}
                 cursor=state["cursor"];next_batch=adapter.plan.at(cursor)
+                if not state['traces'] and observe['selected']['train']['index'] in next_batch['indices'] and cursor!=cadence.cursor:
+                    state=checkpoint(adapter,optimizer,run_dir,contract,cursor,state['traces'],prior=state)
+                    cadence.saved(cursor)
                 observer=None
                 if not state["traces"]:
                     observer=TraceObserver(adapter,run_dir/"case_study",phase="train",index=observe["selected"]["train"]["index"],update=cursor+1,
@@ -283,16 +294,23 @@ def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget
                 if inject_after_update:inject_after_update(cursor+1)
                 traces=list(state["traces"])
                 if observer and observer.path:traces.append({"phase":"train","name":observer.path.name,"sha256":digest(observer.path)})
-                state=checkpoint(adapter,optimizer,run_dir,contract,cursor+1,traces,prior=state)
+                if cadence.due() or len(traces)>len(state['traces']) or (cursor+1)%adapter.plan.per_epoch==0 or cursor+1==budget:
+                    state=checkpoint(adapter,optimizer,run_dir,contract,cursor+1,traces,prior=state)
+                    cadence.saved(state['cursor'])
+                else:
+                    state={**state,'cursor':cursor+1,'traces':traces}
                 elapsed=time.monotonic()-started;rate=(state["cursor"]-start_cursor)/max(elapsed,1e-9)
                 heartbeat={"phase":"training","batch":state["cursor"],"batches":budget,"batches_per_second":rate,
-                           "eta_seconds":(budget-state["cursor"])/rate,"loss":update["loss"]}
+                           "eta_seconds":(budget-state["cursor"])/rate,"loss":update["loss"],
+                           **metadata(adapter,state['cursor'],cadence.cursor)}
                 if adapter.device=="cuda:0":
                     import torch
                     heartbeat.update(memory_allocated_bytes=torch.cuda.memory_allocated(0),memory_reserved_bytes=torch.cuda.memory_reserved(0))
                 atomic_json(run_dir/"heartbeat.json",heartbeat)
                 print(f"[CTL-DRP] {state['cursor']}/{budget} | {rate:.2f} batch/s | ETA {heartbeat['eta_seconds']:.1f}s | loss {update['loss']:.6f}",flush=True)
             if not state["traces"]:raise ValueError("required selected training event never captured")
+            from .reference_execution import drain_archives
+            drain_archives()
             dev,_=adapter.evaluate("dev")
             observer=TraceObserver(adapter,run_dir/"case_study",phase="test",index=observe["selected"]["test"]["index"],update=budget,experiment=experiment)
             test,predictions=adapter.evaluate("test",observer=observer)
