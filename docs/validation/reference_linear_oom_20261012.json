@@ -1,0 +1,28 @@
+{
+  "schema": "retacred-reference-linear-oom-validation.v1",
+  "date": "2026-10-12",
+  "authority": "gpushare-i2-26208:/home/Q-Attention/baseline-completeness-publish",
+  "origin_commit": "a90af7d9086886f571067a57b9020b196758eaa2",
+  "policy": {
+    "large_step": 8,
+    "small_step": 1,
+    "ladder_example": [256, 248, 240, 232, 224, 216, 208, 200, 192, 184, 176, 168, 160, 152, 144, 136, 128, 120, 112, 104, 96, 88, 80, 72, 64, 56, 48, 40, 32, 24, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
+    "trigger": "CUDA OOM only",
+    "checkpoint": "full model optimizer scheduler RNG cursor state; no old tensor rewrite"
+  },
+  "focused_tests": {
+    "command": "pytest tests/test_retacred_reference_linear.py tests/test_retacred_ctl_ddp.py tests/test_retacred_reference_execution.py -k 'not real_worker_cli_diagnostic and not real_parent_child_cuda_oom'",
+    "passed": 36,
+    "deselected": 2
+  },
+  "cuda_canary": {
+    "hardware": "NVIDIA GeForce RTX 3060",
+    "status": "passed",
+    "updates": 2,
+    "legacy_checkpoint_contracts_unchanged": true,
+    "model_optimizer_scheduler_rng_exact_after_resume": true,
+    "same_physical_partition": true,
+    "formal_training": false
+  },
+  "review_boundary": "Execution-only owner-authorized amendment; prior independent mechanism/lifecycle review is preserved. No new external-model review claim."
+}

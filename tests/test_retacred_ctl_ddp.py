@@ -47,7 +47,7 @@ def test_oom_tiers_start_at_actual_rank_capacity_without_duplicate_levels(tmp_pa
     state=prepare(args,'ctl_drp_supervised',512)
     assert args.micro_batch==256
     assert state['policy']['logical_batch']==512
-    assert state['policy']['tiers'][:2]==[dict(micro=256,checkpointing=False),dict(micro=128,checkpointing=False)]
+    assert state['policy']['tiers'][:2]==[dict(micro=256,checkpointing=False),dict(micro=248,checkpointing=False)]
 
 
 def test_resume_keeps_original_group_when_an_earlier_task_is_already_done(tmp_path,monkeypatch):

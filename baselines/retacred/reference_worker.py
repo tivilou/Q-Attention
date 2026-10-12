@@ -91,6 +91,9 @@ def evaluate(adapter,features,records,r,micro,*,case_index=None,run=None,step=0,
 
 def train_standard(adapter,data,run,r,seed,micro,*,resume=False,pause_after=None,stage='main',difficulty=None,case=True,max_updates=None):
     import torch
+    from .execution_compat import source_map
+    from .reference_execution import reset_update_peak,memory_metadata
+    memory_device=next(adapter.model.parameters()).device
     features={split:adapter.encode(rows) for split,rows in data.items()};adapter.finalize_vocabulary()
     orders=orders_for(r['model'],features['train'],seed,r['epochs'],difficulty)
     plan=[(ep,order[s:s+r['logical_batch']]) for ep,order in enumerate(orders) for s in range(0,len(order),r['logical_batch'])]
@@ -99,7 +102,7 @@ def train_standard(adapter,data,run,r,seed,micro,*,resume=False,pause_after=None
     contract={'schema':'reference-execution-contract.v3','recipe':r,'seed':seed,'physical_micro':policy or micro,
         'asset_identity':getattr(adapter,'initialization_identity',{}),
         'data':{s:fingerprint(rows) for s,rows in data.items()},'order':fingerprint(orders),'stage':stage,
-        'source':{p.name:digest(p) for p in sorted(PACKAGE.glob('reference_*.py'))},
+        'source':source_map([p.name for p in sorted(PACKAGE.glob('reference_*.py'))]),
         'runtime':{'torch':torch.__version__,'transformers':__import__('transformers').__version__},
         'budget':budget,'topology':'one_process_one_gpu_logical_identity_independent_of_physical_GPU'}
     path=run/'checkpoints'/'latest.pt';state={'cursor':0,'traces':[],'best_dev':-1.,'best_cursor':None,'best_sha256':None,'best_file':None}
@@ -140,6 +143,7 @@ def train_standard(adapter,data,run,r,seed,micro,*,resume=False,pause_after=None
                 if state['cursor']!=cadence.cursor:save();cadence.saved(state['cursor'])
                 atomic_json(run/'RUN_PAUSED.json',{'cursor':state['cursor'],'phase':stage});return None
             ep,indices=plan[state['cursor']];adapter.model.train();opt.zero_grad(set_to_none=True);loss_value=0.;pending=[]
+            reset_update_peak(memory_device)
             for s in range(0,len(indices),micro):
                 ids=indices[s:s+micro];batch=adapter.batch([features['train'][i] for i in ids])
                 rows=[ids.index(selected)] if case and selected in ids and not state['traces'] else []
@@ -157,6 +161,7 @@ def train_standard(adapter,data,run,r,seed,micro,*,resume=False,pause_after=None
                 state['traces'].append(emit(adapter,batch,[data['train'][selected]],capture,phase='train',step=state['cursor']+1,
                     event=len(state['traces']),directory=run/'case_study',loss=loss,logits=logits,parameter_before=before))
             state['cursor']+=1
+            update_memory=memory_metadata(memory_device)
             end_epoch=state['cursor']==budget or plan[state['cursor']][0]!=ep
             if end_epoch:
                 if r['scheduler'].startswith('source_LinearLR'):sched.step()
@@ -178,7 +183,7 @@ def train_standard(adapter,data,run,r,seed,micro,*,resume=False,pause_after=None
             elapsed=time.monotonic()-start;speed=(state['cursor']-initial)/max(elapsed,1e-9)
             hb={'phase':stage,'batch':state['cursor'],'batches':budget,'batches_per_second':speed,'eta_seconds':(budget-state['cursor'])/max(speed,1e-9),'loss':loss_value,
                 **metadata(adapter,state['cursor'],cadence.cursor)}
-            if torch.cuda.is_available():hb.update(memory_allocated_bytes=torch.cuda.memory_allocated(),memory_reserved_bytes=torch.cuda.memory_reserved())
+            hb.update(update_memory)
             atomic_json(run/'heartbeat.json',hb);print(f"[{r['model']} {stage}] {state['cursor']}/{budget} | {speed:.2f} batch/s | loss {loss_value:.5f}",flush=True)
         if state['cursor']!=cadence.cursor:save();cadence.saved(state['cursor'])
         if r['selection']!='final_epoch':adapter.model.load_state_dict(torch.load(run/'checkpoints'/state['best_file'],map_location='cpu',weights_only=True,mmap=True),strict=True)

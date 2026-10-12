@@ -120,7 +120,10 @@ def queue(jobs,devices,args,assets,prepared):
                 for rank,gpu in enumerate(job['gpu_ids']):
                     memory=rank_memory[rank] if rank<len(rank_memory) else {}
                     rows.append({'gpu':gpu,'task':job['id'],**value,'rank':rank,'world_size':len(job['gpu_ids']),
-                        **({'memory_allocated_bytes':memory['allocated'],'memory_reserved_bytes':memory['reserved']} if memory else {})})
+                        **({'memory_allocated_bytes':memory['allocated'],'memory_reserved_bytes':memory['reserved'],
+                            'memory_peak_allocated_bytes':memory.get('peak_allocated'),
+                            'memory_peak_reserved_bytes':memory.get('peak_reserved'),
+                            'memory_total_bytes':memory.get('total')} if memory else {})})
             atomic_json(args.run_dir/'queue_status.json',dict(completed=done,active=rows,pending=[j['id'] for j in pending]))
             dashboard.render(done,rows,[j['id'] for j in pending])
             time.sleep(2 if active and dashboard.live else 10 if active else .1)

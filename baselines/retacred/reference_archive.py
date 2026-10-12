@@ -18,8 +18,8 @@ SHARD = 512*1024**2
 
 
 def source_identity():
-    from .reference_complete import identity
-    return fingerprint(identity())
+    from .execution_compat import source_map
+    return fingerprint(source_map())
 
 
 def receipt_path(task):return Path(task)/'reference_archive.json'
