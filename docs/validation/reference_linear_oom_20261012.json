@@ -13,7 +13,10 @@
   "focused_tests": {
     "command": "pytest tests/test_retacred_reference_linear.py tests/test_retacred_ctl_ddp.py tests/test_retacred_reference_execution.py -k 'not real_worker_cli_diagnostic and not real_parent_child_cuda_oom'",
     "passed": 36,
-    "deselected": 2
+    "deselected": 2,
+    "subsequent_actual_cuda_worker_and_parent_oom_tests_passed": 2,
+    "dashboard_and_export_lifecycle_tests_passed": 10,
+    "total_distinct_passed": 48
   },
   "cuda_canary": {
     "hardware": "NVIDIA GeForce RTX 3060",
@@ -24,5 +27,6 @@
     "same_physical_partition": true,
     "formal_training": false
   },
+  "limits": ["Bounded fixtures do not establish full-data throughput", "This amendment was checked on one RTX3060; the Titan multi-GPU host was unreachable", "Changing physical partition can change dropout draws and floating-point rounding; same-partition recovery is exact"],
   "review_boundary": "Execution-only owner-authorized amendment; prior independent mechanism/lifecycle review is preserved. No new external-model review claim."
 }
