@@ -13,6 +13,8 @@ from .reference_execution import Cadence,attach,metadata,poll_archives
 
 def run(args,assets,data,r):
     import torch
+    from .execution_compat import source_map
+    from .reference_execution import reset_update_peak,memory_metadata
     from .metaentail_neural import MetaEntailFoundation
     seed_all(args.seed);adapter=MetaEntailFoundation(assets['mnli'],device=args.device,checkpointing=getattr(args,'activation_checkpointing',True))
     attach(adapter,args)
@@ -28,7 +30,7 @@ def run(args,assets,data,r):
     contract={'schema':'reference-metaentail-execution.v2','recipe':r,'seed':args.seed,'physical_pairs':getattr(args,'execution_policy',args.micro_batch),
         'data':{s:fingerprint(rows) for s,rows in data.items()},'filter':feasibility.to_dict(),'pairs':len(pairs),
         'orders':fingerprint(orders),'budget':len(plan),'assets':adapter.identity(),
-        'source':{p.name:digest(p) for p in sorted(PACKAGE.glob('reference_*.py'))},
+        'source':source_map([p.name for p in sorted(PACKAGE.glob('reference_*.py'))]),
         'runtime':{'torch':torch.__version__,'transformers':__import__('transformers').__version__}}
     run=Path(args.run_dir);path=run/'checkpoints/latest.pt';opt,sched=optimizer_for(adapter,r,len(plan))
     state={'cursor':0,'traces':[],'captured_candidates':[],'best_dev':-1.,'best_cursor':None,'best_sha256':None,'best_file':None}
@@ -63,6 +65,7 @@ def run(args,assets,data,r):
                 if state['cursor']!=cadence.cursor:save();cadence.saved(state['cursor'])
                 atomic_json(run/'RUN_PAUSED.json',{'cursor':state['cursor'],'phase':'NLI_pairs'});return 75
             epoch,ids=plan[state['cursor']];adapter.model.train();opt.zero_grad(set_to_none=True);pending=[];batch_loss=0.
+            reset_update_peak(args.device)
             for start in range(0,len(ids),args.micro_batch):
                 part=[pairs[i] for i in ids[start:start+args.micro_batch]];batch=adapter.batch(part)
                 rows=[i for i,f in enumerate(part) if f['sample_id']==selected_id and f['candidate_relation'] not in state['captured_candidates']]
@@ -82,6 +85,7 @@ def run(args,assets,data,r):
                            'candidate_relations':candidates,'nli_order':list(adapter.nli_order),'training_unit':'expanded_pair'}))
                 state['captured_candidates']+=candidates
             state['cursor']+=1
+            update_memory=memory_metadata(args.device)
             end_epoch=state['cursor']==len(plan) or plan[state['cursor']][0]!=epoch
             if end_epoch:
                 dev,_=evaluate(adapter,groups['valid'],data['valid'],args.micro_batch)
@@ -99,9 +103,7 @@ def run(args,assets,data,r):
             heartbeat={'phase':'NLI_pairs','batch':state['cursor'],'batches':len(plan),'loss':batch_loss,
                        'batches_per_second':speed,'eta_seconds':(len(plan)-state['cursor'])/max(speed,1e-9),
                        **metadata(adapter,state['cursor'],cadence.cursor)}
-            if str(args.device).startswith('cuda'):
-                heartbeat.update(memory_allocated_bytes=torch.cuda.memory_allocated(0),
-                                 memory_reserved_bytes=torch.cuda.memory_reserved(0))
+            heartbeat.update(update_memory)
             atomic_json(run/'heartbeat.json',heartbeat)
             print(f"[MetaEntail] {state['cursor']}/{len(plan)} pair updates | loss {batch_loss:.5f}",flush=True)
         if state['cursor']!=cadence.cursor:save();cadence.saved(state['cursor'])

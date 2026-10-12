@@ -133,6 +133,8 @@ def export_report(run: Path, jobs: list[dict], exchange: dict, report: Path):
         receipt = {key:exchange[key] for key in ("schema_version","status","exchange_url","target_dir","files","artifact_identity")}
         atomic_json(staging / "exchange_manifest.json", receipt)
         atomic_json(staging / "run_manifest.json", json.loads((run / "run_manifest.json").read_text()))
+        upgrade=run/'execution_upgrade.json'
+        if upgrade.is_file():atomic_json(staging/'execution_upgrade.json',json.loads(upgrade.read_text()))
         (staging/"run_summary.md").write_text("# Re-TACRED reference suite\n\nOnly requested configurations completed; not a full top-15 reproduction.\n\n| model | seed | benchmark micro-F1 | accuracy | macro-F1 | loss |\n| --- | ---: | ---: | ---: | ---: | ---: |\n"+"\n".join(rows)+"\n")
         files = {path.relative_to(staging).as_posix():digest(path) for path in staging.rglob("*") if path.is_file()}
         atomic_json(staging/"export_manifest.json", {"schema":"retacred-report-export.v1","run_identity":run_identity,"files":files})

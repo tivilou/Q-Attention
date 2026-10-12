@@ -43,6 +43,11 @@ class Dashboard:
             speed=f'{rate:.3f}/s' if isinstance(rate,(int,float)) else '--/s'
             memory=row.get('memory_allocated_bytes')
             vram=f'{memory/1024**3:.2f}G' if isinstance(memory,(int,float)) else '--'
+            peak=row.get('memory_peak_allocated_bytes');total=row.get('memory_total_bytes')
+            peak_text=f' peak {peak/1024**3:.2f}' if isinstance(peak,(int,float)) else ''
+            if isinstance(peak,(int,float)) and isinstance(total,(int,float)):peak_text+=f'/{total/1024**3:.1f}G'
+            reserved=row.get('memory_peak_reserved_bytes')
+            reserve_text=f' reserve {reserved/1024**3:.2f}G' if isinstance(reserved,(int,float)) and width>=240 else ''
             stale=now-self.last_change.get(identity,now)
             quiet=f' | no update {duration(stale)}' if stale>=60 else ''
             progress=f'{batch if batch is not None else "-"}/{batches or "-"}'
@@ -53,11 +58,11 @@ class Dashboard:
                 # Keep rate and memory visible on a typical 80-column SSH pane.
                 task=row['task']
                 task=task if len(task)<=22 else task[:19]+'...'
-                lines.append(f'GPU {gpu}{rank} | {task} | {progress} {percent:4.0%} | {speed} | VRAM {vram}')
+                lines.append(f'GPU {gpu}{rank} | {task} | {progress} {percent:4.0%} | {speed} | VRAM {vram}{peak_text}')
             else:
                 lines.append(f'GPU {gpu}{rank} | {row["task"]} | {row.get("phase","initializing")} | '
                              f'[{bar}] {progress} {percent:5.1%} | {speed} | '
-                             f'ETA {duration(row.get("eta_seconds"))} | VRAM {vram}{execution}{quiet}')
+                             f'ETA {duration(row.get("eta_seconds"))} | VRAM {vram}{peak_text}{reserve_text}{execution}{quiet}')
         lines+=self.queue_lines('PENDING',pending,width)
         lines+=self.queue_lines('COMPLETED',completed,width,newest_first=True)
         lines=[line if len(line)<=width else line[:width-3]+'...' for line in lines]

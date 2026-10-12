@@ -237,12 +237,15 @@ def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget
                 raise ValueError('complete-cohort gate only accepts a pinned CTL variant')
         budget=adapter.plan.total
     configure_determinism()
+    from .execution_compat import source_map,review_sha256
+    from .reference_execution import reset_update_peak,memory_metadata
+    memory_device=next(adapter.model.parameters()).device
     observe=observability(adapter)
     contract={"schema":"ctl-runner-contract.v1","task":adapter.contract,"budget_updates":budget,
               "runtime":runtime(adapter),"observability":observe,"diagnostic":adapter.diagnostic,
               "checkpoint_policy":getattr(adapter,'execution_policy',None) or ("every_completed_logical_update; latest_local; sample_event_pins_verified_archive" if os.environ.get('QATTN_REFERENCE_STORAGE_ROOT') else "every_completed_logical_update; two_rolling_plus_sample_event_pins"),
-              "complete_cohort_review_sha256":digest(Path(formal_review_receipt)) if formal_review_receipt else None,
-              "source":{name:digest(Path(__file__).with_name(name)) for name in ("ctl_drp_runner.py","ctl_drp_trace.py","ctl_drp_ddp.py")}}
+              "complete_cohort_review_sha256":review_sha256(formal_review_receipt) if formal_review_receipt else None,
+              "source":source_map(("ctl_drp_runner.py","ctl_drp_trace.py","ctl_drp_ddp.py"))}
     # Configuration maps may use integer keys/tuples in Python; JSON receipts
     # use string keys/lists. Freeze the same serialized identity on both sides.
     contract=json.loads(json.dumps(contract,sort_keys=True,allow_nan=False))
@@ -299,7 +302,9 @@ def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget
                 if not state["traces"]:
                     observer=TraceObserver(adapter,run_dir/"case_study",phase="train",index=observe["selected"]["train"]["index"],update=cursor+1,
                                            experiment={**experiment,"pre_update_generation":state["generation"],"pre_update_weights_sha256":state["weights_sha256"]})
+                reset_update_peak(memory_device)
                 update=adapter.train_update(next_batch["indices"],optimizer,observer=observer)
+                update_memory=memory_metadata(memory_device)
                 if inject_after_update:inject_after_update(cursor+1)
                 traces=list(state["traces"])
                 if observer and observer.path:traces.append({"phase":"train","name":observer.path.name,"sha256":digest(observer.path)})
@@ -312,9 +317,7 @@ def run(adapter, directory, *, resume=False, pause_after=None, diagnostic_budget
                 heartbeat={"phase":"training","batch":state["cursor"],"batches":budget,"batches_per_second":rate,
                            "eta_seconds":(budget-state["cursor"])/rate,"loss":update["loss"],
                            **metadata(adapter,state['cursor'],cadence.cursor)}
-                if adapter.device=="cuda:0":
-                    import torch
-                    heartbeat.update(memory_allocated_bytes=torch.cuda.memory_allocated(0),memory_reserved_bytes=torch.cuda.memory_reserved(0))
+                heartbeat.update(update_memory)
                 if getattr(adapter,'distributed',None):
                     heartbeat.update(world_size=adapter.distributed.world_size,rank_memory=adapter.distributed.last_memory)
                 atomic_json(run_dir/"heartbeat.json",heartbeat)

@@ -24,7 +24,7 @@ def test_actual_oom_is_the_only_tier_trigger_and_resume_preserves_it(tmp_path):
     assert calls==[32]
     restored=arguments(tmp_path/'job')
     execution.prepare(restored,'metaentail',32)
-    assert restored.micro_batch==16 and restored.execution_state['index']==1
+    assert restored.micro_batch==31 and restored.execution_state['index']==1
     with pytest.raises(ValueError,match='ordinary'):
         execution.adaptive_cli(arguments(tmp_path/'job'),'metaentail',32,lambda:(_ for _ in ()).throw(ValueError('ordinary failure')))
     assert json.loads(execution.ledger_path(tmp_path/'job').read_text())['index']==1
@@ -34,7 +34,7 @@ def test_finite_exhaustion_and_h3_padding_guard(tmp_path):
     import torch
     assert execution.tiers('sequence_routing_h3',24)==[
         {'micro':1,'checkpointing':False},{'micro':1,'checkpointing':True}]
-    assert [x['micro'] for x in execution.tiers('metaentail',32,'8')]==[8,4,2,1,1]
+    assert [x['micro'] for x in execution.tiers('metaentail',32,'8')]==[8,7,6,5,4,3,2,1,1]
     with pytest.raises(ValueError,match='H3 requires micro-batch1'):execution.tiers('sequence_routing_h3',24,'2')
     operation=lambda:(_ for _ in ()).throw(torch.cuda.OutOfMemoryError('test'))
     assert execution.adaptive_cli(arguments(tmp_path/'job'),'sequence_routing_h3',24,operation)==76
@@ -132,7 +132,7 @@ def test_oom_partition_change_restores_optimizer_and_never_skips_input(tmp_path)
     c=adapter();restored=arguments(args.run_dir)
     execution.prepare(restored,'entity_marker',4);execution.attach(c,restored)
     _,state=train_standard(c,data,args.run_dir,r,13,restored.micro_batch,case=False,resume=True)
-    assert restored.micro_batch==2 and state['cursor']==4
+    assert restored.micro_batch==3 and state['cursor']==4
     for key,value in a.model.state_dict().items():torch.testing.assert_close(value,c.model.state_dict()[key],rtol=1e-5,atol=1e-7)
 
 

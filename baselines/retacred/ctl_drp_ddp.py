@@ -153,6 +153,7 @@ class Context:
             raise ValueError('global logical batch must remain1..512 sentences')
         local = partition(indices, self.world_size, selected)[self.rank]
         optimizer.zero_grad(set_to_none=True)
+        torch.cuda.reset_peak_memory_stats(self.rank)
         adapter.model.train()
         value = 0.
         error = None
@@ -208,7 +209,9 @@ class Context:
         self.agree(error)
         values = [None] * self.world_size
         dist.all_gather_object(values, dict(loss=value, sentences=len(local),
-            allocated=torch.cuda.memory_allocated(self.rank), reserved=torch.cuda.memory_reserved(self.rank)))
+            allocated=torch.cuda.memory_allocated(self.rank), reserved=torch.cuda.memory_reserved(self.rank),
+            peak_allocated=torch.cuda.max_memory_allocated(self.rank),peak_reserved=torch.cuda.max_memory_reserved(self.rank),
+            total=torch.cuda.get_device_properties(self.rank).total_memory))
         self.last_memory = values
         return dict(loss=sum(v['loss'] for v in values), sentences=len(indices), optimizer_updates=1,
                     world_size=self.world_size, rank_sentences=[v['sentences'] for v in values])

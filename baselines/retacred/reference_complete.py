@@ -9,6 +9,7 @@ from .reference_recipes import recipe,inventory
 
 REVIEW_FILES=('reference_complete.py','reference_recipes.py','reference_models.py','reference_mechanisms.py','reference_execution.py',
  'reference_storage.py','reference_archive.py','reference_terminal.py','reference_mixed_queue.py','ctl_drp_ddp.py','ctl_drp_ddp_smoke.py',
+ 'execution_compat.py','execution_compat.lock.json',
  'reference_preflight.py','reference_worker.py','reference_nli.py','reference_trace.py','reference_resources.py','reference_resources.lock.json',
  'ctl_drp_runner.py','ctl_drp_task.py','ctl_drp_neural.py','ctl_drp_trace.py','ctl_drp_pretrained.py',
  'assets.py','luke_assets.py','mnli_assets.py','train.py','preflight.py','cohort.json','requirements-reference-complete.txt','../../scripts/run_retacred_all_references.sh','../../scripts/check_retacred_all_references.sh',
@@ -19,7 +20,22 @@ def identity():return {name:digest(PACKAGE/name) for name in REVIEW_FILES}
 
 def require_review(path):
     value=json.loads(Path(path).read_text())
-    if value.get('schema')!='retacred-reference-independent-review.v1' or value.get('status')!='accepted' or value.get('reviewer_role')!='independent' or not value.get('reviewer') or value.get('source_sha256')!=identity():
+    accepted=(value.get('schema')=='retacred-reference-independent-review.v1'
+              and value.get('status')=='accepted' and value.get('source_sha256')==identity())
+    if value.get('review_mode')=='owner_waived_execution_amendment':
+        from .execution_compat import binding
+        lock=binding();base=value.get('prior_independent_review',{})
+        accepted=accepted and (value.get('reviewer_role')=='owner_authorized_execution_amendment'
+            and value.get('external_review_waived') is True
+            and value.get('prior_review_sha256')==lock['origin_review_sha256']
+            and base.get('status')=='accepted' and base.get('reviewer_role')=='independent'
+            and bool(base.get('reviewer')) and base.get('source_sha256')==lock['origin_source'])
+        current=value['source_sha256'];old=lock['origin_source']
+        accepted=accepted and (set(current)-set(old)==set(lock['allowed_added']) and not set(old)-set(current)
+            and all(current[name]==sha for name,sha in old.items() if name not in lock['allowed_changed']))
+    else:
+        accepted=accepted and value.get('reviewer_role')=='independent' and bool(value.get('reviewer'))
+    if not accepted:
         raise ValueError('accepted independent mechanism+lifecycle review must bind current source')
     return digest(path)
 
@@ -286,9 +302,17 @@ def suite(args,names,seeds):
         'data':{s:digest(args.data_dir/(s+'.jsonl')) for s in ('train','valid','test')}}
     manifest=args.run_dir/'run_manifest.json'
     if args.resume:
+        from .execution_compat import activate_suite,source_map
+        activate_suite(manifest)
+        contract['source']=source_map()
         if json.loads(manifest.read_text())!=contract:raise ValueError('immutable suite mismatch; only GPU assignment may change')
-    elif args.run_dir.exists():raise ValueError('existing suite requires resume')
+    else:
+        from .execution_compat import ORIGIN_ENV
+        os.environ.pop(ORIGIN_ENV,None)
+        if args.run_dir.exists():raise ValueError('existing suite requires resume')
     args.run_dir.mkdir(parents=True,exist_ok=True);atomic_json(manifest,contract)
+    from .execution_compat import record_upgrade
+    record_upgrade(args.run_dir)
     from .reference_storage import configure
     configure(args.run_dir)
     jobs=[{'id':f'{n}_seed{s}','model':n,'seed':s,'directory':args.run_dir/'tasks'/f'{n}_seed{s}'} for n in names for s in seeds]
@@ -321,10 +345,14 @@ def suite(args,names,seeds):
 
 def main(argv=None):
     from .reference_storage import pause_cli, ENV
+    from .execution_compat import ORIGIN_ENV
     before=os.environ.get(ENV)
+    origin_before=os.environ.get(ORIGIN_ENV)
     try:return pause_cli(lambda:_main(argv))
     finally:
         if before is None:os.environ.pop(ENV,None)
         else:os.environ[ENV]=before
+        if origin_before is None:os.environ.pop(ORIGIN_ENV,None)
+        else:os.environ[ORIGIN_ENV]=origin_before
 
 if __name__=='__main__':raise SystemExit(main())
