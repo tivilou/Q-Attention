@@ -1,0 +1,282 @@
+{
+  "schema": "retacred-reference-result.v2",
+  "status": "complete",
+  "model": "curriculum",
+  "seed": 13,
+  "updates": 9700,
+  "adaptations": [],
+  "fidelity": "paper_interpretive",
+  "environment": {
+    "torch": "2.4.0+cu118",
+    "transformers": "4.44.0"
+  },
+  "contract": {
+    "schema": "reference-execution-contract.v3",
+    "recipe": {
+      "epochs": 6,
+      "logical_batch": 32,
+      "learning_rate": 0.0005,
+      "weight_decay": 0.01,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08,
+      "warmup_ratio": 0.06,
+      "max_grad_norm": 1.0,
+      "optimizer": "torch_AdamW",
+      "scheduler": "linear_warmup_decay",
+      "precision": "fp32",
+      "selection": "dev_all_example_non_null_micro_f1",
+      "overflow": "reject",
+      "max_length": 512,
+      "fidelity": "paper_interpretive",
+      "exact_author_recipe": false,
+      "model": "curriculum",
+      "layer_decay": 0.7,
+      "reviewer_count": 3,
+      "reviewer_epochs": 2,
+      "reviewer_training": "own_subset_only",
+      "curriculum_pacing": "cumulative_easiest_third_then_two_thirds_then_all",
+      "graph_heads": 4,
+      "graph_head_dim": 128,
+      "graph_layers": 2,
+      "bilinear": "concat(marker_hidden,GAT_entity_mean)_subject_vs_object",
+      "parser": "spacy_en_core_web_sm_3.7.1_pretokenized"
+    },
+    "seed": 13,
+    "physical_micro": {
+      "schema": "reference-execution-tiers.v2",
+      "model": "curriculum",
+      "seed": 13,
+      "requested_micro": "auto",
+      "tiers": [
+        {
+          "micro": 32,
+          "checkpointing": false
+        },
+        {
+          "micro": 31,
+          "checkpointing": false
+        },
+        {
+          "micro": 30,
+          "checkpointing": false
+        },
+        {
+          "micro": 29,
+          "checkpointing": false
+        },
+        {
+          "micro": 28,
+          "checkpointing": false
+        },
+        {
+          "micro": 27,
+          "checkpointing": false
+        },
+        {
+          "micro": 26,
+          "checkpointing": false
+        },
+        {
+          "micro": 25,
+          "checkpointing": false
+        },
+        {
+          "micro": 24,
+          "checkpointing": false
+        },
+        {
+          "micro": 23,
+          "checkpointing": false
+        },
+        {
+          "micro": 22,
+          "checkpointing": false
+        },
+        {
+          "micro": 21,
+          "checkpointing": false
+        },
+        {
+          "micro": 20,
+          "checkpointing": false
+        },
+        {
+          "micro": 19,
+          "checkpointing": false
+        },
+        {
+          "micro": 18,
+          "checkpointing": false
+        },
+        {
+          "micro": 17,
+          "checkpointing": false
+        },
+        {
+          "micro": 16,
+          "checkpointing": false
+        },
+        {
+          "micro": 15,
+          "checkpointing": false
+        },
+        {
+          "micro": 14,
+          "checkpointing": false
+        },
+        {
+          "micro": 13,
+          "checkpointing": false
+        },
+        {
+          "micro": 12,
+          "checkpointing": false
+        },
+        {
+          "micro": 11,
+          "checkpointing": false
+        },
+        {
+          "micro": 10,
+          "checkpointing": false
+        },
+        {
+          "micro": 9,
+          "checkpointing": false
+        },
+        {
+          "micro": 8,
+          "checkpointing": false
+        },
+        {
+          "micro": 7,
+          "checkpointing": false
+        },
+        {
+          "micro": 6,
+          "checkpointing": false
+        },
+        {
+          "micro": 5,
+          "checkpointing": false
+        },
+        {
+          "micro": 4,
+          "checkpointing": false
+        },
+        {
+          "micro": 3,
+          "checkpointing": false
+        },
+        {
+          "micro": 2,
+          "checkpointing": false
+        },
+        {
+          "micro": 1,
+          "checkpointing": false
+        },
+        {
+          "micro": 1,
+          "checkpointing": true
+        }
+      ],
+      "checkpoint_seconds": 120.0,
+      "guarantee": "full_state_restore; tier_changes_not_bitwise_identical"
+    },
+    "asset_identity": {
+      "roberta": {
+        "config.json": "82ba49810e6441735e696033ac2512ee09da555507b2917ac3865b202d592cc3",
+        "merges.txt": "1ce1664773c50f3e0cc8842619a93edc4624525b728b188a9e0be33b7726adc5",
+        "vocab.json": "9e7f63c2d15d666b52e21d250d2e513b87c9b713cfa6987a82ed89e5e6e50655",
+        "tokenizer.json": "847bbeab6174d66a88898f729d52fa8d355fafe1bea101cf960dd404581df70e",
+        "pytorch_model.bin": "36a10a8b694fadf9bf4f9049d14e257e88be45313ae02d882af9e60f39b8b2e8"
+      },
+      "luke": {
+        "added_tokens.json": "9c8d4b2cd7d3fc675213fd88eb40a6308e180d1d95dee49d51bc716daa7871cf",
+        "config.json": "8604f1dd19a2345bfc0d83a1fa91775200f64dadbd366596b15069d430e3b090",
+        "entity_vocab.json": "45e0508babfee0667db9a8dfa2519a6e470c769c3489b4c87c45b26f59e30947",
+        "merges.txt": "1ce1664773c50f3e0cc8842619a93edc4624525b728b188a9e0be33b7726adc5",
+        "pytorch_model.bin": "9ea73dbb7e0625e88c646f26230902c3df000e71320139e99b0703e1654f7bcc",
+        "special_tokens_map.json": "612f89fad4371cf030156e51c80c5a6e570299052a6c7dc2c958f34c4c34e2b8",
+        "tokenizer_config.json": "1633a7e7d6a266785c0345a540e5ba93ccef4ca9a9795bcfb423a04b9ab4620e",
+        "vocab.json": "06b4d46c8e752d410213d9548eb27a54db70fda0319b6271fb8d59dead5e1cab"
+      },
+      "mnli": {
+        "README.md": "76a907e0f4d96f4141bd8660e545726031be1fcfbb9301beb381a30ecc2b75b3",
+        "config.json": "8257a87d5b4677a17c727ffcd4d1bbc9f0dd4b6ec4e0e2a5af30f94a5e253464",
+        "merges.txt": "1ce1664773c50f3e0cc8842619a93edc4624525b728b188a9e0be33b7726adc5",
+        "vocab.json": "9e7f63c2d15d666b52e21d250d2e513b87c9b713cfa6987a82ed89e5e6e50655",
+        "tokenizer.json": "847bbeab6174d66a88898f729d52fa8d355fafe1bea101cf960dd404581df70e",
+        "tokenizer_config.json": "994f46754c5bf4014f1aa92d34b1374319c3a6b3f702105cd5b742beaecd18ce",
+        "model.safetensors": "f4dbab1bceb16f9800f7b9a9c96b187d5400511b66982e4e845de920f69b89b5"
+      },
+      "ctl_sup": "b97bbd5aa01a5ab66f6e2d8bb96bb78aa01f81238787cfa9dc28b3f950f3da78",
+      "ctl_unsup": "e97309faca8405660e1fa1af95a60be2da040d70def25e4f749c663c6e3f5829"
+    },
+    "data": {
+      "train": "9adb5f4ae5398b43085eb92868f971dbb50aa66178d801f83b6137a04d6745d9",
+      "valid": "b7383e04c4052a975c452ec59eadcbd05b6459bb6568803de92443291aeb66d3",
+      "test": "308a51be97ec5da6016db1a3148b4b7c29b0ac9717bc0320e35ec6386990a468"
+    },
+    "order": "0ceac414484dec5e14d52d61e38df1d28d5711f5e3b0b9ce00292202207fad3a",
+    "stage": "main",
+    "source": {
+      "reference_archive.py": "6636915c37a53d06af7bc654ba80a04edd708c37018ecf01a2a875d8bb2dcf47",
+      "reference_complete.py": "ffd148d2e86cedb7377878235adf5a49a3d4f9883d6bb0a05d571e1236adb531",
+      "reference_execution.py": "d5024799301679d9a28dc5256808e014f4c78f024d85052216d83db05098f121",
+      "reference_mechanisms.py": "e787419d1f688bcd0d0e3436218e2b27e391ea90772844cacb7a288945e14af8",
+      "reference_mixed_queue.py": "e3e34e09b3e726a3dc561756ba5473ee863dfd80fe392c26954ba99cbc5426be",
+      "reference_models.py": "bed5055be4684c93c694e3c4c5314f00f9b98738692a35147829abb3a72bb815",
+      "reference_nli.py": "a348bf8930a9f095e0e493cb055548a1518727b8e96cfb863559c6c58ee3569f",
+      "reference_preflight.py": "975b3298fc38ef6e82169e15306b40dfa8024d5976d2ff5219b08023fe2816d4",
+      "reference_recipes.py": "05cb9cd0f224abe6a1cf0db45d5f9aa82e05e47e297f60f60c4b5f49ecca6ed7",
+      "reference_resources.py": "30818d11f57fd35220540e8d06c307c8162a69b83c261ce557c0c142471837bb",
+      "reference_storage.py": "ff5d018314905e50d12cbb3d1074bc437760a00fa2706bea1d242338585f6b1f",
+      "reference_terminal.py": "32f96909d7f18f4099505f96abb27a636b8d8a61cb1a25a1a5bb6f71710407bf",
+      "reference_trace.py": "4c385164d4288d4765a1af520c28568e99b4d2ffb2481834ecd701b0cc6e6cbb",
+      "reference_worker.py": "44f02e8281b0ad52143b80833fb910d927d2332830e3e998e235961ecf26b806"
+    },
+    "runtime": {
+      "torch": "2.4.0+cu118",
+      "transformers": "4.44.0"
+    },
+    "budget": 9700,
+    "topology": "one_process_one_gpu_logical_identity_independent_of_physical_GPU"
+  },
+  "case_study": {
+    "status": "complete_exchanged",
+    "schema": "sample-trace.v2",
+    "target_dir": "q-attention/retacred-reference-suite/20261012T112015Z/curriculum_seed13",
+    "exchange_url": "https://117.50.198.37:18084",
+    "traces": [
+      {
+        "phase": "train",
+        "path": "train-update7298-event0.json",
+        "sha256": "a4fd3879bc2ab591d8d5f3d11bcd0daf1dc3ae4fb347b37b83a017d884cce519",
+        "tensor_sha256": "83a73e098faf7336fc08798f60ecd97848ce211f49acbf5e0c8489a023567c3f"
+      },
+      {
+        "phase": "test",
+        "path": "test-update9700-event1.json",
+        "sha256": "2b663a81d5d96f558caafe8f35f81040b3b8295393437e63a99d9c4a198d7667",
+        "tensor_sha256": "4cae5d562345fc1f6549296e6a2d3b98713523b577d7f0b69f9ded424529a5b1"
+      },
+      {
+        "phase": "test",
+        "path": "test-update1220-event100000.json",
+        "sha256": "51a52c90245cbb5669d6a721d5b7a51a29f6f797ad88a228948b3f5396b87007",
+        "tensor_sha256": "2e62b95f07b259ce55caa9f5f603e407f0a563337027bf087795cce645a33b1e"
+      },
+      {
+        "phase": "test",
+        "path": "test-update1218-event100002.json",
+        "sha256": "a6c4906a508d4e87f8fc5c05621b36341a33aefa4dfc05e52935439c83b1941f",
+        "tensor_sha256": "e3a7fdfe3d8c419d950398d5c64fd0f581f76f0c23eec03e5595020392cb3b43"
+      }
+    ]
+  }
+}

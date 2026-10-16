@@ -1,0 +1,1228 @@
+{
+  "schema": "retacred-reference-result.v2",
+  "status": "complete",
+  "model": "ctl_drp_unsupervised",
+  "seed": 13,
+  "updates": 1150,
+  "adaptations": [],
+  "fidelity": "paper_interpretive",
+  "environment": {
+    "torch": "2.4.0+cu118",
+    "transformers": "4.44.0"
+  },
+  "contract": {
+    "budget_updates": 1150,
+    "checkpoint_policy": {
+      "checkpoint_seconds": 120.0,
+      "guarantee": "full_state_restore; tier_changes_not_bitwise_identical",
+      "logical_batch": 512,
+      "model": "ctl_drp_unsupervised",
+      "per_rank_sentence_cap": 256,
+      "requested_micro": "auto",
+      "schema": "reference-execution-tiers.v2",
+      "seed": 13,
+      "tiers": [
+        {
+          "checkpointing": false,
+          "micro": 256
+        },
+        {
+          "checkpointing": false,
+          "micro": 248
+        },
+        {
+          "checkpointing": false,
+          "micro": 240
+        },
+        {
+          "checkpointing": false,
+          "micro": 232
+        },
+        {
+          "checkpointing": false,
+          "micro": 224
+        },
+        {
+          "checkpointing": false,
+          "micro": 216
+        },
+        {
+          "checkpointing": false,
+          "micro": 208
+        },
+        {
+          "checkpointing": false,
+          "micro": 200
+        },
+        {
+          "checkpointing": false,
+          "micro": 192
+        },
+        {
+          "checkpointing": false,
+          "micro": 184
+        },
+        {
+          "checkpointing": false,
+          "micro": 176
+        },
+        {
+          "checkpointing": false,
+          "micro": 168
+        },
+        {
+          "checkpointing": false,
+          "micro": 160
+        },
+        {
+          "checkpointing": false,
+          "micro": 152
+        },
+        {
+          "checkpointing": false,
+          "micro": 144
+        },
+        {
+          "checkpointing": false,
+          "micro": 136
+        },
+        {
+          "checkpointing": false,
+          "micro": 128
+        },
+        {
+          "checkpointing": false,
+          "micro": 120
+        },
+        {
+          "checkpointing": false,
+          "micro": 112
+        },
+        {
+          "checkpointing": false,
+          "micro": 104
+        },
+        {
+          "checkpointing": false,
+          "micro": 96
+        },
+        {
+          "checkpointing": false,
+          "micro": 88
+        },
+        {
+          "checkpointing": false,
+          "micro": 80
+        },
+        {
+          "checkpointing": false,
+          "micro": 72
+        },
+        {
+          "checkpointing": false,
+          "micro": 64
+        },
+        {
+          "checkpointing": false,
+          "micro": 56
+        },
+        {
+          "checkpointing": false,
+          "micro": 48
+        },
+        {
+          "checkpointing": false,
+          "micro": 40
+        },
+        {
+          "checkpointing": false,
+          "micro": 32
+        },
+        {
+          "checkpointing": false,
+          "micro": 24
+        },
+        {
+          "checkpointing": false,
+          "micro": 16
+        },
+        {
+          "checkpointing": false,
+          "micro": 15
+        },
+        {
+          "checkpointing": false,
+          "micro": 14
+        },
+        {
+          "checkpointing": false,
+          "micro": 13
+        },
+        {
+          "checkpointing": false,
+          "micro": 12
+        },
+        {
+          "checkpointing": false,
+          "micro": 11
+        },
+        {
+          "checkpointing": false,
+          "micro": 10
+        },
+        {
+          "checkpointing": false,
+          "micro": 9
+        },
+        {
+          "checkpointing": false,
+          "micro": 8
+        },
+        {
+          "checkpointing": false,
+          "micro": 7
+        },
+        {
+          "checkpointing": false,
+          "micro": 6
+        },
+        {
+          "checkpointing": false,
+          "micro": 5
+        },
+        {
+          "checkpointing": false,
+          "micro": 4
+        },
+        {
+          "checkpointing": false,
+          "micro": 3
+        },
+        {
+          "checkpointing": false,
+          "micro": 2
+        },
+        {
+          "checkpointing": false,
+          "micro": 1
+        },
+        {
+          "checkpointing": true,
+          "micro": 1
+        }
+      ]
+    },
+    "complete_cohort_review_sha256": "5d4915b3d3b288ec5d856d2e2f2e131a6217bc462a95c3a911f5638ac8cea482",
+    "diagnostic": false,
+    "observability": {
+      "checkpoints": {
+        "test": "final_post_update_evaluation",
+        "train": "first_selected_training_event_pre_and_post_logical_update"
+      },
+      "formal_comparison_admitted": false,
+      "required_representations": {
+        "test": [
+          "token_ids",
+          "mask",
+          "word_embedding",
+          "position_embedding",
+          "type_embedding",
+          "embedding_sum",
+          "layer0.input",
+          "layer0.Q",
+          "layer0.K",
+          "layer0.V",
+          "layer0.context",
+          "layer0.attention_output",
+          "layer0.feedforward",
+          "layer0.output",
+          "layer0.attention_scores",
+          "layer0.attention_probabilities",
+          "layer1.input",
+          "layer1.Q",
+          "layer1.K",
+          "layer1.V",
+          "layer1.context",
+          "layer1.attention_output",
+          "layer1.feedforward",
+          "layer1.output",
+          "layer1.attention_scores",
+          "layer1.attention_probabilities",
+          "layer2.input",
+          "layer2.Q",
+          "layer2.K",
+          "layer2.V",
+          "layer2.context",
+          "layer2.attention_output",
+          "layer2.feedforward",
+          "layer2.output",
+          "layer2.attention_scores",
+          "layer2.attention_probabilities",
+          "layer3.input",
+          "layer3.Q",
+          "layer3.K",
+          "layer3.V",
+          "layer3.context",
+          "layer3.attention_output",
+          "layer3.feedforward",
+          "layer3.output",
+          "layer3.attention_scores",
+          "layer3.attention_probabilities",
+          "layer4.input",
+          "layer4.Q",
+          "layer4.K",
+          "layer4.V",
+          "layer4.context",
+          "layer4.attention_output",
+          "layer4.feedforward",
+          "layer4.output",
+          "layer4.attention_scores",
+          "layer4.attention_probabilities",
+          "layer5.input",
+          "layer5.Q",
+          "layer5.K",
+          "layer5.V",
+          "layer5.context",
+          "layer5.attention_output",
+          "layer5.feedforward",
+          "layer5.output",
+          "layer5.attention_scores",
+          "layer5.attention_probabilities",
+          "layer6.input",
+          "layer6.Q",
+          "layer6.K",
+          "layer6.V",
+          "layer6.context",
+          "layer6.attention_output",
+          "layer6.feedforward",
+          "layer6.output",
+          "layer6.attention_scores",
+          "layer6.attention_probabilities",
+          "layer7.input",
+          "layer7.Q",
+          "layer7.K",
+          "layer7.V",
+          "layer7.context",
+          "layer7.attention_output",
+          "layer7.feedforward",
+          "layer7.output",
+          "layer7.attention_scores",
+          "layer7.attention_probabilities",
+          "layer8.input",
+          "layer8.Q",
+          "layer8.K",
+          "layer8.V",
+          "layer8.context",
+          "layer8.attention_output",
+          "layer8.feedforward",
+          "layer8.output",
+          "layer8.attention_scores",
+          "layer8.attention_probabilities",
+          "layer9.input",
+          "layer9.Q",
+          "layer9.K",
+          "layer9.V",
+          "layer9.context",
+          "layer9.attention_output",
+          "layer9.feedforward",
+          "layer9.output",
+          "layer9.attention_scores",
+          "layer9.attention_probabilities",
+          "layer10.input",
+          "layer10.Q",
+          "layer10.K",
+          "layer10.V",
+          "layer10.context",
+          "layer10.attention_output",
+          "layer10.feedforward",
+          "layer10.output",
+          "layer10.attention_scores",
+          "layer10.attention_probabilities",
+          "layer11.input",
+          "layer11.Q",
+          "layer11.K",
+          "layer11.V",
+          "layer11.context",
+          "layer11.attention_output",
+          "layer11.feedforward",
+          "layer11.output",
+          "layer11.attention_scores",
+          "layer11.attention_probabilities",
+          "layer12.input",
+          "layer12.Q",
+          "layer12.K",
+          "layer12.V",
+          "layer12.context",
+          "layer12.attention_output",
+          "layer12.feedforward",
+          "layer12.output",
+          "layer12.attention_scores",
+          "layer12.attention_probabilities",
+          "layer13.input",
+          "layer13.Q",
+          "layer13.K",
+          "layer13.V",
+          "layer13.context",
+          "layer13.attention_output",
+          "layer13.feedforward",
+          "layer13.output",
+          "layer13.attention_scores",
+          "layer13.attention_probabilities",
+          "layer14.input",
+          "layer14.Q",
+          "layer14.K",
+          "layer14.V",
+          "layer14.context",
+          "layer14.attention_output",
+          "layer14.feedforward",
+          "layer14.output",
+          "layer14.attention_scores",
+          "layer14.attention_probabilities",
+          "layer15.input",
+          "layer15.Q",
+          "layer15.K",
+          "layer15.V",
+          "layer15.context",
+          "layer15.attention_output",
+          "layer15.feedforward",
+          "layer15.output",
+          "layer15.attention_scores",
+          "layer15.attention_probabilities",
+          "layer16.input",
+          "layer16.Q",
+          "layer16.K",
+          "layer16.V",
+          "layer16.context",
+          "layer16.attention_output",
+          "layer16.feedforward",
+          "layer16.output",
+          "layer16.attention_scores",
+          "layer16.attention_probabilities",
+          "layer17.input",
+          "layer17.Q",
+          "layer17.K",
+          "layer17.V",
+          "layer17.context",
+          "layer17.attention_output",
+          "layer17.feedforward",
+          "layer17.output",
+          "layer17.attention_scores",
+          "layer17.attention_probabilities",
+          "layer18.input",
+          "layer18.Q",
+          "layer18.K",
+          "layer18.V",
+          "layer18.context",
+          "layer18.attention_output",
+          "layer18.feedforward",
+          "layer18.output",
+          "layer18.attention_scores",
+          "layer18.attention_probabilities",
+          "layer19.input",
+          "layer19.Q",
+          "layer19.K",
+          "layer19.V",
+          "layer19.context",
+          "layer19.attention_output",
+          "layer19.feedforward",
+          "layer19.output",
+          "layer19.attention_scores",
+          "layer19.attention_probabilities",
+          "layer20.input",
+          "layer20.Q",
+          "layer20.K",
+          "layer20.V",
+          "layer20.context",
+          "layer20.attention_output",
+          "layer20.feedforward",
+          "layer20.output",
+          "layer20.attention_scores",
+          "layer20.attention_probabilities",
+          "layer21.input",
+          "layer21.Q",
+          "layer21.K",
+          "layer21.V",
+          "layer21.context",
+          "layer21.attention_output",
+          "layer21.feedforward",
+          "layer21.output",
+          "layer21.attention_scores",
+          "layer21.attention_probabilities",
+          "layer22.input",
+          "layer22.Q",
+          "layer22.K",
+          "layer22.V",
+          "layer22.context",
+          "layer22.attention_output",
+          "layer22.feedforward",
+          "layer22.output",
+          "layer22.attention_scores",
+          "layer22.attention_probabilities",
+          "layer23.input",
+          "layer23.Q",
+          "layer23.K",
+          "layer23.V",
+          "layer23.context",
+          "layer23.attention_output",
+          "layer23.feedforward",
+          "layer23.output",
+          "layer23.attention_scores",
+          "layer23.attention_probabilities",
+          "first_token",
+          "candidate_scores",
+          "candidate_probabilities"
+        ],
+        "train": [
+          "token_ids",
+          "mask",
+          "word_embedding",
+          "position_embedding",
+          "type_embedding",
+          "embedding_sum",
+          "layer0.input",
+          "layer0.Q",
+          "layer0.K",
+          "layer0.V",
+          "layer0.context",
+          "layer0.attention_output",
+          "layer0.feedforward",
+          "layer0.output",
+          "layer0.attention_scores",
+          "layer0.attention_probabilities",
+          "layer1.input",
+          "layer1.Q",
+          "layer1.K",
+          "layer1.V",
+          "layer1.context",
+          "layer1.attention_output",
+          "layer1.feedforward",
+          "layer1.output",
+          "layer1.attention_scores",
+          "layer1.attention_probabilities",
+          "layer2.input",
+          "layer2.Q",
+          "layer2.K",
+          "layer2.V",
+          "layer2.context",
+          "layer2.attention_output",
+          "layer2.feedforward",
+          "layer2.output",
+          "layer2.attention_scores",
+          "layer2.attention_probabilities",
+          "layer3.input",
+          "layer3.Q",
+          "layer3.K",
+          "layer3.V",
+          "layer3.context",
+          "layer3.attention_output",
+          "layer3.feedforward",
+          "layer3.output",
+          "layer3.attention_scores",
+          "layer3.attention_probabilities",
+          "layer4.input",
+          "layer4.Q",
+          "layer4.K",
+          "layer4.V",
+          "layer4.context",
+          "layer4.attention_output",
+          "layer4.feedforward",
+          "layer4.output",
+          "layer4.attention_scores",
+          "layer4.attention_probabilities",
+          "layer5.input",
+          "layer5.Q",
+          "layer5.K",
+          "layer5.V",
+          "layer5.context",
+          "layer5.attention_output",
+          "layer5.feedforward",
+          "layer5.output",
+          "layer5.attention_scores",
+          "layer5.attention_probabilities",
+          "layer6.input",
+          "layer6.Q",
+          "layer6.K",
+          "layer6.V",
+          "layer6.context",
+          "layer6.attention_output",
+          "layer6.feedforward",
+          "layer6.output",
+          "layer6.attention_scores",
+          "layer6.attention_probabilities",
+          "layer7.input",
+          "layer7.Q",
+          "layer7.K",
+          "layer7.V",
+          "layer7.context",
+          "layer7.attention_output",
+          "layer7.feedforward",
+          "layer7.output",
+          "layer7.attention_scores",
+          "layer7.attention_probabilities",
+          "layer8.input",
+          "layer8.Q",
+          "layer8.K",
+          "layer8.V",
+          "layer8.context",
+          "layer8.attention_output",
+          "layer8.feedforward",
+          "layer8.output",
+          "layer8.attention_scores",
+          "layer8.attention_probabilities",
+          "layer9.input",
+          "layer9.Q",
+          "layer9.K",
+          "layer9.V",
+          "layer9.context",
+          "layer9.attention_output",
+          "layer9.feedforward",
+          "layer9.output",
+          "layer9.attention_scores",
+          "layer9.attention_probabilities",
+          "layer10.input",
+          "layer10.Q",
+          "layer10.K",
+          "layer10.V",
+          "layer10.context",
+          "layer10.attention_output",
+          "layer10.feedforward",
+          "layer10.output",
+          "layer10.attention_scores",
+          "layer10.attention_probabilities",
+          "layer11.input",
+          "layer11.Q",
+          "layer11.K",
+          "layer11.V",
+          "layer11.context",
+          "layer11.attention_output",
+          "layer11.feedforward",
+          "layer11.output",
+          "layer11.attention_scores",
+          "layer11.attention_probabilities",
+          "layer12.input",
+          "layer12.Q",
+          "layer12.K",
+          "layer12.V",
+          "layer12.context",
+          "layer12.attention_output",
+          "layer12.feedforward",
+          "layer12.output",
+          "layer12.attention_scores",
+          "layer12.attention_probabilities",
+          "layer13.input",
+          "layer13.Q",
+          "layer13.K",
+          "layer13.V",
+          "layer13.context",
+          "layer13.attention_output",
+          "layer13.feedforward",
+          "layer13.output",
+          "layer13.attention_scores",
+          "layer13.attention_probabilities",
+          "layer14.input",
+          "layer14.Q",
+          "layer14.K",
+          "layer14.V",
+          "layer14.context",
+          "layer14.attention_output",
+          "layer14.feedforward",
+          "layer14.output",
+          "layer14.attention_scores",
+          "layer14.attention_probabilities",
+          "layer15.input",
+          "layer15.Q",
+          "layer15.K",
+          "layer15.V",
+          "layer15.context",
+          "layer15.attention_output",
+          "layer15.feedforward",
+          "layer15.output",
+          "layer15.attention_scores",
+          "layer15.attention_probabilities",
+          "layer16.input",
+          "layer16.Q",
+          "layer16.K",
+          "layer16.V",
+          "layer16.context",
+          "layer16.attention_output",
+          "layer16.feedforward",
+          "layer16.output",
+          "layer16.attention_scores",
+          "layer16.attention_probabilities",
+          "layer17.input",
+          "layer17.Q",
+          "layer17.K",
+          "layer17.V",
+          "layer17.context",
+          "layer17.attention_output",
+          "layer17.feedforward",
+          "layer17.output",
+          "layer17.attention_scores",
+          "layer17.attention_probabilities",
+          "layer18.input",
+          "layer18.Q",
+          "layer18.K",
+          "layer18.V",
+          "layer18.context",
+          "layer18.attention_output",
+          "layer18.feedforward",
+          "layer18.output",
+          "layer18.attention_scores",
+          "layer18.attention_probabilities",
+          "layer19.input",
+          "layer19.Q",
+          "layer19.K",
+          "layer19.V",
+          "layer19.context",
+          "layer19.attention_output",
+          "layer19.feedforward",
+          "layer19.output",
+          "layer19.attention_scores",
+          "layer19.attention_probabilities",
+          "layer20.input",
+          "layer20.Q",
+          "layer20.K",
+          "layer20.V",
+          "layer20.context",
+          "layer20.attention_output",
+          "layer20.feedforward",
+          "layer20.output",
+          "layer20.attention_scores",
+          "layer20.attention_probabilities",
+          "layer21.input",
+          "layer21.Q",
+          "layer21.K",
+          "layer21.V",
+          "layer21.context",
+          "layer21.attention_output",
+          "layer21.feedforward",
+          "layer21.output",
+          "layer21.attention_scores",
+          "layer21.attention_probabilities",
+          "layer22.input",
+          "layer22.Q",
+          "layer22.K",
+          "layer22.V",
+          "layer22.context",
+          "layer22.attention_output",
+          "layer22.feedforward",
+          "layer22.output",
+          "layer22.attention_scores",
+          "layer22.attention_probabilities",
+          "layer23.input",
+          "layer23.Q",
+          "layer23.K",
+          "layer23.V",
+          "layer23.context",
+          "layer23.attention_output",
+          "layer23.feedforward",
+          "layer23.output",
+          "layer23.attention_scores",
+          "layer23.attention_probabilities",
+          "first_token",
+          "candidate_scores",
+          "candidate_probabilities",
+          "head_before",
+          "selected_loss",
+          "head_gradient",
+          "head_after"
+        ]
+      },
+      "schema": "ctl-drp-observability.v1",
+      "selected": {
+        "test": {
+          "index": 7746,
+          "sample_id": "098f60af8f02c217fe3d"
+        },
+        "train": {
+          "index": 37723,
+          "sample_id": "61b3a0af8f0046c5b954"
+        }
+      },
+      "selection_rule": "lexicographically_first_sample_id_per_train_and_test_split",
+      "target_boundary": "training_loss_only_or_post_prediction_evaluation",
+      "values": "complete_detached_selected_sample_all_candidate_rows",
+      "visibility": "private_local_coordinate_reader; exchange_and_portal_binding_separate"
+    },
+    "runtime": {
+      "cuda": "11.8",
+      "elastic_world_size": false,
+      "numpy": "1.26.4",
+      "precision": "FP32_no_autocast",
+      "python": "3.10.12",
+      "ranks": [
+        {
+          "capability": [
+            8,
+            6
+          ],
+          "device": "NVIDIA RTX A4000",
+          "total_memory": 16782262272,
+          "uuid": "not_exposed"
+        },
+        {
+          "capability": [
+            8,
+            6
+          ],
+          "device": "NVIDIA RTX A4000",
+          "total_memory": 16782262272,
+          "uuid": "not_exposed"
+        }
+      ],
+      "reduction": "DDP_no_sync_then_sum_global_normalized_gradients_before_AdamW",
+      "schema": "ctl-ddp-runtime.v1",
+      "torch": "2.4.0+cu118",
+      "visible_devices": "2,3",
+      "world_size": 2
+    },
+    "schema": "ctl-runner-contract.v1",
+    "source": {
+      "ctl_drp_ddp.py": "825a8fab68bfb9e950ef3fcc6ad65b9a1bd79229989af5ab1de3f0d6c556e62b",
+      "ctl_drp_runner.py": "3a9bf98315a2502002e2a91d7a68677bd34dc2bd02990485bad88bf4de97227b",
+      "ctl_drp_trace.py": "10b158e0bfde246221888776fe1d03356d735d95593ddd54acfb9842aa2bf858"
+    },
+    "task": {
+      "data_H": {
+        "author_exact_H": false,
+        "data": {
+          "interface_qualification": {
+            "adaptations": {
+              "generated_ids": {
+                "dev": 0,
+                "test": 0,
+                "train": 0
+              },
+              "missing_ids": "split_row_ordinal_and_row_content_hash",
+              "source_path_dereferenced": false,
+              "valid_to_dev": true
+            },
+            "parent": {
+              "manifest_sha256": "84029df8968029209af3c57425378bd3e8bd43750305a34f5d29dea669a39de5",
+              "qualification_sha256": "dac6de35bd587ad1f7f25b14091f6917a8f845e069753f0aabed248860a8344c"
+            }
+          },
+          "qualification_sha256": "8c8c29f8b61bc6143f6df06634c31d3a9b5e62d53cfdbc38f25f301afb6f70ba",
+          "splits": {
+            "dev": {
+              "count": 19584,
+              "declared_canonical_source_sha256": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+              "format": "json_array",
+              "qualified_prepared_sha256": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4",
+              "sha256": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4"
+            },
+            "test": {
+              "count": 13418,
+              "declared_canonical_source_sha256": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40",
+              "format": "json_array",
+              "qualified_prepared_sha256": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b",
+              "sha256": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b"
+            },
+            "train": {
+              "count": 58465,
+              "declared_canonical_source_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+              "format": "json_array",
+              "qualified_prepared_sha256": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57",
+              "sha256": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57"
+            }
+          },
+          "synthetic": false,
+          "task": "retacred_sentence_relation_40"
+        },
+        "physical_split_identity_verified": true,
+        "schema": "ctl-drp-physical-H-binding.v1",
+        "source": "physical_train_only",
+        "table_sha256": "d2dd32fa49951ded384ad3b1f0b4472376a7bff817fc874f90ccbfd90e87a7d5"
+      },
+      "description_sha256": "097bafe2c0e9915792fa54ab916fcc5e02e9db1beea5a387e4b05130506e8de9",
+      "diagnostic": false,
+      "encoding_audit": {
+        "dev": {
+          "candidate_pairs": 103784,
+          "encoded_sequence_sha256": "5a2c672ee659bb5018a3e55b5a13fc7d82fac46cea9bb8d4015ea8eb54a07469",
+          "max_pair_length": 252,
+          "rows_dropped": 0,
+          "sentences": 19584
+        },
+        "test": {
+          "candidate_pairs": 72879,
+          "encoded_sequence_sha256": "dc5ea64780f47389955462aeca36eca6525f056d337ecbca4a2ee1f4128622c8",
+          "max_pair_length": 288,
+          "rows_dropped": 0,
+          "sentences": 13418
+        },
+        "train": {
+          "candidate_pairs": 304501,
+          "encoded_sequence_sha256": "e31d549e6b0969ea7f45059fbc8732b4d3e19ce4053ba0fd536226d7ffc47623",
+          "max_pair_length": 375,
+          "rows_dropped": 0,
+          "sentences": 58465
+        }
+      },
+      "execution_policy": {
+        "checkpoint_seconds": 120.0,
+        "guarantee": "full_state_restore; tier_changes_not_bitwise_identical",
+        "logical_batch": 512,
+        "model": "ctl_drp_unsupervised",
+        "per_rank_sentence_cap": 256,
+        "requested_micro": "auto",
+        "schema": "reference-execution-tiers.v2",
+        "seed": 13,
+        "tiers": [
+          {
+            "checkpointing": false,
+            "micro": 256
+          },
+          {
+            "checkpointing": false,
+            "micro": 248
+          },
+          {
+            "checkpointing": false,
+            "micro": 240
+          },
+          {
+            "checkpointing": false,
+            "micro": 232
+          },
+          {
+            "checkpointing": false,
+            "micro": 224
+          },
+          {
+            "checkpointing": false,
+            "micro": 216
+          },
+          {
+            "checkpointing": false,
+            "micro": 208
+          },
+          {
+            "checkpointing": false,
+            "micro": 200
+          },
+          {
+            "checkpointing": false,
+            "micro": 192
+          },
+          {
+            "checkpointing": false,
+            "micro": 184
+          },
+          {
+            "checkpointing": false,
+            "micro": 176
+          },
+          {
+            "checkpointing": false,
+            "micro": 168
+          },
+          {
+            "checkpointing": false,
+            "micro": 160
+          },
+          {
+            "checkpointing": false,
+            "micro": 152
+          },
+          {
+            "checkpointing": false,
+            "micro": 144
+          },
+          {
+            "checkpointing": false,
+            "micro": 136
+          },
+          {
+            "checkpointing": false,
+            "micro": 128
+          },
+          {
+            "checkpointing": false,
+            "micro": 120
+          },
+          {
+            "checkpointing": false,
+            "micro": 112
+          },
+          {
+            "checkpointing": false,
+            "micro": 104
+          },
+          {
+            "checkpointing": false,
+            "micro": 96
+          },
+          {
+            "checkpointing": false,
+            "micro": 88
+          },
+          {
+            "checkpointing": false,
+            "micro": 80
+          },
+          {
+            "checkpointing": false,
+            "micro": 72
+          },
+          {
+            "checkpointing": false,
+            "micro": 64
+          },
+          {
+            "checkpointing": false,
+            "micro": 56
+          },
+          {
+            "checkpointing": false,
+            "micro": 48
+          },
+          {
+            "checkpointing": false,
+            "micro": 40
+          },
+          {
+            "checkpointing": false,
+            "micro": 32
+          },
+          {
+            "checkpointing": false,
+            "micro": 24
+          },
+          {
+            "checkpointing": false,
+            "micro": 16
+          },
+          {
+            "checkpointing": false,
+            "micro": 15
+          },
+          {
+            "checkpointing": false,
+            "micro": 14
+          },
+          {
+            "checkpointing": false,
+            "micro": 13
+          },
+          {
+            "checkpointing": false,
+            "micro": 12
+          },
+          {
+            "checkpointing": false,
+            "micro": 11
+          },
+          {
+            "checkpointing": false,
+            "micro": 10
+          },
+          {
+            "checkpointing": false,
+            "micro": 9
+          },
+          {
+            "checkpointing": false,
+            "micro": 8
+          },
+          {
+            "checkpointing": false,
+            "micro": 7
+          },
+          {
+            "checkpointing": false,
+            "micro": 6
+          },
+          {
+            "checkpointing": false,
+            "micro": 5
+          },
+          {
+            "checkpointing": false,
+            "micro": 4
+          },
+          {
+            "checkpointing": false,
+            "micro": 3
+          },
+          {
+            "checkpointing": false,
+            "micro": 2
+          },
+          {
+            "checkpointing": false,
+            "micro": 1
+          },
+          {
+            "checkpointing": true,
+            "micro": 1
+          }
+        ]
+      },
+      "formal_comparison_admitted": false,
+      "initialization": {
+        "id": "princeton-nlp/unsup-simcse-roberta-large",
+        "intended_grade": "paper_interpretive",
+        "marker_ids": [
+          50265,
+          50266,
+          50267,
+          50268
+        ],
+        "marker_seed": 13,
+        "marker_std": 0.02,
+        "old_vocabulary_forward_exact": true,
+        "original_embedding_rows_unchanged": true,
+        "paper_exact_checkpoint_identity": false,
+        "removed_constant_buffers": [
+          "embeddings.position_ids: verified constant version-boundary buffer"
+        ],
+        "removed_pooler": "verified official pooler; intentionally unused by raw CLS CTL readout",
+        "revision": "d3f863b476c59b0673264042f159cea15842e265",
+        "safe_weights_only": true,
+        "strict_parameter_equality": true,
+        "weight_bytes": 1421571527,
+        "weight_sha256": "e97309faca8405660e1fa1af95a60be2da040d70def25e4f749c663c6e3f5829"
+      },
+      "model_configuration": {
+        "_name_or_path": "result/roberta-large-cls_before_pooler-sym_mlp_train_only-mlp_bert-bs128-gpu4-gs1-lr3e-5-m=stsb-norm0.05-l32-wiki",
+        "add_cross_attention": false,
+        "architectures": [
+          "RobertaModel"
+        ],
+        "attention_probs_dropout_prob": 0.1,
+        "bad_words_ids": null,
+        "begin_suppress_tokens": null,
+        "bos_token_id": 0,
+        "chunk_size_feed_forward": 0,
+        "classifier_dropout": null,
+        "cross_attention_hidden_size": null,
+        "decoder_start_token_id": null,
+        "diversity_penalty": 0.0,
+        "do_sample": false,
+        "early_stopping": false,
+        "encoder_no_repeat_ngram_size": 0,
+        "eos_token_id": 2,
+        "exponential_decay_length_penalty": null,
+        "finetuning_task": null,
+        "forced_bos_token_id": null,
+        "forced_eos_token_id": null,
+        "gradient_checkpointing": false,
+        "hidden_act": "gelu",
+        "hidden_dropout_prob": 0.1,
+        "hidden_size": 1024,
+        "id2label": {
+          "0": "LABEL_0",
+          "1": "LABEL_1"
+        },
+        "initializer_range": 0.02,
+        "intermediate_size": 4096,
+        "is_decoder": false,
+        "is_encoder_decoder": false,
+        "label2id": {
+          "LABEL_0": 0,
+          "LABEL_1": 1
+        },
+        "layer_norm_eps": 1e-05,
+        "length_penalty": 1.0,
+        "max_length": 20,
+        "max_position_embeddings": 514,
+        "min_length": 0,
+        "model_type": "roberta",
+        "no_repeat_ngram_size": 0,
+        "num_attention_heads": 16,
+        "num_beam_groups": 1,
+        "num_beams": 1,
+        "num_hidden_layers": 24,
+        "num_return_sequences": 1,
+        "output_attentions": false,
+        "output_hidden_states": false,
+        "output_scores": false,
+        "pad_token_id": 1,
+        "position_embedding_type": "absolute",
+        "prefix": null,
+        "problem_type": null,
+        "pruned_heads": {},
+        "remove_invalid_values": false,
+        "repetition_penalty": 1.0,
+        "return_dict": true,
+        "return_dict_in_generate": false,
+        "sep_token_id": null,
+        "suppress_tokens": null,
+        "task_specific_params": null,
+        "temperature": 1.0,
+        "tf_legacy_loss": false,
+        "tie_encoder_decoder": false,
+        "tie_word_embeddings": true,
+        "tokenizer_class": null,
+        "top_k": 50,
+        "top_p": 1.0,
+        "torch_dtype": null,
+        "torchscript": false,
+        "transformers_version": "4.44.0",
+        "type_vocab_size": 1,
+        "typical_p": 1.0,
+        "use_bfloat16": false,
+        "use_cache": true,
+        "vocab_size": 50269
+      },
+      "project_code": {
+        "common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9",
+        "ctl_drp_candidates.py": "1eae620269dbd0130413d71051dc9b3aaad026d09a0a78237f84763c95e97b01",
+        "ctl_drp_neural.py": "745e020be5ff11e03740a90e9be154758da99376b997a576c397a8984ae19918",
+        "ctl_drp_task.py": "48916aba83ae7b5437ab2bbeef51bb49fce6a2d9d4187ab2a3c7b2141bfe2e24"
+      },
+      "recipe": {
+        "betas": [
+          0.9,
+          0.999
+        ],
+        "effective_batch_sentences": 512,
+        "epochs": 10,
+        "eps": 1e-08,
+        "foreach": false,
+        "fused": false,
+        "gradient_clipping": null,
+        "heldout_excluded_gold": "retain_in_all_classification_metrics_zero_probability_null_infinite_NLL",
+        "learning_rate": 1e-05,
+        "micro_batch": "immutable_sentences_not_expanded_candidate_pairs",
+        "optimizer": "torch.optim.AdamW",
+        "overflow": "error_no_truncation_or_dropped_rows",
+        "precision": "FP32_no_autocast",
+        "scheduler": "constant",
+        "seeds": [
+          13,
+          29,
+          53
+        ],
+        "selection": "final_epoch",
+        "shuffle": "local_python_Random_seed_plus_epoch",
+        "unknown_pair": "preflight_error_no_heldout_label_repair",
+        "warmup": 0,
+        "weight_decay": 0.0
+      },
+      "schema": "ctl-drp-task-contract.v1",
+      "seed": 13
+    }
+  },
+  "case_study": {
+    "status": "complete_exchanged",
+    "schema": "sample-trace.v2",
+    "target_dir": "q-attention/retacred-reference-suite/20261012T112015Z/ctl_drp_unsupervised_seed13",
+    "exchange_url": "https://117.50.198.37:18084",
+    "traces": [
+      {
+        "phase": "train",
+        "name": "train-index37723-update44.json",
+        "sha256": "2d941d1969eff8bea00328e4f338d416b766b61cf1c0e02255483e202d074b5b",
+        "path": "train-index37723-update44.json"
+      },
+      {
+        "phase": "test",
+        "name": "test-index7746-update1150.json",
+        "sha256": "9ff16f62f338dcb0372c5f7e5fadc9933ac24cd5107ba7d15617d3d07aed3b81",
+        "path": "test-index7746-update1150.json"
+      }
+    ]
+  }
+}
