@@ -1,0 +1,75 @@
+{
+  "schema_version": "q-ecpa-evidence-preflight.v1",
+  "date": "2026-10-17",
+  "status": "passed",
+  "frozen_runtime_commit": "6544708fcb2bd9de568a8afa6ab2b392c200c7ee",
+  "previous_evidence_commit": "200c54b9123172a04811f263f4c626a4f06ab28f",
+  "frozen_runtime_sha256": "7e40d4f728c624bee2c4a9be929acb64a57385a9977eb765bdb39da0dd267f08",
+  "actual_https": {
+    "status": "passed",
+    "profile": "synthetic_canary",
+    "fingerprint": "d61ac02900907f7bfc75965c88200c7ed5a834ba236e8442e3e7304d160d9c1b",
+    "frozen_source_sha256": "7e40d4f728c624bee2c4a9be929acb64a57385a9977eb765bdb39da0dd267f08",
+    "upload_parts": 1,
+    "archive_bytes": 49735680,
+    "archive_sha256": "f7518720f088a7237e9fb0b2d3e1caf05a12339c80b6b33400c983ddbc27e34f",
+    "archive_files": 10570,
+    "samples": 222,
+    "numeric_artifacts": 10554,
+    "source_coordinate_comparisons": 31500,
+    "export_fault_cleanup": true,
+    "retry_same_receipt": true,
+    "immutable_checkpoints": true,
+    "boundary": "Real HTTPS exchange of completed synthetic CPU canary, no training or Git publication"
+  },
+  "browser": {
+    "status": "passed",
+    "stage_input_output_modals": 54,
+    "representations_opened": 207,
+    "browser_source_coordinate_comparisons": 51,
+    "viewports": [
+      1440,
+      390
+    ],
+    "actual_training_gradient": true,
+    "complex_vector_axes": true,
+    "keyboard_pointer_help": true,
+    "help_within_viewport": true,
+    "document_modal_overflow": false,
+    "page_errors": 0,
+    "profiles": [
+      "baseline",
+      "quantum",
+      "original_qk"
+    ],
+    "boundary": "Completed synthetic CPU canary read back from actual HTTPS; no formal metrics or historical evidence promoted"
+  },
+  "focused_tests": {
+    "command": "python -m pytest -q tests/test_ecpa_case_reader.py",
+    "passed": 4,
+    "environment": "existing server conda py310 / Python 3.10.16; NumPy"
+  },
+  "local_reader_environment": "existing conda QT / Python 3.11.10, NumPy 1.26.4",
+  "final_reader_files": {
+    "scripts/serve_ecpa_case_reader.py": "f954af5bd325ea699193a24a663678e89acfe555d8946b8b670d56d43b54fd86",
+    "tests/test_ecpa_case_reader.py": "9d9d82331b58604d9854d1206468cc0620d62feb3db695538dd60674c60eee6b",
+    "research-web/apps/ecpa-case-reader/index.html": "95496ef7640075ae781298b72315a93bd9b6c979063458dd7ea4fa3f51f760d7",
+    "research-web/apps/ecpa-case-reader/reader.css": "17e4065c8b18f52712f2e774f659c8663344c8a022fe95d6ff11c2390801f28e",
+    "research-web/apps/ecpa-case-reader/reader.js": "3227165e78a9e4f086b1365edd59e840ea87bad3b05a2a783a9ce4c64be19fe8",
+    "research-web/apps/ecpa-case-reader/README.md": "a2936eb00e93666ae1c7db8ab5bedd4fd844929d2ca397afba4ee4cfd30160ad",
+    "research-web/apps/ecpa-case-reader/research-editorial.css": "938cebf1dd10e0b8605824c25f4bd3d555ce45803c42a2493ef39531f2350087",
+    "research-web/apps/ecpa-case-reader/theme.css": "be8475406fad18060b4778931211c301a742e2b4cf6a97d34d5804f81740462c"
+  },
+  "review_sha256": "fe93a63fce180dc3e7a5c466035166236a81c1f7e97b258ce73eeb27b279382d",
+  "private_harness_sha256": "6ed5252aed00aa56bb581494249da43900a60f13855113632ef51503962e0118",
+  "boundaries": [
+    "Completed synthetic CPU canary only; no new training or formal-data metrics.",
+    "Actual upload had one archive part; no claim that actual multipart network failure recovery passed.",
+    "All 222 traces checked through the reader API; browser covers baseline, quantum and original_qk selected cases only.",
+    "Selected-sample loss and whole-batch gradient have distinct provenance; other batch members are not expanded.",
+    "Unverified relation-axis names are not invented; display original indices when label mapping is absent.",
+    "Full numeric files remain private; loopback-only reader exposes bounded verified slices, no raw-file routes.",
+    "Historical Case Study status and public Idea/Baseline results remain unchanged.",
+    "Publication and full seed13 execution are separate next actions; no GitHub push in this acceptance."
+  ]
+}

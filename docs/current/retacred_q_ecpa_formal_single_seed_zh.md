@@ -58,7 +58,7 @@ bash scripts/run_retacred_q_ecpa_formal_single_seed.sh --gpu auto \
 
 预先固定各 split 前三个样本，在 initial/best/final 记录句子、token、两个实体及位置、正确/预测关系、实际模型哈希和优化步。逐层保存 embedding、QKV、相位/图/H/U/每步复振幅、退相干/经典概率路径、score、attention、context、残差及 FFN hidden、分类器状态、logits、概率、loss、完整可训练梯度向量。原始 QK 额外保存每头电路角度和实际复状态。第一条训练样本还记录真实首个优化步的前向与整逻辑 batch 梯度；replay 梯度明确是该样本的梯度。
 
-所有数值保存 lossless NPY，包含哈希、轴含义和任意坐标读取入口；同时执行通用 sample-trace.v2 strict complete 验证和嵌入相加、attention×V 等数值链路检查。固定控制的训练状态明确不适用。没有实测证据不得标 complete。未来门户需导入 exchange 原始文件才能展示实际张量；本脚本不把指针冒充公共页面中的数值。
+所有数值保存 lossless NPY，包含哈希、轴含义和任意坐标读取入口；同时执行通用 sample-trace.v2 strict complete 验证和嵌入相加、attention×V 等数值链路检查。固定控制的训练状态明确不适用。没有实测证据不得标 complete。私有原值阅读器见 `research-web/apps/ecpa-case-reader/README.md`；需先按回执验证并解包 exchange 原始文件，只监听本机，不能把归档或原值放入公共静态目录。合成 canary 的实际 HTTPS 回读与页面切片已通过 `docs/validation/q_ecpa_evidence_preflight.md` 所述验收，正式案例仍需在返回后单独审计。
 
 训练期间不上传。所有任务完成并写 RUN_COMPLETE 后，私有 trace 归档并按 64 MiB 分片上传；三次有界重试，校验 size/SHA256 回执，保留原始数值。网络失败保留训练成果，重试只做导出：
 
