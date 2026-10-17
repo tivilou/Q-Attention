@@ -1,0 +1,215 @@
+{
+  "schema_version": "q-ecpa-gpu-preflight.v1",
+  "date": "2026-10-17",
+  "source_commit": "6544708fcb2bd9de568a8afa6ab2b392c200c7ee",
+  "source_sha256": "7e40d4f728c624bee2c4a9be929acb64a57385a9977eb765bdb39da0dd267f08",
+  "fingerprint": "d61ac02900907f7bfc75965c88200c7ed5a834ba236e8442e3e7304d160d9c1b",
+  "profile": "synthetic_canary",
+  "full_experiment": false,
+  "environment": {
+    "python": "3.10.22",
+    "torch": "2.7.1+cu118",
+    "gpu": "NVIDIA GeForce GTX TITAN X",
+    "compute_capability": [
+      5,
+      2
+    ],
+    "gpu_count": 2,
+    "total_memory_bytes_per_device": 12799967232
+  },
+  "source_review": "q_ecpa_formal_review.json",
+  "execution_review": "q_ecpa_gpu_review.json",
+  "lifecycle": [
+    {
+      "phase": "two_gpu_pause_oom",
+      "returncode": 85,
+      "seconds": 38.6427243296057,
+      "visible": "0,1",
+      "resolved": [
+        "0",
+        "1"
+      ]
+    },
+    {
+      "phase": "one_gpu_resume",
+      "returncode": 0,
+      "seconds": 123.030791987665,
+      "visible": "0",
+      "resolved": [
+        "0"
+      ]
+    },
+    {
+      "phase": "completed_two_gpu_resume",
+      "returncode": 0,
+      "seconds": 3.5167711628600955,
+      "visible": "0,1",
+      "resolved": [
+        "0",
+        "1"
+      ]
+    }
+  ],
+  "child_isolation": {
+    "passed": true,
+    "observations": 15,
+    "physical_devices_used": [
+      "0",
+      "1"
+    ],
+    "rule": "each child CUDA_VISIBLE_DEVICES equals its assigned physical GPU",
+    "actual_parent_child_cuda_execution": true
+  },
+  "jobs": {
+    "baseline": {
+      "status": "passed",
+      "samples": 28,
+      "full_numeric_artifacts": 980,
+      "private_values": true,
+      "reader": "arbitrary hash-checked tensor coordinates",
+      "semantic_lineage": "validated",
+      "trace_sha256": "7c4374f218aa5ba1bf94657c9df89ac5b98c68839b8779c45209d59d29b91082",
+      "latest_sha256": "8762e90c512d89168ed928371dd8e9c9d25d7a2aba8f4ea5c8cb68a7ac4709f9",
+      "updates": 6,
+      "micro": 4,
+      "effective_tier": 0,
+      "sampled_peak_gib": 0.017212390899658203
+    },
+    "disabled": {
+      "status": "passed",
+      "samples": 27,
+      "full_numeric_artifacts": 945,
+      "private_values": true,
+      "reader": "arbitrary hash-checked tensor coordinates",
+      "semantic_lineage": "validated",
+      "trace_sha256": "52fce341be13bdfe5f726d6e5c0b1e36d766496739e998d26712c0f579d83587",
+      "latest_sha256": "1a46b5a376c545bd86049b4e07e7980ff8597c765381f9e0a09b5ff6ea53503a",
+      "updates": 0,
+      "micro": 4,
+      "effective_tier": 0,
+      "sampled_peak_gib": 0.009027957916259766
+    },
+    "quantum": {
+      "status": "passed",
+      "samples": 28,
+      "full_numeric_artifacts": 1428,
+      "private_values": true,
+      "reader": "arbitrary hash-checked tensor coordinates",
+      "semantic_lineage": "validated",
+      "trace_sha256": "f11f36d132b601ff62d722964b381b04ba883ddd3ad6477aaba0ebe5656e9763",
+      "latest_sha256": "450d5e030b1ed5a5ea1a6dfe3da76f967ffcda8e61a9b3fd5960df48cb56c20e",
+      "updates": 6,
+      "micro": 3,
+      "effective_tier": 1,
+      "sampled_peak_gib": 0.017044544219970703
+    },
+    "dephased": {
+      "status": "passed",
+      "samples": 28,
+      "full_numeric_artifacts": 1428,
+      "private_values": true,
+      "reader": "arbitrary hash-checked tensor coordinates",
+      "semantic_lineage": "validated",
+      "trace_sha256": "5c1479af12b87e1ec1a50a3b55eb3bb8c326cf8956617d0b902a04c26e19c742",
+      "latest_sha256": "0c1a9950a21f104df52a29f12159b0d20ab37c3cc7a1bf364f6b65728e5c52f2",
+      "updates": 6,
+      "micro": 4,
+      "effective_tier": 0,
+      "sampled_peak_gib": 0.017061710357666016
+    },
+    "classical": {
+      "status": "passed",
+      "samples": 28,
+      "full_numeric_artifacts": 1428,
+      "private_values": true,
+      "reader": "arbitrary hash-checked tensor coordinates",
+      "semantic_lineage": "validated",
+      "trace_sha256": "bb1b7c8ad24a728f9761b2f4a66bd25b9d5ccc0485df26308f146b425c88fd1c",
+      "latest_sha256": "065222124e870194865f72d7dfaceb5f7788268af50ad4e0e4283f8525e7ea4a",
+      "updates": 6,
+      "micro": 4,
+      "effective_tier": 0,
+      "sampled_peak_gib": 0.017043590545654297
+    },
+    "random_phase": {
+      "status": "passed",
+      "samples": 27,
+      "full_numeric_artifacts": 1377,
+      "private_values": true,
+      "reader": "arbitrary hash-checked tensor coordinates",
+      "semantic_lineage": "validated",
+      "trace_sha256": "439d907285d1a3ef0ed7ab3116a6f38e6bc5307cd75202dc742b83e4ba76c96e",
+      "latest_sha256": "0d96ddd39e48f0dd0c10f624f57763d1d228bb71b0f63c7160a89fe108a23712",
+      "updates": 0,
+      "micro": 4,
+      "effective_tier": 0,
+      "sampled_peak_gib": 0.009033203125
+    },
+    "entity_permuted": {
+      "status": "passed",
+      "samples": 28,
+      "full_numeric_artifacts": 1428,
+      "private_values": true,
+      "reader": "arbitrary hash-checked tensor coordinates",
+      "semantic_lineage": "validated",
+      "trace_sha256": "4ecb7ecd1815539218637167cb6557c9303c31348b455d8f560b2258442f095b",
+      "latest_sha256": "8439e73d2a8fd91a46766c6701eb316e13daa779a3d30292c53947b81c2fc025",
+      "updates": 6,
+      "micro": 4,
+      "effective_tier": 0,
+      "sampled_peak_gib": 0.017067432403564453
+    },
+    "original_qk": {
+      "status": "passed",
+      "samples": 28,
+      "full_numeric_artifacts": 1540,
+      "private_values": true,
+      "reader": "arbitrary hash-checked tensor coordinates",
+      "semantic_lineage": "validated",
+      "trace_sha256": "6106f20c960316f85172586f2bb3ebf5817cae8ae64624ce4fb6b7186c66515f",
+      "latest_sha256": "e35313d91062c5732b9d4a9818b1c7274d9003b184951f22ea9a95c6fee08388",
+      "updates": 6,
+      "micro": 4,
+      "effective_tier": 0,
+      "sampled_peak_gib": 0.017516136169433594
+    }
+  },
+  "total_samples": 222,
+  "full_numeric_artifacts": 10554,
+  "checkpoint_recovery": {
+    "injected_oom_tier_persisted": true,
+    "quantum_micro": 3,
+    "logical_micro_before_oom": 4,
+    "pause_at_complete_update": 2,
+    "topology": "2 GPUs -> 1 GPU -> 2 GPUs after completion",
+    "completed_topology_resume_latest_unchanged": true,
+    "owned_children_exited": true
+  },
+  "actual_allocator_oom": {
+    "schema_version": "q-ecpa-allocator-probe.v1",
+    "device_name": "NVIDIA GeForce GTX TITAN X",
+    "torch": "2.7.1+cu118",
+    "compute_capability": [
+      5,
+      2
+    ],
+    "total_memory_bytes": 12799967232,
+    "requested_bytes": 12801015808,
+    "expected_error": "torch.cuda.OutOfMemoryError",
+    "attempts": 1,
+    "allocated_before": 0,
+    "allocated_after": 0,
+    "post_error_cuda_operation": "passed",
+    "other_processes_manipulated": false,
+    "limitation": "real allocator OOM and this isolated process recovery only; no actual model-training OOM recovery was exercised"
+  },
+  "no_orphan_gpu_contexts": true,
+  "unrelated_processes_manipulated": false,
+  "limitations": [
+    "The complete parent/child OOM recovery used explicit fault injection, not a model-training hardware OOM.",
+    "The separate real allocator OOM proves only classification and process-local recovery.",
+    "Synthetic short sequences/batch4 do not estimate full Re-TACRED memory or throughput.",
+    "No real-data GPU training, production HTTPS upload, portal tensor projection, or project Git push was performed."
+  ],
+  "verdict": "bounded GPU lifecycle and full-value acceptance passed; production handoff still has independent pending gates"
+}

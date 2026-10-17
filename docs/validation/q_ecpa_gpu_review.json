@@ -1,0 +1,83 @@
+{
+  "schema_version": "q-ecpa-execution-review-addendum.v1",
+  "review_mode": "bounded_subagent_fallback_reuse_same_frozen_source",
+  "review_scope": "both",
+  "purpose": "Extend the prior CPU-only execution ceiling to the specifically bounded synthetic GPU qualification; retain all prior mechanism, privacy, recovery and claim limits.",
+  "prior_review": {
+    "path": ".codex-artifacts/q-ecpa-formal/final-review.json",
+    "sha256": "17edf6c9cda2a5fa81a525f1b7f24420803e15b6915216d05dab067359ae63e3",
+    "verdict": "PASS_WITH_RISK",
+    "source_manifest_sha256": "4d954d2a65dd260c1db142698383f769cf5e0b5d08713a139606f230a3024e7f",
+    "reviewed_files": 15,
+    "current_local_hash_mismatches": [],
+    "reported_source_commit": "6544708",
+    "external_attempts": ".codex-artifacts/q-ecpa-formal/external-review.json",
+    "external_attempts_sha256": "cce89f27d57228918ef951b44937d318075546f62f67a11ecd9e68ed476177c4",
+    "reuse_basis": "Same source, frozen configuration, tests, mechanism and lifecycle contract; only the authorized execution hardware has become available. No new external review was attempted or attributed."
+  },
+  "hardware_context": {
+    "authority": "Parent reports existing project gpu-training authorization for gpushare-i1-54996-titan5",
+    "gpu": "Two GTX TITAN X cards, 12 GiB each",
+    "environment": "/hy-tmp/qattn-ddp-env; Python 3.10.22; torch 2.7.1+cu118; numpy 1.26.4",
+    "compatibility": "Parent reports CUDA available and sm50 supported by this installed build",
+    "reviewer_connected_to_host": false,
+    "gpu_test_status": "NOT_RUN_BY_REVIEWER; production GPU execution and acceptance remain pending"
+  },
+  "allowed_execution": {
+    "synthetic_gpu_canary": {
+      "allowed": true,
+      "profile": "synthetic_canary only; frozen public synthetic fixture",
+      "entry": "scripts/run_retacred_q_ecpa_formal_single_seed.sh --canary",
+      "initial_topology": "--gpu auto, restricted to the two authorized visible Titan devices; one worker per selected GPU",
+      "jobs": ["baseline", "disabled", "quantum", "dephased", "classical", "random_phase", "entity_permuted", "original_qk"],
+      "maximum_optimizer_updates_per_trainable_job": 6,
+      "maximum_optimizer_updates_for_whole_suite": 36,
+      "fixed_controls": "disabled and random_phase have zero optimizer updates; do not invent six updates for fixed controls",
+      "lifecycle": "Use the real parent-to-child launcher with --inject-oom-once and --stop-after 2; expect a durable safe-pause result. Resume the same immutable run on one authorized visible GPU, with --canary retained and the stop limit removed. Use CUDA_VISIBLE_DEVICES to constrain auto selection, never change scientific configuration.",
+      "parallelism_meaning": "Independent per-selector queue scheduling across GPUs; this is not DDP or a single selector spanning two cards",
+      "network_publication": "Canary must not upload, export a formal report, commit or push; its existing code path already skips formal finish()"
+    },
+    "isolated_real_allocator_oom_probe": {
+      "allowed": true,
+      "scope": "One temporary standalone process on one authorized visible GPU, executed separately from the canary",
+      "method": "Record its own small-allocation baseline, attempt one tensor allocation whose bytes exceed that device's total physical memory, and catch only torch.cuda.OutOfMemoryError as the expected result. Do not ramp allocations toward the free-memory boundary or hold a near-capacity tensor.",
+      "recovery": "Drop only this process's references, optionally empty only its allocator cache, and verify a small CUDA allocation/operation and synchronization still succeed. Exit the probe and check its GPU process/context is gone.",
+      "limits": "No allocation loop, no retry ladder, no hardware reset, no cache clearing for other processes, no termination or suspension of other users' processes",
+      "evidence_limit": "This proves a real allocator OOM is classified and this temporary process recovers/releases its own context. The launcher canary separately proves injected-OOM recovery. Combining those observations does not establish an actual training-step CUDA OOM has passed the entire worker recovery path."
+    },
+    "real_data_gpu_probe": {
+      "allowed_by_this_addendum": false,
+      "reason": "Not part of the requested run. Any later probe requires the planned authorized data transfer and a separate explicit bounded execution decision; no real data should be copied or processed under this addendum."
+    }
+  },
+  "pre_execution_conditions": [
+    "Resolve the registered authorized Titan host and exact environment through the project server authority; do not substitute the collaborator's inaccessible server.",
+    "Confirm the transferred checkout matches the reviewed manifest and source commit before starting. Any source/config/test change invalidates reuse until reviewed.",
+    "Recheck both devices and their supported CUDA capability in the selected environment, and preserve existing CUDA visibility restrictions. Each selected device must pass the runner's existing >=8 GiB free gate.",
+    "Use a fresh synthetic run directory; retain its original fingerprint during one-GPU resume. Do not edit memory tiers, counts, budgets or selectors to make a check pass.",
+    "Use bounded timeouts and terminate only the spawned canary's own process groups if cleanup is required. Record an ordinary failure rather than assuming every CUDA error is an OOM."
+  ],
+  "required_acceptance_evidence": [
+    "GPU inventory, selected physical UUIDs, environment versions, reviewed source manifest hash and exact launch/resume commands, without credentials.",
+    "Actual child processes using isolated CUDA_VISIBLE_DEVICES, baseline dependency completion, and simultaneous independent selector activity across both GPUs when the queue permits.",
+    "Expected injected OOM classification, exactly persisted tier advancement, safe pause at a complete optimizer boundary, and successful same-run one-GPU resume retaining the tier and completed jobs.",
+    "All eight jobs complete with strict full-value trace validation, finite gradients, actual CUDA memory telemetry and unchanged scientific fingerprint. Record runtime and memory as tiny-canary measurements, not full Re-TACRED speed estimates.",
+    "Independent allocator probe catches the actual expected CUDA OOM, successfully performs a small post-error operation, and exits without leaving its GPU context or touching other processes.",
+    "Retain raw local diagnostic logs and bounded machine-readable summaries; no formal readiness claim is made before the resulting checks are inspected."
+  ],
+  "risk_assessment": {
+    "source_blockers_for_bounded_gpu_canary": [],
+    "remaining_risks": [
+      "Complex matrix exponential/backward and the original-QK path have not yet been measured on these older sm50 GPUs; the bounded canary is specifically intended to expose kernel, numerical or architecture issues.",
+      "Synthetic short-sequence success cannot certify long real sequences, full-data peak memory, throughput, real training OOM recovery or model quality.",
+      "CUDA floating-point execution need not be bitwise equal to CPU or a different GPU; use finite-value and declared numeric-tolerance checks rather than claiming cross-hardware bitwise reproducibility.",
+      "Private portal import, full formal experiment readiness and report publication acceptance remain independent outstanding work."
+    ]
+  },
+  "must_fix_before_this_bounded_execution": [],
+  "verdict": "PASS_WITH_RISK",
+  "execution_ceiling": "Specifically the synthetic two-GPU launcher canary, safe one-GPU same-run recovery, and one standalone above-total-memory allocator probe described here. No full-data training, release, publishing, unrelated process manipulation, or optional real-data GPU probe.",
+  "original_review_unchanged": true,
+  "source_unchanged": true,
+  "reviewer_started_jobs": false
+}
