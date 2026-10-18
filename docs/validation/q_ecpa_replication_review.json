@@ -1,0 +1,21 @@
+{
+  "review_mode": "subagent_fallback",
+  "reviewer_model": "Codex subagent /root/ecpa_replication_lifecycle_review",
+  "review_scope": "lifecycle",
+  "source_binding": "q_ecpa_replication_preflight.json:source_binding.files",
+  "source_note": "All eleven initially reviewed files unchanged; docs/README.md adds navigation only.",
+  "transport": {"provider": "a6api", "capability_evidence": "dated 2026-10-17 source-separated coding .5/reasoning .3/knowledge .2 proxy", "attempts": [{"model": "gpt-6-astra", "effort": "max", "status": "timeout"}, {"model": "claude-opus-5", "effort": "max", "status": "http503"}], "other_candidates": "unverified exact native max mappings skipped without downgrading", "external_advice_received": false},
+  "theory_mapping": "Frozen scientific runtime; audited seed13 imported, seed-local baselines and all seven conditions retained.",
+  "correctness": "No blocking implementation defect found.",
+  "fidelity_gaps": [],
+  "control_fairness": "Independent seeds and seed-local dependencies preserved.",
+  "gradient_and_numerics": "Existing worker/full-state checkpoint unchanged; 10554 full numeric artifacts validated per new seed.",
+  "lifecycle_correctness": "PASS: two-GPU pause/OOM -> one-GPU recovery -> completed two-GPU no-op; tier persists; owned children exit; failed baseline isolation passes.",
+  "artifact_and_recovery": "PASS: export failure cleanup/retry, numeric/report corruption rejection, export-only bypass of GPU/data, disposable report-only push failure and same-commit retry.",
+  "limitations": ["Synthetic validation does not establish formal task performance.", "New-seed private exchange is stubbed in this canary; frozen legacy HTTPS writer was tested previously. Current production service availability is not certified."],
+  "must_fix": [],
+  "verdict": "PASS",
+  "release_qualified": true,
+  "qualification": "Reviewed code may be published for collaborator-run formal experiments.",
+  "confidence": 0.94
+}
