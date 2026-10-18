@@ -1,0 +1,105 @@
+{
+  "schema_version": "ecpa-replication-preflight.v1",
+  "scientific_runtime_sha256": "7e40d4f728c624bee2c4a9be929acb64a57385a9977eb765bdb39da0dd267f08",
+  "source_binding": {
+    "files": {
+      "configs/retacred_q_ecpa_replication.json": "678cda14954a7da4ec1ac1a1e25d29575b82977fa18264a3cc871cca6937ab8e",
+      "docs/current/retacred_q_ecpa_formal_multi_seed_zh.md": "2edf7eccd48795858dc09a9e5f853a9ea61492d1288605a5619da44971d46fac",
+      "docs/README.md": "b671693abf565ccf8849b5dae00e20615b451f8a595048e4ad31eb3118ca5549",
+      "experiments/ecpa_replication_contract.py": "8d851f2b8a59fdd20ed339aa4c61a40dea4323ecbd08da01a2e6ec23d6aeabe6",
+      "experiments/ecpa_replication_export.py": "84ad47d6c7aeae16253b8fa3de45e74bd34a8a7039c55fb2b69574b2c44f22a2",
+      "experiments/ecpa_replication_queue.py": "2a967de9223489c09a2cc46e16626b850d649d1db436646f284a433b401858a5",
+      "experiments/ecpa_replication_stats.py": "bda70464a1a3fdb61a52c2d1e4a54c964a0cb7a9206e0f22ef47649ec164093c",
+      "experiments/run_ecpa_replication.py": "97fc24874a90387ca8d749125dd4e2e4d54f178645593f5d5d154b7c34536486",
+      "scripts/check_retacred_q_ecpa_replication.sh": "4123026341619f5c4651f11df5df3f08778ec79a6d0deea059f92942fa41da67",
+      "scripts/run_retacred_q_ecpa_formal_multi_seed.sh": "c9f914d8c60f038040e3f616475f5be2faa8083472ef2ca0b6a38d2ac1cee7e3",
+      "tests/test_ecpa_replication.py": "d945aa79e92d8a161d8dbbe408f1e3f6e75b41d1827647d35f828e47f7f7ce09",
+      "tests/test_ecpa_replication_stats.py": "5461fba40d2e4c11aab6dcd6a23e1e8d349cfa8acbb3f1a248db930be58378b1"
+    }
+  },
+  "probe_hashes": {
+    "drive_canary.py": "e74786ee5b0d395216bd74a0314186fe54121730d08212a5f84416cc9a75c27f",
+    "check_boundaries.py": "78a2016493eb17d0aaa3bc71174043b67dce669fc89859328a186cf65b07b601",
+    "check_tamper.py": "fb03321342ab0db21201466d33a5a033057eb8ef30450a4e6c8005bab84ad91c",
+    "check_export_boundary.py": "aa20f200219c0b5549c5ffaf4b98005d2d4f7d641f167f6d0ab289a831457003"
+  },
+  "focused_tests": {
+    "development_passed": 7,
+    "gpu_host_passed": 7,
+    "local_statistics_passed": 3
+  },
+  "seed13_import": {
+    "commit": "6eed9f458d34815b260acebcdbdd20105309e686",
+    "summary_sha256": "c6829cf8f81ac8c52ba7fbb26882986c3f65819dd717fecf1f3c3f1e2c03267b",
+    "records": {
+      "train": 58465,
+      "valid": 19584,
+      "test": 13418
+    }
+  },
+  "bounded_gpu_canary": {
+    "gpus": "two12GiB GTX TITAN X then one then two",
+    "events": [
+      {
+        "label": "two_gpu_pause_oom",
+        "returncode": 85,
+        "seconds": 52.62204767763615,
+        "resolved": [
+          "0",
+          "1"
+        ]
+      },
+      {
+        "label": "one_gpu_resume",
+        "returncode": 0,
+        "seconds": 257.08744312636554,
+        "resolved": [
+          "0"
+        ]
+      },
+      {
+        "label": "completed_two_gpu_resume",
+        "returncode": 0,
+        "seconds": 4.008281686343253,
+        "resolved": [
+          "0",
+          "1"
+        ]
+      }
+    ],
+    "complete_jobs": 16,
+    "independent_seeds": [
+      29,
+      53
+    ],
+    "reused_seed13": true,
+    "tier_persisted": 1,
+    "owned_children_exited": true,
+    "numeric_artifacts": {
+      "29": 10554,
+      "53": 10554
+    },
+    "immutable_checkpoints": true,
+    "export_failure_cleanup_retry": true,
+    "report_identity": "4d43739bde43b47153cc8f49f2445adce8201e0a7b1fa28a14f401cd1daf4b77"
+  },
+  "boundaries": {
+    "failed_seed_isolated": true,
+    "other_seed_completed": true,
+    "blocked_selectors_never_launched": true,
+    "report_only_commit_push": true,
+    "push_failure_retry_same_commit": true,
+    "unrelated_dirty_tree_rejected": true,
+    "numeric_tamper_rejected_and_restored": true,
+    "completed_report_tamper_rejected_and_restored": true,
+    "export_only_avoids_gpu_and_data": true
+  },
+  "numeric_tamper_rejected": true,
+  "limitations": [
+    "Synthetic fixture only; no formal training or utility inference.",
+    "Training OOM is injected; genuine allocator recovery and worker parity are earlier qualified evidence.",
+    "New-seed exchange canary uses a synthetic transport stub; the frozen legacy HTTPS writer was tested previously.",
+    "Temporary Git bare remote certifies report-only push/retry; production remote publication is a separate action.",
+    "First observer asserted on an exited process; sampling now skips absent environment and repeated whole lifecycle passed."
+  ]
+}
