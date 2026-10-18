@@ -1,0 +1,117 @@
+{
+  "schema_version": "q-ecpa-independent-review.v1",
+  "review_mode": "bounded_subagent_fallback",
+  "reviewer_model": "Codex independent review subagent; inherited runtime model, identifier not independently attested",
+  "review_scope": "both",
+  "provisional": false,
+  "source_binding": {
+    "source_root": ".codex-artifacts/q-ecpa-formal/source",
+    "manifest": ".codex-artifacts/q-ecpa-formal/review-source-manifest.json",
+    "manifest_sha256": "4d954d2a65dd260c1db142698383f769cf5e0b5d08713a139606f230a3024e7f",
+    "packet_sha256": "90212cb28a7b2a84c98b8017f2a496c32b8c3eb84cf449f368239a426835c4a3",
+    "files": {
+      "configs/retacred_q_ecpa_formal_single_seed.json": "baf741d4bf3d66a00abe2e037952cb1684fd344ca53f00dccf3869059877b12b",
+      "docs/current/retacred_q_ecpa_formal_single_seed_zh.md": "35a444869d575d8b74f1a345106c82376a307214a9921501ca07cda059d21197",
+      "docs/README.md": "db863ca70d510bdb13ad992376ad26ee8a1a53f8fe4f61607bfae4425ce82145",
+      "experiments/run_ecpa_formal.py": "9df589b1d5bc660e94492dd85a3c997d383b3cee89786f4163958cc92e5a7b61",
+      "scripts/check_ecpa_real_data.py": "736205e0c552f151a1f90e741b4f66acd8a9a717e3f5c6db15188d3a87b80ed8",
+      "scripts/check_retacred_q_ecpa_formal_single_seed.sh": "ffedcd972123c03a8026659c6f14f2f97cd68c0570d1977566292af7bc09aa96",
+      "scripts/run_retacred_q_ecpa_formal_single_seed.sh": "609a3e37bc63bd41ea012c8d9df2ff5ad9205d8dcfbcaec5b9cd6c6f9a460635",
+      "src/q_attention/adapters/ecpa_formal.py": "37f81d5f3fd7b1689de2d306ca005e21f8a10fab43ea761c15b735899766b32e",
+      "src/q_attention/analysis/ecpa_contract_validator.py": "55e7bcb34a048b3b8c6cd3837364d75ab8f3a24a23b276999dc009495b7df2c9",
+      "src/q_attention/analysis/ecpa_formal_trace.py": "e05f03b701ced9d6cf5500fca5815c8120e674d7ec6bebdc68efc67466bf0cca",
+      "src/q_attention/experiments/ecpa_export.py": "71c21a888310e99a3ce8533933b58bb2c2645bb8c6d01ea1e590a55e57795dc7",
+      "src/q_attention/experiments/ecpa_protocol.py": "46d52c66d99f0b886de053d0dac454a266d20002145d4bb5c08f312cd4c91fb8",
+      "src/q_attention/experiments/ecpa_runner.py": "2d94b9093548791efc02ca5b18fdc93959c51668a65d2c138d5613c9f732abd4",
+      "src/q_attention/experiments/ecpa_worker.py": "5f57afe331b4bcebb2514ac4354ede0b8cc7790c56b167a89e13215790b351f2",
+      "tests/test_ecpa_formal.py": "af996404448383ef7502652bd1c64d23a37b0b81dc8c3635e2c9587779a774f0"
+    }
+  },
+  "theory_mapping": {
+    "status": "matches_by_source_inspection",
+    "mapping": "Ordered entity features condition antisymmetric graph phases. A degree-normalized Hermitian Hamiltonian generates a unitary; squared coherent multistep amplitudes are transposed into query/key orientation. The centered clipped log prior is added before attention softmax. Identical-H dephasing repeatedly propagates one-step probabilities; the matched classical branch repeatedly propagates a real transition.",
+    "references": ["src/q_attention/adapters/ecpa_formal.py:15", "src/q_attention/adapters/ecpa_formal.py:103", "configs/retacred_q_ecpa_formal_single_seed.json"],
+    "claim_limit": "A time-independent Hamiltonian repeated for several steps is longer coherent evolution, not an independently parameterized circuit at each step; no hardware speedup or novel expressivity claim is established."
+  },
+  "correctness": {
+    "status": "no_remaining_cpu_probe_blocker_identified",
+    "observations": [
+      "Actual model inputs exclude labels; labels are used only for supervised loss, checkpoint selection on validation, and subsequent held-out evaluation.",
+      "Vocabulary and label map are train-derived; full split counts and immutable source/data/config identity are checked.",
+      "Padding and entity masks are passed through both propagation and pooling; physical microbatch splitting preserves logical-batch loss normalization.",
+      "The earlier Worker self.run Path/method collision was discovered by the author's real launcher canary, not by this initial static review. The frozen source now uses self.root and leaves run() callable."
+    ],
+    "references": ["src/q_attention/experiments/ecpa_worker.py:20", "src/q_attention/experiments/ecpa_worker.py:134", "src/q_attention/adapters/ecpa_formal.py:151"]
+  },
+  "fidelity_gaps": [
+    "No measured GPU path, CUDA OOM recovery, GPU peak memory, or GPU throughput evidence was available to this reviewer.",
+    "The author reported the final identical-source lifecycle rerun passed pause/OOM, resume and completed-run topology checks. The reviewer did not independently execute it; the separate export failure/retry and remaining focused test results were still pending when this record was finalized.",
+    "Full-data trained-baseline and selector results remain absent and collaborator-only. The real-data CPU probe uses an explicitly untrained diagnostic backbone and cannot establish task utility.",
+    "Actual private evidence import into the human-facing portal and browser rendering of arbitrary tensor coordinates remain later acceptance work. Complete producer capture must not be represented as an already-implemented portal projection."
+  ],
+  "control_fairness": {
+    "status": "adequate_for_declared_bounded_experiment_with_limits",
+    "observations": [
+      "Selectors share the selected frozen two-layer baseline; ECPA interventions are restricted to layer 0.",
+      "The historical original-QK reference changes both layers and is explicitly not capacity matched.",
+      "Disabled and frozen random phase have no fabricated optimizer updates.",
+      "A consistent subject/object swap followed by retraining can be absorbed by swapping halves of the conditioner's linear weights. This is only a limited role-order diagnostic, not proof that destroying correct entity information removes a benefit. The operation document now states this limitation."
+    ]
+  },
+  "gradient_and_numerics": {
+    "status": "source_consistent_numerical_execution_evidence_required",
+    "observations": [
+      "Microbatch losses are summed and divided by the unchanged logical sample count before backward; failed partial gradients are discarded by restarting from a durable complete optimizer update.",
+      "The fast branch computes only the active mechanism; capture uses actual full equation intermediates and all compared branches for diagnostic evidence.",
+      "Full-model non-reentrant recomputation is an execution tier only. Finite-gradient checks exist; named trainable parameter layout is stored and validated against the complete flattened gradient.",
+      "Replay gradients are explicitly per selected sample. The actual update-0 training record explicitly stores the whole logical minibatch gradient and pre-step model identity."
+    ],
+    "references": ["src/q_attention/experiments/ecpa_worker.py:155", "src/q_attention/analysis/ecpa_formal_trace.py:53", "src/q_attention/analysis/ecpa_formal_trace.py:188", "tests/test_ecpa_formal.py:23"]
+  },
+  "lifecycle_correctness": {
+    "status": "source_pass_author_reports_final_cpu_canary_passed",
+    "observations": [
+      "The exact child executable is checked through --help before output initialization. Each GPU worker receives an isolated CUDA_VISIBLE_DEVICES environment.",
+      "Latest checkpoints atomically contain optimizer state, RNG, completed update cursor, best model, and selection completion cursor. An interrupted validation boundary is repeated rather than skipped after resume.",
+      "Memory tiers are per task, change only after CUDA OOM exit, and survive topology-independent resume; logical scientific configuration is immutable.",
+      "Safe pause avoids saving temporarily loaded best/replay state as latest. Completed jobs are retained while unfinished jobs return to the queue.",
+      "Heartbeat writes are throttled, and training does not upload private evidence."
+    ],
+    "references": ["src/q_attention/experiments/ecpa_worker.py:71", "src/q_attention/experiments/ecpa_worker.py:142", "src/q_attention/experiments/ecpa_runner.py:116", "src/q_attention/experiments/ecpa_runner.py:223"],
+    "nonblocking_recommendation": "Training-start publication preflight checks clean ancestry and Git identity, while the stricter unpublished-history gate is currently exporter-side. Reusing that same history check before expensive formal training would identify an undeliverable local branch earlier."
+  },
+  "artifact_and_recovery": {
+    "status": "source_pass_with_pending_execution_evidence",
+    "observations": [
+      "Trace captures raw sample semantics, entity spans, labels/predictions, actual model/update hash, all declared layer values, graph/circuit states, and gradients at frozen train/valid/test cases and initial/best/final checkpoints.",
+      "Lossless private NPY arrays are read through bounded arbitrary-coordinate access after hashes, bytes, dtype, shape, element counts and projection provenance are checked. Embedding addition and attention-times-value lineage are numerically validated.",
+      "Full traces remain private. Public reports contain an explicit private evidence index, not fabricated public numeric previews.",
+      "Private archives use deterministic 64 MiB parts, bounded retries and verified receipts; source arrays remain intact. Export uses validated temporary staging and an atomic final directory, with export-only retry from an immutable completed run.",
+      "Publication restricts staged and working changes plus unpublished history to the report. Two-parent merges are reconstructed in a disposable shared clone and compared to the actual merge so clean public same-file merges are permitted without allowing unrelated novel merge edits."
+    ],
+    "references": ["src/q_attention/analysis/ecpa_formal_trace.py:81", "src/q_attention/analysis/ecpa_formal_trace.py:140", "src/q_attention/experiments/ecpa_export.py:59", "src/q_attention/experiments/ecpa_export.py:123", "src/q_attention/experiments/ecpa_export.py:178"]
+  },
+  "must_fix": [],
+  "resolved_findings": [
+    "Report-only dirty/staged checks alone could push unrelated clean local commits. An unpublished-history gate and bare-Git regression now cover this.",
+    "Naive diff-tree -m or combined-diff treatment could reject a normal merge of public main. Expected-merge reconstruction plus a same-file/disjoint-hunk regression now address it.",
+    "Evaluation/training trace target-access labels contradicted actual supervised use. They now state explicit evaluation and training access while attention inputs remain target-free.",
+    "Worker run attribute shadowed run(). The actual canary exposed this and the source now uses root."
+  ],
+  "suggested_focused_tests": [
+    "Complete the final frozen-source real parent/child canary with injected OOM, safe pause, resume, and a changed number of CPU slots; retain latest hashes and persisted tier evidence.",
+    "Run interrupted-validation selection recovery, full-value tamper rejection, and injected export failure followed by retry without training or whitelist changes.",
+    "Retain the bare-Git public merge acceptance, unrelated staged/dirty rejection, unrelated clean unpublished commit rejection, and report-only push checks.",
+    "Run check_ecpa_real_data.py --device cpu separately: one first-record train update per trainable selector and first-record valid/test forwards only, with an untrained diagnostic backbone.",
+    "Before collaborator full execution, run the documented bounded GPU canary and validate actual private tensor reads; GPU unavailability is recorded as pending, not as a passing test."
+  ],
+  "evidence_separation": {
+    "reviewer_experiments_run": false,
+    "author_reported_checks": ["8 mechanism checks passed", "final identical-source actual CPU pause/OOM returned expected rc85 in 52.30 seconds", "final actual CPU resume completed all eight jobs with rc0 in 131.75 seconds", "completed-run topology change returned rc0 in 5.70 seconds", "public-merge/unpublished-commit bare-Git test passed in 3.13 seconds", "13 focused checks were running with the completed fixture reused and no concurrent workers"],
+    "external_attempt_record": ".codex-artifacts/q-ecpa-formal/external-review.json",
+    "failed_external_calls_are_not_reviews": true
+  },
+  "verdict": "PASS_WITH_RISK",
+  "confidence": "moderate-high for the explicitly bounded source review; actual execution and GPU readiness remain separate evidence",
+  "authorization_ceiling": "CPU synthetic lifecycle canary and the reviewed bounded real-data CPU diagnostic only. This artifact does not authorize a full formal experiment, declare publication readiness, or certify GPU/portal acceptance."
+}

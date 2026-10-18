@@ -1,0 +1,243 @@
+{
+  "schema_version": "q-ecpa-formal-preflight.v1",
+  "date": "2026-10-17",
+  "scope": "formal package preparation; bounded CPU execution only",
+  "formal_experiment_run": false,
+  "publication_ready": false,
+  "source": {
+    "base_git_revision": "ff47786b5c72046a113fcb61b70589547df8cd10",
+    "source_sha256": "7e40d4f728c624bee2c4a9be929acb64a57385a9977eb765bdb39da0dd267f08",
+    "reviewed_manifest_sha256": "4d954d2a65dd260c1db142698383f769cf5e0b5d08713a139606f230a3024e7f",
+    "manifest_in_review": "q_ecpa_formal_review.json"
+  },
+  "canary": {
+    "run_id": "20261017_final_seed13",
+    "fingerprint": "d61ac02900907f7bfc75965c88200c7ed5a834ba236e8442e3e7304d160d9c1b",
+    "profile": "synthetic_canary",
+    "jobs": {
+      "baseline": {
+        "status": "passed",
+        "samples": 28,
+        "full_numeric_artifacts": 980,
+        "private_values": true,
+        "reader": "arbitrary hash-checked tensor coordinates",
+        "semantic_lineage": "validated",
+        "trace_sha256": "043d1167c6d0a8f1c271f7ca0a84ba1e054734236f897b1c0d8a0a65ee127806",
+        "checkpoint_sha256": "ac8cbf4266211f09d791405c54692e2c2582d9dab7f92ea04213cc28b867f898"
+      },
+      "classical": {
+        "status": "passed",
+        "samples": 28,
+        "full_numeric_artifacts": 1428,
+        "private_values": true,
+        "reader": "arbitrary hash-checked tensor coordinates",
+        "semantic_lineage": "validated",
+        "trace_sha256": "0a14ca5ae1e9acdc4143c2066f8e717639b5694c89b2612c0a5921c9346a4388",
+        "checkpoint_sha256": "bbaddee999ac30b6dcc91a54c5a6efc43d43f70bb50174b2ad839ed2023eab9a"
+      },
+      "dephased": {
+        "status": "passed",
+        "samples": 28,
+        "full_numeric_artifacts": 1428,
+        "private_values": true,
+        "reader": "arbitrary hash-checked tensor coordinates",
+        "semantic_lineage": "validated",
+        "trace_sha256": "4254af6fb944256650c2175b50235594218b7ecfbb55e22b72d54051cf197981",
+        "checkpoint_sha256": "08195731874a1ba327fb0c576be79c74d9c01cbd9a5875a81523dafe99cf97da"
+      },
+      "disabled": {
+        "status": "passed",
+        "samples": 27,
+        "full_numeric_artifacts": 945,
+        "private_values": true,
+        "reader": "arbitrary hash-checked tensor coordinates",
+        "semantic_lineage": "validated",
+        "trace_sha256": "db189b703b3d26deea84fa8483db829a09d1a6f9a0e0ce65dfdd8a443998894f",
+        "checkpoint_sha256": "e3d926ade3e2e3ff39674c2bfee4f8aca8db9f93865c0e6f5d40b7ddf6890fa1"
+      },
+      "entity_permuted": {
+        "status": "passed",
+        "samples": 28,
+        "full_numeric_artifacts": 1428,
+        "private_values": true,
+        "reader": "arbitrary hash-checked tensor coordinates",
+        "semantic_lineage": "validated",
+        "trace_sha256": "035c835ba5a044c5034852bf7612cb2d50d29232ec84e3c95a07b68a5f4747e9",
+        "checkpoint_sha256": "276ed599765df542a07e08ab87ce82f4d88bdd57f2bd0b452e5f373dc38c1fae"
+      },
+      "original_qk": {
+        "status": "passed",
+        "samples": 28,
+        "full_numeric_artifacts": 1540,
+        "private_values": true,
+        "reader": "arbitrary hash-checked tensor coordinates",
+        "semantic_lineage": "validated",
+        "trace_sha256": "822fb2017c5428708fed44ee4ca8c155c4222c9caf12e267e32cb89691763003",
+        "checkpoint_sha256": "faa0691b81f415677e19274236cfb580077f38d87f8b7b1c42f8c0e4c14faee9"
+      },
+      "quantum": {
+        "status": "passed",
+        "samples": 28,
+        "full_numeric_artifacts": 1428,
+        "private_values": true,
+        "reader": "arbitrary hash-checked tensor coordinates",
+        "semantic_lineage": "validated",
+        "trace_sha256": "61a08f6f726d32d8cf520f894f82152392ebc089ce3726d9c7e0eb0ca35a5278",
+        "checkpoint_sha256": "4956be98dd91d9dcda5d16dd334c52cddbf4873918e66aa77919f23647895822"
+      },
+      "random_phase": {
+        "status": "passed",
+        "samples": 27,
+        "full_numeric_artifacts": 1377,
+        "private_values": true,
+        "reader": "arbitrary hash-checked tensor coordinates",
+        "semantic_lineage": "validated",
+        "trace_sha256": "36296a096ed96c97f3519b04b28346c73ea184b616ee5fcc02500263e153daf6",
+        "checkpoint_sha256": "43c6143670caec10351a0344410e4f8af96190ad1895a0ab8adc730b243363f9"
+      }
+    },
+    "events": [
+      {
+        "label": "pause_oom",
+        "returncode": 85,
+        "seconds": 52.304880413998035
+      },
+      {
+        "label": "resume",
+        "returncode": 0,
+        "seconds": 131.74569538001379
+      },
+      {
+        "label": "completed_topology_resume",
+        "returncode": 0,
+        "seconds": 5.699685532003059
+      }
+    ],
+    "oom": "synthetic injected CUDA-OOM exit path; no hardware OOM",
+    "persisted_quantum_tier": 1,
+    "topology": "one CPU slot for actual workers; three CPU slots on completed-run resume",
+    "total_samples": 222,
+    "total_numeric_artifacts": 10554
+  },
+  "focused_tests": {
+    "command": "ECPA_FORMAL_TEST_RUN=<completed-canary> python -m pytest tests/test_ecpa_formal.py -q",
+    "passed": 13,
+    "seconds": 165.08,
+    "coverage": [
+      "fast/full forward and gradient parity",
+      "disabled exact equivalence",
+      "full-model recomputation",
+      "GPU selection and linear memory tiers",
+      "actual parent/child queue and complete numeric decoding",
+      "validation-boundary recovery",
+      "export injected validation failure, clean staging and same-run retry",
+      "latest checkpoint immutability during export",
+      "numeric tamper rejection",
+      "report-only bare-Git push",
+      "public same-file merge acceptance",
+      "unrelated dirty and clean unpublished commit rejection"
+    ]
+  },
+  "real_data_probe": {
+    "schema_version": "ecpa-real-data-probe.v1",
+    "full_experiment": false,
+    "data": {
+      "train": {
+        "file": "train.jsonl",
+        "records": 58465,
+        "sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f"
+      },
+      "valid": {
+        "file": "valid.jsonl",
+        "records": 19584,
+        "sha256": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55"
+      },
+      "test": {
+        "file": "test.jsonl",
+        "records": 13418,
+        "sha256": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+      }
+    },
+    "max_tokens": 96,
+    "device": "cpu",
+    "torch": "2.7.1+cu126",
+    "source_sha256": "7e40d4f728c624bee2c4a9be929acb64a57385a9977eb765bdb39da0dd267f08",
+    "modes": {
+      "disabled": {
+        "status": "passed",
+        "optimizer_steps": 0,
+        "seconds": 0.19608912400144618,
+        "layers_observed": 2,
+        "representations": 33,
+        "baseline": "untrained diagnostic only"
+      },
+      "quantum": {
+        "status": "passed",
+        "optimizer_steps": 1,
+        "seconds": 0.3720470389962429,
+        "layers_observed": 2,
+        "representations": 49,
+        "baseline": "untrained diagnostic only"
+      },
+      "dephased": {
+        "status": "passed",
+        "optimizer_steps": 1,
+        "seconds": 0.07075671300117392,
+        "layers_observed": 2,
+        "representations": 49,
+        "baseline": "untrained diagnostic only"
+      },
+      "classical": {
+        "status": "passed",
+        "optimizer_steps": 1,
+        "seconds": 0.03723627199360635,
+        "layers_observed": 2,
+        "representations": 49,
+        "baseline": "untrained diagnostic only"
+      },
+      "random_phase": {
+        "status": "passed",
+        "optimizer_steps": 0,
+        "seconds": 0.03204070900392253,
+        "layers_observed": 2,
+        "representations": 49,
+        "baseline": "untrained diagnostic only"
+      },
+      "entity_permuted": {
+        "status": "passed",
+        "optimizer_steps": 1,
+        "seconds": 0.05251845000020694,
+        "layers_observed": 2,
+        "representations": 49,
+        "baseline": "untrained diagnostic only"
+      },
+      "original_qk": {
+        "status": "passed",
+        "optimizer_steps": 1,
+        "seconds": 0.12809807200392243,
+        "layers_observed": 2,
+        "representations": 53,
+        "baseline": "untrained diagnostic only"
+      }
+    }
+  },
+  "export": {
+    "failure_retry": "passed with injected canary-only exchange function",
+    "production_https_upload": "not exercised by this preflight",
+    "production_git_push": "not performed; local disposable bare remote exercised",
+    "raw_arrays_preserved": true
+  },
+  "review": {
+    "scope": "both",
+    "verdict": "PASS_WITH_RISK",
+    "must_fix": [],
+    "route": "capability-ranked compatible external routes failed; bounded independent subagent fallback"
+  },
+  "pending": [
+    "actual GPU canary including CUDA OOM and peak memory/throughput",
+    "production HTTPS private evidence exchange",
+    "human-facing portal import and actual full tensor coordinate rendering",
+    "code release to main and collaborator full seed-13 execution"
+  ],
+  "claim_ceiling": "implementation and bounded CPU data/lifecycle compatibility; no new formal L1 or quantum advantage"
+}

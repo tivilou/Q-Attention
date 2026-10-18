@@ -7,6 +7,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
+| [Q-ECPA Re-TACRED 正式单 seed](current/retacred_q_ecpa_formal_single_seed_zh.md) | 七路控制、逐层完整私有张量、线性 OOM 降档、动态 GPU 队列、batch 恢复与自动审计导出推送 |
 | [Re-TACRED 全套十五配置一键运行](current/retacred_all_reference_models_zh.md) | 解释性重建/源码适配、完整指标及数值 trace、单/多 GPU batch 恢复、18084 下载上传和报告自动推送 |
 | [Re-TACRED CTL-DRP 独立任务接口（待准入）](current/retacred_ctl_drp_reference_zh.md) | 外部资格记录绑定、固定配方、单 GPU 恢复、必需张量交付与报告发布；审查及 cohort 准入后才可执行 |
 | [Re-TACRED LUKE / MetaEntail 一键运行预检](current/retacred_reference_runtime_zh.md) | 两类模型的锁定源码与权重、tiny/full 串行诊断、失败汇总和私有证据上传；不触发全量训练或 Git 推送 |

@@ -1,0 +1,359 @@
+{
+  "schema_version": "research-plugin-architecture.plugin-plan.v2",
+  "project": "Q-Attention Q-ECPA toy",
+  "authorization": "implemented",
+  "baseline": {
+    "entry_point": "q_attention.models.relation_transformer.RelationExtractionModel",
+    "code_revision": "4bef635cfee7f10e196543067936b09b2bfa3479",
+    "equivalence_test": "tests/test_ecpa.py::test_disabled_exact_baseline_and_scope_cleanup"
+  },
+  "core_invariants": [
+    "Stable baseline source unchanged; no gold in graph or prediction",
+    "Full formal runs collaborator-only; this runner is bounded CPU synthetic toy",
+    "No automatic revival of closed Q-WAP; no claim of quantum advantage or L1 from toy"
+  ],
+  "interfaces": [
+    {
+      "id": "attention_scores",
+      "type": "enhancer",
+      "input_schema": "Q,K,V/scores and observed entity/masks",
+      "output_schema": "unchanged shape scores plus bounded residual; V unchanged",
+      "invariants": [
+        "padding receives no residual",
+        "disabled exactly equivalent"
+      ]
+    }
+  ],
+  "plugins": [
+    {
+      "id": "disabled",
+      "version": "0.1.0",
+      "role": "baseline",
+      "interface": "attention_scores",
+      "insertion_point": "native model forward with disabled pass-through",
+      "hypothesis": "Unmodified compact relation classifier",
+      "input_schema": "B,H,N,D queries and B,N masks; no targets",
+      "output_schema": "B,H,N,N adjusted logits",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "O(B H N^3), max N8 in toy; CPU2 threads",
+      "failure_signatures": [
+        "zero cycle flux",
+        "zero gradient",
+        "same Q/D at m>1",
+        "missing numeric values"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "stages": [
+          "data",
+          "preprocess",
+          "scoring",
+          "context",
+          "generation",
+          "evaluation",
+          "training",
+          "diagnosis"
+        ],
+        "input_fields": [
+          "query",
+          "scores",
+          "attention_mask",
+          "subject_mask",
+          "object_mask"
+        ],
+        "output_fields": [
+          "adjusted_scores",
+          "logits"
+        ],
+        "input_refs": [
+          "source:sentence",
+          "source:entity_spans"
+        ],
+        "output_refs": [
+          "adjusted_scores",
+          "logits"
+        ],
+        "emitted_fields": [
+          "input_ids",
+          "attention_mask",
+          "subject_mask",
+          "object_mask",
+          "token_embedding",
+          "position_embedding",
+          "embedding",
+          "query",
+          "key",
+          "value",
+          "base_scores",
+          "adjusted_scores",
+          "attention",
+          "context",
+          "attention_output",
+          "attention_hidden",
+          "ffn",
+          "hidden",
+          "pooled",
+          "classifier_hidden",
+          "logits",
+          "probabilities",
+          "loss",
+          "classifier_gradient",
+          "plugin_gradient",
+          "diagnostics"
+        ],
+        "shape_dtype_normalization": [
+          "B,H,N,D queries; complex H[destination,source]; P[query,key]",
+          "selected-case lossless NPY values with named axes and hash-checked coordinate access"
+        ],
+        "checks": [
+          "unitarity",
+          "gauge invariance",
+          "finite difference gradient",
+          "full NPY decoding and reader equality"
+        ],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "q_ecpa",
+      "version": "0.1.0",
+      "role": "idea",
+      "interface": "attention_scores",
+      "insertion_point": "one-layer attention_intervention.after_scores in toy adapter",
+      "hypothesis": "Entity-conditioned loop-phase interference may improve relation attention",
+      "input_schema": "B,H,N,D queries and B,N masks; no targets",
+      "output_schema": "B,H,N,N adjusted logits",
+      "requires": [
+        "disabled"
+      ],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "O(B H N^3), max N8 in toy; CPU2 threads",
+      "failure_signatures": [
+        "zero cycle flux",
+        "zero gradient",
+        "same Q/D at m>1",
+        "missing numeric values"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "stages": [
+          "data",
+          "preprocess",
+          "scoring",
+          "context",
+          "generation",
+          "evaluation",
+          "training",
+          "diagnosis"
+        ],
+        "input_fields": [
+          "query",
+          "scores",
+          "attention_mask",
+          "subject_mask",
+          "object_mask"
+        ],
+        "output_fields": [
+          "adjusted_scores",
+          "logits"
+        ],
+        "input_refs": [
+          "source:sentence",
+          "source:entity_spans"
+        ],
+        "output_refs": [
+          "adjusted_scores",
+          "logits"
+        ],
+        "emitted_fields": [
+          "input_ids",
+          "attention_mask",
+          "subject_mask",
+          "object_mask",
+          "token_embedding",
+          "position_embedding",
+          "embedding",
+          "query",
+          "key",
+          "value",
+          "entity_pair",
+          "skew",
+          "edges",
+          "degree",
+          "phase",
+          "hamiltonian",
+          "unitary",
+          "amplitudes",
+          "single",
+          "dephased_steps",
+          "pq",
+          "pd",
+          "transition",
+          "classical_steps",
+          "probability",
+          "residual",
+          "base_scores",
+          "adjusted_scores",
+          "attention",
+          "context",
+          "attention_output",
+          "attention_hidden",
+          "ffn",
+          "hidden",
+          "pooled",
+          "classifier_hidden",
+          "logits",
+          "probabilities",
+          "loss",
+          "classifier_gradient",
+          "plugin_gradient",
+          "diagnostics"
+        ],
+        "shape_dtype_normalization": [
+          "B,H,N,D queries; complex H[destination,source]; P[query,key]",
+          "selected-case lossless NPY values with named axes and hash-checked coordinate access"
+        ],
+        "checks": [
+          "unitarity",
+          "gauge invariance",
+          "finite difference gradient",
+          "full NPY decoding and reader equality"
+        ],
+        "deterministic_replay": true
+      }
+    }
+  ],
+  "trace_contract": {
+    "enabled": true,
+    "schema": "sample-trace.v2",
+    "artifact_path": "runs/ecpa_toy/seed13/<mode>/sample_trace.json",
+    "sample_selection_rule": "First frozen ID of train/valid/test at initial/best/final plus actual first train update",
+    "target_boundary": "Correct relation enters loss/backward only after target-free prediction",
+    "required_stages": [
+      "data",
+      "preprocess",
+      "scoring",
+      "context",
+      "generation",
+      "evaluation",
+      "training",
+      "diagnosis"
+    ],
+    "semantic_roles": [
+      "sentence",
+      "tokens",
+      "subject",
+      "object",
+      "correct_relation",
+      "predicted_relation",
+      "checkpoint_identity"
+    ],
+    "required_representations": [
+      "input_ids",
+      "attention_mask",
+      "subject_mask",
+      "object_mask",
+      "token_embedding",
+      "position_embedding",
+      "embedding",
+      "query",
+      "key",
+      "value",
+      "base_scores",
+      "adjusted_scores",
+      "attention",
+      "context",
+      "attention_output",
+      "attention_hidden",
+      "ffn",
+      "hidden",
+      "pooled",
+      "classifier_hidden",
+      "logits",
+      "probabilities",
+      "loss",
+      "classifier_gradient",
+      "plugin_gradient",
+      "diagnostics"
+    ],
+    "producer_owned_lineage": [
+      "embedding -> QKV -> path scores -> attention/context -> hidden -> pooled -> logits -> loss -> backward"
+    ],
+    "readiness_checks": [
+      "shared v2 structural validator",
+      "project complete values and reader equality",
+      "cross-split/checkpoint coverage",
+      "formal portal browser gate still required"
+    ]
+  },
+  "discovery": {
+    "mode": "explicit_allowlist",
+    "allowlist": [
+      "disabled",
+      "q_ecpa"
+    ]
+  },
+  "composition": {
+    "mode": "single",
+    "order": [
+      "q_ecpa"
+    ],
+    "merge_rule": "single bounded score residual",
+    "interaction_ablations": [
+      "same-H dephased",
+      "same-parameter classical",
+      "random operator",
+      "entity swap",
+      "original QK distinctness"
+    ]
+  },
+  "validation": {
+    "baseline_equivalence": "bitwise output equivalence at disabled",
+    "tests": [
+      "baseline_equivalence",
+      "plugin_isolation",
+      "deterministic_replay",
+      "interaction_ablation",
+      "trace_structural_validation",
+      "trace_semantic_validation",
+      "trace_replay",
+      "Hermiticity/unitarity/normalization",
+      "node gauge invariance and m1 null",
+      "nonzero finite difference gradients",
+      "resumable next update",
+      "actual train/replay full tensor decoding",
+      "reader tamper rejection"
+    ]
+  },
+  "reproducibility": {
+    "config_path": "runs/ecpa_toy/seed13/config.json",
+    "dataset_identity": "ecpa-public-synthetic-v1; split hash in config",
+    "environment": "authorized3080Ti /usr/local/miniconda3/envs/py310; torch2.7.1; CPU only",
+    "seeds": [
+      13
+    ],
+    "output_manifest": "runs/ecpa_toy/seed13/summary.json"
+  },
+  "limitations": [
+    "Dense exponentials; no GPU/DDP/formal data support",
+    "Original QK trained comparator and actual portal browser inspection are follow-up gates",
+    "Toy result is not formal L1 and ordinary null is inconclusive",
+    "Readiness applies only to this toy's numeric producer/reader; no formal portal browser or GPU certification"
+  ],
+  "recovery_contract": {
+    "dossier_path": "docs/q_ecpa_mechanism_recovery.json",
+    "dossier_sha256": "044815249fbee7b904dff1cc4732ebb475a1aa93fbec50dc695e97816e56fc05",
+    "candidate_id": "q_ecpa",
+    "discriminating_intermediate_measurement": "Same-H PQ-PD, loop flux, attention/logit changes and gradients"
+  },
+  "trace_readiness": {
+    "status": "passed",
+    "fixture_path": "runs/ecpa_toy/20261017_seed13/quantum/sample_trace.json",
+    "structural_validation": "docs/validation/q_ecpa_toy_preflight.json: all five strict complete shared v2 gates",
+    "semantic_validation": "All1940 NPY artifacts decoded; shape/count/hash/complex reader coordinates and two numeric lineage edges checked",
+    "replay_test": "tests/test_ecpa.py::test_interrupted_update_replay_trace_values_and_tamper; optimizer boundary4->10 bitwise identical"
+  }
+}

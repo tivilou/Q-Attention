@@ -1,0 +1,619 @@
+{
+  "experiment": "q-ecpa-toy-v1",
+  "timestamp_precision": "2026-10-17 UTC date; run clock not separately logged",
+  "scope": "bounded CPU synthetic screen, NOT formal Re-TACRED or L1 evidence",
+  "config": {
+    "seed": 13,
+    "updates": 100,
+    "batch_size": 16,
+    "lr": 0.003,
+    "dataset_sha256": "7bf08eae55f31b38adbf05028dbcd85977472adbf2dcbcb38bcdfcdefafa5c0e",
+    "source_sha256": "99a5f1dcda59e4b84e5af46524f268b4ec0c8fb3277f8bd4388af9347f935bb2",
+    "primary": "best-validation macro_f1; report held-out test macro_f1"
+  },
+  "baseline_revision": "4bef635cfee7f10e196543067936b09b2bfa3479",
+  "runtime": "3080Ti development server; CUDA unavailable; py310 torch2.7.1 CPU",
+  "results": {
+    "disabled": {
+      "status": "complete",
+      "mode": "disabled",
+      "config_sha256": "9322eff2ed427a76a22c81a5409ea56aa7590fe1e8bd83bf1e3d7485c460f860",
+      "updates": 100,
+      "best_update": 100,
+      "valid": {
+        "accuracy": 0.9791666666666666,
+        "micro_precision": 0.9791666666666666,
+        "micro_recall": 0.9791666666666666,
+        "micro_f1": 0.9791666666666666,
+        "macro_f1": 0.981981981981982,
+        "loss": 0.03730100765824318,
+        "per_class": [
+          {
+            "label": "employee_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 11
+          },
+          {
+            "label": "resident_of",
+            "precision": 0.9473684210526315,
+            "recall": 1.0,
+            "f1": 0.972972972972973,
+            "support": 18
+          },
+          {
+            "label": "founder_of",
+            "precision": 1.0,
+            "recall": 0.9473684210526315,
+            "f1": 0.972972972972973,
+            "support": 19
+          }
+        ],
+        "confusion": [
+          [
+            11,
+            0,
+            0
+          ],
+          [
+            0,
+            18,
+            0
+          ],
+          [
+            0,
+            1,
+            18
+          ]
+        ]
+      },
+      "test": {
+        "accuracy": 0.9791666666666666,
+        "micro_precision": 0.9791666666666666,
+        "micro_recall": 0.9791666666666666,
+        "micro_f1": 0.9791666666666666,
+        "macro_f1": 0.978494623655914,
+        "loss": 0.05591404810547829,
+        "per_class": [
+          {
+            "label": "employee_of",
+            "precision": 1.0,
+            "recall": 0.9375,
+            "f1": 0.967741935483871,
+            "support": 16
+          },
+          {
+            "label": "resident_of",
+            "precision": 0.9375,
+            "recall": 1.0,
+            "f1": 0.967741935483871,
+            "support": 15
+          },
+          {
+            "label": "founder_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 17
+          }
+        ],
+        "confusion": [
+          [
+            15,
+            1,
+            0
+          ],
+          [
+            0,
+            15,
+            0
+          ],
+          [
+            0,
+            0,
+            17
+          ]
+        ]
+      },
+      "trainable_parameters": 3555,
+      "trace": {
+        "status": "passed",
+        "samples": 10,
+        "representations": 26,
+        "full_value_artifacts": 260
+      },
+      "scope": "Synthetic toy only; no formal Re-TACRED utility or quantum advantage claim."
+    },
+    "quantum": {
+      "status": "complete",
+      "mode": "quantum",
+      "config_sha256": "9322eff2ed427a76a22c81a5409ea56aa7590fe1e8bd83bf1e3d7485c460f860",
+      "updates": 100,
+      "best_update": 90,
+      "valid": {
+        "accuracy": 1.0,
+        "micro_precision": 1.0,
+        "micro_recall": 1.0,
+        "micro_f1": 1.0,
+        "macro_f1": 1.0,
+        "loss": 0.02298819273710251,
+        "per_class": [
+          {
+            "label": "employee_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 11
+          },
+          {
+            "label": "resident_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 18
+          },
+          {
+            "label": "founder_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 19
+          }
+        ],
+        "confusion": [
+          [
+            11,
+            0,
+            0
+          ],
+          [
+            0,
+            18,
+            0
+          ],
+          [
+            0,
+            0,
+            19
+          ]
+        ]
+      },
+      "test": {
+        "accuracy": 1.0,
+        "micro_precision": 1.0,
+        "micro_recall": 1.0,
+        "micro_f1": 1.0,
+        "macro_f1": 1.0,
+        "loss": 0.033634308725595474,
+        "per_class": [
+          {
+            "label": "employee_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 16
+          },
+          {
+            "label": "resident_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 15
+          },
+          {
+            "label": "founder_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 17
+          }
+        ],
+        "confusion": [
+          [
+            16,
+            0,
+            0
+          ],
+          [
+            0,
+            15,
+            0
+          ],
+          [
+            0,
+            0,
+            17
+          ]
+        ]
+      },
+      "trainable_parameters": 4643,
+      "trace": {
+        "status": "passed",
+        "samples": 10,
+        "representations": 42,
+        "full_value_artifacts": 420
+      },
+      "scope": "Synthetic toy only; no formal Re-TACRED utility or quantum advantage claim."
+    },
+    "dephased": {
+      "status": "complete",
+      "mode": "dephased",
+      "config_sha256": "9322eff2ed427a76a22c81a5409ea56aa7590fe1e8bd83bf1e3d7485c460f860",
+      "updates": 100,
+      "best_update": 80,
+      "valid": {
+        "accuracy": 1.0,
+        "micro_precision": 1.0,
+        "micro_recall": 1.0,
+        "micro_f1": 1.0,
+        "macro_f1": 1.0,
+        "loss": 0.06627964973449707,
+        "per_class": [
+          {
+            "label": "employee_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 11
+          },
+          {
+            "label": "resident_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 18
+          },
+          {
+            "label": "founder_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 19
+          }
+        ],
+        "confusion": [
+          [
+            11,
+            0,
+            0
+          ],
+          [
+            0,
+            18,
+            0
+          ],
+          [
+            0,
+            0,
+            19
+          ]
+        ]
+      },
+      "test": {
+        "accuracy": 0.9791666666666666,
+        "micro_precision": 0.9791666666666666,
+        "micro_recall": 0.9791666666666666,
+        "micro_f1": 0.9791666666666666,
+        "macro_f1": 0.978494623655914,
+        "loss": 0.08199327439069748,
+        "per_class": [
+          {
+            "label": "employee_of",
+            "precision": 1.0,
+            "recall": 0.9375,
+            "f1": 0.967741935483871,
+            "support": 16
+          },
+          {
+            "label": "resident_of",
+            "precision": 0.9375,
+            "recall": 1.0,
+            "f1": 0.967741935483871,
+            "support": 15
+          },
+          {
+            "label": "founder_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 17
+          }
+        ],
+        "confusion": [
+          [
+            15,
+            1,
+            0
+          ],
+          [
+            0,
+            15,
+            0
+          ],
+          [
+            0,
+            0,
+            17
+          ]
+        ]
+      },
+      "trainable_parameters": 4643,
+      "trace": {
+        "status": "passed",
+        "samples": 10,
+        "representations": 42,
+        "full_value_artifacts": 420
+      },
+      "scope": "Synthetic toy only; no formal Re-TACRED utility or quantum advantage claim."
+    },
+    "classical": {
+      "status": "complete",
+      "mode": "classical",
+      "config_sha256": "9322eff2ed427a76a22c81a5409ea56aa7590fe1e8bd83bf1e3d7485c460f860",
+      "updates": 100,
+      "best_update": 100,
+      "valid": {
+        "accuracy": 1.0,
+        "micro_precision": 1.0,
+        "micro_recall": 1.0,
+        "micro_f1": 1.0,
+        "macro_f1": 1.0,
+        "loss": 0.01839389279484749,
+        "per_class": [
+          {
+            "label": "employee_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 11
+          },
+          {
+            "label": "resident_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 18
+          },
+          {
+            "label": "founder_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 19
+          }
+        ],
+        "confusion": [
+          [
+            11,
+            0,
+            0
+          ],
+          [
+            0,
+            18,
+            0
+          ],
+          [
+            0,
+            0,
+            19
+          ]
+        ]
+      },
+      "test": {
+        "accuracy": 1.0,
+        "micro_precision": 1.0,
+        "micro_recall": 1.0,
+        "micro_f1": 1.0,
+        "macro_f1": 1.0,
+        "loss": 0.013836867175996304,
+        "per_class": [
+          {
+            "label": "employee_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 16
+          },
+          {
+            "label": "resident_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 15
+          },
+          {
+            "label": "founder_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 17
+          }
+        ],
+        "confusion": [
+          [
+            16,
+            0,
+            0
+          ],
+          [
+            0,
+            15,
+            0
+          ],
+          [
+            0,
+            0,
+            17
+          ]
+        ]
+      },
+      "trainable_parameters": 4643,
+      "trace": {
+        "status": "passed",
+        "samples": 10,
+        "representations": 42,
+        "full_value_artifacts": 420
+      },
+      "scope": "Synthetic toy only; no formal Re-TACRED utility or quantum advantage claim."
+    },
+    "random_phase": {
+      "status": "complete",
+      "mode": "random_phase",
+      "config_sha256": "9322eff2ed427a76a22c81a5409ea56aa7590fe1e8bd83bf1e3d7485c460f860",
+      "updates": 100,
+      "best_update": 90,
+      "valid": {
+        "accuracy": 1.0,
+        "micro_precision": 1.0,
+        "micro_recall": 1.0,
+        "micro_f1": 1.0,
+        "macro_f1": 1.0,
+        "loss": 0.02068510092794895,
+        "per_class": [
+          {
+            "label": "employee_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 11
+          },
+          {
+            "label": "resident_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 18
+          },
+          {
+            "label": "founder_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 19
+          }
+        ],
+        "confusion": [
+          [
+            11,
+            0,
+            0
+          ],
+          [
+            0,
+            18,
+            0
+          ],
+          [
+            0,
+            0,
+            19
+          ]
+        ]
+      },
+      "test": {
+        "accuracy": 1.0,
+        "micro_precision": 1.0,
+        "micro_recall": 1.0,
+        "micro_f1": 1.0,
+        "macro_f1": 1.0,
+        "loss": 0.028002453967928886,
+        "per_class": [
+          {
+            "label": "employee_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 16
+          },
+          {
+            "label": "resident_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 15
+          },
+          {
+            "label": "founder_of",
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 17
+          }
+        ],
+        "confusion": [
+          [
+            16,
+            0,
+            0
+          ],
+          [
+            0,
+            15,
+            0
+          ],
+          [
+            0,
+            0,
+            17
+          ]
+        ]
+      },
+      "trainable_parameters": 3555,
+      "trace": {
+        "status": "passed",
+        "samples": 10,
+        "representations": 42,
+        "full_value_artifacts": 420
+      },
+      "scope": "Synthetic toy only; no formal Re-TACRED utility or quantum advantage claim."
+    }
+  },
+  "shared_structural_validation": {
+    "classical": {
+      "status": "passed",
+      "samples": 10,
+      "sha256": "d420d1722bb94d491b3a8daf03becc388e9a386b1ebaa0615e891c12b090c4d7"
+    },
+    "dephased": {
+      "status": "passed",
+      "samples": 10,
+      "sha256": "731bf4febc3beec5779cd7606574d73e481539dc2f398131f62053166ca8bb00"
+    },
+    "disabled": {
+      "status": "passed",
+      "samples": 10,
+      "sha256": "597cb61c123ed93d987518523470dd119a20287ae3978d9db60e1236e940c87f"
+    },
+    "quantum": {
+      "status": "passed",
+      "samples": 10,
+      "sha256": "b8991095adcabef2bfe1eb37ec1397059da28815b6982d5334f1c57f346ae66e"
+    },
+    "random_phase": {
+      "status": "passed",
+      "samples": 10,
+      "sha256": "b1dec002cd18f1d0243baef85ef7b9f8e279020331fb88e1781074ecbed6fd41"
+    }
+  },
+  "focused_tests": {
+    "status": "passed",
+    "count": 11,
+    "seconds": 21.15,
+    "output_sha256": "e1e3d3178a6be4cb81ad02dc676aa27006df6e7afa63c56d3947d5461c3d9170"
+  },
+  "trace_scope": {
+    "samples": 50,
+    "full_numeric_artifacts": 1940,
+    "selection": "first ID per train/valid/test at initial/best/final, plus same real first train update",
+    "capture": "complete NPY values for declared toy inventory; arbitrary hash-checked prefix slices; no portal UI readiness claim"
+  },
+  "conclusions": [
+    "Quantum test Macro-F1 exceeds disabled by .021505376344086002, a one-record accuracy difference (48 vs47 /48)",
+    "Classical and fixed-random operator also score1; no quantum or learned entity-phase attribution established",
+    "Same-H dephased condition scores .978494623655914; ceiling-sized toy does not establish robust separation",
+    "Original QK trained comparator, stronger entity permutation and GPU/real-data/portal integration remain before formal handoff"
+  ],
+  "artifacts": "runs/ecpa_toy/20261017_seed13 on dedicated /home/Q-Attention/q-ecpa-toy worktree; raw values/checkpoints excluded from Git"
+}

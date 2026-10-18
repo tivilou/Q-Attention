@@ -1,0 +1,133 @@
+{
+  "schema_version": "q-ecpa-evidence-review.v1",
+  "date": "2026-10-17",
+  "external_attempts": [
+    {
+      "route": "capability-ranked compatible Astra/max",
+      "result": "timeout",
+      "advice_received": false
+    },
+    {
+      "route": "next compatible Opus5/max",
+      "result": "HTTP 503",
+      "advice_received": false
+    }
+  ],
+  "ranking_boundary": "Higher requested profiles without verified native max mappings were skipped, not silently reranked.",
+  "original_fallback_review": {
+    "schema_version": "q-ecpa-private-reader-review.v1",
+    "review_mode": "subagent_fallback",
+    "reviewer_model": "Codex independent review subagent; inherited runtime model",
+    "review_scope": "lifecycle",
+    "source_binding": {
+      "manifest": ".codex-artifacts/q-ecpa-evidence/review-source-manifest.json",
+      "manifest_sha256": "cf9d13702c9ad9aa5258213f86e299ce8d97dc0aedd2ee26ee4581df5aee1de9",
+      "packet_sha256": "cc3485099d236a1433d61e684b480befd887b9d477ae0a8fbf6b3a61d5eb5a50",
+      "reviewed_file_count": 9,
+      "reviewed_delta_sha256": {
+        ".codex-artifacts/q-ecpa-evidence/qualify_exchange.py": "6ed5252aed00aa56bb581494249da43900a60f13855113632ef51503962e0118",
+        ".codex-artifacts/q-ecpa-formal/source/scripts/serve_ecpa_case_reader.py": "f954af5bd325ea699193a24a663678e89acfe555d8946b8b670d56d43b54fd86",
+        ".codex-artifacts/q-ecpa-formal/source/research-web/apps/ecpa-case-reader/index.html": "95496ef7640075ae781298b72315a93bd9b6c979063458dd7ea4fa3f51f760d7",
+        ".codex-artifacts/q-ecpa-formal/source/tests/test_ecpa_case_reader.py": "9d9d82331b58604d9854d1206468cc0620d62feb3db695538dd60674c60eee6b",
+        ".codex-artifacts/q-ecpa-formal/source/research-web/apps/ecpa-case-reader/README.md": "a2936eb00e93666ae1c7db8ab5bedd4fd844929d2ca397afba4ee4cfd30160ad"
+      },
+      "packet_delta_note": "Final nine-file manifest matches every current file byte hash. The empty-query parser fix, bounded query-field count and same-origin empty favicon route were reviewed as tiny lifecycle deltas; original model/training/exporter remain unchanged.",
+      "training_model_exporter_commit_unchanged": "6544708",
+      "external_attempt_record": ".codex-artifacts/q-ecpa-evidence/external-review.json",
+      "scientific_review_reopened": false
+    },
+    "correctness": {
+      "status": "reader_source_pass_after_reviewed_boundary_fixes",
+      "observations": [
+        "The reader requires the report marker to hash-bind its index, manifest and configuration, validates the report fingerprint, then binds each condition's complete trace to its indexed SHA256 and model identity.",
+        "Every requested numeric artifact is confined below its trace directory, symlinks/path traversal are rejected, and bytes/SHA256/shape/dtype are checked before mmap reading with allow_pickle=False.",
+        "Arbitrary prefixes select leading axes; returned tiles are bounded to 32x32 matrices or 128-element vectors. Scalars and real/imaginary/magnitude components are handled explicitly and nonfinite requested values are rejected.",
+        "HTML-visible sample text and metadata use escaping; numeric table cells come from finite numeric JSON values. No dataset, NPY, archive or arbitrary filesystem route is exposed.",
+        "The corrected numberLabel uses maximumSignificantDigits:7 without stripping integer trailing zeros. The actual-training dialog now explicitly distinguishes a single-case loss from the whole logical batch gradient; replay is marked diagnostic with no optimizer step."
+      ],
+      "references": [
+        "scripts/serve_ecpa_case_reader.py:117",
+        "scripts/serve_ecpa_case_reader.py:180",
+        "research-web/apps/ecpa-case-reader/reader.js:17",
+        "research-web/apps/ecpa-case-reader/reader.js:22"
+      ]
+    },
+    "lifecycle_correctness": {
+      "status": "local_reader_canary_and_bounded_authenticated_readback_permitted",
+      "observations": [
+        "The HTTP server binds only 127.0.0.1. Host must match the server's localhost/127.0.0.1 port, and an Origin header must match one of those local HTTP origins. No CORS grant is added.",
+        "Routes are an explicit static asset whitelist plus index/sample/value GET endpoints. Other paths fail closed, POST is unsupported, responses use no-store/nosniff and a same-origin CSP, and request logging omits private sample parameters.",
+        "The reader does not import torch or invoke training, export, upload, mutation or Git publication.",
+        "The qualification harness audits an already-completed synthetic run, uses a fresh private output directory and refuses foreign/mock export receipts. It checks final report/sibling cleanup after injected export validation failure, retries the same completed run, and verifies checkpoint plus completion/summary/manifest hashes did not change."
+      ],
+      "references": [
+        "scripts/serve_ecpa_case_reader.py:216",
+        "scripts/serve_ecpa_case_reader.py:269",
+        ".codex-artifacts/q-ecpa-evidence/qualify_exchange.py:27"
+      ]
+    },
+    "artifact_and_recovery": {
+      "status": "bounded_upload_readback_source_pass_redirect_fix_verified",
+      "observations": [
+        "The existing frozen exporter provides deterministic private tar parts and verified receipt reuse; this review does not reauthorize or alter that exporter.",
+        "The harness reads authenticated HTTPS parts, checks declared lengths, each part's byte count and SHA256, concatenated archive length and hash, and then extracts only regular files below an explicit jobs/known-condition namespace into a fresh directory using exclusive creation.",
+        "Links, absolute paths, traversal and duplicate overwrite are rejected during extraction. Uploaded artifact bytes are compared to the source run, and the last coordinate of every nonempty stored tensor is compared in all three complex components through the actual reader.",
+        "Credentials are read inside the temporary harness process and are not intentionally included in receipts, printed results or browser API projections. Readback now uses an explicit CA-verified HTTPS opener with environmental proxies disabled and NoRedirect.redirect_request raising HTTPError before any second request can forward credentials."
+      ]
+    },
+    "must_fix": [],
+    "resolved_findings": [
+      "Seven-digit integer formatting previously stripped significant trailing zeros; the reviewed JS now uses locale formatting with seven significant digits.",
+      "The training dialog previously implied the selected sample's loss alone produced the stored logical-batch gradient; an explicit training/replay explanation now states the actual provenance.",
+      "Authenticated readback formerly used default urlopen redirect handling. qualify_exchange.py:22 now refuses redirects before a second request; line 61 constructs the explicit CA/NoRedirect/no-proxy opener and line 69 uses only opener.open.",
+      "The empty-query HTTP index path previously relied on strict parse_qs(''), which failed in the tested Python 3.10 environment. The reader now bypasses parsing an empty query and caps nonempty queries at 16 fields. Favicon uses an empty same-origin 204 route after Host/Origin validation, preserving CSP."
+    ],
+    "nonblocking_limits": [
+      "The reviewer did not execute tests or network/browser checks. The author reports all four focused reader tests passed in 0.74 seconds and real browser checks passed; actual HTTPS upload/readback results still need separate execution evidence before being reported as passed.",
+      "This is a read-only local reader for private evidence, not evidence that the production research portal has already registered/imported the artifacts.",
+      "The report currently does not provide label_to_id under manifest.data, so the reader's optional label_order field is empty. Relation score vector positions should not be assigned invented class names; an explicit verified mapping can improve later presentation.",
+      "A complete selected-case trace does not contain every other member's contribution to a training batch; the reviewed dialog now states that limitation explicitly."
+    ],
+    "evidence_separation": {
+      "reviewer_executed_tests_or_network": false,
+      "author_reported_validation": {
+        "reader_tests": "4 passed in 0.74 seconds",
+        "browser_stage_io_modals": 54,
+        "browser_representations": 207,
+        "browser_source_coordinate_comparisons": 51,
+        "viewport_widths": [
+          1440,
+          390
+        ],
+        "overflow": false,
+        "page_errors": 0
+      },
+      "authenticated_exchange_execution_status": "Separate acceptance evidence required; source approval is not a successful network result"
+    },
+    "verdict": "PASS_WITH_RISK",
+    "confidence": "high for the stated static lifecycle/privacy findings; no tests, network calls, credentials, training or Git operations were performed",
+    "authorization_ceiling": "Local reader unit/browser checks and the reviewed bounded actual HTTPS upload/readback/injected-export-cleanup/retry qualification may proceed against an already-completed synthetic run using the authorized project exchange. No scientific/model changes, new training, formal-data run or Git publication are authorized."
+  },
+  "original_fallback_artifact_sha256": "7a3d6bf5ce3a35f7fb6fcdeeed8c1d4f4957c0a6aaf602abc4320ecb11f2c0de",
+  "host_post_review_delta": {
+    "file": "research-web/apps/ecpa-case-reader/theme.css",
+    "scope": "ordinary R1 visual-only tooltip wrapping and maximum width; no API, source, trust or capture changes",
+    "final_sha256": "be8475406fad18060b4778931211c301a742e2b4cf6a97d34d5804f81740462c",
+    "validation": "Final desktop/mobile browser acceptance; help stays inside both viewports.",
+    "review_reuse_boundary": "Original reviewed manifest remains historical; final manifest separately binds the cosmetic delta."
+  },
+  "host_acceptance": "See q_ecpa_evidence_preflight.json. Executed checks are author evidence, not reviewer-executed checks.",
+  "final_reader_files": {
+    "scripts/serve_ecpa_case_reader.py": "f954af5bd325ea699193a24a663678e89acfe555d8946b8b670d56d43b54fd86",
+    "tests/test_ecpa_case_reader.py": "9d9d82331b58604d9854d1206468cc0620d62feb3db695538dd60674c60eee6b",
+    "research-web/apps/ecpa-case-reader/index.html": "95496ef7640075ae781298b72315a93bd9b6c979063458dd7ea4fa3f51f760d7",
+    "research-web/apps/ecpa-case-reader/reader.css": "17e4065c8b18f52712f2e774f659c8663344c8a022fe95d6ff11c2390801f28e",
+    "research-web/apps/ecpa-case-reader/reader.js": "3227165e78a9e4f086b1365edd59e840ea87bad3b05a2a783a9ce4c64be19fe8",
+    "research-web/apps/ecpa-case-reader/README.md": "a2936eb00e93666ae1c7db8ab5bedd4fd844929d2ca397afba4ee4cfd30160ad",
+    "research-web/apps/ecpa-case-reader/research-editorial.css": "938cebf1dd10e0b8605824c25f4bd3d555ce45803c42a2493ef39531f2350087",
+    "research-web/apps/ecpa-case-reader/theme.css": "be8475406fad18060b4778931211c301a742e2b4cf6a97d34d5804f81740462c"
+  },
+  "private_harness_sha256": "6ed5252aed00aa56bb581494249da43900a60f13855113632ef51503962e0118",
+  "verdict": "PASS_WITH_RISK",
+  "remaining_blockers": []
+}

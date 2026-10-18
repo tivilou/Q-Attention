@@ -1,0 +1,20 @@
+{
+  "schema_version": "q-attention.ecpa-formal.v1",
+  "name": "retacred_q_ecpa_formal_single_seed",
+  "profile": "formal_seed13",
+  "seed": 13,
+  "expected_records": {"train":58465,"valid":19584,"test":13418},
+  "selectors": ["disabled","quantum","dephased","classical","random_phase","entity_permuted","original_qk"],
+  "candidate": "quantum",
+  "primary": "macro_f1",
+  "baseline": {"epochs":8,"batch_size":16,"lr":0.001},
+  "kernel": {"epochs":12,"batch_size":256,"lr":0.001},
+  "model": {"dim":32,"num_layers":2,"num_heads":4,"ff_dim":64,"dropout":0.0},
+  "ecpa": {"steps":3,"delta":0.7,"alpha":0.1,"clip":4.0,"random_seed":1729},
+  "insertion": "ECPA on encoder layer 0; original QK retained on both layers, explicitly a historical reference rather than a capacity-matched control",
+  "entity_permutation": "Exchange subject and object conditioning only; pooling and correct target remain unchanged. Fixed within-sentence pair swap, independent of microbatch partition.",
+  "case_study": {"indices":[0,1,2],"splits":["train","valid","test"],"checkpoints":["initial","best","final"],"schema":"sample-trace.v2","values":"complete lossless NPY; private exchange only","actual_training":"sample 0 at the first logical optimizer update; gradient fields describe its logical minibatch, replay gradients are per sample"},
+  "checkpoint": {"every_updates":50,"every_seconds":120,"safe_pause":true,"retention":"latest and best only; latest atomically contains best selection state"},
+  "memory": {"trigger":"actual CUDA OOM only","policy":"linear microbatch reduction; then exact full-model recomputation","logical_batch_fixed":true,"no_token_axis_chunking":true},
+  "claims": {"positive_valid_formal_primary_delta_is_L1":true,"quantum_attribution_separate":true,"classical_QI_relative_gain_strictly_greater_than":0.01,"single_seed_only":true,"full_formal_executor":"collaborator"}
+}
