@@ -1,0 +1,108 @@
+{
+  "schema_version": "q-attention.cfra-formal.v1",
+  "name": "retacred_q_cfra_formal_single_seed",
+  "profile": "formal_seed13",
+  "seed": 13,
+  "expected_records": {
+    "train": 58465,
+    "valid": 19584,
+    "test": 13418
+  },
+  "expected_sha256": {
+    "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+    "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+    "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+  },
+  "selectors": [
+    "disabled",
+    "quantum",
+    "classical_cosine",
+    "classical_rbf",
+    "diagonal",
+    "shuffled",
+    "entity_permuted"
+  ],
+  "candidate": "quantum",
+  "primary": "macro_f1",
+  "baseline": {
+    "epochs": 8,
+    "batch_size": 16,
+    "lr": 0.001
+  },
+  "kernel": {
+    "epochs": 6,
+    "batch_size": 16,
+    "lr": 0.001
+  },
+  "model": {
+    "dim": 32,
+    "num_heads": 4,
+    "num_layers": 2,
+    "ff_dim": 64,
+    "dropout": 0.0
+  },
+  "channel": {
+    "depolarization": 0.0001,
+    "fidelity_epsilon": 1e-05,
+    "temperature": 0.7,
+    "depth": 2
+  },
+  "loss": {
+    "prediction_js": 0.05,
+    "attention_js": 0.05
+  },
+  "case_study": {
+    "indices": [
+      0
+    ],
+    "splits": [
+      "train",
+      "valid",
+      "test"
+    ],
+    "checkpoints": [
+      "initial",
+      "best",
+      "final"
+    ],
+    "schema": "sample-trace.v2",
+    "values": "complete private lossless NPY, arbitrary coordinate reader",
+    "actual_training": "first official train record at update0; internal state for that case and full logical-batch loss/gradient"
+  },
+  "checkpoint": {
+    "every_updates": 50,
+    "every_seconds": 120,
+    "safe_pause": true,
+    "retention": "latest and preceding valid generation; best embedded independently"
+  },
+  "memory": {
+    "logical_batch_fixed": true,
+    "profiles": {
+      "low_memory": 1,
+      "balanced": 2,
+      "high_memory": 4
+    },
+    "threshold_free_mib": [
+      8192,
+      12288,
+      24576
+    ],
+    "oom_policy": "stop and report; no automatic tier retry",
+    "activation_checkpointing": false
+  },
+  "claims": {
+    "single_seed_only": true,
+    "formal_executor": "collaborator",
+    "positive_primary_delta_is_L1_candidate": true,
+    "quantum_attribution_separate": true,
+    "classical_QI_relative_gain_strictly_greater_than": 0.01,
+    "novelty": "unresolved",
+    "classical_matching": "nominal parameters and optimizer updates only; redundant affine direction"
+  },
+  "promotion_evidence": {
+    "toy_source": "6307f3e037ca94b723b5acbce331f03a3b37cc33",
+    "toy_report": "8895b55a130c8ecf89c20e66f80ae157f169ed90",
+    "mean_delta": 0.005149063811036471,
+    "positive_seeds": 4
+  }
+}

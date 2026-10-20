@@ -7,6 +7,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
+| [Q-CFRA Re-TACRED 正式单 seed](current/retacred_q_cfra_formal_single_seed_zh.md) | 合作者执行、固定七条件、完整 batch 状态恢复、GPU canary 门禁与完整私有案例的白名单导出 |
 | [Q-ECPA Re-TACRED 正式三 seed 复现](current/retacred_q_ecpa_formal_multi_seed_zh.md) | 复用审计 seed13、只补29/53、全局 GPU 任务队列、完整数值案例、配对统计与自动报告推送 |
 | [Q-ECPA Re-TACRED 正式单 seed](current/retacred_q_ecpa_formal_single_seed_zh.md) | 七路控制、逐层完整私有张量、线性 OOM 降档、动态 GPU 队列、batch 恢复与自动审计导出推送 |
 | [Re-TACRED 全套十五配置一键运行](current/retacred_all_reference_models_zh.md) | 解释性重建/源码适配、完整指标及数值 trace、单/多 GPU batch 恢复、18084 下载上传和报告自动推送 |
