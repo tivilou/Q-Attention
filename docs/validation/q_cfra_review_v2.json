@@ -1,0 +1,276 @@
+{
+  "review_mode": "subagent_fallback",
+  "reviewer_model": "GPT-6 / Codex inherited subagent; exact provider variant not exposed",
+  "review_scope": "both",
+  "reviewed_identity": {
+    "pinned_baseline": "a7ef16280983b918652c291a9ec6d0f7cb6f8dcc",
+    "packet_sha256": "5fd4e916dd8e99c14298a3cece688867c19b693db91b76770762f2feac636015",
+    "source_manifest_sha256": "f7a9a865b9e5c34b6be493791dcd00818941d149cfc7e3e2010791b9c6798f5f",
+    "runner_sha256": "0458a4fd9cc3476ea97d19e9ce56cba98f9b73696011fe003a579d3dccadaef5",
+    "all_ten_manifest_source_hashes_match": true,
+    "review_method": "Read-only both-scope follow-up of the exact memory-adaptation packet, with unchanged mechanism/trace/data sources verified against their previously reviewed hashes. This reviewer executed no tests, training, remote tools or experiments."
+  },
+  "theory_mapping": {
+    "status": "PASS",
+    "findings": [
+      "The adapter constructs factual, subject-neutralized and object-neutralized aligned views, freezes the base encoder, and uses the same true pooling spans. Gold is supplied only to the post-prediction objective.",
+      "The quantum path normalizes complex two-amplitude states, applies a shared random-unitary CPTP channel with depolarization, computes the declared squared qubit Uhlmann fidelities and symmetrized Bloch covariance, and measures the two-qubit readout to produce complete attention logits.",
+      "The score hook replaces the second-layer score producer while preserving values. It does not add a small quantum residual."
+    ],
+    "references": [
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/adapters/q_cfra.py",
+        "line": 71
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/adapters/q_cfra.py",
+        "line": 103
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/plugins/q_cfra.py",
+        "line": 24
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/plugins/q_cfra.py",
+        "line": 70
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/plugins/q_cfra.py",
+        "line": 108
+      }
+    ]
+  },
+  "correctness": {
+    "status": "PASS_STATIC",
+    "findings": [
+      "Valid keys alone receive probability. Padded query rows are excluded from attention consistency loss. The frozen dropout-free adapter path preserves the base model's operations, and Disabled is a score pass-through.",
+      "Counterfactual correspondence shuffling and entity-span permutation are sentence-local and independent of minibatch partition.",
+      "The population manifest binds source file hashes, selected indices and IDs, support counts, vocabulary and label map. Vocabulary and type embeddings are fitted only from selected training records; unsupported held-out labels fail explicitly."
+    ],
+    "references": [
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/adapters/q_cfra.py",
+        "line": 45
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/adapters/q_cfra.py",
+        "line": 110
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/plugins/q_cfra.py",
+        "line": 31
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/tasks/cfra_data.py",
+        "line": 15
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/tasks/cfra_data.py",
+        "line": 64
+      }
+    ]
+  },
+  "fidelity_gaps": [
+    {
+      "severity": "nonblocking_scope_limit",
+      "finding": "Classical controls match nominal allocated parameter and update counts, but combining four affine outputs into a three-vector creates an exact redundant affine direction. This does not establish equal effective capacity. The final frozen design states this limitation explicitly, so no architecture change is required for the bounded utility screen.",
+      "consequence": "A quantum-versus-classical difference in this screen cannot support strict quantum attribution or effective-capacity superiority.",
+      "references": [
+        {
+          "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/plugins/q_cfra.py",
+          "line": 58
+        },
+        {
+          "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/docs/q_cfra_design.md",
+          "line": 19
+        }
+      ]
+    }
+  ],
+  "control_fairness": {
+    "status": "PASS_FOR_BOUNDED_UTILITY",
+    "findings": [
+      "The runtime-only microbatch setting is shared by every screen condition. Per-seed warm starts, logical batches, optimizer steps, epochs, objective coefficients and validation selection remain matched.",
+      "For each microbatch, CE and prediction JS are weighted by its fraction of samples; attention JS is weighted by its fraction of valid queries. This reconstructs the original logical-batch objective because the fixed view/head factors cancel.",
+      "Exactly one optimizer.step occurs after the complete logical batch's gradients have accumulated. The classical effective-capacity limitation from revision 1 remains explicitly documented."
+    ],
+    "references": [
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/configs/q_cfra_toy.json",
+        "line": 10
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/configs/q_cfra_toy.json",
+        "line": 12
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 64
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 75
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 184
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 192
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/docs/q_cfra_design.md",
+        "line": 19
+      }
+    ]
+  },
+  "gradient_and_numerics": {
+    "status": "PASS_STATIC_REVISED_TEST_GATE_PENDING",
+    "findings": [
+      "The unchanged CPTP/fidelity/circuit construction retains revision 1's static pass.",
+      "The new logical_backward helper accumulates gradients of the correctly weighted objective without intervening optimizer steps or gradient resets. The declared model is dropout-free and has no cross-sample normalization, so dividing the physical batch does not introduce a different mathematical objective.",
+      "The seven-mode equivalence test uses unequal valid lengths and compares all four logical loss components and the complete trainable-parameter gradient vector. Its tolerance-based comparison is appropriate for floating-point accumulation; it does not claim bitwise identity between physical batch layouts.",
+      "The revised 27-check suite has not run at review time. Actual selected-data gradients and memory feasibility remain required canary evidence."
+    ],
+    "references": [
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 64
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 77
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 81
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 189
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/tests/test_cfra.py",
+        "line": 140
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/tests/test_cfra.py",
+        "line": 154
+      }
+    ]
+  },
+  "lifecycle_correctness": {
+    "status": "PASS_STATIC_FRESH_CANARY_REQUIRED",
+    "findings": [
+      "Phase/seed/mode/shared-base identities and epoch-boundary model, optimizer and Torch RNG restoration remain in place.",
+      "Both the source digest and the config digest change for this adaptation, so the original partial run is correctly rejected as a resume source. A fresh v2 canary root is required; the old OOM artifacts must remain untouched.",
+      "The seven-condition interrupted-versus-uninterrupted canary still compares model, Adam and RNG state exactly within the now-fixed microbatch route. It also rejects wrong-condition checkpoint identity.",
+      "Warmup training retains the original batch-16 path; screen accumulation and evaluation alone use the declared smaller physical batches."
+    ],
+    "references": [
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 93
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 110
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 146
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 168
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 302
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/tests/test_cfra.py",
+        "line": 158
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/tests/test_cfra.py",
+        "line": 200
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/docs/q_cfra_design.md",
+        "line": 29
+      }
+    ]
+  },
+  "artifact_and_recovery": {
+    "status": "PASS_STATIC",
+    "findings": [
+      "The first microbatch's observed tensors are detached and cloned immediately, before later forwards overwrite model.observed. They are restored for the selected first sample's trace.",
+      "Loss components and the recorded parameter gradient describe the complete logical batch. The optimizer step and recorded parameter delta occur only after all microbatches. This preserves the trace's declared sample-versus-minibatch semantics.",
+      "The unchanged trace validator still checks complete arrays, hashes, masked softmax, physical geometry and checkpoint coverage. Completion markers and the unchanged atomic save/lock helpers retain revision 1's static pass.",
+      "The original review is preserved byte-for-byte as independent-review-v1.json; the new review binds only the revised packet."
+    ],
+    "references": [
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 82
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 84
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 191
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 194
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/analysis/cfra_trace.py",
+        "line": 105
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/analysis/cfra_trace.py",
+        "line": 191
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/baseline/src/q_attention/experiments/ecpa_protocol.py",
+        "line": 61
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/baseline/src/q_attention/experiments/ecpa_protocol.py",
+        "line": 85
+      }
+    ]
+  },
+  "must_fix": [],
+  "execution_gate": {
+    "revised_synthetic_checks": "No static blocker to executing the revised 27-check suite, including all-mode microbatch equivalence and exact epoch-resume/tamper checks.",
+    "bounded_canary": "No remaining static must-fix blocks a fresh v2 CPU real-data canary after the revised synthetic checks pass. Preserve the original failed canary and do not resume it under changed identities.",
+    "bounded_five_seed_screen": "Still gated on passing the revised suite and fresh real-data numerical/trace canary. A repeat OOM or numeric/trace failure is a blocker to investigate, not authorization to change scientific budgets.",
+    "formal_runs_and_exporter": "Outside this packet and outside this review's execution clearance."
+  },
+  "verdict": "PASS_WITH_RISK",
+  "confidence": {
+    "score": 0.91,
+    "scope": "High confidence in the static logical-loss/gradient weighting and preserved mechanism/lifecycle boundaries; revised runtime checks and real-data memory feasibility remain unverified.",
+    "residual_risks": [
+      "The 27 revised synthetic checks and fresh real-data canary remain required before the utility screen.",
+      "Mathematical equivalence permits floating-point accumulation differences across physical batch layouts; exact resume equality is scoped to the same fixed route and Linux CPU/library environment.",
+      "Microbatching reduces autograd memory but static review cannot certify successful execution under the 1GiB cgroup limit.",
+      "Classical controls provide nominal budget matching, not proven equal effective capacity; strict quantum attribution remains unsupported."
+    ]
+  },
+  "review_revision": 2,
+  "follow_up_context": {
+    "previous_review_path": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/independent-review-v1.json",
+    "previous_review_sha256": "587d588c4fc95b56b11a391af73707316495713d218f6a27e658f486e4359c76",
+    "reported_trigger": "The parent reports that all 20 previous synthetic checks passed, but the first real-data quantum canary was killed by the container's 1GiB cgroup memory limit. Disabled completed. No utility outcomes were used to choose the adaptation.",
+    "scope": "Physical screen microbatch 2 and evaluation batch 2; logical batch 16, selected data, seeds, objective, epochs and Adam update counts remain fixed.",
+    "evidence_boundary": "The prior OOM report and test counts are parent-provided context, not independently rerun or raw-log-audited by this reviewer."
+  }
+}
+
