@@ -1,0 +1,43 @@
+{
+  "schema_version": "q-attention.cfra-focused-tests.v1",
+  "status": "passed",
+  "tests": 28,
+  "implementation_commit": "6307f3e037ca94b723b5acbce331f03a3b37cc33",
+  "reviewed_packet_sha256": "1de1eafeb0600c60f9b16cc51e70e6dc7c2e16bfe901a7a110ff845ae1e94f0a",
+  "review_sha256": "2faa3f5abdf037a58544b2508a3dffd08a32e87c36a0818711e7ef0ba157b4ad",
+  "source_manifest": {
+    "configs/q_cfra_toy.json": "82b068e4ef590e97e907afcbfce318350f40dc982f9c62f797e5e017d2d2e5b9",
+    "configs/q_cfra_trace.json": "e62e3624f8f91541a780409067c2c8e0daf640e23f4d741a9b3e321c9c826b26",
+    "docs/q_cfra_design.md": "8eaa11140f3344a018ba4f2da33defca6a3f0ed33fefac63cb29224a0bae056e",
+    "docs/q_cfra_plugin_plan.json": "a2f2f8825dd0f1a3df014dabe9201bbdeb28bfa221f0f5c89a49e78575b54089",
+    "experiments/run_cfra_toy.py": "0458a4fd9cc3476ea97d19e9ce56cba98f9b73696011fe003a579d3dccadaef5",
+    "src/q_attention/adapters/q_cfra.py": "d0aa859dc75f1871cdfb5eab62f4e6d50bacd69b9d526300fcaa17be1744844b",
+    "src/q_attention/analysis/cfra_trace.py": "aca1a3fb8712b70209e3078289364c5bca03e3278a175c7bd7f711e55360d9ab",
+    "src/q_attention/plugins/q_cfra.py": "bd3a1b0735104f8f4c09fc3ecf0f62863e3e76c8ba159daf587c1861436ea33a",
+    "src/q_attention/tasks/cfra_data.py": "096cae8f0c1f5a5ae0520578ac568f5617b4f0fa94f981c2acc68d4791b7badd",
+    "tests/test_cfra.py": "bef4b684beaf9f2d713afb88d1c955b4f3adad459a9c9449de7380283371239e"
+  },
+  "environment": "Linux CPU; conda py310, torch2.7.1+cu126; one Torch/OMP/OpenBLAS thread; MALLOC_ARENA_MAX=2",
+  "checks": [
+    {
+      "command": "python -m pytest -q tests/test_cfra.py -k \"not canary\"",
+      "passed": 27,
+      "seconds": 6.15
+    },
+    {
+      "command": "python -m pytest -q tests/test_cfra.py -k canary",
+      "passed": 1,
+      "seconds": 101.11
+    }
+  ],
+  "coverage": [
+    "CPTP and independent spectral fidelity",
+    "exact Disabled parity",
+    "finite active parameters and masks",
+    "compiled-circuit state/input/readout-gradient equivalence",
+    "all-mode logical loss/gradient equivalence",
+    "all seven conditions interrupted after epoch1; model/Adam/RNG exact after resume",
+    "wrong-condition checkpoint and mutated private array rejected"
+  ],
+  "limitation": "These checks do not establish task utility or novelty. Real-data canary and five-seed evidence are separate."
+}

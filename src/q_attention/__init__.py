@@ -1,77 +1,16 @@
-"""Q-Attention: spectral key steering utilities for attention models."""
+"""Public API, loaded lazily so scheduling processes do not initialize Torch."""
+from importlib import import_module
 
-from .projectors import (
-    SpectralProjectorConfig,
-    build_projector,
-    cross_covariance,
-    singular_weights,
-    spectral_effective_rank,
-    spectral_filter_diagnostics,
-)
-from .quantum import (
-    QUANTUM_KERNEL_MODES,
-    QuantumFeatureMapConfig,
-    QuantumProjectorResult,
-    SupervisedQuantumProjectorConfig,
-    SupervisedQuantumProjectorResult,
-    angle_feature_map,
-    build_quantum_projector,
-    build_quantum_residual_projector,
-    build_supervised_quantum_projector,
-    deterministic_projection,
-    fidelity_kernel,
-    fit_supervised_quantum_feature_map,
-    kernel_target_alignment,
-    parameterized_quantum_feature_map,
-    quantum_weighted_covariance,
-    transform_quantum_kernel,
-)
-from .routing import (
-    ROUTER_SCORE_MODES,
-    ProjectorBank,
-    RouterConfig,
-    RoutingResult,
-    projector_energy_scores,
-    projector_prototype,
-    route_projectors,
-    stack_projector_bank,
-)
-from .spans import batched_span_mask, span_mask
-from .steering import SteeringResult, apply_key_steering
+_EXPORTS = {'SpectralProjectorConfig': ('.projectors', 'SpectralProjectorConfig'), 'build_projector': ('.projectors', 'build_projector'), 'cross_covariance': ('.projectors', 'cross_covariance'), 'singular_weights': ('.projectors', 'singular_weights'), 'spectral_effective_rank': ('.projectors', 'spectral_effective_rank'), 'spectral_filter_diagnostics': ('.projectors', 'spectral_filter_diagnostics'), 'QUANTUM_KERNEL_MODES': ('.quantum', 'QUANTUM_KERNEL_MODES'), 'QuantumFeatureMapConfig': ('.quantum', 'QuantumFeatureMapConfig'), 'QuantumProjectorResult': ('.quantum', 'QuantumProjectorResult'), 'SupervisedQuantumProjectorConfig': ('.quantum', 'SupervisedQuantumProjectorConfig'), 'SupervisedQuantumProjectorResult': ('.quantum', 'SupervisedQuantumProjectorResult'), 'angle_feature_map': ('.quantum', 'angle_feature_map'), 'build_quantum_projector': ('.quantum', 'build_quantum_projector'), 'build_quantum_residual_projector': ('.quantum', 'build_quantum_residual_projector'), 'build_supervised_quantum_projector': ('.quantum', 'build_supervised_quantum_projector'), 'deterministic_projection': ('.quantum', 'deterministic_projection'), 'fidelity_kernel': ('.quantum', 'fidelity_kernel'), 'fit_supervised_quantum_feature_map': ('.quantum', 'fit_supervised_quantum_feature_map'), 'kernel_target_alignment': ('.quantum', 'kernel_target_alignment'), 'parameterized_quantum_feature_map': ('.quantum', 'parameterized_quantum_feature_map'), 'quantum_weighted_covariance': ('.quantum', 'quantum_weighted_covariance'), 'transform_quantum_kernel': ('.quantum', 'transform_quantum_kernel'), 'ROUTER_SCORE_MODES': ('.routing', 'ROUTER_SCORE_MODES'), 'ProjectorBank': ('.routing', 'ProjectorBank'), 'RouterConfig': ('.routing', 'RouterConfig'), 'RoutingResult': ('.routing', 'RoutingResult'), 'projector_energy_scores': ('.routing', 'projector_energy_scores'), 'projector_prototype': ('.routing', 'projector_prototype'), 'route_projectors': ('.routing', 'route_projectors'), 'stack_projector_bank': ('.routing', 'stack_projector_bank'), 'batched_span_mask': ('.spans', 'batched_span_mask'), 'span_mask': ('.spans', 'span_mask'), 'SteeringResult': ('.steering', 'SteeringResult'), 'apply_key_steering': ('.steering', 'apply_key_steering')}
 
-__all__ = [
-    "ProjectorBank",
-    "QUANTUM_KERNEL_MODES",
-    "QuantumFeatureMapConfig",
-    "QuantumProjectorResult",
-    "SupervisedQuantumProjectorConfig",
-    "SupervisedQuantumProjectorResult",
-    "ROUTER_SCORE_MODES",
-    "RouterConfig",
-    "RoutingResult",
-    "SpectralProjectorConfig",
-    "SteeringResult",
-    "angle_feature_map",
-    "apply_key_steering",
-    "batched_span_mask",
-    "build_projector",
-    "build_quantum_projector",
-    "build_quantum_residual_projector",
-    "build_supervised_quantum_projector",
-    "cross_covariance",
-    "deterministic_projection",
-    "fidelity_kernel",
-    "fit_supervised_quantum_feature_map",
-    "kernel_target_alignment",
-    "parameterized_quantum_feature_map",
-    "projector_energy_scores",
-    "projector_prototype",
-    "quantum_weighted_covariance",
-    "route_projectors",
-    "singular_weights",
-    "span_mask",
-    "spectral_effective_rank",
-    "spectral_filter_diagnostics",
-    "stack_projector_bank",
-    "transform_quantum_kernel",
-]
+__all__ = ['ProjectorBank', 'QUANTUM_KERNEL_MODES', 'QuantumFeatureMapConfig', 'QuantumProjectorResult', 'SupervisedQuantumProjectorConfig', 'SupervisedQuantumProjectorResult', 'ROUTER_SCORE_MODES', 'RouterConfig', 'RoutingResult', 'SpectralProjectorConfig', 'SteeringResult', 'angle_feature_map', 'apply_key_steering', 'batched_span_mask', 'build_projector', 'build_quantum_projector', 'build_quantum_residual_projector', 'build_supervised_quantum_projector', 'cross_covariance', 'deterministic_projection', 'fidelity_kernel', 'fit_supervised_quantum_feature_map', 'kernel_target_alignment', 'parameterized_quantum_feature_map', 'projector_energy_scores', 'projector_prototype', 'quantum_weighted_covariance', 'route_projectors', 'singular_weights', 'span_mask', 'spectral_effective_rank', 'spectral_filter_diagnostics', 'stack_projector_bank', 'transform_quantum_kernel']
+
+def __getattr__(name):
+    if name not in _EXPORTS:raise AttributeError(name)
+    module,attribute=_EXPORTS[name]
+    value=getattr(import_module(module,__name__),attribute)
+    globals()[name]=value
+    return value
+
+def __dir__():
+    return sorted(set(globals())|set(__all__))

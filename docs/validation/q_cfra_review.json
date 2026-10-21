@@ -1,0 +1,191 @@
+{
+  "review_revision": 3,
+  "review_mode": "subagent_fallback",
+  "reviewer_model": "GPT-6 / Codex inherited subagent; exact provider variant not exposed",
+  "review_scope": "both",
+  "review_kind": "Bounded delta review of exact circuit compilation; unchanged findings inherit revision 2.",
+  "previous_review": {
+    "path": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/independent-review-v2.json",
+    "sha256": "6b7be503f8382f5f4e1db12cf2c81e52be47dd06d890121a75f141ac979c1b8c"
+  },
+  "reviewed_identity": {
+    "pinned_baseline": "a7ef16280983b918652c291a9ec6d0f7cb6f8dcc",
+    "packet_sha256": "1de1eafeb0600c60f9b16cc51e70e6dc7c2e16bfe901a7a110ff845ae1e94f0a",
+    "source_manifest_sha256": "85fdb18269e18afc425ed7650217b532c2bf5cf5e6079b450d6c13600551f2b1",
+    "runner_sha256": "0458a4fd9cc3476ea97d19e9ce56cba98f9b73696011fe003a579d3dccadaef5",
+    "plugin_sha256": "bd3a1b0735104f8f4c09fc3ecf0f62863e3e76c8ba159daf587c1861436ea33a",
+    "tests_sha256": "bef4b684beaf9f2d713afb88d1c955b4f3adad459a9c9449de7380283371239e",
+    "all_ten_manifest_source_hashes_match": true,
+    "review_method": "Read-only static comparison of the frozen compiled forward, its independent gate-by-gate reference test, and design delta. No tests, training, raw datasets, remote tools or experiments were executed by this reviewer."
+  },
+  "theory_mapping": {
+    "status": "PASS",
+    "finding": "This is the same declared two-qubit circuit. Ry/Rz encoding uses the exact tensor-product amplitudes and phases in row-major |00>, |01>, |10>, |11> order. Shared local rotations compile as Rx Ry Rz, followed by CZ.",
+    "references": [
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/plugins/q_cfra.py",
+        "line": 123
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/plugins/q_cfra.py",
+        "line": 128
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/plugins/q_cfra.py",
+        "line": 140
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/plugins/q_cfra.py",
+        "line": 143
+      }
+    ]
+  },
+  "correctness": {
+    "status": "PASS_STATIC",
+    "finding": "CZ multiplies operator output rows, matching left multiplication. torch.kron(local0, local1) preserves qubit order; row-vector amplitudes multiply U.transpose without conjugation. The noncapture product is depth2 times depth1, and capture applies those same operators sequentially.",
+    "references": [
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/plugins/q_cfra.py",
+        "line": 143
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/plugins/q_cfra.py",
+        "line": 145
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/plugins/q_cfra.py",
+        "line": 148
+      }
+    ]
+  },
+  "fidelity_gaps": [
+    {
+      "severity": "nonblocking_scope_limit",
+      "finding": "Floating-point evaluation order changes; bitwise equality with the former implementation is not claimed. The unchanged classical controls still match nominal budgets rather than proven effective capacity.",
+      "references": [
+        {
+          "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/docs/q_cfra_design.md",
+          "line": 17
+        },
+        {
+          "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/docs/q_cfra_design.md",
+          "line": 21
+        }
+      ]
+    }
+  ],
+  "control_fairness": {
+    "status": "PASS_FOR_BOUNDED_UTILITY",
+    "finding": "The compilation changes no parameters, physical microbatch2/logical batch16 contract, objective, selected population, seeds, epochs, optimizer steps or declared gates. Revision 2's nominal classical-capacity limitation remains.",
+    "references": [
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/configs/q_cfra_toy.json",
+        "line": 10
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/configs/q_cfra_toy.json",
+        "line": 12
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 188
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 192
+      }
+    ]
+  },
+  "gradient_and_numerics": {
+    "status": "PASS_STATIC_WITH_PARENT_REPORTED_NUMERICAL_PASS",
+    "finding": "All compilation operations preserve differentiability. The float64 reference reconstructs the original gate-by-gate path and compares every captured state, logits, score/geometry gradients and all readout gradients. It also checks capture versus noncapture logits. The unchanged all-mode logical/microbatch gradient comparison remains relevant.",
+    "references": [
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/tests/test_cfra.py",
+        "line": 110
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/tests/test_cfra.py",
+        "line": 118
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/tests/test_cfra.py",
+        "line": 126
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/tests/test_cfra.py",
+        "line": 136
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/tests/test_cfra.py",
+        "line": 139
+      }
+    ]
+  },
+  "lifecycle_correctness": {
+    "status": "PASS_STATIC_V3_CANARY_REQUIRED",
+    "finding": "The runner and recovery mechanism are unchanged. Its source digest includes the modified plugin and tests, so previous completed/partial runs cannot be silently resumed. A fresh v3 canary root is required; preserve passed v2 evidence and prior OOM artifacts.",
+    "references": [
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 24
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 146
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 168
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/experiments/run_cfra_toy.py",
+        "line": 302
+      }
+    ]
+  },
+  "artifact_and_recovery": {
+    "status": "PASS_STATIC",
+    "finding": "Capture still emits the actual initial, encoded, depth1 and depth2 states with the same shape and order. The unchanged trace validator's normalization and measured-logit checks still apply. Prior recovery and full-value trace findings inherit revision 2; no exporter change is needed for this bounded stage.",
+    "references": [
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/plugins/q_cfra.py",
+        "line": 131
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/plugins/q_cfra.py",
+        "line": 145
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/plugins/q_cfra.py",
+        "line": 153
+      },
+      {
+        "file": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/q-cfra-implementation/source/src/q_attention/analysis/cfra_trace.py",
+        "line": 286
+      }
+    ]
+  },
+  "parent_reported_execution_evidence": {
+    "prior_revision": "The parent reports 27 synthetic checks and the real-data v2 canary passed all seven conditions with 70 traces and 2640 arrays.",
+    "current_revision": "The parent reports 27 non-canary numerical checks passed in 6.15 seconds, including the float64 circuit reference and seven microbatch-equivalence cases; full resume and fresh real-data v3 canaries remain pending.",
+    "evidence_limit": "These execution reports were supplied by the parent; this reviewer did not independently rerun them or audit raw arrays."
+  },
+  "must_fix": [],
+  "execution_gate": {
+    "bounded_canary": "No remaining static must-fix blocks the revised full resume canary or fresh real-data v3 canary.",
+    "bounded_five_seed_screen": "Still gated on passing both current-revision canaries with valid full-value trace evidence. Prior v2 success does not replace the v3 gate.",
+    "formal_runs_and_exporter": "Outside this packet and review clearance."
+  },
+  "verdict": "PASS_WITH_RISK",
+  "confidence": {
+    "score": 0.92,
+    "scope": "High confidence in exact mathematical circuit compilation and preserved static mechanism/lifecycle contracts.",
+    "residual_risks": [
+      "Runtime recovery and real-data behavior of the exact v3 identity remain pending canary evidence.",
+      "Floating-point evaluation-order differences are expected within declared tolerances.",
+      "Strict quantum attribution and effective-capacity superiority remain unsupported."
+    ]
+  }
+}
+

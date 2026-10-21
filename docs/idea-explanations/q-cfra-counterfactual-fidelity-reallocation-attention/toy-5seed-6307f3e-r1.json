@@ -1,0 +1,110 @@
+{
+  "schema_version": "idea-explanation.v1",
+  "idea_id": "q-cfra-counterfactual-fidelity-reallocation-attention-v1",
+  "family_id": "family-q-cfra-counterfactual-fidelity-reallocation-attention",
+  "revision": "toy-5seed-6307f3e-r1",
+  "title": "Q-CFRA：反事实保真度与完整注意力重分配",
+  "dataset_id": "real-data-screen",
+  "checkpoint": "五seed真实数据toy ·6307f3e",
+  "experiment_status": "complete",
+  "completeness": "partial",
+  "limitations": [
+    "完整原句/逐样本预测/张量保留私有，静态门户未接入原值页面。",
+    "仅记录选定第一条的内部状态及完整逻辑batch梯度/损失，没有逐样本全微批次轨迹。",
+    "尚无完整数据正式效用或失败原因的区分性消融。"
+  ],
+  "source_path": "docs/idea-explanations/q-cfra-counterfactual-fidelity-reallocation-attention/toy-5seed-6307f3e-r1.md",
+  "evidence": {
+    "code": {
+      "identity": "6307f3e037ca94b723b5acbce331f03a3b37cc33 / 49bf9de390a160920df4aa177c65890157fa34eed72e242c59455cea956ff5d3",
+      "status": "verified",
+      "reason": "逐文件执行源码哈希与实际run source identity已核对；不以报告提交冒充执行代码。",
+      "refs": [
+        {
+          "path": "docs/validation/q_cfra_executed_source_manifest.json",
+          "sha256": "026b1da11ec19c32f00234d274e8575754df53d37f02ef21eb973893083e712a"
+        }
+      ]
+    },
+    "config": {
+      "identity": "f0b604d8af4d9e4325e519bbd8d62e16ac7023fde9443a87629595904eafb004",
+      "status": "verified",
+      "reason": "实际run配置和固定subset身份分别审计。",
+      "refs": [
+        {
+          "path": "docs/validation/q_cfra_run_config.json",
+          "sha256": "8f9c178b8be7799574505df2032cda12a64ce728f010b5a4e3ed91121ffee795"
+        }
+      ]
+    },
+    "report": {
+      "identity": "c73533b85eb62efca98de336be019ceb559c3826337df19bc0acafa6c96b0ced",
+      "status": "verified",
+      "reason": "35jobs、相同预声明指标与门槛、所有完成与阶段身份已审计。",
+      "refs": [
+        {
+          "path": "docs/validation/q_cfra_toy_audit.json",
+          "sha256": "c1d3f3e128c45ffde939a5eacb7e2fbab9628200a96c5a09cc60236313332aa2"
+        }
+      ]
+    },
+    "trace": {
+      "identity": "350 sample-trace.v2 / 13200 full arrays",
+      "status": "verified",
+      "reason": "全部私有值已重哈希、解码和坐标回读；公开viewer尚未接入。",
+      "refs": [
+        {
+          "path": "docs/validation/q_cfra_toy_audit.json",
+          "sha256": "c1d3f3e128c45ffde939a5eacb7e2fbab9628200a96c5a09cc60236313332aa2"
+        }
+      ]
+    }
+  },
+  "result_refs": [
+    {
+      "kind": "idea",
+      "id": "q-cfra-counterfactual-fidelity-reallocation-attention-v1"
+    },
+    {
+      "kind": "idea",
+      "id": "q-cfra-classical-cosine-toy-v1"
+    },
+    {
+      "kind": "idea",
+      "id": "q-cfra-classical-rbf-toy-v1"
+    },
+    {
+      "kind": "idea",
+      "id": "q-cfra-diagonal-toy-v1"
+    },
+    {
+      "kind": "idea",
+      "id": "q-cfra-shuffled-toy-v1"
+    },
+    {
+      "kind": "idea",
+      "id": "q-cfra-entity-permuted-toy-v1"
+    },
+    {
+      "kind": "baseline",
+      "id": "retacred-q-cfra-disabled-toy-5seed-v1"
+    }
+  ],
+  "links": {
+    "results": "/apps/experiment-results/?family=family-q-cfra-counterfactual-fidelity-reallocation-attention",
+    "log": "/apps/research-log/?id=q-cfra-counterfactual-fidelity-reallocation-attention-toy",
+    "case_study": "/apps/experiment-results/?case=q-attention-case-study-q-cfra-toy#case-study-title"
+  },
+  "content_review": {
+    "reviewer": "primary agent",
+    "checks": [
+      "workflow",
+      "parameters",
+      "results",
+      "causal_bounds",
+      "target_boundary",
+      "examples"
+    ],
+    "notes": "已对照冻结源码、配置、审计结果与trace覆盖；保留案例公开投影和因果解释的限制。"
+  }
+}

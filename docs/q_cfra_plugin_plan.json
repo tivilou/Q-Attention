@@ -1,0 +1,394 @@
+{
+  "schema_version": "research-plugin-architecture.plugin-plan.v2",
+  "project": "Q-Attention / Q-CFRA",
+  "authorization": "approved",
+  "baseline": {
+    "entry_point": "q_attention.models.relation_transformer:RelationExtractionModel",
+    "code_revision": "a7ef16280983b918652c291a9ec6d0f7cb6f8dcc",
+    "equivalence_test": "tests/test_cfra.py::test_disabled_is_exact_unmodified_model"
+  },
+  "core_invariants": [
+    "Core model/data loader/evaluator source unchanged.",
+    "No gold input enters view, channel, geometry or attention.",
+    "Independent seed warm starts; all conditions share that seed baseline, selected population and update count.",
+    "Formal full-data experiments remain collaborator-only; this package is a CPU toy screen.",
+    "Full numeric values and source text are private/exchange-only."
+  ],
+  "interfaces": [
+    {
+      "id": "full_attention_logits",
+      "type": "transformer",
+      "input_schema": "Aligned three-view scores, hidden states and masks.",
+      "output_schema": "Complete logits with original value tensor.",
+      "invariants": [
+        "Disabled is exact pass-through.",
+        "No stacked intervention or additive quantum residual."
+      ]
+    }
+  ],
+  "plugins": [
+    {
+      "id": "cfra_disabled",
+      "version": "1.0.0",
+      "role": "baseline",
+      "interface": "full_attention_logits",
+      "insertion_point": "Second encoder layer after_scores, with three frozen first-layer view states.",
+      "hypothesis": "Exact original attention with identically trained classifier and view losses.",
+      "input_schema": "B x 3 x H x Q x K scores; B x 3 x K x D frozen view states; B x K support and true entity masks.",
+      "output_schema": "Complete B x 3 x H x Q x K logits; normalized masked attention and B x 3 x labels relation scores.",
+      "requires": [],
+      "conflicts": [
+        "stacked_attention_intervention"
+      ],
+      "deterministic": true,
+      "resource_estimate": "CPU bounded subset; three shared views and small dense qubit/two-qubit simulation; measured runtime pending.",
+      "failure_signatures": [
+        "nonfinite gradients or invalid density/circuit state",
+        "counterfactual/role alignment loss",
+        "attention or channel gradient collapse"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "stages": [
+          "data",
+          "preprocess",
+          "scoring",
+          "context",
+          "generation",
+          "evaluation",
+          "training"
+        ],
+        "input_fields": [
+          "input_ids",
+          "attention_mask",
+          "subject_mask",
+          "object_mask",
+          "neutral_ids"
+        ],
+        "output_fields": [
+          "attention_logits",
+          "attention",
+          "context",
+          "logits"
+        ],
+        "input_refs": [
+          "source:sentence",
+          "source:entity_spans",
+          "source:entity_types"
+        ],
+        "output_refs": [
+          "attention",
+          "logits"
+        ],
+        "emitted_fields": [
+          "view_ids",
+          "attention_mask",
+          "subject_mask",
+          "object_mask",
+          "neutral_ids",
+          "token_embedding",
+          "position_embedding",
+          "embedding",
+          "first_hidden",
+          "query",
+          "key",
+          "value",
+          "base_scores",
+          "attention_logits",
+          "attention",
+          "context",
+          "hidden",
+          "pooled",
+          "logits",
+          "probabilities",
+          "gold",
+          "loss_components",
+          "parameter_gradient",
+          "parameter_before",
+          "parameter_after",
+          "parameter_delta"
+        ],
+        "shape_dtype_normalization": [
+          "All view/token axes aligned; bool support masks; finite real/complex arrays.",
+          "Density matrices are Hermitian PSD unit trace; circuit states normalized; attention excludes padded keys."
+        ],
+        "checks": [
+          "portable structural validator",
+          "all complete arrays rehashed, opened and checked",
+          "independent channel, observable, embedding and context lineage",
+          "actual reader coordinate equality",
+          "same-sample disabled replay parity",
+          "fixed split/checkpoint coverage"
+        ],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "cfra_quantum",
+      "version": "1.0.0",
+      "role": "idea",
+      "interface": "full_attention_logits",
+      "insertion_point": "Second encoder layer after_scores, with three frozen first-layer view states.",
+      "hypothesis": "Counterfactual fidelity geometry produces stable useful attention reallocation.",
+      "input_schema": "B x 3 x H x Q x K scores; B x 3 x K x D frozen view states; B x K support and true entity masks.",
+      "output_schema": "Complete B x 3 x H x Q x K logits; normalized masked attention and B x 3 x labels relation scores.",
+      "requires": [],
+      "conflicts": [
+        "stacked_attention_intervention"
+      ],
+      "deterministic": true,
+      "resource_estimate": "CPU bounded subset; three shared views and small dense qubit/two-qubit simulation; measured runtime pending.",
+      "failure_signatures": [
+        "nonfinite gradients or invalid density/circuit state",
+        "counterfactual/role alignment loss",
+        "attention or channel gradient collapse"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "stages": [
+          "data",
+          "preprocess",
+          "scoring",
+          "context",
+          "generation",
+          "evaluation",
+          "training"
+        ],
+        "input_fields": [
+          "input_ids",
+          "attention_mask",
+          "subject_mask",
+          "object_mask",
+          "neutral_ids"
+        ],
+        "output_fields": [
+          "attention_logits",
+          "attention",
+          "context",
+          "logits"
+        ],
+        "input_refs": [
+          "source:sentence",
+          "source:entity_spans",
+          "source:entity_types"
+        ],
+        "output_refs": [
+          "attention",
+          "logits"
+        ],
+        "emitted_fields": [
+          "view_ids",
+          "attention_mask",
+          "subject_mask",
+          "object_mask",
+          "neutral_ids",
+          "token_embedding",
+          "position_embedding",
+          "embedding",
+          "first_hidden",
+          "query",
+          "key",
+          "value",
+          "base_scores",
+          "attention_logits",
+          "attention",
+          "context",
+          "hidden",
+          "pooled",
+          "logits",
+          "probabilities",
+          "gold",
+          "loss_components",
+          "parameter_gradient",
+          "parameter_before",
+          "parameter_after",
+          "parameter_delta",
+          "plugin_projected",
+          "plugin_fidelity",
+          "plugin_covariance",
+          "plugin_geometry_features",
+          "plugin_readout_inputs",
+          "plugin_readout_angles",
+          "plugin_logits",
+          "plugin_amplitudes",
+          "plugin_pure",
+          "plugin_density",
+          "plugin_paired_density",
+          "plugin_channel_weights",
+          "plugin_channel_unitaries",
+          "plugin_bloch",
+          "plugin_commutator",
+          "plugin_circuit_states"
+        ],
+        "shape_dtype_normalization": [
+          "All view/token axes aligned; bool support masks; finite real/complex arrays.",
+          "Density matrices are Hermitian PSD unit trace; circuit states normalized; attention excludes padded keys."
+        ],
+        "checks": [
+          "portable structural validator",
+          "all complete arrays rehashed, opened and checked",
+          "independent channel, observable, embedding and context lineage",
+          "actual reader coordinate equality",
+          "same-sample disabled replay parity",
+          "fixed split/checkpoint coverage"
+        ],
+        "deterministic_replay": true
+      }
+    }
+  ],
+  "discovery": {
+    "mode": "explicit_allowlist",
+    "allowlist": [
+      "cfra_disabled",
+      "cfra_quantum"
+    ]
+  },
+  "composition": {
+    "mode": "single",
+    "order": [
+      "cfra_quantum"
+    ],
+    "merge_rule": "Replace the complete second-layer attention logits; keep value and core data/evaluation unchanged.",
+    "interaction_ablations": [
+      "disabled",
+      "classical_cosine",
+      "classical_rbf",
+      "diagonal",
+      "shuffled",
+      "entity_permuted"
+    ]
+  },
+  "validation": {
+    "baseline_equivalence": "Exact factual-output equality against the unmodified initialized base model.",
+    "tests": [
+      "baseline_equivalence",
+      "plugin_isolation",
+      "deterministic_replay",
+      "interaction_ablation",
+      "trace_structural_validation",
+      "trace_semantic_validation",
+      "trace_replay",
+      "CPTP_and_spectral_fidelity",
+      "active_parameter_budget",
+      "epoch_resume_exact",
+      "tamper_rejection"
+    ]
+  },
+  "reproducibility": {
+    "config_path": "configs/q_cfra_toy.json",
+    "dataset_identity": "Frozen hash-ordered stratified Re-TACRED subset manifest, selected before any outcomes.",
+    "environment": "Authorized server conda py310: torch2.7.1+cu126, CPU only, one thread, deterministic algorithms.",
+    "seeds": [
+      13,
+      29,
+      53,
+      71,
+      97
+    ],
+    "output_manifest": "runs/q_cfra_toy/<timestamp>/run_manifest.json"
+  },
+  "trace_contract": {
+    "enabled": true,
+    "schema": "sample-trace.v2",
+    "artifact_path": "runs/q_cfra_toy/<timestamp>/seed13/quantum/sample_trace.json",
+    "sample_selection_rule": "First hash-ordered selected record of each split, frozen before training.",
+    "target_boundary": "Gold only enters post-generation relation loss and evaluation.",
+    "required_stages": [
+      "data",
+      "preprocess",
+      "scoring",
+      "context",
+      "generation",
+      "evaluation",
+      "training"
+    ],
+    "semantic_roles": [
+      "sentence",
+      "tokens",
+      "ordered subject/object spans and types",
+      "correct relation after prediction",
+      "predicted relation",
+      "counterfactual provenance",
+      "checkpoint identity"
+    ],
+    "required_representations": [
+      "view_ids",
+      "attention_mask",
+      "subject_mask",
+      "object_mask",
+      "neutral_ids",
+      "token_embedding",
+      "position_embedding",
+      "embedding",
+      "first_hidden",
+      "query",
+      "key",
+      "value",
+      "base_scores",
+      "attention_logits",
+      "attention",
+      "context",
+      "hidden",
+      "pooled",
+      "logits",
+      "probabilities",
+      "gold",
+      "loss_components",
+      "parameter_gradient",
+      "parameter_before",
+      "parameter_after",
+      "parameter_delta",
+      "plugin_projected",
+      "plugin_fidelity",
+      "plugin_covariance",
+      "plugin_geometry_features",
+      "plugin_readout_inputs",
+      "plugin_readout_angles",
+      "plugin_logits",
+      "plugin_amplitudes",
+      "plugin_pure",
+      "plugin_density",
+      "plugin_paired_density",
+      "plugin_channel_weights",
+      "plugin_channel_unitaries",
+      "plugin_bloch",
+      "plugin_commutator",
+      "plugin_circuit_states"
+    ],
+    "producer_owned_lineage": [
+      "raw typed spans -> aligned view IDs",
+      "view IDs -> embedding -> frozen first-layer hidden",
+      "first-layer hidden -> density/channel -> counterfactual fidelity/covariance",
+      "geometry and base query/key -> measured circuit -> full attention logits",
+      "attention and value -> context -> hidden -> relation prediction",
+      "post-prediction target -> objective -> actual gradients/update"
+    ],
+    "readiness_checks": [
+      "portable structural validator",
+      "all complete arrays rehashed, opened and checked",
+      "independent channel, observable, embedding and context lineage",
+      "actual reader coordinate equality",
+      "same-sample disabled replay parity",
+      "fixed split/checkpoint coverage"
+    ]
+  },
+  "evidence_profile": {
+    "id": "full_real_data_l2",
+    "full_real_data_l2": {
+      "formal_data_scope": "Future complete frozen Re-TACRED 58465/19584/13418; not authorized by this bounded screen.",
+      "replication_unit": "independent_stochastic_runs",
+      "data_exposure_policy": "Only hashes/counts/aggregate metrics public; source records, full tensors/checkpoints stay private.",
+      "l4_attribution_plan": "Require parameter/update-matched classical and commuting controls, mechanism trace evidence, finite-shot/implementation and resource audits."
+    }
+  },
+  "recovery_contract": {
+    "dossier_path": ".codex-artifacts/qattn-l2-ideation-20261020/mechanism-recovery.json",
+    "dossier_sha256": "e6400e0f98c5ee58d68caead3d90719509649a52de4a0121782fadab369b3fe0",
+    "candidate_id": "q-cfra-counterfactual-fidelity-reallocation-attention-v1",
+    "discriminating_intermediate_measurement": "Paired counterfactual fidelity/covariance, full attention movement, projection/channel/readout gradients and shuffled-control outcomes."
+  },
+  "limitations": [
+    "Implementation is approved but not marked implemented until a real complete trace and resume canary pass.",
+    "No formal full-data, L1/L2, novelty or quantum advantage is established by toy results."
+  ]
+}

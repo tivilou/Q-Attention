@@ -1,0 +1,67 @@
+{
+  "schema_version": "q-attention.cfra-screen.v1",
+  "name": "q_cfra_toy",
+  "seeds": [
+    13,
+    29,
+    53,
+    71,
+    97
+  ],
+  "modes": [
+    "disabled",
+    "quantum",
+    "classical_cosine",
+    "classical_rbf",
+    "diagonal",
+    "shuffled",
+    "entity_permuted"
+  ],
+  "selection_seed": 20261020,
+  "per_class": 16,
+  "max_length": 64,
+  "model": {
+    "dim": 32,
+    "num_heads": 4,
+    "num_layers": 2,
+    "ff_dim": 64,
+    "dropout": 0.0
+  },
+  "warmup": {
+    "epochs": 8,
+    "batch_size": 16,
+    "lr": 0.001
+  },
+  "screen": {
+    "epochs": 6,
+    "batch_size": 16,
+    "lr": 0.001
+  },
+  "runtime": {
+    "micro_batch": 2,
+    "evaluation_batch": 2
+  },
+  "loss": {
+    "prediction_js": 0.05,
+    "attention_js": 0.05
+  },
+  "channel": {
+    "depolarization": 0.0001,
+    "fidelity_epsilon": 1e-05,
+    "temperature": 0.7,
+    "depth": 2
+  },
+  "gates": {
+    "mean_delta": 0.005,
+    "positive_seeds": 4,
+    "delta_sd": 0.004,
+    "or_disabled_sd": true,
+    "shuffled_parity_tolerance": 0.001
+  },
+  "claims": {
+    "stage": "bounded real-data toy only",
+    "formal_executor": "collaborator",
+    "novelty": "unresolved",
+    "quantum_attribution": "separate"
+  }
+}

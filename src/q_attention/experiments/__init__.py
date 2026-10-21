@@ -1,94 +1,16 @@
-"""Experiment utilities for Q-Attention."""
+"""Public API, loaded lazily so scheduling processes do not initialize Torch."""
+from importlib import import_module
 
-from .attention_evidence_training import (
-    COUNTERFACTUAL_OBJECTIVE_CHOICES,
-    correct_label_margin,
-    counterfactual_evidence_objective,
-    diagnose_relation_counterfactual_evidence,
-    diagnose_relation_evidence_measurement_frames,
-    diagnose_relation_evidence_task_alignment,
-)
-from .attention_routing_training import (
-    diagnose_relation_expert_direction_alignment,
-    diagnose_relation_expert_routing,
-    diagnose_relation_routing_task_alignment,
-    expert_routing_objective,
-)
-from .attention_score_training import (
-    RELATION_SELECTION_CHOICES,
-    GradientNormTracker,
-    attention_score_hook_config,
-    diagnose_relation_attention_score_kernel,
-    diagnose_relation_attention_score_task_alignment,
-    evaluate_relation_attention_score_kernel,
-    relation_selection_score,
-)
-from .quantum_plugin_training import (
-    evaluate_relation_quantum_plugins,
-    quantum_plugin_hook_config,
-)
-from .relation_steering import (
-    ANCHOR_CHOICES,
-    EvaluationResult,
-    KeyCollection,
-    RelationKeyCollection,
-    RelationLayerSamples,
-    RelationRunArtifacts,
-    anchor_mask_from_batch,
-    build_anchor_projector,
-    choose_device,
-    collect_anchor_key_vectors,
-    collect_relation_key_samples,
-    evaluate_relation_model,
-    load_projector,
-    load_relation_run,
-    make_relation_loader,
-    move_batch,
-    projector_shape_summary,
-    read_json,
-    relation_pair_features,
-)
-from .relation_transfer_screen import metric_gains, summarize_transfer_screen
+_EXPORTS = {'COUNTERFACTUAL_OBJECTIVE_CHOICES': ('.attention_evidence_training', 'COUNTERFACTUAL_OBJECTIVE_CHOICES'), 'correct_label_margin': ('.attention_evidence_training', 'correct_label_margin'), 'counterfactual_evidence_objective': ('.attention_evidence_training', 'counterfactual_evidence_objective'), 'diagnose_relation_counterfactual_evidence': ('.attention_evidence_training', 'diagnose_relation_counterfactual_evidence'), 'diagnose_relation_evidence_measurement_frames': ('.attention_evidence_training', 'diagnose_relation_evidence_measurement_frames'), 'diagnose_relation_evidence_task_alignment': ('.attention_evidence_training', 'diagnose_relation_evidence_task_alignment'), 'diagnose_relation_expert_direction_alignment': ('.attention_routing_training', 'diagnose_relation_expert_direction_alignment'), 'diagnose_relation_expert_routing': ('.attention_routing_training', 'diagnose_relation_expert_routing'), 'diagnose_relation_routing_task_alignment': ('.attention_routing_training', 'diagnose_relation_routing_task_alignment'), 'expert_routing_objective': ('.attention_routing_training', 'expert_routing_objective'), 'RELATION_SELECTION_CHOICES': ('.attention_score_training', 'RELATION_SELECTION_CHOICES'), 'GradientNormTracker': ('.attention_score_training', 'GradientNormTracker'), 'attention_score_hook_config': ('.attention_score_training', 'attention_score_hook_config'), 'diagnose_relation_attention_score_kernel': ('.attention_score_training', 'diagnose_relation_attention_score_kernel'), 'diagnose_relation_attention_score_task_alignment': ('.attention_score_training', 'diagnose_relation_attention_score_task_alignment'), 'evaluate_relation_attention_score_kernel': ('.attention_score_training', 'evaluate_relation_attention_score_kernel'), 'relation_selection_score': ('.attention_score_training', 'relation_selection_score'), 'evaluate_relation_quantum_plugins': ('.quantum_plugin_training', 'evaluate_relation_quantum_plugins'), 'quantum_plugin_hook_config': ('.quantum_plugin_training', 'quantum_plugin_hook_config'), 'ANCHOR_CHOICES': ('.relation_steering', 'ANCHOR_CHOICES'), 'EvaluationResult': ('.relation_steering', 'EvaluationResult'), 'KeyCollection': ('.relation_steering', 'KeyCollection'), 'RelationKeyCollection': ('.relation_steering', 'RelationKeyCollection'), 'RelationLayerSamples': ('.relation_steering', 'RelationLayerSamples'), 'RelationRunArtifacts': ('.relation_steering', 'RelationRunArtifacts'), 'anchor_mask_from_batch': ('.relation_steering', 'anchor_mask_from_batch'), 'build_anchor_projector': ('.relation_steering', 'build_anchor_projector'), 'choose_device': ('.relation_steering', 'choose_device'), 'collect_anchor_key_vectors': ('.relation_steering', 'collect_anchor_key_vectors'), 'collect_relation_key_samples': ('.relation_steering', 'collect_relation_key_samples'), 'evaluate_relation_model': ('.relation_steering', 'evaluate_relation_model'), 'load_projector': ('.relation_steering', 'load_projector'), 'load_relation_run': ('.relation_steering', 'load_relation_run'), 'make_relation_loader': ('.relation_steering', 'make_relation_loader'), 'move_batch': ('.relation_steering', 'move_batch'), 'projector_shape_summary': ('.relation_steering', 'projector_shape_summary'), 'read_json': ('.relation_steering', 'read_json'), 'relation_pair_features': ('.relation_steering', 'relation_pair_features'), 'metric_gains': ('.relation_transfer_screen', 'metric_gains'), 'summarize_transfer_screen': ('.relation_transfer_screen', 'summarize_transfer_screen')}
 
-__all__ = [
-    "ANCHOR_CHOICES",
-    "COUNTERFACTUAL_OBJECTIVE_CHOICES",
-    "EvaluationResult",
-    "KeyCollection",
-    "RelationKeyCollection",
-    "RelationLayerSamples",
-    "RelationRunArtifacts",
-    "RELATION_SELECTION_CHOICES",
-    "GradientNormTracker",
-    "attention_score_hook_config",
-    "anchor_mask_from_batch",
-    "build_anchor_projector",
-    "choose_device",
-    "correct_label_margin",
-    "counterfactual_evidence_objective",
-    "collect_anchor_key_vectors",
-    "collect_relation_key_samples",
-    "diagnose_relation_attention_score_kernel",
-    "diagnose_relation_attention_score_task_alignment",
-    "diagnose_relation_counterfactual_evidence",
-    "diagnose_relation_evidence_measurement_frames",
-    "diagnose_relation_evidence_task_alignment",
-    "diagnose_relation_expert_direction_alignment",
-    "diagnose_relation_expert_routing",
-    "diagnose_relation_routing_task_alignment",
-    "evaluate_relation_model",
-    "evaluate_relation_attention_score_kernel",
-    "evaluate_relation_quantum_plugins",
-    "expert_routing_objective",
-    "load_projector",
-    "load_relation_run",
-    "make_relation_loader",
-    "move_batch",
-    "projector_shape_summary",
-    "quantum_plugin_hook_config",
-    "read_json",
-    "relation_pair_features",
-    "relation_selection_score",
-    "metric_gains",
-    "summarize_transfer_screen",
-]
+__all__ = ['ANCHOR_CHOICES', 'COUNTERFACTUAL_OBJECTIVE_CHOICES', 'EvaluationResult', 'KeyCollection', 'RelationKeyCollection', 'RelationLayerSamples', 'RelationRunArtifacts', 'RELATION_SELECTION_CHOICES', 'GradientNormTracker', 'attention_score_hook_config', 'anchor_mask_from_batch', 'build_anchor_projector', 'choose_device', 'correct_label_margin', 'counterfactual_evidence_objective', 'collect_anchor_key_vectors', 'collect_relation_key_samples', 'diagnose_relation_attention_score_kernel', 'diagnose_relation_attention_score_task_alignment', 'diagnose_relation_counterfactual_evidence', 'diagnose_relation_evidence_measurement_frames', 'diagnose_relation_evidence_task_alignment', 'diagnose_relation_expert_direction_alignment', 'diagnose_relation_expert_routing', 'diagnose_relation_routing_task_alignment', 'evaluate_relation_model', 'evaluate_relation_attention_score_kernel', 'evaluate_relation_quantum_plugins', 'expert_routing_objective', 'load_projector', 'load_relation_run', 'make_relation_loader', 'move_batch', 'projector_shape_summary', 'quantum_plugin_hook_config', 'read_json', 'relation_pair_features', 'relation_selection_score', 'metric_gains', 'summarize_transfer_screen']
+
+def __getattr__(name):
+    if name not in _EXPORTS:raise AttributeError(name)
+    module,attribute=_EXPORTS[name]
+    value=getattr(import_module(module,__name__),attribute)
+    globals()[name]=value
+    return value
+
+def __dir__():
+    return sorted(set(globals())|set(__all__))
