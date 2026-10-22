@@ -1,0 +1,290 @@
+{
+  "schema_version": "q-cfra-deployment-review.v1",
+  "review_scope": "lifecycle",
+  "risk": "R1 trust-boundary compatibility",
+  "verdict": "PASS_WITH_RISK",
+  "must_fix": [],
+  "independent_review": {
+    "schema_version": "q-cfra-bounded-independent-review.v1",
+    "review_mode": "independent_host_subagent_fallback",
+    "reviewer_model": "host-inherited-model; exact backend model identifier not independently exposed",
+    "transport": "native collaboration subagent; external ranked API routes unavailable, not an external-model review",
+    "review_scope": "lifecycle",
+    "risk_level": "R1 deployment and trust-boundary compatibility",
+    "input_binding": {
+      "packet": ".codex-artifacts/q-cfra-server-recovery/review-packet.txt",
+      "packet_sha256": "a7fe4d27e7e852877d51b895505afbd6d354bf652f42dd23ecf0a7642c19e935",
+      "packet_raw_windows_bytes_sha256": "39c6a8070703e53f5cf7d8593424a082d78230a2345109c5bce87f729e5d2b36",
+      "source_manifest": ".codex-artifacts/q-cfra-server-recovery/review-source-manifest.json",
+      "source_manifest_sha256": "06062c254b40ccc689c418278d45ae5dace4fd96494a472339c082d4551e99cd",
+      "source_manifest_raw_windows_bytes_sha256": "0f8864d4aae5525df5c79a42deaff151dfe92673fd8322a81d57a39d26d4a9a0",
+      "hash_normalization": "packet_sha256 and source_manifest_sha256 use UTF-8 text with CRLF normalized to LF; raw byte hashes are separately provided",
+      "source_manifest_entries": 7,
+      "packet_source_content_hashes_verified": true,
+      "source_encoding_note": "The validation JSON source hash matches its CRLF bytes; the other six reconstructed source hashes match LF bytes. No source changes were made.",
+      "formal_runtime_source_sha256": "86d1e2ba798d8305caa4b149c66595d453628ee602aa8c8e831c5220c89edbf7",
+      "base_release": "9c3da048742911151a1d0ad7c085885de368160f",
+      "additional_reported_deployment_facts": [
+        "Parent reports restart passed, effective UID/GID997 and CAP_NET_BIND_SERVICE only.",
+        "Parent reports private configuration and TLS backup on NTFS with explicit owner and SYSTEM ACL only; reviewer did not inspect private files."
+      ]
+    },
+    "theory_mapping": {
+      "status": "unchanged_outside_scope",
+      "assessment": "No scientific theory, model, loss, intervention, seed, data population or control-budget change is proposed. This review does not upgrade scientific evidence or quantum attribution."
+    },
+    "correctness": {
+      "status": "pass_with_stated_boundary",
+      "assessment": "The new checker imports the existing exchange helper, requires HTTPS and a nonempty configured token, uses the repository CA, checks health/part-size and authenticated namespace, and uses only GET and HEAD network requests. With an existing run it checks manifest schema, cached target/fingerprint, each verified part's safe relative path, current Content-Length and SHA256 ETag. Missing or changed parts fail without changing the run or receipts. Errors print only HTTP code or exception class, not URL, token or exception content.",
+      "evidence_refs": [
+        "scripts/check_qattn_exchange.py:16-62",
+        "scripts/check_qattn_exchange.py:65-75",
+        "EVIDENCE checker-readiness.json"
+      ]
+    },
+    "fidelity_gaps": [
+      "Formal runtime identity is attested unchanged in the bounded packet; the 81 original source files were not re-reviewed.",
+      "Server deployment, service restart and ACL facts are reported evidence rather than an independent remote inspection.",
+      "Historical private uploads are explicitly not certified restored. A healthy replacement service proves new service availability, not retention of old objects.",
+      "Cached receipt checking is an explicit operator prerequisite, not a newly enforced gate inside the unchanged formal runner/exporter. The disposition applies to the documented workflow."
+    ],
+    "control_fairness": {
+      "status": "unchanged_outside_scope",
+      "assessment": "No new performance comparison is asserted. Existing nominal-budget and attribution limits remain stated in the formal Chinese handoff."
+    },
+    "gradient_and_numerics": {
+      "status": "unchanged_with_bounded_gpu_evidence",
+      "assessment": "The packet reports 43 focused checks and an 8-job synthetic GPU lifecycle canary including complex gradient probes and fresh-process state replay. These are appropriate deployment checks and do not require a full-data experiment. Each collaborator executor still runs the mandatory existing GPU canary.",
+      "evidence_refs": [
+        "docs/validation/q_cfra_server_recovery_20261022.json:36-77",
+        "docs/current/q_cfra_server_recovery_zh.md:47-52"
+      ]
+    },
+    "lifecycle_correctness": {
+      "status": "pass_with_risk",
+      "assessment": "The clean-workspace, origin/1.1 then origin/main synchronization instructions preserve the collaborator workflow and deliver the new CA through Git. Private configuration remains outside Git; no TLS-disable fallback is instructed. Fresh-run handoff is supported by reported GPU recovery/export retry evidence, external authenticated upload/conflict/idempotence/full-readback checks, and actual synthetic Q-CFRA private export. Existing-run instructions preserve original directories and require receipt checks before resume or export; missing parts cause an explicit stop for owner audit, with no receipt deletion or retraining authorization.",
+      "evidence_refs": [
+        "docs/current/q_cfra_server_recovery_zh.md:15-42",
+        "docs/current/q_cfra_server_recovery_zh.md:54-78",
+        "docs/current/retacred_q_cfra_formal_single_seed_zh.md:5",
+        "qattn_artifact_exchange_zh.md:3-19",
+        "EVIDENCE exchange-external-readiness.json",
+        "EVIDENCE live-export-readiness.json"
+      ]
+    },
+    "artifact_and_recovery": {
+      "status": "conditional_pass",
+      "fresh_run_handoff": "Allowed after official branch/CA synchronization, safe provisioning of the current private configuration, successful exchange diagnostic, and the existing executor preflight/GPU canary.",
+      "existing_run_diagnosis": "Allowed read-only using --run-dir. If any previous receipt points to a missing or changed current-server part, stop resume/export and preserve original run, private evidence and receipts for owner audit. No historical-restoration claim or automatic remediation is approved.",
+      "unchanged_legacy_cache_boundary": "The old exporter may reuse matching local receipts without contacting the replacement server. The mandatory documented --run-dir check is therefore necessary before every migrated existing-run resume/export path; skipping it is outside this review's approval.",
+      "scientific_scope": "No full-data training was performed or requested by this review; formal seed13 remains collaborator-only and no extra seeds are authorized."
+    },
+    "must_fix": [],
+    "verdict": "PASS_WITH_RISK",
+    "confidence": {
+      "level": "high_for_packet_code_and_documentation; moderate_for_reported_deployment_state",
+      "basis": "Direct bounded source review, exact packet/manifest binding, reconstructed source-hash checks, and internally consistent reported readiness evidence; no private files, remote server access or formal training."
+    }
+  },
+  "public_source_manifest": {
+    "docs/current/q_cfra_server_recovery_zh.md": "317346347d2479b96ccdbd4cc45498295b164aec22b4d3b3aecb97c0fcaee44a",
+    "docs/current/retacred_q_cfra_formal_single_seed_zh.md": "91e7061647eb7d4799b04b24594a4c565c7af19f34f2d6ca8a25f6d142b9d346",
+    "docs/README.md": "c3514f6f866f09b0765f6b136680699005b1d3c4e15b04aeb96899b5415c9a8f",
+    "docs/validation/q_cfra_server_recovery_20261022.json": "89344c6f90ae43d6a2f282c8c61ed01d9a1d5380b36ed7e6fe68492669cbb310",
+    "qattn_artifact_exchange_zh.md": "77d7954d8fa2c4a02cdd58eb1744d257ceb543e7d16f43475cc500ba5e6abc57",
+    "scripts/check_qattn_exchange.py": "b5f781990efa1af5aa5542cc4214364bdc3c27ad9111a4aa3f9a5f5ae4c151ab",
+    "scripts/collab/certs/qattn-exchange-ca.crt": "dbe9611905fdfb37eec630bfe275576e408b94c1672c428ba3a5befa10d84e4b"
+  },
+  "packet_sha256": "39c6a8070703e53f5cf7d8593424a082d78230a2345109c5bce87f729e5d2b36",
+  "source_manifest_sha256": "0f8864d4aae5525df5c79a42deaff151dfe92673fd8322a81d57a39d26d4a9a0",
+  "external_availability": [
+    {
+      "rank": 1,
+      "model": "claude-opus-5.5",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 2,
+      "model": "claude-sonnet-5.5",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 3,
+      "model": "gpt-6-astra",
+      "status": "unavailable",
+      "error_type": "availability_RemoteProtocolError"
+    },
+    {
+      "rank": 4,
+      "model": "claude-fable-5.1",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 5,
+      "model": "gpt-6.1-sol",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 6,
+      "model": "claude-opus-5",
+      "status": "unavailable",
+      "error_type": "availability_RemoteProtocolError"
+    },
+    {
+      "rank": 7,
+      "model": "gpt-5.6-sol",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 8,
+      "model": "gpt-6-sol",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 9,
+      "model": "gemini-3.8-flash",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 10,
+      "model": "gpt-5.5",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 11,
+      "model": "gpt-5.6-terra",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 12,
+      "model": "glm-5.3",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 13,
+      "model": "claude-haiku-5.5",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 14,
+      "model": "kimi-k3",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 15,
+      "model": "claude-opus-4.8",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 16,
+      "model": "grok-4.6",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 17,
+      "model": "gpt-5.6-luna",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 18,
+      "model": "glm-5.3-flash",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 19,
+      "model": "gemini-3.5-flash",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 20,
+      "model": "qwen3.8-27b",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 21,
+      "model": "mistral-large-4",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 22,
+      "model": "gpt-6-luna",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 23,
+      "model": "grok-4.5",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 24,
+      "model": "gpt-5.4",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 25,
+      "model": "minimax-m3",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    },
+    {
+      "rank": 26,
+      "model": "inkling",
+      "status": "unavailable",
+      "error_type": "unverified_mapping"
+    }
+  ],
+  "diagnostic_checks": {
+    "status": "passed",
+    "checks": [
+      {
+        "name": "healthy_https_auth",
+        "exit_code": 0
+      },
+      {
+        "name": "existing_receipt_present",
+        "exit_code": 0
+      },
+      {
+        "name": "missing_token_rejected",
+        "exit_code": 1
+      },
+      {
+        "name": "nonexistent_run_rejected",
+        "exit_code": 1
+      },
+      {
+        "name": "cached_part_missing_rejected",
+        "exit_code": 1
+      },
+      {
+        "name": "cached_part_changed_rejected",
+        "exit_code": 1
+      }
+    ],
+    "source_run_unchanged": true,
+    "read_only_network": true
+  },
+  "authorization": "Fresh seed13 handoff remains executor-GPU-gated; existing missing prior evidence stops for owner audit; no full-data execution by developer."
+}
