@@ -1,0 +1,118 @@
+{
+  "schema_version": "q-cfra-deployment-readiness.v1",
+  "date": "2026-10-22",
+  "status": "passed",
+  "base_release": "9c3da048742911151a1d0ad7c085885de368160f",
+  "source_sha256": "86d1e2ba798d8305caa4b149c66595d453628ee602aa8c8e831c5220c89edbf7",
+  "runtime_source_unchanged": true,
+  "formal_training_started": false,
+  "environment": {
+    "name": "qattn-cfra",
+    "python": "3.10.22",
+    "torch": "2.7.1+cu126",
+    "numpy": "1.26.4",
+    "isolated_from_existing_py310": true,
+    "pip_check": "passed",
+    "gpu": "NVIDIA GeForce RTX 3080 Ti",
+    "memory_mib": 12288
+  },
+  "data": {
+    "train": {
+      "records": 58465,
+      "sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+      "max_length": 96
+    },
+    "valid": {
+      "records": 19584,
+      "sha256": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+      "max_length": 95
+    },
+    "test": {
+      "records": 13418,
+      "sha256": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40",
+      "max_length": 96
+    }
+  },
+  "focused_tests": {
+    "command": "python -m pytest -q tests/test_cfra.py tests/test_cfra_formal.py",
+    "passed": 43,
+    "failed": 0,
+    "exit_code": 0,
+    "seconds": 89.96
+  },
+  "gpu_canary": {
+    "schema_version": "cfra-executor-readiness.v1",
+    "status": "passed",
+    "source_sha256": "86d1e2ba798d8305caa4b149c66595d453628ee602aa8c8e831c5220c89edbf7",
+    "gpus": [
+      "0"
+    ],
+    "runtime": {
+      "python": "3.10.22",
+      "torch": "2.7.1+cu126",
+      "device": "0"
+    },
+    "recovery": {
+      "jobs": 8,
+      "baseline_and_plugin_fresh_process": true,
+      "full_optimizer_rng_sampler_best_state": true,
+      "tolerance": 1e-06,
+      "completed_markers_preserved": 2,
+      "damaged_completed_rejected": true,
+      "explicit_completed_repair_without_training": true,
+      "other_completed_markers_preserved_during_repair": 7,
+      "completed_repair_before_root_summary": true
+    },
+    "export": {
+      "injected_failure_cleaned": true,
+      "same_completed_run_retry": true,
+      "no_retraining": true,
+      "source_revision": "9c3da048742911151a1d0ad7c085885de368160f",
+      "exporter_sha256": "8d3ba5d97b06d0cd45d4f54aeaf72325c5b82101aa05f501446d42dadfa4af45",
+      "retry_count": 1,
+      "report_identity": "019cb2cb850d109850e58a2b8708ecf95dc7ad15258122ebaf07f8fb9357cbd7",
+      "human_readable_tamper_rejected": true
+    },
+    "scientific_scope": "synthetic12/6/6, seed13, dim8, two epochs; no formal-data training",
+    "hardware_scope": "all selected GPUs probed; lifecycle replay on first selected GPU"
+  },
+  "exchange": {
+    "status": "passed",
+    "checks": {
+      "tls_verified": true,
+      "external_health": true,
+      "unauthenticated_rejected": true,
+      "wrong_token_rejected": true,
+      "namespace_absolute_traversal_hidden_rejected": true,
+      "streamed_upload_verified": true,
+      "idempotent_retry_verified": true,
+      "complete_readback_verified": true,
+      "conflicting_payload_rejected": true,
+      "original_object_preserved": true,
+      "browse_verified": true,
+      "upload_bytes": 8388608,
+      "upload_sha256": "7d212b9c884f5c77896de960ae17cc341cda43b14d6a971f34ca29ebd4badf7f"
+    },
+    "secrets_printed": false,
+    "tls_ca_sha256": "dbe9611905fdfb37eec630bfe275576e408b94c1672c428ba3a5befa10d84e4b"
+  },
+  "live_synthetic_export": {
+    "status": "passed",
+    "profile": "synthetic_canary",
+    "jobs": 8,
+    "private_parts": 1,
+    "uploaded_bytes": 13977600,
+    "full_readback_hash_verified": true,
+    "completed_markers_preserved": true,
+    "no_training": true,
+    "report_whitelist_verified": true,
+    "exchange_manifest_sha256": "07a2cf427f661f4688a2202aae7dfbb2ac5029299457e0d2ae91a0d728151349",
+    "tls_ca_sha256": "dbe9611905fdfb37eec630bfe275576e408b94c1672c428ba3a5befa10d84e4b",
+    "source_sha256": "86d1e2ba798d8305caa4b149c66595d453628ee602aa8c8e831c5220c89edbf7"
+  },
+  "recovery_limits": [
+    "Historical private uploads are not certified restored.",
+    "Collaborator executor still runs its own mandatory GPU canary.",
+    "Cached prior receipts must be checked against current service before resume or export."
+  ]
+}
