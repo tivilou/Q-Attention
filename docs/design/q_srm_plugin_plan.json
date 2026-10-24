@@ -1,0 +1,484 @@
+{
+  "schema_version": "research-plugin-architecture.plugin-plan.v2",
+  "project": "Q-Attention Q-SRM",
+  "authorization": "implemented",
+  "baseline": {
+    "entry_point": "src/q_attention/models/relation_transformer.py:RelationExtractionModel",
+    "code_revision": "b0935d50789df1dda21f08190ee389c22e85c5f5",
+    "equivalence_test": "tests/test_srm.py: disabled logits and classifier gradients equal untouched baseline"
+  },
+  "core_invariants": [
+    "Stable core untouched; explicit context hook only in second layer",
+    "No stacked interventions",
+    "No labels in attention",
+    "Disabled exact base behavior",
+    "Full-data runs collaborator-only"
+  ],
+  "interfaces": [
+    {
+      "id": "attention_context",
+      "type": "transformer",
+      "input_schema": "Q,K,V B,H,N,8; bool token mask",
+      "output_schema": "B,H,N,8 context; None for baseline"
+    }
+  ],
+  "plugins": [
+    {
+      "id": "disabled",
+      "version": "1",
+      "role": "baseline",
+      "interface": "attention_context",
+      "insertion_point": "base.encoder.layers[1].attn.context_intervention",
+      "hypothesis": "original softmax baseline",
+      "input_schema": "Q,K,V and valid-token mask",
+      "output_schema": "token attention, null probability, direct context",
+      "resource_estimate": "8x8 spectral operation per head; active maps nominal144 parameters",
+      "deterministic": true,
+      "requires": [],
+      "conflicts": [
+        "quantum",
+        "fidelity",
+        "diagonal",
+        "key_mismatch"
+      ],
+      "failure_signatures": [
+        "nonfinite gradient",
+        "probability normalization error",
+        "trace mismatch"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "emitted_fields": [
+          "raw Q/K/V",
+          "Born probabilities and null",
+          "circuit stages",
+          "parameter before/gradient/after"
+        ],
+        "checks": [
+          "frozen inventory and full NPY hashes",
+          "independent NumPy circuit/POVM replay",
+          "mask and normalization",
+          "coordinate reader"
+        ],
+        "deterministic_replay": true,
+        "stages": [
+          "data",
+          "preprocess",
+          "scoring",
+          "context",
+          "generation",
+          "evaluation",
+          "training"
+        ],
+        "input_fields": [
+          "factual tokens",
+          "entity masks"
+        ],
+        "output_fields": [
+          "logits",
+          "trace"
+        ],
+        "shape_dtype_normalization": [
+          "BHND complex128 unit states; BHNN float64 Born probabilities; token plus null sum1"
+        ],
+        "input_refs": [
+          "source:tokens",
+          "source:entity_spans"
+        ],
+        "output_refs": [
+          "sample_trace.json",
+          "values/*.npy"
+        ]
+      }
+    },
+    {
+      "id": "quantum",
+      "version": "1",
+      "role": "idea",
+      "interface": "attention_context",
+      "insertion_point": "base.encoder.layers[1].attn.context_intervention",
+      "hypothesis": "key-set conditioning compensates redundant keys",
+      "input_schema": "Q,K,V and valid-token mask",
+      "output_schema": "token attention, null probability, direct context",
+      "resource_estimate": "8x8 spectral operation per head; active maps nominal144 parameters",
+      "deterministic": true,
+      "requires": [],
+      "conflicts": [
+        "disabled",
+        "fidelity",
+        "diagonal",
+        "key_mismatch"
+      ],
+      "failure_signatures": [
+        "nonfinite gradient",
+        "probability normalization error",
+        "trace mismatch"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "emitted_fields": [
+          "raw Q/K/V",
+          "Born probabilities and null",
+          "circuit stages",
+          "parameter before/gradient/after"
+        ],
+        "checks": [
+          "frozen inventory and full NPY hashes",
+          "independent NumPy circuit/POVM replay",
+          "mask and normalization",
+          "coordinate reader"
+        ],
+        "deterministic_replay": true,
+        "stages": [
+          "data",
+          "preprocess",
+          "scoring",
+          "context",
+          "generation",
+          "evaluation",
+          "training"
+        ],
+        "input_fields": [
+          "factual tokens",
+          "entity masks"
+        ],
+        "output_fields": [
+          "logits",
+          "trace"
+        ],
+        "shape_dtype_normalization": [
+          "BHND complex128 unit states; BHNN float64 Born probabilities; token plus null sum1"
+        ],
+        "input_refs": [
+          "source:tokens",
+          "source:entity_spans"
+        ],
+        "output_refs": [
+          "sample_trace.json",
+          "values/*.npy"
+        ]
+      }
+    },
+    {
+      "id": "fidelity",
+      "version": "1",
+      "role": "adapter",
+      "interface": "attention_context",
+      "insertion_point": "base.encoder.layers[1].attn.context_intervention",
+      "hypothesis": "matched pairwise map without joint Gram",
+      "input_schema": "Q,K,V and valid-token mask",
+      "output_schema": "token attention, null probability, direct context",
+      "resource_estimate": "8x8 spectral operation per head; active maps nominal144 parameters",
+      "deterministic": true,
+      "requires": [],
+      "conflicts": [
+        "disabled",
+        "quantum",
+        "diagonal",
+        "key_mismatch"
+      ],
+      "failure_signatures": [
+        "nonfinite gradient",
+        "probability normalization error",
+        "trace mismatch"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "emitted_fields": [
+          "raw Q/K/V",
+          "Born probabilities and null",
+          "circuit stages",
+          "parameter before/gradient/after"
+        ],
+        "checks": [
+          "frozen inventory and full NPY hashes",
+          "independent NumPy circuit/POVM replay",
+          "mask and normalization",
+          "coordinate reader"
+        ],
+        "deterministic_replay": true,
+        "stages": [
+          "data",
+          "preprocess",
+          "scoring",
+          "context",
+          "generation",
+          "evaluation",
+          "training"
+        ],
+        "input_fields": [
+          "factual tokens",
+          "entity masks"
+        ],
+        "output_fields": [
+          "logits",
+          "trace"
+        ],
+        "shape_dtype_normalization": [
+          "BHND complex128 unit states; BHNN float64 Born probabilities; token plus null sum1"
+        ],
+        "input_refs": [
+          "source:tokens",
+          "source:entity_spans"
+        ],
+        "output_refs": [
+          "sample_trace.json",
+          "values/*.npy"
+        ]
+      }
+    },
+    {
+      "id": "diagonal",
+      "version": "1",
+      "role": "adapter",
+      "interface": "attention_context",
+      "insertion_point": "base.encoder.layers[1].attn.context_intervention",
+      "hypothesis": "key-phase removal control",
+      "input_schema": "Q,K,V and valid-token mask",
+      "output_schema": "token attention, null probability, direct context",
+      "resource_estimate": "8x8 spectral operation per head; active maps nominal144 parameters",
+      "deterministic": true,
+      "requires": [],
+      "conflicts": [
+        "disabled",
+        "quantum",
+        "fidelity",
+        "key_mismatch"
+      ],
+      "failure_signatures": [
+        "nonfinite gradient",
+        "probability normalization error",
+        "trace mismatch"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "emitted_fields": [
+          "raw Q/K/V",
+          "Born probabilities and null",
+          "circuit stages",
+          "parameter before/gradient/after"
+        ],
+        "checks": [
+          "frozen inventory and full NPY hashes",
+          "independent NumPy circuit/POVM replay",
+          "mask and normalization",
+          "coordinate reader"
+        ],
+        "deterministic_replay": true,
+        "stages": [
+          "data",
+          "preprocess",
+          "scoring",
+          "context",
+          "generation",
+          "evaluation",
+          "training"
+        ],
+        "input_fields": [
+          "factual tokens",
+          "entity masks"
+        ],
+        "output_fields": [
+          "logits",
+          "trace"
+        ],
+        "shape_dtype_normalization": [
+          "BHND complex128 unit states; BHNN float64 Born probabilities; token plus null sum1"
+        ],
+        "input_refs": [
+          "source:tokens",
+          "source:entity_spans"
+        ],
+        "output_refs": [
+          "sample_trace.json",
+          "values/*.npy"
+        ]
+      }
+    },
+    {
+      "id": "key_mismatch",
+      "version": "1",
+      "role": "adapter",
+      "interface": "attention_context",
+      "insertion_point": "base.encoder.layers[1].attn.context_intervention",
+      "hypothesis": "key/value semantic alignment control",
+      "input_schema": "Q,K,V and valid-token mask",
+      "output_schema": "token attention, null probability, direct context",
+      "resource_estimate": "8x8 spectral operation per head; active maps nominal144 parameters",
+      "deterministic": true,
+      "requires": [],
+      "conflicts": [
+        "disabled",
+        "quantum",
+        "fidelity",
+        "diagonal"
+      ],
+      "failure_signatures": [
+        "nonfinite gradient",
+        "probability normalization error",
+        "trace mismatch"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "emitted_fields": [
+          "raw Q/K/V",
+          "Born probabilities and null",
+          "circuit stages",
+          "parameter before/gradient/after"
+        ],
+        "checks": [
+          "frozen inventory and full NPY hashes",
+          "independent NumPy circuit/POVM replay",
+          "mask and normalization",
+          "coordinate reader"
+        ],
+        "deterministic_replay": true,
+        "stages": [
+          "data",
+          "preprocess",
+          "scoring",
+          "context",
+          "generation",
+          "evaluation",
+          "training"
+        ],
+        "input_fields": [
+          "factual tokens",
+          "entity masks"
+        ],
+        "output_fields": [
+          "logits",
+          "trace"
+        ],
+        "shape_dtype_normalization": [
+          "BHND complex128 unit states; BHNN float64 Born probabilities; token plus null sum1"
+        ],
+        "input_refs": [
+          "source:tokens",
+          "source:entity_spans"
+        ],
+        "output_refs": [
+          "sample_trace.json",
+          "values/*.npy"
+        ]
+      }
+    }
+  ],
+  "discovery": {
+    "mode": "explicit_allowlist",
+    "allowlist": [
+      "disabled",
+      "quantum",
+      "fidelity",
+      "diagonal",
+      "key_mismatch"
+    ]
+  },
+  "composition": {
+    "mode": "single",
+    "order": [
+      "quantum"
+    ],
+    "merge_rule": "replace second-layer context only",
+    "interaction_ablations": [
+      "no stacking; each isolated mode uses same warm-start"
+    ]
+  },
+  "validation": {
+    "baseline_equivalence": "tests/test_srm.py",
+    "tests": [
+      "baseline_equivalence",
+      "plugin_isolation",
+      "deterministic_replay",
+      "interaction_ablation",
+      "trace_structural_validation",
+      "trace_semantic_validation",
+      "trace_replay"
+    ]
+  },
+  "reproducibility": {
+    "config_path": "configs/q_srm_screen.json",
+    "dataset_identity": "pinned Re-TACRED hashes and outcome-blind bounded selection; separate12/6/6 synthetic canary",
+    "environment": "Python3.10.22 Torch2.7.1+cu126 NumPy1.26.4; exact runtime identity bound at launch",
+    "seeds": [
+      13,
+      29,
+      53,
+      71,
+      97
+    ],
+    "output_manifest": "private run_manifest.json"
+  },
+  "trace_contract": {
+    "enabled": true,
+    "schema": "sample-trace.v2",
+    "artifact_path": "private seed*/mode/sample_trace.json",
+    "sample_selection_rule": "first selected source row per split before outcomes",
+    "target_boundary": "labels used for CE and post-generation diagnosis only",
+    "required_stages": [
+      "data",
+      "preprocess",
+      "scoring",
+      "context",
+      "generation",
+      "evaluation",
+      "training"
+    ],
+    "semantic_roles": [
+      "tokens",
+      "subject",
+      "object",
+      "correct_relation",
+      "predicted_relation",
+      "checkpoint_identity",
+      "input_provenance"
+    ],
+    "required_representations": [
+      "full factual forward tensors",
+      "PQC states/angles",
+      "measurement effects",
+      "parameter before/gradient/after"
+    ],
+    "producer_owned_lineage": [
+      "checkpoint state SHA256",
+      "full NPY hashes",
+      "source code SHA256"
+    ],
+    "readiness_checks": [
+      "schema",
+      "semantic NumPy replay",
+      "arbitrary coordinate reader",
+      "same-sample baseline parity"
+    ]
+  },
+  "evidence_profile": {
+    "id": "full_real_data_l2",
+    "full_real_data_l2": {
+      "formal_data_scope": "Future collaborator-only full-data contract, not implemented or authorized by this bounded runner",
+      "data_exposure_policy": "private raw artifacts; audited aggregate whitelist only",
+      "l4_attribution_plan": "exact classical replay precludes quantum resource claims; matched controls constrain mechanism only",
+      "replication_unit": "independent_stochastic_runs"
+    }
+  },
+  "recovery_contract": {
+    "dossier_path": "docs/ideas/20261024-q-srm/mechanism-recovery.json",
+    "dossier_sha256": "7e13c9da9ac824ebbec57cc98b6a84b5019c0ab01f407d3dfea610c742301f7e",
+    "candidate_id": "Q-SRM",
+    "discriminating_intermediate_measurement": "duplicate-key group mass/null versus pairwise fidelity; Gram spectrum, effects, common-unitary cancellation, exact classical gradients"
+  },
+  "limitations": [
+    "No efficacy experiment executed",
+    "CUDA unavailable on current server; GPU behavior unverified",
+    "Exact finite-dimensional classical equivalence",
+    "First-order autograd only",
+    "Nominal parameter counts do not establish effective capacity parity",
+    "Novelty unresolved"
+  ],
+  "trace_readiness": {
+    "status": "passed",
+    "fixture_path": "/home/Q-Attention/q-srm-private/lifecycle-20261024-1401/test_real_parent_resume_export0/direct",
+    "structural_validation": "q_attention.analysis.srm_trace.validate_trace; 50 complete sample-trace.v2 records",
+    "semantic_validation": "independent NumPy circuit/POVM/context replay and full NPY hashes",
+    "replay_test": "tests/test_srm_lifecycle.py: exact committed-minibatch resume plus immutable export failure/retry"
+  }
+}

@@ -1,0 +1,228 @@
+{
+  "review_mode": "subagent_fallback",
+  "reviewer_model": "/root/srm_review",
+  "review_scope": "both",
+  "source_sha256": "cf3154535e0f1ce936c76988a668d35e303bc20686036b9c9ee377bd174f9ee4",
+  "theory_sha256": "3935511493b878b5babeea723ae9d7bd488863637a739e25dc84b77a8f06682d",
+  "transport": {
+    "route": "bounded independent subagent fallback; identical review-packet.json",
+    "selection_record": "review-selection.json",
+    "external_transport_record": "review-transport.json",
+    "attempts": [
+      {
+        "model": "claude-fable-5",
+        "provider": "A6API",
+        "protocol": "anthropic-messages",
+        "reasoning_effort": "max",
+        "purpose": "earlier minimal preflight",
+        "status": "unavailable",
+        "error_class": "sentinel_parse_failure"
+      },
+      {
+        "model": "claude-fable-5",
+        "provider": "A6API",
+        "protocol": "anthropic-messages",
+        "reasoning_effort": "max",
+        "purpose": "successful exact-profile preflight",
+        "status": "available",
+        "profile_verified": true,
+        "sentinel_response": "QSRM_REVIEW_OK"
+      },
+      {
+        "model": "claude-fable-5",
+        "provider": "A6API",
+        "reasoning_effort": "max",
+        "purpose": "same-source full review",
+        "status": "unavailable",
+        "error_class": "TimeoutError",
+        "started": "2026-10-24T05:49:49.370422+00:00",
+        "detail": "The read operation timed out"
+      },
+      {
+        "model": "claude-fable-5",
+        "provider": "Yunwu",
+        "status": "unavailable",
+        "error_class": "exact_native_max_profile_unverified",
+        "request_sent": false
+      },
+      {
+        "model": "claude-fable-5",
+        "provider": "Right Code",
+        "status": "unavailable",
+        "error_class": "exact_native_max_profile_unverified",
+        "request_sent": false
+      }
+    ],
+    "excluded_preference": {
+      "model": "claude-opus-5-5",
+      "reason": "Selection record lacks exact-model task evidence and verified native max mapping."
+    },
+    "fallback_reason": "Ranked external review timed out; other exact-profile routes were unverified. This fallback is review evidence, not benchmark capability evidence."
+  },
+  "evidence_scope": {
+    "packet": "review-packet.json",
+    "source_files_hash_checked": 28,
+    "source_file_hash_mismatches": [],
+    "inspected": "Packet theory, all SRM mechanism/adapter/protocol/runner/trace code and tests, shared checkpoint/protocol code, base model, and bounded supplemental source reads of relation data, parameter vector/hash helpers and structural validator.",
+    "execution": "Static independent review only. No training, tests, source modifications, or network requests performed by this reviewer.",
+    "supplied_test_evidence": "Primary reports 29 focused tests passed. Reviewed authored tests; did not independently rerun them. Real-parent lifecycle test is deliberately pending.",
+    "owner": "Primary agent retains final ownership and must verify/run the bounded acceptance path."
+  },
+  "theory_mapping": [
+    {
+      "invariant": "Separate input-conditioned unit pure Q/K states in C^8; 8-to-6 pi*tanh encoding; two Rz/Ry/Rz and CZ-ring layers; 144 nominal parameters shared across heads.",
+      "locations": [
+        "src/q_attention/plugins/q_srm.py:64 ThreeQubitMap",
+        "src/q_attention/plugins/q_srm.py:172 SquareRootMeasurementAttention"
+      ],
+      "assessment": "Matches the packet. Each map has 48 projection weights, 6 biases and 18 rotation parameters."
+    },
+    {
+      "invariant": "rho_j=k_j k_j^dagger; S=sum_valid rho_j+0.01 I; G=S^(-1/2); E_j=G rho_j G; null effect=0.01 G^2.",
+      "locations": [
+        "src/q_attention/plugins/q_srm.py:114 measure"
+      ],
+      "assessment": "Matches. The optimized pure-state overlap path has the same quadratic form; masks remove invalid key effects."
+    },
+    {
+      "invariant": "A_ij=q_i^dagger E_j q_i, context=sum_j A_ij V_j, explicit zero-valued null, no softmax/token renormalization.",
+      "locations": [
+        "src/q_attention/plugins/q_srm.py:114 measure",
+        "src/q_attention/adapters/q_srm.py:17 _SRMContext.forward"
+      ],
+      "assessment": "Matches. Padded active queries receive zero context and null probability one."
+    },
+    {
+      "invariant": "Original disabled softmax; pairwise fidelity with explicit null; dephased key density; cyclic valid-key mismatch with V fixed.",
+      "locations": [
+        "src/q_attention/adapters/q_srm.py:17 _SRMContext.forward",
+        "src/q_attention/plugins/q_srm.py:114 measure"
+      ],
+      "assessment": "Matches the control definitions; disabled returns None into the original base attention path."
+    },
+    {
+      "invariant": "Full shared warm-start per seed followed by frozen base except classifier and active kernel; factual CE only; validation-only checkpoint selection.",
+      "locations": [
+        "src/q_attention/experiments/srm_runner.py:40 Worker.__init__",
+        "src/q_attention/adapters/q_srm.py:40 SRMModel.__init__",
+        "src/q_attention/experiments/srm_runner.py:142 Worker.train_update",
+        "src/q_attention/experiments/srm_runner.py:167 Worker.select"
+      ],
+      "assessment": "Matches. Diagnostic held-out gradients are zeroed and never stepped."
+    }
+  ],
+  "correctness": {
+    "status": "pass",
+    "evidence": [
+      "Complex conjugation/transposition in measure implements |q^dagger G k|^2 correctly; the null computation is 0.01 ||G q||^2.",
+      "Fixed positive ridge makes each supported Gram matrix positive definite; token effects plus null sum to identity.",
+      "Attention accepts features/masks only. Vocab and label-map fitting uses training records only; selection uses validation macro-F1.",
+      "The fixed trace example is selected before training. epoch_order places training index zero first for actual update0.",
+      "The source hashes for the 28 declared source-contract files in the bounded staging copy match the packet."
+    ],
+    "defects_requiring_precanary_fix": []
+  },
+  "fidelity_gaps": {
+    "status": "pass",
+    "material_mismatch_found": false,
+    "observations": [
+      "No mismatch with the bounded equations was found.",
+      "144 is a nominal parameter count. Common-unitary gauge freedom and control-specific redundant parameters prevent an effective-capacity equivalence claim.",
+      "The computation has an exact classical expression; no novelty, quantum advantage or efficacy conclusion follows from implementation fidelity.",
+      "This review covers the synthetic CPU canary. It does not certify full-data execution or collaborator handoff."
+    ]
+  },
+  "control_fairness": {
+    "status": "pass",
+    "evidence": [
+      "Each active condition rebuilds and loads the same seed-specific warmup best model; all active modes reseed to seed+1000 and construct the same Q/K parameter layout.",
+      "The classifier and logical update schedule are shared across all conditions; the disabled condition intentionally lacks the additional 144 kernel parameters.",
+      "Fidelity omits the joint Gram by construction; diagonal removes key coherences before summation; mismatch rotates only valid keys and keeps values at their original positions.",
+      "Training uses sum CE divided by logical batch count across microbatches, preserving the logical objective."
+    ],
+    "limits": [
+      "These controls isolate the stated mechanisms but are not an effective-capacity matched proof of quantum-specific benefit."
+    ]
+  },
+  "gradient_and_numerics": {
+    "status": "pass",
+    "locations": [
+      "src/q_attention/plugins/q_srm.py:16 _InverseSquareRoot",
+      "tests/test_srm.py:test_inverse_root_gradcheck_at_repeated_eigenvalues",
+      "tests/test_srm.py:test_inverse_root_gradcheck_unequal_spectrum_and_batch",
+      "tests/test_srm.py:test_exact_classical_expression_values_and_gradients"
+    ],
+    "evidence": [
+      "Backward uses the inverse-root Loewner divided difference -1/(sqrt(a)*sqrt(b)*(sqrt(a)+sqrt(b))), which remains finite at repeated positive eigenvalues and avoids eigenvector-gap divisions.",
+      "Hermitian symmetrization is applied to both the input and adjoint gradient; the implementation is the correct self-adjoint Frechet derivative for this function.",
+      "Circuit/state/Gram arithmetic is complex128/float64; context is computed in probability precision and then cast to base value dtype.",
+      "Training rejects nonfinite loss and gradients. Authored tests cover repeated/unequal spectra, analytical duplicate-key/null cases, gradient equivalence and microbatch accumulation."
+    ],
+    "limits": [
+      "Only first derivatives are supported, explicitly enforced with once_differentiable; current Adam training needs only these.",
+      "CUDA behavior and performance remain unverified.",
+      "The supplied focused-test outcome is host evidence, not a test run by this reviewer."
+    ]
+  },
+  "lifecycle_correctness": {
+    "status": "partial",
+    "static_assessment": "pass",
+    "locations": [
+      "src/q_attention/experiments/srm_runner.py:280 child_spec",
+      "src/q_attention/experiments/srm_runner.py:287 main",
+      "src/q_attention/experiments/srm_runner.py:40 Worker.__init__",
+      "src/q_attention/experiments/srm_runner.py:176 Worker.run",
+      "tests/test_srm_lifecycle.py:test_real_parent_resume_export_failure_and_tamper"
+    ],
+    "evidence": [
+      "The public parent launches serial workers through the same interpreter and entry path, with repository cwd and explicit single-thread environment. Worker profile and device are loaded and validated from the manifest; their omission from child argv is intentional and safe.",
+      "Review/source/config/data/environment checks precede computation. The public path rejects raw output under the checkout and exposes no full-data profile.",
+      "Each completed optimizer batch saves model, Adam, RNG, next-update/index cursor, best-model state and validation cursor.",
+      "If interruption occurs between a final batch commit and validation selection, run detects the unselected epoch boundary and evaluates validation before further training.",
+      "An uncommitted batch can be replayed from the last committed deterministic state; completed workers are verified before being skipped.",
+      "Terminal final/best trace capture does not overwrite the committed final optimizer checkpoint with the selected best model."
+    ],
+    "remaining_validation": [
+      "Run the authored real-parent CPU canary and exact-resume/export-failure retry test after the host installs this exact-source review.",
+      "The existing lifecycle test exercises a graceful mid-epoch pause. Hard process termination and epoch-boundary interruption are supported by static ordering analysis but not yet demonstrated by this packet."
+    ],
+    "platform_limit": "exclusive uses fcntl and atomic_json/syncdir use POSIX directory fsync; execute the canary on the intended POSIX server. Native Windows execution is unsupported."
+  },
+  "artifact_and_recovery": {
+    "status": "partial",
+    "static_assessment": "pass",
+    "locations": [
+      "src/q_attention/experiments/srm_runner.py:131 Worker.snapshot",
+      "src/q_attention/experiments/srm_runner.py:142 Worker.train_update",
+      "src/q_attention/analysis/srm_trace.py:83 Trace.add",
+      "src/q_attention/analysis/srm_trace.py:165 validate_trace",
+      "src/q_attention/experiments/cfra_checkpoint.py:28 save",
+      "src/q_attention/experiments/srm_runner.py:17 completed",
+      "src/q_attention/experiments/srm_runner.py:232 export"
+    ],
+    "evidence": [
+      "Actual update0 captures the first selected record's forward intermediates before optimizer.step, the full logical-batch accumulated gradient/loss, the pre-step parameter vector and the actual post-step vector; the scope of batch loss/gradient is disclosed.",
+      "Initial/best/final snapshots cover the same chosen record in every split, zero gradients before/after replay and never step the optimizer.",
+      "Independent NumPy replay checks circuit gates, density/effects, spectrum, Born/null probabilities and context. Inventory, arbitrary-coordinate reader, file hashes, full shapes and finite values are checked.",
+      "Two checkpoint generations are retained behind an atomic hashed pointer. Completion verifies required artifact inventory, final cursor/identity and full traces; modified checkpoint bytes fail closed.",
+      "Export constructs only summary.json, manifest.json, trace_validation.json and receipt.json. No sentences, raw selected indexes, model state or value arrays are copied.",
+      "Export validates the completed immutable source, creates a temporary sibling directory, publishes by rename and removes temporary files on injected failure. Existing matching exports are checked and returned without training."
+    ],
+    "limits": [
+      "The trace validator checks update-delta arithmetic and producer lineage, but does not independently recompute Adam from a captured whole minibatch; the source is the basis for actual-update attribution.",
+      "Trace array writes use close-and-rename without explicit fsync of every array. Process-interruption recovery is plausible; machine/power-loss durability of all trace arrays is not certified.",
+      "Injected export failure cleanup, immutable retry and exact resumed optimizer/RNG equality still require the pending real-parent test."
+    ]
+  },
+  "must_fix": [],
+  "verdict": "PASS_WITH_RISK",
+  "confidence": "medium",
+  "permitted_next_stage": "Bounded synthetic CPU canary through the real parent on POSIX, including the authored exact-resume and injected-export-failure/retry checks. This is not permission for full-data execution.",
+  "risk_summary": [
+    "Real-parent lifecycle evidence is pending.",
+    "CUDA is unavailable/unverified.",
+    "Native Windows locking/fsync is unsupported.",
+    "Hard termination and machine/power-loss durability are not established by the supplied tests.",
+    "Nominal capacity, novelty, efficacy and quantum attribution remain unproved."
+  ]
+}
