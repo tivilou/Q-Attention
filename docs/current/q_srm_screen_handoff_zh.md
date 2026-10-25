@@ -2,7 +2,7 @@
 
 ## 这次执行什么
 
-默认命令先在所选 GPU 上执行合成 canary，再运行固定 Re-TACRED 小样本筛选，最后自动生成七文件白名单报告：
+默认命令先在所选 GPU 上执行合成 canary，再运行固定 Re-TACRED 小样本筛选，最后自动校验七文件白名单报告、提交并推送到 GitHub `1.1`：
 
 ```bash
 bash scripts/run_q_srm_handoff.sh --data-dir "$DATA_DIR" --gpu auto
@@ -25,7 +25,7 @@ git merge --no-edit origin/main
 git status --short
 ```
 
-若首次 clone 尚无本地 `1.1`，用 `git switch --track origin/1.1` 后再 merge `origin/main`。发生冲突则停止反馈。预检要求分支为 `1.1`，`origin/main` 和 `origin/1.1` 均是 HEAD 祖先，工作区干净。运行期间不要修改或切换代码。脚本不自动 fetch、提交或 push。
+若首次 clone 尚无本地 `1.1`，用 `git switch --track origin/1.1` 后再 merge `origin/main`。发生冲突则停止反馈。预检要求分支为 `1.1`，`origin/main` 和 `origin/1.1` 均是 HEAD 祖先，工作区干净。运行期间不要修改或切换代码。运行结束时脚本会 fetch 检查远端状态，自动校验报告、提交并 push 到 `1.1`。不会自动合并或强制推送。
 
 ## 环境与 GPU 预检
 
@@ -62,7 +62,7 @@ bash scripts/run_q_srm_handoff.sh --data-dir "$DATA_DIR" --gpu auto --run-dir "$
 
 恢复严格绑定代码哈希、数据、配置、环境和 GPU 选择。从已提交 minibatch 的模型、Adam、RNG、实际游标恢复；未提交 batch 重放。已完成阶段先验 hash/trace 后跳过。auto 选卡变化会拒绝恢复，此时用首次记录的可见 index，例如 `--gpu 0`，且保留原 `CUDA_VISIBLE_DEVICES`。换机器/设备或环境不可直接续跑，先反馈。损坏 checkpoint 不静默回退。
 
-若训练已完成但报告导出失败，保留同一原始目录，仅重试导出（不会训练）：
+若训练已完成但报告导出、提交或推送失败，保留同一原始目录，仅重试交付（不会训练；已提交报告复用同一 commit）：
 
 ```bash
 bash scripts/export_q_srm_handoff.sh --run-dir "$RUN"
@@ -74,22 +74,9 @@ bash scripts/export_q_srm_handoff.sh --run-dir "$RUN"
 
 成功后自动打印 `report=reports/q_srm_screen/<timestamp>_seed13`；常规运行不指定 `--report-dir`。精确七个文件为 summary.json、manifest.json、trace_validation.json、receipt.json、run_summary.json、data.sha256、data_counts.txt。`run_summary.data` 非空且包含源数量/筛选数量/哈希。默认报告目录不含原始句子、逐条预测、权重、张量、源选样索引、数据文件或完整日志。
 
-将 REPORT 换成成功输出的相对路径，然后逐条检查：
+正常运行无需手动执行 Git 提交。脚本在锁内更新远端引用，重建并核验报告，逐文件 `git add`，检查暂存区恰好七个文件和 `git diff --cached --check`，再执行 `git commit`、普通 `git push origin <已核验提交>:refs/heads/1.1`，最后打印 `published_report` 和 commit。保留当前 Git 身份；禁止 `git add .` 和 force push。提交前后的工作区状态、提交父节点、文件白名单和内容哈希都必须通过检查。
 
-```bash
-export REPORT='reports/q_srm_screen/实际时间戳_seed13'
-git status --short
-git add -- "$REPORT"
-"$PYTHON_BIN" experiments/q_srm_handoff.py check-staged --report-dir "$REPORT" --run-dir "$RUN"
-git diff --cached --check
-git diff --cached --stat
-git diff --cached --name-only
-git commit -m "reports: Q-SRM bounded screen"
-git push origin HEAD:1.1
-git status --short
-```
-
-禁止 `git add .`、提交原始 runs/data/checkpoints/predictions/logs 或 force push。`check-staged` 必须显示 STAGED_REPORT_OK；若远端报告分支已更新，先 fetch，按前述顺序同步，保留原完成态再导出/检查。已提交的同一报告不需重复提交。push 被拒绝时停止反馈，不能重跑训练作为修复。
+网络或推送失败时，本地已完成结果和报告 commit 保留；使用上面的 export 命令即可重试，不重复训练或提交。远端出现新提交、代码变更、其他脏文件或暂存内容时停止并反馈，由我们处理分支；不要重新训练来修复 Git 错误。合成 canary-only 的报告也走同一交付路径，明确标记 `preflight`，不能当作实验结果。
 
 ## 结果由我们审计
 

@@ -2,6 +2,7 @@
 from __future__ import annotations
 import argparse
 import datetime as dt
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -179,6 +180,51 @@ def export_report(root,override=None,inject_failure=False):
         if temporary.exists():shutil.rmtree(temporary)
 
 
+def publish_report(root,override=None,inject_failure=False):
+    """Re-audit, commit exactly one report, then fast-forward push; safe to retry."""
+    if inject_failure and not p.read(Path(root)/'handoff.json')['canary_only']:
+        raise ValueError('fault injection is synthetic-only')
+    # The Git lock is outside the worktree; no private journal enters reports.
+    lock=Path(git('rev-parse','--git-path','q-srm-publish.lock'))
+    if not lock.is_absolute():lock=p.ROOT/lock
+    with p.exclusive(lock):
+        # Refresh both ancestry gates before staging. Never merge or force-push.
+        git('fetch','origin','+refs/heads/main:refs/remotes/origin/main',
+            '+refs/heads/1.1:refs/remotes/origin/1.1')
+        target=export_report(root,override)
+        relative=target.relative_to(p.ROOT).as_posix()
+        record=validate_report(target)
+        expected={relative+'/'+name for name in REPORT_FILES}
+        hashes={name:p.sha(p.ROOT/name) for name in expected}
+        baseline=record['git_revision'];head=git('rev-parse','HEAD')
+
+        def verify_commit(commit):
+            if git('rev-list','--parents','-n','1',commit).split()!=[commit,baseline]:
+                raise ValueError('HEAD changed since this run; only its single report commit may follow the run revision')
+            added=set(filter(None,git('diff','--name-only','--diff-filter=A',baseline,commit).splitlines()))
+            changed=set(filter(None,git('diff','--name-only',baseline,commit).splitlines()))
+            if changed!=expected or added!=expected:raise ValueError('commit must add exactly the seven audited report files')
+            for name,digest in hashes.items():
+                content=subprocess.check_output(['git','show',commit+':'+name],cwd=p.ROOT)
+                if hashlib.sha256(content).hexdigest()!=digest:raise ValueError('committed report differs from audited source')
+
+        if head==baseline:
+            git('add','--',*sorted(expected))
+            staged=set(filter(None,git('diff','--cached','--name-only').splitlines()))
+            if staged!=expected:raise ValueError('stage exactly the seven audited report files')
+            git('diff','--cached','--check')
+            subprocess.run(['git','commit','-m','reports: Q-SRM '+record['stage']+' '+record['run_id']],cwd=p.ROOT,check=True)
+            head=git('rev-parse','HEAD')
+        verify_commit(head)
+        branch_gate();validate_report(target)
+        if git('rev-parse','HEAD')!=head:raise ValueError('HEAD changed before push')
+        # Fault injection is limited to a synthetic canary, after its local commit.
+        if inject_failure:raise RuntimeError('injected report push failure; retry export from the same PRIVATE_RUN')
+        subprocess.run(['git','push','origin',head+':refs/heads/1.1'],cwd=p.ROOT,check=True)
+        print(json.dumps(dict(published_report=relative,commit=head,branch='1.1')),flush=True)
+        return target
+
+
 def run(args):
     env,selection=isolated_preflight(args)
     root=Path(args.run_dir).resolve() if args.run_dir else p.ROOT.parent/'q-srm-private/handoff'/ (dt.datetime.now(dt.timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'_seed13')
@@ -205,7 +251,9 @@ def run(args):
             if phase=='screen':argv+=['--data-dir',metadata['data_dir']]
             if directory.exists():argv+=['--resume']
             subprocess.run(argv,cwd=p.ROOT,env=env,check=True)
-        return export_report(root,args.report_dir,args.inject_export_failure)
+        if args.inject_export_failure:
+            return export_report(root,args.report_dir,True)
+        return publish_report(root,args.report_dir,args.inject_push_failure)
 
 
 def main(argv=None):
@@ -215,12 +263,14 @@ def main(argv=None):
     parser.add_argument('--canary-only',action='store_true');parser.add_argument('--resume',action='store_true')
     parser.add_argument('--run-dir');parser.add_argument('--report-dir')
     parser.add_argument('--inject-export-failure',action='store_true')
+    parser.add_argument('--inject-push-failure',action='store_true')
     args=parser.parse_args(argv)
     if args.action=='check':preflight(args)
     elif args.action=='run':run(args)
     elif args.action=='export':
         if not args.run_dir:parser.error('export requires --run-dir')
-        export_report(args.run_dir,args.report_dir,args.inject_export_failure)
+        if args.inject_export_failure:export_report(args.run_dir,args.report_dir,True)
+        else:publish_report(args.run_dir,args.report_dir,args.inject_push_failure)
     else:
         if not args.report_dir or not args.run_dir:parser.error('check-staged requires --report-dir and immutable --run-dir')
         target=Path(args.report_dir)

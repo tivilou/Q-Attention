@@ -93,10 +93,100 @@ def test_utility_separate_from_mismatch_attribution():
     assert len(result['relative_deltas'])==5
 
 
+@pytest.fixture
+def publishing_repository(repository,tmp_path,monkeypatch):
+    root,git=repository
+    remote=tmp_path/'origin.git'
+    subprocess.run(['git','init','--bare',str(remote)],check=True,capture_output=True)
+    git('remote','add','origin',str(remote))
+    git('push','origin','HEAD:main','HEAD:1.1')
+    baseline=git('rev-parse','HEAD')
+    raw=tmp_path/'20261025T000000Z_seed13';raw.mkdir()
+    p.atomic_json(raw/'handoff.json',dict(canary_only=True))
+    target=h.resolve_report(raw);target.mkdir(parents=True)
+    for name in h.REPORT_FILES-{'run_summary.json'}:
+        p.atomic_json(target/name,dict(fingerprint='fixture'))
+    p.atomic_json(target/'run_summary.json',dict(schema_version='q-srm.handoff-report.v1',
+        data={'train':{'source_count':1}},fingerprint='fixture',git_revision=baseline,
+        stage='preflight',run_id=raw.name,sha256={n:p.sha(target/n) for n in h.REPORT_FILES-{'run_summary.json'}}))
+    # Git integration tests substitute only immutable-source reconstruction;
+    # the real launcher/exporter are exercised by the separate shell acceptance.
+    def export(*args):
+        h.branch_gate(target.relative_to(root).as_posix());h.validate_report(target)
+        return target
+    monkeypatch.setattr(h,'export_report',export)
+    return root,git,remote,raw,target,baseline
+
+
+def test_publish_push_retry_and_idempotence(publishing_repository,monkeypatch):
+    root,git,remote,raw,target,baseline=publishing_repository
+    before=p.sha(raw/'handoff.json')
+    with pytest.raises(RuntimeError,match='injected report push failure'):
+        h.publish_report(raw,inject_failure=True)
+    commit=git('rev-parse','HEAD')
+    assert commit!=baseline and git('status','--porcelain')==''
+    assert git('ls-remote','origin','refs/heads/1.1').split()[0]==baseline
+    monkeypatch.setattr(h,'run',lambda *_:pytest.fail('export retry must not train'))
+    for _ in range(2):
+        assert h.main(['export','--run-dir',str(raw)])==0
+        assert git('rev-parse','HEAD')==commit
+        assert git('ls-remote','origin','refs/heads/1.1').split()[0]==commit
+    assert p.sha(raw/'handoff.json')==before
+    assert len(git('diff','--name-only',baseline,commit).splitlines())==7
+
+
+def test_publish_real_remote_rejection_retries_same_commit(publishing_repository):
+    root,git,remote,raw,_,baseline=publishing_repository
+    hook=remote/'hooks/pre-receive'
+    hook.write_text('#!/bin/sh\nexit 1\n');hook.chmod(0o755)
+    with pytest.raises(subprocess.CalledProcessError):h.publish_report(raw)
+    commit=git('rev-parse','HEAD');assert commit!=baseline
+    hook.unlink();h.publish_report(raw)
+    assert git('rev-parse','HEAD')==commit
+    assert git('ls-remote','origin','refs/heads/1.1').split()[0]==commit
+
+
+@pytest.mark.parametrize('staged',[False,True])
+def test_publish_refuses_unrelated_dirty_files(publishing_repository,staged):
+    root,git,_,raw,_,baseline=publishing_repository
+    (root/'private.pt').write_bytes(b'not public')
+    if staged:git('add','private.pt')
+    with pytest.raises(ValueError,match='private.pt'):h.publish_report(raw)
+    assert git('rev-parse','HEAD')==baseline
+
+
+def test_publish_refuses_unrelated_commit_after_run(publishing_repository):
+    root,git,_,raw,_,baseline=publishing_repository
+    (root/'code').write_text('unrelated');git('commit','-am','unrelated')
+    with pytest.raises(ValueError,match='exactly the seven'):h.publish_report(raw)
+    assert git('ls-remote','origin','refs/heads/1.1').split()[0]==baseline
+
+
+def test_publish_refreshes_remote_ancestry(publishing_repository,tmp_path):
+    root,git,remote,raw,_,baseline=publishing_repository
+    other=tmp_path/'other'
+    subprocess.run(['git','clone','-b','1.1',str(remote),str(other)],check=True,capture_output=True)
+    def run(*args):return subprocess.check_output(['git',*args],cwd=other,text=True)
+    run('config','user.name','test');run('config','user.email','test@example.invalid')
+    (other/'code').write_text('remote update');run('commit','-am','remote update');run('push','origin','1.1')
+    with pytest.raises(ValueError,match='origin/1.1'):h.publish_report(raw)
+    assert git('rev-parse','HEAD')==baseline
+
+
+def test_publish_rejects_commit_hook_extra_payload(publishing_repository):
+    root,git,remote,raw,_,baseline=publishing_repository
+    hook=root/'.git/hooks/pre-commit'
+    hook.write_text('#!/bin/sh\nprintf private > private.pt\ngit add private.pt\n');hook.chmod(0o755)
+    with pytest.raises(ValueError,match='exactly the seven'):h.publish_report(raw)
+    assert git('ls-remote','origin','refs/heads/1.1').split()[0]==baseline
+
+
 @pytest.mark.skipif(os.environ.get('QSRM_HANDOFF_LIFECYCLE')!='1',reason='requires reviewed clean branch1.1 fixture checkout')
 def test_real_shell_entry_export_failure_retry(tmp_path):
     # Intended only in an isolated clean fixture clone, never canonical collaborator branch.
     root=tmp_path/'20261025T000000Z_seed13'
+    remote=subprocess.check_output(['git','remote','get-url','origin'],cwd=p.ROOT,text=True).strip()
+    assert Path(remote).is_absolute() and Path(remote).is_dir(),'synthetic publication requires an isolated local bare remote'
     env=dict(os.environ,PYTHON_BIN=sys.executable,OMP_NUM_THREADS='1',MKL_NUM_THREADS='1')
     result=subprocess.run(['bash','scripts/run_q_srm_handoff.sh','--canary-only','--gpu','cpu','--run-dir',str(root),'--inject-export-failure'],cwd=p.ROOT,env=env,capture_output=True,text=True)
     assert result.returncode!=0 and 'injected report copy failure' in result.stderr,result.stdout+'\n'+result.stderr
@@ -110,8 +200,8 @@ def test_real_shell_entry_export_failure_retry(tmp_path):
     assert {f.name for f in target.iterdir()}==h.REPORT_FILES
     record=h.validate_report(target)
     assert record['stage']=='preflight' and record['data'] and record['formal'] is False
-    subprocess.run(['git','add','--',str(target)],cwd=p.ROOT,check=True)
-    subprocess.run([sys.executable,'experiments/q_srm_handoff.py','check-staged','--report-dir',str(target),'--run-dir',str(root)],cwd=p.ROOT,env=env,check=True)
+    commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=p.ROOT,text=True).strip()
+    assert subprocess.check_output(['git','ls-remote','origin','refs/heads/1.1'],cwd=p.ROOT,text=True).split()[0]==commit
     report_identity=p.sha(target/'run_summary.json')
     # Allowlist and stored identity reject a private payload in the final directory.
     (target/'private.pt').write_bytes(b'unit private payload')
@@ -119,4 +209,4 @@ def test_real_shell_entry_export_failure_retry(tmp_path):
     (target/'private.pt').unlink()
     p.atomic_json(tmp_path/'acceptance.json',dict(status='passed',source_run=str(root),exporter_source_sha256=p.identity(h.source_contract()),
         failure_reason='injected report copy failure',retry_count=2,immutable_source=True,final_report_identity=report_identity,
-        conditions=5,traces=50,files=7,staged_validation='passed',cuda='not_available_on_owner_host'))
+        conditions=5,traces=50,files=7,automatic_publication='passed_local_bare_remote',cuda='not_available_on_owner_host'))
