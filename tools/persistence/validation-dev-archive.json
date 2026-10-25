@@ -1,0 +1,49 @@
+{
+  "schema": "research.dev-archive.source-validation.v1",
+  "source_sha256": "eacec219de99c7912e7652531a6dfece748483d1ae1f8357ee7bcf8543ba2540",
+  "exact_source_review": {
+    "verdict": "PASS",
+    "must_fix": [],
+    "mode": "external",
+    "reviewer_model": "Claude Fable 5"
+  },
+  "runtime_tested_commit": "ad4d46e0cc42c5133451844e662823d156005cde",
+  "tests": {
+    "linux": {
+      "run": 40,
+      "passed": 39,
+      "skipped": 1
+    },
+    "windows": {
+      "run": 40,
+      "passed": 34,
+      "skipped": 6
+    },
+    "focused_linux": {
+      "run": 19,
+      "passed": 19,
+      "skipped": 0
+    }
+  },
+  "actual_owner_cpu_canary": {
+    "result": "PASS",
+    "files": 18,
+    "bytes": 107547,
+    "checks": {
+      "archived_test_suite_40_tests_1_gated_skip": true,
+      "credentials_owner_only": true,
+      "independent_exact_file_hashes": true,
+      "interruption_no_manifest_receipt_or_complete": true,
+      "retry_skips_capture": true,
+      "same_package_and_original_chunk_versions_reused": true,
+      "source_and_environment_definitions_restored": true
+    }
+  },
+  "scope": "Explicit owner development-test recipes and selected closed files; command-triggered, no scheduler or collaborator formal experiment execution",
+  "limitations": [
+    "Trusted synchronous Python recipes only; no malicious-code sandbox",
+    "General/scheduled/live-checkpoint backup, shared queue and autoscaling not implemented",
+    "Environment definition and observed package versions do not prove full environment equivalence",
+    "Windows power-loss durability not certified; private index visibility verified operationally"
+  ]
+}
