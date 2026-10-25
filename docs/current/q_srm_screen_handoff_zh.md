@@ -42,6 +42,8 @@ bash scripts/check_q_srm_handoff.sh --data-dir "$DATA_DIR" --gpu auto
 
 数据目录内需有 train.jsonl、valid.jsonl、test.jsonl，使用已有获授权的私有副本。代码检查三个源文件哈希与筛选数量；不自动下载，也不接受替代版本。预检不会训练。`--gpu auto` 尊重当前可见 GPU，只选一张空闲显存至少 8GiB 的卡，记录 `low_memory_serial` 配置（microbatch2、evaluation2、串行条件）。其他卡不占用；逻辑 batch16、轮数、seed 和科学门槛不随显存改变。显存不足请排队，勿改 batch/精度/预算。
 
+预检在独立子进程执行，退出并释放其 Torch/CUDA 内存后才启动训练；控制父进程在训练阶段只使用标准库，避免多层入口重复驻留模型运行时。测试受宿主机容器内存上限约束，请勿同时运行其他高内存测试。
+
 我们已验证 POSIX CPU 真实入口和失败重试；本次交付时自己的服务器无可见 GPU。师弟必须由默认命令先通过 CUDA canary，才能进入 screen；CUDA 故障会阻断，不会悄悄回退 CPU。单独诊断可用：
 
 ```bash

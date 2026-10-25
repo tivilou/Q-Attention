@@ -92,6 +92,27 @@ def preflight(args):
     return env,selection
 
 
+def isolated_preflight(args):
+    # Release the validation process (and its Torch/CUDA allocations) before training.
+    # Never serialize the inherited environment: it can contain owner credentials.
+    code=('import argparse,json,sys; sys.path.insert(0,sys.argv[1]); '
+          'from q_attention.experiments.srm_handoff import preflight; '
+          'env,selection=preflight(argparse.Namespace(**json.loads(sys.argv[2]))); '
+          'print("QSRM_PROBE="+json.dumps(dict(selection=selection,cuda_visible_devices=env["CUDA_VISIBLE_DEVICES"])))')
+    result=subprocess.run([sys.executable,'-c',code,str(p.ROOT/'src'),json.dumps(vars(args))],
+                          cwd=p.ROOT,text=True,capture_output=True)
+    if result.returncode:
+        print(result.stdout,end='');print(result.stderr,file=sys.stderr,end='')
+        raise RuntimeError('isolated preflight failed; no worker launched')
+    lines=result.stdout.splitlines()
+    if not lines or not lines[-1].startswith('QSRM_PROBE='):raise ValueError('preflight result missing')
+    for line in lines[:-1]:print(line,flush=True)
+    probe=json.loads(lines[-1].split('=',1)[1])
+    env=dict(os.environ,OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',CUBLAS_WORKSPACE_CONFIG=':4096:8',
+             CUDA_VISIBLE_DEVICES=probe['cuda_visible_devices'])
+    return env,probe['selection']
+
+
 def resolve_report(root,override=None):
     # The private batch is timestamp_seed13 although screen includes five frozen seeds.
     if not re.fullmatch(r'\d{8}T\d{6}Z_seed13',root.name):raise ValueError('run basename must be timestamp_seed13')
@@ -159,7 +180,7 @@ def export_report(root,override=None,inject_failure=False):
 
 
 def run(args):
-    env,selection=preflight(args)
+    env,selection=isolated_preflight(args)
     root=Path(args.run_dir).resolve() if args.run_dir else p.ROOT.parent/'q-srm-private/handoff'/ (dt.datetime.now(dt.timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'_seed13')
     resolve_report(root,args.report_dir)
     if root.is_relative_to(p.ROOT):raise ValueError('raw output must stay outside checkout')

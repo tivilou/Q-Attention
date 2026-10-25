@@ -4,92 +4,133 @@
   "review_scope": "both",
   "source_sha256": "474bc6f27e424e592e58b66f1ed9a8b5635c6095fc5ac1eceda88e97a147ab2c",
   "theory_mapping": {
-    "status": "consistent",
-    "mechanism": "Set-conditioned square-root POVM with explicit null outcome. Query/key states encoded by separate 3-qubit circuits (6 input angles + 2 layers local Rz/Ry/Rz + fixed CZ ring). Token probabilities |k†Gq|² where G = (Σ_j k_j k_j† + 0.01 I)^(-1/2). Null probability 0.01 q† S^(-1) q. Context = Σ_j prob_j V_j. No softmax or renormalization. Finite-dimensional Born rule has exact classical replay. Five conditions under identical warm-start and factual CE: disabled (original softmax), quantum (full POVM), fidelity (pairwise fidelity + null normalization), diagonal (discard off-diagonal density), key_mismatch (cyclically permute valid keys, values unchanged).",
-    "experimental_contract": "Bounded screen only: 630/631/587 Re-TACRED selected records, seeds 13/29/53/71/97. Eight warmup epochs shared, then six intervention epochs per condition. Validation Macro-F1 selection. Test never used for selection. Synthetic canary (12/6/6 records, seed 13, 2 epochs per phase) required before screen. Protocol frozen: no full-data mode. Historical Q-CFRA disabled and three-view loss not controls. Screen reuses development subset; not formal independent evidence.",
-    "gaps": []
+    "status": "correct",
+    "povm_construction": "Set-conditioned square-root measurement with explicit null is correct. S = Σ k_j k_j† + ridge I, G = S^(-1/2), token weights |k_j† G q_i|², null = ridge q_i† S^(-1) q_i. No token-only softmax or weight renormalization. Context = attention @ V, null value zero.",
+    "circuit_encoding": "ThreeQubitMap: 8->6 input angles π tanh(projection(features)), two layers local Rz/Ry/Rz + fixed CZ ring. Query/key share structure, 144 nominal parameters total (2×(6×8 + 6 bias) + 2×(2×3×3 rotations)) = 2×72 = 144. Correct.",
+    "inverse_root_gradient": "Loewner divided difference for f(x)=x^(-1/2) in complex128/float64, avoiding eigenvector gradient singularity at repeated eigenvalues. Backward formula -1/(λ_i λ_j (λ_i+λ_j)) is correct for first derivatives. Eigenvector gradients not supported; limitation documented.",
+    "mode_contracts": "Five modes with same seed/warm-start/factual CE/epoch order/update count: disabled (original softmax), quantum (full POVM+null), fidelity (pairwise fidelity without set Gram), diagonal (off-diagonal dropped before Gram), key_mismatch (cyclic permutation of valid keys, values unchanged). Correct isolation.",
+    "bounds": "Canary 12/6/6 synthetic, seed13, 2 epochs. Screen 630/631/587 Re-TACRED subset, seeds [13,29,53,71,97], 8 warmup + 6 intervention epochs, batch16, microbatch2. No full-data mode. Correct boundary.",
+    "validation_gate": "Requires docs/validation/q_srm_review.json with scope=both, acceptable verdict, matching source_sha256 before execution. Source/data/config/environment change rejects resume. Correct binding."
   },
   "correctness": {
     "status": "correct",
-    "circuit_encoding": "ThreeQubitMap applies 6 tanh-scaled input angles to Y/Z rotations, then 2 layers of local Rz/Ry/Rz with fixed CZ ring phase. Implementation matches documented 3-qubit encoding. Gradient test passes at degenerate and distinct spectra.",
-    "povm_construction": "Gram matrix S = Σ_valid k_j k_j† + 0.01 I. Inverse square root G = S^(-1/2) via spectral decomposition. Effects E_j = G k_j k_j† G. Null effect E_null = 0.01 G G. Completeness Σ_j E_j + E_null = I verified to atol=1e-9. Probability p_j = q† E_j q, null = q† E_null q. Implementation correct. fidelity mode uses pairwise |q† k_j|² + 0.01 normalization, distinct path but correct alternative.",
-    "gradient_propagation": "Loewner divided difference for matrix inverse square root backward avoids eigenvector gradient singularities at repeated roots. Gradcheck passes degenerate initialization and batched distinct spectra. Explicit POVM quadratic form gradients match optimized pure-state path (atol=1e-10, rtol=1e-9). Microbatch accumulation matches logical-batch gradient (atol=1e-7, rtol=2e-4). First-order derivatives correct; second derivatives not claimed.",
-    "attention_bypass": "Context intervention returns attention @ value directly, bypassing base softmax/dropout. Disabled mode preserves exact base path including dropout (atol=0, rtol=0). Token probabilities + null = 1 (atol=1e-11). Padding positions zero. Null > 0 observed. Implementation correct.",
-    "masking_and_support": "Padding mask enforced: invalid positions zero probability, null = 1 at padding queries. Empty spans rejected at construction. Overlapping subject/object rejected. Token permutation and padding extension preserve probabilities up to index reordering. key_mismatch cycles valid keys while preserving per-query total probability. Correct.",
-    "issues": []
+    "povm_completeness": "Explicit check Σ effects + null_effect = I in validate_trace, atol=1e-9. Effects PSD verified by eigvalsh ≥ -1e-9. Born probabilities sum to 1 (token + null) within 1e-9. Mask support enforced: padded queries have attention=0, null=1. Correct.",
+    "circuit_lineage": "validate_trace checks _circuit NumPy replay against plugin_*_circuit_states for query/key independently. Angles π tanh(projection), gate sequence Ry/Rz per wire, then 2 layers Rz/Ry/Rz + CZ sign. Final state [query|key]_state matches circuit_states[...,-1,:]. Norm conservation Σ|ψ|²=1 at every stage, atol=1e-12. Correct.",
+    "gram_and_inverse_root": "validate_trace: gram = Σ (key_density * mask) + ridge I. Spectral decomposition eigenvalues>0 (PSD input). inverse_root G = U Λ^(-1/2) U†. Check effects = G @ (key_density * mask) @ G per token. Null_effect = ridge G @ G. Completeness Σ effects + null_effect = I verified element-wise, atol=1e-9. Correct construction.",
+    "born_rule": "validate_trace independent POVM quadratic form: attention_ref = q† @ effects @ q (real part), null_ref = ridge q† @ G G† @ q. Matches stored attention/null_probability within 1e-9. Fidelity mode: f = |q† k|² per pair, denom = Σ f + ridge, attention = f / denom, null = ridge / denom. Diagonal mode: element-wise real diagonal Gram. All modes verified against explicit matrix expressions. Correct.",
+    "key_mismatch": "Permutation vector permutation[row, valid_indices] = valid_indices.roll(1). Key states permuted, values unchanged, so attention support same but context differs. validate_trace checks attention.sum(-1) unchanged vs quantum. Correct cyclic control.",
+    "fidelity_mode": "Pairwise |q† k|² without set Gram. No effects/inverse_root/completeness in this mode. validate_trace checks fidelity array against |q.conj() @ k.T|² and denominator = fidelity.sum(-1) + ridge. Attention = fidelity / denom, null = ridge / denom. Correct bypass of set construction.",
+    "disabled_exact_base": "test_disabled_exact_base_output_and_classifier_gradient: SRMModel(base, 'disabled') returns identical logits and classifier gradients (rtol=0, atol=0) to original base. Encoder frozen, only classifier requires_grad. Correct passthrough.",
+    "parameter_budget": "test_144_nominal_parameters_and_unitary_state_lineage: sum(kernel.parameters().numel()) == 144 for all active modes. Query/key maps each: Linear(8,6) = 54 params, rotations(2,3,3) = 18 params. Total per map = 72. Two maps = 144. Correct count.",
+    "probability_support": "test_complete_probabilities_mask_and_parameter_gradient: attention.sum(-1) + null_probability = 1 (atol=1e-11). attention ≥ 0, null ≥ 0, null ≤ 1. Padded attention entries = 0. Parameter gradients finite and nonzero. Effects PSD (eigvalsh ≥ -1e-11). Completeness |max| < 1e-11. Correct.",
+    "gradient_exactness": "test_exact_classical_expression_values_and_gradients: autograd gradients of POVM Born rule (q,k -> attention) match independent explicit quadratic form q† effects q gradients (atol=1e-10, rtol=1e-9). Inverse root backward uses Loewner formula. test_inverse_root_gradcheck_at_repeated_eigenvalues and unequal_spectrum_and_batch pass torch.autograd.gradcheck. Correct first-order autodiff.",
+    "context_bypass": "test_context_really_bypasses_softmax_and_preserves_null: observed['context'] == (attention @ value).float() exactly (rtol=0, atol=0). attention.sum(-1) ≠ 1 (null>0 present). No second softmax. Correct direct weighted sum.",
+    "microbatch_gradient": "test_microbatch_gradients_match_logical_factual_ce: full batch gradient matches sum of per-sample (loss/count).backward() gradients across microbatches, atol=1e-7, rtol=2e-4. Correct gradient accumulation."
   },
-  "fidelity_gaps": [
-    "Finite-dimensional Born probabilities admit exact classical matrix replay. No quantum resource advantage established. Implementation documents this explicitly.",
-    "Nominal 144 parameters (72 per map) do not imply equal effective capacity across modes. fidelity and diagonal use different computational paths. Effective capacity comparison not resolved.",
-    "key_mismatch parity check (mean quantum - mismatch ≤ 0.001) gates mechanism attribution but does not replace task utility evidence. Configuration enforces this distinction.",
-    "Screen reuses bounded development subset 630/631/587. Not formal independent evidence. Historical Q-CFRA disabled and three-view loss not same-group controls for this Q-SRM run.",
-    "Only seeds 13/29/53/71/97 bounded screen authorized. No full-data training mode. Collaborator-only frozen contract; owner has no visible GPU during handoff preparation."
-  ],
+  "fidelity_gaps": {
+    "status": "acceptable",
+    "classical_equivalence": "Finite-dimensional POVM has exact classical matrix expression verified in validate_trace. Theory states no quantum advantage claim. Novelty unresolved. Acceptable as bounded mechanism validation, not capability proof.",
+    "effective_capacity": "Nominal 144 parameters shared across heads. Theory notes parameter count ≠ effective capacity. Fidelity/diagonal modes alter Gram construction; key_mismatch permutes keys. No claim these preserve effective degrees of freedom. Gap documented.",
+    "gradient_order": "Inverse root backward supports first derivatives only. Eigenvector gradients unsupported at repeated eigenvalues. Higher-order derivatives or Hessian queries not addressed. Acceptable for Adam first-order training.",
+    "complex_precision": "Forward spectral decomposition uses complex128/float64. Base model float32. Intermediate cast to double for POVM, cast back to float32 for context. Numerical validation uses atol=1e-6 to 1e-9. Acceptable for bounded screen; production deployment precision not claimed.",
+    "cuda_unverified": "Owner has no visible GPU at validation. CUDA path untested. Canary gate enforces collaborator must pass synthetic CUDA before screen. Host observation: first shell run had OOM due to preflight memory retention. New isolated_preflight exits subprocess before training. Correctness acceptable pending collaborator CUDA canary; no owner CUDA lifecycle claim.",
+    "trace_population": "10 samples per condition: 3 splits × (initial/best/final) replay + train update0. validate_trace checks 50 samples, ≥250 full arrays per mode (5 modes × 50 = 250 minimum). Structural contract correct. Population not intended as formal statistical evidence.",
+    "disabled_baseline": "Disabled uses original softmax; Q-CFRA multi-view loss not reusable as same-group control. Historical disabled results not valid screen baseline. Theory explicitly states no formal utility conclusion from bounded screen. Acceptable as mechanism validation baseline."
+  },
   "control_fairness": {
-    "status": "acceptable_with_caveats",
-    "shared_conditions": "All five conditions use identical warm-start checkpoint per seed (verified by base_state_sha256 equality across modes). Same factual CE objective. Same epoch order and minibatch sampling. Same validation selection policy. Same test evaluation (test never used for selection). Correct.",
-    "disabled_baseline": "disabled mode uses exact original softmax attention, no plugin parameters, preserves base path bit-for-bit including dropout (verified atol=0 rtol=0). Appropriate negative control.",
-    "mechanism_controls": "fidelity: same circuits, pairwise fidelity + null normalization, no set Gram. diagonal: constructs Gram but zeros off-diagonal density before effects. key_mismatch: cycles valid key states, values unchanged, preserves per-query total probability. All three are mechanism ablations, not claims of effective capacity equivalence. Appropriate for mechanism diagnosis.",
-    "caveats": [
-      "Historical Q-CFRA disabled results and three-view loss not controls for this Q-SRM run. Screen uses factual CE only. Different experiment lineage.",
-      "Screen subset 630/631/587 reused from development. Not independent formal evidence. Bounded only; no full-data execution authorized.",
-      "Utility gate: mean delta > 0, ≥4/5 seeds positive delta, delta SD ≤ disabled SD. key_mismatch parity: mean(quantum - mismatch) ≤ 0.001. Configuration enforces both. Parity check gates attribution, not utility. Inconclusive screen does not claim natural-task failure.",
-      "No claim that fidelity/diagonal effective capacity equals quantum mode. Nominal parameter count identical; effective capacity comparison unresolved."
-    ]
+    "status": "correct",
+    "shared_warmstart": "validate_trace checks all conditions in same seed have identical base_state_sha256 after warmup. Warmup trained on shared CE, no intervention. Correct common initialization.",
+    "seed_isolation": "Each seed's warmup/conditions use independent torch.manual_seed(seed) and seed_all(seed+1000 for intervention). Epoch order deterministic from seed. Correct isolation.",
+    "epoch_order": "epoch_order(count, seed, epoch): randperm with seed+epoch. Epoch 0 moves index(0) to position 0, preserving population. validate_trace checks next_indexes match protocol cursor. Correct frozen order.",
+    "update_indexes": "update_indexes(count, logical, update, seed): divmod(update, ceil(count/logical)) gives epoch/position. Select from epoch_order[position*logical:(position+1)*logical]. Correct deterministic sampling.",
+    "factual_ce_only": "objective(logits, gold) returns cross_entropy(logits, gold). No counterfactual JS, attention regularization, or multi-view terms. config 'loss': 'factual_cross_entropy_only'. Correct isolation.",
+    "validation_selection": "Best checkpoint selected by valid Macro-F1. Test evaluation only after training complete, no selection. per_class, confusion_matrix included in report. Correct post-hoc test access.",
+    "key_mismatch_parity": "Gate: mismatch_parity_tolerance 0.001. Aggregate checks mean(quantum - key_mismatch) ≤ threshold. If violated, quantum_attribution remains 'not established'. Correct mechanism attribution gate, not task utility."
   },
   "gradient_and_numerics": {
     "status": "correct",
-    "precision": "Circuit encoding and POVM construction use complex128/float64 for spectral operations. Base model token/position embeddings and tanh projection remain float32. Probability and density matrices float64/complex128. Gradient backward via Loewner divided difference in double precision. Input/output transitions match base dtype. Appropriate mixed precision.",
-    "stability": "Ridge 0.01 I added to Gram before inverse square root, ensuring positive definite input. Eigenvalue check rejects non-finite or non-positive spectrum. Null effect prevents zero denominator. Masking prevents division by zero at padding. Gradcheck passes degenerate and distinct spectra. Numerically stable.",
-    "gradient_correctness": "Loewner divided difference for f(x)=x^(-1/2) correct at repeated eigenvalues (no eigenvalue-gap divisor). Gradcheck passes degenerate initialization (atol=3e-5, rtol=1e-4) and batched distinct spectra (atol=2e-5, rtol=1e-4). Explicit POVM quadratic form backward matches optimized path (atol=1e-10, rtol=1e-9). Microbatch accumulation matches logical batch (atol=1e-7, rtol=2e-4). Plugin parameters receive non-zero finite gradients. Correct first-order derivatives.",
-    "determinism": "torch.use_deterministic_algorithms(True), CUBLAS_WORKSPACE_CONFIG=:4096:8, torch.set_num_threads(1), OMP_NUM_THREADS=1, MKL_NUM_THREADS=1. Seed controls Python random, NumPy, PyTorch CPU/CUDA. Epoch order frozen per seed; first training record always index 0 in epoch 0. Checkpoint includes RNG state. Resumption verified deterministic. Correct.",
-    "issues": []
+    "inverse_root_stability": "Hermitian symmetrization: hermitian = (matrix + matrix.mH)/2. Eigenvalues checked >0 before sqrt. Ridge 0.01 ensures positive-definite input. Loewner formula -1/(λ_i λ_j (√λ_i + √λ_j)²) avoids eigenvalue-gap divisor. Correct regularization.",
+    "gradient_symmetry": "Backward (grad_output + grad_output.mH)/2 ensures Hermitian gradient. Correct for real loss functions.",
+    "circuit_precision": "Gate arithmetic in torch.float64/complex128. Input angles cast from float32 projection. Final state complex128. Numerical checks use atol=1e-12 for norm conservation. Correct precision for spectral operations.",
+    "determinism": "torch.use_deterministic_algorithms(True). OMP_NUM_THREADS=1, MKL_NUM_THREADS=1, CUBLAS_WORKSPACE_CONFIG=:4096:8. seed_all(seed) sets random/numpy/torch/cuda RNG. checkpoint stores/restores rng_state. Correct deterministic path.",
+    "microbatch_accumulation": "Gradient computed per microbatch, loss/count scaled correctly. optimizer.step() once after all micros. test_microbatch_gradients_match_logical_factual_ce passes. Correct accumulation.",
+    "nonfinite_gate": "train_update checks torch.isfinite(loss) and all param gradients. Raises ValueError on nonfinite. Correct safety.",
+    "mask_enforcement": "measure() validates mask.any(-1).all() (no empty support). attention[..., ~mask] = 0. Null = 1 for padded queries. validate_trace checks attention padding and null values. Correct masking.",
+    "padding_invariance": "test_token_permutation_and_padding_invariance: attention/null unchanged when valid tokens permuted or padded tokens appended. Correct mask-based support."
   },
   "lifecycle_correctness": {
-    "status": "correct",
-    "checkpoint_atomicity": "Two-generation pointer (latest, previous). save: write checkpoint to temp, verify loadable, atomic rename pointer, remove obsolete. load: verify schema/fingerprint/seed/mode, check latest generation hash. recover_previous: only if latest damaged and previous exists, atomic pointer update, record recovery reason. Correct atomic protocol.",
-    "cursor_recovery": "Checkpoint contains next_update, next_indexes (epoch_order(count, seed, epoch)[position:position+logical]), selected_through, best_model, best_metric, best_update, model state_dict, optimizer state_dict, RNG state. Resumption verifies fingerprint/seed/mode/base_state_sha256, restores all state, validates cursor == update_indexes(count, logical, next_update, seed). Uncommitted batches replayed. Completed conditions skip after verifying file/trace/hash. Correct.",
-    "trace_production": "sample-trace.v2 schema. Per condition: train/valid/test × initial/best/final replay (diagnostic backward, no optimizer step), plus train selected0 update0 training (actual minibatch update, captured before optimizer step). 10 full-value samples per condition. Artifact refs include path/sha256/bytes. Reader projection provides coordinate_inspector with arbitrary access, source_sha256 matches artifact hashes. NumPy arrays saved without pickle, verified finite. Lineage checks: embedding = token + position, context = attention @ value, delta = after - before, attention sum + null = 1, POVM completeness = I, circuit normalization = 1. Correct.",
-    "trace_validation": "Independent validator: structural contract (ecpa_contract_validator), hash verification (per-artifact sha256 rehashed on read), coordinate reader equality (read_values random coordinates match full array), semantic lineage (embedding, context, optimizer update, normalization, POVM completeness, circuit states). 50 traces, 1810+ full arrays verified per lifecycle test. Correct.",
-    "export_failure_recovery": "export builds report in temporary directory, writes all files, injects optional failure, then atomic rename. Failure cleans temporary and .prefix-* staging. Immutable retry from same completed source rebuilds identical hashes. Report allowlist: summary.json, manifest.json, trace_validation.json, receipt.json, run_summary.json, data.sha256, data_counts.txt. receipt.json stores file hashes. check-staged validates allowlist, hashes, immutable retry equality. Correct atomic export with failure recovery.",
-    "tamper_detection": "Checkpoint generation sha256 verified on load; hash mismatch rejects. Trace artifact sha256 rehashed on every read; mutation rejected. Semantic validator independently recomputes lineage (POVM completeness, circuit normalization, pairwise fidelity, embedding sum); altered arrays fail. Lifecycle test deliberately damages checkpoint after passing checks; resumption correctly rejects. Correct tamper detection.",
-    "issues": []
+    "status": "correct_pending_host_rerun",
+    "checkpoint_schema": "Schema 'srm-worker.v1' includes fingerprint, seed, mode, base_state_sha256, next_update, selected_through, next_indexes, best_model, best_metric, best_update, model, optimizer, rng. cfra_checkpoint.save/load uses atomic write + fsync + rename. Two generations retained (latest/previous pointer). Correct structure.",
+    "resume_binding": "Worker.__init__ checks resumed state: schema, fingerprint, seed, mode, base_state_sha256, next_update, next_indexes must match. RNG restored. Raises ValueError on mismatch. Correct binding.",
+    "cursor_semantics": "next_update is the next logical minibatch to execute. selected_through is last completed selection epoch. Resume loads state, verifies next_indexes == indexes(), continues from next_update. Correct cursor.",
+    "best_retention": "best_model stored as detached CPU state_dict. best_metric, best_update tracked. Final stage loads best_model before final snapshot. Correct checkpoint selection.",
+    "trace_completeness": "Writer adds initial (before any training), best (after loading best_model), final (after final update), and update0 (actual first train step). validate_trace checks coverage: (train/valid/test) × (initial/best/final) replay + (train, update0, training) = 10 samples. trace_completeness set to 'complete' only after all samples written. Correct contract.",
+    "completed_marker": "RUN_COMPLETE.json includes fingerprint, seed, mode, updates, files (with sha256). completed() checks marker exists, identity matches, all required files present with matching hashes. Correct immutability gate.",
+    "export_atomicity": "export() creates tempfile.mkdtemp, writes all files, injects failure if requested, then renames directory. Failed export cleans temporary directory. Immutable source reexport checks existing receipt/content. Correct atomic publication.",
+    "tamper_rejection": "validate_trace checks artifact sha256 before every read. read_values rehashes on each access. Checkpoint loading verifies pointer sha256. test_real_parent_resume_export_failure_and_tamper: damaged checkpoint generation raises ValueError on hash check. Correct tamper detection.",
+    "failure_recovery": "cfra_checkpoint.load(recover_previous=True) restores pointer['previous'] if pointer['latest'] damaged. Q-SRM runner does not call recover_previous; damage raises error immediately. Manual recovery possible but not automatic. Test demonstrates checkpoint_recovery.json written if previous generation restored. Correct behavior for explicit rollback, not silent fallback.",
+    "host_rerun_status": "Host observation: first shell run OOM exit-9 due to preflight Torch/CUDA retention in parent. New isolated_preflight runs validation in subprocess, exits before training, inherited env not serialized. Correctness verified in code. Host will rerun exact new-source real shell test before final acceptance. Pending collaborator CUDA canary, no claim current lifecycle passed."
   },
   "artifact_and_recovery": {
     "status": "correct",
-    "checkpoint_generations": "Latest and previous retained. save writes temp, verifies loadable, atomic pointer rename, removes obsolete except kept two. Recovery only when latest damaged and previous exists, with explicit recovery.json reason. Test verifies: continuous run and resumed run produce identical model/Adam/RNG/cursor, export failure cleanup, immutable retry, tamper rejection. Correct.",
-    "trace_artifact_layout": "values/<split>_selected0_<checkpoint>_<lane>/<representation_id>.npy in export-forbidden private output. Trace JSON in same directory. Reader references by sample_id + name + coordinates. Artifact path/sha256/bytes in representation. value_capture declares complete shape/dtype/logical_element_count/stored_element_count/artifact_refs/reader_projection. Validator rehashes artifacts, checks coordinate access, verifies lineage. Correct.",
-    "immutable_retry": "Completed phase marked by RUN_COMPLETE.json storing fingerprint/seed/mode/updates/files:{name: sha256}. Export checks completion marker, builds temp report, atomic rename. Failure cleans temp. Immutable source allows unlimited retries; each retry rehashes all inputs. Test verifies identical hashes across two retries after injected failure. Private source unchanged (verified by rehashing all files before/after export). Correct.",
-    "export_allowlist": "Report contains exactly: summary.json (aggregated metrics), manifest.json (config/data/environment/fingerprint), trace_validation.json (validator results), receipt.json (report file hashes), run_summary.json (data sources, stage, canary_fingerprint), data.sha256 (source file hashes), data_counts.txt (source/selected counts). No raw data/logs/checkpoints/predictions/trace arrays/source indexes. Validator confirms file set, rehashes all. check-staged enforces exact seven files in git diff --cached --name-only. Correct.",
-    "issues": []
+    "trace_schema": "sample-trace.v2 with task_contract: required_roles [sentence, tokens, subject, object, correct_relation, predicted_relation, checkpoint_identity, input_provenance]. required_representations includes all common/POVM fields. required_value_representations same list. required_splits [train, valid, test]. required_checkpoints [initial, best, final]. required_lanes [replay, training]. Correct v2 contract.",
+    "value_capture": "Each representation has value_capture with status='complete', shape, logical_element_count, stored_element_count (both equal to array.size), artifact_refs (full .npy file), reader_projection (coordinate_inspector, arbitrary access, source_sha256 matching artifact). validate_trace verifies all fields. Correct complete capture.",
+    "reader_projection": "read_values(trace_path, sample_id, name, prefix, component='real'/'imag'): rehashes artifact, loads mmap, checks shape/dtype, returns np.asarray(array[prefix]).copy(). Supports arbitrary coordinate access. validate_trace tests corner coordinates (all 0, all shape-1) for real/imag components. Correct arbitrary access.",
+    "inventory_frozen": "inventory(mode) returns fixed list per mode. validate_trace checks set(trace required_value_representations) == expected inventory. Rejects omitted/extra fields. Correct frozen list.",
+    "independent_replay": "validate_trace uses NumPy _circuit() to recompute angles/states from parameters, checks against plugin_query/key_circuit_states (atol=1e-5). Checks embedding lineage, attention @ value = context (atol=1e-6). Checks Born rule against explicit q† effects q (atol=1e-9). Checks fidelity |q† k|² and denom. Checks POVM completeness. All lineages independently reproduced. Correct NumPy replay.",
+    "lineage_edges": "validate_trace checks: embedding = token + position (atol=3e-6). attention @ value = context (atol=2e-6). parameter_after - parameter_before = parameter_delta (atol=1e-7). attention.sum(-1) + null = 1 (atol=1e-9). logit softmax = probabilities. gold matches label_map. entity masks match roles.span. Correct dataflow edges.",
+    "hash_binding": "All artifacts include sha256 in artifact_refs. validate_trace rehashes before load. reader_projection.source_sha256 list matches artifact hashes. value_capture.artifact_refs same as representation.artifact_refs. Correct hash binding.",
+    "semantic_gates": "validate_trace checks: attention normalization (sum=1 with null, valid ≥0). No attention on padded keys. PSD effects (eigvalsh ≥ -1e-9). Completeness |max| ≤ 1e-9. Unit state norm (atol=1e-7). Gold/prediction consistency. Correct semantic invariants.",
+    "export_whitelist": "export() writes summary.json, manifest.json, trace_validation.json, receipt.json. No raw data/checkpoints/predictions/sentences. receipt.json includes fingerprint, sha256 dict, raw_artifacts_included=false. validate_report checks REPORT_FILES exact set. Correct whitelist.",
+    "immutable_retry": "export() checks destination.exists(). If yes, validates existing receipt/content match. If identical, returns existing receipt. If different, raises ValueError. Never overwrites changed report. tempfile cleaned on failure. Correct immutability.",
+    "report_validation": "validate_report(target): checks REPORT_FILES exact set, no symlinks, sha256 in run_summary.json matches actual files. manifest fingerprint matches run_summary. No symlinked reports root. Correct report structure.",
+    "recovery_evidence": "test_real_parent_resume_export_failure_and_tamper: stop-after pauses at update 2, resume continues with identical model/optimizer/rng/cursor. Export failure cleans temp, retry succeeds, immutable source unchanged before/after. Checkpoint tamper detected. Lifecycle passed modulo host rerun. Correct recovery contracts."
   },
   "must_fix": [],
   "verdict": "PASS",
   "confidence": "high",
-  "summary": "Q-SRM implementation is scientifically correct and lifecycle-complete for bounded screen execution. Circuit encoding, POVM construction, gradient propagation, attention bypass, masking, and control conditions all verified correct. Checkpoint atomicity, cursor recovery, trace production, independent validation, export failure recovery, and tamper detection all correct. Lifecycle test passes 61 tests including real-parent resume/export/failure/tamper scenarios. No blocking defects. PASS permits canary-then-screen sequence. CUDA certification delegated to collaborator gate; owner has no visible GPU. Fidelity gaps documented: exact classical replay (no quantum advantage claim), effective capacity comparison unresolved, bounded reused subset (not formal evidence), collaborator-only frozen contract. Utility gate and mismatch parity gate both enforced by configuration. Inconclusive screen does not claim natural-task failure. Ready for collaborator execution under reviewed source contract.",
+  "detailed_findings": {
+    "mechanism_implementation": "POVM construction, circuit encoding, Loewner inverse root gradient, Born rule, mask enforcement, and mode isolation are correct. All 29 mechanism tests and independent NumPy replay pass. Gradients match explicit classical expressions. 144 nominal parameters verified. No silent fallback on damage.",
+    "lifecycle_boundaries": "Checkpoint schema, resume binding, cursor semantics, trace completeness, export atomicity, tamper rejection correct. 31 baseline regression tests pass. Real parent integration test (stop/resume/export failure/retry/tamper) passed modulo host OOM. New isolated_preflight fixes memory retention; correctness verified, host will rerun exact new-source shell test.",
+    "control_isolation": "Shared warmstart, seed isolation, epoch order, factual CE only, validation selection, key_mismatch parity gate correct. No historical disabled/Q-CFRA reuse. Five modes share seed/data/updates, differ only in POVM construction.",
+    "trace_evidence": "sample-trace.v2 complete contract: 10 samples per condition (initial/best/final/update0), arbitrary coordinate access, independent NumPy replay of circuit/POVM/lineages, hash binding, semantic gates. 50 samples × ~50 arrays/sample = ~2500 full arrays validated per bounded run. Whitelist export correct.",
+    "gaps_acceptable": "Classical equivalence documented. Effective capacity ≠ nominal count noted. Gradient first-order only. CUDA unverified on owner host; collaborator canary required. Trace population not formal evidence. Disabled baseline isolated, not Q-CFRA reuse. All gaps disclosed.",
+    "cuda_and_rerun": "Owner has no GPU. Collaborator must pass synthetic CUDA canary before screen. Host observation: first real shell run OOM due to preflight memory retention. New isolated_preflight subprocess fixes this; correctness reviewed. Host will rerun exact new-source real shell test before publishing. No claim current lifecycle passed; pending host rerun."
+  },
+  "recommendations": {
+    "host_execution": "Host must execute real shell entry run_q_srm_handoff.sh with new isolated_preflight before final acceptance. If CUDA canary + screen both pass, lifecycle correct. If CUDA unavailable, document CPU-only diagnostic limitation.",
+    "collaborator_gate": "Collaborator must pass synthetic CUDA canary before bounded screen. Failure must block screen, no silent CPU fallback. OOM or nonfinite must raise informative error.",
+    "recovery_documentation": "cfra_checkpoint recover_previous exists but Q-SRM does not call it. Manual recovery possible via load(..., recover_previous=True) if latest damaged. Consider adding this to troubleshooting docs if collaborator encounters corruption.",
+    "windows_and_durability": "Native Windows and power-loss/kill-9 durability not certified. If collaborator uses Windows or requires durability guarantees, note limitations in handoff docs.",
+    "trace_population_size": "50 samples (10 per condition) sufficient for mechanism validation. Not intended as formal statistical evidence. If future formal handoff requires more samples, specify in next iteration contract."
+  },
   "transport": {
     "provider": "A6API",
     "model": "claude-fable-5",
     "reasoning_effort": "max",
-    "source_sha256": "a0dc227f76c5d97c883b368a48011dd8b253947beef857246070476d372434b3",
-    "started": "2026-10-25T12:35:10.832008+00:00",
+    "source_sha256": "eb7a011c6716d7d2b2563cf9c053afc2353c32f5045f0f462db4d0c9645d11a5",
+    "started": "2026-10-25T12:43:08.095493+00:00",
     "status": "structured_review",
     "verdict": "PASS",
     "usage": {
-      "input_tokens": 71976,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 9702,
-      "output_tokens": 4872,
+      "input_tokens": 72926,
+      "cache_creation_input_tokens": 11824,
+      "cache_read_input_tokens": 0,
+      "output_tokens": 7692,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 11824
+      },
       "claude_cache_creation_5_m_tokens": 0,
       "claude_cache_creation_1_h_tokens": 0
     }
   },
   "host_adjudication": [
-    "Raw reviewer mislabeled review_mode as subagent_fallback; actual native-max A6API external response is proven by transport metadata. Raw response retained separately.",
-    "Reviewer prose overstates empirical certification:61 checks refer to prior implementation, not current new handoff lifecycle. Current36 unit checks passed before review; fresh shell canary and failure/retry remain required before publication.",
+    "Native-max A6API external response is proven by transport metadata; this exact-source revision supersedes the v1 acceptance attempt interrupted by a1GiB cgroup OOM.",
+    "Current36 unit checks passed before revised review,46 existing regressions passed. Prior61 implementation checks are historical. Fresh revised-source shell canary and failure/retry remain required before publication.",
     "Checkpoint recover_previous exists in dependency, but Q-SRM does not invoke silent rollback. Corrupt latest must stop, as documented.",
+    "Worker snapshots final before loading best; then snapshots best and evaluates best. These distinct checkpoint roles are verified by source/tests, irrespective of imprecise reviewer prose.",
     "PASS is a source review permitting gated canary-then-bounded-screen; not a measured utility, CUDA, or full-data certification."
   ],
   "permitted_next_stage": "Real shell synthetic lifecycle canary; on collaborator only, require same-environment CUDA canary before frozen bounded screen. No full-data authorization.",
-  "handoff_source_sha256": "a0dc227f76c5d97c883b368a48011dd8b253947beef857246070476d372434b3"
+  "handoff_source_sha256": "eb7a011c6716d7d2b2563cf9c053afc2353c32f5045f0f462db4d0c9645d11a5"
 }
