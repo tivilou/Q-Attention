@@ -1,10 +1,12 @@
 # 项目持久化与恢复（第一版）
 
+**COS 已接入：** 当前后端已通过小型合成快照上传/恢复、版本固定、失败重试和权限边界验证。安装、凭据注入及恢复命令见 [COS.zh.md](COS.zh.md)。真实实验归档、全新服务器部署和训练续跑尚未验收。
+
 **2026-10-25 接入方案更新：** 私有索引已统一为 [tivilou/project-persistence](https://github.com/tivilou/project-persistence)，本项目位于 `projects/q-attention/`。用户反馈阿里云盘不对个人开发者开放，已取消该申请前提；以下 Alipan 命令仅是历史原型接口说明。新的个人云盘候选与官方依据见 [PROVIDERS.zh.md](PROVIDERS.zh.md)。
 
-本工具保存**已经关闭或确认不可变的文件集合**。它不启动实验，不调整既有 checkpoint 恢复规则，不自动删除云端历史文件。存储提供者正在重新选型；真实云盘备份和全新服务器部署尚待验收。不要据此释放原服务器。
+本工具保存**已经关闭或确认不可变的文件集合**。它不启动实验，不调整既有 checkpoint 恢复规则，不自动删除云端历史文件。已选择腾讯 COS；真实实验备份和全新服务器部署尚待验收。不要据此释放原服务器。
 
-GitHub 公开仓库存工具、代码和环境定义；共用私有仓库 `tivilou/project-persistence` 的 `projects/q-attention/` 存本项目恢复索引、清单哈希和脱敏回执；待选云盘存原始数据、检查点、完整 traces 和代码 bundle。私有 GitHub 也不存这些大文件或凭据。Windows 本机保留额外副本。
+GitHub 公开仓库存工具、代码和环境定义；共用私有仓库 `tivilou/project-persistence` 的 `projects/q-attention/` 存本项目恢复索引、清单哈希和脱敏回执；COS 保存选定的原始数据、检查点、完整 traces 和代码 bundle。私有 GitHub 也不存这些大文件或凭据。Windows 本机保留额外副本。
 
 ## 文件选择与一致性
 
