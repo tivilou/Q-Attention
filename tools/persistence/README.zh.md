@@ -1,8 +1,10 @@
 # 项目持久化与恢复（第一版）
 
-本工具保存**已经关闭或确认不可变的文件集合**。它不启动实验，不调整既有 checkpoint 恢复规则，不自动删除云端历史文件。当前账号尚未申请 OpenAPI 应用；真实阿里云盘备份和全新服务器部署尚待验收。不要据此释放原服务器。
+**2026-10-25 接入方案更新：** 私有索引已统一为 [tivilou/project-persistence](https://github.com/tivilou/project-persistence)，本项目位于 `projects/q-attention/`。用户反馈阿里云盘不对个人开发者开放，已取消该申请前提；以下 Alipan 命令仅是历史原型接口说明。新的个人云盘候选与官方依据见 [PROVIDERS.zh.md](PROVIDERS.zh.md)。
 
-GitHub 公开仓库存工具、代码和环境定义；私有 `tivilou/Q-Attention-persistence` 存恢复索引、清单哈希和脱敏回执；阿里云盘存原始数据、检查点、完整 traces 和代码 bundle。私有 GitHub 也不存这些大文件或凭据。Windows 本机保留额外副本。
+本工具保存**已经关闭或确认不可变的文件集合**。它不启动实验，不调整既有 checkpoint 恢复规则，不自动删除云端历史文件。存储提供者正在重新选型；真实云盘备份和全新服务器部署尚待验收。不要据此释放原服务器。
+
+GitHub 公开仓库存工具、代码和环境定义；共用私有仓库 `tivilou/project-persistence` 的 `projects/q-attention/` 存本项目恢复索引、清单哈希和脱敏回执；待选云盘存原始数据、检查点、完整 traces 和代码 bundle。私有 GitHub 也不存这些大文件或凭据。Windows 本机保留额外副本。
 
 ## 文件选择与一致性
 
@@ -80,9 +82,9 @@ EXPECTED_ENV_SHA256=TRUSTED_LOCK_SHA256 EXPECTED_BUNDLE_SHA256=TRUSTED_BUNDLE_SH
 
 随后恢复所需数据/实验快照，运行原实验 preflight。CPU→CUDA、不同 GPU/运行库等变化仍需原 runner 判定；不得通过修改指纹续训。环境安装成功不代表 CUDA 可用，也不代表 checkpoint 可续训。
 
-## 阿里云盘账号待办
+## 历史 Alipan 接入说明（已不作为当前待办）
 
-在 [开放平台](https://www.alipan.com/developer) 登录个人账号，按[接入流程](https://www.yuque.com/aliyundrive/zpfszx/btw0tw)申请符合个人研究备份用途的应用，并确认应用类型、回调地址与文件读写权限。平台审批不是脚本能够替代的。
+原方案依据 [开放平台](https://www.alipan.com/developer) 和[接入流程](https://www.yuque.com/aliyundrive/zpfszx/btw0tw)设计。公开接口文档存在不代表个人开发者可以申请；用户已反馈个人入口不可用，当前不再要求申请该应用。下一步按 [候选比较](PROVIDERS.zh.md)选择可用提供者。
 
 获批后提供非秘密信息：client_id、应用类型、允许的回调 URI、是否允许文件夹授权。client_secret 和 token 应在本机专用秘密存储录入，不发聊天。先授权专用项目目录，用合成小文件做上传→断网/失败→重试→另一目录下载验收，再备份真实数据。恢复速度、容量和第三方下载权益以实际账号实测为准。
 
