@@ -332,7 +332,7 @@ class Controller:
             if existing:
                 raise ValueError('Unexpected instance exists before launch')
         for kind, service, describe, delete, params, collection, id_field, name_field in (
-            ('security_group', 'vpc', 'DescribeSecurityGroups', 'DeleteSecurityGroup', 'SecurityGroupId', 'SecurityGroupSet', 'SecurityGroupId', 'GroupName'),
+            ('security_group', 'vpc', 'DescribeSecurityGroups', 'DeleteSecurityGroup', 'SecurityGroupId', 'SecurityGroupSet', 'SecurityGroupId', 'SecurityGroupName'),
             ('subnet', 'vpc', 'DescribeSubnets', 'DeleteSubnet', 'SubnetId', 'SubnetSet', 'SubnetId', 'SubnetName'),
             ('vpc', 'vpc', 'DescribeVpcs', 'DeleteVpc', 'VpcId', 'VpcSet', 'VpcId', 'VpcName'),
             ('key_pair', 'cvm', 'DescribeKeyPairs', 'DeleteKeyPairs', 'KeyIds', 'KeyPairSet', 'KeyId', 'KeyName')):
@@ -343,7 +343,21 @@ class Controller:
                 raise ValueError('Unknown auxiliary resource; reconcile first')
             resource_id = resource['id']
             query = {'KeyIds': [resource_id]} if kind == 'key_pair' else {id_field + 's': [resource_id]}
-            rows = self.api.call(service, describe, query)[collection]
+            def read_owned_rows():
+                try:
+                    return self.api.call(service, describe, query)[collection]
+                except ApiError as error:
+                    try:
+                        code = json.loads(str(error)).get('code')
+                    except (ValueError, AttributeError):
+                        raise error
+                    # Actual VPC SG describe returns this after successful deletion,
+                    # rather than an empty set. Only this exact owned-ID query maps
+                    # the observed absence code; authorization/transport errors fail.
+                    if describe == 'DescribeSecurityGroups' and code == 'ResourceNotFound':
+                        return []
+                    raise
+            rows = read_owned_rows()
             expected_name = self.data.get('key_pair_name', self.data['name']) if kind == 'key_pair' else self.data['name']
             if rows and (len(rows) != 1 or rows[0][id_field] != resource_id or rows[0][name_field] != expected_name):
                 raise ValueError('Auxiliary resource ownership mismatch')
@@ -358,7 +372,7 @@ class Controller:
                             raise ValueError('Security group policies changed; reconcile before deletion')
                 response = self.api.call(service, delete, {params: [resource_id] if kind == 'key_pair' else resource_id})
                 self.event(delete, request_id=response['RequestId'], resource_id=resource_id)
-            if self.api.call(service, describe, query)[collection]:
+            if read_owned_rows():
                 raise ValueError('Deletion not yet verified; retry cleanup later')
             resource['status'] = 'deleted'
             self.event('AuxiliaryDeletionVerified', resource_kind=kind, resource_id=resource_id)

@@ -2,7 +2,7 @@ import copy, json
 from datetime import timedelta
 import pytest
 from cpu_control import Controller, initialize, utcnow, iso, check_price, validate_spec, write_json
-from api import error_fields
+from api import error_fields, ApiError
 
 SPEC = {'InstanceChargeType': 'POSTPAID_BY_HOUR', 'InstanceCount': 1,
         'Placement': {'Zone': 'ap-beijing-6'}, 'InstanceType': 'BF1.MEDIUM4', 'ImageId': 'img-public',
@@ -214,6 +214,59 @@ def test_cleanup_requires_confirmed_termination(configured):
     api.instance = None
     c.terminate()
     assert c.data['termination_verified']
+
+@pytest.mark.parametrize('wrong_name', [False, True])
+def test_cleanup_uses_provider_describe_names_and_verifies_deletion(configured, wrong_name):
+    c, api = configured
+    c.data['termination_verified'] = True
+    name = c.data['name']
+    rows = {
+        'DescribeSecurityGroups': ('SecurityGroupSet', [{'SecurityGroupId':'sg-owned','SecurityGroupName':'unrelated' if wrong_name else name}]),
+        'DescribeSubnets': ('SubnetSet', [{'SubnetId':'subnet-owned','SubnetName':name}]),
+        'DescribeVpcs': ('VpcSet', [{'VpcId':'vpc-owned','VpcName':name}]),
+        'DescribeKeyPairs': ('KeyPairSet', [{'KeyId':'skey-owned','KeyName':name}]),
+    }
+    deletions = {'DeleteSecurityGroup':'DescribeSecurityGroups','DeleteSubnet':'DescribeSubnets',
+                 'DeleteVpc':'DescribeVpcs','DeleteKeyPairs':'DescribeKeyPairs'}
+    original = api.call
+    def provider(service, action, params):
+        if action in rows:
+            api.calls.append((service,action,copy.deepcopy(params)))
+            key, values = rows[action]
+            if action == 'DescribeSecurityGroups' and not values:
+                raise ApiError(json.dumps({'code':'ResourceNotFound','action':action}))
+            return {key:copy.deepcopy(values)}
+        if action in deletions:
+            api.calls.append((service,action,copy.deepcopy(params)))
+            rows[deletions[action]][1].clear()
+            return {'RequestId':'deleted'}
+        return original(service,action,params)
+    api.call = provider
+    if wrong_name:
+        with pytest.raises(ValueError, match='ownership'):
+            c.cleanup_aux()
+        assert not any(action in deletions for _,action,_ in api.calls)
+    else:
+        c.cleanup_aux()
+        assert all(resource['status']=='deleted' for resource in c.data['resources'].values())
+        assert sum(action in deletions for _,action,_ in api.calls)==4
+        before = len(api.calls)
+        c.cleanup_aux()
+        assert len(api.calls)==before
+
+def test_cleanup_permission_error_is_not_treated_as_absence(configured):
+    c, api = configured
+    c.data['termination_verified'] = True
+    original = api.call
+    def denied(service, action, params):
+        if action == 'DescribeSecurityGroups':
+            raise ApiError(json.dumps({'code':'UnauthorizedOperation','action':action}))
+        return original(service,action,params)
+    api.call = denied
+    with pytest.raises(ApiError, match='UnauthorizedOperation'):
+        c.cleanup_aux()
+    assert not any(action.startswith('Delete') for _,action,_ in api.calls)
+    assert all(resource['status']=='created' for resource in c.data['resources'].values())
 
 def test_uncertain_aux_create_is_not_blindly_retried(configured):
     c, api = configured

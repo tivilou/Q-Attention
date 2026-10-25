@@ -1,30 +1,65 @@
 {
-  "schema": "research.cloud-control.review.v1",
-  "review_scope": "lifecycle",
-  "source_sha256": "176389cda5732632f265bc69fa3a7c0d8f63eb1277bb1f5e108402e1488cd275",
+  "schema": "research.cloud-control.validation.v2",
+  "source_sha256": "8e20c478f992e850b8807030fac6fdf14abc416989a80442e8f5af85b79d1bf9",
   "source_files_sha256": {
     "api.py": "e0bdb22dd15057d52b9b6f380f0171eba518bdab43074be143d3f1f04ddc98d2",
-    "cpu_control.py": "c8adbf8cff79732757098beee7f189e0f085aaf75600791eb6bddadf29d5416c",
+    "cpu_control.py": "e3c80b62483420b98cf395f92e2678db2c793ce04314a179e455ec61fc005d73",
     "prepare_host.py": "c89957299454b90862a4b136a27f537bd75c83b6fe3ec75a9d66ce730f5ebe16",
-    "test_cpu_control.py": "a0038714fef9b9325dc7a31de1a117d2163e0d4774f391adf0f128e67dabdfe4",
+    "test_cpu_control.py": "d9b3dcd43f3a9ea9f63f7fc00c5577420a99a629d07070b47f2290656c8ebf03",
     "cam-policy.json": "8b71a3affe2d6856940668c6f07ff5a58d49e716bdf862092469820a30d40a16",
     "bootstrap.sh": "8ed31e3bb8e3c4208fabc99226d3e7fcd4d29793b79ead9aa96436f0aa51a75c",
     "test_bootstrap.py": "2afdc576a39f6d1f37fa8c21918afbdf778ac5be22c9c8ce5162a0717d4269ba",
     "run_linux_drill.py": "6176f00003e64dbb03b0d0b1929018c321cf8d578271009a54aff8466a37f238"
   },
-  "verdict": "PASS",
-  "must_fix": [],
-  "reviewer_model": "claude-fable-5",
-  "review_mode": "external",
+  "external_base_review": {
+    "source_sha256": "176389cda5732632f265bc69fa3a7c0d8f63eb1277bb1f5e108402e1488cd275",
+    "review_scope": "lifecycle",
+    "verdict": "PASS",
+    "must_fix": [],
+    "reviewer_model": "claude-fable-5",
+    "review_mode": "external"
+  },
+  "subsequent_compatibility_patch": {
+    "risk_tier": "R1",
+    "scope": "Observed provider response compatibility; ownership/termination/absence acceptance contract preserved",
+    "changes": [
+      "DescribeSecurityGroups uses SecurityGroupName, while create input uses GroupName",
+      "Only ResourceNotFound from the exact owned security-group ID query counts as absence; authorization errors still fail"
+    ],
+    "external_review_reused_for_changed_source": false,
+    "validation": "Focused regression and actual owned-resource cleanup"
+  },
   "tests": {
     "windows_controller": {
-      "passed": 29
+      "passed": 32
     },
     "linux_controller_and_bootstrap": {
-      "passed": 31,
+      "passed": 34,
       "skipped": 1,
-      "skip_reason": "Windows-specific redirected AppData filesystem test"
+      "skip_reason": "Windows-only AppData regression"
     }
   },
-  "scope": "Single bounded research CPU node and verified offline Git bundle bootstrap; no scheduler or full formal experiment"
+  "actual_canary": {
+    "created_nodes": 1,
+    "provider_timer": true,
+    "create": true,
+    "describe": true,
+    "reboot": true,
+    "stop": true,
+    "start": true,
+    "strict_ssh_after_start": true,
+    "new_host_recovery": true,
+    "cpu_runner_tests": 30,
+    "cpu_runner_skips": 0,
+    "environment_pins": 35,
+    "evidence_persisted_before_termination": true,
+    "termination_verified": true,
+    "owned_auxiliary_deletions": 4
+  },
+  "limits": [
+    "No scheduler or autoscaling",
+    "No full formal experiment",
+    "Historical checkpoint relocation not certified",
+    "Direct operator network route timed out; strict SSH used an authorized relay"
+  ]
 }
