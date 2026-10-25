@@ -22,10 +22,14 @@ fi
 mkdir -- "$destination"
 # Failure leaves this explicitly incomplete directory for inspection; never delete user files.
 touch "$destination/DEPLOYMENT_INCOMPLETE"
-git clone --no-checkout https://github.com/tivilou/Q-Attention.git "$destination/code"
 if [[ -n "$bundle" ]]; then
+  # The complete, trusted bundle is sufficient; recovery must not require GitHub.
+  git init --quiet "$destination/code"
+  git -C "$destination/code" remote add origin https://github.com/tivilou/Q-Attention.git
   git -C "$destination/code" bundle verify "$bundle"
   git -C "$destination/code" fetch "$bundle" 'refs/heads/*:refs/remotes/recovery/*'
+else
+  timeout 120 git clone --no-checkout https://github.com/tivilou/Q-Attention.git "$destination/code"
 fi
 git -C "$destination/code" checkout --detach "$commit"
 [[ "$(git -C "$destination/code" rev-parse HEAD)" == "$commit" ]]

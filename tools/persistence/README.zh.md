@@ -1,10 +1,10 @@
 # 项目持久化与恢复（第一版）
 
-**COS 已接入：** 当前后端已通过小型合成快照上传/恢复、版本固定、失败重试和权限边界验证。安装、凭据注入及恢复命令见 [COS.zh.md](COS.zh.md)。真实实验归档、全新服务器部署和训练续跑尚未验收。
+**COS 与新主机恢复已验证：** 当前后端已通过合成快照、固定对象版本、失败重试和权限边界验证；选定封存归档的 1,877 个文件已独立恢复，并在全新腾讯云 Ubuntu CPU 主机安装锁定环境，通过 30 项原始 CPU 测试。安装、凭据注入及恢复命令见 [COS.zh.md](COS.zh.md)，限定费用的 CPU API 测试工具见 [../cloud/README.zh.md](../cloud/README.zh.md)。这不证明历史完整实验已备份或检查点可跨环境续训。
 
 **2026-10-25 接入方案更新：** 私有索引已统一为 [tivilou/project-persistence](https://github.com/tivilou/project-persistence)，本项目位于 `projects/q-attention/`。用户反馈阿里云盘不对个人开发者开放，已取消该申请前提；以下 Alipan 命令仅是历史原型接口说明。新的个人云盘候选与官方依据见 [PROVIDERS.zh.md](PROVIDERS.zh.md)。
 
-本工具保存**已经关闭或确认不可变的文件集合**。它不启动实验，不调整既有 checkpoint 恢复规则，不自动删除云端历史文件。已选择腾讯 COS；真实实验备份和全新服务器部署尚待验收。不要据此释放原服务器。
+本工具保存**已经关闭或确认不可变的文件集合**。它不启动实验，不调整既有 checkpoint 恢复规则，不自动删除云端历史文件。已选择腾讯 COS；仅对明确选定的封存归档与测试环境完成恢复验收。释放其他服务器前仍需核对其全部必需内容。
 
 GitHub 公开仓库存工具、代码和环境定义；共用私有仓库 `tivilou/project-persistence` 的 `projects/q-attention/` 存本项目恢复索引、清单哈希和脱敏回执；COS 保存选定的原始数据、检查点、完整 traces 和代码 bundle。私有 GitHub 也不存这些大文件或凭据。Windows 本机保留额外副本。
 
@@ -68,17 +68,19 @@ API 使用官方 `openapi.alipan.com`，没有非官方 WebAPI 或第三方 toke
 
 ## 新服务器安装
 
-准备 Linux x86_64、Python 3.10（原环境 3.10.22）、git 与可用 NVIDIA 驱动。从固定工具 commit 获取本目录，检查私有索引后执行：
+准备 Linux x86_64、Python 3.10（原环境 3.10.22；新 CPU 主机验证版本 3.10.12）与 git。GPU 任务另需可用 NVIDIA 驱动；CPU 测试无需 GPU。从固定工具 commit 获取本目录，检查私有索引后执行：
 
 ```bash
 EXPECTED_ENV_SHA256=TRUSTED_LOCK_SHA256 PYTHON_BIN=python3.10 \
   bash tools/persistence/bootstrap.sh FULL_CODE_COMMIT /new/project
-# 若 commit 尚未发布到公开仓库，先从已验证快照恢复 Git bundle，再传第三个参数：
+# 推荐先从已验证快照恢复完整 Git bundle，避免恢复时依赖 GitHub 可达性：
 EXPECTED_ENV_SHA256=TRUSTED_LOCK_SHA256 EXPECTED_BUNDLE_SHA256=TRUSTED_BUNDLE_SHA256 \
   PYTHON_BIN=python3.10 bash tools/persistence/bootstrap.sh FULL_CODE_COMMIT /new/project /absolute/verified.bundle
 ```
 
-脚本只安装环境和指定代码；失败保留 `DEPLOYMENT_INCOMPLETE`，成功生成 `ENVIRONMENT_INSTALLED`。不会启动训练。版本清单来自现有环境，尚未在全新服务器验证安装；没有包制品哈希或离线 wheel 镜像，不承诺长期第三方软件源可用性。
+脚本只安装环境和指定代码；失败保留 `DEPLOYMENT_INCOMPLETE`，成功生成 `ENVIRONMENT_INSTALLED`。不会启动训练。提供已校验的完整 bundle 时，代码恢复不连接 GitHub；未提供时在线 clone 限时 120 秒。全新 Ubuntu 22.04 CPU 主机已安装并核对全部 35 项版本锁，运行原 parent 的 CPU 合成生命周期测试及真实数据解析。历史检查点迁移仍未认证。
+
+可设置 `PIP_NO_CACHE_DIR=1` 降低下载缓存的内存压力；原 PyTorch 环境含较大的 CUDA 依赖，即使只做 CPU 测试也会安装这些锁定版本。腾讯云测试使用 HTTPS 软件镜像 `https://mirrors.cloud.tencent.com/pypi/simple`，通过 `PIP_INDEX_URL` 指定，未修改环境版本锁。依赖下载仍需要网络；没有包制品哈希或离线 wheel 镜像，不承诺长期第三方软件源可用性。
 
 脚本强制比对私有索引中可信的环境定义 hash；使用 bundle 时也必须提供独立可信的 bundle hash。`git bundle verify` 只校验 bundle 结构/依赖，不验证作者签名；第一版不提供 GPG 签名认证，信任入口是受控私有索引和固定代码 commit。
 

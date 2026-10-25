@@ -1,0 +1,30 @@
+{
+  "schema": "research.cloud-control.review.v1",
+  "review_scope": "lifecycle",
+  "source_sha256": "176389cda5732632f265bc69fa3a7c0d8f63eb1277bb1f5e108402e1488cd275",
+  "source_files_sha256": {
+    "api.py": "e0bdb22dd15057d52b9b6f380f0171eba518bdab43074be143d3f1f04ddc98d2",
+    "cpu_control.py": "c8adbf8cff79732757098beee7f189e0f085aaf75600791eb6bddadf29d5416c",
+    "prepare_host.py": "c89957299454b90862a4b136a27f537bd75c83b6fe3ec75a9d66ce730f5ebe16",
+    "test_cpu_control.py": "a0038714fef9b9325dc7a31de1a117d2163e0d4774f391adf0f128e67dabdfe4",
+    "cam-policy.json": "8b71a3affe2d6856940668c6f07ff5a58d49e716bdf862092469820a30d40a16",
+    "bootstrap.sh": "8ed31e3bb8e3c4208fabc99226d3e7fcd4d29793b79ead9aa96436f0aa51a75c",
+    "test_bootstrap.py": "2afdc576a39f6d1f37fa8c21918afbdf778ac5be22c9c8ce5162a0717d4269ba",
+    "run_linux_drill.py": "6176f00003e64dbb03b0d0b1929018c321cf8d578271009a54aff8466a37f238"
+  },
+  "verdict": "PASS",
+  "must_fix": [],
+  "reviewer_model": "claude-fable-5",
+  "review_mode": "external",
+  "tests": {
+    "windows_controller": {
+      "passed": 29
+    },
+    "linux_controller_and_bootstrap": {
+      "passed": 31,
+      "skipped": 1,
+      "skip_reason": "Windows-specific redirected AppData filesystem test"
+    }
+  },
+  "scope": "Single bounded research CPU node and verified offline Git bundle bootstrap; no scheduler or full formal experiment"
+}
