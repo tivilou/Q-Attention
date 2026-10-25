@@ -209,7 +209,8 @@ def aggregate(summaries,cfg):
     mismatch=statistics.mean(scores[s,'quantum']-scores[s,'key_mismatch'] for s in cfg['seeds'])
     parity=mean>0 and mismatch<=cfg['gates']['mismatch_parity_tolerance']
     passed=mean>0 and sum(x>0 for x in delta)>=cfg['gates']['positive_seeds'] and sd<=base_sd
-    return dict(classification='mechanism_inconclusive' if parity else 'promote_to_formal_preparation' if passed else 'inconclusive',
+    return dict(classification='promote_to_formal_preparation' if passed else 'inconclusive',
+        utility_gate_passed=passed,relative_deltas=[(scores[s,'quantum']-scores[s,'disabled'])/abs(scores[s,'disabled']) if scores[s,'disabled'] else None for s in cfg['seeds']],
         mean_delta=mean,paired_deltas=delta,delta_sample_sd=sd,disabled_sample_sd=base_sd,positive_seeds=sum(x>0 for x in delta),
         mismatch_parity=parity,quantum_attribution='not established',stage='bounded reused development subset, not formal evidence')
 

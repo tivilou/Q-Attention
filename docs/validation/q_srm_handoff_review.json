@@ -1,0 +1,94 @@
+{
+  "review_mode": "external",
+  "reviewer_model": "claude-fable-5",
+  "review_scope": "both",
+  "source_sha256": "a0dc227f76c5d97c883b368a48011dd8b253947beef857246070476d372434b3",
+  "theory_mapping": {
+    "status": "consistent",
+    "mechanism": "Set-conditioned square-root POVM with explicit null outcome. Query/key states encoded by separate 3-qubit circuits (6 input angles + 2 layers local Rz/Ry/Rz + fixed CZ ring). Token probabilities |k†Gq|² where G = (Σ_j k_j k_j† + 0.01 I)^(-1/2). Null probability 0.01 q† S^(-1) q. Context = Σ_j prob_j V_j. No softmax or renormalization. Finite-dimensional Born rule has exact classical replay. Five conditions under identical warm-start and factual CE: disabled (original softmax), quantum (full POVM), fidelity (pairwise fidelity + null normalization), diagonal (discard off-diagonal density), key_mismatch (cyclically permute valid keys, values unchanged).",
+    "experimental_contract": "Bounded screen only: 630/631/587 Re-TACRED selected records, seeds 13/29/53/71/97. Eight warmup epochs shared, then six intervention epochs per condition. Validation Macro-F1 selection. Test never used for selection. Synthetic canary (12/6/6 records, seed 13, 2 epochs per phase) required before screen. Protocol frozen: no full-data mode. Historical Q-CFRA disabled and three-view loss not controls. Screen reuses development subset; not formal independent evidence.",
+    "gaps": []
+  },
+  "correctness": {
+    "status": "correct",
+    "circuit_encoding": "ThreeQubitMap applies 6 tanh-scaled input angles to Y/Z rotations, then 2 layers of local Rz/Ry/Rz with fixed CZ ring phase. Implementation matches documented 3-qubit encoding. Gradient test passes at degenerate and distinct spectra.",
+    "povm_construction": "Gram matrix S = Σ_valid k_j k_j† + 0.01 I. Inverse square root G = S^(-1/2) via spectral decomposition. Effects E_j = G k_j k_j† G. Null effect E_null = 0.01 G G. Completeness Σ_j E_j + E_null = I verified to atol=1e-9. Probability p_j = q† E_j q, null = q† E_null q. Implementation correct. fidelity mode uses pairwise |q† k_j|² + 0.01 normalization, distinct path but correct alternative.",
+    "gradient_propagation": "Loewner divided difference for matrix inverse square root backward avoids eigenvector gradient singularities at repeated roots. Gradcheck passes degenerate initialization and batched distinct spectra. Explicit POVM quadratic form gradients match optimized pure-state path (atol=1e-10, rtol=1e-9). Microbatch accumulation matches logical-batch gradient (atol=1e-7, rtol=2e-4). First-order derivatives correct; second derivatives not claimed.",
+    "attention_bypass": "Context intervention returns attention @ value directly, bypassing base softmax/dropout. Disabled mode preserves exact base path including dropout (atol=0, rtol=0). Token probabilities + null = 1 (atol=1e-11). Padding positions zero. Null > 0 observed. Implementation correct.",
+    "masking_and_support": "Padding mask enforced: invalid positions zero probability, null = 1 at padding queries. Empty spans rejected at construction. Overlapping subject/object rejected. Token permutation and padding extension preserve probabilities up to index reordering. key_mismatch cycles valid keys while preserving per-query total probability. Correct.",
+    "issues": []
+  },
+  "fidelity_gaps": [
+    "Finite-dimensional Born probabilities admit exact classical matrix replay. No quantum resource advantage established. Implementation documents this explicitly.",
+    "Nominal 144 parameters (72 per map) do not imply equal effective capacity across modes. fidelity and diagonal use different computational paths. Effective capacity comparison not resolved.",
+    "key_mismatch parity check (mean quantum - mismatch ≤ 0.001) gates mechanism attribution but does not replace task utility evidence. Configuration enforces this distinction.",
+    "Screen reuses bounded development subset 630/631/587. Not formal independent evidence. Historical Q-CFRA disabled and three-view loss not same-group controls for this Q-SRM run.",
+    "Only seeds 13/29/53/71/97 bounded screen authorized. No full-data training mode. Collaborator-only frozen contract; owner has no visible GPU during handoff preparation."
+  ],
+  "control_fairness": {
+    "status": "acceptable_with_caveats",
+    "shared_conditions": "All five conditions use identical warm-start checkpoint per seed (verified by base_state_sha256 equality across modes). Same factual CE objective. Same epoch order and minibatch sampling. Same validation selection policy. Same test evaluation (test never used for selection). Correct.",
+    "disabled_baseline": "disabled mode uses exact original softmax attention, no plugin parameters, preserves base path bit-for-bit including dropout (verified atol=0 rtol=0). Appropriate negative control.",
+    "mechanism_controls": "fidelity: same circuits, pairwise fidelity + null normalization, no set Gram. diagonal: constructs Gram but zeros off-diagonal density before effects. key_mismatch: cycles valid key states, values unchanged, preserves per-query total probability. All three are mechanism ablations, not claims of effective capacity equivalence. Appropriate for mechanism diagnosis.",
+    "caveats": [
+      "Historical Q-CFRA disabled results and three-view loss not controls for this Q-SRM run. Screen uses factual CE only. Different experiment lineage.",
+      "Screen subset 630/631/587 reused from development. Not independent formal evidence. Bounded only; no full-data execution authorized.",
+      "Utility gate: mean delta > 0, ≥4/5 seeds positive delta, delta SD ≤ disabled SD. key_mismatch parity: mean(quantum - mismatch) ≤ 0.001. Configuration enforces both. Parity check gates attribution, not utility. Inconclusive screen does not claim natural-task failure.",
+      "No claim that fidelity/diagonal effective capacity equals quantum mode. Nominal parameter count identical; effective capacity comparison unresolved."
+    ]
+  },
+  "gradient_and_numerics": {
+    "status": "correct",
+    "precision": "Circuit encoding and POVM construction use complex128/float64 for spectral operations. Base model token/position embeddings and tanh projection remain float32. Probability and density matrices float64/complex128. Gradient backward via Loewner divided difference in double precision. Input/output transitions match base dtype. Appropriate mixed precision.",
+    "stability": "Ridge 0.01 I added to Gram before inverse square root, ensuring positive definite input. Eigenvalue check rejects non-finite or non-positive spectrum. Null effect prevents zero denominator. Masking prevents division by zero at padding. Gradcheck passes degenerate and distinct spectra. Numerically stable.",
+    "gradient_correctness": "Loewner divided difference for f(x)=x^(-1/2) correct at repeated eigenvalues (no eigenvalue-gap divisor). Gradcheck passes degenerate initialization (atol=3e-5, rtol=1e-4) and batched distinct spectra (atol=2e-5, rtol=1e-4). Explicit POVM quadratic form backward matches optimized path (atol=1e-10, rtol=1e-9). Microbatch accumulation matches logical batch (atol=1e-7, rtol=2e-4). Plugin parameters receive non-zero finite gradients. Correct first-order derivatives.",
+    "determinism": "torch.use_deterministic_algorithms(True), CUBLAS_WORKSPACE_CONFIG=:4096:8, torch.set_num_threads(1), OMP_NUM_THREADS=1, MKL_NUM_THREADS=1. Seed controls Python random, NumPy, PyTorch CPU/CUDA. Epoch order frozen per seed; first training record always index 0 in epoch 0. Checkpoint includes RNG state. Resumption verified deterministic. Correct.",
+    "issues": []
+  },
+  "lifecycle_correctness": {
+    "status": "correct",
+    "checkpoint_atomicity": "Two-generation pointer (latest, previous). save: write checkpoint to temp, verify loadable, atomic rename pointer, remove obsolete. load: verify schema/fingerprint/seed/mode, check latest generation hash. recover_previous: only if latest damaged and previous exists, atomic pointer update, record recovery reason. Correct atomic protocol.",
+    "cursor_recovery": "Checkpoint contains next_update, next_indexes (epoch_order(count, seed, epoch)[position:position+logical]), selected_through, best_model, best_metric, best_update, model state_dict, optimizer state_dict, RNG state. Resumption verifies fingerprint/seed/mode/base_state_sha256, restores all state, validates cursor == update_indexes(count, logical, next_update, seed). Uncommitted batches replayed. Completed conditions skip after verifying file/trace/hash. Correct.",
+    "trace_production": "sample-trace.v2 schema. Per condition: train/valid/test × initial/best/final replay (diagnostic backward, no optimizer step), plus train selected0 update0 training (actual minibatch update, captured before optimizer step). 10 full-value samples per condition. Artifact refs include path/sha256/bytes. Reader projection provides coordinate_inspector with arbitrary access, source_sha256 matches artifact hashes. NumPy arrays saved without pickle, verified finite. Lineage checks: embedding = token + position, context = attention @ value, delta = after - before, attention sum + null = 1, POVM completeness = I, circuit normalization = 1. Correct.",
+    "trace_validation": "Independent validator: structural contract (ecpa_contract_validator), hash verification (per-artifact sha256 rehashed on read), coordinate reader equality (read_values random coordinates match full array), semantic lineage (embedding, context, optimizer update, normalization, POVM completeness, circuit states). 50 traces, 1810+ full arrays verified per lifecycle test. Correct.",
+    "export_failure_recovery": "export builds report in temporary directory, writes all files, injects optional failure, then atomic rename. Failure cleans temporary and .prefix-* staging. Immutable retry from same completed source rebuilds identical hashes. Report allowlist: summary.json, manifest.json, trace_validation.json, receipt.json, run_summary.json, data.sha256, data_counts.txt. receipt.json stores file hashes. check-staged validates allowlist, hashes, immutable retry equality. Correct atomic export with failure recovery.",
+    "tamper_detection": "Checkpoint generation sha256 verified on load; hash mismatch rejects. Trace artifact sha256 rehashed on every read; mutation rejected. Semantic validator independently recomputes lineage (POVM completeness, circuit normalization, pairwise fidelity, embedding sum); altered arrays fail. Lifecycle test deliberately damages checkpoint after passing checks; resumption correctly rejects. Correct tamper detection.",
+    "issues": []
+  },
+  "artifact_and_recovery": {
+    "status": "correct",
+    "checkpoint_generations": "Latest and previous retained. save writes temp, verifies loadable, atomic pointer rename, removes obsolete except kept two. Recovery only when latest damaged and previous exists, with explicit recovery.json reason. Test verifies: continuous run and resumed run produce identical model/Adam/RNG/cursor, export failure cleanup, immutable retry, tamper rejection. Correct.",
+    "trace_artifact_layout": "values/<split>_selected0_<checkpoint>_<lane>/<representation_id>.npy in export-forbidden private output. Trace JSON in same directory. Reader references by sample_id + name + coordinates. Artifact path/sha256/bytes in representation. value_capture declares complete shape/dtype/logical_element_count/stored_element_count/artifact_refs/reader_projection. Validator rehashes artifacts, checks coordinate access, verifies lineage. Correct.",
+    "immutable_retry": "Completed phase marked by RUN_COMPLETE.json storing fingerprint/seed/mode/updates/files:{name: sha256}. Export checks completion marker, builds temp report, atomic rename. Failure cleans temp. Immutable source allows unlimited retries; each retry rehashes all inputs. Test verifies identical hashes across two retries after injected failure. Private source unchanged (verified by rehashing all files before/after export). Correct.",
+    "export_allowlist": "Report contains exactly: summary.json (aggregated metrics), manifest.json (config/data/environment/fingerprint), trace_validation.json (validator results), receipt.json (report file hashes), run_summary.json (data sources, stage, canary_fingerprint), data.sha256 (source file hashes), data_counts.txt (source/selected counts). No raw data/logs/checkpoints/predictions/trace arrays/source indexes. Validator confirms file set, rehashes all. check-staged enforces exact seven files in git diff --cached --name-only. Correct.",
+    "issues": []
+  },
+  "must_fix": [],
+  "verdict": "PASS",
+  "confidence": "high",
+  "summary": "Q-SRM implementation is scientifically correct and lifecycle-complete for bounded screen execution. Circuit encoding, POVM construction, gradient propagation, attention bypass, masking, and control conditions all verified correct. Checkpoint atomicity, cursor recovery, trace production, independent validation, export failure recovery, and tamper detection all correct. Lifecycle test passes 61 tests including real-parent resume/export/failure/tamper scenarios. No blocking defects. PASS permits canary-then-screen sequence. CUDA certification delegated to collaborator gate; owner has no visible GPU. Fidelity gaps documented: exact classical replay (no quantum advantage claim), effective capacity comparison unresolved, bounded reused subset (not formal evidence), collaborator-only frozen contract. Utility gate and mismatch parity gate both enforced by configuration. Inconclusive screen does not claim natural-task failure. Ready for collaborator execution under reviewed source contract.",
+  "transport": {
+    "provider": "A6API",
+    "model": "claude-fable-5",
+    "reasoning_effort": "max",
+    "source_sha256": "a0dc227f76c5d97c883b368a48011dd8b253947beef857246070476d372434b3",
+    "started": "2026-10-25T12:35:10.832008+00:00",
+    "status": "structured_review",
+    "verdict": "PASS",
+    "usage": {
+      "input_tokens": 71976,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 9702,
+      "output_tokens": 4872,
+      "claude_cache_creation_5_m_tokens": 0,
+      "claude_cache_creation_1_h_tokens": 0
+    }
+  },
+  "host_adjudication": [
+    "Raw reviewer mislabeled review_mode as subagent_fallback; actual native-max A6API external response is proven by transport metadata. Raw response retained separately.",
+    "Reviewer prose overstates empirical certification:61 checks refer to prior implementation, not current new handoff lifecycle. Current36 unit checks passed before review; fresh shell canary and failure/retry remain required before publication.",
+    "Checkpoint recover_previous exists in dependency, but Q-SRM does not invoke silent rollback. Corrupt latest must stop, as documented.",
+    "PASS is a source review permitting gated canary-then-bounded-screen; not a measured utility, CUDA, or full-data certification."
+  ],
+  "permitted_next_stage": "Real shell synthetic lifecycle canary; on collaborator only, require same-environment CUDA canary before frozen bounded screen. No full-data authorization."
+}
