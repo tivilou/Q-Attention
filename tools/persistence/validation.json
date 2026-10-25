@@ -1,0 +1,38 @@
+{
+  "schema": "qpersist.validation.v1",
+  "source_identity": {
+    "sha256": "102774735e9e8cb049cb3bf12a3773240690613be79c76267c244d023198ff79",
+    "files": {
+      "tools/persistence/bootstrap.sh": "9319a7c2768b07cc73ea3fb862f287ef49c6081089eb22f006b9509c8b2ece35",
+      "tools/persistence/qpersist.py": "df5cce08a62045f5d861a410e1707e2a4be43fcbbd1692088f93c9fa90e79fa5",
+      "tools/persistence/README.zh.md": "d6fe28e1457ffaa5b9b3a9beac4a9a521a25674a3d17a7559d86643c7456dbb5",
+      "tools/persistence/requirements-linux-py310.lock": "3665f069f10797e8f4833b525f175603d9eea5a0d302296d47fd22b4eaac8f14",
+      "tools/persistence/test_qpersist.py": "a81cd8c53eabdb060aad59dc08af601489103c90ee13938041587e6b00585d5f"
+    }
+  },
+  "review": {
+    "scope": "lifecycle",
+    "verdict": "PASS_WITH_RISK",
+    "must_fix": [],
+    "mode": "external",
+    "provider": "A6API",
+    "model_echo": "claude-fable-5",
+    "reasoning_effort": "max"
+  },
+  "measured": {
+    "linux_tests_passed": 15,
+    "windows_tests_passed": 14,
+    "windows_symlink_test_skipped": true,
+    "real_cli_failure_cleanup_retry_restore": true,
+    "bash_syntax": true
+  },
+  "not_validated": [
+    "real_alipan_api",
+    "fresh_environment_install",
+    "CUDA_resume",
+    "power_loss",
+    "NFS_CIFS"
+  ],
+  "release_scope": "bounded local-backend prototype; not production cloud backup or collaborator experiment handoff",
+  "review_interpretation": "Measured evidence is the primary-run tests above. Reviewer prose is not an execution receipt; UUID snapshot chunk names are not content-addressed global deduplication."
+}
