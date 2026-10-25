@@ -1,0 +1,55 @@
+{
+  "review_mode": "external",
+  "reviewer_model": "claude-fable-5",
+  "review_scope": "lifecycle",
+  "source_sha256": "ee6d062514e117904af78049f0546d02a6ddddf4f8e6dd5ef5585faadaaca1d7",
+  "correctness": {
+    "resource_reservation": "CORRECT. Transactional CPU/RAM/GPU group reservation in Store.claim before launch prevents double-allocation. Node.start independently re-validates capacity against active attempts, blocking oversubscription from racing controllers or lost acknowledgments.",
+    "idempotency": "CORRECT. submit() enforces project+key uniqueness and rejects spec conflicts. start() persists request.json before Popen, making duplicate starts queryable without re-launch. Lost acknowledgment reconciles via status/renew without duplicate execution.",
+    "attempt_token_fencing": "CORRECT. observe() validates (attempt, token, active_attempt) tuple and rejects stale tokens. Terminal evidence requires exact schema, quiescence flag, and matching identity fields. Stale or unrelated tokens cannot claim completion or release reservations.",
+    "lease_and_termination": "CORRECT. Worker only renews lease while supervisor heartbeat is fresh (<2脳 lease_seconds). Lease expiration triggers SIGKILL on entire process group, waits for termination, and verifies no descendants remain via killpg probe before emitting terminal receipt. Unknown state retains reservation when termination unconfirmed.",
+    "replay_boundaries": "CORRECT. Lease expiration and node reboot requeue only if recipe.replay_safe=True and attempts < max_attempts (1-3). Non-replayable jobs enforce max_attempts=1. Deterministic failures (failed, timed_out, cancelled, rejected) never requeue. Recipe validation requires explicit replay_safe declaration.",
+    "execution_identity": "CORRECT. Command limited to trusted {python} argv, checked at both controller submission and node launch. Node verifies exact revision match and clean git status before and after execution. Required outputs validated by name, SHA256, byte count, and regular-file constraint. Subprocess runs in new session with CPU mask or GPU UUID exposure.",
+    "authorization_gates": "CORRECT. submit() checks project policy allowed_kinds and requires exact 40-char revision. claim() filters nodes by policy.nodes and node.projects. SSH RPC calls resolved() for per-project development role authorization, verifying server_id, auth=key, and host key fingerprint before each dispatch and query.",
+    "descendant_cleanup": "CORRECT. Worker kills entire process group (os.killpg SIGKILL), waits with timeout, then probes group existence. Terminal state only emitted when killpg raises ProcessLookupError confirming no descendants. Unconfirmed cleanup leaves attempt in unknown state retaining reservation."
+  },
+  "lifecycle_correctness": {
+    "duplicate_execution": "CANNOT DUPLICATE. Request persisted before launch; duplicate start() returns existing status without second Popen. Stale token rejected by observe(). Lost acknowledgment reconciles same attempt via status/renew.",
+    "premature_resource_release": "CANNOT RELEASE WITHOUT EVIDENCE. Unknown state from stale heartbeat, lost RPC, or unconfirmed termination retains reservation. Only terminal receipt with quiescent=True and exact identity releases resources. Observe() rejects invalid terminal evidence and keeps reservation.",
+    "stale_completion_claim": "CANNOT CLAIM. Terminal evidence requires exact (attempt, task, token, node) match, quiescent=True, valid terminal state, and complete schema. Stale token or wrong node rejected. Old executor cannot claim completion after lease expiration or token rotation.",
+    "identity_coherence": "COHERENT. Launch argv from registered recipe, checked at controller submission and node start. CWD from project repo binding. Lease renewal checks supervisor heartbeat and boot_id. Output validation checks revision unchanged, required paths present, and SHA256 identity. Durable request.json, atomic state.json, and lease.json provide consistent identity across supervisor and RPC.",
+    "authorization_enforcement": "ENFORCED AT ENTRY AND NODE. Controller checks project policy (allowed_kinds, nodes, revision) at submit() and claim(). Node start() re-validates recipe and policy against local binding. SSH RPC calls resolved() per project per action, verifying development role authorization. No public network service; all node access via authenticated SSH.",
+    "minimum_vs_declared": "MINIMUM IMPLEMENTED WITHOUT OVERREACH. Single-owner SQLite queue without fleet COS restore certification. POSIX workers over authorized SSH, no autoscaling or provisioning. Transactional CPU/RAM/GPU reservation with project fairness and one-active-per-project limit. Recipe-driven argv and explicit replay policy. No experiment adoption, parameter tuning, or blanket archive. Documentation correctly states pending real SSH tests, lease interruption validation, and GPU hardware canary gap."
+  },
+  "artifact_and_recovery": {
+    "output_validation": "COMPLETE. Terminal receipt requires returncode=0, exact revision match, all recipe.outputs present as regular files under output directory with SHA256 and byte count. Missing outputs, symlinks, or paths escaping output directory rejected as failed.",
+    "checkpoint_recovery": "NOT IMPLEMENTED. Replay boundary limited to bounded retry of replay_safe recipes after lease expiration or node reboot. No scientific checkpoint adoption, intermediate state restoration, or training continuation across attempts. Non-replayable jobs cannot retry.",
+    "queue_durability": "DURABLE WITH GAPS. Queue persisted in owner PC SQLite with WAL and FULL synchronous. backup() uses SQLite backup API with integrity check. No certified COS control plane restore or 24-hour controller availability. Lost controller does not auto-release unknown tasks.",
+    "unknown_reconciliation": "CORRECT HOLDBACK. Unknown state from heartbeat staleness, RPC failure, or unconfirmed termination retains reservation. Controller restart reconciles via status query without re-dispatch. Manual intervention required to release genuinely lost executions after out-of-band node verification."
+  },
+  "must_fix": [],
+  "verdict": "PASS",
+  "confidence": "high",
+  "summary": "Lifecycle correctness verified against all acceptance questions. Resource reservation transactional before launch, independent node admission prevents oversubscription. Attempt/token fencing prevents stale claims. Lease renewal tied to supervisor heartbeat; expiration kills process group and confirms quiescence before release. Replay boundaries enforce explicit policy and bounded retry. Launch identity coherent across durable records, lease checks, and output validation. Project policy and SSH authorization enforced at controller and node. Minimum implementation matches declared scope without implying unbuilt fleet/COS capabilities. No concrete defects found; pending synthetic SSH tests and GPU hardware validation are appropriately documented limitations, not correctness issues.",
+  "transport": {
+    "provider": "A6API",
+    "model": "claude-fable-5",
+    "reasoning_effort": "max",
+    "source_sha256": "ee6d062514e117904af78049f0546d02a6ddddf4f8e6dd5ef5585faadaaca1d7",
+    "started": "2026-10-25T13:44:39.492204+00:00",
+    "status": "structured_review",
+    "verdict": "PASS",
+    "usage": {
+      "input_tokens": 13656,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 8488,
+      "output_tokens": 3005,
+      "claude_cache_creation_5_m_tokens": 0,
+      "claude_cache_creation_1_h_tokens": 0
+    }
+  },
+  "host_adjudication": [
+    "Source review only; categorical reviewer wording is not a formal security proof. Trusted synchronous recipes, authoritative node filesystem and POSIX process-group limits apply.",
+    "Fresh real SSH/lease interruption/cancellation/output-failure measurements are required before deployment; no actual GPU or COS queue restore evidence."
+  ]
+}
