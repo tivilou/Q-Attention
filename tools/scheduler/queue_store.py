@@ -16,7 +16,7 @@ def source_identity():
     root=Path(__file__).resolve().parent
     return digest({name:hashlib.sha256((root/name).read_bytes()).hexdigest() for name in SOURCE_FILES})
 def review_gate():
-    review=json.loads((Path(__file__).resolve().parent/'review.json').read_text())
+    review=json.loads((Path(__file__).resolve().parent/'review.json').read_text(encoding='utf-8'))
     if review.get('review_scope') not in ('lifecycle','both') or review.get('verdict')!='PASS' or review.get('must_fix') or review.get('source_sha256')!=source_identity():raise ValueError('exact-source lifecycle PASS required')
 
 def encoded(value):return json.dumps(value,sort_keys=True,separators=(',',':'))

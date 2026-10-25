@@ -13,7 +13,7 @@ import time
 
 from queue_store import ACTIVE,recipe_check,review_gate
 
-def read(path):return json.loads(Path(path).read_text())
+def read(path):return json.loads(Path(path).read_text(encoding='utf-8'))
 def atomic(path,value):
     path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
     fd,name=tempfile.mkstemp(dir=path.parent,prefix='.'+path.name)

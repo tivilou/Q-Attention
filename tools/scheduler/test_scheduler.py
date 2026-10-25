@@ -34,6 +34,11 @@ class QueueTests(unittest.TestCase):
         row=self.submit();self.assertEqual(row['id'],self.submit()['id'])
         self.config['projects']['alpha']['recipes']['smoke']['timeout']=6
         with self.assertRaisesRegex(ValueError,'conflicts'):self.submit()
+    def test_review_gate_reads_explicit_utf8(self):
+        review=dict(review_scope='lifecycle',verdict='PASS',must_fix=[],source_sha256='test',note='审查 ✓')
+        (self.root/'review.json').write_text(json.dumps(review,ensure_ascii=False),encoding='utf-8')
+        with patch.object(q,'__file__',str(self.root/'queue_store.py')),patch.object(q,'source_identity',return_value='test'):
+            q.review_gate()
     def test_policy_and_revision_gate(self):
         self.config['projects']['alpha']['allowed_kinds']=[]
         with self.assertRaisesRegex(ValueError,'policy'):self.submit()
