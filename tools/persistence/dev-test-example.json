@@ -1,0 +1,24 @@
+{
+  "schema": "research.dev-test.recipe.v1",
+  "project_id": "q-attention",
+  "kind": "unit",
+  "timeout_seconds": 180,
+  "command": ["{python}", "-m", "unittest", "discover", "-s", "tools/persistence", "-p", "test_*.py", "-v"],
+  "include": [
+    "tools/persistence/qpersist.py",
+    "tools/persistence/cos_store.py",
+    "tools/persistence/dev_archive.py",
+    "tools/persistence/dev_archive_owner.py",
+    "tools/persistence/test_qpersist.py",
+    "tools/persistence/test_cos_store.py",
+    "tools/persistence/test_dev_archive.py",
+    "tools/persistence/test_bootstrap.py",
+    "tools/persistence/bootstrap.sh",
+    "tools/persistence/requirements-linux-py310.lock",
+    "tools/persistence/requirements-cos.txt",
+    "tools/persistence/dev-test-example.json",
+    "tools/persistence/DEV_ARCHIVE.zh.md"
+  ],
+  "outputs": [],
+  "environment_file": "tools/persistence/requirements-linux-py310.lock"
+}

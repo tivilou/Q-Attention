@@ -103,3 +103,7 @@ QPERSIST_LIFECYCLE_CANARY=1 python -m unittest discover -s tools/persistence -p 
 ```
 
 本地后端测试不代表官方 API 实测成功。真实云端验收、私有索引记录及独立恢复演练完成之前，系统状态是未完成。
+
+## 开发测试材料自动归档
+
+使用 [开发测试归档说明](DEV_ARCHIVE.zh.md) 的控制端入口，可串起指定 CPU 测试、封存、COS 固定版本校验与私有恢复索引发布。它服务本方开发测试；正式完整实验继续由合作者通过现有 GitHub 流程运行。
