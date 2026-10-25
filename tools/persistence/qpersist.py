@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Immutable private artifact snapshots. Python 3.10+, standard library only.
+"""Immutable private artifact snapshots. Python 3.10+, optional COS SDK.
 
 No training launch, token refresh, deletion, mount or bidirectional sync.
 The caller must select closed artifacts; this is not a live-checkpoint adapter.
@@ -20,6 +20,7 @@ import time
 import urllib.error
 import urllib.request
 import uuid
+from cos_store import CosStore, CosError
 
 BLOCK = 4 * 1024 * 1024
 CHUNK = 64 * 1024 * 1024
@@ -418,6 +419,8 @@ def publish(package, store, receipt):
         store.put(sid + "--manifest.json", package / "manifest.json")
         checked_get(store, sid + "--manifest.json", Path(tmp) / "manifest", mh)
     result = {"schema": "qpersist.receipt.v1", "snapshot": sid, "manifest_sha256": mh, "status": "remote_readback_verified", "restore_drill": False, "backend": type(store).__name__}
+    if hasattr(store, 'receipt_metadata'):
+        result.update(store.receipt_metadata())
     write_new(Path(receipt), encoded(result))
     return result
 
@@ -497,10 +500,14 @@ def main():
     pk.add_argument("--out", required=True)
     for cmd in ("publish", "restore", "status"):
         p = sub.add_parser(cmd)
-        p.add_argument("--backend", choices=("local", "alipan"), required=True)
+        p.add_argument("--backend", choices=("local", "alipan", "cos"), required=True)
         p.add_argument("--store", help="Independent filesystem storage (local backend only)")
         p.add_argument("--drive-id")
         p.add_argument("--folder-id")
+        p.add_argument("--cos-bucket")
+        p.add_argument("--cos-region")
+        p.add_argument("--cos-prefix", help="Explicit projects/<id>/<subdirectory>/ namespace")
+        p.add_argument("--cos-receipt", help="Trusted publish receipt with pinned COS object versions; required for restore/status")
         if cmd == "publish":
             p.add_argument("--package", required=True)
             p.add_argument("--receipt", required=True)
@@ -518,7 +525,17 @@ def main():
         else:
             if args.backend == "local" and not args.store:
                 raise Error("Local backend needs --store")
-            store = LocalStore(args.store) if args.backend == "local" else AlipanStore(args.drive_id, args.folder_id)
+            if args.backend == 'cos':
+                if args.command != 'publish' and not args.cos_receipt:
+                    raise Error('COS restore/status requires version-pinned receipt')
+                pinned = json_file(args.cos_receipt) if args.cos_receipt else None
+                if args.command == 'publish' and pinned is not None:
+                    raise Error('Publish cannot consume a restore receipt')
+                if pinned and (pinned.get('snapshot') != args.snapshot or pinned.get('manifest_sha256') != args.manifest_sha256):
+                    raise Error('Trusted receipt snapshot/hash mismatch')
+                store = CosStore(args.cos_bucket, args.cos_region, args.cos_prefix, pinned)
+            else:
+                store = LocalStore(args.store) if args.backend == "local" else AlipanStore(args.drive_id, args.folder_id)
             if args.command == "publish":
                 result = publish(args.package, store, args.receipt)
             elif args.command == "restore":
@@ -534,7 +551,7 @@ def main():
                         raise Error("Snapshot identity mismatch")
                 result = {"status": "committed_manifest_verified", "payload_rechecked": False, "snapshot": args.snapshot}
         print(json.dumps(result, ensure_ascii=False))
-    except (Error, OSError, ValueError, KeyError, TypeError):
+    except (Error, CosError, OSError, ValueError, KeyError, TypeError):
         # Paths and URL-bearing exception messages may contain private material.
         print("qpersist: operation failed; no success receipt issued. Check arguments, immutable inputs, credentials and available space.", file=sys.stderr)
         return 1
