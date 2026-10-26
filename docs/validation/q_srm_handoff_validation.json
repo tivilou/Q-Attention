@@ -1,0 +1,98 @@
+{
+  "schema_version": "q-attention.srm-handoff-validation.v1",
+  "status": "passed",
+  "tested_commit": "14983a742418271355dde76a4adf15fb2d56bf5f",
+  "source_sha256": "eb7a011c6716d7d2b2563cf9c053afc2353c32f5045f0f462db4d0c9645d11a5",
+  "core_source_sha256": "474bc6f27e424e592e58b66f1ed9a8b5635c6095fc5ac1eceda88e97a147ab2c",
+  "review": {
+    "mode": "external",
+    "model": "claude-fable-5",
+    "effort": "max",
+    "scope": "both",
+    "verdict": "PASS",
+    "must_fix": []
+  },
+  "tests": {
+    "unit_and_trace_protocol": 36,
+    "existing_cfra_model_data_regression": 46,
+    "total_unit_regression_passed": 82,
+    "current_gate": "stdlib-host real shell acceptance; not a pytest lifecycle pass",
+    "lifecycle": {
+      "status": "passed",
+      "source_run": "/home/Q-Attention/q-srm-private/handoff-canary-v2-20261025/20261025T000000Z_seed13",
+      "resumed_source_run": "/home/Q-Attention/q-srm-private/handoff-canary-v2-20261025/resumed-core",
+      "exporter_source_sha256": "eb7a011c6716d7d2b2563cf9c053afc2353c32f5045f0f462db4d0c9645d11a5",
+      "failure_reason": "injected report copy failure",
+      "retry_count": 2,
+      "immutable_source": true,
+      "final_report_identity": "e30e007e19004185831f1580a4ca1e00fc9f68aa6595f5333ea28187fddb0c2b",
+      "conditions": 5,
+      "traces": 50,
+      "full_arrays": 1810,
+      "files": 7,
+      "staged_validation": "passed",
+      "exact_batch_resume": true,
+      "cgroup_limit_bytes": 1073741824,
+      "baseline_oom_counters": {
+        "oom": 3,
+        "oom_kill": 2
+      },
+      "final_oom_counters": {
+        "oom": 3,
+        "oom_kill": 2
+      },
+      "new_oom_events": false,
+      "host_probe_correction": "Original host assertion compared all memory.events counters; max increased from reclaim, while oom/oom_kill unchanged. Revalidated only OOM counters and all completed immutable artifacts without training.",
+      "cuda": "not_available_on_owner_host",
+      "formal_run_executed": false,
+      "real_data_screen_executed": false
+    }
+  },
+  "prior_failures": [
+    {
+      "source_sha256": "a0dc227f76c5d97c883b368a48011dd8b253947beef857246070476d372434b3",
+      "outcome": "first shell pytest failed before export injection; fifth worker SIGKILL",
+      "cause": "1GiB cgroup OOM, preflight retained Torch runtime",
+      "resolution": "isolated preflight process exits before worker launch; revised review and real-entry acceptance passed"
+    },
+    {
+      "outcome": "host probe compared all memory.events counters and rejected normal max/reclaim events",
+      "resolution": "all completed run/checkpoint/report equivalence revalidated without retraining; only oom/oom_kill counters checked, unchanged3/2"
+    }
+  ],
+  "population": {
+    "stage": "bounded_development_screen",
+    "train": 630,
+    "valid": 631,
+    "test": 587,
+    "seeds": [
+      13,
+      29,
+      53,
+      71,
+      97
+    ],
+    "modes": [
+      "disabled",
+      "quantum",
+      "fidelity",
+      "diagonal",
+      "key_mismatch"
+    ],
+    "formal_full_data_authorized": false,
+    "real_data_screen_executed_by_owner": false
+  },
+  "environment": {
+    "python": "3.10.22",
+    "torch": "2.7.1+cu126",
+    "numpy": "1.26.4",
+    "device": "cpu",
+    "installs": []
+  },
+  "limits": [
+    "CUDA remains unverified on owner host; collaborator must pass gated CUDA canary before screen.",
+    "Only graceful committed-minibatch resume certified for current source; no hard-kill/epoch-boundary/power-loss durability certification.",
+    "No utility, reproducibility, novelty, effective-capacity equivalence or quantum advantage established.",
+    "Historical report history excluded; publication contains selected implementation and delivery files only."
+  ]
+}

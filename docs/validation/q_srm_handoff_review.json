@@ -1,0 +1,124 @@
+{
+  "review_mode": "external",
+  "reviewer_model": "claude-fable-5",
+  "review_scope": "both",
+  "source_sha256": "266211e4e41705fc99d471a899374c49aa0c24c842194dee05d8d9d407496f03",
+  "theory_mapping": {
+    "status": "faithful",
+    "attention_replacement": "Second-layer context replaced by set-conditioned square-root POVM weighted values; Q/K/V projections and first layer frozen",
+    "encoding": "3-qubit circuits encode query and key separately; 6 input angles plus 2 layers of Rz/Ry/Rz with fixed CZ ring",
+    "measurement": "Born probabilities from S^(-1/2) whitening where S = sum(k_j k_j†) + 0.01*I; explicit null outcome preserved",
+    "classical_expression": "Finite-dimensional POVM admits exact classical matrix form; no quantum speedup claim",
+    "parameter_budget": "144 nominal parameters (shared across heads); effective capacity not equivalent to nominal count",
+    "modes": {
+      "disabled": "Original softmax, zero plugin parameters",
+      "quantum": "Full set-conditioned POVM with null",
+      "fidelity": "Pairwise fidelity normalized, no Gram construction",
+      "diagonal": "Remove off-diagonal density matrix elements before Gram",
+      "key_mismatch": "Cyclically permute valid keys while values stay aligned"
+    }
+  },
+  "correctness": {
+    "status": "sound",
+    "forward_path": "Complex128/float64 spectral decomposition; unit norm states verified; POVM completeness checked (effects.sum(-3) + null_effect = I within 1e-9)",
+    "backward_path": "Loewner divided difference for matrix inverse square root avoids eigenvector gradient singularities at repeated eigenvalues; first-order only",
+    "probability_constraints": "Token probabilities >= 0, null in [0,1], sum(attention,-1) + null = 1 enforced; padding positions zeroed",
+    "circuit_lineage": "8-dimensional pure states through unitary gates; normalization preserved across checkpoints; independent NumPy replay validated",
+    "disabled_parity": "Disabled mode returns None context (preserves base softmax path exactly); plugin parameters zero",
+    "test_coverage": "Current43 focused tests passed; historical core61 and prior shell acceptance are inherited evidence, not current new lifecycle measurements."
+  },
+  "fidelity_gaps": {
+    "status": "documented",
+    "quantum_vs_classical": "Finite-dimensional Born probabilities have exact classical expression; no quantum resource advantage established",
+    "fidelity_mode": "Uses pairwise |<q_i|k_j>|^2 without Gram whitening; denominator = sum(fidelity) + ridge",
+    "diagonal_mode": "Removes coherence by masking off-diagonal density elements; tests classical incoherent limit",
+    "nominal_vs_effective": "144 parameters shared across heads; same count does not imply equal effective capacity across modes",
+    "reused_subset": "630/631/587 records are reused development subset, not independent formal evidence",
+    "historical_baselines": "Historical Q-CFRA disabled and 3-view loss not valid same-batch controls"
+  },
+  "control_fairness": {
+    "status": "acceptable",
+    "shared_warmstart": "All conditions use same 8-epoch warm-start per seed from shared frozen base",
+    "objective": "Factual cross-entropy only; no counterfactual views or attention regularization",
+    "sampling": "Same seed/epoch/batch order; first train record frozen at position 0 in epoch 0",
+    "optimizer": "Same Adam state, learning rate 0.001, 6 epochs, batch 16 (micro 2) for all intervention conditions",
+    "selection": "Validation macro-F1 selects best checkpoint; test never used for selection",
+    "mismatch_control": "Cyclically permutes valid keys (breaks attribution) while preserving support distribution; values unchanged",
+    "frozen_contract": "Seeds [13,29,53,71,97], modes list, ridge 0.01, factual CE, screen sample counts immutable"
+  },
+  "gradient_and_numerics": {
+    "status": "verified",
+    "precision": "Forward spectral operations in complex128/float64; projection/tanh in float32",
+    "inverse_root_gradient": "Closed-form Loewner quotient (f(x)=x^(-1/2)); no eigenvalue gap divisor; passes gradcheck at degenerate and distinct spectra",
+    "numerical_stability": "Ridge 0.01 ensures positive-definite Gram; PSD effects verified (min eigenvalue > -1e-9)",
+    "microbatch_equivalence": "Logical batch gradient = sum(microbatch gradients / logical_size); test confirms match within 2e-4 relative",
+    "finite_checks": "Loss, gradients, eigenvalues, probabilities checked for NaN/inf; training stops on nonfinite",
+    "limitations": "First-order gradients only; no second-order support documented"
+  },
+  "lifecycle_correctness": {
+    "status": "passed",
+    "checkpoint_structure": "Model, optimizer, RNG (Python/NumPy/Torch/CUDA), next_update cursor, next_indexes, best model/metric/update, fingerprint",
+    "persistence": "Two-generation checkpoint storage exists; Q-SRM does not invoke silent rollback. Damaged latest checkpoint stops.",
+    "resume": "Loads from committed minibatch boundary; uncommitted batches replay; completed conditions verify file hash then skip",
+    "export": "Atomic temporary directory then rename; failure cleanup preserves raw run; retryable from same completion state",
+    "trace_schema": "sample-trace.v2 with 10 samples per condition: train/valid/test at initial/best/final replay + train update0 training lane",
+    "trace_validation": "Prior acceptance50 complete traces total across5 conditions,1810 arrays. Core source unchanged.",
+    "handoff_publication": "Fetch ancestry, stage exactly 7 files, verify content hashes, commit, ordinary push to 1.1; no force push; retries reuse same commit",
+    "test_evidence": "Current automatic-publication real-shell canary and immutable failure/retry acceptance are pending this review; see separate validation receipt for subsequent measurements."
+  },
+  "artifact_and_recovery": {
+    "status": "operational",
+    "raw_output": "Outside checkout; private data/checkpoints/predictions/traces never in public report",
+    "export_whitelist": "summary.json, manifest.json, trace_validation.json, receipt.json (7 total with run_summary/data files for handoff)",
+    "immutability": "Source/data/config fingerprint binding; changed identity refuses resume",
+    "corruption_handling": "Hash verification before load; damaged checkpoint stops (no silent rollback); tamper detection via pointer SHA256",
+    "recovery_path": "Explicit --resume from last committed cursor; export-only retries publication without training",
+    "git_integration": "Ancestry gates (origin/main, origin/1.1 must be ancestors); clean tree except audited report; 7-file commit; ordinary push; local bare remote tested",
+    "limitations": "Linux/POSIX CPU path only verified by owner; CUDA certified by collaborator gate; process kill and power-loss durability not tested; native Windows unsupported"
+  },
+  "must_fix": [],
+  "verdict": "PASS",
+  "confidence": "high",
+  "boundary_conditions": [
+    "Bounded screen only: 630/631/587 samples, 5 seeds, no full-data authorization",
+    "Canary-first gate: synthetic 12/6/6 must pass on same environment/device before screen",
+    "CUDA unverified on owner machine; CPU diagnostic permitted; collaborator GPU execution required for screen",
+    "No claim of quantum advantage, task utility, or nominal/effective capacity equivalence",
+    "Reused development subset; not independent formal evidence",
+    "Process kill/power-loss and native Windows execution not certified"
+  ],
+  "notes": [
+    "Source-only external review; host retains execution authority.",
+    "Previous exact-source handoff review was PASS. No measured task utility, novelty, effective-capacity equivalence or quantum advantage.",
+    "Current43 tests cover automatic publication, local bare-remote rejection, idempotence, remote-ahead and unrelated payload gates.",
+    "Prior CPU lifecycle/resume evidence applies only to unchanged core hash; fresh publication shell acceptance remains required."
+  ],
+  "transport": {
+    "provider": "A6API",
+    "model": "claude-fable-5",
+    "reasoning_effort": "max",
+    "source_sha256": "266211e4e41705fc99d471a899374c49aa0c24c842194dee05d8d9d407496f03",
+    "started": "2026-10-25T13:12:25.679388+00:00",
+    "status": "structured_review",
+    "verdict": "PASS",
+    "usage": {
+      "input_tokens": 20220,
+      "cache_creation_input_tokens": 185605,
+      "cache_read_input_tokens": 3326,
+      "output_tokens": 4427,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 185605
+      },
+      "claude_cache_creation_5_m_tokens": 0,
+      "claude_cache_creation_1_h_tokens": 0
+    }
+  },
+  "host_adjudication": [
+    "Raw reviewer response retained in private review artifact. review_mode normalized using independently recorded A6API native-max transport.",
+    "Corrected reviewer conflation of historical tests with current43 focused tests and fresh acceptance pending at review time.",
+    "Corrected raw trace multiplicity:50 total, not50 times5. Corrected prior verdict to PASS.",
+    "Checkpoint dependency can recover a previous generation; Q-SRM deliberately stops instead of invoking that rollback.",
+    "PASS authorizes a gated synthetic lifecycle check and collaborator CUDA-canary-then-bounded-screen only, never full-data execution."
+  ],
+  "permitted_next_stage": "Synthetic real-shell publication acceptance against isolated local bare origin; collaborator same-environment CUDA canary before bounded screen."
+}

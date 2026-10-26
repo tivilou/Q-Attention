@@ -1,0 +1,105 @@
+{
+  "schema_version": "q-attention.srm-implementation-validation.v1",
+  "source_sha256": "cf3154535e0f1ce936c76988a668d35e303bc20686036b9c9ee377bd174f9ee4",
+  "source_files": {
+    "configs/q_srm_screen.json": "a13e25445deb2dd27a232b2b009a2a300f218a479b5e575846ffa86d37793c76",
+    "experiments/run_srm_screen.py": "3f88cb82789716a855fb29b56e3577f26898ebcffd3594ab8c4914503e6108c6",
+    "scripts/run_q_srm_screen.sh": "560c7aa2bbd549d337cef9d16f2136691e041d614d0f2f54f0b8cc10f79e2d14",
+    "src/q_attention/__init__.py": "834c479ea459703db2728955cee5cc29f6bbd6c1aabf7efaffcd7ffbe6470a0e",
+    "src/q_attention/adapters/__init__.py": "641f585bc77bd1387953756b1dd58cb545a07cbe9821950bcd6aa87f53aa4b1b",
+    "src/q_attention/adapters/q_srm.py": "9747d921dca53f87b0bcd6cf61aebfd321269f268482c947c47fc59b4ad4a899",
+    "src/q_attention/analysis/__init__.py": "c1a16672c4a0b8ca49d6edc7e72c5fc0df4e7bd041b6e5d96ff958ac269c2590",
+    "src/q_attention/analysis/cfra_trace.py": "aca1a3fb8712b70209e3078289364c5bca03e3278a175c7bd7f711e55360d9ab",
+    "src/q_attention/analysis/ecpa_contract_validator.py": "55e7bcb34a048b3b8c6cd3837364d75ab8f3a24a23b276999dc009495b7df2c9",
+    "src/q_attention/analysis/ecpa_trace.py": "fd3e730ccdc57da351a69a5180347dbee783a9f5ee9226b119f99195405cdae2",
+    "src/q_attention/analysis/srm_trace.py": "e593dc567e922a344bb77dea9f128b4a57a3457dc8c3394b6a80df55867f0d8c",
+    "src/q_attention/experiments/__init__.py": "dbdb28537863634a03533d490c65226d29d98aa2b57b257cd290c891c6efd258",
+    "src/q_attention/experiments/cfra_checkpoint.py": "fed255a627863038b4e78904ccf2de0116eb8a8f7783206e5f660c5a99627f42",
+    "src/q_attention/experiments/cfra_protocol.py": "588c5e50e1bce69bbfade93b56130820aac281c189e386df5841ccdcb6c15656",
+    "src/q_attention/experiments/ecpa_protocol.py": "46d52c66d99f0b886de053d0dac454a266d20002145d4bb5c08f312cd4c91fb8",
+    "src/q_attention/experiments/srm_protocol.py": "ff942833edd8eb957749936ebd18c59f239083f7bd1db238535796bf6f127493",
+    "src/q_attention/experiments/srm_runner.py": "e6e888d2f99db42e96ef10eac983025564b122c1e46136bc338b1337720a6020",
+    "src/q_attention/metrics.py": "056696c6cd046c19f23a74ba23357b11bfb32a559d556594ad67feec1f5a930e",
+    "src/q_attention/models/__init__.py": "4b26bad2b4396c8a867c24e531d7148dec54282cc3c17162c6a5703512c12fe5",
+    "src/q_attention/models/relation_transformer.py": "da16e4ab43252f08f77f08647ee2f00010d0470a35d2e69fd0c964243119726f",
+    "src/q_attention/plugins/__init__.py": "1e6e11e5f920950eedfbb24e8564a53c50efe5988e3e40d3612cf04d67312660",
+    "src/q_attention/plugins/q_srm.py": "eb2a38dcd4e070c74bbbe17fab0d3b46d21ea10721086c4a4ea72564a121f108",
+    "src/q_attention/tasks/__init__.py": "c7ce9528d05c6c63f719fa94eea87f9c89c8205d3562130f241430ac51d3a42d",
+    "src/q_attention/tasks/cfra_data.py": "096cae8f0c1f5a5ae0520578ac568f5617b4f0fa94f981c2acc68d4791b7badd",
+    "src/q_attention/tasks/ecpa_toy_data.py": "8f35d4383d03318583c81707316329b55e7fb5fd9c487d520949fe038443ab85",
+    "src/q_attention/tasks/relation.py": "145296d7086c4fa93f65ca1e2b8b71e74e1f1aeb9a669b9d63ec29b7b7c9b5b3",
+    "tests/test_srm.py": "cf796542af6b8b757a324c949d50e40fd71aeb395e94d77ec1e82fa555900ff1",
+    "tests/test_srm_lifecycle.py": "38838e51beabec9112ed9705630c1240ff0393dc416d70fa68675315b0df9e7f"
+  },
+  "design_revision": "b0935d50789df1dda21f08190ee389c22e85c5f5",
+  "review": {
+    "mode": "subagent_fallback",
+    "verdict": "PASS_WITH_RISK",
+    "scope": "both",
+    "artifact": "docs/validation/q_srm_review.json"
+  },
+  "tests": {
+    "core_and_trace_unit": 29,
+    "existing_baseline_data_cfra_regression": 31,
+    "real_parent_lifecycle": 1,
+    "total_passed": 61
+  },
+  "lifecycle": {
+    "status": "passed",
+    "conditions": 5,
+    "traces": 50,
+    "full_arrays": 1810,
+    "exact_batch_resume": true,
+    "export_failure_cleanup": true,
+    "immutable_retry": true,
+    "checkpoint_tamper_rejected": true,
+    "clean_source_run": "/home/Q-Attention/q-srm-private/lifecycle-20261024-1401/test_real_parent_resume_export0/direct",
+    "resumed_source_note": "resumed run passed equality/export tests, then its checkpoint was deliberately corrupted for the final tamper rejection assertion; keep direct as the clean reference",
+    "exporter_source_sha256": "cf3154535e0f1ce936c76988a668d35e303bc20686036b9c9ee377bd174f9ee4",
+    "source_fingerprint": "df2b7245983f275c979c7fb3fbb5fe4eb18c303b97ec92bdf954b0b4ba22ca49",
+    "failure_reason": "intentional RuntimeError after first temporary export write",
+    "retry_count": 1,
+    "final_report_identity": "df2b7245983f275c979c7fb3fbb5fe4eb18c303b97ec92bdf954b0b4ba22ca49",
+    "pytest_result": "1 passed,10 deselected in216.63s; tests/test_srm_lifecycle.py -k real_parent",
+    "environment": {
+      "python": "3.10.22",
+      "torch": "2.7.1+cu126",
+      "numpy": "1.26.4",
+      "cuda_build": "12.6",
+      "device": "cpu",
+      "deterministic": true,
+      "torch_threads": 1,
+      "gpu_name": null
+    }
+  },
+  "environment": {
+    "python": "3.10.22",
+    "torch": "2.7.1+cu126",
+    "numpy": "1.26.4",
+    "device": "cpu"
+  },
+  "gpu": {
+    "cuda_available": false,
+    "device_nodes_present": false,
+    "status": "unverified; no visible NVIDIA device at validation time"
+  },
+  "protocol": {
+    "canary_records": {
+      "train": 12,
+      "valid": 6,
+      "test": 6
+    },
+    "seed": 13,
+    "conditions": 5,
+    "optimizer_updates_per_phase": 6,
+    "real_data_screen_executed": false,
+    "full_data_training_executed": false
+  },
+  "limits": [
+    "Synthetic engineering validation is not task-utility evidence",
+    "CUDA and abrupt termination/epoch-boundary fault injection not certified",
+    "Machine/power-loss durability and native Windows execution not certified",
+    "No full formal handoff; collaborator-only future contract",
+    "Finite-dimensional mechanism has exact classical replay; novelty unresolved"
+  ]
+}

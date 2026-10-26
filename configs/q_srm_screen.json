@@ -1,0 +1,23 @@
+{
+  "schema_version": "q-attention.srm-screen.v1",
+  "profile": "bounded_screen",
+  "seeds": [13, 29, 53, 71, 97],
+  "modes": ["disabled", "quantum", "fidelity", "diagonal", "key_mismatch"],
+  "selection_seed": 20261020,
+  "per_class": 16,
+  "max_length": 64,
+  "expected_selected": {"train": 630, "valid": 631, "test": 587},
+  "source_hashes": {
+    "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+    "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+    "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+  },
+  "model": {"dim": 32, "num_heads": 4, "num_layers": 2, "ff_dim": 64, "dropout": 0.0},
+  "warmup": {"epochs": 8, "batch_size": 16, "lr": 0.001},
+  "screen": {"epochs": 6, "batch_size": 16, "lr": 0.001},
+  "runtime": {"micro_batch": 2, "evaluation_batch": 2},
+  "measurement": {"qubits": 3, "ridge": 0.01, "depth": 2, "null_value": 0, "token_renormalization": false},
+  "loss": "factual_cross_entropy_only",
+  "gates": {"mean_delta_strictly_positive": true, "positive_seeds": 4, "delta_sd_le_disabled_sd": true, "mismatch_parity_tolerance": 0.001},
+  "claims": {"stage": "bounded development screen only", "formal_executor": "collaborator", "novelty": "unresolved", "quantum_advantage": "not established"}
+}
