@@ -26,7 +26,10 @@ def probe(args):
     if args.development_canary:
         if not args.canary_only:raise ValueError('Development mode is canary-only')
         if p.git('status','--porcelain'):raise ValueError('Clean development worktree required')
-    else:branch_gate()
+    else:
+        branch_gate()
+        from .rmea_exchange import preflight
+        preflight()
     import importlib.metadata as md
     import torch
     if sys.version_info[:2]!=(3,10) or torch.__version__.split('+')[0] not in ('2.5.1','2.7.1') or md.version('numpy')!='1.26.4' or md.version('transformers')!='4.44.2':raise ValueError('Requires Python3.10, Torch2.5.1/2.7.1, NumPy1.26.4, Transformers4.44.2; do not silently change environment')
@@ -54,7 +57,7 @@ def validate_report(target):
     if any(p.digest(target/k)!=v for k,v in record['sha256'].items()):raise ValueError('Report hash mismatch')
     return record
 
-def export(root,target,inject_failure=False):
+def export(root,target,inject_failure=False,exchange_receipt=None):
     root=Path(root).resolve();target=Path(target).absolute()
     if root.is_relative_to(p.ROOT) or target.is_symlink():raise ValueError('Private source must stay outside checkout; regular report destination')
     handoff=p.read(root/'handoff.json');phase='canary' if handoff['canary_only'] else 'discovery'
@@ -62,6 +65,7 @@ def export(root,target,inject_failure=False):
     for name in ('canary',) if phase=='canary' else ('canary','discovery'):
         p.audit(root/name)
     manifest,summary=p.audit(root/phase)
+    if phase=='discovery' and (not exchange_receipt or exchange_receipt.get('status')!='uploaded' or exchange_receipt.get('closed_sha256')!=p.digest(root/phase/'RUN_COMPLETE') or not exchange_receipt.get('parts') or not all(r.get('verified') for r in exchange_receipt['parts'])):raise ValueError('Verified full private evidence exchange required before formal report')
     if p.read(root/'canary/manifest.json')['environment']!=manifest['environment']:raise ValueError('Canary and discovery environments differ')
     if manifest['git_revision']!=handoff['git_revision']:raise ValueError('Run revision differs')
     if inject_failure and phase!='canary':raise ValueError('Fault injection is canary-only')
@@ -70,7 +74,7 @@ def export(root,target,inject_failure=False):
     try:
         for name in ('summary.json','manifest.json','trace_validation.json'):shutil.copyfile(root/phase/name,temporary/name)
         if inject_failure:raise RuntimeError('Injected report copy failure; export-only retry from same completed source')
-        p.atomic_json(temporary/'receipt.json',dict(closed_inventory_sha256=p.digest(root/phase/'RUN_COMPLETE'),source_sha256=manifest['source_sha256'],raw_artifacts_committed=False))
+        p.atomic_json(temporary/'receipt.json',dict(closed_inventory_sha256=p.digest(root/phase/'RUN_COMPLETE'),source_sha256=manifest['source_sha256'],raw_artifacts_committed=False,private_exchange=exchange_receipt))
         (temporary/'data.sha256').write_text(''.join(f'{v["source_sha256"]}  {s}.jsonl\n' for s,v in manifest['data'].items()),encoding='utf8')
         (temporary/'data_counts.txt').write_text(''.join(f'{s} source={v["source_count"]} selected={v["selected_count"]}\n' for s,v in manifest['data'].items()),encoding='utf8')
         p.atomic_json(temporary/'run_summary.json',dict(schema='q-rmea.handoff-report.v1',data=manifest['data'],source_sha256=manifest['source_sha256'],
@@ -95,7 +99,11 @@ def publish(root):
     if not lock.is_absolute():lock=p.ROOT/lock
     with p.lock(lock):
         p.git('fetch','origin','+refs/heads/main:refs/remotes/origin/main','+refs/heads/1.1:refs/remotes/origin/1.1')
-        branch_gate(relative);export(root,target);record=validate_report(target)
+        branch_gate(relative)
+        phase='canary' if p.read(root/'handoff.json')['canary_only'] else 'discovery'
+        from .rmea_exchange import upload
+        private_receipt=upload(root,root/phase)
+        export(root,target,exchange_receipt=private_receipt);record=validate_report(target)
         baseline=record['git_revision'];head=p.git('rev-parse','HEAD');expected={relative+'/'+n for n in REPORT_FILES}
         hashes={name:p.digest(p.ROOT/name) for name in expected}
         if head==baseline:

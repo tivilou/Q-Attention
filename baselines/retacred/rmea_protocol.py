@@ -12,12 +12,12 @@ ROOT=Path(__file__).resolve().parents[2]
 MODES=('uniform','relation_softmax','real_overlap','quantum','dephased')
 FILES=('baselines/retacred/rmea.py','baselines/retacred/rmea_protocol.py',
        'baselines/retacred/rmea_trace.py','baselines/retacred/rmea_run.py',
-       'baselines/retacred/rmea_handoff.py','baselines/retacred/frozen_feature_head.py',
+       'baselines/retacred/rmea_handoff.py','baselines/retacred/rmea_exchange.py','baselines/retacred/frozen_feature_head.py',
        'baselines/retacred/common.py','baselines/retacred/assets.lock.json',
        'scripts/audit_rmea_inputs.py','scripts/audit_rmea_tokenization.py',
-       'scripts/validate_sample_trace.py','experiments/q_rmea_handoff.py',
+       'scripts/validate_sample_trace.py','scripts/check_qattn_exchange.py','scripts/collab/lib/exchange_upload.py','scripts/collab/certs/qattn-exchange-ca.crt','experiments/q_rmea_handoff.py',
        'scripts/run_q_rmea_handoff.sh','scripts/check_q_rmea_handoff.sh',
-       'scripts/export_q_rmea_handoff.sh','tests/test_rmea.py','tests/test_rmea_lifecycle.py')
+       'scripts/export_q_rmea_handoff.sh','tests/test_rmea.py','tests/test_rmea_lifecycle.py','tests/test_rmea_exchange.py')
 
 def identity(value):return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':')).encode()).hexdigest()
 def read(path):return json.loads(Path(path).read_text(encoding='utf8'))

@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 import tempfile
+import subprocess
 import unittest
 from unittest.mock import patch
 from baselines.retacred import rmea_protocol as p
@@ -51,5 +52,26 @@ class Lifecycle(unittest.TestCase):
     def test_missing_completion_marker_rejected(self):
         (self.phase/'RUN_COMPLETE').unlink()
         with self.assertRaisesRegex(ValueError,'incomplete'):p.audit(self.phase)
+    def test_git_publication_push_failure_retry_does_not_duplicate_commit(self):
+        from baselines.retacred import rmea_exchange as exchange
+        remote=self.base/'remote.git'
+        subprocess.run(['git','init','--bare',str(remote)],check=True,capture_output=True)
+        p.git('init','-b','main');p.git('config','user.name','Research Test Fixture');p.git('config','user.email','fixture@example.invalid')
+        p.git('commit','--allow-empty','-m','fixture baseline');p.git('remote','add','origin',str(remote));p.git('push','origin','main')
+        p.git('switch','-c','1.1');p.git('push','-u','origin','1.1');baseline=p.git('rev-parse','HEAD')
+        for name in ('manifest.json',):
+            obj=p.read(self.phase/name);obj['git_revision']=baseline;p.atomic_json(self.phase/name,obj)
+        p.atomic_json(self.root/'handoff.json',dict(canary_only=True,git_revision=baseline));p.seal(self.phase)
+        receipt=dict(status='uploaded',closed_sha256=p.digest(self.phase/'RUN_COMPLETE'),parts=[dict(verified=True)])
+        original=p.git;injected=[False]
+        def fail_push(*args):
+            if args[0]=='push' and not injected[0]:injected[0]=True;raise RuntimeError('injected push failure')
+            return original(*args)
+        with patch.object(p,'review_gate'),patch.object(exchange,'upload',return_value=receipt):
+            with patch.object(p,'git',side_effect=fail_push):
+                with self.assertRaisesRegex(RuntimeError,'injected push'):h.publish(self.root)
+            committed=p.git('rev-parse','HEAD');self.assertNotEqual(committed,baseline)
+            h.publish(self.root);self.assertEqual(p.git('rev-parse','HEAD'),committed)
+        self.assertEqual(p.git('rev-parse','origin/1.1'),committed);self.assertEqual(p.git('status','--porcelain'),'')
 
 if __name__=='__main__':unittest.main()

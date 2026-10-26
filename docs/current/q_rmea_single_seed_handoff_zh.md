@@ -16,7 +16,7 @@ git merge origin/main
 bash scripts/run_q_rmea_handoff.sh --data-dir /你的路径/retacred-jsonl --assets /你的路径/roberta-large
 ```
 
-数据为既有项目规范化的 `train.jsonl`、`valid.jsonl`、`test.jsonl`，源文件 SHA 必须匹配。完整样本数为58465/19584/13418。权重和四个分词配置须匹配 `baselines/retacred/assets.lock.json`；脚本使用本机已持有资产，不自动改模型或联网下载。若路径不同，只修改上述两个路径。
+数据为既有项目规范化的 `train.jsonl`、`valid.jsonl`、`test.jsonl`，源文件 SHA 必须匹配。完整样本数为58465/19584/13418。权重和四个分词配置须匹配 `baselines/retacred/assets.lock.json`；脚本使用本机已持有资产，不自动改模型或联网下载。若路径不同，只修改上述两个路径。沿用项目已有的私有 `PROJECT_EXCHANGE_URL` 和 `PROJECT_EXCHANGE_TOKEN` 配置及仓库 CA；不要把 token 发到聊天或提交 Git。预检会先检查 HTTPS 和授权命名空间；配置缺失即停止，不先训练。
 
 默认使用当前 `python`，找不到则用 `python3`；可设置 `PYTHON_BIN` 指定已有环境。要求 Python3.10、Torch2.5.1或2.7.1、NumPy1.26.4、Transformers4.44.2。运行前可使用相同参数执行 `bash scripts/check_q_rmea_handoff.sh ...`。环境不符或 Git 冲突时停止并反馈，不自行改版本、预算或协议。
 
@@ -34,7 +34,7 @@ bash scripts/run_q_rmea_handoff.sh --data-dir /你的路径/retacred-jsonl --ass
 
 启动时打印 `PRIVATE_RUN=.../<timestamp>_seed13`。特征、原文案例、逐样本预测、检查点、梯度和完整 `sample-trace.v1` 都留在仓库外。预计完整 FP16 词缓存约6.33GiB，另需资产、临时文件和案例空间。不要删除这个目录或把它 `git add`。
 
-每个阶段关闭后写入完整 SHA/大小清单和 `RUN_COMPLETE`。正式阶段完成后，一键脚本自动检查样本数、源代码/数据/协议身份、案例结构及数值回放记录，导出 `reports/q_rmea/<timestamp>_seed13/`。只暂存并提交七个白名单文件，再普通 push 到 `1.1`；不需要手动提交。
+每个阶段关闭后写入完整 SHA/大小清单和 `RUN_COMPLETE`。正式阶段完成后，一键脚本先将封存清单中的私有证据流式上传到既有交换通道，每片最多64MiB，核对 SHA/大小；中断时保留待传收据，仅导出重试会复用已核验的分片。随后自动检查样本数、源代码/数据/协议身份、案例结构及数值回放记录，导出 `reports/q_rmea/<timestamp>_seed13/`。只暂存并提交七个白名单文件，再普通 push 到 `1.1`；不需要手动提交。
 
 导出或 push 失败时保留原运行，不重新训练；从同一代码/环境执行：
 
