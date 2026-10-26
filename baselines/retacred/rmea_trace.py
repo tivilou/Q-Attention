@@ -51,6 +51,7 @@ def audit(root):
     if trace['experiment']!=dict(config_sha256=p.identity(cfg),source_sha256=manifest['source_sha256']):raise ValueError('Trace provenance differs')
     expected={(m,c,s,i) for m in p.MODES for c in cfg['trace_checkpoints'] for s in cfg['counts'] for i in range(2)}
     seen=set();identities={};checked=0;max_residual=0.
+    metadata=p.read(root/'cache/metadata.json')
     for record in trace['samples']:
         mode,checkpoint,split,index=(record[k] for k in ('condition','checkpoint','split','cache_index'))
         key=(mode,checkpoint,split,index)
@@ -68,6 +69,19 @@ def audit(root):
         if state_path.parent!=root/'checkpoints':raise ValueError('Unexpected checkpoint path')
         head=RMEAHead(mode);head.load_state_dict(torch.load(state_path,map_location='cpu',weights_only=True));head.eval()
         h=torch.from_numpy(saved['h']);roles=torch.from_numpy(saved['roles']);mask=torch.from_numpy(saved['mask'])
+        meta=metadata[split][index]
+        if stages['preprocess']['sample']!=meta or sid!=meta['id_hash']:raise ValueError('Input lineage differs')
+        offset=np.load(root/'cache'/f'{split}-offsets.npy',mmap_mode='r');lo,hi=map(int,offset[index:index+2])
+        cached=np.load(root/'cache'/f'{split}-h.npy',mmap_mode='r')[lo:hi].astype(np.float32)
+        cached_roles=np.load(root/'cache'/f'{split}-roles.npy',mmap_mode='r')[lo:hi]
+        target=int(np.load(root/'cache'/f'{split}-targets.npy',mmap_mode='r')[index])
+        if target!=stages['evaluation']['target']:raise ValueError('Posthoc target reader differs')
+        np.testing.assert_array_equal(saved['h'][0,:hi-lo],cached)
+        np.testing.assert_array_equal(saved['roles'][0,:hi-lo],cached_roles)
+        encoder=np.load(root/'cache'/f'{split}-encoder-{index}.npy',mmap_mode='r')
+        recomputed=np.stack([encoder[pieces].mean(0) for pieces in meta['word_pieces']]).astype(np.float16).astype(np.float32)
+        np.testing.assert_allclose(cached,recomputed,atol=.002,rtol=.002)
+        if len(meta['tokens'])!=hi-lo or len(meta['word_pieces'])!=hi-lo or not mask[0,:hi-lo].all() or mask[0,hi-lo:].any():raise ValueError('Coordinate coverage differs')
         with torch.no_grad():
             d=head(h,roles,mask,True);r=replay(head,d,mask,roles,[sid])
         actual=arrays(d,r,h,roles,mask,head)
