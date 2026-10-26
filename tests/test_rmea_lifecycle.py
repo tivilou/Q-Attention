@@ -56,9 +56,9 @@ class Lifecycle(unittest.TestCase):
         from baselines.retacred import rmea_exchange as exchange
         remote=self.base/'remote.git'
         subprocess.run(['git','init','--bare',str(remote)],check=True,capture_output=True)
-        p.git('init','-b','main');p.git('config','user.name','Research Test Fixture');p.git('config','user.email','fixture@example.invalid')
+        p.git('init');p.git('symbolic-ref','HEAD','refs/heads/main');p.git('config','user.name','Research Test Fixture');p.git('config','user.email','fixture@example.invalid')
         p.git('commit','--allow-empty','-m','fixture baseline');p.git('remote','add','origin',str(remote));p.git('push','origin','main')
-        p.git('switch','-c','1.1');p.git('push','-u','origin','1.1');baseline=p.git('rev-parse','HEAD')
+        p.git('checkout','-b','1.1');p.git('push','-u','origin','1.1');baseline=p.git('rev-parse','HEAD')
         for name in ('manifest.json',):
             obj=p.read(self.phase/name);obj['git_revision']=baseline;p.atomic_json(self.phase/name,obj)
         p.atomic_json(self.root/'handoff.json',dict(canary_only=True,git_revision=baseline));p.seal(self.phase)
