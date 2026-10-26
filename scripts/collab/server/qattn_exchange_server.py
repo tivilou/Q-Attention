@@ -95,6 +95,9 @@ class UploadServer(ThreadingHTTPServer):
 class UploadHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
     server_version = "Q-Attention-Exchange/1.0"
+    # StreamRequestHandler applies this before any TLS or HTTP read. A client
+    # that sends no ClientHello or request headers must not retain a thread forever.
+    timeout = 15
 
     @property
     def upload_server(self) -> UploadServer:
@@ -797,7 +800,10 @@ def main() -> None:
         token=token,
         max_bytes=args.max_bytes,
     ) as server:
-        server.socket = tls_context.wrap_socket(server.socket, server_side=True)
+        # Handshake belongs to the request thread, never the accept loop.
+        server.socket = tls_context.wrap_socket(
+            server.socket, server_side=True, do_handshake_on_connect=False
+        )
         print(
             f"{SERVICE_VERSION} listening on https://{args.bind}:{args.port}; root={root}",
             flush=True,
