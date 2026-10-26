@@ -29,8 +29,11 @@ def upload(run,closed,*,transport=None):
     state=run/'export-state'/closed.name;state.mkdir(parents=True,exist_ok=True)
     receipt_path=state/'exchange.json';previous=p.read(receipt_path) if receipt_path.exists() else None
     if previous and (previous['closed_sha256']!=fingerprint or previous['target_dir']!=target):raise ValueError('Exchange identity differs')
-    receipt=dict(schema='q-rmea.exchange.v1',status='pending',closed_sha256=fingerprint,target_dir=target,parts=[])
     previous_parts={r['name']:r for r in previous['parts']} if previous else {}
+    # Keep every verified receipt across an interrupted replay, including parts
+    # whose HEAD check has not yet been reached in this attempt.
+    receipt=dict(previous) if previous else dict(schema='q-rmea.exchange.v1',closed_sha256=fingerprint,target_dir=target,parts=[])
+    receipt['parts']=list(receipt['parts']);receipt['status']='pending'
     p.atomic_json(receipt_path,receipt)
     archive_hash=hashlib.sha256();archive_bytes=0
     class Sink:
@@ -53,7 +56,8 @@ def upload(run,closed,*,transport=None):
                 with urlopen(request,context=context,timeout=30) as response:
                     if int(response.headers['Content-Length'])!=self.size or response.headers.get('ETag')!='"sha256:'+sha+'"':raise ValueError('Remote part absent/changed')
             else:module._upload_file(base,token,path,target+'/'+name,self.size,sha,context=context)
-            receipt['parts'].append(expected);p.atomic_json(receipt_path,receipt)
+            if name not in previous_parts:receipt['parts'].append(expected)
+            p.atomic_json(receipt_path,receipt)
             path.unlink();self.size=0;self.index+=1;self.file=path.open('wb')
         def close(self):
             try:self.flush_part()

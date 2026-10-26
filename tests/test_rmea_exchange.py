@@ -32,6 +32,12 @@ class Exchange(unittest.TestCase):
                 with tarfile.open(fileobj=io.BytesIO(joined)) as archive:
                     self.assertEqual(set(archive.getnames()),{'tensor.npy','RUN_COMPLETE'})
                     self.assertEqual(archive.extractfile('tensor.npy').read(),(closed/'tensor.npy').read_bytes())
+                # A failed early HEAD must retain the later verified receipts.
+                with patch.object(e,'urlopen',side_effect=OSError('HEAD interrupted')):
+                    with self.assertRaisesRegex(OSError,'HEAD interrupted'):e.upload(run,closed,transport=module)
+                pending=p.read(run/'export-state/discovery/exchange.json')
+                self.assertEqual(pending['status'],'pending');self.assertEqual(pending['parts'],first['parts'])
+                self.assertEqual(pending['archive_sha256'],first['archive_sha256'])
                 with patch.object(e,'urlopen',side_effect=lambda request,**kw:Response(request.full_url.split('/upload/',1)[1])):
                     second=e.upload(run,closed,transport=module)
                 self.assertEqual(first,second);self.assertEqual(len(uploads),count)
