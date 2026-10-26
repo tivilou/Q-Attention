@@ -8,6 +8,7 @@
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
 | [Q-SRM 有界筛选交付](current/q_srm_screen_handoff_zh.md) | 五 seed 固定小样本筛选、GPU canary、严格恢复与七文件报告；不启动全量 |
+| [Q-SRM 筛选结果审计（2026-10-26）](audits/20261026-q-srm-bounded-screen.md) | 五 seed 未过效用门槛，不晋级；聚合审计通过，完整案例审计 partial |
 | [Q-CFRA 新服务器恢复与更新](current/q_cfra_server_recovery_zh.md) | 新证书、私密配置、只读交换预检和原运行的收据核验 |
 | [Q-CFRA Re-TACRED 正式单 seed](current/retacred_q_cfra_formal_single_seed_zh.md) | 合作者执行、固定七条件、完整 batch 状态恢复、GPU canary 门禁与完整私有案例的白名单导出 |
 | [Q-ECPA Re-TACRED 正式三 seed 复现](current/retacred_q_ecpa_formal_multi_seed_zh.md) | 复用审计 seed13、只补29/53、全局 GPU 任务队列、完整数值案例、配对统计与自动报告推送 |

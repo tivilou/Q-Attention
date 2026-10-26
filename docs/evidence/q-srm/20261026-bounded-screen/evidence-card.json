@@ -1,0 +1,348 @@
+{
+  "schema_version": "evidence-tiered-idea-validation.evidence-card.v2",
+  "idea_id": "q-srm-square-root-measurement-attention",
+  "title": "Q-SRM bounded screen: no promotion",
+  "status": "candidate",
+  "current_tier": "L0_diagnostic",
+  "claim_ceiling": "diagnostic",
+  "rating_policy": {
+    "id": "shared-evidence-tiers+q-attention-screen-and-qi-overlay",
+    "version": "2026-10-26",
+    "notes": "Generic L1 utility is separate from screen promotion (positive mean, >=4/5 positive, paired SD <= baseline SD) and project quantum-inspired >1% relative practical gain. Quantum mean is negative, so no L1 is claimed."
+  },
+  "hypothesis": "Set-conditioned square-root measurement could provide more useful attention than softmax on relation classification.",
+  "mechanism": "At layer2 use |k_j^dagger (sum k k^dagger + .01 I)^(-1/2) q_i|^2 on V plus zero-value null, without token renormalization; backbone frozen after shared warmup and classifier/plugin train on factual CE.",
+  "experiment": {
+    "stage": "screen",
+    "training_budget": {
+      "data_scope": "Reused Re-TACRED development subset: train630/valid631/test587; not full data.",
+      "epochs_or_steps": "8 shared warmup epochs then 6 intervention epochs (240 updates per condition).",
+      "selection_rule": "Frozen class-stratified subset selection seed20261020, <=16/class, max length64; checkpoint by validation macro_f1 only.",
+      "seed_policy": "13,29,53,71,97; all five modes on same per-seed warm-start."
+    },
+    "conclusion_scope": "screen_inconclusive",
+    "continuation_status": "inconclusive",
+    "formal_run_authorized": false,
+    "executor": "collaborator"
+  },
+  "intervention": {
+    "changes_attention": true,
+    "target": "layer2 attention context",
+    "inference_mode": "label_free",
+    "heldout_positive": false,
+    "leakage_audit": "pass",
+    "attention_action_evidence": {
+      "status": "partial",
+      "refs": [
+        "src/q_attention/adapters/q_srm.py",
+        "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+      ]
+    }
+  },
+  "evidence": {
+    "data_scope": {
+      "task_family": "relation classification",
+      "natural_task": true,
+      "task_count": 1,
+      "split_count": 1,
+      "dataset_ids": [
+        "Re-TACRED reused bounded development subset"
+      ]
+    },
+    "runs": {
+      "seed_count": 5,
+      "seeds": [
+        13,
+        29,
+        53,
+        71,
+        97
+      ],
+      "independent_split_count": 1,
+      "statistics": {
+        "status": "fail",
+        "method": "Predeclared paired mean/sign count/sample-SD screen; no post-hoc significance threshold used.",
+        "p_value": null,
+        "confidence_interval": null
+      }
+    },
+    "metrics": [
+      {
+        "name": "macro_f1",
+        "split": "bounded_development_test",
+        "variant": "disabled",
+        "value": 0.05163975767568878,
+        "baseline_value": 0.05163975767568878,
+        "delta_vs_disabled": 0.0,
+        "relative_delta_vs_disabled": 0.0,
+        "primary": false,
+        "evidence_refs": [
+          "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+          "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+          "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+        ]
+      },
+      {
+        "name": "macro_f1",
+        "split": "bounded_development_test",
+        "variant": "quantum",
+        "value": 0.051309125894478724,
+        "baseline_value": 0.05163975767568878,
+        "delta_vs_disabled": -0.0003306317812100529,
+        "relative_delta_vs_disabled": -0.006402659425447098,
+        "primary": true,
+        "evidence_refs": [
+          "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+          "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+          "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+        ]
+      },
+      {
+        "name": "macro_f1",
+        "split": "bounded_development_test",
+        "variant": "fidelity",
+        "value": 0.05064157784634978,
+        "baseline_value": 0.05163975767568878,
+        "delta_vs_disabled": -0.0009981798293389951,
+        "relative_delta_vs_disabled": -0.019329676866569095,
+        "primary": false,
+        "evidence_refs": [
+          "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+          "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+          "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+        ]
+      },
+      {
+        "name": "macro_f1",
+        "split": "bounded_development_test",
+        "variant": "diagonal",
+        "value": 0.05204142417431565,
+        "baseline_value": 0.05163975767568878,
+        "delta_vs_disabled": 0.00040166649862687087,
+        "relative_delta_vs_disabled": 0.007778241353289104,
+        "primary": false,
+        "evidence_refs": [
+          "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+          "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+          "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+        ]
+      },
+      {
+        "name": "macro_f1",
+        "split": "bounded_development_test",
+        "variant": "key_mismatch",
+        "value": 0.04995860523846185,
+        "baseline_value": 0.05163975767568878,
+        "delta_vs_disabled": -0.0016811524372269265,
+        "relative_delta_vs_disabled": -0.032555389740304454,
+        "primary": false,
+        "evidence_refs": [
+          "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+          "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+          "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+        ]
+      }
+    ],
+    "controls": [
+      {
+        "id": "disabled",
+        "kind": "disabled",
+        "status": "pass",
+        "notes": "Completed condition, not a passed utility or attribution gate. Parameter count alone does not certify effective capacity.",
+        "evidence_refs": [
+          "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+          "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+          "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+        ]
+      },
+      {
+        "id": "quantum",
+        "kind": "quantum",
+        "status": "pass",
+        "notes": "Completed condition, not a passed utility or attribution gate. Parameter count alone does not certify effective capacity.",
+        "evidence_refs": [
+          "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+          "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+          "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+        ]
+      },
+      {
+        "id": "fidelity",
+        "kind": "other",
+        "status": "pass",
+        "notes": "Completed condition, not a passed utility or attribution gate. Parameter count alone does not certify effective capacity.",
+        "evidence_refs": [
+          "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+          "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+          "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+        ]
+      },
+      {
+        "id": "diagonal",
+        "kind": "other",
+        "status": "pass",
+        "notes": "Completed condition, not a passed utility or attribution gate. Parameter count alone does not certify effective capacity.",
+        "evidence_refs": [
+          "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+          "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+          "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+        ]
+      },
+      {
+        "id": "key_mismatch",
+        "kind": "shuffle",
+        "status": "pass",
+        "notes": "Completed condition, not a passed utility or attribution gate. Parameter count alone does not certify effective capacity.",
+        "evidence_refs": [
+          "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+          "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+          "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+        ]
+      }
+    ]
+  },
+  "axes": {
+    "task_utility": {
+      "status": "fail",
+      "notes": "Primary mean delta negative; no held-out utility candidate established.",
+      "evidence_refs": [
+        "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+        "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+        "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+      ]
+    },
+    "robustness": {
+      "status": "fail",
+      "notes": "Only2/5 positive; SD criterion alone passes.",
+      "evidence_refs": [
+        "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+        "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+        "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+      ]
+    },
+    "natural_transfer": {
+      "status": "partial",
+      "notes": "Natural data but reused bounded development subset, no full-data formal result.",
+      "evidence_refs": [
+        "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+        "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+        "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+      ]
+    },
+    "attention_alignment": {
+      "status": "not_run",
+      "notes": "No direct relevant-evidence alignment measurements or owner-accessible sample values.",
+      "evidence_refs": [
+        "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+        "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+        "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+      ]
+    },
+    "classical_attribution": {
+      "status": "partial",
+      "notes": "Fidelity/diagonal/key mismatch completed; exact classical representation exists, capacity equivalence unresolved. No strict attribution.",
+      "evidence_refs": [
+        "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+        "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+        "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+      ]
+    },
+    "finite_shot": {
+      "status": "not_run",
+      "notes": "Classical exact simulation; no shots or physical quantum hardware.",
+      "evidence_refs": [
+        "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+        "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+        "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+      ]
+    },
+    "resource_audit": {
+      "status": "partial",
+      "notes": "Reported RTX A2000 CUDA environment; no independent timing, end-to-end quantum resource or advantage audit.",
+      "evidence_refs": [
+        "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+        "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+        "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+      ]
+    }
+  },
+  "trace_completeness": "partial",
+  "trace_observability": {
+    "status": "partial",
+    "schema_version": "sample-trace.v2",
+    "artifact_refs": [
+      "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+    ],
+    "selection_rule": "Each split first frozen selected record at initial/best/final, plus training update0; reported by producer, private sample IDs/values not returned.",
+    "coverage": {
+      "data": "unavailable",
+      "preprocess": "unavailable",
+      "training": "unavailable",
+      "scoring": "unavailable",
+      "selection": "unavailable",
+      "context": "unavailable",
+      "generation": "unavailable",
+      "evaluation": "unavailable",
+      "diagnosis": "unavailable"
+    },
+    "missing_stages": [
+      "data",
+      "preprocess",
+      "training",
+      "scoring",
+      "selection",
+      "context",
+      "generation",
+      "evaluation",
+      "diagnosis"
+    ],
+    "notes": "Receipt reports 250 traces and 9050 arrays. The owner did not receive or inspect these arrays; no sample causal attribution is made."
+  },
+  "mechanism_recovery": {
+    "dossier_path": "docs/evidence/q-srm/20261026-bounded-screen/mechanism-recovery.json",
+    "dossier_sha256": "f70ab423a37b872083e6812e515501e0e25e9252958509b0dde27d927a4d76ce",
+    "outcome": "stop"
+  },
+  "next_upgrade": {
+    "action": "Inspect existing immutable warmup summaries and outcome-blind fixed paired trace projections; no retraining.",
+    "success_gate": "Provenance-matched existing artifacts identify a concrete, falsifiable mechanism question; this does not promote utility tier.",
+    "kill_criteria": "Unavailable or inconclusive traces leave mechanism unresolved; no automatic full-data/new-seed/post-hoc-control promotion.",
+    "estimated_cost": "0 new training steps; collaborator export time/bytes not yet measured.",
+    "authorized": false
+  },
+  "limitations": [
+    "No private full-value traces, warmup curves, raw data or checkpoints were returned.",
+    "No family-level natural-task rejection or mechanism-specific causal claim is supported.",
+    "No formal experiment or new candidate implementation was authorized or launched.",
+    "Code/report leakage audit passed within returned-artifact limits; raw records and cross-split duplicate identities were not independently checked."
+  ],
+  "failed_gates": [
+    "mean_delta_strictly_positive",
+    "positive_seeds_at_least_four"
+  ],
+  "provenance": {
+    "code_revision": "2c92423a93693ca40b1267d9bcf545b8ec653fac",
+    "records": [
+      {
+        "path": "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+        "role": "collaborator report at0206a48",
+        "sha256": "9d9cb32cf828150b85111d28412bed751d12fc600cd431ac422843718db2faee"
+      },
+      {
+        "path": "reports/q_srm_screen/20261026T022952Z_seed13/manifest.json",
+        "role": "collaborator report at0206a48",
+        "sha256": "86f43343de2e46627825a15676517b29576e125e2117e58cfd3c0918504bc16c"
+      },
+      {
+        "path": "reports/q_srm_screen/20261026T022952Z_seed13/run_summary.json",
+        "role": "collaborator report at0206a48",
+        "sha256": "683907d5f9b5fb2b8643e942838619b44a6c7f2c2c22055d09ae179a00f1201a"
+      },
+      {
+        "path": "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json",
+        "role": "collaborator report at0206a48",
+        "sha256": "2c994ba6c4a4b0ccd924c7f68da1f5bcabc2231f557b7b15e87575b1daae5834"
+      }
+    ]
+  }
+}
