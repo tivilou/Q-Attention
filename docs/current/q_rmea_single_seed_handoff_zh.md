@@ -2,7 +2,7 @@
 
 本轮研究冻结 RoBERTa-large 输出上的关系专属证据池。已有十五组 reference baseline 已完成，不重跑；下面五个同接口条件属于本轮新 idea 的必要对照。历史微调模型分数只作背景。
 
-执行前须确认本版本的实现审查及有界验证记录已经发布并通过。我们负责代码、有限测试和结果审计；完整实验由合作者执行。本轮只跑 seed13，不自行扩展多 seed。
+实现审查及[有界验证记录](../evidence/rmea/20261026-implementation/acceptance.json)已通过：25项机制/运行链路测试、4项真实HTTPS服务回归、16/8/8小样本的五路运行、完整案例数值回放、注入导出失败后的原产物重试、实际私有上传/完整读回，以及所选小样本的COS独立恢复。它们仅证明技术可运行，不证明方法有效。我们负责代码、有限测试和结果审计；完整实验由合作者执行。本轮只跑 seed13，不自行扩展多 seed。
 
 ## 同步与运行
 
@@ -10,7 +10,7 @@
 
 ```bash
 git fetch origin --prune
-git switch 1.1
+git checkout 1.1
 git merge origin/1.1
 git merge origin/main
 bash scripts/run_q_rmea_handoff.sh --data-dir /你的路径/retacred-jsonl --assets /你的路径/roberta-large

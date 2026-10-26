@@ -1,0 +1,169 @@
+{
+  "schema": "q-rmea.owner-implementation-acceptance.v1",
+  "result": "PASS",
+  "source_revision": "9b073b69841dfa300cccc01c9c3aef25af792d15",
+  "source_sha256": "7ca1b015c7900ad45f7968d0c1e56db5c7b3300809c2bd7de496f166a5b0615c",
+  "review": "docs/validation/q_rmea_implementation_review.json",
+  "unit": {
+    "passed": 25,
+    "failed": 0,
+    "scope": "GPU mechanisms and local-remote Git/transport fixtures"
+  },
+  "canary": {
+    "counts": {
+      "train": 16,
+      "valid": 8,
+      "test": 8
+    },
+    "epochs": 1,
+    "seed": 13,
+    "conditions": {
+      "uniform": {
+        "valid_macro_f1": 0.005555555555555555,
+        "test_macro_f1": 0.0,
+        "test_ce": 3.8140645027160645,
+        "shuffle_minus_actual_ce": 0.0,
+        "eligible_context_samples": 8,
+        "total_test_samples": 8,
+        "max_identity_residual": 2.384185791015625e-07,
+        "parameters": 68200,
+        "updates": 1
+      },
+      "relation_softmax": {
+        "valid_macro_f1": 0.005555555555555555,
+        "test_macro_f1": 0.0,
+        "test_ce": 3.805497884750366,
+        "shuffle_minus_actual_ce": 0.0079498291015625,
+        "eligible_context_samples": 8,
+        "total_test_samples": 8,
+        "max_identity_residual": 1.6880221664905548e-07,
+        "parameters": 76752,
+        "updates": 1
+      },
+      "real_overlap": {
+        "valid_macro_f1": 0.005555555555555555,
+        "test_macro_f1": 0.0,
+        "test_ce": 3.7704050540924072,
+        "shuffle_minus_actual_ce": 0.05868339538574219,
+        "eligible_context_samples": 8,
+        "total_test_samples": 8,
+        "max_identity_residual": 1.9371509552001953e-07,
+        "parameters": 76752,
+        "updates": 1
+      },
+      "quantum": {
+        "valid_macro_f1": 0.005555555555555555,
+        "test_macro_f1": 0.0,
+        "test_ce": 3.6854166984558105,
+        "shuffle_minus_actual_ce": 0.12714362144470215,
+        "eligible_context_samples": 8,
+        "total_test_samples": 8,
+        "max_identity_residual": 2.2724270820617676e-07,
+        "parameters": 81028,
+        "updates": 1
+      },
+      "dephased": {
+        "valid_macro_f1": 0.005555555555555555,
+        "test_macro_f1": 0.0,
+        "test_ce": 3.7068088054656982,
+        "shuffle_minus_actual_ce": 0.09467530250549316,
+        "eligible_context_samples": 8,
+        "total_test_samples": 8,
+        "max_identity_residual": 1.6391277313232422e-07,
+        "parameters": 81028,
+        "updates": 1
+      }
+    },
+    "common_initialization_equal": true,
+    "full_data_training": false
+  },
+  "trace": {
+    "schema": "q-rmea.trace-readiness.v1",
+    "structural": "pass",
+    "semantic": "pass",
+    "replay": "pass",
+    "samples": 60,
+    "complete_numeric_arrays_checked": 1128,
+    "max_identity_residual": 2.896413207054138e-07,
+    "target_boundary": "labels posthoc only; no labels accepted by model or permutation",
+    "training_trajectory": "separate first-update parameter/gradient files; inference traces are initial and valid-selected only"
+  },
+  "trace_sha256": "dea62818f4ce4507ae7ff83f3b883b331aebe2bc0747545cdd7f01e4f3b631b3",
+  "closed_inventory_sha256": "904836db141cf2ce2aa9c0ef8002529c63df5aa4513dff2ee128ebd5d84d1bb5",
+  "case_batches": {
+    "train": {
+      "count": 2,
+      "mean_ce": 3.7373580011070855,
+      "word_count_min": 21,
+      "word_count_max": 48
+    },
+    "valid": {
+      "count": 2,
+      "mean_ce": 3.921450534995052,
+      "word_count_min": 40,
+      "word_count_max": 50
+    },
+    "test": {
+      "count": 2,
+      "mean_ce": 3.5809292818955587,
+      "word_count_min": 26,
+      "word_count_max": 41
+    }
+  },
+  "first_update": {
+    "loss": 4.452275276184082,
+    "samples": 16,
+    "prepare_gradient_norm": 2.0737674236297607,
+    "effect_gradient_norm": 0.09221335500478745
+  },
+  "independent_confusion_matrix_audits": 20,
+  "recovery": {
+    "injected_failure": "report copy after completed child seal",
+    "failure_left_final": false,
+    "failure_left_partial": false,
+    "export_retry": "CPU-only, same immutable source",
+    "files_hash_size_mtime_unchanged": 100,
+    "retry_success": true,
+    "retrained": false
+  },
+  "git_recovery": {
+    "fixture": "actual local bare remote; injected push failure after commit; identical commit reused",
+    "production_remote_push_tested": false
+  },
+  "full_formal_runs_started": 0,
+  "evidence_tier": "technical readiness only; no L1/L2/L3 established",
+  "limitations": [
+    "No novel/SOTA/quantum-exclusive/internal-attention claim",
+    "No full training trajectory or optimizer replay certification",
+    "Private full evidence is not a public case dump"
+  ],
+  "real_exchange": {
+    "schema": "q-rmea.real-exchange-acceptance.v1",
+    "result": "PASS",
+    "source_revision": "9b073b69841dfa300cccc01c9c3aef25af792d15",
+    "https_auth_preflight": true,
+    "streamed_upload": true,
+    "idempotent_head_verified_retry": true,
+    "independent_complete_readback": true,
+    "all_closed_files_verified": 99,
+    "bytes": 28866560,
+    "archive_sha256": "84544b039dff20626eb3d361eb74d2abd967b80d8ea71e4720da28ce2148b60a",
+    "parts": 1,
+    "private_source_unchanged": true,
+    "cos_restore_certified": false,
+    "formal_data_transferred": false,
+    "secrets_printed": false
+  },
+  "cos_selected_canary": {
+    "snapshot": "2f61e4cb666144918ac8201dd066495a",
+    "manifest_sha256": "a749ac936694d99e364b9620ccce51915e66d711f3b7e1bded30298c3cea85a6",
+    "files": 100,
+    "bytes": 28785157,
+    "private_index_commit": "07e10a0d47b9681670e28d27d143ed12fddf32dc",
+    "status": "independently_restored_and_index_confirmed"
+  },
+  "exchange_service": "exchange-service-acceptance.json",
+  "owner_technical_handoff_ready": true,
+  "publication_status": "Ready for clean source-worktree fast-forward publication; publication receipt recorded outside this artifact",
+  "full_data_training_assignee": "collaborator only; seed13; await audited report"
+}
