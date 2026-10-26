@@ -1,0 +1,108 @@
+{
+  "review_mode": "subagent_fallback",
+  "reviewer_model": "/root/rmea_baseline_review",
+  "review_scope": "both",
+  "repository_revision": "b04f728230d2f5cefa4ce05ea2d1747cb3b8eecc",
+  "source_sha256": "265fde912a570cb11678200d75a00497ab27268f390865604f3c25863ee0b6fb",
+  "theory_sha256": "480931cee6fc0dc44999d3437fd359fc1349f838ce508a8dc0288538542783b7",
+  "lifecycle_sha256": "5c1924640e8eda363f5b1467db5f7ae9d27f08d3fb8e1cc4aa579643aa06b836",
+  "theory_mapping": [
+    {
+      "invariant": "Input features are label-blind, ordered-entity marked, frozen pretrained word representations shared by every head.",
+      "implementation": [
+        "scripts/audit_rmea_tokenization.py::marked_words",
+        "experiments/run_rmea_baseline_readiness.py::main lines 98-150"
+      ],
+      "assessment": "Selection ranks only split and stable sample ID. marked_words reads tokens and ordered spans. Encoder is eval(), requires_grad_(False), and executed under inference_mode. word_ids map each non-marker subword to its original word; averaging and the NumPy copy produce a shared FP16 word cache without inference-tensor autograd provenance. Labels are appended only as targets. LIMITS contains train and valid, so the training path never loads test rows."
+    },
+    {
+      "invariant": "s_r = w_r^T sum_j alpha_rj Vh_j + b_r, with no residual bypass and all 40 hypotheses scored.",
+      "implementation": [
+        "baselines/retacred/frozen_feature_head.py::FrozenFeatureHead.__init__",
+        "baselines/retacred/frozen_feature_head.py::FrozenFeatureHead.forward"
+      ],
+      "assessment": "value is the common 1024-to-64 projection; weights have shape Bx40xT; einsum pools the same values for each relation, then the corresponding decoder row and bias produce all 40 logits. No gold-label selection or separate entity/classical score bypass is present."
+    },
+    {
+      "invariant": "B0 uniform pooling, B1 scaled relation-query softmax, B2 normalized real squared overlap plus epsilon.",
+      "implementation": [
+        "baselines/retacred/frozen_feature_head.py::FrozenFeatureHead.forward"
+      ],
+      "assessment": "B0 normalizes valid-token indicators. B1 uses (key dot query)/sqrt(8), masks padding before softmax. B2 normalizes real keys and queries, squares their inner product, adds 1e-6, masks, and normalizes across valid tokens. These implement the stated classical controls, not a quantum method."
+    },
+    {
+      "invariant": "Matched initial values/decoder, common data order and budget; factual 40-way CE; valid macro selects checkpoints.",
+      "implementation": [
+        "experiments/run_rmea_baseline_readiness.py::main lines 174-217",
+        "baselines/retacred/common.py::metrics",
+        "tests/test_rmea_baselines.py::CommonHeadTests"
+      ],
+      "assessment": "All common parameters are constructed before mode-specific parameters and checked by exact initialization hashes. Per-epoch order comes from a separate identically seeded CPU Generator. Each head receives 32 updates over the same 2048 examples, with identical AdamW settings and clipping. Macro-F1 averages all 40 training labels including zero-support classes. Non-null micro and all-label accuracy are explicitly distinct. Checkpoints are CPU clones of the maximum valid-macro epoch."
+    }
+  ],
+  "correctness": {
+    "status": "pass",
+    "evidence": [
+      "Head dimensions, masking, per-class pooling and decoder match the supplied equations.",
+      "Nonempty masks are required; B1 padding scores become -infinity, while B0/B2 multiply padding weights by zero before normalization.",
+      "The word-to-subword map excludes marker positions while retaining contextualized original words, and extraction aborts if any original word disappears.",
+      "Hash-pinned source data and encoder assets are checked before feature extraction; train/valid data hashes are checked again before artifact closure."
+    ],
+    "boundary": "Static code review only. It does not certify runtime success, learnability, formal efficacy, quantum behavior or L2/L3."
+  },
+  "fidelity_gaps": [
+    "No gap in the stated prerequisite classical-head mechanism was identified. The quantum module, formal training and full mechanism traces are intentionally outside the packet's scope.",
+    "marked_words uses dictionaries for starts and ends; overlapping entities sharing boundaries would require a different marker representation. The supplied hash-pinned input inspection reports zero entity-overlap rows in all three splits, so this is not a blocker for this bounded readiness pilot.",
+    "The small fixed subset and two-epoch budget can assess launchability and gradient/learning signals but cannot establish the full-budget common-baseline cohort required for a formal efficacy claim."
+  ],
+  "control_fairness": {
+    "status": "pass",
+    "evidence": [
+      "Values, decoder, encoder, cached word inputs, labels, examples, optimizer settings and update order are matched.",
+      "B1/B2 additionally consume the same four role/distance features through their keys; B0 has no learned attention keys, as stated. All encoder inputs still contain ordered entity markers.",
+      "B1 and B2 are different hypothesis classes; normalized squared overlap discards key/query norm and is sign-invariant. Reporting parameter counts does not equate their effective capacity, and the summary explicitly declines that equivalence.",
+      "The label used by CE never selects which relation's weights or pooled state are constructed."
+    ]
+  },
+  "gradient_and_numerics": {
+    "status": "pass",
+    "evidence": [
+      "The NumPy copy at feature extraction line 131 breaks inference-tensor provenance before later normal tensors enter head autograd.",
+      "For B1/B2, valid-token weights depend differentiably on key parameters and all relation queries. With nonconstant token utilities there is a CE gradient path through weights to those parameters. A genuine zero-gradient degeneracy remains when every valid token's class utility is equal; no claim excludes it.",
+      "B2 epsilon bounds the normalizer below 1e-6 times the number of valid tokens; random ordinary head initialization avoids the squared-overlap stationary point at every zero inner product.",
+      "Focused tests explicitly require finite, nonzero CE gradients for query and key weights, exact common initialization, uniform arithmetic-mean equivalence and padding invariance. The pilot additionally rejects nonfinite training loss/gradient norm, logits and malformed normalization.",
+      "The encoder runs FP16 on the assigned P4, while cached features are converted to FP32 for head training. Actual FP16 encoder stability and device-runtime compatibility must be measured by the queued pilot; no such result is assumed."
+    ]
+  },
+  "lifecycle_correctness": {
+    "status": "partial",
+    "evidence": [
+      "The supplied argv is synchronous, uses a pinned project script and external private output, and requires exactly one CUDA-visible device. The source must be clean. The packet pins owner and worker to one exact revision and reuses the existing physical GPU worker.",
+      "No source checkout result is permitted: both training and finish reject private paths resolving inside ROOT. Imports are dependency-light before the export-only branch; torch/numpy/transformers are imported only after that branch returns.",
+      "--fail-before-result is placed after features.npz, heads.pt and an atomic summary-private.json are closed, and before result.json publication. This is a valid injection point for testing export recovery without rerunning training.",
+      "The reviewed worker hash, its descendant cleanup behavior and queue output-retention semantics are provided as an unchanged contract rather than executable source in this packet. They still require the real-parent canary and failure/recovery path; this review does not replace that verification."
+    ],
+    "bounded_next_stage": "Proceed only with the declared queued focused unit checks and bounded injected-failure pilot/export-only canary; no full-data execution or handoff is authorized by this verdict."
+  },
+  "artifact_and_recovery": {
+    "status": "partial",
+    "evidence": [
+      "The generated summary records exact source revision, data/audit identities, encoder identity, sample-ID digests, all head results and SHA256/size of features.npz and heads.pt. atomic_json fsyncs and replaces the summary/result file.",
+      "finish reads the closed summary, requires the same clean source revision, permits only the two declared artifact names, rejects artifact symlinks and rehashes the referenced files. It preserves an existing result.json. Its export-only branch does not load checkpoints or import torch and cannot enter the training loop.",
+      "Earlier failures do not create a complete summary and therefore cannot masquerade as an export-ready training run. No training resume/retry path exists.",
+      "The generated summary is the trusted closed manifest. finish is not a general hostile-manifest validator: it does not require the exact artifact-key set or separately authenticate summary-private.json. This is acceptable for the private same-owner canary using the exact producer's immutable output; broader untrusted import would need stricter validation.",
+      "These artifacts are not by themselves a COS persistence receipt, and local closed-file hashes do not certify survival of host release. The bounded readiness result must not be described as a durability certification."
+    ],
+    "required_runtime_evidence": [
+      "Queued focused unit checks on the actual assigned device.",
+      "Real parent launches the bounded pilot, observes the intended post-summary failure and retains the three closed private artifacts.",
+      "A separate CPU export-only task from the same source rehashes those exact artifacts, publishes result.json, and its summary/artifact hashes match the closed run without any new training."
+    ]
+  },
+  "must_fix": [],
+  "verdict": "PASS_WITH_RISK",
+  "confidence": "medium",
+  "confidence_basis": "The supplied source is sufficiently concrete to verify the classical computation graph and export-only branch statically. GPU memory/runtime, actual parent launch and failed-job artifact retention are deliberately untested next-stage evidence. No new model tests, experiments, network calls or source modifications were performed during this review.",
+  "transport_summary": "Exact-model external native-max review timed out; remaining mappings unverified; same-packet bounded independent subagent fallback. Runtime acceptance is separately recorded in pilot-audit.json.",
+  "full_private_review_sha256": "d904e8028a34b54daf1f76dcca156b3094a17f5d5f66482677a529c08dd89b56"
+}

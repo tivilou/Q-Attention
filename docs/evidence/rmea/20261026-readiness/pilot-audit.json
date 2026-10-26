@@ -1,0 +1,137 @@
+{
+  "schema": "qattn.rmea.pilot-audit.v1",
+  "source_revision": "b04f728230d2f5cefa4ce05ea2d1747cb3b8eecc",
+  "technical_status": "passed",
+  "qualification_status": "insufficient",
+  "method_eligibility": "exploratory_only",
+  "counts": {
+    "train": 2048,
+    "valid": 1024
+  },
+  "seed": 13,
+  "epochs": 2,
+  "test_loaded": false,
+  "full_data_training": false,
+  "gpu_unit_tests": 7,
+  "metrics_checked": 13,
+  "all_40_labels_preserved": true,
+  "shared_init_verified": true,
+  "baseline_results": {
+    "uniform": {
+      "initial_ce": 4.3482144474983215,
+      "last_ce": 1.9229697585105896,
+      "selected_valid_macro_f1": 0.017959949937421775,
+      "selected_valid_nonnull_micro_f1": 0,
+      "parameters": 68200,
+      "updates": 32,
+      "gradient_norms_first_update": {
+        "decoder": 2.7732155323028564,
+        "bias": 0.6950072646141052,
+        "value.weight": 24.83256721496582,
+        "value.bias": 0.8152956366539001
+      }
+    },
+    "relation_softmax": {
+      "initial_ce": 4.347908914089203,
+      "last_ce": 1.8954760134220123,
+      "selected_valid_macro_f1": 0.02090649968578867,
+      "selected_valid_nonnull_micro_f1": 0.03418803418803419,
+      "parameters": 76752,
+      "updates": 32,
+      "gradient_norms_first_update": {
+        "decoder": 2.7738125324249268,
+        "bias": 0.6950039267539978,
+        "query": 0.00337145640514791,
+        "value.weight": 24.834726333618164,
+        "value.bias": 0.8153040409088135,
+        "key.weight": 0.049559611827135086,
+        "key.bias": 1.7448119615792734e-09
+      }
+    },
+    "real_overlap": {
+      "initial_ce": 4.355017364025116,
+      "last_ce": 1.8761199116706848,
+      "selected_valid_macro_f1": 0.028943793911007033,
+      "selected_valid_nonnull_micro_f1": 0.16061185468451242,
+      "parameters": 76752,
+      "updates": 32,
+      "gradient_norms_first_update": {
+        "decoder": 2.7653236389160156,
+        "bias": 0.6950423717498779,
+        "query": 0.0703437402844429,
+        "value.weight": 24.791540145874023,
+        "value.bias": 0.8152281641960144,
+        "key.weight": 1.267257809638977,
+        "key.bias": 0.037513699382543564
+      }
+    }
+  },
+  "majority_valid_macro_f1": 0.017959949937421775,
+  "cohort_complete_for": "fixed two-epoch technical pilot only",
+  "formal_common_protocol_comparison": "not_run",
+  "learning_signal": "All three heads reduce validation CE; learned attention heads exceed majority macro in this tiny pilot. B0 selected macro equals majority; no mature full-budget learnability comparison or efficacy claim.",
+  "elapsed_seconds": 88.63885338045657,
+  "environment": {
+    "python": "3.10.10",
+    "torch": "2.5.1+cu121",
+    "numpy": "1.26.4",
+    "gpu": "Tesla P4"
+  },
+  "recovery": {
+    "injected_failure": "after closed private artifacts, before result.json",
+    "source_attempt": "8976292b4bbb441788f6e323dfa308ca",
+    "export_attempt": "cd5bbacf25f94fd28f55cc29a11c034d",
+    "export_retries": 1,
+    "source_artifacts_unchanged": true,
+    "hashes_and_mtimes_unchanged": true,
+    "result_equals_closed_summary": true,
+    "training_repeated": false,
+    "failed_attempt_final_report_absent": true,
+    "cos_restore_certified": false
+  },
+  "task_receipts": [
+    {
+      "task": "3434185dc99f440987e00a9422fdacc9",
+      "attempt": "ac205cbc352b46ec9e322502a42ec512",
+      "revision": "b04f728230d2f5cefa4ce05ea2d1747cb3b8eecc",
+      "state": "complete",
+      "returncode": 0,
+      "quiescent": true
+    },
+    {
+      "task": "a2b899840eb045eca3f1aa6e9ab02778",
+      "attempt": "8976292b4bbb441788f6e323dfa308ca",
+      "revision": "b04f728230d2f5cefa4ce05ea2d1747cb3b8eecc",
+      "state": "failed",
+      "returncode": 1,
+      "quiescent": true
+    },
+    {
+      "task": "09358b7a7b1c489cbc9b692d52f5fcf9",
+      "attempt": "cd5bbacf25f94fd28f55cc29a11c034d",
+      "revision": "b04f728230d2f5cefa4ce05ea2d1747cb3b8eecc",
+      "state": "complete",
+      "returncode": 0,
+      "quiescent": true
+    }
+  ],
+  "artifacts": {
+    "features.npz": {
+      "sha256": "f393dc9898114207c921ad4ddac6268356c0f45a7da9508a4ff301bbaaf06f6e",
+      "bytes": 232875606
+    },
+    "heads.pt": {
+      "sha256": "e645aa3b825f98f995e32878bf3c12a8efb44df284def36c0715fa53d8dfc5dc",
+      "bytes": 891380
+    }
+  },
+  "closed_summary_sha256": "1747dae9a87b96b2f8d15695b55f6cd019cfb99c1d16ac0cbfc9a7480601c4bf",
+  "result_sha256": "1747dae9a87b96b2f8d15695b55f6cd019cfb99c1d16ac0cbfc9a7480601c4bf",
+  "limitations": [
+    "One small pilot, not formal utility, novelty or L2/L3 evidence.",
+    "B0/B1/B2 are task-matched original heads, not reproductions of named papers.",
+    "Parameter counts are reported; no effective-capacity equality is claimed.",
+    "Official document/sentence/input overlaps remain disclosed in the input inspection.",
+    "Per-sample full mechanism traces are not certified by this qualification pilot."
+  ]
+}
