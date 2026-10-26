@@ -4,6 +4,7 @@
 
 ```powershell
 researchctl status
+researchctl health
 researchctl submit --project . --recipe infra-smoke --key my-unique-test --wait
 ```
 
@@ -31,3 +32,16 @@ researchctl backup --output NEW_PRIVATE_BACKUP_PATH
 Q-Attention 仍由我们完成 idea、代码和有界测试，通过 GitHub 把正式实验交给合作者。其现有正式/真实数据筛选脚本不因此迁入所有者队列。本阶段只注册基础设施合成诊断配方。未授权项目可以查看共享队列，但不能借其他项目的节点执行。
 
 验证范围记录在 validation.json。GPU 分配的单元测试可使用模拟遥测；没有物理 GPU canary 时必须保留硬件验证缺口。日志、队列 DB、节点配置、凭据和任务产物均不进入公共 Git。
+
+## 服务器健康探测
+
+控制端配置 `health.enabled=true` 后，后台约每60秒调用 serverctl 的全清单维护探测，最多并发3条连接。探测与活动任务的续租分开执行；慢连接不阻塞租约。只读检查已登记端口、严格 SSH 认证、CPU/内存/临时盘和 GPU 遥测，不启动实验，不改远端环境。已回收或认证未配置的记录跳过；无现有具体项目绑定的记录不进行 SSH 资源查询。
+
+```powershell
+researchctl health
+researchctl health --refresh
+```
+
+默认读取私有缓存；显式刷新检查到期条目。底层 `serverctl health --refresh --fleet --force` 可立即重查全部条目，`--no-save` 只返回结果。缓存独立于 inventory 和项目绑定，记录检查时间、最近成功、失败原因、连续失败数、下次检查时间及资源；不存密钥或原始 SSH 日志。一次失败即阻止新派发，连续3次失败标为 offline，重试间隔从60秒逐步退避至15分钟。默认超过180秒的成功信息失效；修改端点、信任或绑定后旧缓存失效。
+
+`researchctl status` 同时显示全清单健康、已接入节点的 worker RPC 状态与资源。健康探测不会自动接入机器、增加项目权限或调整配方/容量。OS 可见 CPU/内存不是容器配额，GPU 有设备也不代表空闲；派发仍须满足已注册节点、项目授权、队列预留与 worker 的即时资源检查。健康失败只影响新任务准入；旧任务继续独立续租/核对，失联保留 unknown 和资源预留。

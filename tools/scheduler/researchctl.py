@@ -8,7 +8,7 @@ import sqlite3
 import time
 import uuid
 
-from controller import serve
+from controller import serve,fleet_status,fresh_health,serverctl_json
 from queue_store import Store
 
 def config_path():
@@ -23,23 +23,35 @@ def project_id(config,value):
 def status(store,config):
     with sqlite3.connect(store.path) as db:row=db.execute('SELECT heartbeat,pid FROM control WHERE id=1').fetchone()
     age=time.time()-row[0] if row else None
+    fleet=fleet_status(config);by_server={row['id']:row for row in fleet.get('servers',[])}
+    try:workers=load(store.path.parent/'worker-health.json').get('nodes',{})
+    except (OSError,ValueError):workers={}
     return dict(schema='research.queue-status.v1',controller_online=age is not None and age<60,
         heartbeat_age_seconds=round(age,1) if age is not None else None,
         projects=[dict(id=key,recipes=list(value['recipes']),authorized_nodes=value['nodes']) for key,value in config['projects'].items()],
-        nodes=[dict(id=key,enabled=value['enabled'],capacity=value['capacity']) for key,value in config['nodes'].items()],tasks=store.tasks())
+        nodes=[dict(id=key,enabled=value['enabled'],capacity=value['capacity'],
+            fleet_health=by_server.get(value.get('server_id'),dict(status='unknown')),
+            worker_health=workers.get(key,dict(status='unknown')),
+            health_allows_admission=not config.get('health',{}).get('enabled') or fresh_health(by_server.get(value.get('server_id'),{}),config['health'].get('max_age_seconds',180)))
+            for key,value in config['nodes'].items()],fleet_health=fleet,tasks=store.tasks())
 
 def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--config',default=str(config_path()))
     sub=parser.add_subparsers(dest='action',required=True)
     sub.add_parser('status')
+    health=sub.add_parser('health');health.add_argument('--refresh',action='store_true')
     submit=sub.add_parser('submit');submit.add_argument('--project',default=str(Path.cwd()));submit.add_argument('--recipe',required=True)
     submit.add_argument('--key',default=None);submit.add_argument('--wait',action='store_true');submit.add_argument('--wait-timeout',type=int,default=900)
     control=sub.add_parser('controller');control.add_argument('--once',action='store_true')
     sub.add_parser('stop')
     cancel=sub.add_parser('cancel');cancel.add_argument('task')
     backup=sub.add_parser('backup');backup.add_argument('--output',required=True)
-    args=parser.parse_args(argv);config=load(args.config);store=Store(config['database'])
+    args=parser.parse_args(argv);config=load(args.config)
+    if args.action=='health':
+        data=serverctl_json(['health','--refresh','--fleet'],120) if args.refresh else fleet_status(config)
+        print(json.dumps(data,ensure_ascii=False));return 0
+    store=Store(config['database'])
     if args.action=='controller':serve(config,args.once);return 0
     if args.action=='cancel':store.cancel(args.task);return 0
     if args.action=='stop':(store.path.parent/'stop').touch();return 0

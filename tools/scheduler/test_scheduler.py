@@ -5,12 +5,13 @@ from pathlib import Path
 import sqlite3
 import tempfile
 import threading
+import time
 import unittest
 from unittest.mock import patch
 import sys
 
 import queue_store as q
-from controller import tick,leader
+from controller import tick,leader,HealthMonitor,fresh_health
 
 REV='a'*40
 def recipe(gpus=0):
@@ -115,6 +116,56 @@ class QueueTests(unittest.TestCase):
         for change in [dict(outputs=['../private']),dict(max_attempts=9),dict(command=['bash','-c','echo unsafe']),dict(replay_safe=False),dict(timeout=True)]:
             r=recipe();r.update(change)
             with self.assertRaises(ValueError):q.recipe_check(r)
+    def enable_health(self):
+        self.config['health']=dict(enabled=True,max_age_seconds=180,interval_seconds=60)
+        self.config['nodes']['node']['server_id']='registered-node'
+    def test_health_blocks_new_dispatch_but_keeps_unknown_reservations(self):
+        self.submit();request=self.claim();self.submit('beta');self.enable_health();calls=[]
+        def rpc(node,message,project=None):
+            calls.append(message['action'])
+            raise TimeoutError('node unavailable')
+        tick(self.store,self.config,rpc,{'registered-node':dict(status='offline',checked_at=time.time(),reason='timeout')})
+        self.assertEqual(calls,['renew'])
+        self.assertEqual(self.store.attempts()[0]['id'],request['attempt'])
+        self.assertEqual(self.store.attempts()[0]['state'],'unknown')
+        self.assertEqual(self.store.tasks()[1]['state'],'queued')
+        observations=json.loads((self.root/'worker-health.json').read_text())
+        self.assertEqual(observations['nodes']['node']['status'],'blocked_health')
+    def test_healthy_recovery_dispatches_only_explicit_registered_node(self):
+        self.submit();self.enable_health();calls=[]
+        def rpc(node,message,project=None):
+            calls.append(message['action'])
+            if message['action']=='describe':return probe()
+            return dict(state='running',token=message['request']['token'])
+        tick(self.store,self.config,rpc,{})
+        self.assertEqual(calls,[])
+        tick(self.store,self.config,rpc,{'unregistered-node':dict(status='online',checked_at=time.time())})
+        self.assertEqual(calls,[])
+        tick(self.store,self.config,rpc,{'registered-node':dict(status='online',checked_at=time.time())})
+        self.assertEqual(calls,['describe','start'])
+        self.assertEqual(self.store.tasks()[0]['state'],'running')
+    def test_stale_suspect_and_future_health_fail_closed(self):
+        now=time.time()
+        self.assertTrue(fresh_health(dict(status='online',checked_at=now),now=now))
+        for row in (dict(status='online',checked_at=now-181),dict(status='online',checked_at=now+1),dict(status='suspect',checked_at=now),dict(status='online')):
+            self.assertFalse(fresh_health(row,now=now))
+    def test_slow_fleet_scan_does_not_block_lease_renewal(self):
+        self.submit();request=self.claim();self.enable_health()
+        entered=threading.Event();release=threading.Event();calls=[]
+        def scan(*args,**kwargs):
+            entered.set();release.wait(5);return dict(servers=[])
+        def rpc(node,message,project=None):
+            calls.append(message['action']);return dict(state='running',token=request['token'])
+        with patch('controller.serverctl_json',side_effect=scan):
+            monitor=HealthMonitor(self.config)
+            try:
+                before=time.monotonic();health=monitor.poll()
+                self.assertLess(time.monotonic()-before,1)
+                self.assertTrue(entered.wait(1))
+                tick(self.store,self.config,rpc,health)
+                self.assertEqual(calls,['renew'])
+                self.assertEqual(self.store.attempts()[0]['state'],'running')
+            finally:release.set();monitor.close()
 
 @unittest.skipUnless(os.name=='posix','POSIX worker contract')
 class NodeContractTests(unittest.TestCase):

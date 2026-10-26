@@ -1,66 +1,18 @@
 {
-  "schema": "research.scheduler.review.v1",
-  "review_mode": "external",
-  "reviewer_model": "claude-fable-5",
+  "schema": "research.review.v1",
   "review_scope": "lifecycle",
-  "source_sha256": "e2efc8c357769e3f404083eee922e8cfb42f271992c163b033130adb5af87299",
-  "correctness": {
-    "execution_duplication": "CORRECT. Request persisted before detached launch (node_worker.py:163-168). Duplicate start attempts return existing status without second Popen (test line 133). Lost acknowledgement reconciled via status query using durable attempt/token (test lines 139-144).",
-    "resource_release": "CORRECT. Unknown execution retains reservation until positive quiescence (queue_store.py:132, test line 90). Terminal receipt requires quiescent=True, explicit state, token match, and complete output contract for 'complete' (queue_store.py:123-130, node_worker.py:88-97). Supervisor confirms process group termination and no live descendants before terminal state (node_worker.py:77-84).",
-    "token_fencing": "CORRECT. Each attempt generates cryptographic token (queue_store.py:115). Node validates token on every RPC (node_worker.py:35,40,44). Stale token/attempt rejected at observe() (queue_store.py:119-120). Old attempt cannot claim completion after new dispatch (queue_store.py:120, test line 103).",
-    "launch_identity": "CORRECT. Durable request.json written before Popen (node_worker.py:163-167). Supervisor argv built from registered recipe, exact revision checked at node before and after execution (node_worker.py:60-61,72). Output hashes validated against declared allowlist (node_worker.py:73-77). cwd, environment, GPU masks coherent (node_worker.py:62-64).",
-    "lease_renewal": "CORRECT. Lease token and monotonic deadline persisted (node_worker.py:166). Renewal validates token, checks supervisor heartbeat recency against 2×lease_seconds (node_worker.py:38-40), updates monotonic deadline only for active states (node_worker.py:43-45). Supervisor loop checks lease validity before each heartbeat (node_worker.py:67-69), stops on expiration by killing process group (node_worker.py:74-77).",
-    "descendant_cleanup": "CORRECT. Child launched in new session (node_worker.py:65). SIGKILL sent to process group on lease expiration/timeout/cancel (node_worker.py:75). Waits for child termination, verifies process group quiescence via second killpg(0) probe (node_worker.py:78-83). Unknown state if descendants remain (node_worker.py:84-85).",
-    "replay_safety": "CORRECT. Recipe requires explicit replay_safe boolean (queue_store.py:29). Non-replayable enforces max_attempts=1 (queue_store.py:30-31). Requeue only on lease_expired/node_rebooted with replay_safe=True and count < max_attempts (queue_store.py:135-136, test line 108). Deterministic failures (failed, rejected) never retry (queue_store.py:137, test line 105)."
-  },
-  "lifecycle_correctness": {
-    "idempotency": "CORRECT. (project, key) unique constraint prevents duplicate tasks (queue_store.py:57). Conflicting spec with same key rejected (queue_store.py:59-60). Duplicate start returns existing status without second launch (node_worker.py:153-154, test line 133).",
-    "resource_accounting": "CORRECT. Transactional claim reserves CPU/RAM/GPU group atomically before dispatch (queue_store.py:99-116). Node independently re-validates capacity at start() to prevent race oversubscription (node_worker.py:158-163). GPU UUIDs masked from busy set (queue_store.py:109-113, node_worker.py:162-163). Unknown execution holds reservation (queue_store.py:132, test line 90).",
-    "authorization_boundaries": "CORRECT. Submit validates project in config, recipe_id in project policy, kind in allowed_kinds, requires exact 40-char revision (queue_store.py:48-52). Claim filters by policy nodes and allowed_kinds (queue_store.py:101-103). Worker re-validates registered recipe and policy at start (node_worker.py:155-157). Controller resolves serverctl project/node authorization per RPC (controller.py:24-33).",
-    "state_transitions": "CORRECT. queued→launching on successful claim (queue_store.py:115-116). launching→running on supervisor heartbeat (node_worker.py:70). Terminal states require quiescent receipt (queue_store.py:123-130). Lease expiration with replay_safe requeues; without replay_safe becomes failed (queue_store.py:135-137). cancel_requested cancels if active state becomes terminal (queue_store.py:138-139).",
-    "output_contract": "CORRECT. Recipe requires explicit outputs list (queue_store.py:33-37). Complete state requires revision match, returncode 0, exact output set with SHA256 and byte count (queue_store.py:125-126, node_worker.py:73-77). Missing/non-regular/symlinked/escaped outputs cause failed state (node_worker.py:74-76).",
-    "boot_and_revision_fencing": "CORRECT. Request includes boot_id from probe (queue_store.py:114). Start rejects boot_id mismatch (node_worker.py:154). Status detects boot_id change, returns node_rebooted terminal (node_worker.py:37-38). Revision checked clean before and after execution (node_worker.py:60-61, 72)."
-  },
-  "artifact_and_recovery": {
-    "durable_identity": "CORRECT. Task persisted in transaction before claim (queue_store.py:64-65). Attempt and request.json persisted before Popen (node_worker.py:163-167). Lost acknowledgement reconciled by status query (test lines 139-144).",
-    "restart_recovery": "CORRECT. Controller checks existing attempts before new claims (queue_store.py:98-99). Unknown attempts hold capacity until resolved (queue_store.py:132). Backup uses SQLite backup API with integrity check (queue_store.py:144-147, test line 117). No automatic requeue on controller restart; unknown tasks remain unknown until manual investigation.",
-    "lease_expiration_safety": "CORRECT. Supervisor stops process group on lease expiration (node_worker.py:67-69, 75-77). Terminal receipt requires quiescent=True (queue_store.py:124). Replay-safe + bounded attempts permits requeue; non-replay-safe becomes failed (queue_store.py:135-137).",
-    "output_verification": "CORRECT. Outputs validated as regular files within output directory, no symlinks or path escape (node_worker.py:74-76). SHA256 and byte count recorded (node_worker.py:77). Complete state requires exact output set match (queue_store.py:125-126)."
-  },
-  "must_fix": [],
   "verdict": "PASS",
-  "confidence": "high",
-  "summary": "Lifecycle correctness verified. Request persistence precedes detached launch; duplicate starts reconcile without second execution. Terminal states require positive quiescence evidence; unknown execution holds reservations. Token/attempt fencing prevents stale claims. Lease renewal requires fresh supervisor heartbeat; expiration kills process group with descendant confirmation. Replay-safe policy with bounded attempts gates requeue. Resource reservations transactional; node re-validates to prevent race. Authorization checked at submit, claim, and node. Output contract enforced via exact set, SHA256, clean revision. Backup uses SQLite backup API with integrity check. No capability inflation: implements declared owner PC queue with POSIX SSH workers, no fleet/COS restore/autoscaling. Test evidence: 23 Linux tests pass (including lost-ack reconciliation, parallel claim atomicity, lease expiration), 4 Windows POSIX skips expected. Fresh SSH synthetic lifecycle and GPU physical verification remain pending as documented.",
-  "scope_compliance": "Implementation matches declared scope: single owner SQLite/WAL queue, POSIX workers over strict SSH, no public service. Transactional CPU/RAM/GPU reservations, one active task/project, project fairness, registered argv recipes. Request persisted before detached launch, lost ack reconciles same attempt, unknown retains reservations. Worker renews lease only while heartbeat fresh, expires by killing process group. CPU masks GPUs, GPU UUID and memory admission, available RAM minus reserve; not kernel enforcement. Projects discover same owner entry, node/storage access separately authorized. No experiment adoption, paid provisioning, autoscaling, worker deployment, blanket archive, certified COS restore. Current recipe/argv checked at node, clean commit before/after, required output hashes after termination. Review binds these 6 exact source files.",
-  "acceptance_answers": {
-    "duplication_and_release": "No. Request persisted before detached launch. Duplicate start returns existing status without second Popen. Terminal states require positive quiescence (quiescent=True), token match, complete output contract. Unknown execution holds reservation until resolved. Supervisor confirms process group termination before terminal state.",
-    "stale_tokens": "No. Each attempt generates cryptographic token. Node validates token on every RPC. Stale token/attempt rejected at observe(). Old attempt cannot claim completion after new dispatch fences it.",
-    "execution_coherence": "Yes. Launch argv built from registered recipe at node. Durable request.json contains task/attempt/token/node/boot_id/gpu_ids. Lease validated before each heartbeat via token and monotonic deadline. Descendant cleanup via SIGKILL to process group, wait for termination, verify group quiescence. Output completion requires exact set, SHA256, returncode 0, clean revision.",
-    "authorization_enforcement": "Yes. Submit validates project in config, recipe in policy, kind in allowed_kinds, exact revision. Claim filters by policy nodes and allowed_kinds. Worker re-validates registered recipe and policy at start. Controller resolves serverctl authorization per RPC. Projects discover same owner queue; node/storage access separately authorized.",
-    "minimum_vs_capability": "Yes. Implements declared minimum: owner PC queue, POSIX SSH workers, no public service. Transactional reservations, registered recipes, explicit policies, bounded retry, output contract. Does not imply fleet management, COS certified restore, autoscaling, worker deployment, blanket archive. Backup noted as private owner PC copy, not certified control plane recovery. Experiment output persistence remains separate explicit archive process."
-  },
-  "review_date": "2025-01-20",
-  "notes": "Revision note indicates UTF-8 encoding fix for review.json on Windows GBK default before any real job. Test coverage includes idempotent submission, lost-ack reconciliation, parallel claim atomicity, lease expiration retry, stale supervisor detection, descendant cleanup contract. GPU allocation unit tests use mock telemetry; physical GPU canary pending. Fresh SSH synthetic lifecycle pending.",
-  "transport": {
-    "provider": "A6API",
-    "model": "claude-fable-5",
-    "reasoning_effort": "max",
-    "source_sha256": "e2efc8c357769e3f404083eee922e8cfb42f271992c163b033130adb5af87299",
-    "started": "2026-10-25T13:51:39.481700+00:00",
-    "status": "structured_review",
-    "verdict": "PASS",
-    "usage": {
-      "input_tokens": 13792,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 8412,
-      "output_tokens": 4258,
-      "claude_cache_creation_5_m_tokens": 0,
-      "claude_cache_creation_1_h_tokens": 0
-    }
-  },
-  "host_adjudication": [
-    "Exact-source code review only, not measured fleet or security certification. Fresh synthetic SSH acceptance remains mandatory.",
-    "Prior source failed Windows review JSON decoding before executing jobs; explicit UTF8 revision and Unicode regression test reviewed here.",
-    "Trusted synchronous recipes and authoritative node state required; unknown executions retain resources. GPU and COS control-plane restore remain unverified."
-  ]
+  "must_fix": [],
+  "source_sha256": "33ca0f78d86ee98679bf9dc5be9010179dd70ecb5da7677539afded8b7de1894",
+  "reviewer": "primary focused source audit",
+  "review_method": "Change-focused manual lifecycle audit and regression tests; not an independent model review",
+  "checks": [
+    "Reconcile and renew all existing attempts before health-based admission",
+    "Unknown reservations and original token checks remain unchanged",
+    "Fleet I/O runs off the lease loop; stale/missing/failed observations deny new admission",
+    "Every worker RPC still resolves explicit project/node development permission",
+    "No fleet auto-enrollment or recipe/policy/capacity expansion",
+    "Private health observations only; no credentials or raw logs in source"
+  ],
+  "previous_reviewed_source": "e2efc8c357769e3f404083eee922e8cfb42f271992c163b033130adb5af87299"
 }
