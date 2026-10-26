@@ -600,6 +600,9 @@ class UploadHandler(BaseHTTPRequestHandler):
             self._common_headers()
             self.end_headers()
             if source is not None:
+                # The short initial handshake/header deadline must not truncate
+                # a large authenticated download when the reader applies backpressure.
+                self.connection.settimeout(300)
                 try:
                     shutil.copyfileobj(source, self.wfile, BUFFER_SIZE)
                 except (BrokenPipeError, ConnectionResetError):

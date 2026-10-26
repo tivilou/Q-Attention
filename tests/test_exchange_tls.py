@@ -111,6 +111,25 @@ class ExchangeTLSTests(unittest.TestCase):
         self.assertEqual(self.request("GET", "/files/q-attention/tls-regression/payload.bin", token=self.token)[2], data)
         self.assertFalse(list((self.root / "storage").rglob("*.uploading")))
 
+    def test_slow_download_keeps_transfer_deadline(self):
+        data = b"bounded-slow-reader-" * (1024 * 1024)
+        target = "/q-attention/tls-regression/slow.bin"
+        self.assertEqual(self.request("PUT", "/upload" + target, data, self.token)[0], 201)
+        client = http.client.HTTPSConnection("localhost", self.port, context=self.context, timeout=4)
+        try:
+            client.request("GET", "/files" + target,
+                           headers={"Authorization": "Bearer " + self.token, "Connection": "close"})
+            response = client.getresponse()
+            self.assertEqual(response.status, 200)
+            # Longer than the fixture's initial0.5s deadline. The body is larger
+            # than local TCP buffers, so the producer must wait for this reader.
+            time.sleep(1.0)
+            downloaded = response.read()
+            self.assertEqual(len(downloaded), len(data))
+            self.assertEqual(hashlib.sha256(downloaded).digest(), hashlib.sha256(data).digest())
+        finally:
+            client.close()
+
 
 if __name__ == "__main__":
     unittest.main()
