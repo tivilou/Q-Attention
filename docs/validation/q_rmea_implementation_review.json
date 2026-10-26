@@ -1,0 +1,51 @@
+{
+  "schema": "q-rmea.implementation-review.v1",
+  "review_mode": "external",
+  "reviewer_model": "claude-fable-5",
+  "transport": "A6API Anthropic Messages; output_config.effort=max; exact model echo and JSON hash binding verified",
+  "review_scope": "both",
+  "verdict": "PASS",
+  "must_fix": [],
+  "source_sha256": "2f58d7412635b5b3047fce074ff0359d00deae4727569a54a71941245343d402",
+  "theory_sha256": "1f51162c439fc52ceec536a20debde1ab5f628c33bed601ccdabe41dbf3460f7",
+  "lifecycle_sha256": "ac36cf28319c3d2763aad46ab15ab85524724893673046063234d12597160ad1",
+  "repository_revision": "23ace9aa4b0767ad23cc96a9c5ec0f541d6a0999",
+  "source_files": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/rmea_protocol.py": "2bfbc69f4853dd6173597c3bb5931ad04aec6a4f9313631d40f5d3f9f325dd26",
+    "baselines/retacred/rmea_trace.py": "e4085ff774847bd06b1a353a949e54741f28ab14ee59cff38a0fa572f7c36639",
+    "baselines/retacred/rmea_run.py": "769173b9ab17f76229b0db79b4a7625ac1574427d2d40491be7d5b19d4d0ff25",
+    "baselines/retacred/rmea_handoff.py": "dc274ca050bbc6e717205d98356b997f5a55219de4bc242bf490fe89e1089d6f",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9",
+    "baselines/retacred/assets.lock.json": "f4df917253d14c7b31e564d3bfc946b55b63d5fcb3f9377b059c5e5abe46314f",
+    "scripts/audit_rmea_inputs.py": "cac564d055ea76520c5dbcc0e16e7d551a9b3243a4dba835e42ab7e4d208c14f",
+    "scripts/audit_rmea_tokenization.py": "5f7860e47a7a0979976e5acc435ed34acede4c96bfac799d79d3018366b6aef8",
+    "scripts/validate_sample_trace.py": "fcb1e1a9d1182f41ac7d4d6116a54488dfbe4f34ff4fb029f04585698a024a3f",
+    "experiments/q_rmea_handoff.py": "ef88d15ec2f4ab7e5d5a58c700b5ad118a2cf99d3f0abc87a15e31ff67c52789",
+    "scripts/run_q_rmea_handoff.sh": "ac05ed954cfb1d94276941741f69c53c484e57a80106afa94490910a0d0d9fe0",
+    "scripts/check_q_rmea_handoff.sh": "d43b8a15f320d7cc6a61c8bdafa61834a730d283a9045ca23ae544b0801bfe05",
+    "scripts/export_q_rmea_handoff.sh": "ff231a0d1f7eaa52d03edf0b79c4e674fcdbf5e551a231ebc81c6a1636bec5f4",
+    "tests/test_rmea.py": "0fcd8f067726b596d11fbafe587836a5456d6fd5698c5ed213145cd526106145",
+    "tests/test_rmea_lifecycle.py": "fce70c62978750df5225244fe5d005cee18510cc94ab6d350864278feacc3f9b"
+  },
+  "test_revision": {
+    "tests/test_rmea.py": "0fcd8f067726b596d11fbafe587836a5456d6fd5698c5ed213145cd526106145",
+    "tests/test_rmea_lifecycle.py": "fce70c62978750df5225244fe5d005cee18510cc94ab6d350864278feacc3f9b"
+  },
+  "measured_tests": "Not run at review time. Static review permits bounded tests; actual acceptance is recorded separately.",
+  "host_corrections": [
+    "prepare outputs12 angles (2 layers x3qubits x2), not6 as reviewer paraphrased.",
+    "dephased implementation is the direct sum of squared magnitudes, algebraically matching Tr(E diag(rho)); reviewer cited the unit-test equivalent.",
+    "Reviewer language describing tests/trace as already verified refers only to supplied source assertions; measured results were absent.",
+    "First-update snapshots are a bounded training observation, not a full training trajectory or certified optimizer replay.",
+    "No formal execution, L3, novelty, general production-readiness or COS recovery is approved by static review."
+  ],
+  "remaining_gates": [
+    "Actual GPU units",
+    "real parent canary",
+    "complete trace structural/semantic/replay",
+    "injected export failure and immutable retry",
+    "host result audit"
+  ]
+}
