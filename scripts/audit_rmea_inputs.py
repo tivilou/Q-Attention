@@ -13,9 +13,11 @@ import json
 from pathlib import Path
 
 EXPECTED = {
-    'train': (58465, '4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57'),
-    'valid': (19584, '6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4'),
-    'test': (13418, 'db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b'),
+    # The reference manifest separately hashes source JSONL and adapter output.
+    # This study reads the source JSONL; never substitute its output_sha256.
+    'train': (58465, 'f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f'),
+    'valid': (19584, '9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55'),
+    'test': (13418, '2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40'),
 }
 
 
@@ -26,13 +28,14 @@ def fingerprint(value):
 
 def inspect_split(path):
     labels, lengths, metadata_fields = Counter(), Counter(), Counter()
-    identities = {name: set() for name in ('id', 'sentence', 'input', 'surface_pair')}
+    identities = {name: set() for name in ('id', 'document', 'sentence', 'input', 'surface_pair')}
     input_labels = {}
     repeated = Counter()
     errors = Counter()
-    entity_overlap = eligible_lt2 = missing_ids = conflicting_labels = 0
+    entity_overlap = eligible_lt2 = missing_ids = missing_docids = conflicting_labels = 0
     file_hash = hashlib.sha256()
     count = 0
+    original_stat = path.stat()
     with path.open('rb') as handle:
         for raw in handle:
             file_hash.update(raw)
@@ -73,18 +76,26 @@ def inspect_split(path):
             }
             if sample_id is not None:
                 keys['id'] = fingerprint(sample_id)
+            docid = meta.get('docid')
+            missing_docids += docid is None or docid == ''
+            if docid is not None and docid != '':
+                keys['document'] = fingerprint(docid)
             for name, key in keys.items():
                 repeated[name] += key in identities[name]
                 identities[name].add(key)
             input_key = keys['input']
             conflicting_labels += input_key in input_labels and input_labels[input_key] != label
             input_labels[input_key] = label
+    final_stat = path.stat()
+    if (original_stat.st_ino, original_stat.st_size, original_stat.st_mtime_ns) != (
+            final_stat.st_ino, final_stat.st_size, final_stat.st_mtime_ns):
+        raise ValueError('Input changed during inspection')
     return {
         'records': count, 'sha256': file_hash.hexdigest(), 'label_counts': dict(sorted(labels.items())),
         'word_length_histogram': dict(sorted(lengths.items())),
         'word_tokens': sum(k*v for k, v in lengths.items()),
         'max_words': max(lengths, default=0), 'metadata_fields': sorted(metadata_fields),
-        'errors': dict(errors), 'missing_ids': missing_ids,
+        'errors': dict(errors), 'missing_ids': missing_ids, 'missing_document_ids': missing_docids,
         'repeated_rows_within_split': dict(repeated), 'conflicting_input_label_rows': conflicting_labels,
         'entity_overlap_rows': entity_overlap, 'fewer_than_two_context_words': eligible_lt2,
     }, identities, input_labels
