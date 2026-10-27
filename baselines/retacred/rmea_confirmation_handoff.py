@@ -63,6 +63,8 @@ def validate_report(target):
     if any(f.is_symlink() or not f.is_file() for f in target.iterdir()):raise ValueError('Nonregular report')
     r=p.read(target/'run_summary.json')
     if r.get('schema')!='q-rmea.confirmation-report.v1' or r.get('contract_sha256')!=p.identity(p.contract()) or set(r['sha256'])!=REPORT_FILES-{'run_summary.json'}:raise ValueError('Report contract differs')
+    expected={'canary'} if not r['formal'] else {'canary'}|{'seed'+str(s) for s in p.SEEDS}
+    if set(r.get('data',{}))!=expected or any(not d or set(d)!=set(p.EXPECTED) for d in r['data'].values()):raise ValueError('Per-seed report data identity missing')
     if any(p.digest(target/n)!=sha for n,sha in r['sha256'].items()):raise ValueError('Report hash differs')
     return r
 
@@ -84,9 +86,9 @@ def export(root,target,inject_failure=False,exchange_receipts=None):
         p.atomic_json(temporary/'trace_validation.json',{k:p.read(root/k/'trace_validation.json') for k in runs})
         p.atomic_json(temporary/'receipt.json',dict(closed_inventories={k:p.digest(root/k/'RUN_COMPLETE') for k in runs},private_exchange=exchange_receipts,raw_artifacts_committed=False))
         (temporary/'data.sha256').write_text(''.join(f'{v[1]}  {k}.jsonl\n' for k,v in p.EXPECTED.items()),encoding='utf8')
-        (temporary/'data_counts.txt').write_text(''.join(f'{k} source={v[0]} formal_selected={v[0]}\n' for k,v in p.EXPECTED.items()),encoding='utf8')
+        (temporary/'data_counts.txt').write_text(''.join(f'{phase} {split} source={v["source_count"]} selected={v["selected_count"]}\n' for phase,(m,_) in runs.items() for split,v in m['data'].items()),encoding='utf8')
         p.atomic_json(temporary/'run_summary.json',dict(schema='q-rmea.confirmation-report.v1',run_id=root.name,formal=not canary,seeds=[29] if canary else list(p.SEEDS),
-          git_revision=handoff['git_revision'],source_sha256=handoff['source_sha256'],contract_sha256=handoff['contract_sha256'],
+          git_revision=handoff['git_revision'],source_sha256=handoff['source_sha256'],contract_sha256=handoff['contract_sha256'],data={phase:m['data'] for phase,(m,_) in runs.items()},
           sha256={f.name:p.digest(f) for f in temporary.iterdir()}))
         validate_report(temporary)
         if target.exists():

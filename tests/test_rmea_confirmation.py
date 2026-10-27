@@ -15,7 +15,8 @@ class Confirmation(unittest.TestCase):
         self.patches=[patch.object(p,'ROOT',self.checkout),patch.object(p.legacy,'ROOT',self.checkout),patch.object(p,'sources',return_value={'fixture':'fixed'})]
         for q in self.patches:q.start()
         self.root=self.base/'20261027T000000Z_fresh5';self.root.mkdir();self.phase=self.root/'canary';self.phase.mkdir()
-        self.manifest=dict(source_sha256=p.identity(p.sources()),config=p.config('canary',29),git_revision='abc',environment=dict(same=True))
+        self.manifest=dict(source_sha256=p.identity(p.sources()),config=p.config('canary',29),git_revision='abc',environment=dict(same=True),
+          data={s:dict(source_count=p.EXPECTED[s][0],source_sha256=p.EXPECTED[s][1],selected_count=n) for s,n in p.config('canary',29)['counts'].items()})
         p.atomic_json(self.phase/'manifest.json',self.manifest)
         p.atomic_json(self.phase/'summary.json',dict(results={m:{} for m in p.MODES},common_initialization_equal=True,seed=29))
         p.atomic_json(self.phase/'trace_validation.json',dict(schema='q-rmea.trace-readiness.v2',structural='pass',semantic='pass',replay='pass',coordinate_reader='pass'))
