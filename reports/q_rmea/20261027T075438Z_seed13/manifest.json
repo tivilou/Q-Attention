@@ -1,0 +1,75 @@
+{
+  "schema": "q-rmea.run.v1",
+  "config": {
+    "schema": "q-rmea.protocol.v1",
+    "profile": "discovery",
+    "seed": 13,
+    "conditions": [
+      "uniform",
+      "relation_softmax",
+      "real_overlap",
+      "quantum",
+      "dephased"
+    ],
+    "counts": {
+      "train": 58465,
+      "valid": 19584,
+      "test": 13418
+    },
+    "epochs": 20,
+    "batch_size": 128,
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "clip_norm": 1.0,
+    "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+    "max_tokens": 512,
+    "hidden_size": 1024,
+    "value_size": 64,
+    "classes": 40,
+    "qubits": 3,
+    "depth": 2,
+    "eps": 1e-06,
+    "selection": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+    "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; no label/outcome access",
+    "trace_samples_per_split": 2,
+    "trace_checkpoints": [
+      "initial",
+      "selected"
+    ],
+    "primary_utility": "quantum minus uniform full40 macro_f1",
+    "primary_mechanism": "mean test CE(shuffled_context_weights)-CE(actual); all samples, including short context",
+    "replication": "Not automatic. Audit discovery first; fresh29/53/71/97/113 only after explicit release.",
+    "claim_scope": "frozen encoder output head; not Transformer internal attention, SOTA, quantum speedup or exclusivity"
+  },
+  "source_sha256": "7ca1b015c7900ad45f7968d0c1e56db5c7b3300809c2bd7de496f166a5b0615c",
+  "git_revision": "9d64e3353346c9bfd4f6926b17d60a3cb9c6c2ad",
+  "data": {
+    "train": {
+      "source_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+      "source_count": 58465,
+      "selected_count": 58465
+    },
+    "valid": {
+      "source_sha256": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+      "source_count": 19584,
+      "selected_count": 19584
+    },
+    "test": {
+      "source_sha256": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40",
+      "source_count": 13418,
+      "selected_count": 13418
+    }
+  },
+  "environment": {
+    "python": "3.10.12",
+    "torch": "2.7.1+cu118",
+    "gpu": "NVIDIA RTX A2000 12GB"
+  },
+  "data_limitations": [
+    "Sentence and entity-surface overlaps are correlations, not proof of contamination or document disjointness.",
+    "Shared input hashes require explicit interpretation before qualification; official splits are preserved.",
+    "No tokenizer, frozen encoder, learnability, model test, training or efficacy evidence is produced.",
+    "Input construction must whitelist tokens/ordered spans; metadata and labels never enter encoder features."
+  ]
+}
