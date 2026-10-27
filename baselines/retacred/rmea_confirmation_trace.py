@@ -210,7 +210,7 @@ def close(root,samples):
         if {r['id'] for r in sample['representations']}!=values.expected(mode):raise ValueError('Missing source-backed representation')
         for rep in sample['representations']:
             a=values.load(root,rep)
-            coords=[list(np.unravel_index(k,a.shape)) for k in sorted({0,a.size//2,a.size-1})]
+            coords=[list(map(int,np.unravel_index(k,a.shape))) for k in sorted({0,a.size//2,a.size-1})]
             result=values.coordinates(root,sample,rep['id'],coords)
             for c,v in zip(coords,result['values']):
                 expected=a[tuple(c)].item();actual=complex(v['real'],v['imag']) if isinstance(v,dict) else v
