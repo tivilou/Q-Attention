@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-skills.local/schemas/sample-trace.v2.json",
+  "title": "Experiment Sample Trace v2",
+  "description": "A provenance-preserving, human-viewable, per-sample execution trace with explicit stage lineage.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "trace_id", "experiment", "sample_selection", "coverage", "samples"],
+  "properties": {
+    "schema_version": {"const": "sample-trace.v2"},
+    "trace_id": {"type": "string", "minLength": 1},
+    "trace_completeness": {"type": "string", "enum": ["complete", "partial", "insufficient"]},
+    "task_contract": {"$ref": "#/$defs/task_contract"},
+    "experiment": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["run_id", "dataset", "code_revision", "config_sha256", "model_identity"],
+      "properties": {
+        "run_id": {"type": "string", "minLength": 1},
+        "dataset": {"type": "string", "minLength": 1},
+        "code_revision": {"type": "string", "minLength": 1},
+        "config_sha256": {"type": "string", "minLength": 1},
+        "model_identity": {"type": ["string", "object"]},
+        "seed": {"type": ["integer", "string", "null"]}
+      }
+    },
+    "sample_selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule", "population_scope", "selected_count"],
+      "properties": {
+        "rule": {"type": "string", "minLength": 1},
+        "population_scope": {"type": "string", "minLength": 1},
+        "seed": {"type": ["integer", "string", "null"]},
+        "selected_count": {"type": "integer", "minimum": 1},
+        "selected_sample_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data", "preprocess", "training", "retrieval", "scoring", "selection", "context", "generation", "evaluation", "diagnosis"],
+      "properties": {
+        "data": {"$ref": "#/$defs/status"},
+        "preprocess": {"$ref": "#/$defs/status"},
+        "training": {"$ref": "#/$defs/status"},
+        "retrieval": {"$ref": "#/$defs/status"},
+        "scoring": {"$ref": "#/$defs/status"},
+        "selection": {"$ref": "#/$defs/status"},
+        "context": {"$ref": "#/$defs/status"},
+        "generation": {"$ref": "#/$defs/status"},
+        "evaluation": {"$ref": "#/$defs/status"},
+        "diagnosis": {"$ref": "#/$defs/status"}
+      }
+    },
+    "samples": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/sample"}
+    }
+  },
+  "$defs": {
+    "status": {"type": "string", "enum": ["observed", "not_applicable", "unavailable", "failed"]},
+    "lane": {"type": "string", "enum": ["shared", "training", "evaluation", "replay"]},
+    "ref": {"type": "string", "minLength": 1},
+    "artifact_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[A-Fa-f0-9]{64}$"},
+        "bytes": {"type": "integer", "minimum": 0},
+        "visibility": {"type": "string", "enum": ["portal", "exchange_only", "private"]}
+      }
+    },
+    "help_map": {
+      "type": "object",
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "visible_field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "help"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "help": {"type": "string", "minLength": 1},
+        "value_ref": {"type": "string", "minLength": 1},
+        "value": {}
+      }
+    },
+    "visualization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "title", "help"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "kind": {"type": "string", "minLength": 1},
+        "title": {"type": "string", "minLength": 1},
+        "help": {"type": "string", "minLength": 1},
+        "data_ref": {"type": "string", "minLength": 1},
+        "artifact_refs": {"type": "array", "items": {"$ref": "#/$defs/artifact_ref"}}
+      }
+    },
+    "display": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary", "default_view", "visible_fields", "visualizations"],
+      "properties": {
+        "summary": {"type": "string", "minLength": 1},
+        "default_view": {"type": "string", "enum": ["human_summary", "visual", "table", "text", "not_available"]},
+        "visible_fields": {"type": "array", "items": {"$ref": "#/$defs/visible_field"}},
+        "visualizations": {"type": "array", "items": {"$ref": "#/$defs/visualization"}}
+      }
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stage_id", "stage", "lane", "status", "purpose", "input_refs", "output_refs", "display"],
+      "properties": {
+        "stage_id": {"type": "string", "minLength": 1},
+        "stage": {"type": "string", "minLength": 1},
+        "canonical_stage": {"type": ["string", "null"]},
+        "branch": {"type": ["string", "null"]},
+        "lane": {"$ref": "#/$defs/lane"},
+        "status": {"$ref": "#/$defs/status"},
+        "step": {"type": ["integer", "string", "null"]},
+        "checkpoint": {"type": ["string", "null"]},
+        "purpose": {"type": "string", "minLength": 1},
+        "summary": {"type": ["string", "null"]},
+        "reason": {"type": ["string", "null"]},
+        "input_refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}},
+        "output_refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}},
+        "inputs": {"type": "object"},
+        "outputs": {"type": "object"},
+        "display": {"$ref": "#/$defs/display"},
+        "help": {"$ref": "#/$defs/help_map"},
+        "artifact_refs": {"type": "array", "items": {"$ref": "#/$defs/artifact_ref"}},
+        "target_access": {"type": "string", "enum": ["outside_generation_input", "post_generation_only", "training_only", "not_available"]}
+      }
+    },
+    "representation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "stage_id", "status", "meaning", "display"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "stage_id": {"type": "string", "minLength": 1},
+        "status": {"$ref": "#/$defs/status"},
+        "meaning": {"type": "string", "minLength": 1},
+        "shape": {"type": "array", "items": {"type": ["integer", "string"]}},
+        "dtype": {"type": "string"},
+        "axis_semantics": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "portal_preview": {"type": "object"},
+        "artifact_refs": {"type": "array", "items": {"$ref": "#/$defs/artifact_ref"}},
+        "value_capture": {"$ref": "#/$defs/value_capture"},
+        "display": {"$ref": "#/$defs/display"}
+      }
+    },
+    "value_capture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "shape", "logical_element_count", "stored_element_count", "artifact_refs", "reader_projection"],
+      "properties": {
+        "status": {"type": "string", "enum": ["complete", "partial", "unavailable"]},
+        "shape": {"type": "array", "items": {"type": "integer", "minimum": 0}},
+        "logical_element_count": {"type": "integer", "minimum": 0},
+        "stored_element_count": {"type": "integer", "minimum": 0},
+        "artifact_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/artifact_ref"}},
+        "reader_projection": {"$ref": "#/$defs/value_projection"}
+      }
+    },
+    "value_projection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "kind", "coordinate_access", "reader_ref", "source_sha256"],
+      "properties": {
+        "status": {"type": "string", "enum": ["available", "unavailable"]},
+        "kind": {"type": "string", "enum": ["coordinate_inspector", "axis_aware_view", "domain_specific"]},
+        "coordinate_access": {"type": "string", "enum": ["arbitrary", "bounded_tiles", "fixed_preview", "none"]},
+        "reader_ref": {"type": "string", "minLength": 1},
+        "source_sha256": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Fa-f0-9]{64}$"}}
+      }
+    },
+    "sample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sample_id", "lane", "stages"],
+      "properties": {
+        "sample_id": {"type": "string", "minLength": 1},
+        "lane": {"$ref": "#/$defs/lane"},
+        "split": {"type": ["string", "null"]},
+        "checkpoint": {"type": ["string", "null"]},
+        "roles": {"type": "object"},
+        "representations": {"type": "array", "items": {"$ref": "#/$defs/representation"}},
+        "stages": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/stage"}}
+      }
+    },
+    "task_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_type", "required_roles", "required_representations", "required_splits", "required_checkpoints"],
+      "properties": {
+        "task_type": {"type": "string", "minLength": 1},
+        "required_roles": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "required_representations": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "required_value_representations": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "required_splits": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "required_checkpoints": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "required_lanes": {"type": "array", "items": {"$ref": "#/$defs/lane"}, "uniqueItems": true},
+        "checkpoint_policy": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}
