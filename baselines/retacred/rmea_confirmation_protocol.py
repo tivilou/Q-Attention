@@ -1,6 +1,7 @@
 """Separately frozen five-fresh-seed confirmation; no modification of seed13."""
 from pathlib import Path
 import math
+import json
 from . import rmea_protocol as legacy
 from .rmea_protocol import MODES,EXPECTED,identity,read,git,lock,inventory,seal
 from .common import atomic_json,digest
