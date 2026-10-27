@@ -1,0 +1,273 @@
+{
+  "schema": "q-rmea.confirmation.v1",
+  "seeds": [
+    29,
+    53,
+    71,
+    97,
+    113
+  ],
+  "discovery_seed13_excluded": true,
+  "scientific_reference": "7ca1b015c7900ad45f7968d0c1e56db5c7b3300809c2bd7de496f166a5b0615c",
+  "modes": [
+    "uniform",
+    "relation_softmax",
+    "real_overlap",
+    "quantum",
+    "dephased"
+  ],
+  "seed_configs": [
+    {
+      "schema": "q-rmea.protocol.confirmation.v1",
+      "profile": "discovery",
+      "seed": 29,
+      "conditions": [
+        "uniform",
+        "relation_softmax",
+        "real_overlap",
+        "quantum",
+        "dephased"
+      ],
+      "counts": {
+        "train": 58465,
+        "valid": 19584,
+        "test": 13418
+      },
+      "epochs": 20,
+      "batch_size": 128,
+      "optimizer": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.01,
+      "clip_norm": 1.0,
+      "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+      "max_tokens": 512,
+      "hidden_size": 1024,
+      "value_size": 64,
+      "classes": 40,
+      "qubits": 3,
+      "depth": 2,
+      "eps": 1e-06,
+      "selection": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+      "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; no label/outcome access",
+      "trace_samples_per_split": 2,
+      "trace_checkpoints": [
+        "initial",
+        "selected"
+      ],
+      "primary_utility": "quantum minus uniform full40 macro_f1",
+      "primary_mechanism": "mean test CE(shuffled_context_weights)-CE(actual); all samples, including short context",
+      "replication": "Frozen independent confirmation29/53/71/97/113; discovery13 excluded.",
+      "claim_scope": "frozen encoder output head; not Transformer internal attention, SOTA, quantum speedup or exclusivity",
+      "trace_schema": "sample-trace.v2"
+    },
+    {
+      "schema": "q-rmea.protocol.confirmation.v1",
+      "profile": "discovery",
+      "seed": 53,
+      "conditions": [
+        "uniform",
+        "relation_softmax",
+        "real_overlap",
+        "quantum",
+        "dephased"
+      ],
+      "counts": {
+        "train": 58465,
+        "valid": 19584,
+        "test": 13418
+      },
+      "epochs": 20,
+      "batch_size": 128,
+      "optimizer": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.01,
+      "clip_norm": 1.0,
+      "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+      "max_tokens": 512,
+      "hidden_size": 1024,
+      "value_size": 64,
+      "classes": 40,
+      "qubits": 3,
+      "depth": 2,
+      "eps": 1e-06,
+      "selection": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+      "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; no label/outcome access",
+      "trace_samples_per_split": 2,
+      "trace_checkpoints": [
+        "initial",
+        "selected"
+      ],
+      "primary_utility": "quantum minus uniform full40 macro_f1",
+      "primary_mechanism": "mean test CE(shuffled_context_weights)-CE(actual); all samples, including short context",
+      "replication": "Frozen independent confirmation29/53/71/97/113; discovery13 excluded.",
+      "claim_scope": "frozen encoder output head; not Transformer internal attention, SOTA, quantum speedup or exclusivity",
+      "trace_schema": "sample-trace.v2"
+    },
+    {
+      "schema": "q-rmea.protocol.confirmation.v1",
+      "profile": "discovery",
+      "seed": 71,
+      "conditions": [
+        "uniform",
+        "relation_softmax",
+        "real_overlap",
+        "quantum",
+        "dephased"
+      ],
+      "counts": {
+        "train": 58465,
+        "valid": 19584,
+        "test": 13418
+      },
+      "epochs": 20,
+      "batch_size": 128,
+      "optimizer": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.01,
+      "clip_norm": 1.0,
+      "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+      "max_tokens": 512,
+      "hidden_size": 1024,
+      "value_size": 64,
+      "classes": 40,
+      "qubits": 3,
+      "depth": 2,
+      "eps": 1e-06,
+      "selection": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+      "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; no label/outcome access",
+      "trace_samples_per_split": 2,
+      "trace_checkpoints": [
+        "initial",
+        "selected"
+      ],
+      "primary_utility": "quantum minus uniform full40 macro_f1",
+      "primary_mechanism": "mean test CE(shuffled_context_weights)-CE(actual); all samples, including short context",
+      "replication": "Frozen independent confirmation29/53/71/97/113; discovery13 excluded.",
+      "claim_scope": "frozen encoder output head; not Transformer internal attention, SOTA, quantum speedup or exclusivity",
+      "trace_schema": "sample-trace.v2"
+    },
+    {
+      "schema": "q-rmea.protocol.confirmation.v1",
+      "profile": "discovery",
+      "seed": 97,
+      "conditions": [
+        "uniform",
+        "relation_softmax",
+        "real_overlap",
+        "quantum",
+        "dephased"
+      ],
+      "counts": {
+        "train": 58465,
+        "valid": 19584,
+        "test": 13418
+      },
+      "epochs": 20,
+      "batch_size": 128,
+      "optimizer": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.01,
+      "clip_norm": 1.0,
+      "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+      "max_tokens": 512,
+      "hidden_size": 1024,
+      "value_size": 64,
+      "classes": 40,
+      "qubits": 3,
+      "depth": 2,
+      "eps": 1e-06,
+      "selection": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+      "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; no label/outcome access",
+      "trace_samples_per_split": 2,
+      "trace_checkpoints": [
+        "initial",
+        "selected"
+      ],
+      "primary_utility": "quantum minus uniform full40 macro_f1",
+      "primary_mechanism": "mean test CE(shuffled_context_weights)-CE(actual); all samples, including short context",
+      "replication": "Frozen independent confirmation29/53/71/97/113; discovery13 excluded.",
+      "claim_scope": "frozen encoder output head; not Transformer internal attention, SOTA, quantum speedup or exclusivity",
+      "trace_schema": "sample-trace.v2"
+    },
+    {
+      "schema": "q-rmea.protocol.confirmation.v1",
+      "profile": "discovery",
+      "seed": 113,
+      "conditions": [
+        "uniform",
+        "relation_softmax",
+        "real_overlap",
+        "quantum",
+        "dephased"
+      ],
+      "counts": {
+        "train": 58465,
+        "valid": 19584,
+        "test": 13418
+      },
+      "epochs": 20,
+      "batch_size": 128,
+      "optimizer": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.01,
+      "clip_norm": 1.0,
+      "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+      "max_tokens": 512,
+      "hidden_size": 1024,
+      "value_size": 64,
+      "classes": 40,
+      "qubits": 3,
+      "depth": 2,
+      "eps": 1e-06,
+      "selection": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+      "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; no label/outcome access",
+      "trace_samples_per_split": 2,
+      "trace_checkpoints": [
+        "initial",
+        "selected"
+      ],
+      "primary_utility": "quantum minus uniform full40 macro_f1",
+      "primary_mechanism": "mean test CE(shuffled_context_weights)-CE(actual); all samples, including short context",
+      "replication": "Frozen independent confirmation29/53/71/97/113; discovery13 excluded.",
+      "claim_scope": "frozen encoder output head; not Transformer internal attention, SOTA, quantum speedup or exclusivity",
+      "trace_schema": "sample-trace.v2"
+    }
+  ],
+  "cache_policy": "Independent identical ordered extraction per seed; no new cache sharing or precision change.",
+  "utility_gate": "Q-minus-uniform test full40 Macro-F1: mean>0, at least4/5 positive, paired-t two-sided95% CI lower>0.",
+  "mechanism_gate": "Q fixed-selected checkpoint all-test mean CE(shuffled)-CE(actual): mean>0, at least4/5 positive, paired-t two-sided95% CI lower>0; every seed uniform CE delta abs<=2e-5 and identity residual<=2e-5.",
+  "statistics": {
+    "unit": "fresh paired seed",
+    "n": 5,
+    "t_critical_df4": 2.7764451051977987,
+    "exact_sign_flip_two_sided_min_p": 0.0625,
+    "distribution_assumption": "Seed deltas treated as independent approximately normal; n=5 is limited.",
+    "reporting": "All5 seeds and5 conditions, failures included in status; no successful-seed dropping, rescue tuning or optional stopping. Exact sign-flip p descriptive, never claim p<.05 from five pairs."
+  },
+  "controls": "Three classical/dephased contrasts descriptive attribution; unequal parameter counts; no quantum uniqueness or novelty conclusion.",
+  "trace": {
+    "schema": "sample-trace.v2",
+    "selection": "first2 SHA256(rmea-sample-v1:split:original_id) ordered samples per train/valid/test",
+    "lanes": [
+      "replay"
+    ],
+    "checkpoints": [
+      "initial",
+      "selected"
+    ],
+    "all_modes": true,
+    "numeric": "Complete detached head input/output, selected encoder output, tokenization, classical scorer states and quantum circuit states; private loopback arbitrary-coordinate reader.",
+    "boundaries": "Inference replay only; no per-sample training trajectory or internal encoder-layer history claim. First-update batch parameters/gradients remain separate private evidence."
+  },
+  "lifecycle": "One isolated environment/GPU preflight; one bounded canary seed29 then all5 full children serially. No partial training resume. Export-only retries use all immutable closed phases, no training.",
+  "report_files": [
+    "summary.json",
+    "manifest.json",
+    "trace_validation.json",
+    "receipt.json",
+    "run_summary.json",
+    "data.sha256",
+    "data_counts.txt"
+  ],
+  "claim": "Pending owner audit; no automatic L2/L3, novelty, quantum advantage or checkpoint-resume certification."
+}
