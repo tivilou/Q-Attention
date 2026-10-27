@@ -1,0 +1,162 @@
+{
+  "schema": "q-rmea.return-audit.v1",
+  "report_commit": "cb4b6bb27114a512bbe266ed6d056cc768a8bda5",
+  "report_path": "reports/q_rmea/20261027T075438Z_seed13",
+  "executed_revision": "9d64e3353346c9bfd4f6926b17d60a3cb9c6c2ad",
+  "source_sha256": "7ca1b015c7900ad45f7968d0c1e56db5c7b3300809c2bd7de496f166a5b0615c",
+  "report_hashes": "pass",
+  "source_and_ancestry": "pass",
+  "protocol": "pass",
+  "metric_recomputation": "pass",
+  "confusion_matrices_checked": 115,
+  "conditions": [
+    {
+      "mode": "uniform",
+      "selected_epoch": 17,
+      "updates": 9140,
+      "parameters": 68200,
+      "valid_macro_f1": 0.24203293827609942,
+      "test_macro_f1": 0.22113271305182947,
+      "test_micro_f1": 0.4548413344182263,
+      "shuffled_macro_f1": 0.22113271305182947,
+      "shuffle_minus_actual_ce": -6.823128213966314e-09,
+      "tied_minus_actual_ce": 6.254534223870678e-09
+    },
+    {
+      "mode": "relation_softmax",
+      "selected_epoch": 19,
+      "updates": 9140,
+      "parameters": 76752,
+      "valid_macro_f1": 0.5923507785464349,
+      "test_macro_f1": 0.5326850406280521,
+      "test_micro_f1": 0.7332788819312097,
+      "shuffled_macro_f1": 0.3681070940895207,
+      "shuffle_minus_actual_ce": 0.2847027570377929,
+      "tied_minus_actual_ce": 0.29935260465095714
+    },
+    {
+      "mode": "real_overlap",
+      "selected_epoch": 17,
+      "updates": 9140,
+      "parameters": 76752,
+      "valid_macro_f1": 0.5645262099725262,
+      "test_macro_f1": 0.5234876089162936,
+      "test_micro_f1": 0.7496745397061559,
+      "shuffled_macro_f1": 0.34489754219368207,
+      "shuffle_minus_actual_ce": 0.3069865141030057,
+      "tied_minus_actual_ce": 0.37320408328561383
+    },
+    {
+      "mode": "quantum",
+      "selected_epoch": 8,
+      "updates": 9140,
+      "parameters": 81028,
+      "valid_macro_f1": 0.5861202671174226,
+      "test_macro_f1": 0.5379691853913295,
+      "test_micro_f1": 0.7367755912619606,
+      "shuffled_macro_f1": 0.3244084468796965,
+      "shuffle_minus_actual_ce": 0.25451157007403624,
+      "tied_minus_actual_ce": 0.10167208256638338
+    },
+    {
+      "mode": "dephased",
+      "selected_epoch": 10,
+      "updates": 9140,
+      "parameters": 81028,
+      "valid_macro_f1": 0.5722299620231792,
+      "test_macro_f1": 0.4888434662673853,
+      "test_micro_f1": 0.7222674997736123,
+      "shuffled_macro_f1": 0.35461758278735306,
+      "shuffle_minus_actual_ce": 0.19117408169063943,
+      "tied_minus_actual_ce": 0.05107911479936866
+    }
+  ],
+  "quantum_minus_uniform": 0.3168364723395001,
+  "relative_quantum_minus_uniform": 1.4327887898939646,
+  "quantum_minus_controls": {
+    "relation_softmax": 0.005284144763277432,
+    "real_overlap": 0.014481576475035896,
+    "dephased": 0.049125719123944256
+  },
+  "replication_started": false,
+  "owner_formal_runs": 0,
+  "environment": {
+    "python": "3.10.12",
+    "torch": "2.7.1+cu118",
+    "gpu": "NVIDIA RTX A2000 12GB"
+  },
+  "environment_caveat": "Python3.10/Torch2.7.1 is allowed. NumPy/Transformers versions were preflight-enforced but not independently recorded in the returned manifest.",
+  "trace_status": "independent private legacy-v1 NumPy replay pass",
+  "status": "pass",
+  "evidence_tier": "L1_utility_candidate",
+  "claim_ceiling": "provisional_utility",
+  "independent_replay": {
+    "schema": "q-rmea.independent-numpy-replay.v1",
+    "status": "pass",
+    "samples": 60,
+    "numeric_arrays_checked": 1128,
+    "max_identity_residual": 2.0265579223632812e-06,
+    "first_updates": [
+      {
+        "mode": "uniform",
+        "raw_gradient_l2": 26.010567874212335,
+        "clip_scale": 0.038445910384967794,
+        "first_step_formula_max_error": 2.9511611876475996e-08,
+        "loss": 4.517716884613037
+      },
+      {
+        "mode": "relation_softmax",
+        "raw_gradient_l2": 26.011616147306704,
+        "clip_scale": 0.03844436100750245,
+        "first_step_formula_max_error": 5.429176364035726e-08,
+        "loss": 4.517484664916992
+      },
+      {
+        "mode": "real_overlap",
+        "raw_gradient_l2": 25.99085146513621,
+        "clip_scale": 0.03847507508041096,
+        "first_step_formula_max_error": 6.153902731842464e-08,
+        "loss": 4.520972728729248
+      },
+      {
+        "mode": "quantum",
+        "raw_gradient_l2": 26.077818928147945,
+        "clip_scale": 0.03834676375384498,
+        "first_step_formula_max_error": 4.043272061604597e-08,
+        "loss": 4.512225151062012
+      },
+      {
+        "mode": "dephased",
+        "raw_gradient_l2": 25.969292086334395,
+        "clip_scale": 0.038507016601319104,
+        "first_step_formula_max_error": 4.362473959851343e-08,
+        "loss": 4.516147136688232
+      }
+    ],
+    "runtime": {
+      "python": "3.11.0",
+      "numpy": "1.23.5",
+      "torch": "2.3.1+cpu"
+    },
+    "method": "Independent NumPy float64 computational-basis gates, weights, attention, logits, permutation, sensitivity and cached producer-encoder word means; Torch used only for weights_only checkpoint decoding."
+  },
+  "private_exchange": {
+    "schema": "q-rmea.private-receive-audit.v1",
+    "status": "pass",
+    "parts": 103,
+    "archive_bytes": 6895677440,
+    "archive_sha256": "dda0b264da0074c6e512563975cb3301727e60ddd911a9d3b557f4fde93d49ee",
+    "closed_inventory_sha256": "9bda8bffd0a207350d3fe27be24733955ec3d7a982d447308f593f3fe89d04ba",
+    "files": 99,
+    "saved_files": 96,
+    "saved_bytes": 95201460,
+    "elapsed_seconds": 115.44138407707214
+  },
+  "limitations": [
+    "No re-extraction of the frozen encoder on GPU. Original full input/assets verified by producer, not independently rehashed on collaborator filesystem.",
+    "First recorded gradients are inspected and first AdamW update independently reconstructed; backward gradients and full training trajectory are not replayed.",
+    "Legacy sample-trace.v1 matches the frozen handoff but does not certify current generic v2 portal observability. No raw samples or tensors published.",
+    "Python3.10/Torch2.7.1 is allowed. NumPy/Transformers versions were preflight-enforced but not independently recorded in the returned manifest.",
+    "No independent-seed uncertainty, attention alignment or strict quantum attribution established."
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "schema": "q-rmea.independent-numpy-replay.v1",
+  "status": "pass",
+  "samples": 60,
+  "numeric_arrays_checked": 1128,
+  "max_identity_residual": 2.0265579223632812e-06,
+  "first_updates": [
+    {
+      "mode": "uniform",
+      "raw_gradient_l2": 26.010567874212335,
+      "clip_scale": 0.038445910384967794,
+      "first_step_formula_max_error": 2.9511611876475996e-08,
+      "loss": 4.517716884613037
+    },
+    {
+      "mode": "relation_softmax",
+      "raw_gradient_l2": 26.011616147306704,
+      "clip_scale": 0.03844436100750245,
+      "first_step_formula_max_error": 5.429176364035726e-08,
+      "loss": 4.517484664916992
+    },
+    {
+      "mode": "real_overlap",
+      "raw_gradient_l2": 25.99085146513621,
+      "clip_scale": 0.03847507508041096,
+      "first_step_formula_max_error": 6.153902731842464e-08,
+      "loss": 4.520972728729248
+    },
+    {
+      "mode": "quantum",
+      "raw_gradient_l2": 26.077818928147945,
+      "clip_scale": 0.03834676375384498,
+      "first_step_formula_max_error": 4.043272061604597e-08,
+      "loss": 4.512225151062012
+    },
+    {
+      "mode": "dephased",
+      "raw_gradient_l2": 25.969292086334395,
+      "clip_scale": 0.038507016601319104,
+      "first_step_formula_max_error": 4.362473959851343e-08,
+      "loss": 4.516147136688232
+    }
+  ],
+  "runtime": {
+    "python": "3.11.0",
+    "numpy": "1.23.5",
+    "torch": "2.3.1+cpu"
+  },
+  "method": "Independent NumPy float64 computational-basis gates, weights, attention, logits, permutation, sensitivity and cached producer-encoder word means; Torch used only for weights_only checkpoint decoding.",
+  "limits": [
+    "No re-extraction of the frozen encoder on GPU. Original full input/assets verified by producer, not independently rehashed on collaborator filesystem.",
+    "First recorded gradients are inspected and first AdamW update independently reconstructed; backward gradients and full training trajectory are not replayed.",
+    "Legacy sample-trace.v1 matches the frozen handoff but does not certify current generic v2 portal observability. No raw samples or tensors published."
+  ]
+}

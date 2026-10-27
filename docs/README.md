@@ -57,3 +57,5 @@
 4. QCCW Stage-0 仅跑 seed 7；当前 gate 失败，禁止五 seed、真实数据和硬件实验。
 5. QCDD 仅为 seed-7 readout 诊断；当前 matched-control gate 失败，禁止调参、加 seed 和 attention action。
 6. 不提交 `data/`、`runs/`、checkpoint、predictions、JSONL 或完整日志。
+
+- [Q-RMEA完整seed13审计](audits/20261027-q-rmea-seed13.md)：L1效用候选，独立重复待准备；未启动确认。
