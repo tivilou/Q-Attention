@@ -1,0 +1,545 @@
+{
+  "schema_version": "research-plugin-architecture.plugin-plan.v1",
+  "project": "Q-Attention/Q-RMEA",
+  "authorization": "implemented",
+  "baseline": {
+    "entry_point": "baselines.retacred.frozen_feature_head.FrozenFeatureHead",
+    "code_revision": "b04f728230d2f5cefa4ce05ea2d1747cb3b8eecc",
+    "equivalence_test": "test_rmea.RMEATests.test_exact_classical_compatibility_and_common_init; passed"
+  },
+  "core_invariants": [
+    "all forty hypotheses, no gold input",
+    "same cache/value/decoder/data order/budget",
+    "valid-only selection",
+    "no residual bypass",
+    "owner bounded work; collaborator formal execution"
+  ],
+  "interfaces": [
+    {
+      "id": "relation_evidence_head",
+      "type": "transformer",
+      "input_schema": "FP32 h[B,T,1024], roles[B,T,4], bool mask[B,T]; no label input",
+      "output_schema": "logits[B,40], alpha[B,40,T]",
+      "invariants": [
+        "frozen label-blind representations",
+        "normalized mask-safe weights"
+      ]
+    }
+  ],
+  "plugins": [
+    {
+      "id": "uniform",
+      "version": "1",
+      "role": "baseline",
+      "interface": "relation_evidence_head",
+      "insertion_point": "frozen encoder original-word cache -> output relation logits",
+      "hypothesis": "Fixed same-interface control",
+      "input_schema": "FP32 h[B,T,1024], roles[B,T,4], bool mask[B,T]; no label input",
+      "output_schema": "logits[B,40], alpha[B,40,T]",
+      "requires": [],
+      "conflicts": [
+        "relation_softmax",
+        "real_overlap",
+        "quantum",
+        "dephased"
+      ],
+      "deterministic": true,
+      "resource_estimate": "One GPU, serial modes; formal frozen cache about6.33GiB",
+      "failure_signatures": [
+        "nonfinite values",
+        "mask/normalization violation",
+        "trace mismatch"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v1",
+        "stages": [
+          "data",
+          "preprocess",
+          "scoring",
+          "evaluation",
+          "diagnosis"
+        ],
+        "input_fields": [
+          "h",
+          "roles",
+          "mask"
+        ],
+        "output_fields": [
+          "logits",
+          "alpha"
+        ],
+        "input_refs": [
+          "cache/metadata.json",
+          "cache/*-encoder-[01].npy"
+        ],
+        "output_refs": [
+          "sample-trace.json",
+          "trace/*.npz"
+        ],
+        "emitted_fields": [
+          "h",
+          "roles",
+          "mask",
+          "values",
+          "utilities",
+          "alpha",
+          "logits",
+          "decoder",
+          "bias",
+          "permutation",
+          "shuffled_alpha",
+          "shuffled_logits",
+          "identity_residual"
+        ],
+        "shape_dtype_normalization": [
+          "word coverage and padding mask",
+          "FP32 head and complex64 states",
+          "forty normalized weight rows"
+        ],
+        "checks": [
+          "full numeric inventory SHA/shape/dtype/finite",
+          "producer cache and saved encoder-output lineage",
+          "all saved arrays CPU checkpoint replay",
+          "same sample IDs across controls"
+        ],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "relation_softmax",
+      "version": "1",
+      "role": "baseline",
+      "interface": "relation_evidence_head",
+      "insertion_point": "frozen encoder original-word cache -> output relation logits",
+      "hypothesis": "Fixed same-interface control",
+      "input_schema": "FP32 h[B,T,1024], roles[B,T,4], bool mask[B,T]; no label input",
+      "output_schema": "logits[B,40], alpha[B,40,T]",
+      "requires": [],
+      "conflicts": [
+        "uniform",
+        "real_overlap",
+        "quantum",
+        "dephased"
+      ],
+      "deterministic": true,
+      "resource_estimate": "One GPU, serial modes; formal frozen cache about6.33GiB",
+      "failure_signatures": [
+        "nonfinite values",
+        "mask/normalization violation",
+        "trace mismatch"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v1",
+        "stages": [
+          "data",
+          "preprocess",
+          "scoring",
+          "evaluation",
+          "diagnosis"
+        ],
+        "input_fields": [
+          "h",
+          "roles",
+          "mask"
+        ],
+        "output_fields": [
+          "logits",
+          "alpha"
+        ],
+        "input_refs": [
+          "cache/metadata.json",
+          "cache/*-encoder-[01].npy"
+        ],
+        "output_refs": [
+          "sample-trace.json",
+          "trace/*.npz"
+        ],
+        "emitted_fields": [
+          "h",
+          "roles",
+          "mask",
+          "values",
+          "utilities",
+          "alpha",
+          "logits",
+          "decoder",
+          "bias",
+          "permutation",
+          "shuffled_alpha",
+          "shuffled_logits",
+          "identity_residual"
+        ],
+        "shape_dtype_normalization": [
+          "word coverage and padding mask",
+          "FP32 head and complex64 states",
+          "forty normalized weight rows"
+        ],
+        "checks": [
+          "full numeric inventory SHA/shape/dtype/finite",
+          "producer cache and saved encoder-output lineage",
+          "all saved arrays CPU checkpoint replay",
+          "same sample IDs across controls"
+        ],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "real_overlap",
+      "version": "1",
+      "role": "baseline",
+      "interface": "relation_evidence_head",
+      "insertion_point": "frozen encoder original-word cache -> output relation logits",
+      "hypothesis": "Fixed same-interface control",
+      "input_schema": "FP32 h[B,T,1024], roles[B,T,4], bool mask[B,T]; no label input",
+      "output_schema": "logits[B,40], alpha[B,40,T]",
+      "requires": [],
+      "conflicts": [
+        "uniform",
+        "relation_softmax",
+        "quantum",
+        "dephased"
+      ],
+      "deterministic": true,
+      "resource_estimate": "One GPU, serial modes; formal frozen cache about6.33GiB",
+      "failure_signatures": [
+        "nonfinite values",
+        "mask/normalization violation",
+        "trace mismatch"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v1",
+        "stages": [
+          "data",
+          "preprocess",
+          "scoring",
+          "evaluation",
+          "diagnosis"
+        ],
+        "input_fields": [
+          "h",
+          "roles",
+          "mask"
+        ],
+        "output_fields": [
+          "logits",
+          "alpha"
+        ],
+        "input_refs": [
+          "cache/metadata.json",
+          "cache/*-encoder-[01].npy"
+        ],
+        "output_refs": [
+          "sample-trace.json",
+          "trace/*.npz"
+        ],
+        "emitted_fields": [
+          "h",
+          "roles",
+          "mask",
+          "values",
+          "utilities",
+          "alpha",
+          "logits",
+          "decoder",
+          "bias",
+          "permutation",
+          "shuffled_alpha",
+          "shuffled_logits",
+          "identity_residual"
+        ],
+        "shape_dtype_normalization": [
+          "word coverage and padding mask",
+          "FP32 head and complex64 states",
+          "forty normalized weight rows"
+        ],
+        "checks": [
+          "full numeric inventory SHA/shape/dtype/finite",
+          "producer cache and saved encoder-output lineage",
+          "all saved arrays CPU checkpoint replay",
+          "same sample IDs across controls"
+        ],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "quantum",
+      "version": "1",
+      "role": "idea",
+      "interface": "relation_evidence_head",
+      "insertion_point": "frozen encoder original-word cache -> output relation logits",
+      "hypothesis": "Relation-specific evidence weights may improve held-out relation classification",
+      "input_schema": "FP32 h[B,T,1024], roles[B,T,4], bool mask[B,T]; no label input",
+      "output_schema": "logits[B,40], alpha[B,40,T]",
+      "requires": [],
+      "conflicts": [
+        "uniform",
+        "relation_softmax",
+        "real_overlap",
+        "dephased"
+      ],
+      "deterministic": true,
+      "resource_estimate": "One GPU, serial modes; formal frozen cache about6.33GiB",
+      "failure_signatures": [
+        "nonfinite values",
+        "mask/normalization violation",
+        "trace mismatch"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v1",
+        "stages": [
+          "data",
+          "preprocess",
+          "scoring",
+          "evaluation",
+          "diagnosis"
+        ],
+        "input_fields": [
+          "h",
+          "roles",
+          "mask"
+        ],
+        "output_fields": [
+          "logits",
+          "alpha"
+        ],
+        "input_refs": [
+          "cache/metadata.json",
+          "cache/*-encoder-[01].npy"
+        ],
+        "output_refs": [
+          "sample-trace.json",
+          "trace/*.npz"
+        ],
+        "emitted_fields": [
+          "h",
+          "roles",
+          "mask",
+          "values",
+          "utilities",
+          "alpha",
+          "logits",
+          "decoder",
+          "bias",
+          "permutation",
+          "shuffled_alpha",
+          "shuffled_logits",
+          "identity_residual",
+          "angles",
+          "effect_angles",
+          "psi",
+          "phi",
+          "probability",
+          "normalizer",
+          "sensitivity"
+        ],
+        "shape_dtype_normalization": [
+          "word coverage and padding mask",
+          "FP32 head and complex64 states",
+          "forty normalized weight rows"
+        ],
+        "checks": [
+          "full numeric inventory SHA/shape/dtype/finite",
+          "producer cache and saved encoder-output lineage",
+          "all saved arrays CPU checkpoint replay",
+          "same sample IDs across controls"
+        ],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "dephased",
+      "version": "1",
+      "role": "baseline",
+      "interface": "relation_evidence_head",
+      "insertion_point": "frozen encoder original-word cache -> output relation logits",
+      "hypothesis": "Fixed same-interface control",
+      "input_schema": "FP32 h[B,T,1024], roles[B,T,4], bool mask[B,T]; no label input",
+      "output_schema": "logits[B,40], alpha[B,40,T]",
+      "requires": [],
+      "conflicts": [
+        "uniform",
+        "relation_softmax",
+        "real_overlap",
+        "quantum"
+      ],
+      "deterministic": true,
+      "resource_estimate": "One GPU, serial modes; formal frozen cache about6.33GiB",
+      "failure_signatures": [
+        "nonfinite values",
+        "mask/normalization violation",
+        "trace mismatch"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v1",
+        "stages": [
+          "data",
+          "preprocess",
+          "scoring",
+          "evaluation",
+          "diagnosis"
+        ],
+        "input_fields": [
+          "h",
+          "roles",
+          "mask"
+        ],
+        "output_fields": [
+          "logits",
+          "alpha"
+        ],
+        "input_refs": [
+          "cache/metadata.json",
+          "cache/*-encoder-[01].npy"
+        ],
+        "output_refs": [
+          "sample-trace.json",
+          "trace/*.npz"
+        ],
+        "emitted_fields": [
+          "h",
+          "roles",
+          "mask",
+          "values",
+          "utilities",
+          "alpha",
+          "logits",
+          "decoder",
+          "bias",
+          "permutation",
+          "shuffled_alpha",
+          "shuffled_logits",
+          "identity_residual",
+          "angles",
+          "effect_angles",
+          "psi",
+          "phi",
+          "probability",
+          "normalizer",
+          "sensitivity"
+        ],
+        "shape_dtype_normalization": [
+          "word coverage and padding mask",
+          "FP32 head and complex64 states",
+          "forty normalized weight rows"
+        ],
+        "checks": [
+          "full numeric inventory SHA/shape/dtype/finite",
+          "producer cache and saved encoder-output lineage",
+          "all saved arrays CPU checkpoint replay",
+          "same sample IDs across controls"
+        ],
+        "deterministic_replay": true
+      }
+    }
+  ],
+  "discovery": {
+    "mode": "explicit_allowlist",
+    "allowlist": [
+      "uniform",
+      "relation_softmax",
+      "real_overlap",
+      "quantum",
+      "dephased"
+    ]
+  },
+  "composition": {
+    "mode": "single",
+    "order": [
+      "quantum"
+    ],
+    "merge_rule": "exactly one mode per independent condition; no stacking",
+    "interaction_ablations": [
+      "all five conditions independently",
+      "quantum versus dephased",
+      "weight intervention at fixed checkpoint"
+    ]
+  },
+  "validation": {
+    "baseline_equivalence": "Exact existing classical output and common initialization unit",
+    "tests": [
+      "baseline_equivalence",
+      "plugin_isolation",
+      "deterministic_replay",
+      "interaction_ablation",
+      "trace_structural_validation",
+      "trace_semantic_validation",
+      "trace_replay",
+      "real launch/fault/retry",
+      "Git push-retry fixture"
+    ]
+  },
+  "reproducibility": {
+    "config_path": "baselines/retacred/rmea_protocol.py::config",
+    "dataset_identity": "pinned official normalized Re-TACRED split SHA/counts",
+    "environment": "Python3.10/Torch2.5.1+cu121/NumPy1.26.4/Transformers4.44.2 on TeslaP4 bounded acceptance",
+    "seeds": [
+      13
+    ],
+    "output_manifest": "manifest.json plus RUN_COMPLETE full private inventory"
+  },
+  "trace_contract": {
+    "enabled": true,
+    "schema": "sample-trace.v1",
+    "legacy_compatibility": true,
+    "artifact_path": "private sample-trace.json; SHA256 dea62818f4ce4507ae7ff83f3b883b331aebe2bc0747545cdd7f01e4f3b631b3",
+    "sample_selection_rule": "first2 stable-ID-hash ordered samples per split; same samples all5 modes and both checkpoints",
+    "target_boundary": "Labels posthoc evaluation only; no model/permutation gold input",
+    "required_stages": [
+      "data",
+      "preprocess",
+      "scoring",
+      "evaluation",
+      "diagnosis"
+    ],
+    "semantic_roles": [
+      "original words",
+      "subject/object spans",
+      "forty candidate relations"
+    ],
+    "required_representations": [
+      "h",
+      "roles",
+      "mask",
+      "values",
+      "utilities",
+      "alpha",
+      "logits",
+      "decoder",
+      "bias",
+      "permutation",
+      "shuffled_alpha",
+      "shuffled_logits",
+      "identity_residual",
+      "angles",
+      "effect_angles",
+      "psi",
+      "phi",
+      "probability",
+      "normalizer",
+      "sensitivity"
+    ],
+    "producer_owned_lineage": [
+      "saved last encoder output -> word cache -> selected head",
+      "same checkpoint reader replay every key"
+    ],
+    "readiness_checks": [
+      "full numeric inventory SHA/shape/dtype/finite",
+      "producer cache and saved encoder-output lineage",
+      "all saved arrays CPU checkpoint replay",
+      "same sample IDs across controls"
+    ]
+  },
+  "trace_readiness": {
+    "status": "passed",
+    "fixture_path": "closed private canary inventory SHA256 904836db141cf2ce2aa9c0ef8002529c63df5aa4513dff2ee128ebd5d84d1bb5",
+    "structural_validation": "docs/evidence/rmea/20261026-implementation/acceptance.json: trace.structural=pass",
+    "semantic_validation": "same acceptance:60records/1128complete arrays, semantic=pass",
+    "replay_test": "same acceptance: replay=pass, same-sample control parity"
+  },
+  "limitations": [
+    "Project explicitly requires sample-trace.v1; generic default v2 does not override it",
+    "Not a recovery of Q-SRM mechanism; no recovery dossier fabricated",
+    "Internal encoder layers and complete training trajectory not captured",
+    "No formal utility or L3 established"
+  ]
+}

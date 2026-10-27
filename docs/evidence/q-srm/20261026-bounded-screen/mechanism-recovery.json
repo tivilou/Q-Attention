@@ -1,0 +1,139 @@
+{
+  "schema_version": "experiment-grounded-ideation.mechanism-recovery.v2",
+  "evidence_packet": {
+    "path": "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+    "sha256": "8f45060cd79f38bd0871b7714eb8fdcd4c6d259b3f8edd2390a1a82fd2bc14df",
+    "code_revision": "2c92423a93693ca40b1267d9bcf545b8ec653fac",
+    "validity_status": "clean"
+  },
+  "trace_adequacy": {
+    "status": "partial",
+    "schema_version": "sample-trace.v2",
+    "artifact_refs": [
+      "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+    ],
+    "selection_rule": "Each split first frozen selected record at initial/best/final, plus training update0; reported by producer, private sample IDs/values not returned.",
+    "covered_stages": [
+      "aggregate task outputs and producer validation receipt"
+    ],
+    "missing_stages": [
+      "independent input/preprocess inspection",
+      "attention/Gram/null mass values",
+      "context/logits paired sample values",
+      "training gradient/update paired sample values"
+    ],
+    "target_boundary": "Factual labels train CE and score evaluation. Test snapshot gradients are diagnostic only; no optimizer step or checkpoint selection consumes test labels.",
+    "causal_links_observed": {
+      "intervention_execution": false,
+      "intended_intermediate": false,
+      "observable_output": true,
+      "task_utility": true
+    },
+    "notes": "Receipt reports 250 traces and 9050 arrays. The owner did not receive or inspect these arrays; no sample causal attribution is made."
+  },
+  "causal_trace": {
+    "intervention_execution": {
+      "claim": "Source and 25-condition report match the reviewed SRM release; private numeric traces independently unavailable. Execution is attested, not independently replayed.",
+      "evidence_refs": [
+        "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+        "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+        "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+      ]
+    },
+    "intended_intermediate": {
+      "claim": "Code implements set-conditioned POVM with explicit null; actual null mass and useful-evidence allocation are not available in this return.",
+      "evidence_refs": [
+        "src/q_attention/plugins/q_srm.py",
+        "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+      ]
+    },
+    "observable_output": {
+      "claim": "All 50 validation/test confusion matrices reproduce reported classification metrics. Validation mean delta is positive; test mean delta is negative.",
+      "evidence_refs": [
+        "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+        "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+        "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+      ]
+    },
+    "task_utility": {
+      "claim": "Mean test delta -0.00033063178121005494; 2/5 positive. Declared promotion gate fails; bounded screen remains inconclusive.",
+      "evidence_refs": [
+        "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+        "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+        "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+      ]
+    }
+  },
+  "failure_analysis": {
+    "primary_explanation": {
+      "statement": "Observed failure is unstable held-out utility: validation improvement does not consistently carry to test. This is descriptive, not a proven cause.",
+      "evidence_refs": [
+        "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+        "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+        "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+      ],
+      "confidence": "high"
+    },
+    "alternative_explanations": [
+      {
+        "statement": "Short warmup/short intervention on a reused small subset may leave a weak or unstable representation; undertraining is untested without learning curves/warmup outputs.",
+        "evidence_refs": [
+          "reports/q_srm_screen/20261026T022952Z_seed13/manifest.json",
+          "reports/q_srm_screen/20261026T022952Z_seed13/summary.json"
+        ],
+        "confidence": "low"
+      },
+      {
+        "statement": "Null mass could attenuate useful value context or the set measurement could miss relevant evidence; private fixed traces are needed to distinguish these mechanisms.",
+        "evidence_refs": [
+          "src/q_attention/plugins/q_srm.py",
+          "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+        ],
+        "confidence": "low"
+      }
+    ],
+    "discriminating_measurement": {
+      "uncertainty": "Generalization/representation limitations versus an ineffective allocation or null mechanism.",
+      "measurement": "Read the existing immutable warmup metrics and predeclared matched sample traces; summarize null/token mass, attention/context/logit changes and first-update gradient norms, without retraining or selecting samples by outcome.",
+      "primary_outcome": "No consistently useful held-out context shift despite nonzero finite changes; no scientific promotion.",
+      "alternative_outcome": "Concrete trace defect or excessive null suppression is localized; a separately reviewed and authorized correction can then be designed."
+    },
+    "closed_family": {
+      "id": "q-srm-20261026-post-hoc-screen-rescue-only",
+      "rejected_variant_refs": [
+        "reports/q_srm_screen/20261026T022952Z_seed13"
+      ],
+      "closure_evidence_refs": [
+        "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+        "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+        "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+      ],
+      "forbidden_rescue_variants": [
+        "Choose only seed13/71 and discard negative seeds",
+        "Change gates/budget and call it the same frozen screen",
+        "Promote diagonal based on post-hoc test ranking"
+      ]
+    }
+  },
+  "positive_carryovers": [
+    {
+      "id": "report-integrity-and-paired-protocol",
+      "mechanism": "Reviewed isolated adapter and report-only automatic delivery produced 25 paired conditions with consistent hashes and exactly reproducible aggregate metrics.",
+      "evidence_refs": [
+        "reports/q_srm_screen/20261026T022952Z_seed13/summary.json",
+        "docs/evidence/q-srm/20261026-bounded-screen/audit.json",
+        "reports/q_srm_screen/20261026T022952Z_seed13/trace_validation.json"
+      ],
+      "transport_constraint": "Engineering integrity is not proof of attention alignment, natural task utility or quantum advantage."
+    }
+  ],
+  "recovery_outcome": {
+    "disposition": "stop",
+    "stop_reason": "No new causal candidate is justified by aggregate reports alone. Stop automatic promotion and post-hoc rescue of this checkpoint; the SRM family is not killed by this short-budget null result. Existing-artifact diagnosis is the next recommendation, not a new experiment."
+  },
+  "limitations": [
+    "No private full-value traces, warmup curves, raw data or checkpoints were returned.",
+    "No family-level natural-task rejection or mechanism-specific causal claim is supported.",
+    "No formal experiment or new candidate implementation was authorized or launched."
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "schema": "qattn-exchange.tls-acceptance.v1",
+  "result": "PASS",
+  "source_revision": "9abf5c6ab9934d239699baaabcfbd6be8009f616",
+  "source_sha256": "a209718b7fae0e78c896d9ae7dce50e1d2602531b705125974ce97d0e1118caf",
+  "source_files": {
+    "scripts/collab/server/qattn_exchange_server.py": "2efe08734c57730e352a4563f703c8134f154687aea0e3ba1e457a40ce5a570a",
+    "tests/test_exchange_tls.py": "06d524be81b2d7e48e0a28990f939bb43c9c95d1824e100fd7d190bbda751fd8"
+  },
+  "review": {
+    "review_mode": "subagent_fallback",
+    "reviewer_model": "/root/recovery_review; inherited host model, exact backend identifier not independently exposed",
+    "review_scope": "lifecycle",
+    "verdict": "PASS_WITH_RISK",
+    "must_fix": [],
+    "confidence": {
+      "level": "high_for_static_call_path_and_minimal_diff; unmeasured_for_runtime_and_deployment",
+      "basis": "Exact updated source/aggregate hashes, direct original-to-patch comparison, reused unchanged stdlib handshake/thread analysis, and static inspection of the added download timeout and real slow-reader regression. Approval permits bounded queued validation and, after its success, the declared source-only deployment canary with original sealed-artifact retry. Neither the new four-test result nor corrected external readback is yet measured by this review; it is not completed availability, delivery, artifact-retention or formal-experiment readiness certification."
+    }
+  },
+  "review_limitations": [
+    "Static fallback after same-session external review route exhaustion; actual checks recorded separately",
+    "No generic DoS/thread-quota certification; original300s PUT timeout and keepalive behavior preserved"
+  ],
+  "measured_unit": {
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "scope": "Production HTTPS main in subprocess: stalled TLS/header acceptance, idle expiry, auth/namespace/immutable upload, slow reader backpressure"
+  },
+  "deployment": {
+    "schema": "qattn-exchange.tls-deployment.v1",
+    "result": "PASS",
+    "source_sha256": "2efe08734c57730e352a4563f703c8134f154687aea0e3ba1e457a40ce5a570a",
+    "previous_sha256": "2bde74494844d5e1e8075bfe72e9dd004b946e17c2c5096b7b73011cec059d08",
+    "real_parent": "existing supervisor service",
+    "loopback_https": true,
+    "stalled_handshake_did_not_block": true,
+    "production_idle_connection_closed_seconds": 15.001,
+    "production_timeout_seconds": 15,
+    "preexisting_storage_metadata_unchanged": true,
+    "credentials_certificates_config_unchanged": true,
+    "rollback_available": true
+  },
+  "external": {
+    "schema": "qattn-exchange.external-tls.v1",
+    "result": "PASS",
+    "separate_authorized_worker": true,
+    "stalled_clienthello_did_not_block": true,
+    "https_certificate_verified": true,
+    "auth_not_tested_by_health": true
+  },
+  "scientific_source_unchanged": true,
+  "client_tls_downgrade": false,
+  "https_certificate_verification_disabled": false,
+  "initial_external_probes_timed_out": true,
+  "repeat_default_tls_external_succeeded": true
+}
