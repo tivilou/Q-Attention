@@ -170,19 +170,19 @@ def sample_v2(root,record):
       'word_input':['encoder_hidden','source:word_piece_mapping','source:entity_spans'],
       'values':['h','external:checkpoint_value_decoder'],
       'weights':['features','mask','external:checkpoint_scorer'],
-      'prediction':['alpha','values','decoder','bias']+(['pooled'] if False else []),
+      'prediction':['alpha','values','decoder','bias'],
       'diagnosis':['alpha','utilities','logits','mask','roles','source:sample_id_hash']}
     stages=[]
     canon={'tokenization':'data','encoder':'preprocess','word_input':'preprocess','values':'scoring','weights':'scoring','prediction':'generation','diagnosis':'diagnosis'}
     for i,g in enumerate(GROUPS):
         stages.append(dict(stage_id=g,stage=g,canonical_stage=canon[g],lane='replay',status='observed',step=i,checkpoint=checkpoint,
           purpose=PURPOSES[g],input_refs=inputs[g],output_refs=groups[g],display=display(PURPOSES[g]),
-          outputs=dict(representations=groups[g]),artifact_refs=[ref],target_access='outside_generation_input'))
+          outputs=dict(representations=groups[g],identity_mapping=({'word_pieces':meta['word_pieces'],'operation':'mean selected encoder subwords in float32, round to float16 cache, reload float32; preserve original word order and subject/object spans'} if g=='word_input' else None)),artifact_refs=[ref],target_access='outside_generation_input'))
     stages.append(dict(stage_id='evaluation',stage='evaluation',canonical_stage='evaluation',lane='replay',status='observed',step=7,checkpoint=checkpoint,
        purpose='Compare emitted logits against the target only after prediction.',input_refs=['logits','source:held_out_target'],output_refs=['evaluation_result'],
        outputs=fields['evaluation'],display=display('Posthoc target/prediction comparison','comparison',fields['evaluation']),target_access='post_generation_only'))
     return dict(sample_id=sid,lane='replay',split=split,checkpoint=checkpoint,
-      roles=dict(source_sample=dict(tokens=meta['tokens']),sequence_or_features=dict(input_ids=meta['input_ids']),
+      roles=dict(source_sample=dict(tokens=meta['tokens']),sequence_or_features=dict(input_ids=meta['input_ids'],attention_mask=meta['attention_mask'],word_pieces=meta['word_pieces']),
        task_objects=dict(subject=meta['subject'],object=meta['object']),target_or_gold=dict(value=fields['evaluation']['target'],boundary='post_generation_only'),
        prediction=dict(value=fields['evaluation']['prediction']),diagnosis=dict(intervention='context-weight-permutation-v1'),
        provenance=dict(condition=mode,cache_index=record['cache_index'],sample_id_hash=meta['id_hash'],checkpoint_file=fields['scoring']['checkpoint_file'])),
