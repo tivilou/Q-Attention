@@ -1,0 +1,225 @@
+{
+  "schema": "q-rmea.confirmation.acceptance.v1",
+  "status": "PASS",
+  "source_revision": "54ec55a9554de1dd20aa48134c37cc711a82cebd",
+  "source_sha256": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+  "contract_sha256": "da5541b44d89853d8ff23db7bf4750a984ae76ad18c96ca9af6252dec09aea36",
+  "review": {
+    "review_scope": "both",
+    "review_mode": "subagent_fallback",
+    "verdict": "PASS",
+    "must_fix": [],
+    "source_record": "q_rmea_confirmation_review.json"
+  },
+  "unit": {
+    "tests": 33,
+    "status": "PASS",
+    "cpu": true,
+    "attempt": "1c95ab57759e4bb98f2c8adcbe769d83",
+    "real_bare_git_push_failure_retry": true
+  },
+  "canary": {
+    "profile": "canary",
+    "seed": 29,
+    "counts": {
+      "train": 16,
+      "valid": 8,
+      "test": 8
+    },
+    "epochs": 1,
+    "conditions": 5,
+    "gpu": "Tesla P4",
+    "actual_parent_child": true,
+    "attempt": "ba97dafc70be4a2c9aad3a4e76991e3e",
+    "expected_failure": "report copy after immutable RUN_COMPLETE",
+    "sample_trace_sha256": "9ad3502d01a40732b257d55a55654e25ceb341eb05ec64ae9b014c643306f1f1",
+    "trace_schema": "sample-trace.v2",
+    "readiness": {
+      "schema": "q-rmea.trace-readiness.v2",
+      "structural": "pass",
+      "semantic": "pass",
+      "replay": "pass",
+      "samples": 60,
+      "complete_numeric_arrays_checked": 1128,
+      "max_identity_residual": 2.7567148208618164e-07,
+      "target_boundary": "labels posthoc only; no labels accepted by model or permutation",
+      "training_trajectory": "separate first-update parameter/gradient files; inference traces are initial and valid-selected only",
+      "coordinate_reader": "pass",
+      "source_linked_coordinates_checked": 4644,
+      "private_reader": "scripts/view_rmea_confirmation_trace.py --run-dir PHASE; loopback only, no public raw values",
+      "warnings": []
+    }
+  },
+  "export_retry": {
+    "status": "pass",
+    "closed_files_unchanged_sha_size_mtime": 161,
+    "source_attempt": "ba97dafc70be4a2c9aad3a4e76991e3e",
+    "export_attempt": "1e462cde30be49219904a68381eee3f1",
+    "injected_failure": "report copy before rename",
+    "failed_final_or_partial_report": false,
+    "retry_training": false,
+    "final_report_files": {
+      "summary.json": "99a838aba5cdec95d8198be96319588887c5b0cc24566c16695d62ad3feeb347",
+      "manifest.json": "bd2edd8af16c27e9810e500aab33b7f209d2b406d5a1825378bcb918fcc03529",
+      "trace_validation.json": "adc952f0404a3284f9e5c5f5c1ee7cc7d6875ff0212c2794cf6a6a9d58768000",
+      "receipt.json": "169b7254648c86315cac9ea32cc0275033d458ef3993f76debe06ce516aea6d0",
+      "data.sha256": "011f9a348b9dc44e45ae998a680e16d9e68a90e998f555ed22f1874b40327a32",
+      "data_counts.txt": "d3eebebb6ca99590b76d693dee8a97ccc0160eea49fe902a0176b8419e19bfd9",
+      "run_summary.json": "99376a2e688f9c5b3223a6fd5d662c6fbe4324525898899600924e9b6753435a"
+    },
+    "per_phase_data_present": true,
+    "source_revision": "54ec55a9554de1dd20aa48134c37cc711a82cebd"
+  },
+  "trace_content": {
+    "status": "pass",
+    "schema": "sample-trace.v2",
+    "samples": 60,
+    "conditions": 5,
+    "splits": 3,
+    "checkpoints": 2,
+    "arrays": 1548,
+    "coordinates_verified": 4644,
+    "structural_errors": [],
+    "structural_warnings": [],
+    "word_piece_and_encoder_mean_lineage": true,
+    "extra_raw_angle_and_classical_score_formula_checks": true,
+    "invalid_coordinates_rejected": true,
+    "private_arrays_published": false
+  },
+  "json_schema": {
+    "status": "pass",
+    "validator": "jsonschema 4.23.0",
+    "errors": [],
+    "samples": 60
+  },
+  "browser": {
+    "status": "pass",
+    "realBrowser": true,
+    "checks": [
+      {
+        "mode": "uniform",
+        "stage": "weights",
+        "representation": "alpha",
+        "edgeCoordinateBeyondPreview": true,
+        "complex": false,
+        "directionLabels": true
+      },
+      {
+        "mode": "relation_softmax",
+        "stage": "weights",
+        "representation": "scores",
+        "edgeCoordinateBeyondPreview": true,
+        "complex": false,
+        "directionLabels": true
+      },
+      {
+        "mode": "real_overlap",
+        "stage": "weights",
+        "representation": "scores",
+        "edgeCoordinateBeyondPreview": true,
+        "complex": false,
+        "directionLabels": true
+      },
+      {
+        "mode": "quantum",
+        "stage": "tokenization",
+        "representation": "input_ids",
+        "edgeCoordinateBeyondPreview": true,
+        "complex": false,
+        "directionLabels": true
+      },
+      {
+        "mode": "quantum",
+        "stage": "encoder",
+        "representation": "encoder_hidden",
+        "edgeCoordinateBeyondPreview": true,
+        "complex": false,
+        "directionLabels": true
+      },
+      {
+        "mode": "quantum",
+        "stage": "word_input",
+        "representation": "roles",
+        "edgeCoordinateBeyondPreview": true,
+        "complex": false,
+        "directionLabels": true
+      },
+      {
+        "mode": "quantum",
+        "stage": "values",
+        "representation": "values",
+        "edgeCoordinateBeyondPreview": true,
+        "complex": false,
+        "directionLabels": true
+      },
+      {
+        "mode": "quantum",
+        "stage": "weights",
+        "representation": "psi",
+        "edgeCoordinateBeyondPreview": true,
+        "complex": true,
+        "directionLabels": true
+      },
+      {
+        "mode": "quantum",
+        "stage": "prediction",
+        "representation": "logits",
+        "edgeCoordinateBeyondPreview": true,
+        "complex": false,
+        "directionLabels": true
+      },
+      {
+        "mode": "quantum",
+        "stage": "diagnosis",
+        "representation": "tied_logits",
+        "edgeCoordinateBeyondPreview": true,
+        "complex": false,
+        "directionLabels": true
+      },
+      {
+        "mode": "dephased",
+        "stage": "weights",
+        "representation": "psi",
+        "edgeCoordinateBeyondPreview": true,
+        "complex": true,
+        "directionLabels": true
+      }
+    ],
+    "sourceReadable": true,
+    "invalidCoordinateHTTP400": true
+  },
+  "private_exchange": {
+    "status": "pass",
+    "https_preflight": true,
+    "streamed_upload": true,
+    "idempotent_head_retry": true,
+    "independent_full_readback": true,
+    "closed_files_checked": 160,
+    "archive_bytes": 78284800,
+    "archive_sha256": "b7e8125e64350f2a635c70a3c1c3acafc626b2eac4fbbed49de91e2ce37f1355",
+    "parts": 2,
+    "source_unchanged": true,
+    "new_formal_runs": 0,
+    "cos_restore_certified": false,
+    "secrets_printed": false
+  },
+  "boundaries": {
+    "owner_formal_runs": 0,
+    "fresh_full_seeds_run": 0,
+    "old_seed13_rerun": false,
+    "paid_nodes_created": 0,
+    "evidence_tier": "L1_utility_candidate retained from prior audited seed13",
+    "current_stage": "preflight",
+    "automatic_promotion": false,
+    "all_training_resume_certified": false,
+    "cos_restore_certified": false,
+    "canonical_checkout_modified": false
+  },
+  "limitations": [
+    "Bounded readiness only, not evidence of reproducible task utility.",
+    "Only initial and valid-selected inference replay; separate first-update batch evidence, no full optimizer or internal encoder-layer trajectory.",
+    "Five fresh paired seeds use an approximately-normal t interval; exact two-sided sign-flip minimum p=.0625.",
+    "Unchanged unequal parameter counts; classical contrasts do not establish quantum exclusivity or novelty.",
+    "Partial training batch cannot resume automatically; retain evidence and contact owner."
+  ]
+}

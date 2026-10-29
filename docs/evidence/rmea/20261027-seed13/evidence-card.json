@@ -1,0 +1,401 @@
+{
+  "schema_version": "evidence-tiered-idea-validation.evidence-card.v2",
+  "idea_id": "q-rmea",
+  "title": "Q-RMEA full seed13: audited L1 utility candidate",
+  "status": "active",
+  "current_tier": "L1_utility_candidate",
+  "claim_ceiling": "provisional_utility",
+  "rating_policy": {
+    "id": "shared-evidence-tiers+q-attention-qi-overlay",
+    "version": "2026-10-27",
+    "notes": "Any positive held-out formal single-seed primary delta supports L1. >1% relative classical practical-gain overlay is separate; no replication or strict attribution is inferred."
+  },
+  "hypothesis": "Relation-specific binary-effect word weighting may improve relation classification over uniform pooling.",
+  "mechanism": "Frozen RoBERTa-large outputs ->3-qubit two-layer RY/RZ+CNOT state ->40 independent rank-one binary effects ->normalized word weights ->shared learned values and decoder.",
+  "experiment": {
+    "stage": "formal_single_seed",
+    "training_budget": {
+      "data_scope": "Full Re-TACRED58465/19584/13418, official fixed split.",
+      "epochs_or_steps": "20epochs/9140updates per condition, batch128.",
+      "selection_rule": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+      "seed_policy": "seed13 only; confirmation is not automatic."
+    },
+    "conclusion_scope": "formal_single_seed_decision",
+    "continuation_status": "continue",
+    "formal_run_authorized": true,
+    "executor": "collaborator"
+  },
+  "intervention": {
+    "changes_attention": true,
+    "target": "frozen encoder output word pooling, not internal Transformer attention",
+    "inference_mode": "label_free",
+    "heldout_positive": true,
+    "leakage_audit": "pass",
+    "attention_action_evidence": {
+      "status": "pass",
+      "refs": [
+        "docs/evidence/rmea/20261027-seed13/audit.json",
+        "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+        "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+      ]
+    }
+  },
+  "evidence": {
+    "data_scope": {
+      "task_family": "sentence relation classification",
+      "natural_task": true,
+      "task_count": 1,
+      "split_count": 1,
+      "dataset_ids": [
+        "Re-TACRED full official split"
+      ]
+    },
+    "runs": {
+      "seed_count": 1,
+      "seeds": [
+        13
+      ],
+      "independent_split_count": 1,
+      "statistics": {
+        "status": "not_run",
+        "method": "Descriptive single seed; no run-level inferential CI or p-value.",
+        "p_value": null,
+        "confidence_interval": null
+      }
+    },
+    "metrics": [
+      {
+        "name": "macro_f1",
+        "split": "test",
+        "variant": "uniform",
+        "value": 0.22113271305182947,
+        "baseline_value": 0.22113271305182947,
+        "delta_vs_disabled": 0.0,
+        "relative_delta_vs_disabled": 0.0,
+        "primary": false,
+        "effect_direction": "higher",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261027-seed13/audit.json",
+          "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+          "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+        ]
+      },
+      {
+        "name": "macro_f1",
+        "split": "test",
+        "variant": "relation_softmax",
+        "value": 0.5326850406280521,
+        "baseline_value": 0.22113271305182947,
+        "delta_vs_disabled": 0.31155232757622264,
+        "relative_delta_vs_disabled": 1.4088929823024443,
+        "primary": false,
+        "effect_direction": "higher",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261027-seed13/audit.json",
+          "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+          "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+        ]
+      },
+      {
+        "name": "macro_f1",
+        "split": "test",
+        "variant": "real_overlap",
+        "value": 0.5234876089162936,
+        "baseline_value": 0.22113271305182947,
+        "delta_vs_disabled": 0.3023548958644642,
+        "relative_delta_vs_disabled": 1.367300620933447,
+        "primary": false,
+        "effect_direction": "higher",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261027-seed13/audit.json",
+          "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+          "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+        ]
+      },
+      {
+        "name": "macro_f1",
+        "split": "test",
+        "variant": "quantum",
+        "value": 0.5379691853913295,
+        "baseline_value": 0.22113271305182947,
+        "delta_vs_disabled": 0.3168364723395001,
+        "relative_delta_vs_disabled": 1.4327887898939646,
+        "primary": true,
+        "effect_direction": "higher",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261027-seed13/audit.json",
+          "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+          "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+        ]
+      },
+      {
+        "name": "macro_f1",
+        "split": "test",
+        "variant": "dephased",
+        "value": 0.4888434662673853,
+        "baseline_value": 0.22113271305182947,
+        "delta_vs_disabled": 0.2677107532155558,
+        "relative_delta_vs_disabled": 1.2106338746579268,
+        "primary": false,
+        "effect_direction": "higher",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261027-seed13/audit.json",
+          "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+          "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+        ]
+      }
+    ],
+    "comparisons": [
+      {
+        "id": "q-minus-relation_softmax",
+        "kind": "matched_control",
+        "target_variant": "quantum",
+        "reference_variant": "relation_softmax",
+        "metric": "test macro_f1",
+        "target_value": 0.5379691853913295,
+        "reference_value": 0.5326850406280521,
+        "delta": 0.005284144763277432,
+        "status": "partial",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261027-seed13/audit.json",
+          "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+          "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+        ]
+      },
+      {
+        "id": "q-minus-real_overlap",
+        "kind": "matched_control",
+        "target_variant": "quantum",
+        "reference_variant": "real_overlap",
+        "metric": "test macro_f1",
+        "target_value": 0.5379691853913295,
+        "reference_value": 0.5234876089162936,
+        "delta": 0.014481576475035896,
+        "status": "partial",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261027-seed13/audit.json",
+          "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+          "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+        ]
+      },
+      {
+        "id": "q-minus-dephased",
+        "kind": "matched_control",
+        "target_variant": "quantum",
+        "reference_variant": "dephased",
+        "metric": "test macro_f1",
+        "target_value": 0.5379691853913295,
+        "reference_value": 0.4888434662673853,
+        "delta": 0.049125719123944256,
+        "status": "partial",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261027-seed13/audit.json",
+          "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+          "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+        ]
+      }
+    ],
+    "controls": [
+      {
+        "id": "uniform",
+        "kind": "disabled",
+        "status": "pass",
+        "notes": "Completed frozen comparison condition; effective capacity and quantum attribution are not certified.",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261027-seed13/audit.json",
+          "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+          "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+        ]
+      },
+      {
+        "id": "relation_softmax",
+        "kind": "classical",
+        "status": "pass",
+        "notes": "Completed frozen comparison condition; effective capacity and quantum attribution are not certified.",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261027-seed13/audit.json",
+          "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+          "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+        ]
+      },
+      {
+        "id": "real_overlap",
+        "kind": "classical",
+        "status": "pass",
+        "notes": "Completed frozen comparison condition; effective capacity and quantum attribution are not certified.",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261027-seed13/audit.json",
+          "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+          "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+        ]
+      },
+      {
+        "id": "quantum",
+        "kind": "quantum",
+        "status": "pass",
+        "notes": "Completed frozen comparison condition; effective capacity and quantum attribution are not certified.",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261027-seed13/audit.json",
+          "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+          "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+        ]
+      },
+      {
+        "id": "dephased",
+        "kind": "other",
+        "status": "pass",
+        "notes": "Completed frozen comparison condition; effective capacity and quantum attribution are not certified.",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261027-seed13/audit.json",
+          "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+          "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+        ]
+      }
+    ]
+  },
+  "axes": {
+    "task_utility": {
+      "status": "pass",
+      "notes": "Positive full-data held-out seed13 primary delta.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261027-seed13/audit.json",
+        "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+        "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+      ]
+    },
+    "robustness": {
+      "status": "not_run",
+      "notes": "Only one seed; no independent confirmation.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261027-seed13/audit.json",
+        "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+        "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+      ]
+    },
+    "natural_transfer": {
+      "status": "partial",
+      "notes": "Full natural benchmark and positive fixed-checkpoint CE diagnostic; reproducibility absent.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261027-seed13/audit.json",
+        "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+        "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+      ]
+    },
+    "attention_alignment": {
+      "status": "not_run",
+      "notes": "No ground-truth evidence-localization or alignment metric.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261027-seed13/audit.json",
+        "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+        "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+      ]
+    },
+    "classical_attribution": {
+      "status": "partial",
+      "notes": "Positive Q-minus-controls one seed; parameter budgets differ; exact simulator and classical counterpart constrain attribution.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261027-seed13/audit.json",
+        "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+        "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+      ]
+    },
+    "finite_shot": {
+      "status": "not_run",
+      "notes": "Exact classical simulation only.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261027-seed13/audit.json",
+        "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+        "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+      ]
+    },
+    "resource_audit": {
+      "status": "partial",
+      "notes": "Reported RTX A2000 12GB; no independent wall-clock/energy/quantum-resource comparison.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261027-seed13/audit.json",
+        "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+        "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+      ]
+    }
+  },
+  "trace_completeness": "partial",
+  "trace_observability": {
+    "status": "partial",
+    "schema_version": "sample-trace.v1",
+    "legacy_compatibility": true,
+    "artifact_refs": [
+      "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+    ],
+    "selection_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; no label/outcome access",
+    "coverage": {
+      "data": "observed",
+      "preprocess": "observed",
+      "training": "unavailable",
+      "retrieval": "not_applicable",
+      "scoring": "observed",
+      "selection": "unavailable",
+      "context": "not_applicable",
+      "generation": "not_applicable",
+      "evaluation": "observed",
+      "diagnosis": "observed"
+    },
+    "missing_stages": [
+      "training",
+      "selection",
+      "retrieval",
+      "context",
+      "generation"
+    ],
+    "notes": "Frozen handoff sample-trace.v1: two fixed hash-ordered samples/split, initial+valid-selected, all5 modes; independently replayed. First-update values/gradients retained, but no full training trajectory or public full-value viewer. Legacy handoff evidence is not current generic sample-trace.v2 portal readiness. Selection summaries verified, but no separate numeric selection trace stage."
+  },
+  "mechanism_recovery": {
+    "dossier_path": "docs/evidence/rmea/20261027-seed13/mechanism-recovery.json",
+    "dossier_sha256": "08ee8ac10dda3bbba8c66e7441fdebbca7bb454c36adba078df5d0eeeb89a5e0",
+    "outcome": "stop"
+  },
+  "next_upgrade": {
+    "action": "Freeze and review a separate fresh29/53/71/97/113 collaborator confirmation handoff, keeping science fixed and upgrading observability to current v2.",
+    "success_gate": "Predeclare positive mean Q-minus-uniform, >=4/5 positive and paired-t95%CI lower>0; repeated CE mechanism diagnostic and B0 invariance for L3 audit; classical gaps assessed separately.",
+    "kill_criteria": "No posthoc seed exclusion, threshold changes or retuning; failed gates stop promotion.",
+    "estimated_cost": "5 fresh seeds x5 conditions x20epochs=228500 head updates, plus pinned feature extraction; GPU hours unmeasured. Collaborator only.",
+    "authorized": false
+  },
+  "limitations": [
+    "No re-extraction of the frozen encoder on GPU. Original full input/assets verified by producer, not independently rehashed on collaborator filesystem.",
+    "First recorded gradients are inspected and first AdamW update independently reconstructed; backward gradients and full training trajectory are not replayed.",
+    "Legacy sample-trace.v1 matches the frozen handoff but does not certify current generic v2 portal observability. No raw samples or tensors published.",
+    "Python3.10/Torch2.7.1 is allowed. NumPy/Transformers versions were preflight-enforced but not independently recorded in the returned manifest.",
+    "No independent-seed uncertainty, attention alignment or strict quantum attribution established."
+  ],
+  "failed_gates": [
+    "independent_confirmation_not_run",
+    "L2_not_established",
+    "L3_not_established",
+    "strict_quantum_attribution_not_established"
+  ],
+  "provenance": {
+    "code_revision": "9d64e3353346c9bfd4f6926b17d60a3cb9c6c2ad",
+    "records": [
+      {
+        "path": "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+        "role": "collaborator report atcb4b6bb27114a512bbe266ed6d056cc768a8bda5",
+        "sha256": "0d1c47938228397df39b792380f73b4b3baeb047ff772f58ccfb70a3ddda4e1e"
+      },
+      {
+        "path": "reports/q_rmea/20261027T075438Z_seed13/manifest.json",
+        "role": "collaborator report atcb4b6bb27114a512bbe266ed6d056cc768a8bda5",
+        "sha256": "7cc494207a8dae3427accf3246b1205a2de203cdcf508401dedd82bc1a02c1de"
+      },
+      {
+        "path": "reports/q_rmea/20261027T075438Z_seed13/receipt.json",
+        "role": "collaborator report atcb4b6bb27114a512bbe266ed6d056cc768a8bda5",
+        "sha256": "688a5600c65904bbb54227b433163240d724445e43868413585f785286fdbf51"
+      },
+      {
+        "path": "reports/q_rmea/20261027T075438Z_seed13/trace_validation.json",
+        "role": "collaborator report atcb4b6bb27114a512bbe266ed6d056cc768a8bda5",
+        "sha256": "f48da34c81823500719fb5b866205e85b0997cbe1f96b29a78ab9cfe6717ba8f"
+      }
+    ]
+  }
+}

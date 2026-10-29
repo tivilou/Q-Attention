@@ -7,6 +7,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
+| [Q-RMEA 五个新种子独立确认](current/q_rmea_confirmation_handoff_zh.md) | 固定29/53/71/97/113；v2样本追踪；一键运行并自动提交、推送报告 |
 | [Q-RMEA 新 idea 单 seed 交付](current/q_rmea_single_seed_handoff_zh.md) | 已有 reference 复用；五路同接口新实验、机制置换、完整案例与自动报告回传；以验证记录为准 |
 | [Q-RMEA 前置检查（2026-10-26）](current/q_rmea_readiness_zh.md) | 数据/分词审计、GPU 小规模经典基线与仅导出恢复；资格不足，未交付正式实验 |
 | [Q-SRM 有界筛选交付](current/q_srm_screen_handoff_zh.md) | 五 seed 固定小样本筛选、GPU canary、严格恢复与七文件报告；不启动全量 |
@@ -57,3 +58,5 @@
 4. QCCW Stage-0 仅跑 seed 7；当前 gate 失败，禁止五 seed、真实数据和硬件实验。
 5. QCDD 仅为 seed-7 readout 诊断；当前 matched-control gate 失败，禁止调参、加 seed 和 attention action。
 6. 不提交 `data/`、`runs/`、checkpoint、predictions、JSONL 或完整日志。
+
+- [Q-RMEA完整seed13审计](audits/20261027-q-rmea-seed13.md)：L1效用候选，独立重复待准备；未启动确认。

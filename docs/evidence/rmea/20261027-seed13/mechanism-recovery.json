@@ -1,0 +1,146 @@
+{
+  "schema_version": "experiment-grounded-ideation.mechanism-recovery.v2",
+  "evidence_packet": {
+    "path": "docs/evidence/rmea/20261027-seed13/audit.json",
+    "sha256": "26e46ed0075d95d5e2a135821e58fe1428e7911c8bfbcb1bc2a993f6fe1c795e",
+    "code_revision": "9d64e3353346c9bfd4f6926b17d60a3cb9c6c2ad",
+    "validity_status": "clean"
+  },
+  "trace_adequacy": {
+    "status": "partial",
+    "schema_version": "sample-trace.v1",
+    "artifact_refs": [
+      "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+    ],
+    "selection_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; no label/outcome access",
+    "covered_stages": [
+      "input metadata and cached encoder outputs",
+      "initial and selected attention/value/logit/diagnosis states",
+      "recorded first-update parameter/gradient/after values"
+    ],
+    "missing_stages": [
+      "full optimization trajectory",
+      "independent backward recomputation",
+      "public coordinate value reader"
+    ],
+    "target_boundary": "No gold label is accepted by the head or weight permutation; labels supervise training and score held-out outputs only.",
+    "causal_links_observed": {
+      "intervention_execution": true,
+      "intended_intermediate": true,
+      "observable_output": true,
+      "task_utility": true
+    },
+    "notes": "Frozen handoff sample-trace.v1: two fixed hash-ordered samples/split, initial+valid-selected, all5 modes; independently replayed. First-update values/gradients retained, but no full training trajectory or public full-value viewer. Legacy handoff evidence is not current generic sample-trace.v2 portal readiness."
+  },
+  "causal_trace": {
+    "intervention_execution": {
+      "claim": "60 matched sample states and all1128 values replay; fixed weights act in the pooled classification output.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261027-seed13/audit.json",
+        "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+        "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+      ]
+    },
+    "intended_intermediate": {
+      "claim": "Context permutation preserves values, decoder, entity/padding weights and each relation weight multiset; independent computational-basis gates and sensitivity agree.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261027-seed13/audit.json",
+        "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+        "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+      ]
+    },
+    "observable_output": {
+      "claim": "115 confusion matrices reproduce metrics; Q held-out Macro-F1 .5379691853913295.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261027-seed13/audit.json",
+        "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+        "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+      ]
+    },
+    "task_utility": {
+      "claim": "Single-seed quantum-minus-uniform .3168364723395001; positive held-out utility, no replication.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261027-seed13/audit.json",
+        "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+        "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+      ]
+    }
+  },
+  "failure_analysis": {
+    "primary_explanation": {
+      "statement": "No full-budget utility failure observed. The unresolved issue is robustness and separation from strong classical controls; .005284144763277432 versus softmax is one seed.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261027-seed13/audit.json",
+        "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+        "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+      ],
+      "confidence": "high"
+    },
+    "alternative_explanations": [
+      {
+        "statement": "Much of the gain over uniform may be ordinary relation-conditioned weighting; all three learned controls also outperform uniform.",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261027-seed13/audit.json",
+          "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+          "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+        ],
+        "confidence": "medium"
+      },
+      {
+        "statement": "The smaller Q-minus-softmax gap may reflect seed variation or differing function capacity; these causes are not identified.",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261027-seed13/audit.json",
+          "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+          "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+        ],
+        "confidence": "low"
+      }
+    ],
+    "discriminating_measurement": {
+      "uncertainty": "Repeatability of utility and fixed-checkpoint mechanism diagnostic, and classical-control separation.",
+      "measurement": "Freeze unchanged five-condition full-data protocol on fresh29/53/71/97/113, valid-only selection; report every seed and paired differences, primary Q-minus-uniform statistics and CE diagnostic. Separate reviewed handoff required.",
+      "primary_outcome": "Positive mean, >=4/5 positive, paired-t 95% CI lower>0 and repeated predeclared natural-task mechanism checks support later L2/L3 audit.",
+      "alternative_outcome": "Failed preregistered gate stops promotion; keep seed13 L1 and report all results."
+    },
+    "closed_family": {
+      "id": "q-rmea-posthoc-seed13-rescue",
+      "rejected_variant_refs": [
+        "reports/q_rmea/20261027T075438Z_seed13"
+      ],
+      "closure_evidence_refs": [
+        "docs/evidence/rmea/20261027-seed13/audit.json",
+        "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+        "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+      ],
+      "forbidden_rescue_variants": [
+        "Retune on observed test scores",
+        "Replace candidate by the posthoc best micro-F1 control",
+        "Claim quantum advantage from Q-minus-softmax one seed",
+        "Count repeated deterministic inference as replication"
+      ]
+    }
+  },
+  "positive_carryovers": [
+    {
+      "id": "relation-specific-context-weighting",
+      "mechanism": "All learned weight conditions improve held-out Macro-F1 versus the same uniform head; shuffled context assignments worsen held-out CE while B0 remains invariant.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261027-seed13/audit.json",
+        "reports/q_rmea/20261027T075438Z_seed13/summary.json",
+        "docs/evidence/rmea/20261027-seed13/independent-replay.json"
+      ],
+      "transport_constraint": "One seed, frozen encoder output head; no internal Transformer attention, direct alignment or quantum uniqueness claim."
+    }
+  ],
+  "recovery_outcome": {
+    "disposition": "stop",
+    "stop_reason": "Stop speculative redesign or posthoc rescue at this checkpoint; no NEW causal candidate is selected. Retain unchanged Q-RMEA L1 for a separately gated confirmation protocol."
+  },
+  "limitations": [
+    "No re-extraction of the frozen encoder on GPU. Original full input/assets verified by producer, not independently rehashed on collaborator filesystem.",
+    "First recorded gradients are inspected and first AdamW update independently reconstructed; backward gradients and full training trajectory are not replayed.",
+    "Legacy sample-trace.v1 matches the frozen handoff but does not certify current generic v2 portal observability. No raw samples or tensors published.",
+    "Python3.10/Torch2.7.1 is allowed. NumPy/Transformers versions were preflight-enforced but not independently recorded in the returned manifest.",
+    "No independent-seed uncertainty, attention alignment or strict quantum attribution established."
+  ]
+}
