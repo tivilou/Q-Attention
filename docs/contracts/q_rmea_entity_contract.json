@@ -1,0 +1,138 @@
+{
+  "contract_sha256": "2d80f7fc798803c1eaefb63352ff39f8262685c8bcb393c66060a43259e87e84",
+  "profiles": {
+    "canary": {
+      "schema": "q-rmea.entity.protocol.v1",
+      "profile": "canary",
+      "seed": 13,
+      "conditions": [
+        "static",
+        "ordered",
+        "no_content",
+        "symmetric",
+        "classical_pair"
+      ],
+      "counts": {
+        "train": 16,
+        "valid": 8,
+        "test": 8
+      },
+      "epochs": 1,
+      "batch_size": 128,
+      "optimizer": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.01,
+      "clip_norm": 1.0,
+      "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+      "max_tokens": 512,
+      "hidden_size": 1024,
+      "value_size": 64,
+      "classes": 40,
+      "qubits": 3,
+      "depth": 2,
+      "eps": 1e-06,
+      "selection": "strictly greatest valid macro_f1; earliest tie; test metrics only after selection",
+      "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; pilot reuses pinned readiness-v1 train/valid selection",
+      "trace_samples_per_split": 2,
+      "trace_checkpoints": [
+        "initial",
+        "selected"
+      ],
+      "primary_utility": "ordered minus static full40 test macro_f1; positive is provisional single-seed gate only",
+      "primary_mechanism": "ordered selected-checkpoint CE(branch train-mean)-CE(actual), CE(branch role-swap)-CE(actual), CE(branch whole-split deterministic mismatch)-CE(actual); all samples retained",
+      "controls": "Retrained no_content and symmetric; classical_pair equal active parameter count, not proven capacity/optimization equivalence",
+      "replication": "Never automatic. Owner audits single-seed report before any multi-seed release.",
+      "private_policy": "Report-only Git return; no exchange authorization required; private evidence stays collaborator-side",
+      "claim_scope": "Frozen encoder output head; no L3, novelty, hardware, speedup, quantum exclusivity or statistical claim from a single seed"
+    },
+    "discovery": {
+      "schema": "q-rmea.entity.protocol.v1",
+      "profile": "discovery",
+      "seed": 13,
+      "conditions": [
+        "static",
+        "ordered",
+        "no_content",
+        "symmetric",
+        "classical_pair"
+      ],
+      "counts": {
+        "train": 58465,
+        "valid": 19584,
+        "test": 13418
+      },
+      "epochs": 20,
+      "batch_size": 128,
+      "optimizer": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.01,
+      "clip_norm": 1.0,
+      "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+      "max_tokens": 512,
+      "hidden_size": 1024,
+      "value_size": 64,
+      "classes": 40,
+      "qubits": 3,
+      "depth": 2,
+      "eps": 1e-06,
+      "selection": "strictly greatest valid macro_f1; earliest tie; test metrics only after selection",
+      "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; pilot reuses pinned readiness-v1 train/valid selection",
+      "trace_samples_per_split": 2,
+      "trace_checkpoints": [
+        "initial",
+        "selected"
+      ],
+      "primary_utility": "ordered minus static full40 test macro_f1; positive is provisional single-seed gate only",
+      "primary_mechanism": "ordered selected-checkpoint CE(branch train-mean)-CE(actual), CE(branch role-swap)-CE(actual), CE(branch whole-split deterministic mismatch)-CE(actual); all samples retained",
+      "controls": "Retrained no_content and symmetric; classical_pair equal active parameter count, not proven capacity/optimization equivalence",
+      "replication": "Never automatic. Owner audits single-seed report before any multi-seed release.",
+      "private_policy": "Report-only Git return; no exchange authorization required; private evidence stays collaborator-side",
+      "claim_scope": "Frozen encoder output head; no L3, novelty, hardware, speedup, quantum exclusivity or statistical claim from a single seed"
+    },
+    "pilot": {
+      "schema": "q-rmea.entity.protocol.v1",
+      "profile": "pilot",
+      "seed": 307,
+      "conditions": [
+        "static",
+        "ordered",
+        "no_content",
+        "symmetric",
+        "classical_pair"
+      ],
+      "counts": {
+        "train": 2048,
+        "valid": 1024
+      },
+      "epochs": 4,
+      "batch_size": 32,
+      "optimizer": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.01,
+      "clip_norm": 1.0,
+      "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+      "max_tokens": 512,
+      "hidden_size": 1024,
+      "value_size": 64,
+      "classes": 40,
+      "qubits": 3,
+      "depth": 2,
+      "eps": 1e-06,
+      "selection": "strictly greatest valid macro_f1; earliest tie; test metrics only after selection",
+      "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; pilot reuses pinned readiness-v1 train/valid selection",
+      "trace_samples_per_split": 2,
+      "trace_checkpoints": [
+        "initial",
+        "selected"
+      ],
+      "primary_utility": "ordered minus static full40 test macro_f1; positive is provisional single-seed gate only",
+      "primary_mechanism": "ordered selected-checkpoint CE(branch train-mean)-CE(actual), CE(branch role-swap)-CE(actual), CE(branch whole-split deterministic mismatch)-CE(actual); all samples retained",
+      "controls": "Retrained no_content and symmetric; classical_pair equal active parameter count, not proven capacity/optimization equivalence",
+      "replication": "Never automatic. Owner audits single-seed report before any multi-seed release.",
+      "private_policy": "Report-only Git return; no exchange authorization required; private evidence stays collaborator-side",
+      "claim_scope": "Frozen encoder output head; no L3, novelty, hardware, speedup, quantum exclusivity or statistical claim from a single seed"
+    }
+  },
+  "trace": "sample-trace.v2; original tokens->tokenization->saved encoder output->original-word mean->entities/values/weights->prediction->posthoc target; 2 fixed samples per split and initial/valid-selected checkpoint",
+  "lifecycle": "Portable parent; isolated preflight; live GPU canary before collaborator-only discovery; sealed inventory; exact seven-file atomic report; no raw transfer; single ordinary report commit/push; export retry without training; no partial training resume"
+}
