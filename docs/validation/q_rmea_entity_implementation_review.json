@@ -1,0 +1,117 @@
+{
+  "review_mode": "subagent_fallback",
+  "reviewer_model": "/root/entity_code_review",
+  "transport": {
+    "route": "same-packet bounded review fallback",
+    "attempt_log": "review-selection.json",
+    "external_outcome": "exact-native-max A6API URLError, as supplied by primary"
+  },
+  "review_scope": "both",
+  "source_sha256": "1d5ee3e178f600e4d7559b92ae78c2b596b4d1865ee7fd45957b8e8bd3ffa6e0",
+  "contract_sha256": "2d80f7fc798803c1eaefb63352ff39f8262685c8bcb393c66060a43259e87e84",
+  "repository_revision": "9ff0c18caae55016739d70f2d06199ac28ae1228; new staged additive files",
+  "theory_mapping": [
+    {
+      "invariant": "Ordered pair measurement and train-only content ablation",
+      "locations": [
+        "baselines/retacred/rmea_entity.py:apply_circuit/EntityRMEAHead.forward",
+        "baselines/retacred/rmea_entity_study.py:train calibration/overrides"
+      ],
+      "finding": "Previously reviewed complex three-qubit mechanism unchanged. Uo Us/effective Us-dagger Uo-dagger ordering correct. Calibration loops only train without targets. Same-split donor map is computed once over whole split from hash IDs, without label access."
+    },
+    {
+      "invariant": "Single fixed seed and validation-only selection",
+      "locations": [
+        "baselines/retacred/rmea_entity_study_protocol.py:config/review_gate",
+        "baselines/retacred/rmea_entity_study.py:evaluate/train/run"
+      ],
+      "finding": "Discovery seed13, full58465/19584/13418,20epochs,batch128. Validation Macro-F1 chooses earliest best. Test aggregate evaluation follows selected checkpoint; initial/selected fixed sample target comparisons do not enter model/training/selector. Pilot contains no test split."
+    },
+    {
+      "invariant": "Private complete source-linked inference replay",
+      "locations": [
+        "baselines/retacred/rmea_entity_study_trace.py:capture/close",
+        "baselines/retacred/rmea_entity_trace.py:read_value",
+        "scripts/view_rmea_entity_trace.py:Handler"
+      ],
+      "finding": "Detached numeric states, encoder-subword-to-word verification, checkpoint and value hashes, role/padding/source parity, branch means/swap/whole-split donor replay and arbitrary coordinate reader supplied. No live encoder/internal-layer/full-trajectory claim. Corrected entities stage declares training means only for no_content; static sensitivity explicitly consumes utilities."
+    },
+    {
+      "invariant": "Collaborator-only real parent/child lifecycle and report-only delivery",
+      "locations": [
+        "baselines/retacred/rmea_entity_handoff.py:probe/isolated_probe/run/export/publish",
+        "baselines/retacred/rmea_entity_study.py:run",
+        "experiments/check_rmea_entity_handoff.py:main"
+      ],
+      "finding": "Portable isolated preflight, exact source+contract review gate, fresh private outputs, bounded live GPU canary before discovery. Discovery requires1.1+parent env; fixture restricted to canary and fixed archive hash. Atomic exact7 report; no raw transfer dependency. Export retry preserves closed artifacts and cannot train. Publication constrains ancestry/status/staging/commit bytes to one ordinary1.1 report push."
+    }
+  ],
+  "correctness": {
+    "status": "pass",
+    "scope": "static source review only; next measured preflight authorization",
+    "evidence": "Exact packet source/text/hashes verified. No entity-only bypass or gold input. False entity mean lineage identified in initial packet and corrected before this final source binding."
+  },
+  "fidelity_gaps": [
+    "No unresolved implementation mismatch within supplied scope.",
+    "Saved encoder final-output replay is explicitly not a live encoder/internal-layer replay or full optimization trajectory.",
+    "Single-seed provisional utility cannot establish L3, novelty, or reproducibility. These are claim limits, not code defects."
+  ],
+  "control_fairness": {
+    "status": "pass",
+    "scope": "declared active-parameter and protocol matching, not capacity/optimizer equivalence",
+    "evidence": "All heads contain81028 active learned parameters, shared complete initialization identity, same optimizer/update budget. No_content and symmetric are retrained controls; static is integrated disabled-branch comparator. Classical versus quantum state-space/training difficulty caveat is preserved."
+  },
+  "gradient_and_numerics": {
+    "status": "pass",
+    "scope": "source inspection and unchanged focused test definitions; no execution by reviewer",
+    "evidence": "Differentiable inverse circuit/complex overlap, EPS masked normalization, finite training/evaluation checks, gradient clipping, exact static parity and gradient/inverse/mask/branch tests. Labels excluded from entity calibration and donor construction; test never selects checkpoint."
+  },
+  "lifecycle_correctness": {
+    "status": "pass",
+    "scope": "code review permitting next actual preflight only",
+    "evidence": "Isolated preflight selects one eligible visible GPU and frozen environment. Parent runs canary then discovery serially, no automatic reseeding/replication/resume. Development cached path limited to canary. Actual child failure test, two immutable export retries and local bare-origin publication/idempotency test are implemented."
+  },
+  "artifact_and_recovery": {
+    "status": "pass",
+    "scope": "implementation review, measured receipt still required",
+    "evidence": "Closed artifact inventory and source/config identities, data counts/hashes, exact7 file schema, regular-file/symlink checks, atomic temp rename and cleanup. Failed push leaves one exact report commit that export retry reuses. Added actual loopback HTTP reader smoke binds port0, reads a subject_angles coordinate, compares against actual hash-backed source, terminates helper. No raw exchange upload or raw report tensor export. Final package now includes the exact dev module imported by the cache test, so a clean release checkout does not rely on an older unlisted owner worktree file. Source allowlist hashes the included dependency."
+  },
+  "must_fix": [],
+  "resolved_findings": [
+    {
+      "id": "TRACE-ENTITY-INPUT",
+      "file": "baselines/retacred/rmea_entity_study_trace.py",
+      "resolution": "external:train_only_means now conditionally declared only for no_content; exact corrected source verified."
+    }
+  ],
+  "verdict": "PASS",
+  "confidence": "high",
+  "reviewed_at": "2026-10-30T17:35:33.773885+00:00",
+  "tests_executed_by_reviewer": false,
+  "next_stage_requirements": [
+    "Run exact-source registered unit tests and actual real-parent canary, injected copy failure, immutable export retries, loopback HTTP value read and local bare-origin report push/idempotency acceptance before GitHub release.",
+    "Audit bounded train2048/valid1024 no-test pilot as separately declared by primary; no owner complete-data experiment.",
+    "Formal collaborator instructions must preserve frozen contract and report-only Git return; no inference of measured task improvement from this review.",
+    "Validate final source bundle on clean origin/main-derived checkout; rerun unit/canary to catch packaging omissions. Prior no-test pilot may be reused only for unchanged scientific/cache/train source hashes and unchanged declared contract; its negative/inconclusive utility must not be promoted."
+  ],
+  "permitted_next_stage": "Exact-source owner bounded preflight and lifecycle acceptance. PASS is not an experiment result or automatic GitHub/formal execution authorization.",
+  "rebind_history": [
+    {
+      "old_source_sha256": "b234ee27a2db72f1039632c5bf6bcba120f1fa19550e500eb04d52dcf3eeedb6",
+      "change": "Only locked labels JSON CRLF -> LF; reconstructing original CRLF bytes yields exactly the previous reviewed SHA5616d4...9f21. All40 label values/order and contract unchanged. No source executable/test semantics changed.",
+      "changed_files": [
+        "docs/contracts/q_rmea_entity_labels.json"
+      ],
+      "tests_executed_by_reviewer": false
+    },
+    {
+      "old_source_sha256": "a6a514d851e56247172a223d595c7e11591ddc27edc1674d8573ed96d9d4007b",
+      "change": "Close public test dependency by adding unchanged previously reviewed experiments/q_rmea_entity_dev.py to FILES. Removing only the added string literal yields exact old protocol SHAa720309...82c69; included dev runner matches earlier reviewed SHA04e217...7022. Scientific head, optimizer, selector and frozen contract unchanged.",
+      "changed_files": [
+        "baselines/retacred/rmea_entity_study_protocol.py",
+        "experiments/q_rmea_entity_dev.py"
+      ],
+      "tests_executed_by_reviewer": false
+    }
+  ]
+}

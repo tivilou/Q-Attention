@@ -1,0 +1,233 @@
+{
+  "schema": "qattn.rmea.entity.handoff-acceptance.v1",
+  "status": "PASS",
+  "scope": "technical collaborator single-seed release; not method utility/L3",
+  "source_sha256": "1d5ee3e178f600e4d7559b92ae78c2b596b4d1865ee7fd45957b8e8bd3ffa6e0",
+  "contract_sha256": "2d80f7fc798803c1eaefb63352ff39f8262685c8bcb393c66060a43259e87e84",
+  "tested_revision": "d9f95a5597b6fa530d510afa43db826dbc2821a0",
+  "review": {
+    "scope": "both",
+    "mode": "subagent_fallback",
+    "verdict": "PASS",
+    "must_fix": []
+  },
+  "unit": {
+    "status": "pass",
+    "tests": 15
+  },
+  "trace": {
+    "schema": "q-rmea.entity.trace-readiness.v2",
+    "structural": "pass",
+    "semantic": "pass",
+    "replay": "pass",
+    "coordinate_reader": "pass",
+    "samples": 60,
+    "complete_numeric_arrays_checked": 1668,
+    "source_linked_coordinates_checked": 4860,
+    "warnings": [
+      "samples[0] has no observed stage mapped to coverage.diagnosis",
+      "samples[1] has no observed stage mapped to coverage.diagnosis",
+      "samples[2] has no observed stage mapped to coverage.diagnosis",
+      "samples[3] has no observed stage mapped to coverage.diagnosis",
+      "samples[4] has no observed stage mapped to coverage.diagnosis",
+      "samples[5] has no observed stage mapped to coverage.diagnosis",
+      "samples[6] has no observed stage mapped to coverage.diagnosis",
+      "samples[7] has no observed stage mapped to coverage.diagnosis",
+      "samples[8] has no observed stage mapped to coverage.diagnosis",
+      "samples[9] has no observed stage mapped to coverage.diagnosis",
+      "samples[10] has no observed stage mapped to coverage.diagnosis",
+      "samples[11] has no observed stage mapped to coverage.diagnosis",
+      "samples[24] has no observed stage mapped to coverage.diagnosis",
+      "samples[25] has no observed stage mapped to coverage.diagnosis",
+      "samples[26] has no observed stage mapped to coverage.diagnosis",
+      "samples[27] has no observed stage mapped to coverage.diagnosis",
+      "samples[28] has no observed stage mapped to coverage.diagnosis",
+      "samples[29] has no observed stage mapped to coverage.diagnosis",
+      "samples[30] has no observed stage mapped to coverage.diagnosis",
+      "samples[31] has no observed stage mapped to coverage.diagnosis",
+      "samples[32] has no observed stage mapped to coverage.diagnosis",
+      "samples[33] has no observed stage mapped to coverage.diagnosis",
+      "samples[34] has no observed stage mapped to coverage.diagnosis",
+      "samples[35] has no observed stage mapped to coverage.diagnosis",
+      "samples[36] has no observed stage mapped to coverage.diagnosis",
+      "samples[37] has no observed stage mapped to coverage.diagnosis",
+      "samples[38] has no observed stage mapped to coverage.diagnosis",
+      "samples[39] has no observed stage mapped to coverage.diagnosis",
+      "samples[40] has no observed stage mapped to coverage.diagnosis",
+      "samples[41] has no observed stage mapped to coverage.diagnosis",
+      "samples[42] has no observed stage mapped to coverage.diagnosis",
+      "samples[43] has no observed stage mapped to coverage.diagnosis",
+      "samples[44] has no observed stage mapped to coverage.diagnosis",
+      "samples[45] has no observed stage mapped to coverage.diagnosis",
+      "samples[46] has no observed stage mapped to coverage.diagnosis",
+      "samples[47] has no observed stage mapped to coverage.diagnosis",
+      "samples[48] has no observed stage mapped to coverage.diagnosis",
+      "samples[49] has no observed stage mapped to coverage.diagnosis",
+      "samples[50] has no observed stage mapped to coverage.diagnosis",
+      "samples[51] has no observed stage mapped to coverage.diagnosis",
+      "samples[52] has no observed stage mapped to coverage.diagnosis",
+      "samples[53] has no observed stage mapped to coverage.diagnosis",
+      "samples[54] has no observed stage mapped to coverage.diagnosis",
+      "samples[55] has no observed stage mapped to coverage.diagnosis",
+      "samples[56] has no observed stage mapped to coverage.diagnosis",
+      "samples[57] has no observed stage mapped to coverage.diagnosis",
+      "samples[58] has no observed stage mapped to coverage.diagnosis",
+      "samples[59] has no observed stage mapped to coverage.diagnosis"
+    ],
+    "boundary": "Actual cached subword encoder output to original words and head; no live encoder/internal layers/training-trajectory claim"
+  },
+  "lifecycle": {
+    "status": "pass",
+    "parent_child": "real",
+    "injected_failure": "clean",
+    "export_retries": 2,
+    "immutable_files": 101,
+    "training_repeated": false,
+    "report_files": [
+      "data.sha256",
+      "data_counts.txt",
+      "manifest.json",
+      "receipt.json",
+      "run_summary.json",
+      "summary.json",
+      "trace_validation.json"
+    ],
+    "actual_local_git_push": "pass",
+    "second_publish_same_commit": true,
+    "private_http_reader": "pass",
+    "revision": "d9f95a5597b6fa530d510afa43db826dbc2821a0",
+    "source_sha256": "1d5ee3e178f600e4d7559b92ae78c2b596b4d1865ee7fd45957b8e8bd3ffa6e0",
+    "formal_runs": 0
+  },
+  "pilot": {
+    "scope": "bounded train/valid learning only; no test",
+    "test_loaded": false,
+    "counts": {
+      "train": 2048,
+      "valid": 1024
+    },
+    "seed": 307,
+    "epochs": 4,
+    "batch_size": 32,
+    "results": {
+      "static": {
+        "valid_macro_f1": 0.05723855379995796,
+        "selected_epoch": 4,
+        "valid_ce_by_epoch": [
+          1.82311100512743,
+          1.714467290788889,
+          1.579327516257763,
+          1.5584366489201784
+        ],
+        "updates": 256,
+        "parameters": 81028
+      },
+      "ordered": {
+        "valid_macro_f1": 0.03676333789257831,
+        "selected_epoch": 4,
+        "valid_ce_by_epoch": [
+          1.9034793376922607,
+          1.8251601476222277,
+          1.7604018561542034,
+          1.727678520604968
+        ],
+        "updates": 256,
+        "parameters": 81028
+      },
+      "no_content": {
+        "valid_macro_f1": 0.0381682552312947,
+        "selected_epoch": 4,
+        "valid_ce_by_epoch": [
+          1.8976927921175957,
+          1.8351414874196053,
+          1.753756307065487,
+          1.658818917348981
+        ],
+        "updates": 256,
+        "parameters": 81028
+      },
+      "symmetric": {
+        "valid_macro_f1": 0.035629887585532746,
+        "selected_epoch": 4,
+        "valid_ce_by_epoch": [
+          1.869434967637062,
+          1.8157636001706123,
+          1.7305041961371899,
+          1.6722448524087667
+        ],
+        "updates": 256,
+        "parameters": 81028
+      },
+      "classical_pair": {
+        "valid_macro_f1": 0.06664529956740946,
+        "selected_epoch": 4,
+        "valid_ce_by_epoch": [
+          1.8910946063697338,
+          1.7293386030942202,
+          1.7278409656137228,
+          1.7567031234502792
+        ],
+        "updates": 256,
+        "parameters": 81028
+      }
+    },
+    "ordered_minus_static": -0.02047521590737965,
+    "verdict": "inconclusive_short_budget_no_positive_utility",
+    "reuse": {
+      "executed_revision": "5cf9e00a6084832ae1a4fc64ef3f8eaa4f897a22",
+      "per_file_scientific_hashes_unchanged": true,
+      "protocol_function_ast_unchanged": true
+    },
+    "protocol_note": "Two-epoch design draft refined to four bounded epochs in frozen reviewed contract before execution; not extended after seeing results."
+  },
+  "full_run": {
+    "owner_formal_runs": 0,
+    "collaborator_only": true,
+    "seed": 13,
+    "conditions": [
+      "static",
+      "ordered",
+      "no_content",
+      "symmetric",
+      "classical_pair"
+    ],
+    "epochs": 20,
+    "batch_size": 128,
+    "counts": {
+      "train": 58465,
+      "valid": 19584,
+      "test": 13418
+    },
+    "multi_seed": false,
+    "report_files": [
+      "data.sha256",
+      "data_counts.txt",
+      "manifest.json",
+      "receipt.json",
+      "run_summary.json",
+      "summary.json",
+      "trace_validation.json"
+    ],
+    "automatic_raw_upload": false
+  },
+  "environment": {
+    "owner": "Existing registered Linux CPU environment; Python3.10/Torch2.5.1/NumPy1.26.4/Transformers4.44.2; no installs",
+    "live_gpu": "No owner GPU available; collaborator must pass live GPU canary before formal stage"
+  },
+  "baseline_readiness": "Existing full benchmark baselines and fresh5 audit reused; new static is an integrated control, not a new historical baseline batch",
+  "limitations": [
+    "Technical PASS does not establish task advantage, L3, novelty or quantum-form attribution.",
+    "Negative short pilot is retained; no positive utility inferred.",
+    "Official split overlap and repeated historical test exposure remain.",
+    "CPU cached subword-output trace validation is not live GPU encoder or performance validation.",
+    "Matched active parameter count does not prove matched expression or optimizer difficulty."
+  ],
+  "schema_validation": {
+    "status": "pass",
+    "schemas": [
+      "sample-trace.v2",
+      "research-plugin-architecture.plugin-plan.v2"
+    ],
+    "plugin_plan_custom_validator": "5 plugins validated"
+  }
+}
