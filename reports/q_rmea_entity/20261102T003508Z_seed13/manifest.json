@@ -1,0 +1,71 @@
+{
+  "schema": "q-rmea.entity.run.v1",
+  "config": {
+    "schema": "q-rmea.entity.protocol.v1",
+    "profile": "discovery",
+    "seed": 13,
+    "conditions": [
+      "static",
+      "ordered",
+      "no_content",
+      "symmetric",
+      "classical_pair"
+    ],
+    "counts": {
+      "train": 58465,
+      "valid": 19584,
+      "test": 13418
+    },
+    "epochs": 20,
+    "batch_size": 128,
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "clip_norm": 1.0,
+    "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+    "max_tokens": 512,
+    "hidden_size": 1024,
+    "value_size": 64,
+    "classes": 40,
+    "qubits": 3,
+    "depth": 2,
+    "eps": 1e-06,
+    "selection": "strictly greatest valid macro_f1; earliest tie; test metrics only after selection",
+    "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; pilot reuses pinned readiness-v1 train/valid selection",
+    "trace_samples_per_split": 2,
+    "trace_checkpoints": [
+      "initial",
+      "selected"
+    ],
+    "primary_utility": "ordered minus static full40 test macro_f1; positive is provisional single-seed gate only",
+    "primary_mechanism": "ordered selected-checkpoint CE(branch train-mean)-CE(actual), CE(branch role-swap)-CE(actual), CE(branch whole-split deterministic mismatch)-CE(actual); all samples retained",
+    "controls": "Retrained no_content and symmetric; classical_pair equal active parameter count, not proven capacity/optimization equivalence",
+    "replication": "Never automatic. Owner audits single-seed report before any multi-seed release.",
+    "private_policy": "Report-only Git return; no exchange authorization required; private evidence stays collaborator-side",
+    "claim_scope": "Frozen encoder output head; no L3, novelty, hardware, speedup, quantum exclusivity or statistical claim from a single seed"
+  },
+  "source_sha256": "1d5ee3e178f600e4d7559b92ae78c2b596b4d1865ee7fd45957b8e8bd3ffa6e0",
+  "git_revision": "1f609f70216a703f58428b946aebcd1b7a220805",
+  "data": {
+    "train": {
+      "source_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+      "source_count": 58465,
+      "selected_count": 58465
+    },
+    "valid": {
+      "source_sha256": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+      "source_count": 19584,
+      "selected_count": 19584
+    },
+    "test": {
+      "source_sha256": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40",
+      "source_count": 13418,
+      "selected_count": 13418
+    }
+  },
+  "environment": {
+    "python": "3.10.12",
+    "torch": "2.7.1+cu118",
+    "gpu": "NVIDIA RTX A2000 12GB"
+  }
+}
