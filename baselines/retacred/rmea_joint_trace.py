@@ -113,7 +113,7 @@ AXES = {
     'bias': ['relation'], 'logits': ['sample','relation'],
     'cp': ['relation','rank','role','flat_rotation'],
 }
-for _name in ('probability','alpha','utilities','sensitivity','amplitude','separable_null_q','separable_null_direction'):
+for _name in ('probability','alpha','utilities','sensitivity','amplitude','separable_null_q','separable_null_direction','separable_null_alpha'):
     AXES[_name] = ['sample','relation','word']
 for _name in ('normalizer','separable_null_c','separable_null_q_mass','separable_null_mixture'):
     AXES[_name] = ['sample','relation','singleton']
