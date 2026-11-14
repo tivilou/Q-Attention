@@ -1,0 +1,61 @@
+{
+  "schema": "qattn.spectral.development-contract.v1",
+  "seed": 419,
+  "epochs": 20,
+  "batch_size": 32,
+  "variants": [
+    "static",
+    "spectral",
+    "scalar_calibration",
+    "spectral_dephased"
+  ],
+  "exclusions_sha256": "bc7b40947ccb72facfcfca9633cdfb35dd628b009209467839760b522de5904f",
+  "cache_sha256": "c1279284a9a5e9d59e3303c591e657cc2f4f340b510f96d3ace727b89dcd6511",
+  "cache_manifest_sha256": "8e5c6dec3ae31b2bbb4bdb45fa6b80b2be74275cea4d6afb87da612ad80392d8",
+  "equation": "E_r=sum_k softmax(beta_r)_k U_r|k><k|U_r^dagger; p_rt=<psi_t|E_r|psi_t>; alpha=(p+EPS)/sum_valid(p+EPS); original positive value pooling.",
+  "initializer": "lambda=(.9,.1/7,...,.1/7), chosen before task results. Scalar Bernstein degree7 with8softmax coefficients and fixed scale initialized to EXACT same affine function of p0, including EPS.",
+  "fairness": "Same active common modules/initial values/data order/optimizer/steps. Spectral/scalar both81348parameters vsstatic81028; spectrum and scalar softmax have280extra effective DoF. Function classes intentionally differ; no effective-capacity equality claim.",
+  "controls": "Static original rank1; same-parameter nonlinear scalar calibration; independently trained spectral probability-dephased readout (basis construction retains phase; not total pipeline dephasing). Exact dense PSD replay checks correctness only.",
+  "data_scope": "All fixed train2048; existing valid1024 minus every previously explored multiclass/parity hash. Development cache previously used for joint work; no independent confirmation or test.",
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "clip_norm": 1.0
+  },
+  "resources": {
+    "cpu": 4,
+    "ram_mb": 4096,
+    "disk_mb": 128,
+    "gpus": 0,
+    "timeout": 900,
+    "max_attempts": 1,
+    "replay_safe": false
+  },
+  "selection": "Strict greatest validation full40Macro; earliest tie. All20epochs execute once, no adaptive extension.",
+  "gate": "Positive spectral-vs-static AND spectral-vs-scalar development Macro deltas permits formal single-seed PREPARATION only. Null/negative means no promotion this attempt; no whole-family disproof or rescue sweep.",
+  "formal_plan": "Not executable/frozen release yet. Prospective collaborator-only complete-data20epochs,batch128,freshseed431 after audited positive bounded acceptance and exact release review; original baseline campaign not repeated.",
+  "replication_plan": "Fresh predeclared independent formal seeds only after audited complete-data single-seed gate; L3 requires positive multi-seed ordinary utility plus same-study spectral-rank/calibration ablations. No significance or exclusive quantum attribution promised.",
+  "recovery": "One restartable bounded job from pinned cached inputs, no certified optimizer resume or automatic retry. Unknown attempt retained. Only exact owner/worker config restoration after terminal/quiescent.",
+  "output_whitelist": [
+    "summary.json",
+    "unit.json",
+    "cohort.json",
+    "RUN_COMPLETE"
+  ],
+  "private_closed_members": [
+    "checkpoints/<variant>-selected.pt"
+  ],
+  "public_allowlist": [
+    "Code/contract excluding exclusion ID file",
+    "summary.json",
+    "unit.json",
+    "cohort.json",
+    "audit.json",
+    "analysis-zh.md"
+  ],
+  "no_formal_runs": true,
+  "no_test": true,
+  "no_new_cos_reads": true,
+  "no_new_paid_resources": true
+}
