@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "cases": 240,
+  "metrics": {
+    "static": {
+      "correct": 136,
+      "accuracy": 0.5666666666666667,
+      "stratified_macro_f1": 0.6110666416916417,
+      "corrected": 0,
+      "harmed": 0,
+      "changed": 0
+    },
+    "outcome_contrast": {
+      "correct": 133,
+      "accuracy": 0.5541666666666667,
+      "stratified_macro_f1": 0.5436684883743708,
+      "corrected": 26,
+      "harmed": 29,
+      "changed": 116
+    },
+    "dephased_contrast": {
+      "correct": 124,
+      "accuracy": 0.5166666666666667,
+      "stratified_macro_f1": 0.48981739923303397,
+      "corrected": 26,
+      "harmed": 38,
+      "changed": 132
+    },
+    "centered_positive": {
+      "correct": 132,
+      "accuracy": 0.55,
+      "stratified_macro_f1": 0.5402838582985641,
+      "corrected": 26,
+      "harmed": 30,
+      "changed": 117
+    }
+  },
+  "delta_macro": -0.06739815331727095,
+  "direct_screen_gate": "FAIL",
+  "decision": "Stop current direct frozen insertion; no coefficient/gating/seed rescue or formal handoff",
+  "headroom": {
+    "convex_feasible_cases": 240,
+    "static_wrong_convex_feasible": 104,
+    "scope": "Gold-label oracle with independent per-class convex weights. Not deployable, not a signed-contrast expressivity bound, not full-population Macro bound."
+  },
+  "report_sha256": "e1c08f50676e979727daeaa9ea28217265ee327349aa0259c751d95e2ebcbdb3",
+  "private_cases_sha256": "730706cec65c3fcc607ba7dc1fb600a408a17cb689679331dd8e4c32efb7c4d4",
+  "source_revision": "4cfc31e1858fd32de27b5555aea52e985cdb46a8",
+  "review_sha256": "dea7f8f4b009fe66e8b11c49997aa05eb1a4910a3b273ee95b1113c55293c513",
+  "claim_ceiling": "Exploratory fixed checkpoint, adaptively reused class-stratified validation only. L3 not achieved; independently trained variants not tested."
+}
