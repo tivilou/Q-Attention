@@ -7,6 +7,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
+| [Q-RMEA 普通L3：上下文权重与词值对齐](audits/20261114-q-rmea-ordinary-l3-scope.md) | 既有正式五种子重审；仅局部对齐归因，不代表量子相位优势或新idea突破 |
 | [Q-SRM 有界筛选交付](current/q_srm_screen_handoff_zh.md) | 五 seed 固定小样本筛选、GPU canary、严格恢复与七文件报告；不启动全量 |
 | [Q-SRM 筛选结果审计（2026-10-26）](audits/20261026-q-srm-bounded-screen.md) | 五 seed 未过效用门槛，不晋级；聚合审计通过，完整案例审计 partial |
 | [Q-CFRA 新服务器恢复与更新](current/q_cfra_server_recovery_zh.md) | 新证书、私密配置、只读交换预检和原运行的收据核验 |

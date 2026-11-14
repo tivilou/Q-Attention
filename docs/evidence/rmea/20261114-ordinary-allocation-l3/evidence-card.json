@@ -1,0 +1,320 @@
+{
+  "schema_version": "evidence-tiered-idea-validation.evidence-card.v3",
+  "rating_policy": {
+    "id": "advantage-evidence",
+    "version": "1"
+  },
+  "idea_id": "q-rmea-context-alignment-ordinary-l3-20261114",
+  "title": "Q-RMEA fixed-model context weight-to-value alignment: scoped ordinary attribution",
+  "status": "active",
+  "current_tier": "L3_mechanism_attribution",
+  "claim_ceiling": "mechanism_supported_advantage",
+  "claim_scope": "For the trained frozen-encoder Q-RMEA output heads on official Re-TACRED, non-entity context weight-to-value alignment contributes to fixed-model task predictions. Population-level label-blind replacement degrades the predeclared CE diagnostic across all five seeds; the same models have established Macro utility over uniform pooling.",
+  "hypothesis": "The selected trained head has reproducible utility over uniform pooling, and its assignment of nonentity context weights to fixed word values carries useful task information. This does not attribute the full utility gain or a quantum-specific effect.",
+  "result_status": "positive",
+  "theory": {
+    "self_consistent": true,
+    "feasible": true,
+    "assumptions": [
+      "The frozen encoder features and official Re-TACRED split identities are common across all declared conditions.",
+      "Train labels affect the fitted head through cross-entropy; validation selects the checkpoint; test targets enter evaluation only.",
+      "The utility claim is scoped to the tested Q-RMEA output head and uniform pooling comparator, not internal Transformer attention or quantum hardware advantage."
+    ],
+    "implementation_plan": "Implemented Q-RMEA as a relation-conditioned word-weighting selector over frozen encoder outputs; fit the declared output heads for the complete five-seed contract and evaluate the selected checkpoints on the held-out test split.",
+    "evidence_refs": [
+      "docs/audits/20261030-q-rmea-fresh5.md",
+      ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/audit.json"
+    ]
+  },
+  "evidence": {
+    "data_scope": {
+      "task_family": "Re-TACRED 40-class relation classification",
+      "source_kind": "experimental",
+      "evaluation_population": "Official Re-TACRED test split, 13,418 examples; document/entity/OOD independence not established.",
+      "benchmark_ref": "Full official Re-TACRED; data counts 58,465/19,584/13,418."
+    },
+    "comparison": {
+      "id": "q_rmea_quantum_minus_uniform_fresh5_macro_f1",
+      "metric": "all-40-label test Macro-F1, zero_division=0",
+      "direction": "higher",
+      "baseline_identity": "uniform-weight pooling output head (uniform), five-seed confirmation contract da5541b44d89853d8ff23db7bf4750a984ae76ad18c96ca9af6252dec09aea36",
+      "method_identity": "Q-RMEA quantum selector over frozen RoBERTa-large encoder features; executed revision f3f22660b609811e6fb824f7d19e9cafd0c1e446",
+      "evaluation_split": "Official full Re-TACRED test, 13,418 examples",
+      "heldout": true,
+      "primary_predeclared": true,
+      "inference_mode": "label_free",
+      "leakage_audit": "pass",
+      "fairness_audit": "pass",
+      "selection_guard": "pass",
+      "evidence_refs": [
+        ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/report/summary.json",
+        ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/audit.json",
+        "docs/audits/20261030-q-rmea-fresh5.md"
+      ]
+    },
+    "runs": {
+      "planned_seeds": [
+        29,
+        53,
+        71,
+        97,
+        113
+      ],
+      "seeds_predeclared": true,
+      "aggregation": "arithmetic_mean",
+      "results": [
+        {
+          "seed": 29,
+          "status": "completed",
+          "method_value": 0.5211132775104067,
+          "baseline_value": 0.2314856570537112,
+          "evidence_refs": [
+            ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/report/summary.json"
+          ]
+        },
+        {
+          "seed": 53,
+          "status": "completed",
+          "method_value": 0.5465709043591499,
+          "baseline_value": 0.21021412477100476,
+          "evidence_refs": [
+            ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/report/summary.json"
+          ]
+        },
+        {
+          "seed": 71,
+          "status": "completed",
+          "method_value": 0.5238560396670014,
+          "baseline_value": 0.21051816419696007,
+          "evidence_refs": [
+            ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/report/summary.json"
+          ]
+        },
+        {
+          "seed": 97,
+          "status": "completed",
+          "method_value": 0.4976927374652861,
+          "baseline_value": 0.20847481224460215,
+          "evidence_refs": [
+            ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/report/summary.json"
+          ]
+        },
+        {
+          "seed": 113,
+          "status": "completed",
+          "method_value": 0.5145336851204592,
+          "baseline_value": 0.21386819822999015,
+          "evidence_refs": [
+            ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/report/summary.json"
+          ]
+        }
+      ]
+    },
+    "attribution": {
+      "status": "pass",
+      "scope": "component",
+      "mechanism": "For the trained frozen-encoder Q-RMEA output heads on official Re-TACRED, non-entity context weight-to-value alignment contributes to fixed-model task predictions. Population-level label-blind replacement degrades the predeclared CE diagnostic across all five seeds; the same models have established Macro utility over uniform pooling.",
+      "evidence_refs": [
+        ".codex-artifacts/qattn-rmea-l3-scope-audit-20261114/audit.json",
+        "docs/audits/20261114-q-rmea-ordinary-l3-scope.md"
+      ]
+    },
+    "controls": [
+      {
+        "id": "learned_allocation_disabled_uniform",
+        "kind": "ablation",
+        "comparison_id": "q_rmea_quantum_minus_uniform_fresh5_macro_f1",
+        "status": "pass",
+        "design_frozen": true,
+        "fairness_audit": "pass",
+        "baseline_identity": "learned_allocation_disabled_uniform",
+        "design": "Original trained uniform-pooling ablation: same feature identities/value architecture/seed/training budget/selection. Removes the learned word-score pathway and its parameters. It is not a parameter-matched quantum attribution control; capacity confounding remains for total Macro gain.",
+        "evidence_refs": [
+          ".codex-artifacts/qattn-rmea-l3-scope-audit-20261114/audit.json",
+          "docs/audits/20261114-q-rmea-ordinary-l3-scope.md"
+        ],
+        "results": [
+          {
+            "seed": 29,
+            "status": "completed",
+            "method_value": 0.5211132775104067,
+            "baseline_value": 0.2314856570537112,
+            "evidence_refs": [
+              ".codex-artifacts/qattn-rmea-l3-scope-audit-20261114/audit.json",
+              "docs/audits/20261114-q-rmea-ordinary-l3-scope.md"
+            ]
+          },
+          {
+            "seed": 53,
+            "status": "completed",
+            "method_value": 0.5465709043591499,
+            "baseline_value": 0.21021412477100476,
+            "evidence_refs": [
+              ".codex-artifacts/qattn-rmea-l3-scope-audit-20261114/audit.json",
+              "docs/audits/20261114-q-rmea-ordinary-l3-scope.md"
+            ]
+          },
+          {
+            "seed": 71,
+            "status": "completed",
+            "method_value": 0.5238560396670014,
+            "baseline_value": 0.21051816419696007,
+            "evidence_refs": [
+              ".codex-artifacts/qattn-rmea-l3-scope-audit-20261114/audit.json",
+              "docs/audits/20261114-q-rmea-ordinary-l3-scope.md"
+            ]
+          },
+          {
+            "seed": 97,
+            "status": "completed",
+            "method_value": 0.4976927374652861,
+            "baseline_value": 0.20847481224460215,
+            "evidence_refs": [
+              ".codex-artifacts/qattn-rmea-l3-scope-audit-20261114/audit.json",
+              "docs/audits/20261114-q-rmea-ordinary-l3-scope.md"
+            ]
+          },
+          {
+            "seed": 113,
+            "status": "completed",
+            "method_value": 0.5145336851204592,
+            "baseline_value": 0.21386819822999015,
+            "evidence_refs": [
+              ".codex-artifacts/qattn-rmea-l3-scope-audit-20261114/audit.json",
+              "docs/audits/20261114-q-rmea-ordinary-l3-scope.md"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "same_checkpoint_context_permutation",
+        "kind": "matched",
+        "comparison_id": "q_rmea_quantum_minus_uniform_fresh5_macro_f1",
+        "status": "pass",
+        "design_frozen": true,
+        "fairness_audit": "pass",
+        "baseline_identity": "same_checkpoint_context_permutation",
+        "design": "Frozen label/outcome-blind within-example nonentity context permutation. Exact same selected weights (81028 parameters), values/decoder/bias, context weight multiset/mass, entities/mask, data and precision. Tests only alignment, not the necessity of quantum phases or relation conditioning. CE was predeclared mechanism gate; recorded shuffled Macro is auxiliary supporting the same direction, not a new statistical gate.",
+        "evidence_refs": [
+          ".codex-artifacts/qattn-rmea-l3-scope-audit-20261114/audit.json",
+          "docs/audits/20261114-q-rmea-ordinary-l3-scope.md"
+        ],
+        "results": [
+          {
+            "seed": 29,
+            "status": "completed",
+            "method_value": 0.5211132775104067,
+            "baseline_value": 0.3792528192554207,
+            "evidence_refs": [
+              ".codex-artifacts/qattn-rmea-l3-scope-audit-20261114/audit.json",
+              "docs/audits/20261114-q-rmea-ordinary-l3-scope.md"
+            ]
+          },
+          {
+            "seed": 53,
+            "status": "completed",
+            "method_value": 0.5465709043591499,
+            "baseline_value": 0.3987021827891452,
+            "evidence_refs": [
+              ".codex-artifacts/qattn-rmea-l3-scope-audit-20261114/audit.json",
+              "docs/audits/20261114-q-rmea-ordinary-l3-scope.md"
+            ]
+          },
+          {
+            "seed": 71,
+            "status": "completed",
+            "method_value": 0.5238560396670014,
+            "baseline_value": 0.37253086898782356,
+            "evidence_refs": [
+              ".codex-artifacts/qattn-rmea-l3-scope-audit-20261114/audit.json",
+              "docs/audits/20261114-q-rmea-ordinary-l3-scope.md"
+            ]
+          },
+          {
+            "seed": 97,
+            "status": "completed",
+            "method_value": 0.4976927374652861,
+            "baseline_value": 0.35584154883033675,
+            "evidence_refs": [
+              ".codex-artifacts/qattn-rmea-l3-scope-audit-20261114/audit.json",
+              "docs/audits/20261114-q-rmea-ordinary-l3-scope.md"
+            ]
+          },
+          {
+            "seed": 113,
+            "status": "completed",
+            "method_value": 0.5145336851204592,
+            "baseline_value": 0.3894526544664386,
+            "evidence_refs": [
+              ".codex-artifacts/qattn-rmea-l3-scope-audit-20261114/audit.json",
+              "docs/audits/20261114-q-rmea-ordinary-l3-scope.md"
+            ]
+          }
+        ]
+      }
+    ],
+    "statistics": {
+      "predeclared": true,
+      "method": "Paired-seed t interval under the frozen gate; exact two-sided sign-flip p is descriptive and cannot attain below 0.0625 at n=5.",
+      "independent_unit": "Training seed",
+      "independence_justification": "Five fresh seeds were predeclared, discovery seed 13 was excluded, and each seed completed the same fixed protocol.",
+      "multiplicity_method": "not_applicable",
+      "multiplicity_justification": "The primary utility comparison and one mechanism diagnostic were frozen as separate gates; classical attribution contrasts remain descriptive and no p<0.05 claim is made.",
+      "tests": [
+        {
+          "comparison_id": "q_rmea_quantum_minus_uniform_fresh5_macro_f1",
+          "alpha": 0.05,
+          "effect": 0.305841137525207,
+          "ci": [
+            0.2813721472972543,
+            0.33031012775315965
+          ],
+          "confidence_level": 0.95,
+          "advantage_margin": 0,
+          "p_value": 0.0625,
+          "multiplicity_adjusted": false,
+          "evidence_refs": [
+            ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/audit.json"
+          ]
+        },
+        {
+          "comparison_id": "q_rmea_context_shuffle_ce_diagnostic",
+          "alpha": 0.05,
+          "effect": 0.2020138257661081,
+          "ci": [
+            0.17847348514455386,
+            0.22555416638766235
+          ],
+          "confidence_level": 0.95,
+          "p_value": 0.0625,
+          "multiplicity_adjusted": false,
+          "evidence_refs": [
+            ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/audit.json"
+          ]
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "The exact two-sided sign-flip p value is 0.0625 at n=5 and is descriptive; do not claim p<0.05.",
+    "The paired t intervals are based on five seed-level observations and the frozen approximate-normality assumption.",
+    "Official Re-TACRED splits were used; document/entity/OOD independence is not established.",
+    "Classical relation_softmax and real_overlap controls have 76,752 parameters versus 81,028 for Q-RMEA; their contrasts do not support quantum-specific attribution.",
+    "The shuffled-context diagnostic supports weight-to-word correspondence for this model, not correct evidence localization or quantum uniqueness.",
+    "Trace evidence covers fixed initial and valid-selected inference replay, not a complete optimization trajectory; no SOTA, hardware, finite-shot, speedup, or internal Transformer attention claim is supported.",
+    "New current-policy claim-scope re-audit of existing formal evidence, not a new independently confirmed experiment; original L2 quantum-component card and all frozen obligations remain unchanged.",
+    "L3 applies only to useful within-model context weight-to-value alignment. The uniform ablation has fewer parameters; the exactly capacity-matched within-checkpoint replacement addresses local alignment only, not the whole Macro gain.",
+    "The context permutation can lie outside the learned joint state distribution. This is functional dependence under the specified intervention, not semantic evidence correctness or a general causal account of training.",
+    "Recorded shuffled Macro is an auxiliary consistency analysis; the frozen mechanism gate remains CE. All classical/dephased contrasts remain visible in the original L2 card and this audit."
+  ],
+  "provenance": {
+    "code_revision": "f3f22660b609811e6fb824f7d19e9cafd0c1e446",
+    "records": [
+      "GitHub 1.1 report commit 84f3b2e3a10cf884b0fe55c53c71a61239d89642; run 20261029T021229Z_fresh5.",
+      "Executed source SHA-256 494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce; frozen contract SHA-256 da5541b44d89853d8ff23db7bf4750a984ae76ad18c96ca9af6252dec09aea36.",
+      "Independent return audit .codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/audit.json; all 575 confusion matrices recomputed.",
+      "Private COS archive acceptance .codex-artifacts/qattn-rmea-implementation-20261026/full-archive-20261029/acceptance.json; raw artifacts remain outside the public report.",
+      "Separate current-policy scope audit20261114; historical L2 card preserved verbatim. Acceptance requires independent exact-claim review and strict v3 validation."
+    ]
+  }
+}

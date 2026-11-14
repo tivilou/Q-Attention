@@ -1,0 +1,114 @@
+{
+  "schema": "qattn.claim-scope-review.result.v1",
+  "review_mode": "subagent_fallback",
+  "reviewer_model": "Codex inherited bounded subagent; exact API model ID not exposed",
+  "transport": "local_subagent_after_primary_recorded_ranked_native_max_URLError",
+  "review_scope": "mechanism",
+  "input_packet_sha256": "9ba57f174d9c96bb613a933514f4778e42ce123c1137bd5c4ddbbd26b65b1a99",
+  "source_sha256": "1810559024b02f74aa80e0a45851385bacf822769eb434f81264b79e5936e4f3",
+  "contract_sha256": "da5541b44d89853d8ff23db7bf4750a984ae76ad18c96ca9af6252dec09aea36",
+  "verdict": "PASS_WITH_RISK",
+  "must_fix": [],
+  "claim_scope_pass_or_limit": {
+    "status": "PASS_FOR_NARROW_COMPONENT_SCOPE_ONLY",
+    "accepted_claim": "For the trained frozen-encoder Q-RMEA output heads on the official Re-TACRED test cohort, non-entity context weight-to-value alignment contributes to fixed-model task predictions under the frozen label-blind context-permutation intervention. The same trained models have established multi-seed full40 Macro-F1 utility over the uniform-pooling baseline.",
+    "permitted_tier": "L3_mechanism_attribution under advantage-evidence v1, restricted to supporting evidence for this component alignment in the stated trained method and protocol",
+    "not_accepted": [
+      "The intervention mediates or explains all of the Q-minus-uniform Macro-F1 gain",
+      "Relation-conditioned weighting is necessary versus generic learned weighting",
+      "Quantum phases, quantum exclusivity or superiority over classical/dephased replacements cause the utility gain",
+      "The weights identify correct human evidence, generalize to arbitrary perturbations or establish an optimal attention geometry",
+      "L3 for a different comparator, new independent confirmation, L4, novelty, SOTA, efficiency or quantum hardware advantage"
+    ],
+    "reason": "The original full trained comparison supplies L2. The frozen uniform ablation disables the learned score path, and the exact-capacity within-checkpoint permutation is a relevant matched replacement for the much narrower alignment component. Positive population-level CE and recorded Macro contrasts support this local component claim. They do not remove capacity confounding from the total trained-head difference or establish a quantum-specific contribution."
+  },
+  "binding_and_provenance": {
+    "packet": "Raw packet SHA independently recomputed and matches the requested input identity",
+    "review_source": "SHA256 of sorted-key JSON source map independently recomputed as1810559024b02f74aa80e0a45851385bacf822769eb434f81264b79e5936e4f3; all four supplied Python sources parsed without importing them",
+    "executed_source": "Each supplied source text hashes to the corresponding entry in audit.source_files. The complete recorded source-file hash map recomputes to historical executed composite494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce, distinct from the four-file review slice",
+    "model_source": "rmea.py hash9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0 matches the packet's exact model-source identity",
+    "contract": "The packet and audit bind frozen confirmation contractda5541b44d89853d8ff23db7bf4750a984ae76ad18c96ca9af6252dec09aea36; supplied original protocol source explicitly freezes utility Macro and mechanism CE as distinct gates",
+    "report_audit": "Primary's exact-report/Git/575-confusion-matrix audit is reused as recorded provenance. This bounded reviewer independently checked the packet source identities, control dataflow, seed/result binding and supplied aggregate arithmetic, not the full original report filesystem or Git history",
+    "historical_records": "Preserve the historical L2 card, audit and contract. This review supports a separate current-policy scope record rather than retroactive editing of the old card"
+  },
+  "theory_mapping": {
+    "status": "PASS",
+    "actual": "z_r = sum_t alpha_rt*u_rt + b_r, with u fixed by the selected model's values and decoder",
+    "replacement": "z_perm_r = sum_t alpha_r,pi(t)*u_rt + b_r, where pi is a deterministic sample-ID-based permutation of only valid non-entity positions and is shared by every relation row",
+    "identity": "z_r-z_perm_r = sum_t (alpha_rt-alpha_r,pi(t))*u_rt. The original replay records this numerical identity residual",
+    "interpretation": "The replacement isolates functional weight-to-value correspondence at the chosen trained state. It does not intervene on relation-conditioning capacity, phase availability, training dynamics or all potential mediators of the trained-head utility difference"
+  },
+  "correctness": {
+    "status": "PASS",
+    "permutation": "context_permutation receives only mask, roles and sample identities; it has no labels, outcomes, seed or model-selection input. Eligibility is mask AND not-subject AND not-object. Identity mapping elsewhere fixes all entity and padded positions. Sorting a hash of ID/position is a bijection on eligible positions; forcing a nonidentity cyclic order when the hash order equals identity preserves bijectivity. Short contexts remain included without a selected favorable subset",
+    "replay": "gather only rearranges alpha. It preserves every relation row's context-weight multiset and mass; it does not recompute h, roles, values, decoder, bias or model weights. The same permutation across relation rows prevents an outcome-selected or independently relation-adaptive perturbation",
+    "evaluation": "The exact runner selects each checkpoint only by validation Macro, loads it, sets eval, then evaluates the full test cohort under no_grad. Actual and shuffled logits are derived from the same forward detail. Gold enters cross-entropy and metrics only after prediction; it never enters the permutation or forward inputs",
+    "negative_control": "The original full-test uniform condition must be invariant to the same shuffle within the frozen tolerance. The reported uniform Macro is identical before/after for all five seeds, and CE changes are negligible"
+  },
+  "control_fairness": {
+    "status": "PASS_FOR_COMPONENT_ALIGNMENT",
+    "ablation": "Uniform uses the same frozen data/value architecture, seed protocol, objective, training budget and validation selection, and removes the learned score pathway. Its smaller parameter count makes it a disabled-path ablation, not a capacity-matched explanation of the whole Macro gain; the draft correctly states this",
+    "matched_replacement": "Within each selected Q checkpoint, permutation uses exactly the same81028 learned parameters, numerical precision, test items, values, decoder and bias, with only alpha-to-context correspondence replaced. It is appropriately matched for the local alignment claim. A separately trained equally expressive classical scorer is unnecessary for this particular local claim, but would be relevant to a quantum-specific or scorer-family superiority claim",
+    "binding": "Both controls report exactly seeds29/53/71/97/113 and the identical method Macro values from the primary comparison; independent arithmetic checks found no swapped method, dropped seed or comparator tier transfer",
+    "not_double_counting": "The uniform contrast is the primary utility comparison and also the disabled-path ablation; it is not counted as another independent experiment. The within-checkpoint replacement supplies a distinct control. Neither is a new replication unit"
+  },
+  "metric_and_gate_integrity": {
+    "status": "PASS_WITH_EXPLICIT_SEPARATION",
+    "primary": "Primary remains Q-minus-uniform full40 test Macro-F1; independently recomputed mean+0.305841137525207, all5 positive",
+    "mechanism": "Original protocol predeclares CE(shuffled)-CE(actual), all test items, with mean>0, at least4/5 positive and paired-t lower bound>0 plus uniform/identity checks. Independently recomputed mean+0.2020138257661081, all5 positive, matches the packet",
+    "auxiliary": "Recorded shuffled predictions were already produced by the original frozen diagnosis. Actual-minus-shuffled Macro is independently recomputed as+0.14159731395862768, all5 positive. This supports the same direction in the primary metric but is an auxiliary re-audit, not a new predeclared attribution gate or an untouched confirmation",
+    "no_switch": "Using the separately predeclared CE diagnostic to support the alignment mechanism does not replace the trained method's primary Macro advantage. The draft preserves this distinction. The matching Macro values also align the v3 control records with the primary comparison without making the auxiliary analysis confirmatory",
+    "readout_boundary": "Readout-only perturbation alone cannot establish a new L1/L2 advantage. Here L1/L2 comes from the original independently trained full-data comparison; fixed-model replay supplies only the attribution evidence explicitly permitted by the same-weights control requirement",
+    "statistics": "No generic significance threshold is required for L3. Exact two-sided sign-flip p=.0625 remains descriptive and cannot be called p<.05. No L4 is accepted"
+  },
+  "policy_application": {
+    "status": "PASS",
+    "ordinary_scope": "Current policy permits L2 plus claim-specific frozen ablations and fair matched replacements with supporting component attribution. The controlled impairment of the trained method under a specified alignment replacement is adequate for this narrow component claim; full-gain mediation is not required or asserted",
+    "classical_and_dephased": "Classical/dephased near-parity and unequal classical capacity remain visible and limit unique quantum/scorer attribution. They are not a standalone veto of the ordinary within-model alignment claim. Intervals spanning zero do not prove equivalence either",
+    "scope_not_goal_pressure": "Approval follows the actual frozen intervention, population-level controls, exact source and current claim text. It does not grade the whole idea, create a new mechanism or waive missing controls for stronger claims",
+    "validator": "A strict v3 schema pass is only a contract/arithmetic check. This verdict independently evaluates the concrete dataflow and scientific interpretation rather than taking schema acceptance as proof"
+  },
+  "gradients_and_numerics": {
+    "status": "PASS_WITH_RISK",
+    "gradients": "The reviewed diagnostic performs no optimizer step or gradient update; it uses the selected trained states under no_grad. No new model or training evidence is manufactured by this scope audit",
+    "precision": "Same forward tensors and gather/reduction precision are used for actual and replacement logits. Reduction order can cause tiny residuals; original frozen uniform and logit-identity tolerance is2e-5. The large positive diagnostic effects are not of that roundoff scale",
+    "claim_limit": "No novel forward computation, private-tensor inspection or rerun was performed by this reviewer"
+  },
+  "nonblocking_risks": [
+    {
+      "id": "LOCAL_INTERVENTION",
+      "detail": "A shuffled weight/value joint state can be outside training support. The result establishes dependence under this exact intervention; it does not prove semantic evidence correctness or a general causal account of learning"
+    },
+    {
+      "id": "ONE_PERMUTATION_RULE",
+      "detail": "One frozen deterministic sample-ID rule is tested over the full official test cohort, not an average over all possible permutations. Population-level means this declared benchmark cohort, not an independent new population or five different test datasets"
+    },
+    {
+      "id": "GAIN_NOT_MEDIATED",
+      "detail": "Neither the Macro drop under permutation nor its ratio to the uniform gap is an identified mediation fraction. The separately trained uniform model and shuffled selected model have different intervention histories"
+    },
+    {
+      "id": "AUXILIARY_GATE_LANGUAGE",
+      "detail": "The generic paired_t_gate field calculated for auxiliary shuffled Macro must not be presented as a new preregistered or independently confirmed gate. The mechanism gate remains original CE"
+    },
+    {
+      "id": "CLAIM_LABEL_DISCIPLINE",
+      "detail": "Always attach component alignment, baseline, protocol and metric boundaries when reporting this L3 record. A shortened unqualified 'quantum mechanism attributed' or 'all L3 claims achieved' statement would exceed this review"
+    },
+    {
+      "id": "NO_NEW_IDEA_OR_NOVELTY",
+      "detail": "This is a new current-policy assessment of existing measured evidence. It does not itself produce a stronger novel idea, show SOTA, establish parameter efficiency or certify hardware advantage"
+    }
+  ],
+  "reviewer_operations": {
+    "scope": "Read-only packet/source/JSON/hash/AST and mechanical aggregate arithmetic",
+    "new_training_runs": 0,
+    "new_forward_passes": 0,
+    "new_private_restore": 0,
+    "remote_calls": 0,
+    "cloud_calls": 0,
+    "source_edits": 0,
+    "historical_card_or_report_edits": 0,
+    "written_artifact": "review-result.json only"
+  }
+}

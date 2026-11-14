@@ -1,0 +1,406 @@
+{
+  "schema": "qattn.ordinary-l3.scope-audit.v1",
+  "status": "PASS",
+  "acceptance": "PENDING_INDEPENDENT_CLAIM_REVIEW",
+  "executed_revision": "f3f22660b609811e6fb824f7d19e9cafd0c1e446",
+  "report_commit": "84f3b2e3a10cf884b0fe55c53c71a61239d89642",
+  "source_sha256": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+  "contract_sha256": "da5541b44d89853d8ff23db7bf4750a984ae76ad18c96ca9af6252dec09aea36",
+  "report_hashes": {
+    "data.sha256": "011f9a348b9dc44e45ae998a680e16d9e68a90e998f555ed22f1874b40327a32",
+    "data_counts.txt": "44fe5fbdcbc15f304ce4eb076a0cd3fa54b2920ffb06df0c06ea5cc4a7f28f0a",
+    "manifest.json": "eca12022ced91b36fafeddd54ddd765515272ddd819970bacd73dacffae4097a",
+    "receipt.json": "7a7a8012f2e6a9f9a583bf0588997e8c6a5d0a4271ece5dfacf654c86c1cfe07",
+    "run_summary.json": "b7011881fc8d8cdf0e130146053813541dbb33659a9ef550573cef5e94fa4801",
+    "summary.json": "fad5c12213f6b8ea1e8fc1a724f5fa28e535c39035a8af8fc8653dc385d74522",
+    "trace_validation.json": "257b1e7c79d8a24e5c24b089ab30102bf4611de0a2719118aa4173520c2503d8"
+  },
+  "source_files": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/rmea_protocol.py": "fb3486fa16dba9959256b32712e46c8bc40b6612801eff254b0f8ffe72650be1",
+    "baselines/retacred/rmea_trace.py": "e4085ff774847bd06b1a353a949e54741f28ab14ee59cff38a0fa572f7c36639",
+    "baselines/retacred/rmea_run.py": "769173b9ab17f76229b0db79b4a7625ac1574427d2d40491be7d5b19d4d0ff25",
+    "baselines/retacred/rmea_handoff.py": "07fe73186273d27eb0b89672200e1430fce5b0cb839624b2d83f9a4bd370cf95",
+    "baselines/retacred/rmea_exchange.py": "a783c00487ed6dbf91196e9fe17880aaf86a50b2f4deb64081e95e54fa0fd67b",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9",
+    "baselines/retacred/assets.lock.json": "f4df917253d14c7b31e564d3bfc946b55b63d5fcb3f9377b059c5e5abe46314f",
+    "scripts/audit_rmea_inputs.py": "cac564d055ea76520c5dbcc0e16e7d551a9b3243a4dba835e42ab7e4d208c14f",
+    "scripts/audit_rmea_tokenization.py": "5f7860e47a7a0979976e5acc435ed34acede4c96bfac799d79d3018366b6aef8",
+    "scripts/validate_sample_trace.py": "fcb1e1a9d1182f41ac7d4d6116a54488dfbe4f34ff4fb029f04585698a024a3f",
+    "scripts/check_qattn_exchange.py": "b5f781990efa1af5aa5542cc4214364bdc3c27ad9111a4aa3f9a5f5ae4c151ab",
+    "scripts/collab/lib/exchange_upload.py": "753af123e2846c12612bb2aaa71cfb41a0c23e5f1fc1efb7a213aa1e036709ca",
+    "scripts/collab/certs/qattn-exchange-ca.crt": "dbe9611905fdfb37eec630bfe275576e408b94c1672c428ba3a5befa10d84e4b",
+    "experiments/q_rmea_handoff.py": "ef88d15ec2f4ab7e5d5a58c700b5ad118a2cf99d3f0abc87a15e31ff67c52789",
+    "scripts/run_q_rmea_handoff.sh": "ac05ed954cfb1d94276941741f69c53c484e57a80106afa94490910a0d0d9fe0",
+    "scripts/check_q_rmea_handoff.sh": "d43b8a15f320d7cc6a61c8bdafa61834a730d283a9045ca23ae544b0801bfe05",
+    "scripts/export_q_rmea_handoff.sh": "ff231a0d1f7eaa52d03edf0b79c4e674fcdbf5e551a231ebc81c6a1636bec5f4",
+    "tests/test_rmea.py": "0fcd8f067726b596d11fbafe587836a5456d6fd5698c5ed213145cd526106145",
+    "tests/test_rmea_lifecycle.py": "040f56cead32609cfd46da8ca48330da638c41bebc55af8fc8748a01938a8e4d",
+    "tests/test_rmea_exchange.py": "7c13eef93e59cc66b2b4f17069fef109f6152e25ed356132df84a2e9c57fab17",
+    "baselines/retacred/rmea_confirmation_protocol.py": "bdccafa853365c1cbcb548947e48433d560490a4af4ccdea54b70c26a7e07cc0",
+    "baselines/retacred/rmea_confirmation_run.py": "9f6de9013354dd90122b839a12e4a8cfc8b6946a2e2169e41fd248b472511e19",
+    "baselines/retacred/rmea_confirmation_trace.py": "a344df34562ee7cdaf43388fc905a8acbd508f270c3b73d7a10abdc38cefe20d",
+    "baselines/retacred/rmea_confirmation_values.py": "d05f8fd615586f479a16a3e3023a67e673b641967dbebc178f58929eab323275",
+    "baselines/retacred/rmea_confirmation_handoff.py": "8e85b1f9910a46d1f594b0558b366d7ef23304c9efbf05a9d5e45b348f34d736",
+    "baselines/retacred/rmea_confirmation_exchange.py": "8131a86aae950b1b9c8dc3733c1928e29ccfb2df7d48f5d348ecca3145985f51",
+    "experiments/q_rmea_confirmation_handoff.py": "b86b805a33a7396a16153d5a0bfc173dacbe522aa16e211894f2b9db6da81e30",
+    "scripts/run_q_rmea_confirmation_handoff.sh": "100b919e427e28f67ae53c490b3a9f31855aec14c2b10ef55936d9f41594901d",
+    "scripts/check_q_rmea_confirmation_handoff.sh": "9f85fdd8e1516d93927297b0d1c12ed0bb8895f893efad5c7c6a34d0cadd5e83",
+    "scripts/export_q_rmea_confirmation_handoff.sh": "b4452181c715c2925130b8e05efa3f3fbef3a3b29226b1e7b5fa033d968302ab",
+    "scripts/validate_sample_trace_v2.py": "55e7bcb34a048b3b8c6cd3837364d75ab8f3a24a23b276999dc009495b7df2c9",
+    "scripts/view_rmea_confirmation_trace.py": "0d2ae02412d20e5cb7b01c41a75bf7e9436b1a4fb9e77fca35353476e8aca387",
+    "docs/contracts/sample-trace.v2.schema.json": "b23b1db0e600229b786077f2a5c0748acb87e11dc21dc39d90d85c60365ff082",
+    "tests/test_rmea_confirmation.py": "648f553a72cbc4d48636d65a0a386f99f19a074f5d4626a2aa356ff685d32691"
+  },
+  "source_control_audit": {
+    "label_outcome_blind": true,
+    "mask_entity_padding_fixed": true,
+    "context_weight_multiset_mass_preserved": true,
+    "common_permutation_all_relations": true,
+    "values_decoder_bias_fixed": true,
+    "no_parameter_updates": true,
+    "same_selected_checkpoint": true,
+    "all_test_items": true,
+    "evidence": "Exact frozen rmea.py context_permutation/replay and rmea_confirmation_run.py train/evaluate, source-linked trace+uniform invariance/identity receipts. Static dataflow inspection, not new forward execution."
+  },
+  "rows": [
+    {
+      "seed": 29,
+      "actual_macro": 0.5211132775104067,
+      "uniform_macro": 0.2314856570537112,
+      "shuffled_macro": 0.3792528192554207,
+      "actual_ce": 0.656600012546823,
+      "shuffled_ce": 0.8456218331132708,
+      "ce_delta": 0.18902182056644773
+    },
+    {
+      "seed": 53,
+      "actual_macro": 0.5465709043591499,
+      "uniform_macro": 0.21021412477100476,
+      "shuffled_macro": 0.3987021827891452,
+      "actual_ce": 0.5562102442474297,
+      "shuffled_ce": 0.7559580485215573,
+      "ce_delta": 0.1997478042741276
+    },
+    {
+      "seed": 71,
+      "actual_macro": 0.5238560396670014,
+      "uniform_macro": 0.21051816419696007,
+      "shuffled_macro": 0.37253086898782356,
+      "actual_ce": 0.6115709345464042,
+      "shuffled_ce": 0.8361605133770794,
+      "ce_delta": 0.2245895788306752
+    },
+    {
+      "seed": 97,
+      "actual_macro": 0.4976927374652861,
+      "uniform_macro": 0.20847481224460215,
+      "shuffled_macro": 0.35584154883033675,
+      "actual_ce": 0.6119534743669083,
+      "shuffled_ce": 0.8293788805859404,
+      "ce_delta": 0.21742540621903209
+    },
+    {
+      "seed": 113,
+      "actual_macro": 0.5145336851204592,
+      "uniform_macro": 0.21386819822999015,
+      "shuffled_macro": 0.3894526544664386,
+      "actual_ce": 0.6102527473985323,
+      "shuffled_ce": 0.7895372663387902,
+      "ce_delta": 0.17928451894025793
+    }
+  ],
+  "utility": {
+    "deltas": [
+      0.2896276204566955,
+      0.33635677958814514,
+      0.3133378754700414,
+      0.2892179252206839,
+      0.300665486890469
+    ],
+    "mean": 0.305841137525207,
+    "sd": 0.0197066116625354,
+    "ci95": [
+      0.2813721472972543,
+      0.33031012775315965
+    ],
+    "positive_seeds": 5,
+    "paired_t_gate": true,
+    "exact_two_sided_sign_flip_p": 0.0625,
+    "n": 5
+  },
+  "predeclared_mechanism_ce": {
+    "deltas": [
+      0.18902182056644773,
+      0.1997478042741276,
+      0.2245895788306752,
+      0.21742540621903209,
+      0.17928451894025793
+    ],
+    "mean": 0.2020138257661081,
+    "sd": 0.018958704331935625,
+    "ci95": [
+      0.17847348514455386,
+      0.22555416638766235
+    ],
+    "positive_seeds": 5,
+    "paired_t_gate": true,
+    "exact_two_sided_sign_flip_p": 0.0625,
+    "n": 5
+  },
+  "auxiliary_macro_actual_minus_shuffle": {
+    "deltas": [
+      0.141860458254986,
+      0.1478687215700047,
+      0.1513251706791779,
+      0.14185118863494933,
+      0.12508103065402054
+    ],
+    "mean": 0.14159731395862768,
+    "sd": 0.01008567128744561,
+    "ci95": [
+      0.12907429902328904,
+      0.15412032889396632
+    ],
+    "positive_seeds": 5,
+    "paired_t_gate": true,
+    "exact_two_sided_sign_flip_p": 0.0625,
+    "n": 5
+  },
+  "auxiliary_status": "Existing recorded full-test shuffled confusion matrices re-audited; Macro was the primary utility metric, CE the predeclared mechanism gate. This audit adds no new gate and claims no new independent confirmation.",
+  "all_conditions_diagnosis": {
+    "uniform": [
+      {
+        "seed": 29,
+        "actual_ce": 1.1518040860457968,
+        "shuffled_ce": 1.1518040871829847,
+        "tied_ce": 1.1518040928689248,
+        "actual_macro": 0.2314856570537112,
+        "shuffled_macro": 0.2314856570537112
+      },
+      {
+        "seed": 53,
+        "actual_ce": 1.1458302985575288,
+        "shuffled_ce": 1.145830302537687,
+        "tied_ce": 1.1458303156153493,
+        "actual_macro": 0.21021412477100476,
+        "shuffled_macro": 0.21021412477100476
+      },
+      {
+        "seed": 71,
+        "actual_ce": 1.17789107041381,
+        "shuffled_ce": 1.1778910863344423,
+        "tied_ce": 1.1778910999806986,
+        "actual_macro": 0.21051816419696007,
+        "shuffled_macro": 0.21051816419696007
+      },
+      {
+        "seed": 97,
+        "actual_ce": 1.1465600736273758,
+        "shuffled_ce": 1.146560079313316,
+        "tied_ce": 1.1465600844306623,
+        "actual_macro": 0.20847481224460215,
+        "shuffled_macro": 0.20847481224460215
+      },
+      {
+        "seed": 113,
+        "actual_ce": 1.1466411022550749,
+        "shuffled_ce": 1.146641106803827,
+        "tied_ce": 1.1466411232930536,
+        "actual_macro": 0.21386819822999015,
+        "shuffled_macro": 0.21386819822999015
+      }
+    ],
+    "relation_softmax": [
+      {
+        "seed": 29,
+        "actual_ce": 0.6069381490409739,
+        "shuffled_ce": 0.8880308642794645,
+        "tied_ce": 0.8961072783300287,
+        "actual_macro": 0.5086113135465773,
+        "shuffled_macro": 0.3453193216983282
+      },
+      {
+        "seed": 53,
+        "actual_ce": 0.6056377023107552,
+        "shuffled_ce": 0.8788265848607558,
+        "tied_ce": 0.8151757590975771,
+        "actual_macro": 0.5228109436557368,
+        "shuffled_macro": 0.3667490068912104
+      },
+      {
+        "seed": 71,
+        "actual_ce": 0.5963883271318983,
+        "shuffled_ce": 0.8367887159487692,
+        "tied_ce": 0.7538027599185176,
+        "actual_macro": 0.5406793146071911,
+        "shuffled_macro": 0.3639137415058246
+      },
+      {
+        "seed": 97,
+        "actual_ce": 0.6126236744299431,
+        "shuffled_ce": 0.9094691268732126,
+        "tied_ce": 0.9074613326955862,
+        "actual_macro": 0.49708200389343543,
+        "shuffled_macro": 0.3456440312700252
+      },
+      {
+        "seed": 113,
+        "actual_ce": 0.5840660993024798,
+        "shuffled_ce": 0.8475687129608759,
+        "tied_ce": 0.835613798288461,
+        "actual_macro": 0.522211605187394,
+        "shuffled_macro": 0.35033340503208427
+      }
+    ],
+    "real_overlap": [
+      {
+        "seed": 29,
+        "actual_ce": 0.5698046116381862,
+        "shuffled_ce": 0.8012419774681929,
+        "tied_ce": 0.8776191265648071,
+        "actual_macro": 0.5123072600456406,
+        "shuffled_macro": 0.353584883497421
+      },
+      {
+        "seed": 53,
+        "actual_ce": 0.6293561852694375,
+        "shuffled_ce": 0.8564369524621558,
+        "tied_ce": 0.9787487093143233,
+        "actual_macro": 0.5111131552893982,
+        "shuffled_macro": 0.35353226540709015
+      },
+      {
+        "seed": 71,
+        "actual_ce": 0.5699236874502912,
+        "shuffled_ce": 0.834865589684853,
+        "tied_ce": 0.8387348449679739,
+        "actual_macro": 0.5390841244850023,
+        "shuffled_macro": 0.37570169732854314
+      },
+      {
+        "seed": 97,
+        "actual_ce": 0.5566903727121051,
+        "shuffled_ce": 0.8494096284901301,
+        "tied_ce": 0.8484635625302765,
+        "actual_macro": 0.51751495121088,
+        "shuffled_macro": 0.33113564394392536
+      },
+      {
+        "seed": 113,
+        "actual_ce": 0.6311441931253327,
+        "shuffled_ce": 0.9970213036758211,
+        "tied_ce": 0.9512731745730286,
+        "actual_macro": 0.4991380124271111,
+        "shuffled_macro": 0.31310297405478954
+      }
+    ],
+    "quantum": [
+      {
+        "seed": 29,
+        "actual_ce": 0.656600012546823,
+        "shuffled_ce": 0.8456218331132708,
+        "tied_ce": 0.6875870622631192,
+        "actual_macro": 0.5211132775104067,
+        "shuffled_macro": 0.3792528192554207
+      },
+      {
+        "seed": 53,
+        "actual_ce": 0.5562102442474297,
+        "shuffled_ce": 0.7559580485215573,
+        "tied_ce": 0.6889423820119196,
+        "actual_macro": 0.5465709043591499,
+        "shuffled_macro": 0.3987021827891452
+      },
+      {
+        "seed": 71,
+        "actual_ce": 0.6115709345464042,
+        "shuffled_ce": 0.8361605133770794,
+        "tied_ce": 0.686323590917583,
+        "actual_macro": 0.5238560396670014,
+        "shuffled_macro": 0.37253086898782356
+      },
+      {
+        "seed": 97,
+        "actual_ce": 0.6119534743669083,
+        "shuffled_ce": 0.8293788805859404,
+        "tied_ce": 0.7076015094297088,
+        "actual_macro": 0.4976927374652861,
+        "shuffled_macro": 0.35584154883033675
+      },
+      {
+        "seed": 113,
+        "actual_ce": 0.6102527473985323,
+        "shuffled_ce": 0.7895372663387902,
+        "tied_ce": 0.7139914184697678,
+        "actual_macro": 0.5145336851204592,
+        "shuffled_macro": 0.3894526544664386
+      }
+    ],
+    "dephased": [
+      {
+        "seed": 29,
+        "actual_ce": 0.6778550266704255,
+        "shuffled_ce": 0.8922760776230361,
+        "tied_ce": 0.7517218243651107,
+        "actual_macro": 0.5081381195191252,
+        "shuffled_macro": 0.3719530539417284
+      },
+      {
+        "seed": 53,
+        "actual_ce": 0.6681045402018533,
+        "shuffled_ce": 0.8846973152518859,
+        "tied_ce": 0.6568739745065733,
+        "actual_macro": 0.4945293540660057,
+        "shuffled_macro": 0.36813311841763796
+      },
+      {
+        "seed": 71,
+        "actual_ce": 0.591734149129438,
+        "shuffled_ce": 0.8228647684372206,
+        "tied_ce": 0.6046738029681262,
+        "actual_macro": 0.5375382688351338,
+        "shuffled_macro": 0.4019765693004322
+      },
+      {
+        "seed": 97,
+        "actual_ce": 0.6206434582221133,
+        "shuffled_ce": 0.8555193645336853,
+        "tied_ce": 0.6168168292953211,
+        "actual_macro": 0.5207936561918689,
+        "shuffled_macro": 0.3662241826948499
+      },
+      {
+        "seed": 113,
+        "actual_ce": 0.649080186651403,
+        "shuffled_ce": 0.9244677671147346,
+        "tied_ce": 0.7043075479077305,
+        "actual_macro": 0.5253485759506279,
+        "shuffled_macro": 0.3670168889152492
+      }
+    ]
+  },
+  "confusion_matrices_checked": 575,
+  "historical_objects_preserved": {
+    ".ai-progress\\workstreams\\quantum-projector-v2\\refs\\20261030-q-rmea-fresh5-evidence-card.json": "6cd19fa95cc43e6235120d322c7f6789569f000b9db415d5282c588ef56584de",
+    ".codex-artifacts\\qattn-rmea-implementation-20261026\\fresh5-report-audit-20261030\\audit.json": "1dd3962f4c936a2f6ecf1c9a1f3b78d7f6e43fa968431145ce33541627045ce6",
+    "docs\\audits\\20261030-q-rmea-fresh5.md": "6415df4cb183eb2d1e32732e832c378ca006a6aa8c325c63d58e3f02b33e7708"
+  },
+  "proposed_claim": "For the trained frozen-encoder Q-RMEA output heads on official Re-TACRED, non-entity context weight-to-value alignment contributes to fixed-model task predictions. Population-level label-blind replacement degrades the predeclared CE diagnostic across all five seeds; the same models have established Macro utility over uniform pooling.",
+  "excluded_claims": [
+    "Mediation of the entire Q-minus-uniform Macro gain",
+    "Relation-conditioning necessity versus generic learned attention",
+    "Quantum phase necessity or superiority over matched classical/dephased replacements",
+    "Correct human evidence localization",
+    "Novelty/SOTA/parameter efficiency/hardware speedup",
+    "L4 statistical confirmation"
+  ],
+  "execution": {
+    "new_training_runs": 0,
+    "new_forward_passes": 0,
+    "new_private_restore": 0,
+    "new_test_selection": 0,
+    "mechanical_report_audit_only": true
+  }
+}
