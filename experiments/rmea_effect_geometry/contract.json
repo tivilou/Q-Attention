@@ -1,0 +1,53 @@
+{
+  "schema": "qattn.effect-geometry.contract.v1",
+  "purpose": "Measure, do not presume learned effect degeneracy before selecting a new mechanism.",
+  "checkpoints": {
+    "full_seed29_selected": {
+      "path": "/hy-tmp/qattn-effect-geometry-20261114-inputs/quantum-selected.pt",
+      "sha256": "1c392139393b72a54946ca3f8796569aeeebff8610185467e3dcd2c0044efb77",
+      "scope": "Previously independently restored full fresh5 seed29 selected model; geometry only, not population evidence."
+    },
+    "small_seed419_selected": {
+      "path": "/hy-tmp/q-duet-data-20261107-v001/attempts/5cece1176e314fe2a023ea376c8da5fb/output/checkpoints/static-selected.pt",
+      "sha256": "87678f2f6dd7934f177aed2e3d7533dcee9b97a54fbef5d7c601b81553538fbb",
+      "scope": "Unmodified selected static baseline from stopped short development screen."
+    }
+  },
+  "small_initial_parameters_sha256": "e43b8a39aa6008b7190550c42a34222fc1e8d35316d44ad6f522fa66683d9165",
+  "theory": "phi_r=circuit(pi*tanh(effect_r)); sigma=sum |phi_r><phi_r|/40; purity=Tr(sigma^2); rank2=1/purity; excess=8*purity-1; offdiag_mean=(40*purity-1)/39 >= (40-8)/(8*39). Separate binary effects, not a joint POVM.",
+  "invariants": "State normalization, PSD/trace1, dense circuit parity, trace/eigenvalue/Gram identity, gauge/unitary/permutation invariance; repeated-basis tight frame rank8/excess0 can still duplicate pairs. No claim tightness is task-optimal.",
+  "resources": {
+    "cpu": 1,
+    "ram_mb": 2048,
+    "disk_mb": 64,
+    "gpus": 0,
+    "timeout": 90,
+    "max_attempts": 1,
+    "replay_safe": false
+  },
+  "outputs": [
+    "summary.json",
+    "unit.json",
+    "RUN_COMPLETE"
+  ],
+  "public_allowlist": [
+    "code/config/design",
+    "summary.json",
+    "unit.json",
+    "audit.json",
+    "analysis-zh.md"
+  ],
+  "runtime": "Existing Python3.10 torch2.5.1+cpu numpy1.26.4, CPU only; float64 analysis of exact frozen fp32 effect tensors. No packages installed.",
+  "lifecycle": "One finite registered scheduler attempt, exact clean source and closure. Unknown retains reservation. No automaticretry/resume, no new checkpoint. Terminal/quiescent receipt0 and all3outputs/closure required before acceptance. Exact prior owner/worker config bytes restored.",
+  "gate": "Deterministic measurement validity only, no utility/promotion or mechanistic causal gate.",
+  "forbidden": [
+    "model fitting",
+    "reading task examples/labels/test",
+    "mutating either checkpoint",
+    "COS transfer",
+    "GPU execution",
+    "new paid node",
+    "formal experiment",
+    "exporting weights/statevectors/Gram matrix"
+  ]
+}
