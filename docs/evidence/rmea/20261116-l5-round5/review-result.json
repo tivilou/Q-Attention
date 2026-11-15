@@ -1,0 +1,212 @@
+{
+  "schema": "qattn.finite-pure-circuit-counterexample.both-review.v1",
+  "reviewed_at_utc": "2026-11-15T17:11:58.995866+00:00",
+  "review_scope": "both",
+  "review_mode": "subagent_fallback",
+  "reviewer_model": "Codex independent bounded subagent; exact runtime model identifier not exposed",
+  "transport": "Local exact-source fallback; supplied review-selection records two ranked external native-max URLError attempts. No external call by reviewer.",
+  "source_sha256": "08b3ba5183c92c28d45bc39bc300cd28dd63292e49fd921de586a12917a5875f",
+  "contract_sha256": "36ec11aaa4de0b3d9fb740a2e657e9a1906e31785b8a543d3b9e7b709ce24280",
+  "input_packet_sha256": "04e021df3f4379ec4eb5d0d1955b3517a6dcd0977e4100b56db8eb4252fe7f93",
+  "verdict": "PASS_WITH_RISK",
+  "must_fix": [],
+  "theory_mapping": {
+    "status": "PASS_WITH_RISK",
+    "claim": "A finite two-example counterexample inside the original head-boundary parameterization: identical task logits with invertibly related pooled original-feature representations, both fixed-readout attention transplants harmful, predetermined legal decoder sign reversal restorative.",
+    "circuit_derivation": [
+      "The twelve affine outputs reshape as depth2 x3wires x(RY,RZ); indices0/1/9 are layer0wire0RY, layer0wire0RZ and layer1wire1RZ. kappa=atanh(1/2) gives finite actual angles pi*tanh(±kappa)=±pi/2.",
+      "Two successive directed CNOT rings map active basis100→011→010. The first wire0 and second wire1 RZ phases add on that branch, giving plus/minus states on000/010 up to global phase. Anchors have relative ±i and overlap1/2 with either real pure effect.",
+      "Valid half-open nonoverlapping spans[2,3),[3,4) and their ordered-role reversal give distance-channel difference±1/32 at all four positions without clipping. The affine role coefficient32kappa therefore implements the required second phase.",
+      "Pure effects A/B are produced by the same original finite circuit parameters, globally shared within each relation, with no mixed-effect substitute or joint-POVM assumption."
+    ],
+    "logit_argument": "For Z=2+4epsilon, the high-low allocation difference is1/Z and the value map isZ(h0-h1). Opposed active decoders give identical own±1logits, swaps exchange them, and reversing active decoders restores them. The38fixed dummy logits do not change log-sum-exp under active-class exchange, giving exact real-arithmetic CE damage2.",
+    "capacity_argument": "For fixed normalized allocations, w_r=V^T d_r and beta_r=b_r+d_r^T c. Width64>=40 permits any finite40x1024effective linear W by putting its rows in V and choosing coordinate decoders. This does not equate implicit bias, penalties, conditioning or optimization."
+  },
+  "correctness": {
+    "status": "PASS_WITH_RISK",
+    "original_implementation": "The runner imports the pinned original experiments.rmea_allocation.legacy.rmea.RMEAHead after checking all three original module hashes. It does not replace the circuit/head with an independent simulator.",
+    "checked": [
+      "Both heads zero all parameters and explicitly set the finite prepare/effect/value/decoder/bias entries; values and effects stay in the actual original affine and pi*tanh parameterization.",
+      "Source asserts all40relations, full probability/alpha/logits, effect and preparation projectors, both swap logits, predetermined redecoded logits and per-case CE differences. Projectors correctly ignore physically irrelevant global phases.",
+      "Exactly two synthetic batched native-head calls are in the frozen runner, one per head on a two-example batch; the source checks float64/complex128 CPU semantics and disables gradients.",
+      "Re-decoding is evaluated from utilities with an explicitly predetermined sign reversal equivalent to a legal decoder parameter change, not an estimated or trained recovery.",
+      "The two-point equivalence concerns the pooled original1024-dimensional h coordinates, swapped by a fixed coordinate permutation; it is not an all-input functional-equivalence theorem."
+    ],
+    "runtime_status": "Actual original-head toy has not been run by this reviewer; its2forwards and1e-12validation remain gated on later exact execution."
+  },
+  "fidelity_gaps": [
+    "Synthetic h values are valid head-boundary inputs but are not shown to be outputs of RoBERTa or Re-TACRED. The reviewed producer code inserts ordered entity markers before contextual word features; real uniform pooling can retain entity information.",
+    "The construction demonstrates that mutual transplant harm alone need not imply lost task information. It does not identify the cause of prior real-data harm, negate fixed-decoder functional dependence, or revise old scoped L4.",
+    "Pooled-feature equivalence holds on the explicitly declared two-point synthetic support, for any mixture over those points, not for the full RMEA input function.",
+    "The affine readout-capacity observation is a known factorization fact; a held-out train-only refit would still have to distinguish information loss from conditioning/optimizer/regularization effects.",
+    "No learned effect, encoder recovery, semantic explanation, quantum necessity, independent utility confirmation or L5 novelty is established."
+  ],
+  "control_fairness": {
+    "status": "PASS_WITH_RISK",
+    "details": "All examples and finite parameters are predetermined. Heads share the same features, legal roles, masks, preparation and value map; effects and opposed decoder signs form the intended counterexample. This is a constructive source-faithfulness check, not a trained A/B performance experiment or a favorable-seed search."
+  },
+  "gradient_flow": {
+    "status": "NOT_APPLICABLE",
+    "details": "No optimizer, fitting, trained update or gradient claim; gradients are disabled before the two synthetic forwards."
+  },
+  "gradients_and_numerics": {
+    "status": "PASS_WITH_RISK",
+    "independent_micro_checks": {
+      "scope": "Standalone basis-bit tracking, exact Fraction identities and scalar phase/CE arithmetic only; no original circuit/head/runner or full-model toy execution.",
+      "basis_ring_maps": {
+        "100": "011",
+        "011": "010"
+      },
+      "role_distance_differences": [
+        "+1/32 across all4tokens",
+        "-1/32 across all4tokens"
+      ],
+      "kappa": 0.5493061443340549,
+      "largest_nonzero_prepare_coefficient": 17.577796618689757,
+      "maximum_relative_phase_residual": 1.2246467991473532e-16,
+      "allocation_normalization_exact_fraction": true,
+      "Z_times_high_minus_low_exactly1": true,
+      "CE_damage_float": 1.9999999999999998,
+      "CE_damage_absolute_residual": 2.220446049250313e-16
+    },
+    "runtime_gates": "The original source runner uses float64 parameters and complex128 states and requires every recorded error<1e-12 plus finite parameters. Micro scalar rounding does not relax that frozen gate or assert native parity."
+  },
+  "leakage_and_input_boundary": {
+    "status": "PASS_WITH_RISK",
+    "details": "No real text, data, feature cache, checkpoint, test or COS input is loaded. Synthetic labels0/1 and the two legal role assignments are specified in advance; they are not a benchmark result. The source-context marker and role claims were independently read at the recorded source locations."
+  },
+  "lifecycle": {
+    "status": "PASS_WITH_RISK",
+    "exact_launch": {
+      "node": "q-duet-data-1080ti-v1",
+      "server": "gpushare-i1-39684-data",
+      "owner_repo": "/home/Q-Attention/l5-coadaptation-20261116",
+      "worker_repo": "/hy-tmp/qattn-l5-coadaptation-20261116",
+      "parent_revision": "8c29cadd7b0b7a606a57889e9f7c1e3e226d8479",
+      "python": "/tmp/qattn-joint-rebuild-20261113/env/bin/python",
+      "argv": [
+        "{python}",
+        "-B",
+        "experiments/rmea_coadaptation/runner.py",
+        "run",
+        "--output",
+        "{output}"
+      ],
+      "resources": {
+        "cpu": 1,
+        "ram_mb": 1024,
+        "disk_mb": 16,
+        "gpus": 0,
+        "gpu_mb": 0
+      },
+      "timeout_seconds": 180,
+      "max_attempts": 1,
+      "replay_safe": false,
+      "task_key": "rmea-coadaptation-08b3ba5183c9-36ec11aaa4de"
+    },
+    "checked": [
+      "Rename/substitution diff against the prior reviewed helper family preserves exact owner Gitblob/working-byte and worker file/blob checks for the new source files. Original model dependencies are pinned in contract and checked before importing Torch/head at runtime.",
+      "Unique coadapt_ops and its exact trace_ops hash/path validation preserve selected project-role access without generic ops collision.",
+      "Fresh status/fleet-health/readiness checks and available cgroup memory>1024MiB/disk checks precede allocation; CUDA visibility must be empty and BLAS threads are fixed before heavy imports.",
+      "Paired config CAS retains known before/after checks, leader locking, compensating partial writes, restart only for a known consistent pair, and preserve-unknown behavior. A wait timeout never implies termination or permits another task.",
+      "Collector requires exactly one successful terminal/quiescent attempt, restored binding, exact node/revision/cwd/argv/GPU0 and all receipt hashes. It verifies exactly3data files (summary,numeric-fixture,source-validation) plus the excluded RUN_COMPLETE marker, under16MiB; outputs are synthetic only.",
+      "Full owned-patch reverse --index and parent-tree equality before normal rollback commit are retained; prior model sources and scheduler binding restoration remain separate."
+    ],
+    "runtime_status": "No readiness, deployment, queue, collection or rollback executed by reviewer."
+  },
+  "artifact_and_recovery": {
+    "status": "PASS_WITH_RISK",
+    "whitelist": "Exact new code/contract/proof, compact predetermined synthetic numeric values, summary/source-validation and compact audit records; no real weights or private dataset artifacts.",
+    "closure": "Three JSON data files are closed by RUN_COMPLETE and verified against the exact receipt; there is no checkpoint or COS recovery object.",
+    "recovery": "Deterministic synthetic inputs can be reconstructed from code only. Any further execution is separately reviewed after terminal proof; no automatic retry or parameter search."
+  },
+  "risks": [
+    "Actual native source validation remains pending. Any finite-parameter, environment, source-hash or1e-12error failure stops result acceptance without tolerance adjustment.",
+    "Readout restoration is predetermined legal parameter arithmetic, not evidence that a fair trained or regularized readout will recover on independent real inputs.",
+    "The counterexample stays inside the original pure-effect family at the head boundary, but does not establish that the real encoder reaches these two synthetic feature configurations.",
+    "Known coadaptation/representation equivalence and effective linear capacity do not constitute L5 novelty or an all-input identifiability contradiction.",
+    "CPU memory/time admission and actual closure must be observed through the exact reviewed lifecycle; unknown state is not success or retry authority."
+  ],
+  "allowed_actions": {
+    "under_existing_owner_authorization": [
+      "Deploy the exact reviewed source and run one CPU1/RAM1024/GPU0/180s source-bound scheduler job with exactly the two predetermined synthetic native-head forwards.",
+      "Require all prescribed source/role/probability/projector/logit/CE/finite-parameter assertions before accepting compact synthetic outputs.",
+      "After successful terminal/quiescent proof and exact config restoration, collect the three-file synthetic closure and approved compact records.",
+      "Execute the reviewed source/binding rollback under its exact identity/quiescence conditions."
+    ],
+    "mandatory_stops": [
+      "Any source/dependency/environment mismatch",
+      "Any error>=1e-12, nonfinite parameter or expected-output discrepancy",
+      "Any active/unknown attempt or unknown config bytes",
+      "Any request to alter examples/parameters, fit/search, widen data scope or change resource contract without a new exact review"
+    ],
+    "not_authorized": [
+      "Real-data or encoder forward, data/checkpoint/COS access, training or formal experiment",
+      "New paid resource, collaborator server access, private-data publication",
+      "L5/novelty promotion, old L4 revision, real uniform missing-entity-information or full-function-equivalence claim"
+    ]
+  },
+  "verification_evidence": {
+    "frozen_files_verified": 9,
+    "python_files_ast_parsed": 7,
+    "external_dependency_files_verified": 1,
+    "external_dependency_python_ast_parsed": 1,
+    "repo_model_source_files_verified": 3,
+    "repo_model_source_python_ast_parsed": 3,
+    "repo_models_bound_via_contract": true,
+    "source_hash_before": "08b3ba5183c92c28d45bc39bc300cd28dd63292e49fd921de586a12917a5875f",
+    "source_hash_after": "08b3ba5183c92c28d45bc39bc300cd28dd63292e49fd921de586a12917a5875f",
+    "contract_hash_before": "36ec11aaa4de0b3d9fb740a2e657e9a1906e31785b8a543d3b9e7b709ce24280",
+    "contract_hash_after": "36ec11aaa4de0b3d9fb740a2e657e9a1906e31785b8a543d3b9e7b709ce24280",
+    "packet_hash_before": "04e021df3f4379ec4eb5d0d1955b3517a6dcd0977e4100b56db8eb4252fe7f93",
+    "packet_hash_after": "04e021df3f4379ec4eb5d0d1955b3517a6dcd0977e4100b56db8eb4252fe7f93",
+    "review_selection_sha256": "fc292a415b93c54ee3fd284c0ec26472a65d96c1e8721f92310c4c193e4623b2",
+    "source_context_support_sha256": "8ac9c1edcc07cd3caf93ed93b350cb1eb1a87e782ebe01c185b28b9d5c476ad9",
+    "actual_head_executed": false,
+    "original_runner_executed": false,
+    "source_mutations_by_reviewer": false,
+    "writes": [
+      "review-result.json",
+      "review-result.md"
+    ]
+  },
+  "source_file_hashes": {
+    "deploy.py": "d1b4773722d897537c4cd6f49ce78e02d106adf79ecb3149c02d7692986246fd",
+    "queue_submit.py": "778cd2eae6b2bff4c3992aa2a2c1213282c0ac1ff6965975829a64f5690e2610",
+    "collect.py": "7f1a53cd1679a1707bed5756a030fa320e88a29228dbe3d4d14e8457dbae5573",
+    "readiness.py": "2f5cf8b13332da92752f73d4b3fdf3495ab3a171b58d90c0c52dd9cf25871d9c",
+    "rollback_source.py": "064802be081939e6b63548176aa408c2a5aa9f134150e0addf0e38c07312b6f5",
+    "coadapt_ops.py": "088ae81dcc91ac97e9656f0dfaa0cb38d0e1af5770e6006f4b835969a34a2503",
+    "proof.md": "35238d9de433217fc64707a949d448814f71feeb052870bad4e0dd7331875122",
+    "source/runner.py": "106180057542dd1aeb1e37962c1821e399ba5764e4ca582a917154bc706bc519",
+    "source/contract.json": "36ec11aaa4de0b3d9fb740a2e657e9a1906e31785b8a543d3b9e7b709ce24280"
+  },
+  "dependency_file_hashes": {
+    ".codex-artifacts/qattn-rmea-joint-20261113/trace_ops.py": "c24804b33f407ab8d16a3ee28d1b983215029db8f6e27700f22cd7a3a55f6d7b"
+  },
+  "repo_model_source_hashes": {
+    "experiments/rmea_allocation/legacy/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/rmea_allocation/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_allocation/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "read_only_source_references": [
+    {
+      "path": ".codex-artifacts/qattn-rmea-implementation-20261026/confirmation-20261027/source/baselines/retacred/rmea_confirmation_run.py",
+      "sha256": "9f6de9013354dd90122b839a12e4a8cfc8b6946a2e2169e41fd248b472511e19",
+      "read_lines": "40-55",
+      "finding": "marked_words precedes encoder; roles use clipped subject/object center distance/32 then two membership indicators."
+    },
+    {
+      "path": ".codex-artifacts/qattn-rmea-implementation-20261026/confirmation-20261027/source/scripts/audit_rmea_tokenization.py",
+      "sha256": "5f7860e47a7a0979976e5acc435ed34acede4c96bfac799d79d3018366b6aef8",
+      "read_lines": "10-28",
+      "finding": "Ordered subject@/object# punctuation enters contextual encoding; markers excluded from pooling, contextualized original words retain their effect."
+    },
+    {
+      "path": ".codex-artifacts/qattn-rmea-joint-20261113/rebuild/source/experiments/rebuild_rmea_feature_cache.py",
+      "sha256": "b6ccef2e3634af7e3dbe1c7f2e97914c1a5c40bbb837b2d45a060c850b811402",
+      "read_lines": "83-100",
+      "finding": "CPU rebuild uses the same marked encoder input and four-role recipe."
+    }
+  ]
+}

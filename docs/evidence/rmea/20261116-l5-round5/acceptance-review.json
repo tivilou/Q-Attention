@@ -1,0 +1,240 @@
+{
+  "schema": "qattn.round5.result-report-acceptance.v1",
+  "reviewed_at_utc": "2026-11-15T17:38:12.912381+00:00",
+  "review_scope": "result_and_report_consistency",
+  "review_mode": "subagent_fallback",
+  "reviewer_model": "Codex independent bounded subagent; exact runtime model identifier not exposed",
+  "transport": "Local read-only fallback under parent-recorded exact ranked native-max transport failures. No external request by this reviewer.",
+  "source_sha256": "08b3ba5183c92c28d45bc39bc300cd28dd63292e49fd921de586a12917a5875f",
+  "contract_sha256": "36ec11aaa4de0b3d9fb740a2e657e9a1906e31785b8a543d3b9e7b709ce24280",
+  "verdict": "PASS",
+  "must_fix": [],
+  "verdict_meaning": "The whitelisted execution results, numeric fixture, report and compact publication records are mutually consistent within the reviewed scope. This is neither L5 acceptance nor novelty clearance, a causal account of the real-data result, or approval of a new candidate.",
+  "scientific_status": {
+    "l5_accepted": false,
+    "original_scoped_l4_unchanged": true,
+    "new_candidate_selected": false,
+    "new_candidate_validity_reviewed": false
+  },
+  "exact_key_hashes": {
+    "docs/audits/20261116-q-rmea-l5-round5.md": "860d74756cb0749de134c5d4ced5d0bce51d6c79556354d71dffae66b0063d87",
+    ".codex-artifacts/qattn-l5-round5-20261116/summary.json": "976dcfb845fda4fb50ffdc88499523ea6fb1aa573dd9bc2a80e8b2eba2d07452",
+    ".codex-artifacts/qattn-l5-round5-20261116/proof.md": "35238d9de433217fc64707a949d448814f71feeb052870bad4e0dd7331875122",
+    ".codex-artifacts/qattn-l5-round5-20261116/source/runner.py": "106180057542dd1aeb1e37962c1821e399ba5764e4ca582a917154bc706bc519",
+    ".codex-artifacts/qattn-l5-round5-20261116/source/contract.json": "36ec11aaa4de0b3d9fb740a2e657e9a1906e31785b8a543d3b9e7b709ce24280",
+    ".codex-artifacts/qattn-l5-round5-20261116/theory-synthesis.json": "ab31861cb4d9ce788f9e8f9d8dea64efabd7470cbebce37dc3a0ca0b6117f09d",
+    ".codex-artifacts/qattn-l5-round5-20261116/reading-receipts.json": "d8628a76ccc595ce6be893327cc1ce5799fc9310db0f385f1839be96604f1e08"
+  },
+  "numerical_consistency": {
+    "own_correct_from_saved_logits": [
+      2,
+      2
+    ],
+    "swap_correct_from_saved_logits": [
+      0,
+      0
+    ],
+    "redecoded_correct_from_saved_logits": [
+      2,
+      2
+    ],
+    "expected_ce_damage_per_case": 2.0,
+    "saved_ce_difference_matches_within_frozen_tolerance": true,
+    "maximum_absolute_error": 8.881784197001252e-16,
+    "error_is_maximum_of_all_recorded_checks": true,
+    "frozen_absolute_tolerance": 1e-12,
+    "legal_nonoverlapping_spans": true,
+    "saved_roles_match_producer_recipe": true,
+    "distance_channel_difference_per_example": [
+      "+1/32",
+      "-1/32"
+    ],
+    "checks": "Mechanical comparisons of saved compact arrays/CE entries and roles only; no head, model, circuit simulator or runner executed."
+  },
+  "source_and_execution_lineage": {
+    "source_revision": "0e038abacf954f9adf193a717234187ff9ab5e46",
+    "source_runner_sha256": "106180057542dd1aeb1e37962c1821e399ba5764e4ca582a917154bc706bc519",
+    "source_contract_sha256": "36ec11aaa4de0b3d9fb740a2e657e9a1906e31785b8a543d3b9e7b709ce24280",
+    "source_composite_rule": "sha256(compact sorted JSON of {files:freeze.files,dependencies:freeze.dependency_files})",
+    "proof_runner_contract_match_freeze": true,
+    "original_model_hashes_consistent_across_contract_source_validation_and_freeze": true,
+    "previous_exact_both_review_sha256": "993fc9d537c844443dcb2642dea72ef5a8cc9f9cb148ad2b25ef652a43efd750",
+    "previous_review_verdict": "PASS_WITH_RISK",
+    "task": "23eb935f7d1641adae7cdbe46d002112",
+    "attempt": "0efd3126818f42dc9f53f6ae3acbef73",
+    "recorded_state": "complete",
+    "recorded_scientific_exit": 0,
+    "recorded_quiescent": true,
+    "recorded_binding_restored": true,
+    "receipt_hash_and_byte_matches": 3,
+    "synthetic_data_files": 3,
+    "synthetic_data_bytes": 6428,
+    "closure_sha256": "2f4eedad0dcc376b9df6f5582891f2e32c1d954ab6ca9ed9be529749fab1f510",
+    "recorded_cpu": 1,
+    "recorded_memory_mib": 1024,
+    "recorded_gpu": 0,
+    "synthetic_batch_head_forward_calls": 2,
+    "real_data_forward_calls": 0,
+    "training_runs": 0,
+    "formal_runs": 0,
+    "test_loaded": false,
+    "new_cos_reads": 0,
+    "rollback_record": "PASS; isolated reverse-patch fixture, source files removed there, production source preserved.",
+    "observation_limit": "Receipt and fixture records were reviewed locally; this acceptance review did not contact the worker or re-observe runtime state."
+  },
+  "publication_consistency": {
+    "public_owned_files": 11,
+    "exact_byte_mirrors": 7,
+    "mirror_names": [
+      "summary.json",
+      "numeric-fixture.json",
+      "source-validation.json",
+      "reading-receipts.json",
+      "theory-synthesis.json",
+      "review-result.json",
+      "proof.md"
+    ],
+    "compact_execution_and_source_identity": "PASS: revision, parent, source/contract/blob/review hashes, task/attempt, closure, elapsed time, resources and counters match local records.",
+    "report_and_author_log": "PASS: numeric counts, error, scope, original L4 and L5-not-accepted statement agree."
+  },
+  "claim_boundaries": [
+    "The finite preparation and pure global effects are in the original affine1028->12, pi*tanh, depth2 circuit family, and the saved legal4role arrays match the documented production recipe. Independent effects are not a joint POVM.",
+    "The counterexample concerns exactly two predetermined synthetic head-input points and their mixtures. Reachability by the real encoder, observed NLP behavior and full-input equivalence are not established.",
+    "Both directions of attention transplant can harm fixed recipients while a predetermined legal readout sign change restores their logits; this refutes an inference from mutual transplant harm alone to lost task information, not every possible information-loss hypothesis.",
+    "Value64>=relations40 supports the stated effective readout factorization. Equal representable linear readouts do not imply equal optimization, regularization, conditioning, implicit bias or sample efficiency.",
+    "The actual producer inserts ordered subject@/object# markers before contextual encoding. Real uniform features may contain entity information; the synthetic identical-bag observation does not establish a real uniform information deficit.",
+    "Conditional common-unclipped-context rank invariance is narrower than a full-head classification limitation: mass, clipping, entity-membership and re-encoding channels remain. A finite rank flip is weaker than a universally dynamic-family guarantee and is not quantum-exclusive.",
+    "Known coadaptation/factorization and the finite capacity witnesses do not establish L5 novelty, task gain or phase necessity. Original scoped L4 is unchanged."
+  ],
+  "reading_scope_consistency": {
+    "status": "PASS_FOR_RECORDED_SCOPE",
+    "papers": [
+      {
+        "observed_version": "2408.17221v3",
+        "pages_read": [
+          1,
+          8,
+          17
+        ],
+        "visually_checked_pages": [
+          8
+        ],
+        "full_paper_read": false,
+        "pdf_sha256": "e6dfe54769c24441f78bf32e5ec60137c9887bdb128f9bbb470d29d30b18d363",
+        "parse_sha256": "bccf3aa876d4ec00aa8b40cbe3834dd7d3921f62dfb5bcb1d7840365483b4551"
+      },
+      {
+        "observed_version": "0909.3304v1",
+        "pages_read": [
+          1,
+          2
+        ],
+        "visually_checked_pages": [
+          2
+        ],
+        "full_paper_read": false,
+        "pdf_sha256": "56938a83f3ea8ee2c1707ab8a9032f940cb43daa3563674381dabd44ff8e3bb7",
+        "parse_sha256": "8b6defeee98555a03c4f88d10dbb41493ac0e2d916caf16150aaaf3e27941f0c"
+      },
+      {
+        "observed_version": "2105.14491v1",
+        "pages_read": [
+          1,
+          3,
+          4,
+          5
+        ],
+        "visually_checked_pages": [
+          4
+        ],
+        "full_paper_read": false,
+        "pdf_sha256": "aac6f2a8e949ce5d7a1d20f410248ac13abb315a99368260aefc375a0657dd0f",
+        "parse_sha256": "914bf58a74178faecce039654c9360bb7eeb0843f2afdb52ca756b22ac29dff1"
+      }
+    ],
+    "limits": "Report and public receipts agree on exact versions and selected pages. This bounded review did not retrieve or re-read the PDFs. No whole-paper, proceedings-version, all-input theorem-transfer, random-Pauli guarantee or universal-dynamic claim is accepted."
+  },
+  "next_seed_boundary": {
+    "status": "SPECULATIVE_NOT_SELECTED",
+    "originals_read": false,
+    "theory_reviewed": false,
+    "implemented": false,
+    "novelty_cleared": false,
+    "inherits_original_l4": false,
+    "record_scope": "The report explicitly states all these boundaries and the synthesis records the required pre-implementation work. This review does not assess the commutator expression, positivity, novelty, utility or scientific viability."
+  },
+  "read_only_source_references": [
+    {
+      "path": ".codex-artifacts/qattn-rmea-implementation-20261026/confirmation-20261027/source/baselines/retacred/rmea_confirmation_run.py",
+      "sha256": "9f6de9013354dd90122b839a12e4a8cfc8b6946a2e2169e41fd248b472511e19",
+      "read_lines": "40-55"
+    },
+    {
+      "path": ".codex-artifacts/qattn-rmea-implementation-20261026/confirmation-20261027/source/scripts/audit_rmea_tokenization.py",
+      "sha256": "5f7860e47a7a0979976e5acc435ed34acede4c96bfac799d79d3018366b6aef8",
+      "read_lines": "10-28"
+    },
+    {
+      "path": ".codex-artifacts/qattn-rmea-joint-20261113/rebuild/source/experiments/rebuild_rmea_feature_cache.py",
+      "sha256": "b6ccef2e3634af7e3dbe1c7f2e97914c1a5c40bbb837b2d45a060c850b811402",
+      "read_lines": "83-100"
+    }
+  ],
+  "risks": [
+    "Runtime, resource, closure and rollback claims rely on the exact recorded successful attempt and local compact evidence; no new remote observation was performed.",
+    "The native source validation is a two-example float64 synthetic check, not a benchmark test, independent utility confirmation, encoder-reachability proof or full-function theorem.",
+    "The original scoped L4 remains attached to the original method and evidence. The unselected entity-commutator seed has no inherited grade or implementation authority.",
+    "The three literature receipts certify limited recorded pages and versions only. This review checks their reporting consistency and does not provide a new full-text or novelty review.",
+    "Known algebraic capacity and rank-reversal facts do not settle real-data generalization or optimization. Any future fitted-readout study needs train-only fitting and distinct evaluation inputs."
+  ],
+  "allowed_use": [
+    "Publish the exact reviewed descriptive report and compact evidence while retaining all stated limitations.",
+    "Preserve L5 NOT_ACCEPTED and original scoped L4 unchanged.",
+    "Treat the entity-commutator item only as a reading/review seed requiring its own qualification."
+  ],
+  "review_actions": {
+    "model_or_experiment_execution": false,
+    "remote_or_cloud_access": false,
+    "new_reading_download": false,
+    "source_or_report_mutation": false,
+    "delegation": false,
+    "mechanical_saved_output_checks": true,
+    "writes": [
+      "acceptance-review.json",
+      "acceptance-review.md"
+    ]
+  },
+  "reviewed_file_sha256": {
+    ".codex-artifacts/qattn-l5-round5-20261116/summary.json": "976dcfb845fda4fb50ffdc88499523ea6fb1aa573dd9bc2a80e8b2eba2d07452",
+    ".codex-artifacts/qattn-l5-round5-20261116/numeric-fixture.json": "b49e0a13a439b8e9683d9be41243126e2aecb07dd76acdf5eaf2648222e022f4",
+    ".codex-artifacts/qattn-l5-round5-20261116/source-validation.json": "94633a0197039b76c44e067f28391d875603b1092dc60e2c9aebc24248674e3e",
+    ".codex-artifacts/qattn-l5-round5-20261116/execution-verification.json": "11b2a4d64b8e0827d4c90fe418ea8fc3979c5dc844082573438d8933727132e1",
+    ".codex-artifacts/qattn-l5-round5-20261116/freeze.json": "95d365e0585b1f5f949b648d1c850d0bd899422d3b6d98e8deb636c3175532e6",
+    ".codex-artifacts/qattn-l5-round5-20261116/proof.md": "35238d9de433217fc64707a949d448814f71feeb052870bad4e0dd7331875122",
+    ".codex-artifacts/qattn-l5-round5-20261116/reading-receipts.json": "d8628a76ccc595ce6be893327cc1ce5799fc9310db0f385f1839be96604f1e08",
+    ".codex-artifacts/qattn-l5-round5-20261116/theory-synthesis.json": "ab31861cb4d9ce788f9e8f9d8dea64efabd7470cbebce37dc3a0ca0b6117f09d",
+    ".codex-artifacts/qattn-l5-round5-20261116/review-result.json": "993fc9d537c844443dcb2642dea72ef5a8cc9f9cb148ad2b25ef652a43efd750",
+    ".codex-artifacts/qattn-l5-round5-20261116/role-coupling-advice.json": "8adb1121a9b0e9f876bcfc411c2e464dc1b7c500d153df285ee944983ff49ea0",
+    ".codex-artifacts/qattn-l5-round5-20261116/source-context-support.json": "8ac9c1edcc07cd3caf93ed93b350cb1eb1a87e782ebe01c185b28b9d5c476ad9",
+    ".codex-artifacts/qattn-l5-round5-20261116/owner-source.json": "e8a08ab6a0e596834bc900cbef869a1905ed3c885edbdc2fa914a29a422f6912",
+    ".codex-artifacts/qattn-l5-round5-20261116/rollback-verification.json": "e107f7d1562d69e1a701986ebaf19b09c46ad16702c6832ac09d4984a03739aa",
+    ".codex-artifacts/qattn-l5-round5-20261116/source/runner.py": "106180057542dd1aeb1e37962c1821e399ba5764e4ca582a917154bc706bc519",
+    ".codex-artifacts/qattn-l5-round5-20261116/source/contract.json": "36ec11aaa4de0b3d9fb740a2e657e9a1906e31785b8a543d3b9e7b709ce24280",
+    ".codex-artifacts/qattn-l5-round5-20261116/public-owned-files.json": "7cd4c04a03864d73fd0a82099f13716063ceb3e26428ccef198ad91fab6cfdbd",
+    "docs/evidence/rmea/20261116-l5-round5/summary.json": "976dcfb845fda4fb50ffdc88499523ea6fb1aa573dd9bc2a80e8b2eba2d07452",
+    "docs/evidence/rmea/20261116-l5-round5/numeric-fixture.json": "b49e0a13a439b8e9683d9be41243126e2aecb07dd76acdf5eaf2648222e022f4",
+    "docs/evidence/rmea/20261116-l5-round5/source-validation.json": "94633a0197039b76c44e067f28391d875603b1092dc60e2c9aebc24248674e3e",
+    "docs/evidence/rmea/20261116-l5-round5/reading-receipts.json": "d8628a76ccc595ce6be893327cc1ce5799fc9310db0f385f1839be96604f1e08",
+    "docs/evidence/rmea/20261116-l5-round5/theory-synthesis.json": "ab31861cb4d9ce788f9e8f9d8dea64efabd7470cbebce37dc3a0ca0b6117f09d",
+    "docs/evidence/rmea/20261116-l5-round5/review-result.json": "993fc9d537c844443dcb2642dea72ef5a8cc9f9cb148ad2b25ef652a43efd750",
+    "docs/evidence/rmea/20261116-l5-round5/execution.json": "b68a98d5be4180f0b75a8e3e09407bc573576c4494fb2a71063a9ecd3716b1a9",
+    "docs/evidence/rmea/20261116-l5-round5/source-identity.json": "ff7b83e342f8e543bed39524ea4e53baa055320d63a55f04a71bb509ae6dc09e",
+    "docs/evidence/rmea/20261116-l5-round5/proof.md": "35238d9de433217fc64707a949d448814f71feeb052870bad4e0dd7331875122",
+    "docs/audits/20261116-q-rmea-l5-round5.md": "860d74756cb0749de134c5d4ced5d0bce51d6c79556354d71dffae66b0063d87",
+    "docs/research-log/20261115T-173142Z-q-rmea-l5-round5.md": "9fe7738ffacdefb6ef1c2ab2d39d460649f64ae00c76eeb3f05e78d88e6933e6",
+    ".codex-artifacts/qattn-rmea-implementation-20261026/confirmation-20261027/source/baselines/retacred/rmea_confirmation_run.py": "9f6de9013354dd90122b839a12e4a8cfc8b6946a2e2169e41fd248b472511e19",
+    ".codex-artifacts/qattn-rmea-implementation-20261026/confirmation-20261027/source/scripts/audit_rmea_tokenization.py": "5f7860e47a7a0979976e5acc435ed34acede4c96bfac799d79d3018366b6aef8",
+    ".codex-artifacts/qattn-rmea-joint-20261113/rebuild/source/experiments/rebuild_rmea_feature_cache.py": "b6ccef2e3634af7e3dbe1c7f2e97914c1a5c40bbb837b2d45a060c850b811402"
+  },
+  "input_hashes_unchanged_before_after_review": true
+}
