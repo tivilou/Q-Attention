@@ -1,0 +1,156 @@
+{
+  "schema": "qattn.round3.result-report-consistency-review.v1",
+  "reviewed_at_utc": "2026-11-15T13:43:35.364404+00:00",
+  "review_scope": "results_and_reporting_consistency",
+  "review_mode": "bounded_independent_subagent",
+  "reviewer_model": "Codex independent subagent; exact runtime model identifier not exposed",
+  "verdict": "PASS",
+  "verdict_meaning": "The supplied result records and report consistently represent this bounded descriptive run. PASS does not promote scientific evidence tier or certify a novel method.",
+  "must_fix": [],
+  "source_sha256": "df2c0fa08bc0a1ce39d6c1c1d39a1c7c5f426434c3963f29f153dcc923be9ad9",
+  "contract_sha256": "7f6c1d1871e27b3f33064572720f5825bbb5ce257cd2d4ee38964fa0ebe91076",
+  "input_packet_sha256": "ab986322a639b88194554bf4399ed3fee452416971e7579ec209a6078340f7e8",
+  "source_revision": "22e3848830a6cb823727fcd4966c96c8381a967d",
+  "input_manifest_sha256": "5d272e4606c4714ffb7e62e0edea65e1336f4a4aa35f46dc8de8b9b3da3f7cda",
+  "observed": {
+    "quantum": {
+      "macro_f1": 0.5054618477628884,
+      "accuracy": 0.7890625,
+      "mean_ce": 0.698471289006046,
+      "correct": 808,
+      "n": 1024
+    },
+    "comparisons": [
+      {
+        "control": "uniform",
+        "original_macro_f1": 0.2423558908108263,
+        "q_rescued": 80,
+        "q_harmed": 303,
+        "q_net_correct": -223,
+        "q_new_correct": 585,
+        "reverse_net_correct": -23,
+        "reverse_new_correct": 644,
+        "correctness_cells_and_accuracy_balances": "PASS",
+        "q_ce_change": 1.5794752989051313
+      },
+      {
+        "control": "relation_softmax",
+        "original_macro_f1": 0.5222527487697632,
+        "q_rescued": 48,
+        "q_harmed": 100,
+        "q_net_correct": -52,
+        "q_new_correct": 756,
+        "reverse_net_correct": -30,
+        "reverse_new_correct": 781,
+        "correctness_cells_and_accuracy_balances": "PASS",
+        "q_ce_change": 0.23654083249664903
+      },
+      {
+        "control": "real_overlap",
+        "original_macro_f1": 0.553761919786759,
+        "q_rescued": 62,
+        "q_harmed": 98,
+        "q_net_correct": -36,
+        "q_new_correct": 772,
+        "reverse_net_correct": -57,
+        "reverse_new_correct": 770,
+        "correctness_cells_and_accuracy_balances": "PASS",
+        "q_ce_change": 0.20396839182195725
+      },
+      {
+        "control": "dephased",
+        "original_macro_f1": 0.5167261343648485,
+        "q_rescued": 51,
+        "q_harmed": 74,
+        "q_net_correct": -23,
+        "q_new_correct": 785,
+        "reverse_net_correct": -12,
+        "reverse_new_correct": 794,
+        "correctness_cells_and_accuracy_balances": "PASS",
+        "q_ce_change": 0.11785605749687551
+      }
+    ],
+    "uniform_reverse": {
+      "macro_before": 0.2423558908108263,
+      "macro_after": 0.48377322444289117,
+      "macro_change_percentage_points": 24.141733363206484,
+      "accuracy_before": 0.6513671875,
+      "accuracy_after": 0.62890625,
+      "accuracy_change_percentage_points": -2.24609375,
+      "correct_before": 667,
+      "correct_after": 644,
+      "net_correct": -23
+    },
+    "stronger_subset_macro": [
+      "relation_softmax",
+      "real_overlap",
+      "dephased"
+    ]
+  },
+  "checks": {
+    "aggregate_arithmetic": "PASS: all four correctness tables sum1024; all original/new accuracy counts match rescued-minus-harmed in both directions; all Q CE deltas match.",
+    "report_numbers": "PASS: reported rounded table values and both directions agree with summary; Q Macro50.5462%, all three learned controls above Q on this subset retained.",
+    "metric_interpretation": "PASS: uniform reverse Macro gain is paired with accuracy/net-correct loss and no unmeasured long-tail claim.",
+    "source_and_receipt": "PASS: revision/source/contract maps consistent; all four declared output local byte counts and SHA256 equal exact execution receipt, including RUN_COMPLETE.",
+    "public_records": "PASS: public summary/unit/trace-validation/pre-execution-review equal local originals. Public execution record is an intentionally compact projection; its overlapping fields/closure match local receipt and its published resource subset matches the contract (omitted gpu_mb is zero).",
+    "execution": "PASS: state complete, scientific exit0, quiescent receipt, binding_restored true, one current-revision attempt. Prior failed revision is retained separately and not accepted.",
+    "traces": "PASS on supplied audits:7posthoc cases *5heads=35 original traces;7*4controls*2directions=56 hybrid traces;532original arrays/1596coordinates,392hybrid arrays; no warnings, exact cohort residual0, independent formula/reader passes.",
+    "numeric_parity": "PASS: all five native/common argmax disagreement counts0; numerical residuals and precision margins retained.",
+    "rollback": "PASS on supplied isolated reverse-patch fixture record: files removed in fixture, production source unchanged. This is not a claim that production source was rolled back.",
+    "private_closure": "PASS on supplied collector record:104files/12509829bytes, matching closure digest; weights/arrays were not downloaded. This reviewer did not re-access the worker to independently rehash private objects.",
+    "claim_boundary": "PASS: L5 NOT_ACCEPTED, old scoped L4 retained unchanged; fixed seed29 CPU-rebuilt validation1024, posthoc selection and encoder nonidentity disclosed. No new training/formal/test/quantum necessity claim."
+  },
+  "risks": [
+    "This is a record/report consistency review of supplied compact local evidence; it does not independently recompute Macro-F1 from hidden predictions, repeat private-array replay, or rehash the worker closure.",
+    "A 1024-case CPU-rebuilt validation subset from one fixed validation-selected seed is not the original full benchmark confirmation or an independent sample.",
+    "Cross-head attention/value swaps are off-family interventions with coadapted utilities; rescue/harm does not identify causal training mediation or measurement necessity.",
+    "Macro-F1 improvement with lower accuracy does not establish long-tail improvement without class-level support and confusion analysis.",
+    "Three learned controls have higher original Macro-F1 than Q here; the record cannot be used as quantum superiority evidence.",
+    "A next margin/measurement-realizability audit is a question to discriminate hypotheses, not evidence that shared-measurement constraints are the present causal bottleneck."
+  ],
+  "allowed_conclusions": [
+    "The bounded diagnostic completed with the supplied exact execution and closure records.",
+    "All four donor attentions harm more Q cases than they rescue at fixed Q utilities on this subset.",
+    "Q attention changes the uniform head metric distribution substantially: Macro increases while total correct decreases by23.",
+    "Existing compact evidence can be published with the current descriptive limitation and negative/null findings retained."
+  ],
+  "disallowed_conclusions": [
+    "L5 acceptance or a new theory/method contribution",
+    "New quantum necessity, total training-gain mediation or semantic explanation",
+    "Confirmed long-tail gain, overall uniform-head task improvement, or broad validation/test superiority",
+    "Reinterpreting the failed earlier revision as accepted scientific output"
+  ],
+  "next_action_boundary": "A scoped margin/realizability question may be prepared from existing traces. Any additional scientific execution requires its own exact inputs, hypothesis/claim boundary, review and scheduler scope; no new job authorized by this acceptance review.",
+  "input_hashes": {
+    ".codex-artifacts/qattn-l5-round3-20261115/summary.json": "430d036606feb8d986166d8951ff1233e011215d71761148b4043e544f626fb1",
+    ".codex-artifacts/qattn-l5-round3-20261115/unit.json": "ca8326bdb892cef7a253f59cc84c532a521739312e699c2c15a7647c331f2df3",
+    ".codex-artifacts/qattn-l5-round3-20261115/trace-validation.json": "c87c07b66454dc03b12fc8eb9e5a8e5c6fb9dc6641b33b5dab46eb8a6330976c",
+    ".codex-artifacts/qattn-l5-round3-20261115/execution-verification.json": "30dbcb4b4218138cf7e7922fdefac1f629990591963282a3873caaa1c6034ccd",
+    ".codex-artifacts/qattn-l5-round3-20261115/rollback-verification.json": "e107f7d1562d69e1a701986ebaf19b09c46ad16702c6832ac09d4984a03739aa",
+    ".codex-artifacts/qattn-l5-round3-20261115/public-owned-files.json": "9cfd250d7b8c9c65a5e73bee6512e571f3557874b30ece931e75fbe62f6109b4",
+    ".codex-artifacts/qattn-l5-round3-20261115/RUN_COMPLETE": "b567555cd4ce7fe98539b369ef624e8f9f26e696fbdff658a03d10b7104bf603",
+    "docs/evidence/rmea/20261115-l5-round3/summary.json": "430d036606feb8d986166d8951ff1233e011215d71761148b4043e544f626fb1",
+    "docs/evidence/rmea/20261115-l5-round3/unit.json": "ca8326bdb892cef7a253f59cc84c532a521739312e699c2c15a7647c331f2df3",
+    "docs/evidence/rmea/20261115-l5-round3/trace-validation.json": "c87c07b66454dc03b12fc8eb9e5a8e5c6fb9dc6641b33b5dab46eb8a6330976c",
+    "docs/evidence/rmea/20261115-l5-round3/review-result.json": "f0ad2366fece322d5a5797ef3ab93df0446d7daf3618364c3235c61b9c35d082",
+    "docs/evidence/rmea/20261115-l5-round3/source-identity.json": "48dd01e17aa35193a2f3ef186ed174abf66afa541066f29a280d50a90c6e13bf",
+    "docs/evidence/rmea/20261115-l5-round3/execution-verification.json": "e671cd631d69abbd53ec19beb44a943318255e278aa623a449ef08d64a9ce1a2",
+    "docs/evidence/rmea/20261115-l5-round3/restoration-scope.json": "83d5c67b4e0b8afbbd4b563e8acde9607a1c43fdf84fb7c895725efa57113a3c",
+    "docs/evidence/rmea/20261115-l5-round3/evidence-boundary.json": "197bd676da0679ee67f3d9a0f024a81c462b41934082da2be9a02345eb66f80f",
+    "docs/audits/20261115-q-rmea-l5-round3.md": "e0fb2cd8953973537795a179d9ba1c40706b479b53aa065a733e482b0eab21fb",
+    "docs/research-log/20261115T-133930Z-q-rmea-l5-round3.md": "db59c5d528a757437fb103cc9161285a1979ae7a42d0f5aad3845369866b5a59"
+  },
+  "reviewer_actions": {
+    "remote": false,
+    "network": false,
+    "cloud": false,
+    "model_forward": false,
+    "training": false,
+    "source_changes": false,
+    "private_arrays_read": false,
+    "writes": [
+      "acceptance-review.json",
+      "acceptance-review.md"
+    ]
+  }
+}

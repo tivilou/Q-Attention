@@ -1,0 +1,245 @@
+{
+  "schema": "qattn.round3.both-review.v1",
+  "reviewed_at_utc": "2026-11-15T13:25:41.297920+00:00",
+  "review_mode": "subagent_fallback",
+  "reviewer_model": "Codex bounded independent subagent; exact runtime model identifier not exposed",
+  "transport": "Local bounded fallback after packet selection records ranked external native-max URLError; no external model call by this reviewer",
+  "review_scope": "both",
+  "source_sha256": "df2c0fa08bc0a1ce39d6c1c1d39a1c7c5f426434c3963f29f153dcc923be9ad9",
+  "contract_sha256": "7f6c1d1871e27b3f33064572720f5825bbb5ce257cd2d4ee38964fa0ebe91076",
+  "input_packet_sha256": "ab986322a639b88194554bf4399ed3fee452416971e7579ec209a6078340f7e8",
+  "verdict": "PASS_WITH_RISK",
+  "must_fix": [],
+  "theory_mapping": {
+    "status": "PASS_WITH_RISK",
+    "estimand": "Fixed-recipient utility/bias logits with donor attention on identical frozen validation features: z(d->r)=sum_t alpha_d(r,t)*u_r(r,t)+b_r. Both directions and all four Q/control correctness cells are retained for all four controls.",
+    "decomposition": "The symmetric two-factor logit allocation/value identity is a known arithmetic consistency identity; it is not a theorem of training mediation, novelty or generalization.",
+    "claim_ceiling": "Posthoc descriptive seed29 fixed-head CPU-rebuilt validation1024 audit only. No L5 acceptance, new utility confirmation, semantic case explanation, quantum necessity, total-gain mediation or inheritance to a changed model. Previously accepted L4 is neither upgraded nor invalidated."
+  },
+  "correctness": {
+    "status": "PASS_WITH_RISK",
+    "observed_code": [
+      "Both cohort compose and stored hybrid capture now explicitly canonicalize alpha and utility to C-contiguous float64 arrays before the same elementwise product and last-axis sum; strict selected-cohort equality is retained, not weakened.",
+      "All original and hybrid cohort metrics now share compose64; native Torch fp32 metrics, argmax disagreements and top-two margins are separately retained.",
+      "Per-example mask-prefix cropping is applied during replay and audit, matching the cohort path shape.",
+      "Hybrid trace capture compares every selected transplanted logit exactly to its cohort-computed expected value, checks argmax and reconstructs via independent einsum tolerance 1e-12.",
+      "All four controls, both transplant directions, four correctness cells, CE changes and harmed/corrected counts are included; <=16 union trace cases are explicitly posthoc."
+    ],
+    "not_observed": "No new revision model forward, actual cache/checkpoint replay, trace production, deployment or scheduler execution was performed by this reviewer. The archived prior failed attempt was inspected only as failure/lifecycle metadata, not as accepted scientific results."
+  },
+  "fidelity_gaps": [
+    "The existing CPU-rebuilt FP16 feature cache is pinned but is not a bitwise reconstruction of the original GPU feature cache. Original two quantum anchors verify replay on their saved original features only.",
+    "Off-family attention/value transplants hold recipient utilities and bias fixed; success can identify local actionability, while failure can reflect cross-head coadaptation. They do not isolate a training cause.",
+    "Seed29 and validation-selected checkpoints are fixed historical inputs; selected trace cases reuse validation outcomes and are not held-out confirmation."
+  ],
+  "control_fairness": {
+    "status": "PASS_WITH_RISK",
+    "details": "All five historical selected heads remain unchanged and receive identical features, role tensors and mask. Both directions and all controls are reported without a gain threshold. Unequal original parameter counts are disclosed, so the analysis is not presented as an equal-capacity new-model experiment."
+  },
+  "gradient_flow": {
+    "status": "NOT_APPLICABLE",
+    "details": "Inference-only frozen heads, no optimizer or training path; no gradient or trainability claim."
+  },
+  "gradients_and_numerics": {
+    "status": "PASS_WITH_RISK",
+    "independent_checks": {
+      "scope": "Bounded synthetic NumPy fixtures and exact-source AST only; no Torch/model/data execution",
+      "numpy": "1.26.4",
+      "near_tie_native_prediction": 0,
+      "near_tie_common_prediction": 1,
+      "near_tie_native_logits_first2": [
+        3.099999901223782e-08,
+        2.9802322387695312e-08
+      ],
+      "near_tie_common_logits_first2": [
+        3.099999901223782e-08,
+        3.333333470356692e-08
+      ],
+      "common_path_noop_bitwise_identical": true,
+      "independent_math_fsum_trials": 40,
+      "max_compose_fsum_residual": 2.220446049250313e-16,
+      "max_symmetric_decomposition_residual": 8.881784197001252e-16,
+      "rejected_inputs": [
+        "shape mismatch",
+        "invalid attention normalization",
+        "nonfinite utility"
+      ],
+      "provenance": "Inherited r2 independently executed arithmetic fixtures; not re-executed as current-model validation. This repair only canonicalizes memory layout. Fresh current-revision layout/NPZ fixtures are recorded separately under layout_repair_checks."
+    },
+    "limitations": "The synthetic tests reproduce the layout failure class and close it for tested layouts; they do not certify actual model/trace execution. Runtime exact selected-cohort equality, native/common differences and independent reconstruction gates still must pass.",
+    "layout_repair_checks": {
+      "scope": "Independent QT2 NumPy1.26.4 synthetic arrays and in-memory NPZ roundtrip; exact compose function and hybrid expression extracted by AST without importing Torch",
+      "layouts": [
+        "C",
+        "F",
+        "strided interval slice",
+        "negative stride"
+      ],
+      "dtypes": [
+        "float32",
+        "float64"
+      ],
+      "lengths": [
+        7,
+        37,
+        128
+      ],
+      "cases": 24,
+      "old_layout_sensitive_cases": 4,
+      "old_max_roundtrip_residual": 2.220446049250313e-16,
+      "new_all_bitwise_equal": true,
+      "new_max_roundtrip_residual": 0.0,
+      "independent_einsum_max_residual": 2.220446049250313e-16,
+      "strict_array_equal_preserved": true,
+      "independent_einsum_tolerance": {
+        "atol": 1e-12,
+        "rtol": 1e-12
+      }
+    }
+  },
+  "leakage_and_masking": {
+    "status": "PASS_WITH_RISK",
+    "details": [
+      "Only valid_ arrays are selected from the pinned cache; no test arrays or test forward are used.",
+      "Labels affect cohort metrics and explicitly posthoc case selection; they are not arguments to head scoring or transplant composition.",
+      "Cropped mask prefixes preserve identical valid-token shapes; no attention-padding change is used as a new intervention."
+    ]
+  },
+  "artifact_and_recovery": {
+    "status": "PASS_WITH_RISK_FOR_CODE_ONLY",
+    "head_trace": "Original trace records full detached numeric head representations, source-linked stages, pinned input/checkpoint identities and arbitrary-coordinate reader. New hybrid traces explicitly retain donor alpha, recipient utility/bias, input references, dual checkpoint/source-case provenance and stored hybrid logits. Coordinate and independent formula checks are in the producer.",
+    "selected_restore": "The previous selected-head recovery is documented as completed and exact inputs remain reusable; this repaired run does not need another COS GET. The unchanged one-pinned64MiB object/256MiB conservative selected-restoration implementation remains reviewed only within its original boundary; no new restore or archive mutation was executed by this reviewer.",
+    "closure": "Collector requires one successful terminal/quiescent exact task receipt, restored binding, exact command/revision/cwd/GPU0, exact declared aggregate hashes, complete private RUN_COMPLETE file-hash map and <128MiB closure. Private sample/intervention traces stay on the worker; only aggregate whitelist may be published.",
+    "authority": "Only code-readiness is accepted. Reuse exact already-recovered inputs, generate new exact deployment metadata, submit one new-key repaired diagnostic under existing owner authorization, and retain the failed evidence. Existing stale owner/deployment artifacts are not new deployment proof."
+  },
+  "lifecycle": {
+    "status": "PASS_WITH_RISK",
+    "checked_static": [
+      "Unchanged freeze-bound owner Git blob/working-file and worker complete file/blob checks remain present; unique allocation_ops and hash/path-bound trace_ops dependency remain unchanged.",
+      "deploy accepts the exact previous e97db1a87d1ef453c6f27829b8fa27304ecc01da HEAD only with clean tree and old frozen source hashes, then appends a normal repair commit; it does not overwrite the failed source commit.",
+      "New worker worktree and bundle paths end in -r2; source/contract-derived key is rmea-allocation-df2c0fa08bc0-7f6c1d1871e2, different from failed key. The original queue recipe still permits one attempt only, with no automatic retry.",
+      "Source rollback now applies the complete parent-to-final owned patch in reverse with --index, checks write-tree equals the exact original parent tree before committing, then checks the owned source directory is empty and Git is clean. This correctly handles both source commits and retains history.",
+      "Unchanged transactional config CAS/compensation, unknown-attempt preservation and terminal/quiescent/hash collection gates are retained. Old successful r3 code review is not being reused as a success receipt for this repaired job."
+    ],
+    "prior_failure": {
+      "task": "44f29e6d29514bedb0dcca6125de4294",
+      "attempt": "e0d05e877a5f4fc5828c663f3d48528c",
+      "state": "failed",
+      "returncode": 1,
+      "quiescent": true,
+      "binding_restored": true,
+      "revision": "e97db1a87d1ef453c6f27829b8fa27304ecc01da",
+      "reason": "Strict hybrid trace equality differed by3.55271368e-15; memory-layout-dependent float64 reduction. No summary accepted.",
+      "old_key": "rmea-allocation-31f81f5c065c-687641b0511a",
+      "new_key": "rmea-allocation-df2c0fa08bc0-7f6c1d1871e2",
+      "failed_evidence_preserved": true
+    },
+    "runtime_state": "Current exact revision NOT_RUN by reviewer; final success remains contingent on deployment/source hashes and actual single-attempt closure."
+  },
+  "prior_must_fix_status": [
+    {
+      "item": "Layout-dependent cohort/trace float64 sums",
+      "status": "CLOSED_IN_CODE_AND_SYNTHETIC_FIXTURES",
+      "evidence": "Both sites use the same contiguous float64 product/sum;24layout/dtype/length roundtrip cases are bitwise identical, retaining exact cohort-match check."
+    },
+    {
+      "item": "Append-commit source rollback only reverted latest repair",
+      "status": "CLOSED_IN_FINAL_CODE",
+      "evidence": "Complete owned patch reverse --index, parent-tree equality, normal commit and clean/empty owned directory checks."
+    },
+    {
+      "item": "Earlier frozen Git/source/import and full hybrid DAG issues",
+      "status": "UNCHANGED_AND_RETAINED",
+      "evidence": "Source identity/import, queue, collector, numeric capture/lineage and independent trace checks retained; no broadened claim or resource scope."
+    }
+  ],
+  "risks": [
+    "No mathematical correctness result or descriptive positive swap licenses L5 promotion; new theory novelty and independent same-claim empirical support remain separate.",
+    "Actual runtime parity, trace validation, resource sufficiency and complete closure have not yet been observed.",
+    "Native/common near ties must remain visible in reports, including any resulting disagreement.",
+    "Pure coordinate checks sample three coordinates per representation while the complete stored arrays and all-value hash/replay checks provide the full capture boundary.",
+    "A strictly failed trace attempt is numerical-debug evidence only. Its computed cohort, unit success or partial private traces cannot be accepted or selectively used as scientific evidence.",
+    "The final source/contract/packet and dependency bytes must stay identical; changed identities, resource contract or an unknown attempt require stopping and a newly justified review.",
+    "The full reverse-index rollback and tree check are statically reviewed here; no actual remote rollback or isolated Git fixture was executed by this reviewer."
+  ],
+  "allowed_actions": {
+    "code_review_scope": [
+      "Reuse hash-verified already-recovered heads/anchors and the pinned cache; no additional COS GET is needed for the repair.",
+      "Under existing owner authorization, append the exact repaired source commit from the known failed revision, deploy to the distinct reviewed -r2 worker path with full file/blob checks, and submit exactly one new-source/new-contract CPU diagnostic attempt.",
+      "After successful exact terminal/quiescent receipt and restored binding, verify all trace/numerical/file-closure gates before accepting aggregate output; publish only the established whitelist.",
+      "Use the final complete-patch source rollback when its exact HEAD/clean/tree conditions hold; scheduler binding restoration remains separate."
+    ],
+    "mandatory_stops": [
+      "Any source/dependency/input/contract/revision mismatch",
+      "Any active or unknown old/new attempt; no duplicate submit or retry of failed key",
+      "Any strict trace, independent formula, source identity, numerical or complete-closure failure"
+    ],
+    "always_excluded": [
+      "Training, test forward, formal experiment",
+      "New paid resources, collaborator server access",
+      "L5 promotion, changed historical L4 attribution or causal training/semantic explanation"
+    ],
+    "reviewer_actions_performed": [
+      "Read local frozen package and narrowly referenced previous failure/lifecycle metadata",
+      "AST/byte-hash review and in-memory synthetic NumPy/NPZ fixtures",
+      "Wrote only current review-result.json and review-result.md"
+    ]
+  },
+  "verification_evidence": {
+    "frozen_files_verified": 15,
+    "frozen_dependency_files_verified": 1,
+    "python_files_ast_parsed": 14,
+    "dependency_python_files_ast_parsed": 1,
+    "all_embedded_changed_source_bytes_match": true,
+    "all_embedded_dependency_source_bytes_match": true,
+    "source_hash_before": "df2c0fa08bc0a1ce39d6c1c1d39a1c7c5f426434c3963f29f153dcc923be9ad9",
+    "source_hash_after": "df2c0fa08bc0a1ce39d6c1c1d39a1c7c5f426434c3963f29f153dcc923be9ad9",
+    "contract_hash_before": "7f6c1d1871e27b3f33064572720f5825bbb5ce257cd2d4ee38964fa0ebe91076",
+    "contract_hash_after": "7f6c1d1871e27b3f33064572720f5825bbb5ce257cd2d4ee38964fa0ebe91076",
+    "packet_hash_before": "ab986322a639b88194554bf4399ed3fee452416971e7579ec209a6078340f7e8",
+    "packet_hash_after": "ab986322a639b88194554bf4399ed3fee452416971e7579ec209a6078340f7e8",
+    "source_files_unchanged": true,
+    "unchanged_from_r3": [
+      "queue_submit.py",
+      "collect.py",
+      "allocation_ops.py",
+      "source/allocation_trace.py",
+      "restore_heads.py"
+    ],
+    "new_mutable_binding_absent_at_review": true,
+    "prior_failed_evidence_sha256": "485250e90ee4f2bf61b2897cd3515d854f7cc10cfa1b3ece3704916700f92ade",
+    "prior_binding_sha256": "b0274c668e29cd70e1318e313f4918802551f862f2d3cd12d79fb323ffe2c305",
+    "actual_scientific_execution_by_reviewer": false,
+    "layout_fixture_cases": 24,
+    "layout_fixture_exact_pass": true
+  },
+  "source_file_hashes": {
+    "source/allocation_trace.py": "fe5c4e27b6b733dec4d587c0faf6a607120cc7982ebfc84e429e765a55280795",
+    "source/contract.json": "7f6c1d1871e27b3f33064572720f5825bbb5ce257cd2d4ee38964fa0ebe91076",
+    "source/hybrid_trace.py": "aeff7cddd78ed49fa3db9227d3fbdf4bab5ca49d0c7aba515b09f096ff3dfd01",
+    "source/legacy/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "source/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "source/runner.py": "9d6b8f6e76b19d7c605ea49ba42c7833f3e040ae345aeade80672df4285df302",
+    "source/scripts/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source/scripts/validate_sample_trace_v2.py": "55e7bcb34a048b3b8c6cd3837364d75ab8f3a24a23b276999dc009495b7df2c9",
+    "restore_heads.py": "b78d2a43e4472c4df04931db65ffee0c3269c15ece672206b9f777eb52eed7fd",
+    "deploy.py": "ee962a8328348245d248e119f3d1ca0966f5433e94b66f79bf5ee702b2215222",
+    "queue_submit.py": "40931fc96af713926e62a2ec83340b9f5c11a404fdb9ddeaf3526b331fee4c27",
+    "collect.py": "ed8126052257bc3fb6f69623041ea0a4596f2144b792b78dac412852e6b5f841",
+    "rollback_source.py": "6b5eaef5e22bf84f9f76993d7f0d89f73b1620c67401c8c3c43a594e5e5954fe",
+    "allocation_ops.py": "088ae81dcc91ac97e9656f0dfaa0cb38d0e1af5770e6006f4b835969a34a2503"
+  },
+  "review_revision": "round3 numerical-layout repair, final frozen package after parent-tree rollback guard; supersedes unreviewed r4/r5 intermediate identities",
+  "source_hash_algorithm": "sha256(UTF8(json.dumps({'files': freeze.files, 'dependencies': freeze.dependency_files}, sort_keys=True, separators=(',', ':'))))",
+  "prior_review": {
+    "path": "review-r3/review-result.json",
+    "sha256": "d859aa2d0687731838aa8cf8d941b0b3c48cd7fa8c2d0cc01b2576120396edb3",
+    "verdict": "PASS_WITH_RISK",
+    "source_sha256": "31f81f5c065c063e5a785969d27d68bcc0a8f9e7427784062d612018ef0b7aad",
+    "note": "That code-ready revision later failed a strict runtime hybrid equality check; its output is not accepted as a result."
+  },
+  "dependency_file_hashes": {
+    ".codex-artifacts/qattn-rmea-joint-20261113/trace_ops.py": "c24804b33f407ab8d16a3ee28d1b983215029db8f6e27700f22cd7a3a55f6d7b"
+  }
+}
