@@ -1,27 +1,20 @@
-# Round5 结果与报告独立一致性复核
+# Round5 定向勘误复核
 
-结论：**PASS，must_fix=[]**。本结论仅认证白名单内结果、报告与公开记录的一致性，**不接受 L5、不放行新颖性、不审核或选定新模型**；原限定 L4 保持。
+**PASS，must_fix=[]。** 本轮只核对三份勘误相关公开文档及原冻结proof/runner/contract/numeric/summary。结论不是重跑验收或新的L5评定。
 
-保存的活跃 logits 独立计数得到 own `[2,2]`、swap `[0,0]`、redecode `[2,2]`。每例 CE 差在冻结1e-12容差内为2；所有记录误差的最大值为 `8.881784197001252e-16`。合法不重叠跨度与四角色数值符合生产配方，两个例子的距离通道差分别为±1/32。仅比较保存的紧凑数值，没有执行模型或科学 runner。
+64维value池化表示的正确关系是固定可逆符号变换 `D=diag(-1,1,…,1)`：第一坐标变号，其余63维为0；预定decoder变号抵消该变换。保存的alpha机械核算得到A第一坐标约`[1,-1]`、B约`[-1,1]`，符号关系残差`7.771561172376096e-16`，低于原1e-12容差。注意力移植后交换的是两类活跃logits，不能据此把64维池化value称为坐标置换。1024维原h池化的首两坐标置换是另一个边界的陈述。前次审查没有明确指出这一边界歧义，本轮予以纠正。
 
-三个数据文件的本机字节数及SHA均匹配成功attempt receipt，共6428字节。公开11份文件中的7份镜像逐字节一致，另两份execution/source-identity的revision、parent、source/contract/review/blob哈希、task/attempt、资源、闭包、时间和计数一致。报告与研究日志均保留反例与L5未达的限制。执行、静止、配置恢复及逆补丁夹具依据记录核对，本次没有访问远程重新观测。
+公开proof现在有显著notice，notice之后的原正文与冻结proof逐字节相同。报告只增加一个勘误段落；删除它就精确恢复旧报告SHA256 `860d74756cb0749de134c5d4ced5d0bce51d6c79556354d71dffae66b0063d87`。五份冻结证据的SHA均与前轮一致。没有改源码、阈值或数值；own`[2,2]`、swap`[0,0]`、redecode`[2,2]`、CE增量2和最大误差`8.881784197001252e-16`均保持。共同适配反例的窄结论不变，L5未接受，原限定L4保持，新commutator线索没有得到本轮科学审核。
 
-该反例确实只声称原有限纯效应电路与人工冻结特征边界上的两点结果。没有把它说成真实编码器输出、真实uniform缺实体信息或全输入函数等价。value/decoder因式分解没有被混同为优化等价；有条件的上下文排序限制没有被推广成完整分类能力分离，有限rank flip没有被推广成通用动态族或量子专属优势。三处producer原文及哈希确认有序实体标记先于编码。
+## 精确哈希
 
-阅读记录与报告一致：2408.17221v3仅页1/8/17；0909.3304v1仅页1–2；2105.14491v1仅页1/3–5，均明确不是全文审核。本轮只核记录和表述，没有重新获取PDF，也没有扩大定理适用范围。
+- `docs/audits/20261116-q-rmea-l5-round5.md`: `6821d7d7d2617093df9fe35eb0d4a4d1950baae5443985681d93cd6c292d88dd`
+- `docs/evidence/rmea/20261116-l5-round5/proof.md`: `8b6b03c5a2b9faef2c9af5b8374c8863951aa8db665f17636d1147b4a1e6453e`
+- `docs/evidence/rmea/20261116-l5-round5/proof-wording-erratum.md`: `08b5ded56bc3a8ab7ef1af7b1182f94a47700bb87150f7993dd6d88ad4ee3f24`
+- `.codex-artifacts/qattn-l5-round5-20261116/proof.md`: `35238d9de433217fc64707a949d448814f71feeb052870bad4e0dd7331875122`
+- `.codex-artifacts/qattn-l5-round5-20261116/source/runner.py`: `106180057542dd1aeb1e37962c1821e399ba5764e4ca582a917154bc706bc519`
+- `.codex-artifacts/qattn-l5-round5-20261116/source/contract.json`: `36ec11aaa4de0b3d9fb740a2e657e9a1906e31785b8a543d3b9e7b709ce24280`
+- `.codex-artifacts/qattn-l5-round5-20261116/numeric-fixture.json`: `b49e0a13a439b8e9683d9be41243126e2aecb07dd76acdf5eaf2648222e022f4`
+- `.codex-artifacts/qattn-l5-round5-20261116/summary.json`: `976dcfb845fda4fb50ffdc88499523ea6fb1aa573dd9bc2a80e8b2eba2d07452`
 
-实体commutator新线索明确为：**原文未读、理论未审核、未实现、未选定、未获新颖性放行、不能继承旧L4**。本轮没有评价其表达式、正性、科学成立性或任务效用。
-
-## 精确身份
-
-- 报告 SHA256: `860d74756cb0749de134c5d4ced5d0bce51d6c79556354d71dffae66b0063d87`
-- summary SHA256: `976dcfb845fda4fb50ffdc88499523ea6fb1aa573dd9bc2a80e8b2eba2d07452`
-- proof SHA256: `35238d9de433217fc64707a949d448814f71feeb052870bad4e0dd7331875122`
-- runner SHA256: `106180057542dd1aeb1e37962c1821e399ba5764e4ca582a917154bc706bc519`
-- contract SHA256: `36ec11aaa4de0b3d9fb740a2e657e9a1906e31785b8a543d3b9e7b709ce24280`
-- synthesis SHA256: `ab31861cb4d9ce788f9e8f9d8dea64efabd7470cbebce37dc3a0ca0b6117f09d`
-- reading SHA256: `d8628a76ccc595ce6be893327cc1ce5799fc9310db0f385f1839be96604f1e08`
-
-聚合source：`08b3ba5183c92c28d45bc39bc300cd28dd63292e49fd921de586a12917a5875f`；source revision：`0e038abacf954f9adf193a717234187ff9ab5e46`。
-
-完整逐文件哈希、检查证据及风险见同目录 acceptance-review.json。所有输入在写审查件前后保持原字节。本轮只写两份审查文件。
+聚合source：`08b3ba5183c92c28d45bc39bc300cd28dd63292e49fd921de586a12917a5875f`。本轮仅重哈希上述冻结文件，沿用先前精确source审查的聚合身份。所有八份输入在写审查件前后字节保持不变。

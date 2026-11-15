@@ -1,3 +1,8 @@
+> Correction: “fixed coordinate permutation” in the pooled-feature sentence
+> below should read “invertible sign change” at the64-dimensional value-pooling
+> boundary. See [wording erratum](proof-wording-erratum.md). The execution-frozen
+> original is preserved; source, actual results and conclusions are unchanged.
+
 # Finite-circuit counterexample and the remaining scientific question
 
 This is a synthetic counterexample using known coadaptation/representation
