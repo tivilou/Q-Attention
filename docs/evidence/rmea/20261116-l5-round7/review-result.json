@@ -1,0 +1,232 @@
+{
+  "schema": "qattn.phase-training-audit.both-review.v1",
+  "reviewed_at_utc": "2026-11-15T19:38:55.540459+00:00",
+  "review_scope": "both",
+  "review_mode": "subagent_fallback",
+  "reviewer_model": "Codex independent bounded subagent; exact runtime model identifier not exposed",
+  "transport": "Local bounded static review after parent-recorded fresh ranked exact native-max routes both returned URLError. No external route, Torch or candidate execution by this reviewer.",
+  "source_sha256": "edb88c05d9d79f29fc70eef190e97de79d8259eb5d04bca846bdf7e103ddbc91",
+  "contract_sha256": "e1644bf3c79f17827515a681e59bb95ab41af84cf73f1518c1a8d6b1d89688e1",
+  "freeze_sha256": "4e04db90e8e817ab66777508f130dfafa46bdec3f119a9f89ae0e938deb166b0",
+  "input_packet_sha256": "69ee9e0bd46ce850d394bdbf9d0f160d36f43f28e4f32105693be58ab72388d1",
+  "verdict": "PASS_WITH_RISK",
+  "must_fix": [],
+  "verdict_meaning": "Exact code-ready approval for one new phase-disabled same-gate control at the fixed development budget, plus its declared unit/replay checks. No old condition rerun, formal experiment, L5 acceptance, phase necessity or new utility result is accepted.",
+  "theory_mapping": {
+    "status": "PASS_WITH_RISK",
+    "object": "Reuse the pinned known partial-swap FusionHead, with phase_off=True throughout new control training/evaluation. This is a missing controlled-training observation, not a new operator/theorem or selected L5 method.",
+    "zero_manifold": "kappa=g1/sqrt(1+g1^2+g2^2), lambda=g2/sqrt(1+g1^2+g2^2); phase_off removes the odd score contribution. At g2=0, d kappa/d g2=0 and the disabled lambda path contributes zero gradient. Zero initialization, deterministic zero gradient, AdamW decay of zero and each-step assertions keep g2 exactly zero.",
+    "functional_twin": "For any retained finite |kappa|<1, the ordinary mixture at g=atanh(kappa), with all shared state copied, has the same effect and normalized function. The synthetic float64 and selected full1024 checks verify numerical correspondence, not a novel theorem or training equivalence.",
+    "boundary": "The40 coordinates are inactive only on the declared zero-initialized constrained trajectory. They remain in the global kappa denominator, and equal80628stored parameters do not make the control as expressive as full fusion."
+  },
+  "correctness": {
+    "status": "PASS_WITH_RISK",
+    "checked": [
+      "The exact round6FusionHead, data reader and runner are hash-pinned dependencies. audit.py verifies imported module __file__ paths; importing the old runner loads definitions only and does not invoke its main or four-condition training.",
+      "Only one optimizer/model training loop is created. Old global/even/mixture/fusion results are read from immutable reports rather than retrained; functional-twin models are evaluated, not optimized.",
+      "The one control is the full FusionHead(fusion), fresh seed307, same common initialization hash as the original fusion; only phase_off behavior changes. Its initial g2 is zero in the pinned constructor.",
+      "All prior settings are identical: seed307,4epochs,batch16,lr.001,weight_decay.0001,clip1 and pinned inputs. The same np.default_rng seed generates the same four2361-record permutations.",
+      "Full observed input identity including train/valid ID digests, base file and overlay marker must exactly equal the prior identity. Existing data remain unmodified.",
+      "Every update checks finite loss/gradients and exact zero disabled gradient, then exact zero g2 after AdamW. All4epochs remain visible, and strict largest full40validation Macro with earliest tie selects the control.",
+      "Selected checkpoint reload must reproduce the saved full1024logits exactly; an ordinary-mixture functional twin must agree within2e-5 and have exactly identical argmax predictions. Any mismatch stops rather than adjusting tolerance.",
+      "Primary is immutable old selected-fusion Macro minus newly selected control Macro; >0 only retains an exploratory training-component signal. CE/accuracy/all epochs and the old selected-model phase-off null remain in output."
+    ]
+  },
+  "control_fairness": {
+    "status": "PASS_WITH_RISK",
+    "matched": "Same implemented gate formula, initialization, fixed batch order, optimizer/hyperparameters, data and epoch-selection rule remove the avoidable tanh-versus-disk-coordinate comparison as the intended audited confound.",
+    "remaining_limits": [
+      "This is one later control on already exposed data, compared with an already observed old fusion result. It is not fresh independent confirmation.",
+      "Full fusion can move g2, changing both its odd channel and the joint normalization of kappa. The intervention changes the training trajectory and selection; a positive difference is not clean total-gain phase attribution.",
+      "Stored80628 includes40coordinates held at zero along this trajectory. Expressive capacity and effective trainable degrees of freedom differ from full fusion.",
+      "Atanh correspondence is a functional equivalence pointwise, not equality of AdamW coordinates, penalties, conditioning or training dynamics."
+    ]
+  },
+  "gradient_and_numerics": {
+    "status": "PASS_WITH_RISK",
+    "runtime_gates_pending": [
+      "Synthetic float64 twin logits/alpha tolerance2e-12",
+      "Exact zero g2and its gradient; nonzero active bias-gate gradient and finite parameter gradients",
+      "Finite training loss/gradients and unchanged original rounding-clamp bounds",
+      "Selected native checkpoint/logit exact roundtrip and full1024twin2e-5/prediction-equality gate"
+    ],
+    "risk": "No unit, gradient, forward or training code was run in this review. Extreme gate rounding, near-tie twin prediction changes, resource failure or any other hard gate failure stops the attempt without relaxation."
+  },
+  "data_and_claim_boundary": {
+    "status": "PASS_WITH_RISK",
+    "data": "Existing CPU-rebuilt2361train/1024valid with313train-only overlay; train/valid IDs and bytes pinned to round6. Test count0; no encoder pass, COS input, new sample acquisition or historical baseline rerun.",
+    "claim": "Either outcome is development-only and cannot confer L1/L4/L5, task generalization, phase necessity, quantum advantage or new theory. Old scoped L4 stays attached to the original object and evidence."
+  },
+  "lifecycle": {
+    "status": "PASS_WITH_RISK",
+    "exact_launch": {
+      "node": "q-duet-data-1080ti-v1",
+      "server": "gpushare-i1-39684-data",
+      "owner_repo": "/home/Q-Attention/l5-phase-training-20261116",
+      "worker_repo": "/hy-tmp/qattn-l5-phase-training-20261116",
+      "parent_revision": "da1b7786c5a54a8a089c9d12929cd2a3a795de6a",
+      "python": "/tmp/qattn-joint-rebuild-20261113/env/bin/python",
+      "command": [
+        "{python}",
+        "-B",
+        "experiments/rmea_phase_training_audit/audit.py",
+        "run",
+        "--output",
+        "{output}"
+      ],
+      "resources": {
+        "cpu": 1,
+        "ram_mb": 1536,
+        "disk_mb": 4,
+        "gpus": 0,
+        "gpu_mb": 0
+      },
+      "timeout_seconds": 900,
+      "max_attempts": 1,
+      "replay_safe": false,
+      "task_key": "rmea-phase-training-edb88c05d9d7-e1644bf3c79f"
+    },
+    "checked": [
+      "deploy and queue activation bind the exact raw freeze SHA, source/contract identities and every frozen helper/source byte; the previous helper-only review inheritance gap remains closed.",
+      "Isolated owner/worker worktrees use exact clean revision, bundle hashes and every new working-file/raw-Gitblob hash; all11prior code/report dependency hashes are checked before unit or scientific work.",
+      "Quiescent paired-CAS binding backups preserve other projects/capacity; controller leader lock, independent before/after recognition and same-lock compensation remain. Unknown bytes do not trigger restart.",
+      "Observation timeout240does not imply the900sattempt ended. The same task must be inspected; active/unknown reservations/bindings remain, with no duplicate attempt or budget rescue.",
+      "Collector requires exactly one successful terminal/quiescent attempt, restored bindings, exact node/revision/cwd/argv/GPU0 and all compact receipt hashes; complete private closure is hashed on worker only.",
+      "Rollback affects only the new experiment directory, with isolated reverse-patch fixture and exact clean HEAD/index-to-parent-tree proof before normal rollback commit. Scheduler configuration restoration is separate."
+    ],
+    "runtime_limit": "Resource readiness and any deployment/queue/collection/rollback are not executed by this reviewer; their observed success remains required."
+  },
+  "artifact_and_recovery": {
+    "status": "PASS_WITH_RISK",
+    "compact_outputs": [
+      "unit.json",
+      "input-identity.json",
+      "epoch-metrics.json",
+      "summary.json",
+      "source-validation.json",
+      "RUN_COMPLETE"
+    ],
+    "private_outputs": [
+      "private/control.pt",
+      "private/control-valid-logits.npy"
+    ],
+    "closure": "Exactly5compact dataJSON+2private files=7data files under4MiB, closed by excluded RUN_COMPLETE; only compact output/log/command are fetched for review. Private control checkpoint/logits stay on worker.",
+    "publication": "Code and reviewed compact aggregate reports only; no raw logs, weights, logits/features, credentials or private bindings approved for public release.",
+    "recovery": "No automatic retry, optimizer resume or cold-recovery guarantee; existing immutable inputs allow a separately reviewed restart after authoritative terminal failure. No new cloud object/resource or collaborator access."
+  },
+  "revision_history": [
+    {
+      "stage": "pre-review-v1",
+      "old_source_sha256": "21fa467ac13bda23f24d64963f64a14472fba3336f1f17e02c78c4af21230fad",
+      "old_contract_sha256": "de0e12ccf615e18eace643111e840d6a89fac036b0115a4ba2b494d0f00eaabf",
+      "clarification": "Replaced globally structural-inactivity wording with inactivity along the declared g2=0training trajectory; explicitly retained g2in global kappa denominator.",
+      "verification": "Only contract parameter_boundary and literature-synthesis wording changed. audit.py and all helpers are byte-identical; final identities were independently recomputed.",
+      "status": "CLOSED"
+    }
+  ],
+  "risks": [
+    "One seed/four epochs and exposed development data remain weak evidence even if the primary sign is positive.",
+    "The intended disabled training channel, kappa coupling, trajectory and model selection all differ from full fusion; no capacity-matched phase attribution is accepted.",
+    "Full1024functional twin prediction equality is a hard gate and can fail near ties; numerical tolerance or population must not be changed to force a result.",
+    "No fresh resource, scientific or remote outcome is established by this static review.",
+    "Known partial-swap theory, elementary reparameterization and current literature notes are not novelty clearance, L5 acceptance or formal readiness."
+  ],
+  "allowed_actions": {
+    "under_existing_owner_authorization": [
+      "Deploy this exact final source/contract/fullfreeze after fresh readiness.",
+      "Submit one CPU1/RAM1536MiB/GPU0/900s source-bound attempt: declared unit, exactly one control4epochs seed307, checkpoint/twin validation, and immutable-old-fusion aggregate comparison.",
+      "Observe the same task after any wait timeout and restore exact prior bindings only after authoritative quiescence.",
+      "Verify7file private closure on worker and collect only compact records; execute exact rollback fixture/source rollback as appropriate."
+    ],
+    "mandatory_stops": [
+      "Any source/contract/fullfreeze/dependency mismatch",
+      "Any unit, zero-coordinate, finite gradient, checkpoint or twin check failure",
+      "Any active/unknown attempt or unknown concurrent config bytes",
+      "Any request to rerun prior conditions, add epochs/seeds, access test/COS/new data/resources/collaborator server, or widen formal claims without a new review"
+    ]
+  },
+  "verification_evidence": {
+    "frozen_files_hashed": 9,
+    "python_ast_files": 7,
+    "prior_repo_dependencies_hashed": 11,
+    "external_helper_dependency_hashed": 1,
+    "prior_training_settings_compared": true,
+    "queue_recipe_matches_contract": true,
+    "unit_or_model_execution": false,
+    "torch_import": false,
+    "remote_or_cloud_operation": false,
+    "source_mutations": false,
+    "writes": [
+      "review-result.json",
+      "review-result.md"
+    ]
+  },
+  "source_file_hashes": {
+    "source/audit.py": "3eb3d1aa6ea0d7996525fc19c0734aca15ef7391c92ce66e41d1c59eb2441446",
+    "source/contract.json": "e1644bf3c79f17827515a681e59bb95ab41af84cf73f1518c1a8d6b1d89688e1",
+    "literature-synthesis.md": "d5ce5647b02880f192b712f5894148b51f92b12ae7680eb8c6bb7c00f1d79687",
+    "deploy.py": "e0b972cdb536b85698e44e0231d1da348f2f54ea542cf1011361416b61283b52",
+    "queue_submit.py": "bc930f15f23a01c61d7e12ecf18de727682c0569e00ecbe9143e981a259fa2a2",
+    "collect.py": "b4b284c78c6248582693804f7e9b0c07122d2d5194054e4b54679629481c5c0a",
+    "readiness.py": "b7e0b36f313dbe2418ed8bca31adee2a7baad2f5c9d274cde43ea9cdcdc2172a",
+    "rollback_source.py": "a4f8c37d3a1db788349d6f2a54c1593f0ed166e2bc9410202c9f77c04ef11bcf",
+    "coadapt_ops.py": "088ae81dcc91ac97e9656f0dfaa0cb38d0e1af5770e6006f4b835969a34a2503"
+  },
+  "dependency_file_hashes": {
+    ".codex-artifacts/qattn-rmea-joint-20261113/trace_ops.py": "c24804b33f407ab8d16a3ee28d1b983215029db8f6e27700f22cd7a3a55f6d7b"
+  },
+  "repo_dependency_hashes": {
+    "experiments/rmea_allocation/legacy/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/rmea_allocation/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_allocation/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_entity_fusion/contract.json": "f4d32b7b0b4b2a837e9da1c9cd9a592c50444a82c296b882c4ab9a76f47901fa",
+    "experiments/rmea_entity_fusion/coverage_data.py": "505192020e38b49f1f8c23a8399deb01e0a57ad1604b22025cf7e37ce0ff7c4d",
+    "experiments/rmea_entity_fusion/fusion.py": "49b57e3eca6182f3559676648ab90fa75f32cfb2664d951dc5f486a7911a7c46",
+    "experiments/rmea_entity_fusion/runner.py": "bc055546dfec83f70ee7d15c22a7416d0077f70dc8cd09c8b8ca1cb03f03f734",
+    "experiments/rmea_entity_fusion/unit.py": "b05aa266f4a4475bba40ec29128f8c861b859c0591fb82d29ca6c421be8e35c3",
+    "docs/evidence/rmea/20261116-l5-round6/summary.json": "89c9cf770c76b21265bd02413e5c7bf6ef5edac37f8f5153daf1a0627c07eb2d",
+    "docs/evidence/rmea/20261116-l5-round6/input-identity.json": "96b561fc168e41bca5b4ff887e3ec60fcdbac68d3eb95df2efe78a1ec46827aa",
+    "docs/evidence/rmea/20261116-l5-round6/epoch-metrics.json": "0ef92c53d5521825eb9d92d4d4dfaabe0335399a9b3dbcfa48a3031e342afb41"
+  },
+  "repo_dependency_local_paths": {
+    "experiments/rmea_allocation/legacy/__init__.py": ".codex-artifacts/qattn-l5-round3-20261115/source/legacy/__init__.py",
+    "experiments/rmea_allocation/legacy/rmea.py": ".codex-artifacts/qattn-l5-round3-20261115/source/legacy/rmea.py",
+    "experiments/rmea_allocation/legacy/frozen_feature_head.py": ".codex-artifacts/qattn-l5-round3-20261115/source/legacy/frozen_feature_head.py",
+    "experiments/rmea_entity_fusion/contract.json": ".codex-artifacts/qattn-l5-round6-20261116/source/contract.json",
+    "experiments/rmea_entity_fusion/coverage_data.py": ".codex-artifacts/qattn-l5-round6-20261116/source/coverage_data.py",
+    "experiments/rmea_entity_fusion/fusion.py": ".codex-artifacts/qattn-l5-round6-20261116/source/fusion.py",
+    "experiments/rmea_entity_fusion/runner.py": ".codex-artifacts/qattn-l5-round6-20261116/source/runner.py",
+    "experiments/rmea_entity_fusion/unit.py": ".codex-artifacts/qattn-l5-round6-20261116/source/unit.py",
+    "docs/evidence/rmea/20261116-l5-round6/summary.json": "docs/evidence/rmea/20261116-l5-round6/summary.json",
+    "docs/evidence/rmea/20261116-l5-round6/input-identity.json": "docs/evidence/rmea/20261116-l5-round6/input-identity.json",
+    "docs/evidence/rmea/20261116-l5-round6/epoch-metrics.json": "docs/evidence/rmea/20261116-l5-round6/epoch-metrics.json"
+  },
+  "reviewed_file_sha256": {
+    ".codex-artifacts/qattn-l5-round7-20261116/review-packet.json": "69ee9e0bd46ce850d394bdbf9d0f160d36f43f28e4f32105693be58ab72388d1",
+    ".codex-artifacts/qattn-l5-round7-20261116/freeze.json": "4e04db90e8e817ab66777508f130dfafa46bdec3f119a9f89ae0e938deb166b0",
+    ".codex-artifacts/qattn-l5-round7-20261116/pre-review-v1/review-packet.json": "6bbf9076afdfa067be9014b1bc0dffd570f062d9bb8c42634ad7a69d0f6a2fb9",
+    ".codex-artifacts/qattn-l5-round7-20261116/source/audit.py": "3eb3d1aa6ea0d7996525fc19c0734aca15ef7391c92ce66e41d1c59eb2441446",
+    ".codex-artifacts/qattn-l5-round7-20261116/source/contract.json": "e1644bf3c79f17827515a681e59bb95ab41af84cf73f1518c1a8d6b1d89688e1",
+    ".codex-artifacts/qattn-l5-round7-20261116/literature-synthesis.md": "d5ce5647b02880f192b712f5894148b51f92b12ae7680eb8c6bb7c00f1d79687",
+    ".codex-artifacts/qattn-l5-round7-20261116/deploy.py": "e0b972cdb536b85698e44e0231d1da348f2f54ea542cf1011361416b61283b52",
+    ".codex-artifacts/qattn-l5-round7-20261116/queue_submit.py": "bc930f15f23a01c61d7e12ecf18de727682c0569e00ecbe9143e981a259fa2a2",
+    ".codex-artifacts/qattn-l5-round7-20261116/collect.py": "b4b284c78c6248582693804f7e9b0c07122d2d5194054e4b54679629481c5c0a",
+    ".codex-artifacts/qattn-l5-round7-20261116/readiness.py": "b7e0b36f313dbe2418ed8bca31adee2a7baad2f5c9d274cde43ea9cdcdc2172a",
+    ".codex-artifacts/qattn-l5-round7-20261116/rollback_source.py": "a4f8c37d3a1db788349d6f2a54c1593f0ed166e2bc9410202c9f77c04ef11bcf",
+    ".codex-artifacts/qattn-l5-round7-20261116/coadapt_ops.py": "088ae81dcc91ac97e9656f0dfaa0cb38d0e1af5770e6006f4b835969a34a2503",
+    ".codex-artifacts/qattn-rmea-joint-20261113/trace_ops.py": "c24804b33f407ab8d16a3ee28d1b983215029db8f6e27700f22cd7a3a55f6d7b",
+    ".codex-artifacts/qattn-l5-round3-20261115/source/legacy/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".codex-artifacts/qattn-l5-round3-20261115/source/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    ".codex-artifacts/qattn-l5-round3-20261115/source/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    ".codex-artifacts/qattn-l5-round6-20261116/source/contract.json": "f4d32b7b0b4b2a837e9da1c9cd9a592c50444a82c296b882c4ab9a76f47901fa",
+    ".codex-artifacts/qattn-l5-round6-20261116/source/coverage_data.py": "505192020e38b49f1f8c23a8399deb01e0a57ad1604b22025cf7e37ce0ff7c4d",
+    ".codex-artifacts/qattn-l5-round6-20261116/source/fusion.py": "49b57e3eca6182f3559676648ab90fa75f32cfb2664d951dc5f486a7911a7c46",
+    ".codex-artifacts/qattn-l5-round6-20261116/source/runner.py": "bc055546dfec83f70ee7d15c22a7416d0077f70dc8cd09c8b8ca1cb03f03f734",
+    ".codex-artifacts/qattn-l5-round6-20261116/source/unit.py": "b05aa266f4a4475bba40ec29128f8c861b859c0591fb82d29ca6c421be8e35c3",
+    "docs/evidence/rmea/20261116-l5-round6/summary.json": "89c9cf770c76b21265bd02413e5c7bf6ef5edac37f8f5153daf1a0627c07eb2d",
+    "docs/evidence/rmea/20261116-l5-round6/input-identity.json": "96b561fc168e41bca5b4ff887e3ec60fcdbac68d3eb95df2efe78a1ec46827aa",
+    "docs/evidence/rmea/20261116-l5-round6/epoch-metrics.json": "0ef92c53d5521825eb9d92d4d4dfaabe0335399a9b3dbcfa48a3031e342afb41",
+    ".codex-artifacts/qattn-l5-round6-20261116/review-result.json": "d0554edd9bb0b843551c7b26a652f4d151c21dba8dbe404e63eed4ea8646997f"
+  },
+  "input_hashes_unchanged_before_after_review": true
+}

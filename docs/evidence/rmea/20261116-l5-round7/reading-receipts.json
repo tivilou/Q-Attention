@@ -1,0 +1,66 @@
+{
+  "schema": "qattn.scoped-reading.v1",
+  "papers": [
+    {
+      "paper_id": "doi:10.18653/v1/N19-1420",
+      "title": "CNM: An Interpretable Complex-valued Network for Matching",
+      "version": "publisher_version",
+      "source_url": "https://aclanthology.org/N19-1420.pdf",
+      "pdf_sha256": "1393c494d209efb88269be1c48d13827c93ef60f75f161882c7f4096e7cfa37d",
+      "identity": "verified",
+      "reading": "scoped_original_read",
+      "pages_read": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "rendered_pages_inspected": [
+        3
+      ],
+      "identity_evidence": "PDFp1 exact title/authors Qiuchi Li, Benyou Wang, Massimo Melucci; footer Proceedings of NAACL-HLT2019,pp4139-4148,June2-7,2019. Ten-page official ACLAnthology N19-1420 PDF, matching Crossref DOI10.18653/v1/N19-1420.",
+      "findings": [
+        "P2 eq2 and p3 eqs3-5: complex unit word states, mixtures of projectors, rank-one Born-rule measurements; these NLP primitives precede Q-RMEA.",
+        "P4 eq6: local-window density mixtures with softmax word-norm weights. P5 section4.3 applies the same K trainable measurement directions to both question and answer windows.",
+        "P6 section5.2.2: directions unit-length; max-pool measured window probabilities then cosine matching. This differs from per-relation normalization over individual tokens followed by relation-specific value pooling.",
+        "The inspected sections do not establish that the complete current entity partial-swap head equals CNM, nor certify a task-beneficial difference."
+      ],
+      "limitations": [
+        "Only pp1-6 read; interpretation ablations/references pp7-10 not deeply audited. No original code reproduction, reported metric certification or novelty clearance."
+      ]
+    },
+    {
+      "paper_id": "arxiv:2608.17288v1",
+      "title": "Q-Interference: Memory-Efficient Phase-Aware Quantum-Inspired Attention",
+      "version": "2608.17288v1",
+      "source_url": "https://arxiv.org/pdf/2608.17288v1",
+      "pdf_sha256": "81fb79c4ead70309d501ba52ef0eb1bdad69374c3654f9537c001e56fa3f2c8d",
+      "identity": "verified",
+      "reading": "scoped_original_read",
+      "pages_read": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "rendered_pages_inspected": [
+        4
+      ],
+      "identity_evidence": "PDFp1 title and six authors match resolved arXiv record; footer arXiv2608.17288v1[cs.CL]18Aug2026 and Preprint. Twenty-five-page versioned arXiv PDF, not claimed accepted publication.",
+      "findings": [
+        "Pp3-4 eqs2-5: amplitude-phase query/key score sum_r aq*ak*cos(phi_q-phi_k), ordinary causal softmax and value pooling.",
+        "P4 eq5 explicitly uses two standard matrix products via cos(alpha-beta)=cos(alpha)cos(beta)+sin(alpha)sin(beta), preserves dense T-by-T score memory; no removal of all quadratic attention cost.",
+        "This is a real part of a complex inner product, equivalently dot product of concatenated cosine/sine features (a direct inference from its eqs4-5). No new factorization or broad classical superiority is claimed here.",
+        "Its inspected model has no current entity-span partial-swap density effect or cyclic three-state trace. Structural difference alone does not establish novelty or task usefulness; no exact whole-model equivalence alleged."
+      ],
+      "limitations": [
+        "Only pp1-5 read; AppendixB proofs and experimental outcomes not audited. Preprint claims not treated as our reproduced evidence."
+      ]
+    }
+  ],
+  "novelty_clearance": false,
+  "whole_paper_deep_read": false
+}
