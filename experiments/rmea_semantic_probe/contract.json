@@ -1,0 +1,134 @@
+{
+  "schema": "qattn.semantic-forward.contract.v1",
+  "scope": "Exploratory hypothetical output-blind train-derived two-triplet probe; not independent benchmark confirmation",
+  "question": "Does each fixed selected model preserve its decision on stipulated renames and correctly change its decision on independently reviewed event/date contrasts?",
+  "selection_rule": "First32 training IDs by SHA256, all32 semantically screened before outputs; retained03/08 independently reviewed, exclusions and pre-output grammar amendment frozen; no replacements",
+  "head_selection": "Original strictly largest validation Macro-F1, earliest tie; no checkpoint or seed selection using this diagnostic.",
+  "models": [
+    {
+      "variant": "quantum",
+      "path": "/hy-tmp/qattn-allocation-20261115-inputs/heads/quantum-selected.pt",
+      "sha256": "1c392139393b72a54946ca3f8796569aeeebff8610185467e3dcd2c0044efb77",
+      "bytes": 327494,
+      "parameters": 81028
+    },
+    {
+      "variant": "dephased",
+      "path": "/hy-tmp/qattn-allocation-20261115-inputs/heads/dephased-selected.pt",
+      "sha256": "34b45789f6dc44edb793c365aaa989f3bae24d384b3e2dad8ba3f87ed1bc4751",
+      "bytes": 327507,
+      "parameters": 81028
+    },
+    {
+      "variant": "relation_softmax",
+      "path": "/hy-tmp/qattn-allocation-20261115-inputs/heads/relation_softmax-selected.pt",
+      "sha256": "59c3dad7dac480dc6606cde911cd4b163ee6e016b1ed5f0e37b5cbedb4aedc3e",
+      "bytes": 310587,
+      "parameters": 76752
+    }
+  ],
+  "anchors": [
+    {
+      "path": "/hy-tmp/qattn-allocation-20261115-inputs/anchors/quantum-selected-valid-0.npz",
+      "sha256": "25827062f443b8394263955f0facbf8de20ffb76e5dfded9e883e279e8782ad6",
+      "bytes": 293944
+    },
+    {
+      "path": "/hy-tmp/qattn-allocation-20261115-inputs/anchors/quantum-selected-valid-1.npz",
+      "sha256": "ce400bc5a2ff7e016fb790095a20b68c4bbdfcc8816847a0dba4cb756b8acd1f",
+      "bytes": 293944
+    }
+  ],
+  "assets_directory": "/tmp/qattn-joint-rebuild-20261113/assets",
+  "private_input_directory": "/hy-tmp/qattn-semantic-probe-20261116-inputs",
+  "inputs_sha256": "a4c6bc977521ed3c9a8c1b3e49441b37d6ad082bf3fe8d5570b4b46f6a98590f",
+  "annotations_sha256": "0bb08cf508016714f2ba67aca0d12427f916e63801202df9b624f4fd6ba9d7f1",
+  "semantic_license_sha256": "1d421685f0c9db4c9eca5463d60cfdbffce20f1558b985a697886cd8fc7ba7c5",
+  "sample_ids": [
+    "pool-03:original",
+    "pool-03:name_preserving",
+    "pool-03:relation_changing",
+    "pool-08:original",
+    "pool-08:name_preserving",
+    "pool-08:relation_changing"
+  ],
+  "encoder": {
+    "revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+    "runtime": "float32 eager CPU, batch1, no truncation, wordpiece mean -> float16 -> float32 head",
+    "historical_gpu_bitwise_equivalence": false
+  },
+  "head_source_provenance": {
+    "mirror": "Round3 diagnostic mirror; not byte-identical original formal source",
+    "rmea_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "original_formal_source_sha256": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+    "anchor_tolerance": {
+      "rtol": 0.0003,
+      "atol": 5e-05
+    }
+  },
+  "copied_source": {
+    "numeric_helpers": "fe5c4e27b6b733dec4d587c0faf6a607120cc7982ebfc84e429e765a55280795",
+    "marked_words": "5f7860e47a7a0979976e5acc435ed34acede4c96bfac799d79d3018366b6aef8"
+  },
+  "forward_budget": {
+    "encoder": 6,
+    "head_capture": 18,
+    "head_replay": 18,
+    "anchor": 2,
+    "total": 44
+  },
+  "fixture": "First disclosed real-valued Q anchor full capture/reader/structural validation before raw-input encoding; second numerical anchor; neither used to select probes",
+  "evaluation": "Native fp32 hardargmax/first-index tie authoritative; compose64 used only for known descriptive symmetric product accounting, rounding disagreements reported",
+  "trace": "sample-trace.v2 full private final piece states, mapping, means/cast and applicable head numeric fields, source-linked coordinate reader, independent head full-value replay; no inferred causal invariance",
+  "recipe": {
+    "kind": "diagnostic",
+    "command": [
+      "{python}",
+      "-B",
+      "experiments/rmea_semantic_probe/job.py",
+      "--output",
+      "{output}"
+    ],
+    "timeout": 900,
+    "max_attempts": 1,
+    "replay_safe": false,
+    "resources": {
+      "cpu": 1,
+      "ram_mb": 12288,
+      "disk_mb": 512,
+      "gpus": 0,
+      "gpu_mb": 0
+    },
+    "outputs": [
+      "compact-report.json",
+      "RUN_COMPLETE"
+    ]
+  },
+  "recovery": "One attempt, replay_safe=false, no auto retry. Timeout preserves same task; inspect terminal proof before binding restore. Existing immutable input/checkpoint dependencies are reused. No new COS or checkpoint replication.",
+  "limits": [
+    "Full slot guidelines remain unavailable. These are independent exploratory semantic judgments, not human-adjudicated benchmark gold.",
+    "Both triplets license explicit event/date contrasts only. No PERSON:IDENTITY or pronominal-coreference sensitivity coverage is claimed.",
+    "The v1 rejection of pool-10 for overlapping relations and pool-17 for unavailable negated-title policy remains unchanged.",
+    "Local pseudonym licensing is not a theorem of arbitrary name-replacement invariance.",
+    "The cases are hypothetical utterances, not claims of actual biographical or organizational facts.",
+    "Two reviewed cases from a fixed screened pool cannot establish population robustness, task utility, quantum/phase necessity, causal mediation or L5.",
+    "Original bases were in full training; seed29 and tiny hand-edited hypothetical contrasts are exploratory, not held-out population utility or L5.",
+    "Three heads are separately coadapted; softmax has fewer parameters. Differences do not prove quantum phase necessity or isolate causal paths.",
+    "Only final encoder state is captured; no per-layer/training-state claims. New CPU encoding is not original GPU bitwise reproduction.",
+    "Two old validation anchors are numerical implementation checks only; no project test arrays or full formal run.",
+    "Product split is a known algebraic accounting identity, not a theorem of causal mediation."
+  ],
+  "source_files": {
+    "assets.lock.json": "f4df917253d14c7b31e564d3bfc946b55b63d5fcb3f9377b059c5e5abe46314f",
+    "job.py": "0f9a56b33edd39b466c445ec139c16edd97b74b750fa5d04f8e1192f83bee262",
+    "labels.json": "6e822509a07c5c865130ebe315122a9d83e97b1b11496b9e86c6b2a600f8a429",
+    "legacy/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "scripts/__init__.py": "082782fc90ca4e6d5b3354c5ea27567bd93707c9d6e01d33366f78f3e4dcaa5b",
+    "scripts/validate_sample_trace_v2.py": "55e7bcb34a048b3b8c6cd3837364d75ab8f3a24a23b276999dc009495b7df2c9",
+    "tokenization.py": "164dcd8c6be1b78992ee42b9218a34d79666b02764d544ad10284d8e81e88b06",
+    "trace_tools.py": "df37e8c4c61d0826bdd89182cac18ba8323d5ad71ccda0f90714fb6b77be1e07",
+    "worker.py": "b6de0d4102b1b9e0cf87ddd5ad203bc0b8ab492a6b2340f23056f23d9ebc576d"
+  }
+}
