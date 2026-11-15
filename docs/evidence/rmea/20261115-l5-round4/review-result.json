@@ -1,0 +1,194 @@
+{
+  "schema": "qattn.shared-effect-attainability.both-review.v1",
+  "reviewed_at_utc": "2026-11-15T15:07:48.377888+00:00",
+  "review_scope": "both",
+  "review_mode": "subagent_fallback",
+  "reviewer_model": "Codex independent bounded subagent; exact runtime model identifier not exposed",
+  "transport": "Local exact-source fallback. Supplied selection records two ranked external native-max URLError attempts; reviewer made no model/network calls.",
+  "source_sha256": "1b7cad19e52f71d60d7471cce1cd0723fc36314747f151f1214bf7e0313e426d",
+  "contract_sha256": "1f48c0ef4a71c0c80bf3ac967f75887bdd62bd459680bddd4db3fedeec2bbac1",
+  "input_packet_sha256": "4695d71596a2bd1c67708d2d2bc550163a0db5cf65d567a1896d805be166c7dc",
+  "verdict": "PASS_WITH_RISK",
+  "must_fix": [],
+  "theory_mapping": {
+    "status": "PASS",
+    "derivation": [
+      "For D_i=tr(E R_i)+T_i epsilon and target a_it, tr(E(rho_it-a_it R_i))-epsilon(T_i a_it-1)=D_i(a*_it-a_it). Since normalized rho and trace1PSD E imply0<=tr(E rho)<=1, D_i<=T_i(1+epsilon), giving the stated coordinate-tolerance B for any real finite w.",
+      "For m=tr(W)/d, tr(E W)-m=tr((E-I/d)(W-mI)); trace1PSD gives squared Hilbert-Schmidt radius1-1/d. Cauchy-Schwarz yields the necessary norm-ball inequality.",
+      "delta.lo>0 and the directed lower endpoint of delta^2-(1-1/d)||W-mI||F^2>0 certify incompatibility within the declared tolerance. The squared test avoids any unsupported directed sqrt assumption."
+    ],
+    "interpretation": "A positive certificate excludes even a trace-one mixed PSD effect on fixed saved normalized Q preparations; it therefore also excludes the narrower pure/ansatz effect class under those preparations. Failure to certify proves neither mixed feasibility nor pure/ansatz attainability.",
+    "known_tool": "Support functions, Hilbert-Schmidt norm balls and tomography are known tools, not novel L5 theory."
+  },
+  "correctness": {
+    "status": "PASS_WITH_RISK",
+    "checked": [
+      "Hermitian basis is traceless and Hilbert-Schmidt orthonormal; feature contraction uses trace(F rho), with the complex conjugation/orientation consistent with rho=psi psi-dagger.",
+      "The necessary A x=b equations have b=(epsilon+1/d)(T a-1); the residual and minimum-norm dual candidates affect search only. Final interval W/c/B are recomputed from exact finite saved inputs and selected float64 w, so no exact numerical rank/nullspace assumption enters acceptance.",
+      "Interval W=sum_t(w_it-s_i)rho_it with s_i=sum_t w_it a_it equals the proof definition; center, full complex Frobenius sum and strict positive squared-gap gate match.",
+      "All40relations of all5heads are retained as approximate screens; only the strongest per-head row receives interval certification. A result is existence of one incompatible relation target, not200certified failures.",
+      "All saved Q rows are physically reconstructed with normalized psi/phi and interval error<tau. The amended runner additionally checks every uniform alpha coordinate against exact1/T within tau, then requires neither feasible control be certified infeasible.",
+      "The seven case IDs are inherited from the pinned prior replay manifest; target allocations are donor alpha values, while all preparations are fixed Q psi. No model or effect is retrained or substituted."
+    ],
+    "runtime_status": "No assay, original runner unit(), case loading or scientific computation was executed by this reviewer."
+  },
+  "fidelity_gaps": [
+    "The exact object of certification is the normalized finite saved complex64 state/effect data treated as exact binary inputs, not an idealized original encoder or device implementation.",
+    "tau=1e-5 is a declared coordinate-resolution tolerance, checked against saved Q and uniform inputs; it is not a universal float32 error bound or a new error guarantee for other datasets/models.",
+    "Effects are independent trace1PSD binary effects per relation, not a joint POVM with a sum constraint. Relaxing preparation, effect trace scale or the original ansatz changes the feasible set.",
+    "Only seven already posthoc chosen fixed seed29 validation cases are examined; this is not independent task confirmation or a population-level mechanism conclusion.",
+    "Different donor heads generally have differently trained preparation/value maps. Incompatibility on fixed Q preparation does not diagnose why a swap harmed task accuracy."
+  ],
+  "control_fairness": {
+    "status": "PASS_WITH_RISK",
+    "details": "Five historical heads and all40relations remain visible; search and certification rules are symmetric across heads. All-row Q physical and uniform1/T checks make the intended feasible input controls explicit. Outcomes may be negative/no-certificate without changing tau, relation counts, examples or thresholds. This does not establish comparative model utility or equal-capacity advantage."
+  },
+  "gradient_flow": {
+    "status": "NOT_APPLICABLE",
+    "details": "No trainable update, Torch import, new model forward or gradient claim in this assay."
+  },
+  "gradients_and_numerics": {
+    "status": "PASS_WITH_RISK",
+    "interval_implementation": [
+      "All proof arithmetic is enclosed by precision50 Decimal operations with explicit ROUND_FLOOR/ROUND_CEILING in local contexts. Exact float-to-Decimal input conversion, copy_negate and copy_abs avoid ambient-context rounding.",
+      "Complex density uses exact normalized outer products; probability uses normalized squared complex inner product. Division rejects denominators enclosing zero; nonfinite inputs fail.",
+      "Dependency/interval overestimation can suppress a certificate but cannot create a strictly positive lower-gap certificate if operations enclose their exact values."
+    ],
+    "independent_fixtures": {
+      "scope": "Synthetic mathematical fixtures only; no original runner/cases/Torch/network; module definitions for intervals only executed",
+      "numpy": "1.26.4",
+      "ambient_decimal_precision": 4,
+      "ambient_rounding": "ROUND_UP",
+      "fraction_operation_containment_checks": 600,
+      "complex_density_fraction_coordinate_checks": 18,
+      "complex_probability_fraction_containment": "PASS",
+      "alternative_construction": "Dimension8, one16-token case containing two copies of each computational basis state. Different targets .08 and .045 for the two copies of state0, other coordinates1/16; w=+1 and-1 for those two copies, zero elsewhere. This directly gives W proportional to I; no SVD or primary unit fixture is used.",
+      "alternative_certificate": {
+        "certified_infeasible": true,
+        "delta_lower": "0.069680559680000006661391438456121250055730342864980",
+        "squared_gap_lower": "0.0048553803973180426307389673583656520257849393004923",
+        "frobenius_squared_upper": "7.200E-99",
+        "tolerance_bound": "0.00032000032"
+      },
+      "uniform_feasible_not_rejected": true,
+      "within_tau_perturbation_not_rejected": true,
+      "random_feasible_pure_effect_and_w_cases": 8,
+      "random_feasible_false_rejections": 0
+    },
+    "limits": "These fixtures certify implementation behavior on synthetic inputs and support the algebra. The twelve in-run unit checks, actual positive controls and exact private input replay remain pending real execution."
+  },
+  "leakage_and_masking": {
+    "status": "PASS_WITH_RISK",
+    "details": "Runner loads only pinned prior psi/phi/alpha and the replay identity manifest. It does not parse gold labels, predictions for selection, raw text, test data or utilities to form witnesses. The prior selection is explicitly posthoc. The entire immutable104-file closure is hashed for integrity, which is not use of its other semantic fields in the assay."
+  },
+  "lifecycle": {
+    "status": "PASS_WITH_RISK",
+    "exact_launch": {
+      "node": "q-duet-data-1080ti-v1",
+      "server": "gpushare-i1-39684-data",
+      "owner_repo": "/home/Q-Attention/l5-attainability-20261115",
+      "worker_repo": "/hy-tmp/qattn-l5-attainability-20261115",
+      "parent_revision": "f044ab0da7d5e3b51666982693b7546d3793ed8c",
+      "python": "/tmp/qattn-joint-rebuild-20261113/env/bin/python",
+      "argv": [
+        "{python}",
+        "-B",
+        "experiments/rmea_attainability/runner.py",
+        "run",
+        "--output",
+        "{output}"
+      ],
+      "resources": {
+        "cpu": 1,
+        "ram_mb": 768,
+        "disk_mb": 16,
+        "gpus": 0,
+        "gpu_mb": 0
+      },
+      "timeout_seconds": 180,
+      "max_attempts": 1,
+      "replay_safe": false,
+      "task_key": "rmea-attainability-1b7cad19e52f-1f48c0ef4a71"
+    },
+    "checked": [
+      "Deploy checks the exact frozen owner working files and raw Git blobs; worker verifies bundle identity and the complete source/file/blob hash map before deployment metadata. Isolated worktrees preserve the original dirty checkout.",
+      "Unique attain_ops binds the intended node/server; trace_ops hash is checked before import and loaded module path afterward. Its dependency bytes/hash are inside the composite.",
+      "Readiness refreshes due fleet health and checks selected-worker cgroup available memory and disk. BLAS thread counts are set before NumPy import; CUDA visibility is required empty. This is CPU-only use of an existing node.",
+      "Temporary config pair uses known before/after bytes, leader lock and partial-write compensation. Unknown concurrent bytes preserve a stopped state; controller restart requires a known consistent pair.",
+      "A wait timeout does not imply termination. Active/unknown tasks preserve bindings and reservation and do not authorize another task or silent retry.",
+      "Collection requires exactly one successful terminal/quiescent identity-matched attempt, restored binding, exact argv/cwd/revision/GPU0, matching receipt hashes and full private closure under16MiB. Six data files are required, with RUN_COMPLETE as the excluded marker.",
+      "Complete owned-patch reverse --index and parent-tree equality before a normal rollback commit preserve history and exact source rollback semantics; scheduler config restoration is separate."
+    ],
+    "runtime_status": "NOT_RUN by reviewer; deployment/readiness/queue/collector/rollback actual observations remain required by the stated gates."
+  },
+  "artifact_and_recovery": {
+    "status": "PASS_WITH_RISK",
+    "input": "Reuse the exact existing104-file closed private prior trace package, with fixed RUN_COMPLETE SHA b567555cd4ce7fe98539b369ef624e8f9f26e696fbdff658a03d10b7104bf603 and prior source22e3848830a6cb823727fcd4966c96c8381a967d. No restoration or actual input reading performed by reviewer.",
+    "outputs": "Public whitelist: code/contract/proof, compact200-row screens, unit/certificate-validation and compact audit records. Five selected full witness vectors, W/c, detailed certificate and input-lineage arrays stay private on worker. Hash closure is checked there before compact collection.",
+    "persistence": "No new COS access, private archive or deletion; immutable prior inputs remain unchanged. Re-run/recovery is a separate exact-source reviewed action after terminal proof, not an automatic retry."
+  },
+  "risks": [
+    "The norm-ball condition is incomplete; an uncertified target may still be impossible. A positive result for one selected relation does not imply all relations are infeasible.",
+    "Runtime positive controls and12unit checks have not been run. Any failure stops acceptance; no tau relaxation, altered case selection, fallback preparation or retry is licensed.",
+    "A numerical screen may choose a weaker witness or a selected row whose interval margin does not certify; this is an allowed negative outcome.",
+    "768MiB/180s runtime sufficiency is not proven by static review. If limits cause failure, preserve terminal evidence and review any changed execution contract.",
+    "No new task utility, causal training mediation, quantum necessity, hardware advantage, semantic case explanation or L5 promotion is supported by this code-ready review."
+  ],
+  "allowed_actions": {
+    "under_existing_owner_authorization": [
+      "Run the exact reviewed readiness/source deployment path and one CPU1/RAM768/GPU0/180s diagnostic through the shared scheduler after exact hashes and quiescent placement checks.",
+      "Run the12declared unit fixtures and the fixed seven-case five-head assay within that single bounded job; retain all200screens, exactly five final interval checks and both all-row positive controls.",
+      "After successful terminal/quiescent proof, exact config restoration and complete hashes, collect only whitelisted compact outputs and preserve private witness evidence on worker.",
+      "Use the reviewed exact source/config rollback when its identity and quiescence gates hold."
+    ],
+    "mandatory_stops": [
+      "Any source/input/closure/selection mismatch",
+      "Any arithmetic or Q/uniform positive-control failure",
+      "Unknown/active attempt or concurrent unknown config bytes",
+      "Any requested change of tau, cases, preparation, resources or method without a new exact review"
+    ],
+    "not_authorized": [
+      "New model forward/training/test/formal experiment",
+      "COS read, new paid resource, collaborator server access or private-data publication",
+      "L5 promotion or changes to the old scoped L4"
+    ]
+  },
+  "verification_evidence": {
+    "source_files_verified": 10,
+    "python_files_ast_parsed": 8,
+    "dependency_files_verified": 1,
+    "dependency_python_ast_parsed": 1,
+    "embedded_changed_and_dependency_sources_match": true,
+    "exact_launch_contract_matches_file": true,
+    "source_hash_before": "1b7cad19e52f71d60d7471cce1cd0723fc36314747f151f1214bf7e0313e426d",
+    "source_hash_after": "1b7cad19e52f71d60d7471cce1cd0723fc36314747f151f1214bf7e0313e426d",
+    "contract_hash_before": "1f48c0ef4a71c0c80bf3ac967f75887bdd62bd459680bddd4db3fedeec2bbac1",
+    "contract_hash_after": "1f48c0ef4a71c0c80bf3ac967f75887bdd62bd459680bddd4db3fedeec2bbac1",
+    "packet_hash_before": "4695d71596a2bd1c67708d2d2bc550163a0db5cf65d567a1896d805be166c7dc",
+    "packet_hash_after": "4695d71596a2bd1c67708d2d2bc550163a0db5cf65d567a1896d805be166c7dc",
+    "review_contract_sha256": "7446c65bea31a7851a77c4dc78bb2778e01e2636d2d19af3f6755635b4ff3ace",
+    "review_selection_sha256": "911a7482e2e423c3468cf7f3c24035d630534232cc56d376bb3923c71fd8d5a9",
+    "actual_cases_read": false,
+    "original_runner_started": false,
+    "source_changed_by_reviewer": false,
+    "writes": [
+      "review-result.json",
+      "review-result.md"
+    ]
+  },
+  "source_file_hashes": {
+    "deploy.py": "dcf4a03bc699ac9b01c72ef17b1330dc296eb429bb8d41564acead324864883f",
+    "queue_submit.py": "bb7e11c514ad02806c44fe4b86ffe6993bdccc98cf1d452f5eea78956d365c93",
+    "collect.py": "9c553397e1143e8abac1aabe43b25bf9bad028b4188d75c768a7d83194176227",
+    "readiness.py": "a64df26297077807607f74eea0e0300d480e10397562b3b4da1d99ccddf85ee2",
+    "rollback_source.py": "e8648e6d225c043381201f2ca351ffcb300051d2772a92ed8273c9b572510636",
+    "attain_ops.py": "088ae81dcc91ac97e9656f0dfaa0cb38d0e1af5770e6006f4b835969a34a2503",
+    "proof.md": "c3eaf17cb6111408aecda74d9052177604eee55b19878e205266463258c214af",
+    "source/contract.json": "1f48c0ef4a71c0c80bf3ac967f75887bdd62bd459680bddd4db3fedeec2bbac1",
+    "source/intervals.py": "20a1ad965d3ecd19c35b363ef8398463541230576aefa0850870a68ba96ec0b3",
+    "source/runner.py": "b26925eba0b40fa1b816f64f648bd30ec4b9065482dd7b546e053584dee20be6"
+  },
+  "dependency_file_hashes": {
+    ".codex-artifacts/qattn-rmea-joint-20261113/trace_ops.py": "c24804b33f407ab8d16a3ee28d1b983215029db8f6e27700f22cd7a3a55f6d7b"
+  }
+}

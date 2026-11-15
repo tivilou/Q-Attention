@@ -1,0 +1,189 @@
+{
+  "schema": "qattn.round4.result-report-consistency-review.v1",
+  "reviewed_at_utc": "2026-11-15T16:12:26.280352+00:00",
+  "review_scope": "results_and_reporting_consistency",
+  "review_mode": "bounded_independent_record_review",
+  "reviewer_model": "Codex independent bounded subagent; exact runtime model identifier not exposed",
+  "verdict": "PASS",
+  "must_fix": [],
+  "verdict_meaning": "The compact execution, numerical-result and reporting records are consistent. This is not L5 acceptance, novelty clearance, new scientific computation or an independent replication.",
+  "source_sha256": "1b7cad19e52f71d60d7471cce1cd0723fc36314747f151f1214bf7e0313e426d",
+  "contract_sha256": "1f48c0ef4a71c0c80bf3ac967f75887bdd62bd459680bddd4db3fedeec2bbac1",
+  "input_packet_sha256": "4695d71596a2bd1c67708d2d2bc550163a0db5cf65d567a1896d805be166c7dc",
+  "source_revision": "15ea29b435a1a052f291674104557dbd26aa5e7d",
+  "input_manifest_sha256": "2d12ccbbe0379acad1ac893fef153548ef1c88d8da2d1eae14d5bffc630e3182",
+  "observed": {
+    "cases": 7,
+    "token_count": 260,
+    "heads": 5,
+    "relations_per_head": 40,
+    "numeric_screens": 200,
+    "final_interval_checks": 5,
+    "certified_infeasible_count": 3,
+    "selected_rows": [
+      {
+        "head": "uniform",
+        "numeric_screens": 40,
+        "numeric_positive_screens": 0,
+        "selected_relation_index": 0,
+        "certified_infeasible": false,
+        "delta_lower": "-0.0062570260325397168256999101437210279627463755506010",
+        "squared_gap_lower": "-1",
+        "w_sha256": "a3f82f46f90292834b092f13fbb14f88e017955bebd678824bdd7b1d326cfd2e"
+      },
+      {
+        "head": "relation_softmax",
+        "numeric_screens": 40,
+        "numeric_positive_screens": 40,
+        "selected_relation_index": 6,
+        "certified_infeasible": true,
+        "delta_lower": "0.069933998592062063524870650361376512003804849694860",
+        "squared_gap_lower": "0.0048907641590745386833858368333898949948262265980996",
+        "w_sha256": "e57be6230485dee74232c6663cc291700978f990d8f852db3df8104a2dc04754"
+      },
+      {
+        "head": "real_overlap",
+        "numeric_screens": 40,
+        "numeric_positive_screens": 40,
+        "selected_relation_index": 36,
+        "certified_infeasible": true,
+        "delta_lower": "0.069252779041524464394395219318651265636684828949556",
+        "squared_gap_lower": "0.0047959474049742101133202361940295045706763208028020",
+        "w_sha256": "705dbf77a7649577125bad6cedef6c03c2a0070f1b11e444fe4af6df1f355f86"
+      },
+      {
+        "head": "quantum",
+        "numeric_screens": 40,
+        "numeric_positive_screens": 0,
+        "selected_relation_index": 39,
+        "certified_infeasible": false,
+        "delta_lower": "-0.0040117127638684857563228099422052268725914830922174",
+        "squared_gap_lower": "-1",
+        "w_sha256": "32b0f7c65d644c23f9d157dc8338b17bec39b4802123c5f7c37a807b1504066d"
+      },
+      {
+        "head": "dephased",
+        "numeric_screens": 40,
+        "numeric_positive_screens": 40,
+        "selected_relation_index": 24,
+        "certified_infeasible": true,
+        "delta_lower": "0.069575823851646523300503783964158428499951182149850",
+        "squared_gap_lower": "0.0048407952646353452527442508221652550707195427676478",
+        "w_sha256": "1b9158aa388ccc1761cdeb1d93cb15aa8bf586e6e686f5813f7ee3cb3291a5da"
+      }
+    ],
+    "positive_q_max_error_upper": "2.0354134250225713981433451002720554620047833E-7",
+    "positive_uniform_max_error_upper": "1.241763432820638020833333333333333333333334E-9",
+    "coordinate_tolerance": "1e-5",
+    "unit_fixture_count": 12,
+    "elapsed_seconds": 19.807178020477295,
+    "execution_task": "4aeac5c2bb31443c97cc8773e0310d92",
+    "execution_attempt": "06054bfa49894c0aa965f1a65b0a3af3",
+    "scientific_exit": 0,
+    "binding_restored": true,
+    "closure_files": 6,
+    "closure_bytes": 77772
+  },
+  "checks": {
+    "counts_and_selection": "PASS: five complete40-row relation sets, all200 numeric screens retained. Selected rows are maxima by the stored approximate margin. Exactly five interval results; three positive certificates at relation_softmax6, real_overlap36, dephased24.",
+    "certificate_record_signs": "PASS: only the three positive records have both strictly positive stored delta lower and squared-gap lower; report table matches their stored lower bounds. Quantum/uniform noncertificates are not mislabeled as PSD/pure infeasibility.",
+    "positive_controls": "PASS: saved Q physical-reconstruction upper2.035413425...e-7 and uniform1/T upper1.241763432...e-9 lie below frozen tau1e-5; conservative rounded report bounds agree.",
+    "parameter_family_scope": "PASS: report fixes normalized saved Q states, trace1PSD effects independently per relation, no joint-POVM sum. The mixed class is identified as a convex relaxation of the original rank-one circuit family, not arbitrary-trace effects.",
+    "uniform_harm_interpretation": "PASS: report correctly combines the universal E=I/8 mixed construction with the previously audited1024case uniform-donor harm80rescued/303harmed, Macro50.5462%→6.7497%. This limits mixed-set nonattainability as a sole explanation of all harm; the report explicitly withholds rank-one attainability and coadaptation-causality claims.",
+    "execution_and_lineage": "PASS: source/contract/revision agree across exact code review, freeze, summary, public source identity and successful terminal/quiescent receipt. All four declared output byte counts and hashes match local files, including marker. Marker file-map digest matches the recorded6-file worker closure.",
+    "public_copy_integrity": "PASS: all duplicated compact result/review/reading/question/execution records are byte-identical to local originals; public proof is byte-identical to the frozen proof. Public source file hashes match the freeze source subset.",
+    "fixtures": "PASS on records:12executed unit checks plus prior source-bound600Fraction/18complex-density checks and independent synthetic controls are described as correctness checks, not a nontrivial theory contribution. They were not rerun by this reviewer.",
+    "reading_scope": "PASS as receipt/report consistency: causal arXiv2106.02997v1 pages1–4 only; comparison arXiv1004.3794v4 pages1,16–18 only; full_paper_read=false, publisher2012 text unchecked and novelty_clearance=false retained. Report does not claim completed appendix/proof reading or a Q-RMEA causal/CPTP/BSS theorem.",
+    "next_question": "PASS: question is explicitly not a selected method; it requires matched variables/interventions, independent-data predictions and a near-neighbor distinction before new execution. No theoretical acceptance is inferred from this audit.",
+    "tier_and_compute_boundary": "PASS: L5 remains NOT_ACCEPTED and old scoped L4 retained. Records report no new forward/training/test/COS/paid provisioning or private-output publication."
+  },
+  "claim_scope": {
+    "supported": [
+      "On the seven fixed posthoc cases, the three specified relation targets have positive supplied interval incompatibility certificates within tau for trace1PSD effects on fixed normalized saved Q preparation.",
+      "Uniform is constructively feasible in that mixed relaxation; this does not place it in the original rank-one parameter family.",
+      "Known-tool audit results motivate a task-linked preparation/effect/value question, not a selected new method."
+    ],
+    "not_supported": [
+      "All120positive donor screens or all40relations per head being interval-certified",
+      "Generalization beyond the seven cases or new independent task confirmation",
+      "Pure-effect feasibility inferred from a failed norm-ball certificate or from mixed uniform feasibility",
+      "Causal attribution of harm to preparation mismatch or value coadaptation",
+      "Causal abstraction, CPTP sufficiency/BSS order, quantum necessity or task superiority",
+      "L5 or novelty acceptance, or changes to old scoped L4"
+    ]
+  },
+  "reading_receipt_scope": [
+    {
+      "paper_id": "arxiv:2106.02997v1",
+      "observed_version": "2106.02997v1",
+      "pages_read": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "full_paper_read": false,
+      "novelty_clearance": false
+    },
+    {
+      "paper_id": "doi:10.1007/s00220-012-1421-3",
+      "observed_version": "1004.3794v4",
+      "pages_read": [
+        1,
+        16,
+        17,
+        18
+      ],
+      "full_paper_read": false,
+      "novelty_clearance": false
+    }
+  ],
+  "risks": [
+    "This record review does not recompute W, witness vectors or interval certificates, inspect private case arrays, repeat scientific fixtures or rehash worker-private content. Exact source review and supplied execution/closure records provide that chain.",
+    "Receipt consistency is not an independent verification of paper PDFs or proof content. This reviewer checked the report against the stated scoped reading receipts, not unlisted pages or the unchecked publisher version.",
+    "A necessary norm-ball condition is incomplete. Noncertification is not feasibility; the three positive results are finite-case, fixed-preparation and tolerance-specific.",
+    "Seven cases were posthoc selected. The uniform mixed-effect counterexample does not establish feasibility in the trained pure-effect circuit class or confirm coadaptation causality.",
+    "Historical freeze/review fields saying NOT_RUN or pending runtime are pre-execution snapshots; current success is supported by the separate exact execution records, not by rewriting them."
+  ],
+  "allowed_conclusions": "The current compact report faithfully records the bounded audit, its three certificates and its scope limits; normal evidence publication may preserve all controls and caveats under existing authorization.",
+  "next_action_boundary": "Prepare the proposed falsifiable research question and matching theory/empirical design. This acceptance creates no authority for another diagnostic, model change, training, formal run, cloud access or evidence-tier promotion.",
+  "input_hashes": {
+    ".codex-artifacts/qattn-l5-round4-20261115/summary.json": "c4a18bec3ea985c10312e8fa183c7bf67f7e3987802cf4d9a532dafc3bfb674b",
+    ".codex-artifacts/qattn-l5-round4-20261115/certificate-validation.json": "cf5dac43dfccef79d62dc6852d85b3fa8a876ca3e721e3b8dd108da4c851b60b",
+    ".codex-artifacts/qattn-l5-round4-20261115/execution-verification.json": "9d9e2c2b4c7ee15f32f983f94ac2e688b0a1644fcc626004c17a62cbf0b48904",
+    ".codex-artifacts/qattn-l5-round4-20261115/freeze.json": "86f06561f5072f93e2fab4ee2dd0529579d3eea34fb16caf0988a36be1550e55",
+    ".codex-artifacts/qattn-l5-round4-20261115/review-result.json": "2289007437b1c58b3ca5c328fe24755b863a5d868ef21d4f07b5ee4556704f65",
+    ".codex-artifacts/qattn-l5-round4-20261115/reading-receipts.json": "2ed2bf98614cd1430db77d98ce8489ac77da6dabd13af7a27fef62fafbc13a2d",
+    ".codex-artifacts/qattn-l5-round4-20261115/next-research-question.json": "b67f8ecd9aa00ebd70abbe10f2ff18a391059d87eb7ca6cb50bd7057e4e6b24d",
+    ".codex-artifacts/qattn-l5-round4-20261115/research-log-entry.json": "9bda8dde128c7650702671d2b69e34629440811768df137777680accadb2f3b5",
+    ".codex-artifacts/qattn-l5-round4-20261115/public-owned-files.json": "3b5a3673db851111ce51d87cbac86c070c1143909d62797510e362541baea0d9",
+    ".codex-artifacts/qattn-l5-round4-20261115/unit.json": "7712ab9a32c824a99297a5b5ece20bcec83349ec714327b0bf64e4291ff709c0",
+    ".codex-artifacts/qattn-l5-round4-20261115/RUN_COMPLETE": "15c7673cfa9e021cbf1c9055fdfe664460753775707a45f14abce6f991bb5b7f",
+    "docs/evidence/rmea/20261115-l5-round4/summary.json": "c4a18bec3ea985c10312e8fa183c7bf67f7e3987802cf4d9a532dafc3bfb674b",
+    "docs/evidence/rmea/20261115-l5-round4/unit.json": "7712ab9a32c824a99297a5b5ece20bcec83349ec714327b0bf64e4291ff709c0",
+    "docs/evidence/rmea/20261115-l5-round4/certificate-validation.json": "cf5dac43dfccef79d62dc6852d85b3fa8a876ca3e721e3b8dd108da4c851b60b",
+    "docs/evidence/rmea/20261115-l5-round4/review-result.json": "2289007437b1c58b3ca5c328fe24755b863a5d868ef21d4f07b5ee4556704f65",
+    "docs/evidence/rmea/20261115-l5-round4/execution-verification.json": "9d9e2c2b4c7ee15f32f983f94ac2e688b0a1644fcc626004c17a62cbf0b48904",
+    "docs/evidence/rmea/20261115-l5-round4/reading-receipts.json": "2ed2bf98614cd1430db77d98ce8489ac77da6dabd13af7a27fef62fafbc13a2d",
+    "docs/evidence/rmea/20261115-l5-round4/next-research-question.json": "b67f8ecd9aa00ebd70abbe10f2ff18a391059d87eb7ca6cb50bd7057e4e6b24d",
+    "docs/evidence/rmea/20261115-l5-round4/source-identity.json": "4e864d1741e46df35b0ca9523c01713fb8a320f0f75efd90aa213e268ce2407e",
+    "docs/evidence/rmea/20261115-l5-round4/proof.md": "c3eaf17cb6111408aecda74d9052177604eee55b19878e205266463258c214af",
+    "docs/audits/20261115-q-rmea-l5-round4.md": "52c40b0097b113c5da42716d960ad3c199318bbec79d764f811e80b8918c3bb6",
+    "docs/research-log/20261115T-160430Z-q-rmea-l5-round4.md": "19a252fdcb38a3cc8f4d2d3e0de6a2b73d90a2a3b83b10ffcd827ac0e9df2b57"
+  },
+  "reviewer_actions": {
+    "network": false,
+    "remote": false,
+    "scientific_computation": false,
+    "scientific_runner": false,
+    "model_forward": false,
+    "training": false,
+    "case_arrays_read": false,
+    "frozen_code_changes": false,
+    "mechanical_work": "Parsed JSON; counted rows and compared stored signs/identities; verified local file hashes/bytes and report-to-record scope.",
+    "writes": [
+      "acceptance-review.json",
+      "acceptance-review.md"
+    ]
+  }
+}
