@@ -63,6 +63,15 @@
       "sha256": "ce400bc5a2ff7e016fb790095a20b68c4bbdfcc8816847a0dba4cb756b8acd1f"
     }
   ],
+  "repair": {
+    "previous_revision": "e97db1a87d1ef453c6f27829b8fa27304ecc01da",
+    "previous_task": "44f29e6d29514bedb0dcca6125de4294",
+    "previous_attempt": "e0d05e877a5f4fc5828c663f3d48528c",
+    "termination": "failed return1, quiescent and exact bindings restored",
+    "cause": "Same values summed through different memory strides differed3.55e-15 at strict trace equality",
+    "change": "Canonical C-contiguous float64 original/hybrid reduction and stride regression; unchanged population/model/metrics. New source key, not retry of failed key.",
+    "old_results_accepted": false
+  },
   "resources": {
     "cpu": 1,
     "ram_mb": 1536,
@@ -90,7 +99,7 @@
   "launch": {
     "node": "q-duet-data-1080ti-v1",
     "server": "gpushare-i1-39684-data",
-    "worker_repo": "/hy-tmp/qattn-l5-allocation-20261115",
+    "worker_repo": "/hy-tmp/qattn-l5-allocation-20261115-r2",
     "owner_repo": "/home/Q-Attention/l5-allocation-20261115",
     "parent_revision": "46707dc9310dba9bb1c0ea951a0e54fa7dff9857",
     "python": "/tmp/qattn-joint-rebuild-20261113/env/bin/python",

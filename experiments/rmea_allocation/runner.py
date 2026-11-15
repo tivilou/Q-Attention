@@ -29,7 +29,7 @@ def compose(alpha,utilities,bias):
     if alpha.shape!=utilities.shape or alpha.ndim!=3 or bias.shape!=(40,):raise ValueError('Replay shapes differ')
     if not np.isfinite(alpha).all() or not np.isfinite(utilities).all():raise ValueError('Nonfinite replay input')
     if alpha.min()<-1e-7 or not np.allclose(alpha.sum(-1),1,atol=2e-6):raise ValueError('Invalid attention')
-    return (alpha.astype(np.float64)*utilities.astype(np.float64)).sum(-1)+bias
+    return (np.ascontiguousarray(alpha,dtype=np.float64)*np.ascontiguousarray(utilities,dtype=np.float64)).sum(-1)+bias
 def unit():
     a=np.zeros((1,40,3));a[:,:,0]=1;b=np.zeros_like(a);b[:,:,1]=1
     u=np.tile([1,2,3],(1,40,1));v=np.tile([4,-1,2],(1,40,1));bias=np.zeros(40)
@@ -49,7 +49,9 @@ def unit():
     native=(tie*tu).sum(-1)+tb;common=compose(tie,tu,tb)
     assert native.argmax()==0 and common.argmax()==1
     assert np.array_equal(common,compose(tie.copy(),tu,tb))
-    return dict(status='PASS',cases=6,scope='Replay direction, Shapley identity, normalization, identity, CE and near-tie no-op arithmetic')
+    rng=np.random.default_rng(20261115);sa=rng.uniform(size=(1,40,37));sa/=sa.sum(-1,keepdims=True);su=rng.normal(size=sa.shape)
+    assert np.array_equal(compose(sa,su,bias),compose(np.asfortranarray(sa),np.asfortranarray(su),bias))
+    return dict(status='PASS',cases=7,scope='Replay direction, Shapley identity, normalization, identity, CE, near-tie no-op and strided-storage arithmetic')
 
 def main():
     parser=argparse.ArgumentParser();sub=parser.add_subparsers(dest='action',required=True)

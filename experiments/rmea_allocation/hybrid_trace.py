@@ -17,7 +17,7 @@ def capture(root,payload,expected):
                     with np.load(base.pinned(root,rep['artifact_refs'][0]),allow_pickle=False) as f:return f[rep['id']].copy()
                 # The producer function receives neither labels nor outcomes.
                 alpha=array(dreps['alpha']);u=array(rreps['utilities']);bias=array(rreps['bias'])
-                logits=(alpha.astype(np.float64)*u.astype(np.float64)).sum(-1)+bias
+                logits=(np.ascontiguousarray(alpha,dtype=np.float64)*np.ascontiguousarray(u,dtype=np.float64)).sum(-1)+bias
                 wanted=expected[(donor,recipient,sid)]
                 maximum=max(maximum,float(np.max(np.abs(logits[0]-wanted))))
                 np.testing.assert_array_equal(logits[0],wanted)
