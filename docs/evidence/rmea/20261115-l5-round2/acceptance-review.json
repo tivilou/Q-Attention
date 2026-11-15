@@ -1,0 +1,155 @@
+{
+  "schema": "qattn.l5-round2-independent-content-review.v1",
+  "review_mode": "subagent_fallback",
+  "reviewer_model": "Codex independent bounded review subagent; exact runtime model identifier is not exposed",
+  "review_scope": "mechanism",
+  "source_sha256": "1539fe3663216982c3e1cf62d34b2952c6a795377c2aea52958bf1a96ed87ef6",
+  "contract_sha256": "abc0643e41d708175d23e1a40a615416ef5ce89e51350cb48fee9c9b11d528dc",
+  "input_packet_sha256": "5e621d95b62e3ff92c72a340106342f7ad94061e848b4ae427beac6c44f8e5ed",
+  "verdict": "PASS",
+  "verdict_scope": "Accept this dossier as a mathematically sound, source-scoped audit and its conditional next-action recommendation. This is not L5 promotion, a new scientific result on Re-TACRED, or permission to run a diagnostic.",
+  "must_fix": [],
+  "availability": "Primary reports fresh capability-ranked native-max external attempts failed URLError. This reviewer made no network/model calls and reviewed the same exact supplied packet locally.",
+  "mathematics_status": "PASS_WITH_EXPLICIT_MIXED_PURE_CIRCUIT_AND_FIXED_HEAD_BOUNDARIES",
+  "novelty_status": "KNOWN_TOOL_APPLICATIONS; no demonstrated substantive L5 novelty; no exhaustive prior-art absence/presence claim",
+  "l5_status": "NOT_ACCEPTED; existing scoped conditional L4 unchanged",
+  "content_judgment": {
+    "feasibility": "For a probability vector beta, the single-example mixed-effect equivalence is exact: Q=E/Tr(E S) is PSD and realizes all trace constraints. Conversely their sum gives Tr(Q S)=1; S positive definite implies Q nonzero, so E=Q/Tr(Q) has trace1 and yields beta. No pure/rank1/circuit conclusion follows.",
+    "separating_witness": "A relation sum c_t B_t=0 gives c dot beta=0. With ||c||infinity=1, Holder duality proves the stated L1 lower bound. One-sided PSD witnesses follow by positivity of Tr(Q A). Entity anchors and the epsilon term are included, not silently discarded.",
+    "global_feasibility": "One E shared across the cohort must satisfy the complete normalized homogeneous equations simultaneously. Separate Q_i can each be feasible while no shared E exists. The packet correctly distinguishes this necessary global condition from individual feasibility.",
+    "output_preservation": "For fixed utilities, preparation, mask, bias and the other39 class logits, preserving this relation logit is exactly Tr(Eprime M_i)=0. With Delta=Eprime-E and trace(Delta)=0, injectivity on the full real tracezero Hermitian space suffices for uniqueness. Rank63 is sufficient but not necessary for pure/circuit families. Nonzero unconstrained null directions need not remain PSD or circuit reachable.",
+    "softmax_scope": "When all other finite logits are fixed, equal full softmax probabilities imply the selected relation logit is unchanged. Argmax labels alone do not. If other effects, decoder, values or biases change, that conclusion and the fixed-head identifiability result do not transfer.",
+    "stability": "An orthonormal tracezero Hermitian basis turns Delta into a real vector of equal Frobenius norm. Standard smallest-singular-value control gives the stated inequality. The finite-shift identity obs_i=delta_i*Tr(Eprime S_i) is exact; density positivity bounds the latter by lambda_max(S_i). Numerical near-rank is not exact rank, conditioning or semantics.",
+    "finite_source_compatibility": "The six-token example and IC cohort can be realized with finite head-interface h inputs and fixed affine preparation/value parameters. All angles lie strictly inside the tanh range. This is compatibility with the published head equations, not a claim that frozen RoBERTa produces these h values or that the trained checkpoint realizes the fixture.",
+    "known_tool_classification": "PSD lifting, nullspace identifiability and singular-value stability are correctly treated as known tools. The supplied Brunner and restricted-tomography scope comparisons do not claim a refutation or import optimal sample bounds. The exact Q-RMEA constructions are useful scope counterexamples; they do not establish a novel informational-completeness principle.",
+    "duplication_route": "The secondary normalized-pooling identity and quadratic rival-margin formula are correct under exact frozen-feature duplication. They also apply to classical per-token normalized pooling. The packet correctly leaves this route unselected because the perturbation has no independent raw-text/label-stability premise and no substantive distinct contribution yet."
+  },
+  "independently_checked": [
+    {
+      "id": "I01_ALTERNATIVE_CIRCUIT_AND_CE",
+      "method": "Reviewer-owned bit-index push CNOT implementation and scalar pair Ry/Rz updates, instead of the supplied dense Kronecker-gate implementation. No candidate module or Torch imported.",
+      "permutation": [
+        0,
+        2,
+        1,
+        3,
+        4,
+        5
+      ],
+      "witness_residual": 3.3306690738754696e-16,
+      "L1_infeasibility_lower_bound": 0.17677643013199168,
+      "CE_actual": 0.6499293148732039,
+      "CE_shuffled": 0.7383175299391996,
+      "CE_damage": 0.0883882150659957,
+      "negated_utility_CE_damage": -0.0883882150659957,
+      "max_finite_inverse_tanh_feature": 0.9729550745276566,
+      "judgment": "Matches the source hash rule and claimed numbers. Reversing utility reverses CE damage without changing feasibility; off-family status has no automatic favorable task direction."
+    },
+    {
+      "id": "I02_ALTERNATIVE_OPERATOR_BASIS_AND_MIXED_PROBES",
+      "method": "Prepared product-state amplitudes analytically, applied the two CNOT-ring permutations, and used the orthonormal tensor Pauli basis rather than the supplied generalized Gell-Mann basis. Random rank<=3 mixed effects replace the supplied random-pure probes.",
+      "frame_rank": 64,
+      "tracezero_rank": 63,
+      "sigma_min": 0.04083940724824838,
+      "mixed_effect_probes": 27,
+      "max_stability_ratio": 0.06674282927183206,
+      "max_finite_shift_identity_residual": 1.5543122344752192e-15,
+      "judgment": "Independent basis and state class agree with the reported frame rank, constraint rank, singular value and bound."
+    },
+    {
+      "id": "I03_EXACT_RANK_ARGUMENT",
+      "method": "Each single-qubit quartet spans Hermitian2. Tensor products span Hermitian8; a common unitary conjugation preserves this span. Adding epsilon I preserves independence: trace(sum c_t B_t)=0 forces sum c_t=0, reducing to the original independent projector relation.",
+      "cohort_proof": "Let all64 B_t form a basis and M_j=B_j-w_j S for j0..62. If sum c_j M_j=0, expansion in B_t gives coefficient of B63 equal to -sum c_j w_j=0 and then every c_j=0. Thus the M_j span a63-dimensional E-orthogonal hyperplane. Its orthogonal complement is span(E); because Tr(E)=1, that span intersects tracezero matrices only at0. Hence restriction to tracezero is injective, independently of floating-point rank counting.",
+      "judgment": "The source-compatible global uniqueness construction is structurally valid."
+    },
+    {
+      "id": "I04_ADDITIONAL_MIXED_NOT_PURE_COUNTEREXAMPLE",
+      "method": "Use d2 token projectors Z+,Z-,X+,Y+ with epsilon I. Uniform beta=(1/4,...,1/4) is realized by E=I/2. Equal Z+ andZ- expectations force rz0; equality with X+ andY+ forces rx=ry=0, so I/2 is the unique traceone solution.",
+      "computed_beta": [
+        0.25000000000000006,
+        0.25000000000000006,
+        0.25,
+        0.25
+      ],
+      "judgment": "A feasible mixed effect can be uniquely rank2 and therefore infeasible for any pure/circuit effect. This independently tests the relaxation boundary rather than merely repeating the primary script."
+    },
+    {
+      "id": "I05_AFFINE_SOURCE_MAPPING",
+      "method": "For six tokens, prepare output6 reads h0=atanh(theta/pi), value coordinate0 reads h1=u; effects zero and bias log39 yield the exact 40-class CE formula. For the cohort, six input coordinates encode the finite first-layer angle tuples while an independent coordinate supplies each example token utility. Preparation ignores that utility coordinate; values read it. Both maps fit in h1024 and the declared affine layers.",
+      "judgment": "No ideal unrestricted preparation was substituted for a constrained circuit. These are synthetic head inputs, not contextual-encoder realizability claims."
+    },
+    {
+      "id": "I06_DUPLICATION_ALGEBRA",
+      "method": "Independently multiply the two positive denominators in the rival margin. The coefficients are C0=ZyZk(ay-ak), C1=Zy*qk*(ay-lk)+qy*Zk*(ly-ak), C2=qy*qk*(ly-lk). For the supplied scalar fixture this is4-.2m-.04m^2, root7.807764064044152.",
+      "judgment": "The formula and integer crossing are correct; no jointly trained/circuit-realized aggregate fixture or natural-text robustness follows."
+    }
+  ],
+  "next_action": {
+    "decision": "SUPPORT_A_SMALL_DESCRIPTIVE_MATCHED_TRACE_DISCOVERY_AUDIT_IF_EXISTING_EVIDENCE_IS_AVAILABLE",
+    "why": "Current synthetic results settle the proposed broad algebraic interpretations. The remaining useful uncertainty is which actual allocation/utility failure exists relative to stronger and weaker controls, not whether generic PSD/rank identities hold. Descriptive mechanism discovery can precede a new substantive theorem without being mislabeled as confirmation.",
+    "before_execution": [
+      "Specify one operational question and the corresponding input-to-allocation-to-utility-to-logit observables on a fixed training/validation cohort.",
+      "Identify exact existing arrays/checkpoints and source/selection identities; do not assume that the necessary detached arrays exist or that recovery/forward is authorized. If evidence is absent, inventory and cost the minimal missing object separately rather than restore indiscriminately.",
+      "Match units, mask/roles and output metric across the compared heads. Separately trained Q/classical values and decoders are legitimate comparison objects but remain confounders for a pure allocation attribution. A same-value uniform replay is not the historical independently trained uniform baseline.",
+      "Freeze a small selection/matching rule or explicitly label outcome-based strata/cases as exploratory. Preserve improvements, degradations and unchanged cases; do not choose a favorable test-cohort subset.",
+      "Treat findings as discovery; predictions proposed after reading those cases need independent validation. Stop if the output is only generic infeasibility/rank counts or a renamed stopped family."
+    ],
+    "authority": "Recommendation only. No model, dataset, remote, COS, restoration or experiment operation was executed or authorized by this review. Any actual trace extraction/forward/scheduling retains its own project gates.",
+    "not_required": "No new formal experiment, new model or new full training run is required merely to validate the algebra. No L5 novelty clearance is imposed as a universal gate on bounded descriptive discovery."
+  },
+  "risks": [
+    {
+      "id": "CONDITIONAL_NEXT_ACTION_NOT_CURRENT_READINESS",
+      "detail": "The packet does not establish current existence, accessibility or completeness of a matched trace cohort. The review endorses the research question and scope, not a ready launch."
+    },
+    {
+      "id": "FIXED_HEAD_AND_HEAD_INTERFACE",
+      "detail": "Global identifiability fixes preparation, values, decoder, bias and other effects. The finite h constructions certify head-interface compatibility, not the image of the actual frozen contextual encoder or end-to-end network uniqueness."
+    },
+    {
+      "id": "LITERATURE_SCOPE",
+      "detail": "Literature assessment relies on the packet reading receipts and known mathematical reductions. This reviewer did not reacquire or independently read the full cited papers. Exact prior-art exhaustiveness, priority and full-paper conclusions are not certified."
+    },
+    {
+      "id": "REPLAY_SCOPE",
+      "detail": "An off-family intermediate intervention remains valid for the named functional-dependence question. Its lack of scorer reachability limits an extrapolated measurement-change claim; it does not erase accepted L4."
+    },
+    {
+      "id": "SEMANTICS_AND_NOVELTY",
+      "detail": "Identifiability, source-compatible counterexamples and matching attention traces do not by themselves establish semantic evidence, causal mediation, quantum necessity or a substantive L5 contribution."
+    }
+  ],
+  "verification": {
+    "source_identity_algorithm": "SHA256 of UTF8 compact sorted-key JSON of packet.sources text map; executed_sources additionally bound by raw packet SHA and recorded hashes.",
+    "source_component_hashes": {
+      "attainability-theory.md": "1d2a8e4e489635dc4b0717fb8873aca25f072b2e8f0af1f42c283eec675076e3",
+      "check_attainability.py": "156581db333bc1ad125c019be2e84f675fa8a5eefb5e245b27c543dee77ce949",
+      "attainability-audit.json": "3880d051f09cfb7085bd96322d67836fa45346152147ef898407586e75f3cd69",
+      "independent-builder.json": "d49d7ad4eb87efdc4ec063cdf6fb1e9186fdec82cfaf1afb8f5f9b1f13fbb4dc",
+      "independent-builder.md": "5363c2e08de5314586a0466ccb88d4f1b394dafef4e0021d6de91bcf5d03564f",
+      "literature/reading-receipts.json": "9880747759cd1a53c5f0454a282a481267ef6b71abb83958a3fc1b9289075b42"
+    },
+    "executed_source_hashes": {
+      "rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+      "frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+    },
+    "contract_raw_sha256": "abc0643e41d708175d23e1a40a615416ef5ce89e51350cb48fee9c9b11d528dc",
+    "source_unchanged_during_review": true,
+    "read_scope": "Exact packet, contract and mandatory project context only; reviewer-owned in-memory mathematics.",
+    "command": "D:/Software/Dev/Language/Anaconda3/envs/QT2/python.exe -B - [independent bit-index/Pauli/mixed-state fixtures]",
+    "exit_status": 0,
+    "numpy_version": "1.26.4",
+    "primary_script_imported_or_executed": false
+  },
+  "reviewer_operations": {
+    "candidate_or_canonical_edits": 0,
+    "Torch_or_model_or_data_access": 0,
+    "training_or_model_forward": 0,
+    "remote_network_cloud_COS_restoration": 0,
+    "delegations": 0,
+    "written_artifacts": [
+      "acceptance-review.json",
+      "acceptance-review.md"
+    ]
+  }
+}
