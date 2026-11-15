@@ -1,6 +1,6 @@
 {
   "schema": "qattn.round3.result-report-consistency-review.v1",
-  "reviewed_at_utc": "2026-11-15T13:43:35.364404+00:00",
+  "reviewed_at_utc": "2026-11-15T14:01:43.166173+00:00",
   "review_scope": "results_and_reporting_consistency",
   "review_mode": "bounded_independent_subagent",
   "reviewer_model": "Codex independent subagent; exact runtime model identifier not exposed",
@@ -11,7 +11,7 @@
   "contract_sha256": "7f6c1d1871e27b3f33064572720f5825bbb5ce257cd2d4ee38964fa0ebe91076",
   "input_packet_sha256": "ab986322a639b88194554bf4399ed3fee452416971e7579ec209a6078340f7e8",
   "source_revision": "22e3848830a6cb823727fcd4966c96c8381a967d",
-  "input_manifest_sha256": "5d272e4606c4714ffb7e62e0edea65e1336f4a4aa35f46dc8de8b9b3da3f7cda",
+  "input_manifest_sha256": "fdd12a04028209e5bf25df831454144b4245dd1b4ed505f15f9ce769201e54e2",
   "observed": {
     "quantum": {
       "macro_f1": 0.5054618477628884,
@@ -97,8 +97,10 @@
     "traces": "PASS on supplied audits:7posthoc cases *5heads=35 original traces;7*4controls*2directions=56 hybrid traces;532original arrays/1596coordinates,392hybrid arrays; no warnings, exact cohort residual0, independent formula/reader passes.",
     "numeric_parity": "PASS: all five native/common argmax disagreement counts0; numerical residuals and precision margins retained.",
     "rollback": "PASS on supplied isolated reverse-patch fixture record: files removed in fixture, production source unchanged. This is not a claim that production source was rolled back.",
-    "private_closure": "PASS on supplied collector record:104files/12509829bytes, matching closure digest; weights/arrays were not downloaded. This reviewer did not re-access the worker to independently rehash private objects.",
-    "claim_boundary": "PASS: L5 NOT_ACCEPTED, old scoped L4 retained unchanged; fixed seed29 CPU-rebuilt validation1024, posthoc selection and encoder nonidentity disclosed. No new training/formal/test/quantum necessity claim."
+    "private_closure": "PASS on supplied collector record:104files/12509829bytes with matching closure digest. Collector did not download this new diagnostic output checkpoint copies or per-case arrays. Separately, the earlier input-recovery step locally cached the64MiB formal COS chunk and extracted five historical heads totalling1551378bytes; these binary inputs are not in Git. This reviewer did not access the worker or arrays.",
+    "claim_boundary": "PASS: L5 NOT_ACCEPTED, old scoped L4 retained unchanged; fixed seed29 CPU-rebuilt validation1024, posthoc selection and encoder nonidentity disclosed. No new training/formal/test/quantum necessity claim.",
+    "storage_download_scope": "PASS: report replaces exactly one overbroad sentence; public execution adds only download_scope. The false private_weights_or_arrays_downloaded flag is expressly collector/new-output scoped, not a claim of no earlier local formal-input recovery.",
+    "unchanged_scientific_records": "PASS: summary, unit, trace-validation, local execution receipt, RUN_COMPLETE, rollback fixture, source identity, code review and evidence boundary all retain prior hashes. All scientific numbers and tier limitations are unchanged."
   },
   "risks": [
     "This is a record/report consistency review of supplied compact local evidence; it does not independently recompute Macro-F1 from hidden predictions, repeat private-array replay, or rehash the worker closure.",
@@ -127,18 +129,21 @@
     ".codex-artifacts/qattn-l5-round3-20261115/trace-validation.json": "c87c07b66454dc03b12fc8eb9e5a8e5c6fb9dc6641b33b5dab46eb8a6330976c",
     ".codex-artifacts/qattn-l5-round3-20261115/execution-verification.json": "30dbcb4b4218138cf7e7922fdefac1f629990591963282a3873caaa1c6034ccd",
     ".codex-artifacts/qattn-l5-round3-20261115/rollback-verification.json": "e107f7d1562d69e1a701986ebaf19b09c46ad16702c6832ac09d4984a03739aa",
-    ".codex-artifacts/qattn-l5-round3-20261115/public-owned-files.json": "9cfd250d7b8c9c65a5e73bee6512e571f3557874b30ece931e75fbe62f6109b4",
+    ".codex-artifacts/qattn-l5-round3-20261115/public-owned-files.json": "148edc19c9d34220d77432a2d3e5f6d5af05f9bfa56b2d8aa59fa3bc1480d5ce",
     ".codex-artifacts/qattn-l5-round3-20261115/RUN_COMPLETE": "b567555cd4ce7fe98539b369ef624e8f9f26e696fbdff658a03d10b7104bf603",
     "docs/evidence/rmea/20261115-l5-round3/summary.json": "430d036606feb8d986166d8951ff1233e011215d71761148b4043e544f626fb1",
     "docs/evidence/rmea/20261115-l5-round3/unit.json": "ca8326bdb892cef7a253f59cc84c532a521739312e699c2c15a7647c331f2df3",
     "docs/evidence/rmea/20261115-l5-round3/trace-validation.json": "c87c07b66454dc03b12fc8eb9e5a8e5c6fb9dc6641b33b5dab46eb8a6330976c",
     "docs/evidence/rmea/20261115-l5-round3/review-result.json": "f0ad2366fece322d5a5797ef3ab93df0446d7daf3618364c3235c61b9c35d082",
     "docs/evidence/rmea/20261115-l5-round3/source-identity.json": "48dd01e17aa35193a2f3ef186ed174abf66afa541066f29a280d50a90c6e13bf",
-    "docs/evidence/rmea/20261115-l5-round3/execution-verification.json": "e671cd631d69abbd53ec19beb44a943318255e278aa623a449ef08d64a9ce1a2",
+    "docs/evidence/rmea/20261115-l5-round3/execution-verification.json": "d4e97561d9b552d204a523b707b21e62e88a141561c23c49703c0062adcd1937",
     "docs/evidence/rmea/20261115-l5-round3/restoration-scope.json": "83d5c67b4e0b8afbbd4b563e8acde9607a1c43fdf84fb7c895725efa57113a3c",
     "docs/evidence/rmea/20261115-l5-round3/evidence-boundary.json": "197bd676da0679ee67f3d9a0f024a81c462b41934082da2be9a02345eb66f80f",
-    "docs/audits/20261115-q-rmea-l5-round3.md": "e0fb2cd8953973537795a179d9ba1c40706b479b53aa065a733e482b0eab21fb",
-    "docs/research-log/20261115T-133930Z-q-rmea-l5-round3.md": "db59c5d528a757437fb103cc9161285a1979ae7a42d0f5aad3845369866b5a59"
+    "docs/audits/20261115-q-rmea-l5-round3.md": "26c825d143b434358adf5f4663d2185306066f96e582d8bacde6b885c827e47f",
+    "docs/research-log/20261115T-133930Z-q-rmea-l5-round3.md": "db59c5d528a757437fb103cc9161285a1979ae7a42d0f5aad3845369866b5a59",
+    ".codex-artifacts/qattn-l5-round3-20261115/pre-storage-clarification-acceptance-review.json": "4979a266e3f516471822323c2f705c19e1e4e776e0f133e9f8584982d13bbe92",
+    ".codex-artifacts/qattn-l5-round3-20261115/pre-storage-clarification-acceptance-review.md": "aa645322b250d8c07b52190ed06814c09dfa6fd467874256e1e3bfc6b56ec595",
+    ".codex-artifacts/qattn-l5-round3-20261115/report-before-storage-clarification.md": "e0fb2cd8953973537795a179d9ba1c40706b479b53aa065a733e482b0eab21fb"
   },
   "reviewer_actions": {
     "remote": false,
@@ -148,9 +153,56 @@
     "training": false,
     "source_changes": false,
     "private_arrays_read": false,
+    "scope": "Two-document factual clarification and unchanged-hash comparison only; no code or scientific-data re-review",
     "writes": [
       "acceptance-review.json",
       "acceptance-review.md"
     ]
+  },
+  "review_revision": "Storage-download scope clarification only; original numerical/result review retained by unchanged hashes.",
+  "clarification_review": {
+    "prior_acceptance_sha256": "4979a266e3f516471822323c2f705c19e1e4e776e0f133e9f8584982d13bbe92",
+    "prior_report_sha256": "e0fb2cd8953973537795a179d9ba1c40706b479b53aa065a733e482b0eab21fb",
+    "current_report_sha256": "26c825d143b434358adf5f4663d2185306066f96e582d8bacde6b885c827e47f",
+    "current_public_execution_sha256": "d4e97561d9b552d204a523b707b21e62e88a141561c23c49703c0062adcd1937",
+    "reviewed_factual_scope": {
+      "collector_new_diagnostic_binary_download": false,
+      "prior_formal_input_local_chunk_bytes": 67108864,
+      "prior_formal_selected_heads": 5,
+      "prior_formal_selected_head_bytes": 1551378,
+      "binaries_published_to_git": false
+    },
+    "report_change": "Exactly one sentence replaced, no other report bytes changed.",
+    "public_execution_change": "Exactly one download_scope field added; removing it reconstructs prior exact public file hash.",
+    "other_input_delta": "public-owned-files.json additionally lists the two already-published acceptance-review output files; this is publication metadata, not a scientific change.",
+    "changed_input_hashes": {
+      ".codex-artifacts/qattn-l5-round3-20261115/public-owned-files.json": {
+        "before": "9cfd250d7b8c9c65a5e73bee6512e571f3557874b30ece931e75fbe62f6109b4",
+        "after": "148edc19c9d34220d77432a2d3e5f6d5af05f9bfa56b2d8aa59fa3bc1480d5ce"
+      },
+      "docs/evidence/rmea/20261115-l5-round3/execution-verification.json": {
+        "before": "e671cd631d69abbd53ec19beb44a943318255e278aa623a449ef08d64a9ce1a2",
+        "after": "d4e97561d9b552d204a523b707b21e62e88a141561c23c49703c0062adcd1937"
+      },
+      "docs/audits/20261115-q-rmea-l5-round3.md": {
+        "before": "e0fb2cd8953973537795a179d9ba1c40706b479b53aa065a733e482b0eab21fb",
+        "after": "26c825d143b434358adf5f4663d2185306066f96e582d8bacde6b885c827e47f"
+      }
+    },
+    "publication_self_copies": [
+      {
+        "path": "docs/evidence/rmea/20261115-l5-round3/acceptance-review.json",
+        "currently_prior_version_sha256": "4979a266e3f516471822323c2f705c19e1e4e776e0f133e9f8584982d13bbe92",
+        "excluded_from_new_input_manifest": "Publication copy of this review output; avoid circular self-binding."
+      },
+      {
+        "path": "docs/evidence/rmea/20261115-l5-round3/acceptance-review.md",
+        "currently_prior_version_sha256": "aa645322b250d8c07b52190ed06814c09dfa6fd467874256e1e3bfc6b56ec595",
+        "excluded_from_new_input_manifest": "Publication copy of this review output; avoid circular self-binding."
+      }
+    ],
+    "scientific_change": false,
+    "new_execution": false,
+    "append_only_history": "A normal clarification commit may preserve the already-published original report history; no commit operation performed by this reviewer."
   }
 }
