@@ -1,0 +1,93 @@
+{
+  "schema": "qattn.coadaptation.synthetic.contract.v1",
+  "purpose": "A source-faithful finite pure-effect counterexample to an overinterpretation of attention-transplant harm; known coadaptation, no L5 novelty or new task utility.",
+  "epsilon": 1e-06,
+  "absolute_tolerance": 1e-12,
+  "model_source_hashes": {
+    "experiments/rmea_allocation/legacy/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/rmea_allocation/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_allocation/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "population": "Exactly two predetermined synthetic frozen-feature examples,4tokens each,1024coordinates,40classes. No real dataset, encoder or checkpoint inputs.",
+  "construction": "Explicit finite linear1028->12 prepare parameters using the actual4role recipe from valid ordered entity spans; two RZ phases yield plus/minus pure states in the original depth2 circuit. Two global pure-effect heads with opposed readouts have identical own logits; both transplants fail, predetermined sign-flip readout restores.",
+  "execution": "Import the exact pinned original RMEAHead and execute two float64 synthetic batch forwards. No training, numerical fitting, parameter search, real-data forward, COS or new resource.",
+  "interpretation": "A counterexample to universal claims, not a causal explanation of the observed Re-TACRED donor harm. The actual encoder includes ordered entity punctuation; equal synthetic feature bags do not prove missing entity information in the real uniform baseline.",
+  "expected": {
+    "own_correct": [
+      2,
+      2
+    ],
+    "swap_correct": [
+      0,
+      0
+    ],
+    "redecoded_correct": [
+      2,
+      2
+    ],
+    "ce_damage": 2,
+    "finite_parameters": true
+  },
+  "resources": {
+    "cpu": 1,
+    "ram_mb": 1024,
+    "disk_mb": 16,
+    "gpus": 0,
+    "gpu_mb": 0
+  },
+  "timeout": 180,
+  "max_attempts": 1,
+  "replay_safe": false,
+  "outputs": [
+    "summary.json",
+    "numeric-fixture.json",
+    "source-validation.json",
+    "RUN_COMPLETE"
+  ],
+  "launch": {
+    "node": "q-duet-data-1080ti-v1",
+    "server": "gpushare-i1-39684-data",
+    "worker_repo": "/hy-tmp/qattn-l5-coadaptation-20261116",
+    "owner_repo": "/home/Q-Attention/l5-coadaptation-20261116",
+    "parent_revision": "8c29cadd7b0b7a606a57889e9f7c1e3e226d8479",
+    "python": "/tmp/qattn-joint-rebuild-20261113/env/bin/python",
+    "argv": [
+      "{python}",
+      "-B",
+      "experiments/rmea_coadaptation/runner.py",
+      "run",
+      "--output",
+      "{output}"
+    ],
+    "environment": {
+      "CUDA_VISIBLE_DEVICES": "",
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "revision": "Clean exact reviewed source, source/Gitblob hashes verified; no code fallback."
+  },
+  "lifecycle": "Fresh fleet/status and resource checks, exact owner/worker source staging, quiescent paired-CAS temporary recipe, one source-bound task/attempt. Unknown preserves bindings/reservations; no restart on lost observation. Terminal/quiescent restores original configuration bytes before collection. Read-only original source; no private data mutation or archive.",
+  "public_whitelist": [
+    "Exact new code/contract/proof",
+    "Compact synthetic fixture values, summary and source validation",
+    "Compact source/execution/review records"
+  ],
+  "private_outputs": [],
+  "recovery": "Restart from durable code and deterministic synthetic inputs only under separately reviewed new execution; no checkpoint/COS recovery object.",
+  "boundaries": {
+    "real_data_forward": 0,
+    "synthetic_forward_calls": 2,
+    "training": 0,
+    "formal": 0,
+    "test_data": 0,
+    "cos_reads": 0,
+    "new_paid_resource": false,
+    "collaborator_access": false
+  },
+  "stop": [
+    "Any source/hash/environment/role recipe or output mismatch stops.",
+    "Any error>=1e-12 or nonfinite parameter stops; no threshold relaxation or example/parameter search.",
+    "No L5 promotion from this known counterexample."
+  ]
+}
