@@ -1,0 +1,69 @@
+{
+  "schema": "qattn.entity-fusion.exploratory.v1",
+  "risk": "R2",
+  "review_scope": "both",
+  "base_cache": "/hy-tmp/q-duet-data-20261107-v001/attempts/67ff2b46195249ec84a3f386a1f8109a/output/cache",
+  "overlay": "/hy-tmp/q-duet-data-20261107-v001/attempts/0896d313ba1d4486aebf8448701b855c/output",
+  "overlay_complete_sha256": "d7a95477a89bb41467051c4f0316d704d536dc019d4cc68295ec30bc958b58c6",
+  "repo_dependency_files": {
+    "experiments/rmea_allocation/legacy/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/rmea_allocation/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_allocation/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "seed": 307,
+  "epochs": 4,
+  "batch_size": 16,
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "grad_clip": 1.0,
+  "variants": [
+    "global",
+    "even",
+    "mixture",
+    "fusion"
+  ],
+  "train_count": 2361,
+  "valid_count": 1024,
+  "test_count": 0,
+  "selection": "Strict largest already-exposed validation full40 Macro, earliest tie.",
+  "retention_rule": "fusion-minus-mixture>0 AND fusion-minus-global>0; else HOLD_NO_PROMOTION at bounded budget, never family disproof.",
+  "allowed_scope": "Exploratory utility screen; not formal readiness, inherited L4 or L5 acceptance.",
+  "known_prior": "Audenaert/Datta/Ozols arXiv1503.04213v3 quantum addition, partial-swap and ellipse. No operator or elementary disk-positivity novelty claimed.",
+  "resources": {
+    "cpu": 1,
+    "ram_mb": 1536,
+    "disk_mb": 16,
+    "gpus": 0,
+    "gpu_mb": 0
+  },
+  "timeout_seconds": 1800,
+  "max_attempts": 1,
+  "replay_safe": false,
+  "compact_outputs": [
+    "unit.json",
+    "input-identity.json",
+    "epoch-metrics.json",
+    "summary.json",
+    "source-validation.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": [
+    "private/global.pt",
+    "private/global-valid-logits.npy",
+    "private/even.pt",
+    "private/even-valid-logits.npy",
+    "private/mixture.pt",
+    "private/mixture-valid-logits.npy",
+    "private/fusion.pt",
+    "private/fusion-valid-logits.npy",
+    "private/fusion-phase-off-valid-logits.npy"
+  ],
+  "recovery": "Restart from immutable existing inputs only after authoritative terminal failure and a separately reviewed new revision. No optimizer checkpoint/resume, automatic retry, new cloud backup or protection claim.",
+  "publication": "Only reviewed source and compact aggregate reports; never arrays, weights, features, sample predictions or credentials.",
+  "lifecycle": "Quiescent paired CAS source-bound recipe activation; preserve other policies/capacities, inspect same task after observation timeout; restore exact prior owner and worker bytes only after terminal proof.",
+  "unit": "Independent partial-swap unitary/partial trace vs operator for24mixed cases, positivity/disk boundary, epsilon normalization cancellation, gradients/masks/padding, exact original global forward and gradient fidelity.",
+  "formal_runs": 0,
+  "collaborator_server_access": false,
+  "new_cos_reads": 0,
+  "new_resources": 0
+}
