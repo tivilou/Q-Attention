@@ -1,0 +1,139 @@
+{
+  "schema": "qattn.existing-validation-class-audit.v1",
+  "status": "PASS",
+  "question": "Descriptive natural validation competence for the fixed Round11 target labels; no new selection or threshold",
+  "provenance": {
+    "report_commit": "84f3b2e3a10cf884b0fe55c53c71a61239d89642",
+    "run_id": "20261029T021229Z_fresh5",
+    "seed": 29,
+    "source_sha256": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+    "executed_revision": "f3f22660b609811e6fb824f7d19e9cafd0c1e446",
+    "contract_sha256": "da5541b44d89853d8ff23db7bf4750a984ae76ad18c96ca9af6252dec09aea36",
+    "report_sha256": {
+      "run_summary.json": "b7011881fc8d8cdf0e130146053813541dbb33659a9ef550573cef5e94fa4801",
+      "summary.json": "fad5c12213f6b8ea1e8fc1a724f5fa28e535c39035a8af8fc8653dc385d74522",
+      "manifest.json": "eca12022ced91b36fafeddd54ddd765515272ddd819970bacd73dacffae4097a"
+    },
+    "validation_source_sha256": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+    "round11_contract_sha256": "d2705392a670b8c03b6706d667ef460a25248fed2b0359cb2181b1de05727a04",
+    "original_seed_manifest_equal": true,
+    "closed_head_hashes_match": true
+  },
+  "checks": {
+    "selected_epoch_earliest_strict_macro_max": true,
+    "selected_history_equal": true,
+    "gold_rows_predicted_columns_source_confirmed": true,
+    "confusion_matrices": 3,
+    "recomputed_class_rows": 120,
+    "exact_validation_counts": true,
+    "label_order_matches_round11": true
+  },
+  "rows": [
+    {
+      "model": "quantum",
+      "selected_epoch": 15,
+      "checkpoint_sha256": "1c392139393b72a54946ca3f8796569aeeebff8610185467e3dcd2c0044efb77",
+      "validation_items": 19584,
+      "selected_macro_f1": 0.5912690753029772,
+      "targets": [
+        {
+          "label": "per:date_of_death",
+          "support": 234,
+          "predicted": 170,
+          "tp": 152,
+          "fp": 18,
+          "fn": 82,
+          "precision": 0.8941176470588236,
+          "recall": 0.6495726495726496,
+          "f1": 0.7524752475247525
+        },
+        {
+          "label": "org:dissolved",
+          "support": 7,
+          "predicted": 5,
+          "tp": 0,
+          "fp": 5,
+          "fn": 7,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ]
+    },
+    {
+      "model": "dephased",
+      "selected_epoch": 19,
+      "checkpoint_sha256": "34b45789f6dc44edb793c365aaa989f3bae24d384b3e2dad8ba3f87ed1bc4751",
+      "validation_items": 19584,
+      "selected_macro_f1": 0.584265818947422,
+      "targets": [
+        {
+          "label": "per:date_of_death",
+          "support": 234,
+          "predicted": 170,
+          "tp": 150,
+          "fp": 20,
+          "fn": 84,
+          "precision": 0.8823529411764706,
+          "recall": 0.6410256410256411,
+          "f1": 0.7425742574257426
+        },
+        {
+          "label": "org:dissolved",
+          "support": 7,
+          "predicted": 2,
+          "tp": 1,
+          "fp": 1,
+          "fn": 6,
+          "precision": 0.5,
+          "recall": 0.14285714285714285,
+          "f1": 0.2222222222222222
+        }
+      ]
+    },
+    {
+      "model": "relation_softmax",
+      "selected_epoch": 19,
+      "checkpoint_sha256": "59c3dad7dac480dc6606cde911cd4b163ee6e016b1ed5f0e37b5cbedb4aedc3e",
+      "validation_items": 19584,
+      "selected_macro_f1": 0.5695739546873368,
+      "targets": [
+        {
+          "label": "per:date_of_death",
+          "support": 234,
+          "predicted": 210,
+          "tp": 163,
+          "fp": 47,
+          "fn": 71,
+          "precision": 0.7761904761904762,
+          "recall": 0.6965811965811965,
+          "f1": 0.7342342342342343
+        },
+        {
+          "label": "org:dissolved",
+          "support": 7,
+          "predicted": 0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 7,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ]
+    }
+  ],
+  "new_model_forwards": 0,
+  "training": false,
+  "raw_dataset_reads": 0,
+  "raw_prediction_array_reads": 0,
+  "checkpoint_reads": 0,
+  "cos_requests": 0,
+  "limitations": [
+    "Validation also selected the checkpoints: descriptive competence, not independent held-out confirmation.",
+    "Natural aggregate correctness does not certify the two hypothetical semantic probes or identify their failure cause.",
+    "Three heads share the same natural cohort; no independent model-level replication claim.",
+    "Round11 used newly encoded float32 CPU inputs; historical validation used original frozen GPU-produced features, with no bitwise-equivalence claim.",
+    "No new method, quantum attribution, novelty, causal repair or L5 acceptance follows."
+  ]
+}

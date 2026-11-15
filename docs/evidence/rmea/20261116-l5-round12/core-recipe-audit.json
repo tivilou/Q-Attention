@@ -1,0 +1,69 @@
+{
+  "schema": "qattn.core-recipe-source-audit.v1",
+  "status": "SCOPED_SOURCE_AUDIT_COMPLETE",
+  "source_tree": "c98d69472110d2514458e3b58a6a82f9793974aa",
+  "source_commit": "unresolved; HEAD commit/tree mismatch, no exact paper-code revision claim",
+  "source_files": {
+    "README.md": {
+      "git_blob_sha": "cc95d44e9c0016c650f0d4285955fe8e2f351ae2",
+      "sha256": "636e71d98c0caedf1af1646988e6172860e6ccdab2e9e9546fab884b141364a2",
+      "bytes": 854
+    },
+    "core.py": {
+      "git_blob_sha": "102958cbe896e88a42a398e0c01c3d8e15598dfb",
+      "sha256": "d52b9ed9f6220f62443629e580c1d0adbb61dacc4d0b18fa7a04dcabcb6ad47b",
+      "bytes": 7381
+    }
+  },
+  "paper": {
+    "id": "2205.03784v1",
+    "pdf_sha256": "d60765467d3e63af7805521aba4c54617fe24a7b4b6a3acec16c03770d70c6f2",
+    "pages_re_read": [
+      4,
+      5
+    ],
+    "prior_identity_verified": true
+  },
+  "findings": [
+    {
+      "locator": "core.py:130-146",
+      "fact": "Entity-only raw string is subject_surface + one space + object_surface, in subject/object order, with newly assigned character spans. Original context and original entity positions are not retained in this branch.",
+      "consequence": "Fixed ordered entity surface strings imply identical entity-only strings and spans even when context wordpiece lengths differ. Identical tokenization/model settings and deterministic evaluation are additional premises for identical nuisance scores."
+    },
+    {
+      "locator": "core.py:158-160,182-184",
+      "fact": "The public demo applies softmax to factual and entity-only logits before final addition. Its entity coefficient is -1.6 and its second precomputed term coefficient is +0.1.",
+      "consequence": "Cancellation concerns corrected probability-space scores. It is not an identity for raw logit differences. Neither fixed demo coefficient is adopted or fit here."
+    },
+    {
+      "locator": "core.py:39,173-178",
+      "fact": "The second nuisance vector and label constraint come from precomputed preprocess.data; their producers are absent from the inspected two source files.",
+      "consequence": "Their equality across edited hypothetical inputs is unverified. No asset was loaded/unpickled and no full corrected-score invariance claim is made."
+    },
+    {
+      "locator": "core.py:170-178",
+      "fact": "The demo restricts to challenge examples using gold labels and entity-only argmax.",
+      "consequence": "No executed evaluation or performance statement from this code is imported into the Q-RMEA validation audit."
+    }
+  ],
+  "conditional_identity": {
+    "definition": "For raw demo scores S(x)=P(x)-1.6 Q(e)+0.1 R(x)+C(x), P=softmax(factual logits), Q=softmax(entity-only logits).",
+    "identity": "With the same ordered entity surfaces and identical deterministic tokenization/evaluation, S(x2)-S(x1)=P(x2)-P(x1)+0.1*(R(x2)-R(x1))+(C(x2)-C(x1)).",
+    "additional_condition": "Only if R(x2)=R(x1) and C(x2)=C(x1), the full score difference equals the factual probability-vector difference.",
+    "meaning": "A common correction can change hard decisions by changing their offset while preserving this probability-space difference under the additional condition. It need not preserve raw-logit differences, final argmax, or final-normalized probabilities.",
+    "novelty": "Elementary known constant-vector cancellation, not a theorem contribution or L5."
+  },
+  "hypotheses_not_established": [
+    "Either edited probe is fixed by this method",
+    "A source-case association is the cause of either probe failure",
+    "The entire nuisance input is invariant in the public code",
+    "All paper model backends use this exact public LUKE demo recipe",
+    "Any quantum-specific conditional-sensitivity advantage"
+  ],
+  "scientific_execution": false,
+  "new_model_forwards": 0,
+  "raw_dataset_reads": 0,
+  "precomputed_asset_reads": 0,
+  "upstream_code_execution": false,
+  "l5_accepted": false
+}
