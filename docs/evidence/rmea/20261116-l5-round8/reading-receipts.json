@@ -1,0 +1,62 @@
+{
+  "schema": "qattn.scoped-reading.v1",
+  "papers": [
+    {
+      "paper_id": "arxiv:1802.06509v2",
+      "title": "On the Optimization of Deep Networks: Implicit Acceleration by Overparameterization",
+      "version": "1802.06509v2",
+      "source_url": "https://arxiv.org/pdf/1802.06509v2",
+      "pdf_sha256": "17237fd312cd7629a825fa8709f4476f1222019aba9b339358e301b13672560c",
+      "identity": "verified",
+      "reading": "scoped_original_read",
+      "pages_read": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "rendered_pages_inspected": [
+        4
+      ],
+      "identity_evidence": "PDFp1 exact title and authors Sanjeev Arora,Nadav Cohen,Elad Hazan; footer arXiv1802.06509v2[cs.LG]11Jun2018. Versioned18pageoriginal preprint.",
+      "findings": [
+        "Pp1-3: depth through linear matrix factorization can change optimization without changing represented linear function class. This directly precedes any generic claim that removable training degrees of freedom can help optimization.",
+        "P4 Theorem1/eqs6-10 assumes continuous gradient dynamics and balanced initial adjacent-layer Gram matrices; finite-step update is an approximation. P5 describes induced PSD preconditioning, not a theorem for arbitrary extra parameters.",
+        "Current normalized nonlinear quantum-state/effect model, disk gate and AdamW do not meet that theorem. No acceleration/generalization conclusion is transferred."
+      ],
+      "limitations": [
+        "Only pp1-5 read and p4 rendered. AppendixA proof details, later claims/experiments and original implementation not audited. No new theorem or novelty clearance."
+      ]
+    },
+    {
+      "paper_id": "arxiv:1811.10495v5",
+      "title": "ExpandNets: Linear Over-parameterization to Train Compact Convolutional Networks",
+      "version": "1811.10495v5",
+      "source_url": "https://arxiv.org/pdf/1811.10495v5",
+      "pdf_sha256": "4714e8a3f5de1c4c3f97ade4979bc1b5c5da8830bfefb2a6ad35e6bf39586443",
+      "identity": "verified",
+      "reading": "scoped_original_read",
+      "pages_read": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "rendered_pages_inspected": [
+        4
+      ],
+      "identity_evidence": "PDFp1 exact title and authors Shuxuan Guo,Jose M.Alvarez,Mathieu Salzmann; arXiv1811.10495v5[cs.CV]14Apr2021; printed NeurIPS2020 proceedings line. Versioned23pagepreprint, not silently relabeled publisherVOR.",
+      "findings": [
+        "Pp1-3: train expanded consecutive linear layers inside nonlinear compact networks, then contract algebraically for inference. Generic train-time expansion with inference removal is already known.",
+        "P4 eqs2,4 show convolution/fully-connected matrix-product folding. Exact algebraic contraction differs from setting one nonlinear quantum score channel to zero after training.",
+        "Inspected original supports a prior-art collision for the broad training-only-freedom story, not whole-model identity or an explanation of the Q-RMEA result."
+      ],
+      "limitations": [
+        "Only pp1-4 read/p4rendered. Numerical empirical outcomes and later/supplementary proofs not reproduced or certified; current model not ExpandNet and no new novelty claim."
+      ]
+    }
+  ],
+  "novelty_clearance": false,
+  "whole_paper_deep_read": false
+}
