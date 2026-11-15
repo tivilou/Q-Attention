@@ -1,0 +1,74 @@
+{
+  "schema": "qattn.task-premise-probe-design.v1",
+  "status": "DESIGN_ONLY_NOT_EXECUTED",
+  "research_question": "Does the frozen original Q-RMEA simultaneously preserve correct relation decisions under semantically certified renaming and respond correctly to certified relation-changing context, accounting for both weight and utility paths?",
+  "method_selected": false,
+  "l5_candidate_supported": false,
+  "l5_accepted": false,
+  "existing_l4_unchanged": true,
+  "prerequisites": [
+    "Semantic certification before any outputs are observed. Source-only audit is complete; actual sample selection has not run.",
+    "Reuse one immutable original selected Q-RMEA checkpoint and exact source/encoder provenance only after availability and owner-project binding check; do not substitute the later fusion model or inherit old formal source identity from a diagnostic mirror.",
+    "No real encoder/model forward before exact source/contract independent review, scheduler allocation and cgroup/asset preflight.",
+    "No formal new-study promotion before dataset qualification and completed common-protocol baseline comparison."
+  ],
+  "sample_policy": {
+    "split": "train_only",
+    "source_input_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+    "selection": "Before predictions, sort original train IDs by SHA256(UTF8 id); inspect the first32records. At most16base records may be certified. Never enlarge the pool because outputs disappoint.",
+    "max_records_inspected": 32,
+    "max_bases": 16,
+    "max_variants_per_base": 2,
+    "model_inputs_at_most": 48,
+    "published_paper_test_examples_excluded": true,
+    "valid_or_test_selection": false,
+    "certification": "Record every inspected base as retained/rejected with reason before any model call. Labels are annotation targets, never encoder features. Semantic uncertainty, inadequate relation definitions, ambiguous coreference, or unsupported alignment rejects a proposed transformation; no forced assignments.",
+    "coverage": "Report actual relations/coreference/role categories and all rejection counts; no minimum class coverage or population inference promised."
+  },
+  "contrasts": [
+    {
+      "name": "relation_preserving_rename",
+      "requirements": [
+        "Preserve ordered roles and all evidence expressing the relation.",
+        "Rename consistently across all mentions certified to refer to each same entity; preserve pronominal compatibility, alias identity, grammatical information and relevant world knowledge.",
+        "Type agreement alone is insufficient; original type fields are not a correctness oracle.",
+        "For wordwise decomposition use same word count and a verified original-to-variant word-position alignment; changed subword counts alone do not invalidate word alignment."
+      ],
+      "target": "Same independently certified relation label"
+    },
+    {
+      "name": "relation_changing_context",
+      "requirements": [
+        "Keep entity identities and ordered roles while deliberately changing one relation-defining cue when the applicable label guideline justifies a distinct label.",
+        "Resolve both original and modified labels before predictions; reject cases where both relations remain true or the label is ambiguous.",
+        "Do not presume that every source record permits this edit. Logit/decision checks remain possible if word alignment is unavailable, but path decomposition is marked not_applicable."
+      ],
+      "target": "An independently certified distinct relation label"
+    }
+  ],
+  "observations": [
+    "Reencode each complete marked input with frozen encoder. Cached original h alone cannot simulate these counterfactuals.",
+    "Record all40class logits, original/variant decisions and certified-label correctness privately; compact reports only on Git.",
+    "For aligned words record prepared density-state differences, alpha and token utilities; no global phase comparison of state vectors.",
+    "At same checkpoint fixed bias, account delta_z via sum(delta_alpha*(u_prime+u)/2)+sum((alpha_prime+alpha)/2*delta_u). This known identity is descriptive and does not identify causal mediation.",
+    "Retain all certified cases and both successful/adverse/no-change outputs; no outcome-selected case promotion."
+  ],
+  "control_boundary": "For any comparative utility claim require a learned classical/matched control with the same full input transformations and trace observations. A later lambda-disabled fusion checkpoint is not automatically an original Q-RMEA matched control. The first proposed probe can only diagnose the frozen original, not establish superiority.",
+  "success_gate": "Diagnostic interpretability only: actual semantic certificates and provenance pass, both contrast types exist, and both complete-decision correctness and state/weight/utility paths can be reported without outcome filtering. No numeric success rate is a L5 promotion gate.",
+  "kill_criteria": [
+    "No independently defensible semantic certificates in the frozen pool: stop this probe design without inventing invariance.",
+    "Uncertain original checkpoint/source identity or unobserved applicable paths: evidence incomplete; no mechanism claim.",
+    "Attention stable while labels/decisions fail, or indiscriminate invariance to relation-changing controls: do not call it task-relevant robustness.",
+    "A generic input debiasing mechanism restated without substantive difference from CoRE/VIB/known invariance methods is not a new method."
+  ],
+  "budget": {
+    "current_training": 0,
+    "current_forward": 0,
+    "current_scheduler_jobs": 0,
+    "future_training": 0,
+    "future_inference": "At most48inputs including original bases; batch/memory only after reviewed worker and scheduler preflight. No diagnostic job is created by this design.",
+    "new_cloud_resources": 0
+  },
+  "persistence": "Code/design/source identities and compact reports Git; no new COS/checkpoint replication for this diagnostic. Existing private originals remain untouched. Raw rows/IDs/activations/logits/weights never published.",
+  "next_action": "Create the output-blind training-only semantic certificate manifest under the frozen pool policy; only afterward implement and review a forward-only worker."
+}

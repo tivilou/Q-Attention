@@ -1,0 +1,94 @@
+{
+  "schema": "qattn.scoped-reading.v1",
+  "papers": [
+    {
+      "version": "2104.08398v1",
+      "title": "Re-TACRED: Addressing Shortcomings of the TACRED Dataset",
+      "pages_read": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "rendered_pages_inspected": [
+        4
+      ],
+      "identity_evidence": "PDFp1 title and authors George Stoica, Emmanouil Antonios Platanios, Barnabas Poczos; footer arXiv2104.08398v1 16Apr2021. Versioned preprint, not publisher-version certification.",
+      "findings": [
+        "Pp1-3 define sentence with ordered subject/object spans and entity types; supplied type mistakes can exclude correct annotation candidates. The reported roughly5% type-error finding concerns a sampled original TACRED audit, not a measured remaining error rate of our cohort.",
+        "P4 PERSON:IDENTITY expands alternate names to pronominal coreference. Arbitrary independent name replacement preserving types need not preserve this semantic relation. Merged organization labels and ambiguity guidelines also limit universal invariance assumptions.",
+        "P5 Re-TACREDv1.1 has91467examples and40relations. Matching project counts alone does not establish byte identity."
+      ],
+      "limitations": [
+        "Only pp1-5 read and p4 rendered; later experiments/appendices not certified.",
+        "No proof of universal name invariance or current type correctness; source-patch audit is recorded separately."
+      ],
+      "paper_id": "arxiv:2104.08398v1",
+      "source_url": "https://arxiv.org/pdf/2104.08398v1",
+      "pdf_sha256": "e8575b782d8710e31ab97626ae7f91e328430a3bd6a641e07132a442c41019fa",
+      "identity": "verified",
+      "reading": "scoped_original_read"
+    },
+    {
+      "version": "2205.03784v1",
+      "title": "Should We Rely on Entity Mentions for Relation Extraction? Debiasing Relation Extraction with Counterfactual Analysis",
+      "pages_read": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "rendered_pages_inspected": [
+        5
+      ],
+      "identity_evidence": "PDFp1 exact title and authors Yiwei Wang et al.; footer arXiv2205.03784v1 8May2022. Author list read on original title page.",
+      "findings": [
+        "Pp1-4 distinguish useful entity information from name bias; source causal graph is a modeling proposal, not an identified structural truth for our head.",
+        "P5eq2 inference subtraction Y_final=Y_x-lambda1*Y_maskedcontext_entity-lambda2*Y_fullymasked; raw-input interventions rerun contextual encoding. Training remains unchanged.",
+        "P5eq3 selects lambda coefficients on validation and freezes them on test; type-based label filtering can be used when type information is available. None of those operations was executed here."
+      ],
+      "limitations": [
+        "Only pp1-5 read/p5 rendered; experiments, code and pp6-11 not audited or reproduced.",
+        "Generic counterfactual entity debiasing already has direct prior art. Masked-input rerunning is not equivalent to masking head positions after full encoding."
+      ],
+      "paper_id": "arxiv:2205.03784v1",
+      "source_url": "https://arxiv.org/pdf/2205.03784v1",
+      "pdf_sha256": "d60765467d3e63af7805521aba4c54617fe24a7b4b6a3acec16c03770d70c6f2",
+      "identity": "verified",
+      "reading": "scoped_original_read"
+    },
+    {
+      "version": "2506.11381v1",
+      "title": "A Variational Approach for Mitigating Entity Bias in Relation Extraction",
+      "pages_read": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "rendered_pages_inspected": [
+        2,
+        3
+      ],
+      "identity_evidence": "PDFp1 exact title and authors Samuel Mensah, Elena Kochkina, Jabez Magomere, Joy Prakash Sain, Simerjot Kaur, Charese Smiley; footer arXiv2506.11381v1 13Jun2025.",
+      "findings": [
+        "P2 bounds conditional I(X;Z|E) by an expected conditional Gaussian KL term. Conditional mutual information alone does not assert I(E;Z)=0; this is not a refutation of the actual KL training objective.",
+        "P3eq5 blends sampled entity representations with input embeddings before PLM: x_prime=x*(1-M)+x*M*(1-beta)+z*M*beta. Entity-marker hidden states then feed the classifier; CE+alpha*VIB is optimized.",
+        "P4 reports3-run microF1 on TACRED, REFinD and BioRED ID/OOD cases; no transfer to Q-RMEA Macro or our fixed cohort has been demonstrated."
+      ],
+      "limitations": [
+        "Only pp1-4 read/p2,p3 rendered; pp5-9 and code not audited. Exact gradient behavior of alpha or semantic interpretation of learned variance not certified.",
+        "Not evidence that all entity information is nuisance or that existing contextual features can implement input-level interventions."
+      ],
+      "paper_id": "arxiv:2506.11381v1",
+      "source_url": "https://arxiv.org/pdf/2506.11381v1",
+      "pdf_sha256": "88b25b7c82283525a67acc467e14ee3f61090952bfa130d33b45a3645a3a2539",
+      "identity": "verified",
+      "reading": "scoped_original_read"
+    }
+  ],
+  "whole_paper_deep_read": false,
+  "novelty_clearance": false
+}
