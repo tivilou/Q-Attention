@@ -1,0 +1,147 @@
+{
+  "schema": "qattn.allocation-audit.contract.v1",
+  "purpose": "Discover a concrete allocation-versus-value discrepancy from existing matched models; no new idea or L5 acceptance gate.",
+  "scope": "Posthoc descriptive validation1024 CPU-rebuilt frozen features, fixed formal fresh5 seed29 selected heads; not original GPU-cache reproduction or independent confirmation.",
+  "scientific_question": "When Q and a control disagree, does swapping that control attention into the fixed Q value/decoder correct Q errors, and how often does the reverse swap harm it? Retain both directions and all four correctness cells.",
+  "alternatives": [
+    "Attention allocation is locally actionable at fixed recipient utilities.",
+    "Value/decoder coadaptation or unavailable utility information limits swaps; attention differences alone do not explain model errors."
+  ],
+  "estimands": [
+    "All1024 cohort metrics, correctness cells, corrected/harmed counts, CE changes and attention L1; four controls all retained.",
+    "Every original and hybrid estimand uses identical float64 alpha*utility reduction; Torch fp32 native metrics, argmax disagreements and margins reported separately. No-op has identical path, including near ties.",
+    "Symmetric logit allocation/value Shapley identity as a known consistency tool, not a new theorem or total-gain mediation."
+  ],
+  "head_selection": "Original strictly largest validation Macro-F1, earliest tie; no checkpoint or seed selection using this diagnostic.",
+  "trace_selection": "Posthoc descriptive matched contrast set: for each of all four controls and each of Q/control correctness01,10,11,00, choose lexicographically smallest stable sample ID if nonempty; union <=16; same cases all five models. Never confirmation.",
+  "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+  "inputs": {
+    "cache": {
+      "path": "/hy-tmp/q-duet-data-20261107-v001/attempts/67ff2b46195249ec84a3f386a1f8109a/output/cache/features.npz",
+      "sha256": "c1279284a9a5e9d59e3303c591e657cc2f4f340b510f96d3ace727b89dcd6511"
+    },
+    "cache_manifest": {
+      "path": "/hy-tmp/q-duet-data-20261107-v001/attempts/67ff2b46195249ec84a3f386a1f8109a/output/cache/cache-manifest.json",
+      "sha256": "8e5c6dec3ae31b2bbb4bdb45fa6b80b2be74275cea4d6afb87da612ad80392d8"
+    }
+  },
+  "head_directory": "/hy-tmp/qattn-allocation-20261115-inputs/heads",
+  "heads": {
+    "dephased": {
+      "sha256": "34b45789f6dc44edb793c365aaa989f3bae24d384b3e2dad8ba3f87ed1bc4751",
+      "bytes": 327507,
+      "parameters": 81028
+    },
+    "quantum": {
+      "sha256": "1c392139393b72a54946ca3f8796569aeeebff8610185467e3dcd2c0044efb77",
+      "bytes": 327494,
+      "parameters": 81028
+    },
+    "real_overlap": {
+      "sha256": "4435ae669793833bceab39214d87931367f8be1d18ec681f26c227ede87562ff",
+      "bytes": 310471,
+      "parameters": 76752
+    },
+    "relation_softmax": {
+      "sha256": "59c3dad7dac480dc6606cde911cd4b163ee6e016b1ed5f0e37b5cbedb4aedc3e",
+      "bytes": 310587,
+      "parameters": 76752
+    },
+    "uniform": {
+      "sha256": "421900dd617d733a98605f033106fefb129490bb62396e8ddd975fd4206b736b",
+      "bytes": 275319,
+      "parameters": 68200
+    }
+  },
+  "anchors": [
+    {
+      "path": "/hy-tmp/qattn-allocation-20261115-inputs/anchors/quantum-selected-valid-0.npz",
+      "sha256": "25827062f443b8394263955f0facbf8de20ffb76e5dfded9e883e279e8782ad6"
+    },
+    {
+      "path": "/hy-tmp/qattn-allocation-20261115-inputs/anchors/quantum-selected-valid-1.npz",
+      "sha256": "ce400bc5a2ff7e016fb790095a20b68c4bbdfcc8816847a0dba4cb756b8acd1f"
+    }
+  ],
+  "resources": {
+    "cpu": 1,
+    "ram_mb": 1536,
+    "disk_mb": 128,
+    "gpus": 0,
+    "gpu_mb": 0
+  },
+  "timeout": 300,
+  "max_attempts": 1,
+  "replay_safe": false,
+  "outputs": [
+    "summary.json",
+    "unit.json",
+    "trace-validation.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": "Frozen-feature sample-trace.v2 package including full detached head values, source-linked stages, pinned checkpoint/input identities, arbitrary-coordinate reader and fresh replay audit. External encoder/tokenization/training outside declared boundary; no reconstructed trajectory.",
+  "public_whitelist": [
+    "summary.json",
+    "unit.json",
+    "trace-validation.json",
+    "compact exact source/contract/audit records"
+  ],
+  "lifecycle": "Exact clean owner source -> bounded worker bundle -> exact temporary scheduler transaction in queue_submit.py -> one attempt; unknown retains reservation; restore exact prior owner/worker config bytes only after terminal/quiescent proof. No automatic retry, private archive or deletion.",
+  "launch": {
+    "node": "q-duet-data-1080ti-v1",
+    "server": "gpushare-i1-39684-data",
+    "worker_repo": "/hy-tmp/qattn-l5-allocation-20261115",
+    "owner_repo": "/home/Q-Attention/l5-allocation-20261115",
+    "parent_revision": "46707dc9310dba9bb1c0ea951a0e54fa7dff9857",
+    "python": "/tmp/qattn-joint-rebuild-20261113/env/bin/python",
+    "argv": [
+      "{python}",
+      "-B",
+      "experiments/rmea_allocation/runner.py",
+      "run",
+      "--output",
+      "{output}"
+    ],
+    "env": {
+      "CUDA_VISIBLE_DEVICES": ""
+    },
+    "recipe": "rmea-allocation-v1",
+    "task_key": "rmea-allocation-<source_sha256[:12]>-<contract_sha256[:12]>",
+    "wait_seconds": 360,
+    "outer_timeout_seconds": 420,
+    "worker_gpu_ids": [],
+    "implementation": [
+      "deploy.py",
+      "queue_submit.py",
+      "collect.py",
+      "rollback_source.py",
+      "allocation_ops.py"
+    ],
+    "source_revision": "Resolved clean commit of exact frozen source files, bound into deployment, scheduler and RUN_COMPLETE verification.",
+    "placement": "Existing authorized CPU node; refresh all due fleet health before allocation; no provisioning, node-capacity changes or platform lifecycle operations."
+  },
+  "recovery": "Restart-from-pinned-inputs only after termination; no resumable training. Completed diagnostic caches regenerate from durable formal selected heads and fixed-cache recipe, not new COS copies.",
+  "restoration": {
+    "engine": "Existing version-pinned selected member engine, source unchanged.",
+    "selected_heads": 5,
+    "whole_objects": 1,
+    "object_bytes": 67108864,
+    "sdk_attempt_multiplier_ceiling": 4,
+    "max_public_read_bytes": 268435456,
+    "route": "Owner public COS, same pinned VersionId. No internal claim, new purchase or independent-restore certification.",
+    "budget": "Within previously reviewed conservative selected-object 1GiB ceiling; this operation hard-caps one object/4SDK multiplier. Cached exact object reuse makes new GET unnecessary."
+  },
+  "boundaries": {
+    "new_training": 0,
+    "formal_runs": 0,
+    "test_forward": 0,
+    "collaborator_access": false,
+    "new_paid_resources": false
+  },
+  "stop": [
+    "Any checkpoint/cache/source/role mismatch stops; no substitution.",
+    "Any trace or arithmetic validation failure stops result acceptance.",
+    "Results are descriptive with no positive-gain threshold; negative or null actionability is retained.",
+    "Changed model would need new theory/empirical support and collaborator-owned formal validation; no old L4 inheritance."
+  ]
+}
