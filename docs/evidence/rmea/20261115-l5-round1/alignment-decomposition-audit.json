@@ -1,0 +1,65 @@
+{
+  "status": "PASS",
+  "role": "Known convex-loss identity and counterexample; not new task evidence or a novelty result",
+  "source_sha256": "443a21db019127727369bb853b8f30d3b78d1d4afe081003c6a7e42a059bec43",
+  "identity": "CE_y(zprime)-CE_y(z)=(softmax(z)-e_y).(zprime-z)+KL(softmax(z)||softmax(zprime))",
+  "witness": {
+    "alpha": [
+      0.4,
+      0.2,
+      0.4
+    ],
+    "utilities": [
+      -1,
+      0,
+      1
+    ],
+    "actual_logits": [
+      0,
+      0
+    ],
+    "permutation": [
+      1,
+      2,
+      0
+    ],
+    "perturbed_logits": [
+      0,
+      0.2
+    ],
+    "labels": [
+      0,
+      1
+    ],
+    "per_label_splits": [
+      [
+        0.10499168882164656,
+        0.1,
+        0.004991688821646571
+      ],
+      [
+        -0.0950083111783534,
+        -0.1,
+        0.004991688821646571
+      ]
+    ],
+    "mean_ce_damage": 0.004991688821646578,
+    "mean_directional_alignment": 0.0,
+    "mean_kl": 0.004991688821646571,
+    "mean_prediction_accuracy_before": 0.5,
+    "mean_prediction_accuracy_after": 0.5,
+    "mean_actual_prediction_equals_mean_permutation_prediction": true
+  },
+  "all_permutations": {
+    "count": 6,
+    "mean_logits": [
+      0.0,
+      0.0
+    ],
+    "jensen_penalty_per_label": [
+      0.0033277925477643855,
+      0.0033277925477643855
+    ]
+  },
+  "scope": "Fixed label-blind permutation on a balanced two-case algebraic cohort. Positive CE damage need not show a beneficial first-order label alignment. Does not rerate the existing narrow L4 functional-dependence claim or diagnose its actual decomposition."
+}
