@@ -1,0 +1,88 @@
+{
+  "status": "PASS",
+  "commands": [
+    {
+      "command": [
+        "D:\\Software\\Dev\\Language\\Anaconda3\\envs\\QT2\\python.exe",
+        "-B",
+        "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\qattn-l4-registration-20261115\\candidate\\scripts\\validate_evidence_card.py",
+        "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.ai-progress\\workstreams\\quantum-projector-v2\\refs\\20261115-q-rmea-ordinary-alignment-l4-evidence-card.json",
+        "--strict"
+      ],
+      "cwd": "E:\\Claude.Code\\Paper.Writing\\Q-Attention",
+      "exit_status": 0,
+      "stdout": "OK: evidence card is valid at L4_statistical_confirmation (0 warning(s))\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "D:\\Software\\Dev\\Language\\Anaconda3\\envs\\QT2\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests"
+      ],
+      "cwd": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\qattn-l4-registration-20261115\\candidate",
+      "exit_status": 0,
+      "stdout": "",
+      "stderr": "............................................\n----------------------------------------------------------------------\nRan 44 tests in 0.282s\n\nOK\n"
+    },
+    {
+      "command": [
+        "D:\\Software\\Dev\\Language\\Anaconda3\\envs\\QT2\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests"
+      ],
+      "cwd": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\qattn-l4-registration-20261115\\remote-baseline",
+      "exit_status": 0,
+      "stdout": "",
+      "stderr": ".............\n----------------------------------------------------------------------\nRan 13 tests in 0.001s\n\nOK\n"
+    },
+    {
+      "command": [
+        "D:\\Software\\Dev\\Language\\Anaconda3\\envs\\QT2\\python.exe",
+        "-B",
+        "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\qattn-l4-registration-20261115\\remote-baseline\\scripts\\validate_evidence_card.py",
+        "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.ai-progress\\workstreams\\quantum-projector-v2\\refs\\20261115-q-rmea-ordinary-alignment-l4-evidence-card.json",
+        "--strict"
+      ],
+      "cwd": "E:\\Claude.Code\\Paper.Writing\\Q-Attention",
+      "exit_status": 1,
+      "stdout": "WARN: classical attribution is unresolved; ordinary-method claims may remain, but quantum-specific claims are blocked\nERROR: schema_version mismatch\nERROR: mechanism must be a non-empty string\nERROR: current_tier must be one of ['L0_diagnostic', 'L1_utility_candidate', 'L2_reproducible_utility', 'L3_natural_transfer', 'L4_strict_attribution']\nERROR: claim_ceiling must be one of ['diagnostic', 'provisional_utility', 'reproducible_utility', 'natural_task_transfer', 'strict_mechanism_attribution']\nERROR: intervention must be an object\nERROR: intervention.attention_action_evidence must be an object\nERROR: evidence.metrics must be a non-empty list\nERROR: evidence.controls must include a disabled control\nERROR: evidence.runs.statistics.status is invalid\nERROR: evidence.runs.seed_count must be a positive integer\nERROR: evidence.runs.independent_split_count must be a positive integer\nERROR: axes.task_utility must be an object\nERROR: axes.robustness must be an object\nERROR: axes.natural_transfer must be an object\nERROR: axes.attention_alignment must be an object\nERROR: axes.classical_attribution must be an object\nERROR: axes.finite_shot must be an object\nERROR: axes.resource_audit must be an object\nERROR: next_upgrade must be an object\nERROR: axes.attention_alignment must be an object\nERROR: axes.classical_attribution must be an object\nERROR: strict: classical attribution is unresolved; ordinary-method claims may remain, but quantum-specific claims are blocked\nINVALID: 22 error(s), 1 warning(s)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "D:/Software/Dev/Language/Anaconda3/envs/ame/python.exe",
+        "-B",
+        "-c",
+        "import json,jsonschema,sys\nfrom pathlib import Path\np=Path(sys.argv[1]);c=json.loads(Path(sys.argv[2]).read_text(encoding='utf8'))\nfor name in ['evidence-card.schema.json','evidence-card.v3.schema.json','evidence-card.v4.schema.json']:\n s=json.loads((p/name).read_text(encoding='utf8'));jsonschema.Draft202012Validator.check_schema(s)\n if '.v4.' in name:jsonschema.Draft202012Validator(s).validate(c)\nsys.path.insert(0,str(p.parent/'tests'))\nimport test_endpoint_policy as ep\nimport test_advantage_policy as ap\nfor version,fixture in [('v3',ap.fixture),('v4',ep.fixture)]:\n s=json.loads((p/('evidence-card.'+version+'.schema.json')).read_text(encoding='utf8'))\n for level in range(5):jsonschema.Draft202012Validator(s).validate(fixture(level))\nprint('PASS: v1/v2/v3/v4 schemas, actual v4 card, all10 v3/v4 tier fixtures')\n",
+        "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\qattn-l4-registration-20261115\\candidate\\references",
+        "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.ai-progress\\workstreams\\quantum-projector-v2\\refs\\20261115-q-rmea-ordinary-alignment-l4-evidence-card.json"
+      ],
+      "exit_status": 0,
+      "stdout": "PASS: v1/v2/v3/v4 schemas, actual v4 card, all10 v3/v4 tier fixtures\n",
+      "stderr": ""
+    }
+  ],
+  "card_sha256": "ba10c598e8f12b91668a339cff8d367647025124494afac0f37221c1f023d89e",
+  "preserved_hashes": {
+    ".ai-progress\\workstreams\\quantum-projector-v2\\refs\\20261030-q-rmea-fresh5-evidence-card.json": "6cd19fa95cc43e6235120d322c7f6789569f000b9db415d5282c588ef56584de",
+    ".codex-artifacts\\qattn-rmea-implementation-20261026\\fresh5-report-audit-20261030\\audit.json": "1dd3962f4c936a2f6ecf1c9a1f3b78d7f6e43fa968431145ce33541627045ce6",
+    "docs\\audits\\20261030-q-rmea-fresh5.md": "6415df4cb183eb2d1e32732e832c378ca006a6aa8c325c63d58e3f02b33e7708",
+    ".ai-progress\\workstreams\\quantum-projector-v2\\refs\\20261114-q-rmea-ordinary-allocation-l3-evidence-card.json": "93cdf9dc1434704c1bd45fc03042f74ebff9b52fee230760f3947c557143baa7"
+  },
+  "seven_reports_rehashed": 7,
+  "original_gate_arithmetic_and_state_binding": "PASS",
+  "json_schema": "PASS v4 card and v1/v2/v3/v4 schemas",
+  "new_training": 0,
+  "new_forward": 0,
+  "private_or_cloud_reads": 0,
+  "prior_full_575_cm_audit_sha256": "6d3ebae5279e4fd3a3b11cbdf7775210e11617a015aa855ee4f2e42925e1e812"
+}

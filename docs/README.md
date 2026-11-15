@@ -7,7 +7,8 @@
 | 文档 | 用途 |
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
-| [Q-RMEA L4统计审查](audits/20261115-q-rmea-l4-statistical-audit.md) | 原Macro与CE联合门槛有条件统计支持；标准卡仍L3，逐端点登记兼容性待审；无需追加训练 |
+| [Q-RMEA 普通L4验收](audits/20261115-q-rmea-ordinary-l4-acceptance.md) | 原全量五种子 Macro＋CE 联合门槛在原参数假设下通过；精确逐端点登记及独立验收完成，保留 sign-flip .0625 |
+| [Q-RMEA L4统计审查](audits/20261115-q-rmea-l4-statistical-audit.md) | 统计基础的阶段记录；最终逐端点登记与结论见上方普通L4验收 |
 | [Q-RMEA 普通L3：上下文权重与词值对齐](audits/20261114-q-rmea-ordinary-l3-scope.md) | 既有正式五种子重审；仅局部对齐归因，不代表量子相位优势或新idea突破 |
 | [Q-SRM 有界筛选交付](current/q_srm_screen_handoff_zh.md) | 五 seed 固定小样本筛选、GPU canary、严格恢复与七文件报告；不启动全量 |
 | [Q-SRM 筛选结果审计（2026-10-26）](audits/20261026-q-srm-bounded-screen.md) | 五 seed 未过效用门槛，不晋级；聚合审计通过，完整案例审计 partial |

@@ -1,0 +1,245 @@
+{
+  "schema": "qattn.endpoint-registration-acceptance-review.v1",
+  "review_mode": "subagent_fallback",
+  "reviewer_model": "Codex independent bounded review subagent; exact runtime model identifier is not exposed",
+  "transport": {
+    "kind": "local bounded fallback",
+    "external_route_evidence": "review-selection.json and review-selection-r1.json",
+    "ranked_external_attempts": [
+      {
+        "model": "claude-fable-5",
+        "reasoning_effort": "max",
+        "result": "URLError"
+      },
+      {
+        "model": "claude-opus-5",
+        "reasoning_effort": "max",
+        "result": "URLError"
+      }
+    ],
+    "external_calls_by_reviewer": 0
+  },
+  "review_scope": "both",
+  "source_sha256": "3cf7f9f97fe0b8f861a08f2c9a4ced6accdc46968b5da6d8685b87be2d75c796",
+  "contract_sha256": "2762628fa496b182628df7142bfb477b15579699dd9371117e7c70803623754a",
+  "input_packet_sha256": "ee6528c59c59c6f2183e7f552242846f0f1b1743f3ede04d8a2aabeaaa1266c6",
+  "verdict": "PASS_WITH_RISK",
+  "must_fix": [],
+  "resolved_findings": [
+    {
+      "id": "V4_LOW_TIER_SCHEMA_CLI_DIVERGENCE",
+      "prior_verdict": "BLOCK",
+      "prior_review": "review-round1/acceptance-review.json",
+      "prior_review_sha256": "b673def065432671af20b8bba05289353f761a55e6cd6b229c5f7cad41c7c299",
+      "resolution": "The four new primary endpoint binding/chronology fields and primary row method_state_id are now required only in the L3/L4 conditional schema branch. The common L0-L2 validator and schema accept all original lower-tier fixtures without these additions. Both v3 and v4 schemas validate all five corresponding tier fixtures."
+    },
+    {
+      "id": "ENDPOINT_CHRONOLOGY_AND_CONJUNCTION",
+      "resolution": "L3+ CLI validation now requires an explicit boolean endpoint_predeclared and nonempty gate/design references for every primary/control endpoint. L4 additionally requires original predeclaration=true. Every L4 multiplicity method now requires all_critical_comparisons_pass; conjunction audit references are specifically mandatory for intersection_union, while declared correction requirements remain for non-IUT procedures. Independent malformed variants and JSON Schema probes verify these boundaries."
+    }
+  ],
+  "theory_mapping": {
+    "policy": "Unchanged advantage-evidence version 1. Ordinary task utility, component attribution and quantum-specific attribution remain separate.",
+    "registration_judgment": "The exact separate v4 Q-RMEA card can faithfully register the previously reviewed narrow conditional L4 evidence. The representation change does not relax scientific gates or add a new confirmatory endpoint. Application/publication of the reviewed bytes remains the primary agent responsibility; this review performs neither operation.",
+    "claim_scope": "Within the selected trained frozen-encoder heads on the fixed official Re-TACRED cohort, non-entity context weight-to-value alignment has task utility under the original frozen paired-training-seed protocol. This is a later evidence classification of that experiment, not a fresh prospectively registered L4 study.",
+    "primary_utility": "Original Q minus trained-uniform full-40 Macro-F1 remains the utility endpoint.",
+    "attribution": "Original same-selected-checkpoint context permutation is assessed by all-test CE degradation. Metric-specific values are bound to the same selected states and cohort; CE is not relabeled Macro-F1.",
+    "excluded_claims": [
+      "All of the Q-versus-uniform training gain is mediated by alignment",
+      "Necessary relation conditioning or quantum phase",
+      "Quantum-exclusive advantage over classical models",
+      "New semantic localization, SOTA, population generalization, efficiency or hardware evidence"
+    ]
+  },
+  "correctness": {
+    "source_change_review": "Only scripts/endpoint_policy.py, references/evidence-card.v4.schema.json and tests/test_endpoint_policy.py differ from round 1. All other twelve frozen candidate files, the scientific card, executed scientific source and scientific contract are unchanged.",
+    "endpoint_binding": "Checked method identity, binding IDs, held-out cohort/split, all five planned seed states and per-row state references. Same-metric controls retain primary method values and direction; cross-metric endpoints require a claim-specific compatibility review and retain separate metric/direction/raw values.",
+    "control_and_gate_inventory": "Primary and all attribution-defining ablation/matched controls must remain present with complete completed distinct planned seeds, frozen fair designs and positive direction-normalized effects. Every critical comparison must have its own unique matching statistical record; omitted/failed seeds or controls are rejected.",
+    "statistical_roles": "Typed original significance, matching raw effect, margin, CI/alpha and plan references are checked. A sensitivity cannot replace a failed gate. The actual card retains exact sign-flip p=.0625 as descriptive sensitivity and does not promote the auxiliary matched-Macro analysis.",
+    "freeze": "All fifteen candidate file hashes, exact file inventory, embedded source_text, compact sorted-key composite source hash, contract raw hash and packet raw hash were independently matched immediately before writing this review."
+  },
+  "control_fairness": {
+    "uniform_ablation": "Uniform disables the learned allocation path and has fewer parameters. It supports the reported trained-head utility comparison but is not a capacity-matched explanation of the entire gain. Its repeated statistical entry is the same contrast as primary, not another independent replication.",
+    "matched_replacement": "The reviewed original same-checkpoint permutation preserves context-weight multiset, entities, mask, values, decoder and bias while disrupting context weight-to-value alignment using the frozen label-blind ID rule. This addresses the narrow alignment claim.",
+    "classical_and_dephased": "Historical classical/dephased comparisons remain limiting evidence for stronger quantum-specific claims; lack of exclusive superiority does not veto the ordinary narrow component claim."
+  },
+  "data_and_numerical_evidence": {
+    "original_reports": "All seven original report files rehashed against the audit inventory. Five utility rows, five CE rows and all five state IDs were directly matched to summary.json and receipt.json.",
+    "cohort": "Both endpoints use all 13418 fixed test items; 13414 are eligible for the permutation and the remaining items retain identity. These are five training-seed replications, not 13418 independent experimental replications or five datasets.",
+    "utility": {
+      "mean": 0.305841137525207,
+      "positive_seeds": 5,
+      "n": 5,
+      "df": 4,
+      "paired_t": 34.70315371984339,
+      "paired_t_two_sided_p": 4.1141031641164545e-06,
+      "marginal_ci95": [
+        0.2813721472972543,
+        0.33031012775315965
+      ]
+    },
+    "frozen_CE_attribution": {
+      "mean_degradation": 0.2020138257661081,
+      "positive_seeds": 5,
+      "n": 5,
+      "df": 4,
+      "paired_t": 23.82634587780909,
+      "paired_t_two_sided_p": 1.8400877272653562e-05,
+      "marginal_ci95": [
+        0.17847348514455383,
+        0.22555416638766237
+      ]
+    },
+    "formula": "Independent stdlib recomputation used complete paired seed means, sample SD/SE, t=mean/SE and original df4 critical value 2.7764451051977987. The stable exact df4 two-sided tail is .5*q*q*(3-q), q=4/(sqrt(t*t+4)*(sqrt(t*t+4)+abs(t))). Computed card effects/CIs/p values match to floating-point precision.",
+    "frozen_gates": "Original mean>0, at least4/5 positive, paired-t95% CI lower>0 and reviewed identity/uniform-invariance gates remain the historical requirements; no threshold, seed, metric or control was changed.",
+    "IUT": "All frozen utility and CE gates must pass for the single conjunction. This supports an intersection-union interpretation regardless of endpoint dependence, not simultaneous95% coverage or separately multiplicity-corrected endpoint discoveries. The duplicated uniform ablation is not counted as an independent test.",
+    "gradients": "Not applicable: this is representation and evidence acceptance review, with no new model computation."
+  },
+  "fidelity_gaps": [
+    "Student-t calibration remains conditional on independent approximately normal training-seed differences; n=5 does not verify distribution shape.",
+    "The current L4 label and IUT explanation are later audits of the original frozen gates; they are not a prospectively named new L4 protocol.",
+    "Generic schema/CLI checks validate declarations and arithmetic consistency, not the factual truth of immutable identities, references, chronology, statistical assumptions or supplied CIs/p values. The actual card therefore also depends on the independently inspected original sources/reports and prior scientific review."
+  ],
+  "implementation_judgment": {
+    "status": "PASS_WITH_RISK",
+    "low_tier_compatibility": "The first-round blocking defect is closed in both schema and CLI. All v3/v4 levels0-4 fixtures and the actual card validate under their respective JSON Schemas; original lower-tier fields remain sufficient.",
+    "higher_tier_constraints": "Schema and CLI reject missing L3/L4 new primary/state fields. CLI rejects absent control endpoint chronology/design references at L3. Both reject L4 OR decisions; only IUT requires conjunction references. A declared Holm record may omit IUT-only references but still requires applied correction.",
+    "historical_compatibility": "Frozen v3/legacy implementation and existing historical cards are preserved. Twelve unchanged candidate dependencies carry forward the exact first-round review; the authorized v3 dependency closure is included without importing the preexisting dirty sample-trace delta.",
+    "bounded_review_limit": "Tests and counterexamples cover the identified trust boundaries, not an exhaustive proof over every malformed JSON input or every possible statistical design."
+  },
+  "lifecycle_and_history": {
+    "status": "PASS_WITH_RISK",
+    "candidate_files_checked": 15,
+    "changed_files": [
+      "scripts/endpoint_policy.py",
+      "references/evidence-card.v4.schema.json",
+      "tests/test_endpoint_policy.py"
+    ],
+    "unchanged_candidate_files": 12,
+    "actual_scientific_card_sha256": "ba10c598e8f12b91668a339cff8d367647025124494afac0f37221c1f023d89e",
+    "scientific_source_sha256": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+    "scientific_contract_sha256": "da5541b44d89853d8ff23db7bf4750a984ae76ad18c96ca9af6252dec09aea36",
+    "original_cards": "Historical L2/L3 cards remain separate and unchanged. The new v4 card is a separately versioned record; historical cards are not silently retiered.",
+    "dirty_delta_exclusion": "No change to the round-1 reviewed clean-v3 dependency closure or owned insertion boundary. The twelve unchanged file hashes bind that prior comparison; only the three specified fixes are new.",
+    "publication_and_rollback": "Contract preserves baseline, original cards and owned diff, requires an isolated publication branch and forbids force push or alteration of main/1.1. No publication or rollback command was executed by this reviewer. Primary acceptance must verify the deployed/published bytes against this exact reviewed map."
+  },
+  "verification_evidence": [
+    {
+      "check": "Frozen identity and change inventory",
+      "result": "PASS",
+      "exit_status": 0,
+      "literal_summary": "15 file hashes match; source_text match; exactly3 changed files and12 unchanged; scientific card/source/contract unchanged",
+      "packet_sha256": "ee6528c59c59c6f2183e7f552242846f0f1b1743f3ede04d8a2aabeaaa1266c6"
+    },
+    {
+      "check": "Candidate unit suite",
+      "command": "D:/Software/Dev/Language/Anaconda3/envs/QT2/python.exe -B -m unittest discover -s .codex-artifacts/qattn-l4-registration-20261115/candidate/tests -p test_*.py",
+      "exit_status": 0,
+      "literal_output": "............................................\n----------------------------------------------------------------------\nRan 44 tests in 0.266s\n\nOK"
+    },
+    {
+      "check": "Actual JSON Schema validation using existing AME jsonschema",
+      "command": "D:/Software/Dev/Language/Anaconda3/envs/AME/python.exe -B - [bounded in-memory Draft202012Validator probes]",
+      "exit_status": 0,
+      "result": "PASS",
+      "evidence": {
+        "v3_and_v4_schema_self_checks": "PASS",
+        "fixture_cases": 10,
+        "fixture_levels_per_version": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "actual_card_errors": [],
+        "negative_schema_cases_rejected": 12,
+        "negative_cases": "Missing each of four new primary endpoint fields or primary-row state at L3 andL4 (10); L4 Holm+OR; L4 IUT without conjunction references.",
+        "non_IUT_without_IUT_only_refs": "PASS under both schema and strict CLI"
+      }
+    },
+    {
+      "check": "Independent malformed actual-card variants",
+      "command": "D:/Software/Dev/Language/Anaconda3/envs/QT2/python.exe -B - [34 deep-copy in-memory edits; assert each strict validator result has errors]",
+      "exit_status": 0,
+      "literal_summary": "actual_card_strict=PASS; negative_variants_rejected=34",
+      "cases": [
+        "method_binding_id",
+        "evaluation_binding_id",
+        "method_identity",
+        "evaluation_split",
+        "wrong_selected_state",
+        "missing_state_seed",
+        "duplicate_state_seed",
+        "oracle",
+        "missing_seed",
+        "failed_seed",
+        "duplicate_seed",
+        "no_matched",
+        "same_metric_wrong_value",
+        "same_metric_direction_flip",
+        "metric_switch",
+        "unfrozen",
+        "no_gate_refs",
+        "no_compatibility_review",
+        "p_role_switch",
+        "failed_gate",
+        "missing_statistic",
+        "wrong_effect",
+        "bad_ci",
+        "untyped_p",
+        "IUT_OR",
+        "IUT_no_refs",
+        "alpha_exceeds_family",
+        "sensitivity_as_gate",
+        "bool_alpha",
+        "no_analysis_inventory",
+        "negative_mechanism",
+        "L3_missing_chronology",
+        "L3_missing_gate_refs",
+        "nonIUT_OR"
+      ]
+    },
+    {
+      "check": "Original report and arithmetic binding",
+      "command": "D:/Software/Dev/Language/Anaconda3/envs/QT2/python.exe -B - [local hash/JSON/stdlib math only]",
+      "exit_status": 0,
+      "literal_summary": "seven_original_reports=HASH_PASS; original_report_binding=PASS; training_seed_states=5; total_items=13418; eligible_items=13414; effects/CIs/p values match"
+    }
+  ],
+  "risks": [
+    {
+      "id": "N5_PARAMETRIC_ASSUMPTIONS",
+      "detail": "Conditional paired-t evidence is strong under the original assumptions; five seed units do not establish distribution-free calibration or rare-tail robustness."
+    },
+    {
+      "id": "SIGN_FLIP_SENSITIVITY",
+      "detail": "Exact two-sided sign-flip p=.0625 remains visible and does not pass .05. The accepted statement is the original parametric gate, not assumption-free confirmation."
+    },
+    {
+      "id": "FIXED_COHORT_AND_POSTHOC_CLASSIFICATION",
+      "detail": "Evidence is conditional on the fixed benchmark and frozen pipeline. The L4 classification is a later audit, not a new replication or population generalization."
+    },
+    {
+      "id": "NARROW_COMPONENT_ONLY",
+      "detail": "Uniform capacity mismatch, one frozen permutation family and historical lack of quantum-exclusive superiority remain limits. They do not invalidate the narrower same-checkpoint alignment contrast."
+    },
+    {
+      "id": "EVIDENCE_TRUTH_AND_PUBLICATION",
+      "detail": "References and declared identities require source-level review. The current exact scientific card has that review, but generic validator success is not a substitute. Publication must preserve the reviewed dependency closure and evidence references."
+    }
+  ],
+  "reviewer_operations": {
+    "local_reads_hash_json_math_and_validator_tests_only": true,
+    "scientific_training_runs": 0,
+    "forward_passes": 0,
+    "network_or_model_calls": 0,
+    "remote_or_cloud_or_private_storage_calls": 0,
+    "package_installations": 0,
+    "subagents": 0,
+    "source_card_plan_edits": 0,
+    "written_artifacts": [
+      "acceptance-review.json"
+    ]
+  }
+}
