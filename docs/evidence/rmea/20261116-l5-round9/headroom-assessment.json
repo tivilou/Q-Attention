@@ -1,0 +1,44 @@
+{
+  "schema": "qattn.headroom-assessment.v1",
+  "scope": {
+    "task": "Re-TACRED40-way frozen-feature bounded development diagnostic",
+    "population": "Already-exposed1024validation,2361train including313training-only overlay",
+    "inputs": "Existing CPU-rebuilt1024-dimensional marked/contextual word features plus4roles; no test/validation-label inference input",
+    "label_reference": "Pinned round6/7 cache and original40label mapping",
+    "selection": "Four epochs/seed307/strict largest full40Macro,earliest tie, no budget extension",
+    "metric": "MacroF1 over all40labels with zero for absent/zero-denominator classes",
+    "direction": "higher",
+    "denominator": 40
+  },
+  "comparator": {
+    "status": "same-protocol available comparator only; formal common-baseline cohort incomplete",
+    "best_measured": 0.17005908817531984,
+    "condition": "full entity fusion",
+    "source": "docs/evidence/rmea/20261116-l5-round6/summary.json",
+    "excluded_from_comparison": "Round3strong classical/dephased metrics used different data/training/seeds and cannot be substituted here."
+  },
+  "bound": {
+    "status": "bounded",
+    "interval": [
+      0.17005908817531984,
+      0.975
+    ],
+    "kind": "Observed selected function lower witness and conservative metric-only upper bound; not an attainable-optimum certificate under permitted inputs.",
+    "calculation": "Only39labels occur in1024valid, so absentclass4 has F1zero for every prediction; other39each<=1. Thus full40Macro<=39/40=.975. Existing saved fullfusion witnesses the lower value on this cohort.",
+    "assumptions": "Fixed labels/population/40class metric. No inference of semantic learnability, unique feature-label information or generalization. Label-aware perfect-output construction is not a permitted predictor."
+  },
+  "headroom": {
+    "interval": [
+      0,
+      0.8049409118246802
+    ],
+    "addressable_by_new_mechanism": "unresolved",
+    "not_promised_gain": true
+  },
+  "decision": {
+    "next": "Literature/task-premise audit supported; no sustained training or new formal candidate from this loose bound.",
+    "unknown": "Qualified formal common-baseline dossier and addressable mechanism-specific gap remain open.",
+    "cheapest_resolution": "Reuse existing class/paired evidence and original decision theory before selecting new experiment.",
+    "reassess_when": "Scope/input/metric/population or valid same-protocol comparator changes."
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "schema": "qattn.scoped-reading.v1",
+  "papers": [
+    {
+      "title": "Consistent Classification Algorithms for Multi-class Non-Decomposable Performance Metrics",
+      "version": "1501.00287v1",
+      "pages_read": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        13,
+        14
+      ],
+      "rendered_pages_inspected": [
+        4,
+        7
+      ],
+      "identity_evidence": "Title/authors Harish G. Ramaswamy, Harikrishna Narasimhan, Shivani Agarwal on PDFp1; footer arXiv1501.00287v1[cs.LG]1Jan2015. Printed header April20,2022 is also retained; versioned URL identity, not inferred publisher version/date.",
+      "findings": [
+        "P4Table1 explicitly labels multiclass MacroF1 non-concave and includes factor2 in the numerator. The following prose formula omits that factor; this audit uses the standard/Table1 normalization, not the prose typo.",
+        "P7Theorem2 characterizes an optimum through a gain matrix evaluated at an unknown optimal population confusion matrix, under posterior-distribution absolute continuity and metric regularity. It is not an algorithm using the current sample confusion matrix.",
+        "P13Theorem10/BayesCG consistency requires concavity and smoothness; MacroF1 is not certified by that result. P14 distinguishes population-confusion performance and sample-based approximation.",
+        "P4footnote distinguishes function of population expectations from expected finite-batch metric. Hard deterministic classifiers are included in the randomized-classifier framework, but token attention probabilities are not class posteriors."
+      ],
+      "limitations": [
+        "Only pp1-8,13-14 read and pp4,7 visually inspected; remaining proof appendices, code and experiments not certified.",
+        "No priority clearance, no new theorem, no consistency/utility guarantee for current Q-RMEA."
+      ],
+      "paper_id": "arxiv:1501.00287v1",
+      "source_url": "https://arxiv.org/pdf/1501.00287v1",
+      "pdf_sha256": "c5242a090553fe41f64618bd4f461a505737fd5dc92b4acfd8a085aed3d34b23",
+      "identity": "verified",
+      "reading": "scoped_original_read"
+    },
+    {
+      "title": "Designing Optimal Quantum Detectors Via Semidefinite Programming",
+      "version": "quant-ph/0205178v1",
+      "pages_read": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "rendered_pages_inspected": [
+        10
+      ],
+      "identity_evidence": "PDFp1 exact title/authors Yonina C. Eldar, Alexandre Megretski, George C. Verghese; footer arXivquant-ph/0205178v1 28May2002. Printed header October23,2018 is retained independently, not treated as another arXiv revision or publisher date.",
+      "findings": [
+        "Pp3-6 ensemble states with priors and a joint POVM summing to identity; objective sum_i p_i Tr(rho_i Pi_i) is correct-classification probability.",
+        "Pp7-10 dual construction and strong duality apply to that linear objective over the PSD/identity-sum convex set. P10eq15-20 gives the trace dual certificate and complementary slackness.",
+        "P11eq21-23 are minimum-error optimality conditions, not MacroF1 or the deterministic argmax of token-normalized affine utility logits."
+      ],
+      "limitations": [
+        "Only pp1-11 read/p10 visually inspected. Later rank results, numerical methods/results and implementation not certified.",
+        "Independent binary token effects in original Q-RMEA are not a joint40class POVM; no global SDP certificate transfers to MacroF1 or current circuit-constrained training."
+      ],
+      "paper_id": "arxiv:quant-ph/0205178v1",
+      "source_url": "https://arxiv.org/pdf/quant-ph/0205178v1",
+      "pdf_sha256": "f8f78a1c0a9ef276891241fbc3a1bde1c6728db7396d9b269e3b31092efd6baa",
+      "identity": "verified",
+      "reading": "scoped_original_read"
+    }
+  ],
+  "novelty_clearance": false,
+  "whole_paper_deep_read": false
+}

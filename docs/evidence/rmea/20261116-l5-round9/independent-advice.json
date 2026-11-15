@@ -1,0 +1,61 @@
+{
+  "schema": "qattn.independent-theory-advice.v1",
+  "packet_sha256": "bd3792d113590960dbef723dfb5e44f335d17aa044dd8646ba8bd6209b5d4f09",
+  "read_only_input_hashes": {
+    "independent-question.json": "bd3792d113590960dbef723dfb5e44f335d17aa044dd8646ba8bd6209b5d4f09",
+    "headroom-assessment.json": "baa72ab7a02b70ea80ca2a377226d0ab61885f7d4b8b67f9e97c0bc7f037861f"
+  },
+  "review_scope": "round9 candidate-blind bounded scientific advice",
+  "verdict": "ZERO_SUPPORTED_TASK_BACKED_NEW_ROUTES",
+  "routes": [],
+  "L5_acceptance": false,
+  "interpretation_of_new_facts": [
+    "On all 1024 exposed examples, full and selected lambda-disabled hard predictions are now reported identical. Their logits may differ. This closes a selected-model hard-decision benefit on this cohort, not all future phase usefulness or earlier-training effects.",
+    "Lambda-disabled versus constrained-training control changes 75 predictions: 28 versus 22 exclusive correct decisions. Mean CE and mean true-class margin favor the control. These are compatible outcomes of different hard-decision and confidence functionals; no quantum-specific explanation is implied.",
+    "For the 30 low-support classes, every observed TP/FN count remains fixed. The reported F1 changes in classes 16,20,35 arise through FP changes. This does not show improved low-support recall, a population precision gain, or a measurement mechanism causing the FP redistribution.",
+    "The newly completed paired accounting resolves the descriptive question left open in the previous advice. Repeating it or another swap is not a proposed route."
+  ],
+  "decision_theory_boundaries": {
+    "actual_hard_rule": "d_theta(x)=argmax_r z_theta,r(x), with a fixed tie rule. The token Born scores p_rt produce alpha_rt and then class logits; they are not a joint class POVM, class posterior probabilities, or a stochastic draw of d_theta.",
+    "population_quantities": "For pi_r=P(Y=r), q_r=P(d_theta(X)=r), t_r=P(Y=r,d_theta(X)=r), population F1_r=2t_r/(pi_r+q_r), with a stated zero-denominator convention. Population Macro is the mean over the fixed 40 labels. Population CE is E[-log softmax(z_theta(X))_Y], a distinct objective.",
+    "empirical_quantities": "Reported Macro uses finite confusion counts divided by their empirical denominators. At fixed TP_r and FN_r, F1_r=2TP_r/(2TP_r+FN_r+FP_r) varies only through FP_r. That is exact metric accounting, not a theorem about learned measurement geometry or population risk.",
+    "known_tool_status": "These are standard metric/decision identities supplied only to prevent a mismatch of objects. They are not new theory and are not offered as L5.",
+    "forbidden_transfer": "A quantum Bayes-risk or state-discrimination theorem for a specified measurement decision family cannot be transferred to this hard multiclass argmax merely by calling its token weights Born probabilities. A new valid bridge would need its own assumptions."
+  },
+  "exact_missing_premise": {
+    "statement": "An independently task-supported condition on the joint prepared-state, utility and class-margin distribution that predicts selective changes of hard false positives under a specified label-blind measurement/attention intervention, while accounting for true-positive effects and errors transferred to every competing class.",
+    "why_it_is_needed": "A measurement can change token scores without moving a class margin; it can change a margin without changing argmax; and an argmax change can remove one class's FP while adding another's. The reported finite FP accounting does not supply the joint law needed to predict a beneficial task-level redistribution.",
+    "what_is_not_a_substitute": [
+      "Assuming token Born scores are calibrated class posteriors",
+      "Inferring separability of rare positives and false positives from unchanged observed TP counts",
+      "Selecting a gate, threshold or task subgroup using the already exposed validation outcomes",
+      "Assuming the saved head's available metric headroom is addressable by a quantum mechanism",
+      "Generic extra-parameter or reparameterization optimization arguments"
+    ]
+  },
+  "headroom_assessment": {
+    "agree_with_limited_bound": "The interval [0.17005908817531984,0.975] combines an observed selected-function witness with the metric ceiling caused by one absent label in this sample.",
+    "not_established": "It does not certify that any permitted predictor can reach the upper endpoint, that h/roles identify all labels, that the gap is addressable by attention, or that the population has no class-4 examples.",
+    "comparator_boundary": "The strong historical controls used a different data/training/seed protocol. They constrain broad attribution but cannot be substituted as same-protocol comparators for the present numerical bound."
+  },
+  "smallest_discriminating_observation_if_a_real_premise_is_supplied": {
+    "required_first": "Specify one task contrast from independent knowledge or training-only evidence and one intervention before seeing its deciding evaluation labels. State which joint state-utility-margin condition it predicts; no such contrast or intervention is selected by this advice.",
+    "minimal_useful_record": "For that fixed contrast, retain the pre/post hard winners, true labels, the relevant winner/rival margins and the controlled measurement change. Check the entire induced confusion transfer, not only the targeted class's FP or stochastic measurement success. This distinguishes token redistribution from a useful hard-decision change.",
+    "kill_rule": "An exact claimed condition is killed by a predeclared counterexample. A statistical benefit claim fails its predeclared population/independent-sample decision rule if targeted FP reduction is absent or is offset by TP loss/other-class damage. The current exposed cohort can generate or reject descriptive hypotheses, not independently confirm them.",
+    "sampling_honesty": "The packet does not determine a population law, sample size or threshold. No new forward pass, artifact recovery, optional seed/epoch, closed-family retune or owner formal run is requested."
+  },
+  "controls_and_original_work": {
+    "ordinary_method_boundary": "Classical simulability does not reject an ordinary measurement-attention contribution; quantum-exclusive utility is not required.",
+    "control_needed_for_any_future_link": "A future intervention must account for the contextual encoder, relation readout, mass channel, decision rule and matched nonlinear controls. If it changes the hard rule or cost objective, evidence belongs to that changed method and does not inherit original L4.",
+    "original_work_to_check": "Check original results on multiclass nondecomposable F1 decisions, their population assumptions and their deterministic/randomized decision classes before invoking quantum decision theory. Compare any claimed new bridge against original measurement/state-discrimination assumptions and the packet's already verified known-tool collisions.",
+    "novelty_status": "No new literature identifiers, novelty assertions or theorem transfers are supplied from memory. No papers were inspected in this pass."
+  },
+  "final_scope": "Zero supported routes is an evidence-bounded conclusion for this packet, not a proof that no future task-backed route exists or an assessment of the unseen primary candidate. Original scoped L4 remains unchanged.",
+  "independence_and_execution": {
+    "read": ["round9/independent-question.json", "round9/headroom-assessment.json"],
+    "primary_drafts_scouting_repository_or_remote_inspected": false,
+    "scientific_or_torch_execution": false,
+    "writes": ["round9/independent-advice.json", "round9/independent-advice.md"],
+    "operations": "Requested file reading, hashing, output creation and mechanical output verification only."
+  }
+}
