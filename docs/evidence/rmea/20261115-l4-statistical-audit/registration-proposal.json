@@ -1,0 +1,195 @@
+{
+  "schema": "qattn.endpoint-aware-registration-proposal.v1",
+  "status": "PROPOSED_NOT_ACCEPTED",
+  "purpose": "Faithfully serialize the existing frozen Macro utility plus CE attribution claim. Not a new experiment, metric choice, policy change, or accepted standard v3 L4 card.",
+  "source_sha256": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+  "contract_sha256": "da5541b44d89853d8ff23db7bf4750a984ae76ad18c96ca9af6252dec09aea36",
+  "current_standard_tier": "L3_mechanism_attribution",
+  "statistical_review": "L4_SUPPORTED_WITH_EXPLICIT_ASSUMPTIONS",
+  "joint_claim": "Both trained-head Macro utility over uniform and within-selected-model context-alignment CE impairment hold under the original independent approximately-normal seed-difference assumption on this fixed benchmark.",
+  "endpoints": [
+    {
+      "id": "utility_macro",
+      "metric": "full40 test Macro-F1",
+      "direction": "higher",
+      "role": "primary_utility",
+      "original_gate": "Q-minus-uniform test full40 Macro-F1: mean>0, at least4/5 positive, paired-t two-sided95% CI lower>0.",
+      "predeclared": true,
+      "seeds": [
+        29,
+        53,
+        71,
+        97,
+        113
+      ],
+      "paired_values": [
+        {
+          "seed": 29,
+          "method_value": 0.5211132775104067,
+          "baseline_value": 0.2314856570537112
+        },
+        {
+          "seed": 53,
+          "method_value": 0.5465709043591499,
+          "baseline_value": 0.21021412477100476
+        },
+        {
+          "seed": 71,
+          "method_value": 0.5238560396670014,
+          "baseline_value": 0.21051816419696007
+        },
+        {
+          "seed": 97,
+          "method_value": 0.4976927374652861,
+          "baseline_value": 0.20847481224460215
+        },
+        {
+          "seed": 113,
+          "method_value": 0.5145336851204592,
+          "baseline_value": 0.21386819822999015
+        }
+      ],
+      "statistics": {
+        "deltas": [
+          0.2896276204566955,
+          0.33635677958814514,
+          0.3133378754700414,
+          0.2892179252206839,
+          0.300665486890469
+        ],
+        "mean": 0.305841137525207,
+        "sd": 0.0197066116625354,
+        "standard_error": 0.00881306465672386,
+        "t": 34.70315371984339,
+        "df": 4,
+        "paired_t_two_sided_p": 4.1141031641164545e-06,
+        "ci95": [
+          0.2813721472972543,
+          0.33031012775315965
+        ],
+        "exact_sign_flip_two_sided_p": 0.0625,
+        "positive_seeds": 5,
+        "n": 5,
+        "analysis_role": "original_predeclared_gate"
+      },
+      "control": "trained_uniform_disabled_score_path",
+      "source_contract_sha256": "da5541b44d89853d8ff23db7bf4750a984ae76ad18c96ca9af6252dec09aea36"
+    },
+    {
+      "id": "mechanism_ce",
+      "metric": "all-test mean cross entropy",
+      "direction": "lower",
+      "role": "attribution_defining",
+      "original_gate": "Q fixed-selected checkpoint all-test mean CE(shuffled)-CE(actual): mean>0, at least4/5 positive, paired-t two-sided95% CI lower>0; every seed uniform CE delta abs<=2e-5 and identity residual<=2e-5.",
+      "predeclared": true,
+      "seeds": [
+        29,
+        53,
+        71,
+        97,
+        113
+      ],
+      "paired_values": [
+        {
+          "seed": 29,
+          "method_value": 0.656600012546823,
+          "baseline_value": 0.8456218331132708
+        },
+        {
+          "seed": 53,
+          "method_value": 0.5562102442474297,
+          "baseline_value": 0.7559580485215573
+        },
+        {
+          "seed": 71,
+          "method_value": 0.6115709345464042,
+          "baseline_value": 0.8361605133770794
+        },
+        {
+          "seed": 97,
+          "method_value": 0.6119534743669083,
+          "baseline_value": 0.8293788805859404
+        },
+        {
+          "seed": 113,
+          "method_value": 0.6102527473985323,
+          "baseline_value": 0.7895372663387902
+        }
+      ],
+      "statistics": {
+        "deltas": [
+          0.18902182056644773,
+          0.1997478042741276,
+          0.2245895788306752,
+          0.21742540621903209,
+          0.17928451894025793
+        ],
+        "mean": 0.2020138257661081,
+        "sd": 0.018958704331935625,
+        "standard_error": 0.008478590330305558,
+        "t": 23.82634587780912,
+        "df": 4,
+        "paired_t_two_sided_p": 1.8400877272653467e-05,
+        "ci95": [
+          0.17847348514455386,
+          0.22555416638766235
+        ],
+        "exact_sign_flip_two_sided_p": 0.0625,
+        "positive_seeds": 5,
+        "n": 5,
+        "analysis_role": "original_predeclared_gate"
+      },
+      "control": "same_selected_checkpoint_context_permutation",
+      "source_contract_sha256": "da5541b44d89853d8ff23db7bf4750a984ae76ad18c96ca9af6252dec09aea36"
+    }
+  ],
+  "decision": {
+    "rule": "All original critical gates must pass; no endpoint substitution, OR rule, best-of-family or optional seed extension.",
+    "multiplicity": "Implied intersection-union for this sole conjunction. Two marginal95% intervals are not a simultaneous95% region. No retrospective correction is called predeclared."
+  },
+  "secondary_sensitivity": {
+    "name": "Exact two-sided sign flip",
+    "p_by_endpoint": {
+      "utility_macro": 0.0625,
+      "mechanism_ce": 0.0625
+    },
+    "role": "Original descriptive robustness/symmetry sensitivity, not the predeclared t gate; it does not pass .05 and must remain visible."
+  },
+  "auxiliary_macro": {
+    "role": "Recorded actual-minus-shuffled Macro, posthoc supporting consistency only; not an attribution-confirmation gate.",
+    "statistics": {
+      "deltas": [
+        0.141860458254986,
+        0.1478687215700047,
+        0.1513251706791779,
+        0.14185118863494933,
+        0.12508103065402054
+      ],
+      "mean": 0.14159731395862768,
+      "sd": 0.01008567128744561,
+      "standard_error": 0.004510449319489241,
+      "t": 31.393172592982825,
+      "df": 4,
+      "paired_t_two_sided_p": 6.135900594132043e-06,
+      "ci95": [
+        0.12907429902328904,
+        0.15412032889396632
+      ],
+      "exact_sign_flip_two_sided_p": 0.0625,
+      "positive_seeds": 5,
+      "n": 5,
+      "analysis_role": "auxiliary_posthoc_not_confirmation"
+    }
+  },
+  "required_representation_checks": [
+    "Explicit metric, direction, raw paired method/baseline values, unit and planned seeds per endpoint.",
+    "Training utility is Macro; the frozen matched intervention endpoint is CE. Preserve their separate identities.",
+    "Type main gate p and descriptive sensitivity p separately; never erase .0625 or label it the paired-t p.",
+    "Bind the trained uniform ablation to Macro and exact selected-checkpoint replacement to CE, retaining existing control fairness and scope limits.",
+    "Audit all critical frozen endpoints, n5 assumptions and conjunctive decision semantics before accepting any registration.",
+    "Preserve legacy cards and reject attempts to rename a CE effect as Macro or to promote the auxiliary Macro gate.",
+    "A shared schema/validator change is separate work; this proposal does not authorize changing it."
+  ],
+  "resource_action": "No new training, test replay, GPU allocation, COS restore or raw transfer is justified solely by this representation gap.",
+  "future_science": "A claim robust to weaker distribution assumptions, a new test population, or unique quantum benefit requires its own prospectively fixed design; this audit does not promise it."
+}

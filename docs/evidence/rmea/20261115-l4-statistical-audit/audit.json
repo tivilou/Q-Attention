@@ -1,0 +1,477 @@
+{
+  "schema": "qattn.l4.existing-evidence-audit.v1",
+  "status": "MECHANICAL_PASS_REVIEW_PENDING",
+  "current_accepted_tier": "L3_mechanism_attribution",
+  "promotion": "NOT_ACCEPTED",
+  "scope": "Ordinary within-model context weight-to-value alignment on the fixed official Re-TACRED cohort; not quantum exclusivity.",
+  "source_sha256": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+  "contract_sha256": "da5541b44d89853d8ff23db7bf4750a984ae76ad18c96ca9af6252dec09aea36",
+  "report_hashes": {
+    "data.sha256": "011f9a348b9dc44e45ae998a680e16d9e68a90e998f555ed22f1874b40327a32",
+    "data_counts.txt": "44fe5fbdcbc15f304ce4eb076a0cd3fa54b2920ffb06df0c06ea5cc4a7f28f0a",
+    "manifest.json": "eca12022ced91b36fafeddd54ddd765515272ddd819970bacd73dacffae4097a",
+    "receipt.json": "7a7a8012f2e6a9f9a583bf0588997e8c6a5d0a4271ece5dfacf654c86c1cfe07",
+    "run_summary.json": "b7011881fc8d8cdf0e130146053813541dbb33659a9ef550573cef5e94fa4801",
+    "summary.json": "fad5c12213f6b8ea1e8fc1a724f5fa28e535c39035a8af8fc8653dc385d74522",
+    "trace_validation.json": "257b1e7c79d8a24e5c24b089ab30102bf4611de0a2719118aa4173520c2503d8"
+  },
+  "source_files": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/rmea_protocol.py": "fb3486fa16dba9959256b32712e46c8bc40b6612801eff254b0f8ffe72650be1",
+    "baselines/retacred/rmea_trace.py": "e4085ff774847bd06b1a353a949e54741f28ab14ee59cff38a0fa572f7c36639",
+    "baselines/retacred/rmea_run.py": "769173b9ab17f76229b0db79b4a7625ac1574427d2d40491be7d5b19d4d0ff25",
+    "baselines/retacred/rmea_handoff.py": "07fe73186273d27eb0b89672200e1430fce5b0cb839624b2d83f9a4bd370cf95",
+    "baselines/retacred/rmea_exchange.py": "a783c00487ed6dbf91196e9fe17880aaf86a50b2f4deb64081e95e54fa0fd67b",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9",
+    "baselines/retacred/assets.lock.json": "f4df917253d14c7b31e564d3bfc946b55b63d5fcb3f9377b059c5e5abe46314f",
+    "scripts/audit_rmea_inputs.py": "cac564d055ea76520c5dbcc0e16e7d551a9b3243a4dba835e42ab7e4d208c14f",
+    "scripts/audit_rmea_tokenization.py": "5f7860e47a7a0979976e5acc435ed34acede4c96bfac799d79d3018366b6aef8",
+    "scripts/validate_sample_trace.py": "fcb1e1a9d1182f41ac7d4d6116a54488dfbe4f34ff4fb029f04585698a024a3f",
+    "scripts/check_qattn_exchange.py": "b5f781990efa1af5aa5542cc4214364bdc3c27ad9111a4aa3f9a5f5ae4c151ab",
+    "scripts/collab/lib/exchange_upload.py": "753af123e2846c12612bb2aaa71cfb41a0c23e5f1fc1efb7a213aa1e036709ca",
+    "scripts/collab/certs/qattn-exchange-ca.crt": "dbe9611905fdfb37eec630bfe275576e408b94c1672c428ba3a5befa10d84e4b",
+    "experiments/q_rmea_handoff.py": "ef88d15ec2f4ab7e5d5a58c700b5ad118a2cf99d3f0abc87a15e31ff67c52789",
+    "scripts/run_q_rmea_handoff.sh": "ac05ed954cfb1d94276941741f69c53c484e57a80106afa94490910a0d0d9fe0",
+    "scripts/check_q_rmea_handoff.sh": "d43b8a15f320d7cc6a61c8bdafa61834a730d283a9045ca23ae544b0801bfe05",
+    "scripts/export_q_rmea_handoff.sh": "ff231a0d1f7eaa52d03edf0b79c4e674fcdbf5e551a231ebc81c6a1636bec5f4",
+    "tests/test_rmea.py": "0fcd8f067726b596d11fbafe587836a5456d6fd5698c5ed213145cd526106145",
+    "tests/test_rmea_lifecycle.py": "040f56cead32609cfd46da8ca48330da638c41bebc55af8fc8748a01938a8e4d",
+    "tests/test_rmea_exchange.py": "7c13eef93e59cc66b2b4f17069fef109f6152e25ed356132df84a2e9c57fab17",
+    "baselines/retacred/rmea_confirmation_protocol.py": "bdccafa853365c1cbcb548947e48433d560490a4af4ccdea54b70c26a7e07cc0",
+    "baselines/retacred/rmea_confirmation_run.py": "9f6de9013354dd90122b839a12e4a8cfc8b6946a2e2169e41fd248b472511e19",
+    "baselines/retacred/rmea_confirmation_trace.py": "a344df34562ee7cdaf43388fc905a8acbd508f270c3b73d7a10abdc38cefe20d",
+    "baselines/retacred/rmea_confirmation_values.py": "d05f8fd615586f479a16a3e3023a67e673b641967dbebc178f58929eab323275",
+    "baselines/retacred/rmea_confirmation_handoff.py": "8e85b1f9910a46d1f594b0558b366d7ef23304c9efbf05a9d5e45b348f34d736",
+    "baselines/retacred/rmea_confirmation_exchange.py": "8131a86aae950b1b9c8dc3733c1928e29ccfb2df7d48f5d348ecca3145985f51",
+    "experiments/q_rmea_confirmation_handoff.py": "b86b805a33a7396a16153d5a0bfc173dacbe522aa16e211894f2b9db6da81e30",
+    "scripts/run_q_rmea_confirmation_handoff.sh": "100b919e427e28f67ae53c490b3a9f31855aec14c2b10ef55936d9f41594901d",
+    "scripts/check_q_rmea_confirmation_handoff.sh": "9f85fdd8e1516d93927297b0d1c12ed0bb8895f893efad5c7c6a34d0cadd5e83",
+    "scripts/export_q_rmea_confirmation_handoff.sh": "b4452181c715c2925130b8e05efa3f3fbef3a3b29226b1e7b5fa033d968302ab",
+    "scripts/validate_sample_trace_v2.py": "55e7bcb34a048b3b8c6cd3837364d75ab8f3a24a23b276999dc009495b7df2c9",
+    "scripts/view_rmea_confirmation_trace.py": "0d2ae02412d20e5cb7b01c41a75bf7e9436b1a4fb9e77fca35353476e8aca387",
+    "docs/contracts/sample-trace.v2.schema.json": "b23b1db0e600229b786077f2a5c0748acb87e11dc21dc39d90d85c60365ff082",
+    "tests/test_rmea_confirmation.py": "648f553a72cbc4d48636d65a0a386f99f19a074f5d4626a2aa356ff685d32691"
+  },
+  "rows": [
+    {
+      "seed": 29,
+      "actual_macro": 0.5211132775104067,
+      "uniform_macro": 0.2314856570537112,
+      "shuffled_macro": 0.3792528192554207,
+      "ce_delta": 0.18902182056644773
+    },
+    {
+      "seed": 53,
+      "actual_macro": 0.5465709043591499,
+      "uniform_macro": 0.21021412477100476,
+      "shuffled_macro": 0.3987021827891452,
+      "ce_delta": 0.1997478042741276
+    },
+    {
+      "seed": 71,
+      "actual_macro": 0.5238560396670014,
+      "uniform_macro": 0.21051816419696007,
+      "shuffled_macro": 0.37253086898782356,
+      "ce_delta": 0.2245895788306752
+    },
+    {
+      "seed": 97,
+      "actual_macro": 0.4976927374652861,
+      "uniform_macro": 0.20847481224460215,
+      "shuffled_macro": 0.35584154883033675,
+      "ce_delta": 0.21742540621903209
+    },
+    {
+      "seed": 113,
+      "actual_macro": 0.5145336851204592,
+      "uniform_macro": 0.21386819822999015,
+      "shuffled_macro": 0.3894526544664386,
+      "ce_delta": 0.17928451894025793
+    }
+  ],
+  "contrasts": {
+    "utility_macro": {
+      "deltas": [
+        0.2896276204566955,
+        0.33635677958814514,
+        0.3133378754700414,
+        0.2892179252206839,
+        0.300665486890469
+      ],
+      "mean": 0.305841137525207,
+      "sd": 0.0197066116625354,
+      "standard_error": 0.00881306465672386,
+      "t": 34.70315371984339,
+      "df": 4,
+      "paired_t_two_sided_p": 4.1141031641164545e-06,
+      "ci95": [
+        0.2813721472972543,
+        0.33031012775315965
+      ],
+      "exact_sign_flip_two_sided_p": 0.0625,
+      "positive_seeds": 5,
+      "n": 5,
+      "analysis_role": "original_predeclared_gate"
+    },
+    "frozen_mechanism_ce": {
+      "deltas": [
+        0.18902182056644773,
+        0.1997478042741276,
+        0.2245895788306752,
+        0.21742540621903209,
+        0.17928451894025793
+      ],
+      "mean": 0.2020138257661081,
+      "sd": 0.018958704331935625,
+      "standard_error": 0.008478590330305558,
+      "t": 23.82634587780912,
+      "df": 4,
+      "paired_t_two_sided_p": 1.8400877272653467e-05,
+      "ci95": [
+        0.17847348514455386,
+        0.22555416638766235
+      ],
+      "exact_sign_flip_two_sided_p": 0.0625,
+      "positive_seeds": 5,
+      "n": 5,
+      "analysis_role": "original_predeclared_gate"
+    },
+    "auxiliary_matched_macro": {
+      "deltas": [
+        0.141860458254986,
+        0.1478687215700047,
+        0.1513251706791779,
+        0.14185118863494933,
+        0.12508103065402054
+      ],
+      "mean": 0.14159731395862768,
+      "sd": 0.01008567128744561,
+      "standard_error": 0.004510449319489241,
+      "t": 31.393172592982825,
+      "df": 4,
+      "paired_t_two_sided_p": 6.135900594132043e-06,
+      "ci95": [
+        0.12907429902328904,
+        0.15412032889396632
+      ],
+      "exact_sign_flip_two_sided_p": 0.0625,
+      "positive_seeds": 5,
+      "n": 5,
+      "analysis_role": "auxiliary_posthoc_not_confirmation"
+    }
+  },
+  "confusion_matrices_checked": 575,
+  "preserved_hashes": {
+    ".ai-progress\\workstreams\\quantum-projector-v2\\refs\\20261030-q-rmea-fresh5-evidence-card.json": "6cd19fa95cc43e6235120d322c7f6789569f000b9db415d5282c588ef56584de",
+    ".codex-artifacts\\qattn-rmea-implementation-20261026\\fresh5-report-audit-20261030\\audit.json": "1dd3962f4c936a2f6ecf1c9a1f3b78d7f6e43fa968431145ce33541627045ce6",
+    "docs\\audits\\20261030-q-rmea-fresh5.md": "6415df4cb183eb2d1e32732e832c378ca006a6aa8c325c63d58e3f02b33e7708",
+    ".ai-progress\\workstreams\\quantum-projector-v2\\refs\\20261114-q-rmea-ordinary-allocation-l3-evidence-card.json": "93cdf9dc1434704c1bd45fc03042f74ebff9b52fee230760f3947c557143baa7"
+  },
+  "protocol": {
+    "schema": "q-rmea.confirmation.v1",
+    "seeds": [
+      29,
+      53,
+      71,
+      97,
+      113
+    ],
+    "discovery_seed13_excluded": true,
+    "scientific_reference": "7ca1b015c7900ad45f7968d0c1e56db5c7b3300809c2bd7de496f166a5b0615c",
+    "modes": [
+      "uniform",
+      "relation_softmax",
+      "real_overlap",
+      "quantum",
+      "dephased"
+    ],
+    "seed_configs": [
+      {
+        "schema": "q-rmea.protocol.confirmation.v1",
+        "profile": "discovery",
+        "seed": 29,
+        "conditions": [
+          "uniform",
+          "relation_softmax",
+          "real_overlap",
+          "quantum",
+          "dephased"
+        ],
+        "counts": {
+          "train": 58465,
+          "valid": 19584,
+          "test": 13418
+        },
+        "epochs": 20,
+        "batch_size": 128,
+        "optimizer": "AdamW",
+        "lr": 0.001,
+        "weight_decay": 0.01,
+        "clip_norm": 1.0,
+        "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+        "max_tokens": 512,
+        "hidden_size": 1024,
+        "value_size": 64,
+        "classes": 40,
+        "qubits": 3,
+        "depth": 2,
+        "eps": 1e-06,
+        "selection": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+        "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; no label/outcome access",
+        "trace_samples_per_split": 2,
+        "trace_checkpoints": [
+          "initial",
+          "selected"
+        ],
+        "primary_utility": "quantum minus uniform full40 macro_f1",
+        "primary_mechanism": "mean test CE(shuffled_context_weights)-CE(actual); all samples, including short context",
+        "replication": "Frozen independent confirmation29/53/71/97/113; discovery13 excluded.",
+        "claim_scope": "frozen encoder output head; not Transformer internal attention, SOTA, quantum speedup or exclusivity",
+        "trace_schema": "sample-trace.v2"
+      },
+      {
+        "schema": "q-rmea.protocol.confirmation.v1",
+        "profile": "discovery",
+        "seed": 53,
+        "conditions": [
+          "uniform",
+          "relation_softmax",
+          "real_overlap",
+          "quantum",
+          "dephased"
+        ],
+        "counts": {
+          "train": 58465,
+          "valid": 19584,
+          "test": 13418
+        },
+        "epochs": 20,
+        "batch_size": 128,
+        "optimizer": "AdamW",
+        "lr": 0.001,
+        "weight_decay": 0.01,
+        "clip_norm": 1.0,
+        "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+        "max_tokens": 512,
+        "hidden_size": 1024,
+        "value_size": 64,
+        "classes": 40,
+        "qubits": 3,
+        "depth": 2,
+        "eps": 1e-06,
+        "selection": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+        "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; no label/outcome access",
+        "trace_samples_per_split": 2,
+        "trace_checkpoints": [
+          "initial",
+          "selected"
+        ],
+        "primary_utility": "quantum minus uniform full40 macro_f1",
+        "primary_mechanism": "mean test CE(shuffled_context_weights)-CE(actual); all samples, including short context",
+        "replication": "Frozen independent confirmation29/53/71/97/113; discovery13 excluded.",
+        "claim_scope": "frozen encoder output head; not Transformer internal attention, SOTA, quantum speedup or exclusivity",
+        "trace_schema": "sample-trace.v2"
+      },
+      {
+        "schema": "q-rmea.protocol.confirmation.v1",
+        "profile": "discovery",
+        "seed": 71,
+        "conditions": [
+          "uniform",
+          "relation_softmax",
+          "real_overlap",
+          "quantum",
+          "dephased"
+        ],
+        "counts": {
+          "train": 58465,
+          "valid": 19584,
+          "test": 13418
+        },
+        "epochs": 20,
+        "batch_size": 128,
+        "optimizer": "AdamW",
+        "lr": 0.001,
+        "weight_decay": 0.01,
+        "clip_norm": 1.0,
+        "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+        "max_tokens": 512,
+        "hidden_size": 1024,
+        "value_size": 64,
+        "classes": 40,
+        "qubits": 3,
+        "depth": 2,
+        "eps": 1e-06,
+        "selection": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+        "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; no label/outcome access",
+        "trace_samples_per_split": 2,
+        "trace_checkpoints": [
+          "initial",
+          "selected"
+        ],
+        "primary_utility": "quantum minus uniform full40 macro_f1",
+        "primary_mechanism": "mean test CE(shuffled_context_weights)-CE(actual); all samples, including short context",
+        "replication": "Frozen independent confirmation29/53/71/97/113; discovery13 excluded.",
+        "claim_scope": "frozen encoder output head; not Transformer internal attention, SOTA, quantum speedup or exclusivity",
+        "trace_schema": "sample-trace.v2"
+      },
+      {
+        "schema": "q-rmea.protocol.confirmation.v1",
+        "profile": "discovery",
+        "seed": 97,
+        "conditions": [
+          "uniform",
+          "relation_softmax",
+          "real_overlap",
+          "quantum",
+          "dephased"
+        ],
+        "counts": {
+          "train": 58465,
+          "valid": 19584,
+          "test": 13418
+        },
+        "epochs": 20,
+        "batch_size": 128,
+        "optimizer": "AdamW",
+        "lr": 0.001,
+        "weight_decay": 0.01,
+        "clip_norm": 1.0,
+        "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+        "max_tokens": 512,
+        "hidden_size": 1024,
+        "value_size": 64,
+        "classes": 40,
+        "qubits": 3,
+        "depth": 2,
+        "eps": 1e-06,
+        "selection": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+        "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; no label/outcome access",
+        "trace_samples_per_split": 2,
+        "trace_checkpoints": [
+          "initial",
+          "selected"
+        ],
+        "primary_utility": "quantum minus uniform full40 macro_f1",
+        "primary_mechanism": "mean test CE(shuffled_context_weights)-CE(actual); all samples, including short context",
+        "replication": "Frozen independent confirmation29/53/71/97/113; discovery13 excluded.",
+        "claim_scope": "frozen encoder output head; not Transformer internal attention, SOTA, quantum speedup or exclusivity",
+        "trace_schema": "sample-trace.v2"
+      },
+      {
+        "schema": "q-rmea.protocol.confirmation.v1",
+        "profile": "discovery",
+        "seed": 113,
+        "conditions": [
+          "uniform",
+          "relation_softmax",
+          "real_overlap",
+          "quantum",
+          "dephased"
+        ],
+        "counts": {
+          "train": 58465,
+          "valid": 19584,
+          "test": 13418
+        },
+        "epochs": 20,
+        "batch_size": 128,
+        "optimizer": "AdamW",
+        "lr": 0.001,
+        "weight_decay": 0.01,
+        "clip_norm": 1.0,
+        "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+        "max_tokens": 512,
+        "hidden_size": 1024,
+        "value_size": 64,
+        "classes": 40,
+        "qubits": 3,
+        "depth": 2,
+        "eps": 1e-06,
+        "selection": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+        "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending; no label/outcome access",
+        "trace_samples_per_split": 2,
+        "trace_checkpoints": [
+          "initial",
+          "selected"
+        ],
+        "primary_utility": "quantum minus uniform full40 macro_f1",
+        "primary_mechanism": "mean test CE(shuffled_context_weights)-CE(actual); all samples, including short context",
+        "replication": "Frozen independent confirmation29/53/71/97/113; discovery13 excluded.",
+        "claim_scope": "frozen encoder output head; not Transformer internal attention, SOTA, quantum speedup or exclusivity",
+        "trace_schema": "sample-trace.v2"
+      }
+    ],
+    "cache_policy": "Independent identical ordered extraction per seed; no new cache sharing or precision change.",
+    "utility_gate": "Q-minus-uniform test full40 Macro-F1: mean>0, at least4/5 positive, paired-t two-sided95% CI lower>0.",
+    "mechanism_gate": "Q fixed-selected checkpoint all-test mean CE(shuffled)-CE(actual): mean>0, at least4/5 positive, paired-t two-sided95% CI lower>0; every seed uniform CE delta abs<=2e-5 and identity residual<=2e-5.",
+    "statistics": {
+      "unit": "fresh paired seed",
+      "n": 5,
+      "t_critical_df4": 2.7764451051977987,
+      "exact_sign_flip_two_sided_min_p": 0.0625,
+      "distribution_assumption": "Seed deltas treated as independent approximately normal; n=5 is limited.",
+      "reporting": "All5 seeds and5 conditions, failures included in status; no successful-seed dropping, rescue tuning or optional stopping. Exact sign-flip p descriptive, never claim p<.05 from five pairs."
+    },
+    "controls": "Three classical/dephased contrasts descriptive attribution; unequal parameter counts; no quantum uniqueness or novelty conclusion.",
+    "trace": {
+      "schema": "sample-trace.v2",
+      "selection": "first2 SHA256(rmea-sample-v1:split:original_id) ordered samples per train/valid/test",
+      "lanes": [
+        "replay"
+      ],
+      "checkpoints": [
+        "initial",
+        "selected"
+      ],
+      "all_modes": true,
+      "numeric": "Complete detached head input/output, selected encoder output, tokenization, classical scorer states and quantum circuit states; private loopback arbitrary-coordinate reader.",
+      "boundaries": "Inference replay only; no per-sample training trajectory or internal encoder-layer history claim. First-update batch parameters/gradients remain separate private evidence."
+    },
+    "lifecycle": "One isolated environment/GPU preflight; one bounded canary seed29 then all5 full children serially. No partial training resume. Export-only retries use all immutable closed phases, no training.",
+    "report_files": [
+      "summary.json",
+      "manifest.json",
+      "trace_validation.json",
+      "receipt.json",
+      "run_summary.json",
+      "data.sha256",
+      "data_counts.txt"
+    ],
+    "claim": "Pending owner audit; no automatic L2/L3, novelty, quantum advantage or checkpoint-resume certification."
+  },
+  "assumptions": {
+    "independent_unit": "Five independent training seeds conditional on the same fixed dataset; not five datasets or 13418 independent training replications.",
+    "paired_t": "Independent approximately normal seed differences; n=5 cannot establish distribution shape.",
+    "exact_sign_flip": "Descriptive symmetry-based sensitivity analysis, not a failed primary t gate and not a new acceptance rule."
+  },
+  "multiplicity": {
+    "frozen_text_has_explicit_method": false,
+    "interpretation": "Original utility and CE gates were conjunctive. If the sole claim requires both, an intersection-union decision need not split alpha. This is a mathematical audit interpretation, not an invented pre-run multiplicity declaration or independent endpoint claims.",
+    "conservative_sensitivity": "For the two original t tests, Bonferroni-adjusted p=2*p is shown only as posthoc sensitivity, not a replacement frozen plan.",
+    "bonferroni_two_original": {
+      "utility_macro": 8.228206328232909e-06,
+      "frozen_mechanism_ce": 3.6801754545306935e-05
+    }
+  },
+  "schema_audit": {
+    "current_l3_pass": true,
+    "hypothetical_l4_errors": [
+      "reported p_value must support the predeclared significance gate",
+      "statistical comparison IDs must be unique and bind the claimed comparisons",
+      "L4 must confirm the primary and all attribution-defining control comparisons"
+    ],
+    "explanation": "The v3 L4 validator binds tests to the primary plus each Macro-valued control and requires their exact paired mean. The old card contains a CE statistic under a different comparison id and a descriptive sign-flip p. Do not silently rename CE as Macro, delete unfavorable sensitivity evidence, or convert auxiliary Macro to a predeclared gate."
+  },
+  "scientific_question": "Does the original frozen Macro utility plus CE mechanism plan justify a separate assumption-conditional L4 claim despite the card metric binding, or does confirmation require a prospectively explicit critical-control plan? Do not decide solely from schema success/failure.",
+  "execution": {
+    "training": 0,
+    "forwards": 0,
+    "gpu_jobs": 0,
+    "remote_calls": 0,
+    "new_cos_reads": 0,
+    "packages_installed": 0
+  },
+  "provisional_recommendation": "Retain the accepted L3 card pending independent statistical review. Audit plan semantics before spending compute; no automatic seed extension."
+}
