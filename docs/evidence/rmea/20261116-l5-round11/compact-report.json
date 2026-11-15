@@ -1,0 +1,79 @@
+{
+  "schema": "qattn.semantic-forward.result.v1",
+  "status": "COMPLETE_EXPLORATORY",
+  "scope": "Exploratory hypothetical output-blind train-derived two-triplet probe; not independent benchmark confirmation",
+  "contract_sha256": "d2705392a670b8c03b6706d667ef460a25248fed2b0359cb2181b1de05727a04",
+  "source_revision": "b1c128ca0a2793240310b86faae7bd3a09d9be74",
+  "inputs_sha256": "a4c6bc977521ed3c9a8c1b3e49441b37d6ad082bf3fe8d5570b4b46f6a98590f",
+  "annotations_sha256": "0bb08cf508016714f2ba67aca0d12427f916e63801202df9b624f4fd6ba9d7f1",
+  "forward_calls": {
+    "encoder": 6,
+    "head_capture": 18,
+    "head_replay": 18,
+    "anchor": 2
+  },
+  "validation": {
+    "fresh_head_array_comparisons": 306,
+    "coordinate_reads": 828,
+    "encoder_word_mean_and_cast_replay": true,
+    "structural_trace_errors": 0,
+    "trace_warnings": []
+  },
+  "seconds": 10.214441746473312,
+  "peak_rss_kib": 3066640,
+  "private_bytes_before_report": 7939601,
+  "training": false,
+  "test_loaded": false,
+  "l5_accepted": false,
+  "limits": [
+    "Full slot guidelines remain unavailable. These are independent exploratory semantic judgments, not human-adjudicated benchmark gold.",
+    "Both triplets license explicit event/date contrasts only. No PERSON:IDENTITY or pronominal-coreference sensitivity coverage is claimed.",
+    "The v1 rejection of pool-10 for overlapping relations and pool-17 for unavailable negated-title policy remains unchanged.",
+    "Local pseudonym licensing is not a theorem of arbitrary name-replacement invariance.",
+    "The cases are hypothetical utterances, not claims of actual biographical or organizational facts.",
+    "Two reviewed cases from a fixed screened pool cannot establish population robustness, task utility, quantum/phase necessity, causal mediation or L5.",
+    "Original bases were in full training; seed29 and tiny hand-edited hypothetical contrasts are exploratory, not held-out population utility or L5.",
+    "Three heads are separately coadapted; softmax has fewer parameters. Differences do not prove quantum phase necessity or isolate causal paths.",
+    "Only final encoder state is captured; no per-layer/training-state claims. New CPU encoding is not original GPU bitwise reproduction.",
+    "Two old validation anchors are numerical implementation checks only; no project test arrays or full formal run.",
+    "Product split is a known algebraic accounting identity, not a theorem of causal mediation."
+  ],
+  "models": {
+    "quantum": {
+      "inputs": 6,
+      "bases": 2,
+      "correct_counts": {
+        "original": 2,
+        "name_preserving": 2,
+        "relation_changing": 0
+      },
+      "all_three_correct": 0,
+      "native_vs_compose64_argmax_disagreements": 0,
+      "native_vs_compose64_max_abs": 2.1935959040320085e-06
+    },
+    "dephased": {
+      "inputs": 6,
+      "bases": 2,
+      "correct_counts": {
+        "original": 2,
+        "name_preserving": 2,
+        "relation_changing": 0
+      },
+      "all_three_correct": 0,
+      "native_vs_compose64_argmax_disagreements": 0,
+      "native_vs_compose64_max_abs": 1.4411520261603528e-06
+    },
+    "relation_softmax": {
+      "inputs": 6,
+      "bases": 2,
+      "correct_counts": {
+        "original": 2,
+        "name_preserving": 2,
+        "relation_changing": 0
+      },
+      "all_three_correct": 0,
+      "native_vs_compose64_argmax_disagreements": 0,
+      "native_vs_compose64_max_abs": 2.898660945049869e-06
+    }
+  }
+}
