@@ -1,0 +1,82 @@
+{
+  "schema": "qattn.shared-effect-attainability.contract.v1",
+  "purpose": "Descriptive feasibility audit of existing matched attention transplants; known support-function/tomography tools, not L5 innovation.",
+  "input_private_root": "/hy-tmp/q-duet-data-20261107-v001/attempts/fd8ecfe3dcb2483280a4f123b29f6f11/output/private",
+  "run_complete_sha256": "b567555cd4ce7fe98539b369ef624e8f9f26e696fbdff658a03d10b7104bf603",
+  "input_source_revision": "22e3848830a6cb823727fcd4966c96c8381a967d",
+  "epsilon": 1e-06,
+  "target_coordinate_tolerance": 1e-05,
+  "decimal_precision": 50,
+  "population": "Exactly seven already posthoc selected validation cases and five fixed seed29 selected heads, all40 independent binary relation effects; no joint POVM.",
+  "selection": "All200 head/relation rows retained. For each head choose the maximum approximate robust margin among40relations, using residual and minimum-norm-dual witness candidates. Exactly five selected witnesses receive directed interval certification; discovery selection, no population inference.",
+  "positive_controls": "All Q rows reconstructed from normalized saved psi/phi with directed intervals must match saved allocation within frozen tau; maximally mixed effect yields uniform. Selected interval witness must reject neither feasible control.",
+  "certificate": "For fixed normalized states and trace1 PSD E, |c-tr(W)/d| <= sqrt(1-1/d)||W-tr(W)I/d||F + tau(1+epsilon)sum_i T_i sum_t|w_it|. Directed squared-gap strictly positive with positive left difference certifies incompatibility within tau. Any w valid; no exact rank/null assumption.",
+  "interpretation": "At least one relation target may be incompatible with a shared mixed effect on fixed saved Q preparation. Negative certificate does not prove feasibility. Donor preparation generally differs; no training mediation, cause of swap harm, quantum necessity, new utility, independent confirmation or L5 acceptance.",
+  "resources": {
+    "cpu": 1,
+    "ram_mb": 768,
+    "disk_mb": 16,
+    "gpus": 0,
+    "gpu_mb": 0
+  },
+  "timeout": 180,
+  "max_attempts": 1,
+  "replay_safe": false,
+  "outputs": [
+    "summary.json",
+    "unit.json",
+    "certificate-validation.json",
+    "RUN_COMPLETE"
+  ],
+  "launch": {
+    "node": "q-duet-data-1080ti-v1",
+    "server": "gpushare-i1-39684-data",
+    "worker_repo": "/hy-tmp/qattn-l5-attainability-20261115",
+    "owner_repo": "/home/Q-Attention/l5-attainability-20261115",
+    "parent_revision": "f044ab0da7d5e3b51666982693b7546d3793ed8c",
+    "python": "/tmp/qattn-joint-rebuild-20261113/env/bin/python",
+    "argv": [
+      "{python}",
+      "-B",
+      "experiments/rmea_attainability/runner.py",
+      "run",
+      "--output",
+      "{output}"
+    ],
+    "environment": {
+      "CUDA_VISIBLE_DEVICES": "",
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "revision": "Clean exact frozen-source commit; Git blob and worker file hashes must match; no code fallback."
+  },
+  "lifecycle": "Exact source/both review, fleet refresh/readiness, temporary quiescent CAS owner+worker pair, one new source-bound task. Unknown retains bindings/reservations; no retry. On terminal/quiescent restore prior exact bytes before compact collection. Existing immutable104-file input closure verified and untouched. No new private archive/deletion.",
+  "public_whitelist": [
+    "Exact code/contract/proof",
+    "compact200-row summary",
+    "unit.json",
+    "certificate-validation.json",
+    "compact source/execution/review records"
+  ],
+  "private_outputs": [
+    "Five full witness vectors and W/c numeric values",
+    "Per-case input lineage",
+    "interval certificate records"
+  ],
+  "recovery": "Re-run only under separate exact-source review after terminal proof, from existing pinned trace inputs; no new COS state required.",
+  "boundaries": {
+    "new_training": 0,
+    "new_model_forward": 0,
+    "new_formal_run": 0,
+    "new_test_data": 0,
+    "new_cos_read": 0,
+    "new_paid_resource": false,
+    "collaborator_access": false
+  },
+  "stop": [
+    "Any input/source/closure/selection mismatch stops.",
+    "Any interval arithmetic fixture or Q/uniform positive-control failure stops; never relax tau or substitute inputs.",
+    "No certified target is an admissible negative discovery result; never change thresholds to produce a certificate."
+  ]
+}
