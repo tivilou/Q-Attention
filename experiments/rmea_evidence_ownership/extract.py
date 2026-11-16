@@ -127,7 +127,14 @@ def validate_canary_report(report):
 
 def validate_transport(report_bytes, marker_bytes, mode):
     """Called on owner before report bytes leave that trust boundary."""
-    report = json.loads(report_bytes)
+    def unique_object(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError('duplicate report object key')
+            result[key] = value
+        return result
+    report = json.loads(report_bytes, object_pairs_hook=unique_object)
     if mode == 'audit':
         validate_public_report(report)
         assert marker_bytes == b'private blind ownership pack validated\n'
