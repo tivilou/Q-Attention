@@ -61,7 +61,10 @@ source=sys.argv[1];sys.argv=[source]+sys.argv[2:];runpy.run_path(source,run_name
         assert report['private_pack_mode'] == '0o600' and report['output_directory_mode'] == '0o700'
         assert b'DO_NOT_EXPORT' not in first and b'CONFLICT_IGNORED' not in first
         assert all(hashlib.sha256(p.read_bytes()).hexdigest() == h for p, h in pinned.items())
-    result = dict(schema='qattn.evidence-ownership.lifecycle-canary.v1', status='PASS', injected_failure_observed=True, partial_output_not_complete=True, partial_output_cleaned=True, retry_same_immutable_source_inputs=True, private_pack_retry_byteexact=True, permissions_verified=True, fixture_counts=report['counts'], real_data_read=False, reader_launches=0, training=0, commands=logs)
+    command_results = [dict(exit_status=r['exit_status'], stdout_sha256=hashlib.sha256(r['stdout'].encode()).hexdigest(), stderr_sha256=hashlib.sha256(r['stderr'].encode()).hexdigest()) for r in logs]
+    result = dict(schema='qattn.evidence-ownership.lifecycle-canary.v1', status='PASS', injected_failure_observed=True, partial_output_not_complete=True, partial_output_cleaned=True, retry_same_immutable_source_inputs=True, private_pack_retry_byteexact=True, permissions_verified=True, fixture_counts=report['counts'], real_data_read=False, reader_launches=0, training=0, command_results=command_results)
+    import runpy
+    runpy.run_path(str(source))['validate_canary_report'](result)
     (root / 'compact-report.json').write_bytes((json.dumps(result, indent=2) + '\n').encode())
     (root / 'RUN_COMPLETE').write_bytes(b'private-pack lifecycle canary complete\n')
     print(json.dumps(dict(status='PASS', injected_failure_and_retry=True, real_data_read=False)))

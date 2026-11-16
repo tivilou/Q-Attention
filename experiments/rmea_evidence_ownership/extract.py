@@ -68,6 +68,7 @@ def build(lines, directory, budget):
 
 def validate_pack(pack, budget):
     assert set(pack) == PACK_KEYS and pack['instructions'] == INSTRUCTIONS
+    assert pack['schema'] == 'qattn.evidence-ownership.private-pack.v1'
     assert len(pack['groups']) == budget
     keys = []
     for g in pack['groups']:
@@ -88,6 +89,52 @@ def validate_pack(pack, budget):
             spans.append(coords)
         assert spans == sorted(set(spans))
     assert keys == sorted(set(keys))
+
+
+def validate_public_report(report):
+    """Reject unknown/narrative fields before any compact report transfer."""
+    fixed = dict(schema='qattn.evidence-ownership.extraction-result.v1', status='PASS', private_pack_mode='0o600', output_directory_mode='0o700', private_pack_validated=True, label_values_consulted=False, label_values_exported=False, source_bytes_include_train_labels=True, raw_examples_exported_to_collector=False, valid_or_test_files_read=False, reader_launches=0, new_model_forwards=0, training=0, l5_accepted=False)
+    hashes = {'private_pack_sha256', 'protocol_sha256', 'source_sha256'}
+    assert set(report) == set(fixed) | hashes | {'counts', 'private_pack_bytes', 'peak_rss_kib_linux'}
+    assert all(type(report[k]) is type(v) and report[k] == v for k, v in fixed.items())
+    def digest(x):
+        return isinstance(x, str) and len(x) == 64 and all(c in '0123456789abcdef' for c in x)
+    assert all(digest(report[k]) for k in hashes)
+    counts = report['counts']
+    assert set(counts) == {'train_sha256', 'rows', 'eligible_groups', 'selected_groups', 'selected_queries'}
+    assert digest(counts['train_sha256'])
+    assert all(type(v) is int and v >= 0 for k, v in counts.items() if k != 'train_sha256')
+    assert 0 < counts['selected_groups'] <= 32 and counts['selected_queries'] == 2 * counts['selected_groups'] and counts['eligible_groups'] >= counts['selected_groups']
+    assert type(report['private_pack_bytes']) is int and 0 < report['private_pack_bytes'] <= 2 * 1024**2
+    peak = report['peak_rss_kib_linux']
+    assert peak is None or type(peak) is int and 0 < peak
+
+
+def validate_canary_report(report):
+    fixed = dict(schema='qattn.evidence-ownership.lifecycle-canary.v1', status='PASS', injected_failure_observed=True, partial_output_not_complete=True, partial_output_cleaned=True, retry_same_immutable_source_inputs=True, private_pack_retry_byteexact=True, permissions_verified=True, real_data_read=False, reader_launches=0, training=0)
+    assert set(report) == set(fixed) | {'fixture_counts', 'command_results'}
+    assert all(type(report[k]) is type(v) and report[k] == v for k, v in fixed.items())
+    c = report['fixture_counts']
+    assert set(c) == {'train_sha256', 'rows', 'eligible_groups', 'selected_groups', 'selected_queries'}
+    assert isinstance(c['train_sha256'], str) and len(c['train_sha256']) == 64 and all(x in '0123456789abcdef' for x in c['train_sha256'])
+    assert all(type(c[k]) is int and c[k] == v for k, v in dict(rows=8, eligible_groups=3, selected_groups=3, selected_queries=6).items())
+    assert len(report['command_results']) == 2
+    for r, code in zip(report['command_results'], [1, 0]):
+        assert set(r) == {'exit_status', 'stdout_sha256', 'stderr_sha256'} and type(r['exit_status']) is int and r['exit_status'] == code
+        for k in ['stdout_sha256', 'stderr_sha256']:
+            assert isinstance(r[k], str) and len(r[k]) == 64 and all(x in '0123456789abcdef' for x in r[k])
+
+
+def validate_transport(report_bytes, marker_bytes, mode):
+    """Called on owner before report bytes leave that trust boundary."""
+    report = json.loads(report_bytes)
+    if mode == 'audit':
+        validate_public_report(report)
+        assert marker_bytes == b'private blind ownership pack validated\n'
+    else:
+        assert mode == 'canary'
+        validate_canary_report(report)
+        assert marker_bytes == b'private-pack lifecycle canary complete\n'
 
 
 def main():
@@ -123,6 +170,7 @@ def main():
     except ImportError:
         peak = None
     result = dict(schema='qattn.evidence-ownership.extraction-result.v1', status='PASS', counts=counts, private_pack_sha256=sha(data), private_pack_bytes=len(data), private_pack_mode=oct(target.stat().st_mode & 0o777), output_directory_mode=oct(a.output.stat().st_mode & 0o777), private_pack_validated=True, protocol_sha256=sha(raw), source_sha256=sha(Path(__file__).read_bytes()), peak_rss_kib_linux=peak, label_values_consulted=False, label_values_exported=False, source_bytes_include_train_labels=True, raw_examples_exported_to_collector=False, valid_or_test_files_read=False, reader_launches=0, new_model_forwards=0, training=0, l5_accepted=False)
+    validate_public_report(result)
     (a.output / 'compact-report.json').write_bytes((json.dumps(result, indent=2) + '\n').encode())
     (a.output / 'RUN_COMPLETE').write_bytes(b'private blind ownership pack validated\n')
     print(json.dumps(dict(status='PASS', counts=counts, private_pack_bytes=len(data), reader_launches=0)))
