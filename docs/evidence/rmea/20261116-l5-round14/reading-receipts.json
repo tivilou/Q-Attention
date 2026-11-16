@@ -1,0 +1,107 @@
+{
+  "schema": "qattn.scoped-reading.v1",
+  "created_at_utc": "2026-11-16T00:28:36.194861+00:00",
+  "papers": [
+    {
+      "paper_id": "doi:10.18653/v1/N18-1100",
+      "title": "Explainable Prediction of Medical Codes from Clinical Text",
+      "doi": "10.18653/v1/N18-1100",
+      "version": "publisher_version",
+      "pdf_sha256": "611fcac78dc41f40d5d0619ac6e0d27a68229c31bd3d4e2d997d16c195564e1b",
+      "parsed_sha256": "cecea6882d7572c7d782c4d2f8bc11fa059963164e14143537918dae890d6098",
+      "acquisition_receipt": ".codex-artifacts/qattn-l5-round14-20261116/fulltext/96310a837998992f/receipt.json",
+      "identity": "verified",
+      "reading_status": "read_for_scope",
+      "pages": [
+        1,
+        2,
+        3
+      ],
+      "rendered_equation_pages": [
+        3
+      ],
+      "findings": [
+        "PDF p1 identity and per-label motivation.",
+        "PDF pp2-3 sections2.1-2.3: sharedCNN H; per-label alpha=softmax(H^T u); separate linear label decoder and sigmoid.",
+        "PDF p3 section2.5: label-description regularization already discusses infrequent-label sharing."
+      ],
+      "limitations": [
+        "Clinical multi-label task/CNN/BCE differ from frozen single-label Re-TACRED.",
+        "No whole-paper empirical verification or exhaustive novelty search; no public code inspected."
+      ]
+    },
+    {
+      "paper_id": "doi:10.24963/ijcai.2020/461",
+      "title": "A Label Attention Model for ICD Coding from Clinical Text",
+      "doi": "10.24963/ijcai.2020/461",
+      "version": "publisher_version",
+      "pdf_sha256": "350c16ca33e6f33350dae34504e5c6ed94d83aeeb1623a30eafdaafc753da4f3",
+      "parsed_sha256": "85e3e88afc6e28806fbfeed29c0c3b76027ec1fafdbf268ebbdc770baac1c17a",
+      "acquisition_receipt": ".codex-artifacts/qattn-l5-round14-20261116/fulltext/15175aeaff78350f/receipt.json",
+      "identity": "verified",
+      "reading_status": "read_for_scope",
+      "pages": [
+        1,
+        2,
+        3
+      ],
+      "rendered_equation_pages": [
+        3
+      ],
+      "findings": [
+        "PDF p1 identity; context-sensitive label attention motivation.",
+        "PDF p3 section3.1/Eqs4-6: Z=tanh(WH), row-softmax(UZ), V=HA^T; separate per-label binary readout.",
+        "PDF p3 discussion distinguishes label-specific heads from aggregated structured attention; section3.2 introduces ICD hierarchy."
+      ],
+      "limitations": [
+        "BiLSTM training, ICD multi-label losses and supervised hierarchy differ from current model.",
+        "No architecture-wide containment, relative task-performance, complete literature coverage or code-equivalence claim."
+      ]
+    },
+    {
+      "paper_id": "arxiv:2610.34945v1",
+      "title": "Relational Composition as Parallel Transport: What Per-Entity Frames Force in Attention",
+      "arxiv_id": "2610.34945v1",
+      "version": "preprint",
+      "pdf_sha256": "e16a3298cf5a5788075415e716a47eafcca2010f001605a2245da9396eeec079",
+      "parsed_sha256": "181c48457bd69a33c14541dbc9af591f2d67e948ddce9a75d208cbbbe6c552d0",
+      "acquisition_receipt": ".codex-artifacts/qattn-l5-round14-20261116/fulltext/60342e894dd4b4b3/receipt.json",
+      "identity": "verified",
+      "reading_status": "read_for_scope",
+      "pages": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "rendered_equation_pages": [
+        3
+      ],
+      "findings": [
+        "p2 explicitly selects independent perentity frame freedom as inductive bias, not a consequence of fresh names.",
+        "p3Eq1/Theorems1-2 require covariant edge carriers and independent orthogonal endpoint frames.",
+        "p4Theorem3 requires orthogonal recurrence, finite target group, allword exactness and convexcell readout; p5 discusses readoutdependent width."
+      ],
+      "limitations": [
+        "Preprint v1 only; no complete appendixproof or scientific experiment independently verified.",
+        "Current task/implementation does not supply the stated transport/recurrence/group assumptions."
+      ]
+    }
+  ],
+  "bank_checked_first": "bank-check.json",
+  "reading_authority": "These scoped researcher receipts supplement acquisition/parsing flags; helper reading=not_started does not override actual project reading.",
+  "headless_fallback": {
+    "owner_requested": true,
+    "task_owned_session": "qattn-l5-sources",
+    "arxiv_public_search": "browser-arxiv-read.json",
+    "ijcai_official_page": "browser-laat-official.json",
+    "close": "browser-close.json",
+    "status": "ordinary_headless_access_succeeded_and_closed",
+    "prior_api_403_preserved": true,
+    "challenge_bypass": false
+  },
+  "new_model_forwards": 0,
+  "l5_accepted": false,
+  "headless_followup": "theory-source-gate-browser.json and transport-source-browser.json, both task-owned sessions closed"
+}

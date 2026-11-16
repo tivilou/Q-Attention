@@ -1,0 +1,60 @@
+{
+  "schema": "qattn.labelwise-source-algebra.v1",
+  "status": "PASS",
+  "originals": [
+    {
+      "paper_id": "doi:10.18653/v1/N18-1100",
+      "title": "Explainable Prediction of Medical Codes from Clinical Text",
+      "doi": "10.18653/v1/N18-1100",
+      "version": "publisher_version",
+      "sha256": "611fcac78dc41f40d5d0619ac6e0d27a68229c31bd3d4e2d997d16c195564e1b",
+      "pages": 11
+    },
+    {
+      "paper_id": "doi:10.24963/ijcai.2020/461",
+      "title": "A Label Attention Model for ICD Coding from Clinical Text",
+      "doi": "10.24963/ijcai.2020/461",
+      "version": "publisher_version",
+      "sha256": "350c16ca33e6f33350dae34504e5c6ed94d83aeeb1623a30eafdaafc753da4f3",
+      "pages": 7
+    }
+  ],
+  "source_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+  "control_source_sha256": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+  "allocation": {
+    "q": [
+      0.8,
+      0.2
+    ],
+    "epsilon": 1e-06,
+    "normalized_born": [
+      0.7999994000012001,
+      0.20000059999880002
+    ],
+    "softmax_log_q_plus_epsilon": [
+      0.7999994000012,
+      0.2000005999988
+    ],
+    "softmax_raw_probability": [
+      0.6456563062257954,
+      0.3543436937742045
+    ],
+    "identity_max_error": 1.1102230246251565e-16,
+    "naive_substitution_max_error": 0.15434309377540467,
+    "scope": "Known scalar normalization identity; abstract fixture only, no circuit attainability/novelty/performance claim."
+  },
+  "readout": {
+    "labels": 40,
+    "value_width": 64,
+    "fixture_input_width": 7,
+    "exact_factorization": true,
+    "proof": "For arbitrary B in R^(40x1024), choose V=[B;zeros24x1024] and D=[I40,zeros40x24]. Then DV=B. Value bias zero; preserve free classifier bias.",
+    "scope": "Linear function-class existence only; factorized optimization, initialization, parameter counts and regularization can differ."
+  },
+  "new_model_forwards": 0,
+  "training": false,
+  "dataset_reads": 0,
+  "checkpoint_reads": 0,
+  "l5_accepted": false,
+  "old_scoped_l4_unchanged": true
+}
