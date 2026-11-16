@@ -1,0 +1,25 @@
+{
+  "schema": "qattn.l5.task-premise-endpoint.v1",
+  "status": "pre_execution_candidate_frozen",
+  "claim_under_screen": "Task-relevant role/context interaction of the unchanged quantum relation scorer might distinguish its contribution from generic nonlinear label-wise attention.",
+  "inputs": {
+    "tokens": "original words",
+    "ordered_entities": "subject/object half-open spans",
+    "marked_input": "M(tokens,entities), with @ subject and # object punctuation before the frozen encoder",
+    "hidden": "H(tokens,entities)=wordmean(RoBERTa(M(tokens,entities))); marks excluded from pooled words but can affect contextual word vectors",
+    "explicit_roles": "R(tokens,entities): clipped signed relative distances/32 plus two membership bits"
+  },
+  "task_premise": "A candidate natural-pair analysis would require actual labeled train-only rows sharing original tokens but using different ordered entity pairs; their marker-conditioned H may differ. Existence/count/semantic suitability of such groups is unmeasured. No assumption of independent views, unchanged H, inverse-label map or quantum realizability.",
+  "endpoint": "For a fixed class pair r,s, m(H,R)=z_r(H,R)-z_s(H,R), with actual signed values, decoder and bias included. The same r,s must be used in every factorial cell. All40class competitors remain necessary for correctness/Macro claims.",
+  "four_cells": {"AA":"m(H_A,R_A)","AB":"m(H_A,R_B)","BA":"m(H_B,R_A)","BB":"m(H_B,R_B)"},
+  "interaction": "I=BB-BA-AB+AA; known finite factorial difference, no novelty claim",
+  "prediction_under_screen": "A nonzero I, or I persisting after fixed-value replay, could uniquely support quantum role/content interaction.",
+  "competing_explanation": "Classical role-only attention times context-dependent values already gives I; additive content+role logits followed by softmax give I even with fixed values. Both are legal relation_softmax interface constructions.",
+  "mechanical_checks": {
+    "marker_fixture": {"tokens":["u","links","v"],"subject_A":[0,1],"object_A":[2,3],"subject_B":[2,3],"object_B":[0,1]},
+    "case_1": {"description":"Role-only softmax scores and H-dependent values. Real two-token subject swap gives second-token probabilities1/3 and2/3 with score coefficient ln2; word values(0,1) for H_A and(0,2) for H_B.","expected_cells":["1/3","2/3","2/3","4/3"],"expected_interaction":"1/3"},
+    "case_2": {"description":"Fixed values(0,1), additive content/role logits. Use subject-score coefficient ln2/2 and content log-odds ln2/2,3ln2/2, yielding AA/AB/BA/BB log-odds0,ln2,ln2,2ln2.","expected_cells":["1/2","2/3","2/3","4/5"],"expected_interaction":"-1/30"}
+  },
+  "decision_rule": "A legal nonquantum counterexample rejects the claimed discriminating prediction before any model/data admission. Marker-only source checks do not prove numerical hidden-state changes or task utility.",
+  "boundaries": ["Crossed AB/BA cells are path interventions, not newly labeled natural entity queries.","Uniform ignores explicit R but receives entity-marked H; it is not entity-blind by construction.","No model/encoder forward, data access, training, private arrays, rank demo, stopped-family revival or new formal run.","Elementary factorial algebra/softmax examples are tools, not nontrivial new theory or L5."]
+}
