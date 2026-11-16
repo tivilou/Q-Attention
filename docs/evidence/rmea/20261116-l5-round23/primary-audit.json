@@ -1,0 +1,64 @@
+{
+  "schema": "qattn.l5.question-primary-audit.v1",
+  "status": "NO_QUALIFIED_QUESTION_IN_BOUNDED_PASS",
+  "packet_sha256": "2e7b83761f0ce332fc430fcf93bad85f9d38753fd3fbafb1af92e3f04f718956",
+  "answer_sha256": "c4d215d46a0ec327065265d73eaacf63bc1b81da16ed3f3c113af352fec477d1",
+  "consultant": {
+    "mode": "isolated same-host bounded subagent after required external mapping gate failed",
+    "primary_draft_supplied": false,
+    "external_model_independent": false,
+    "independent_experiments": false,
+    "source_or_repo_tools": false
+  },
+  "code": {
+    "revision": "a4dfe1fd1966418a578492b4bd1038a27cfc7ead",
+    "path": "experiments/rmea_semantic_probe/legacy/rmea.py",
+    "sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "lines": {
+      "psi=circuit(angles);phi=circuit(effect_angles)": 57,
+      "probability=torch.einsum('rd,btd->brt',phi.conj(),psi).abs().square()": 59,
+      "raw=(probability+EPS)*mask[:,None,:]": 62,
+      "normalizer=raw.sum(-1,keepdim=True);alpha=raw/normalizer": 63,
+      "values=self.value(h);utilities=torch.einsum('btd,rd->brt',values,self.decoder)": 64,
+      "logits=(alpha*utilities).sum(-1)+self.bias": 65
+    },
+    "imported": false,
+    "source_unchanged": true,
+    "token_weights_are_not_label_posterior": true,
+    "values_input_dependent_and_signed": true,
+    "source_only": true
+  },
+  "checks": [
+    {
+      "id": "Q1-distractor-block",
+      "premise": "The valid word features, scores and utilities of original/block tokens are fixed after contextual encoding; repeated block has nonempty valid support.",
+      "definitions": "A=sum_original w*u; C=sum_original w; B=sum_block w*u; D=sum_block w; w=q+eps>0.",
+      "result": "z(N)=b+(A+N*B)/(C+N*D); dz/dN=(B*C-A*D)/(C+N*D)^2; limit z=b+B/D.",
+      "invariant_condition": "For fixed relation score, invariance across N iff B*C=A*D. Output argmax may remain stable even if individual logits change.",
+      "verdict": "CORRECT_ELEMENTARY_IDENTITY_NOT_NEW_THEORY",
+      "limits": "Input-dependent denominator constants may change for every token after actual text insertion; no input-invariance or observed-task failure claimed. Positive softmax pooling has the same block identity when its unnormalized scores are fixed."
+    },
+    {
+      "id": "Q2-entity-reversal",
+      "premise": "A task-justified inverse-relation map pi on a closed label subset, token bijection sigma, unchanged corresponding valid masks; no assumption that Re-TACRED supplies such a global permutation.",
+      "sufficient_conditions": "psi_sigma(t)(R*x)=U psi_t(x); phi_pi(r)=U phi_r; u_pi(r),sigma(t)(R*x)=u_r,t(x); b_pi(r)=b_r for common unitary U.",
+      "result": "Unitary overlap invariance gives q, raw weights, denominators and alpha correspondence; paired utilities/biases then give z_pi(r)(R*x)=z_r(x).",
+      "verdict": "CORRECT_SUFFICIENT_CONSTRUCTION_NOT_NECESSARY_OR_NEW_THEORY",
+      "limits": "Actual affine preparation, learned independent effects, value decoder and biases are untied. Four ordered-entity role features do not impose these equations. Symmetry of overlap alone does not guarantee full-head equivariance; sufficient construction changes or restricts the method."
+    }
+  ],
+  "disposition": "Do not implement/promote either broad direction on these identities. A substantive sharper target or new natural evidence is required.",
+  "original_sources_read_this_round": 0,
+  "novelty_search_this_round": false,
+  "exhaustive_novelty": false,
+  "impossibility_theorem": false,
+  "old_l4_unchanged": true,
+  "l5_accepted": false,
+  "new_method_selected": false,
+  "new_model_forwards": 0,
+  "scientific_jobs": 0,
+  "training": 0,
+  "new_formal_runs": 0,
+  "private_array_or_checkpoint_or_cos_reads": 0,
+  "next": "Problem-first primary-source discovery of independently specified relational evidence structures, with full encoder/value pathway and nearest-work checks. No candidate selected, old-case fitting or experimental restart."
+}

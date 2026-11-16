@@ -1,0 +1,138 @@
+{
+  "schema": "qattn.l5.candidate-blind-question-packet.v1",
+  "created_at_utc": "2026-11-16T12:06:42.362556+00:00",
+  "purpose": "Independent reconstruction of research questions, not review of a primary draft, an implementation order or L5 acceptance.",
+  "scientific_question": "Starting from this exact empirically supported normalized Born readout, identify at most two natural cross-input task structures that might support a substantive nontrivial same-core theoretical contribution and a discriminating prediction. It is valid to find none.",
+  "target": {
+    "milestone": "theory-empirical-contribution/v1/L5",
+    "status": "NOT_ACCEPTED",
+    "requirements": [
+      "same-core empirical support",
+      "substantive distinction from nearest originals",
+      "correct nontrivial theory",
+      "discriminating independent evidence",
+      "executed-code correspondence"
+    ],
+    "quantum_scope": "Standalone quantum module; classical simulation/equivalent formulations do not by themselves reject quantum mechanism research. Hardware speedup or a new primitive is optional unless claimed."
+  },
+  "verified_inputs": [
+    {
+      "id": "E1",
+      "type": "source_fact",
+      "content": "Input h_t is a frozen RoBERTa-large contextual word representation in R^1024; four ordered-entity role features accompany it. A trainable affine preparation produces12angles, pi*tanh(.), two layers of RY/RZ per3wires and directed CNOT ring. psi_t and relation phi_r are8D pure states.40relation rows are separate binary effects, not a joint40-outcome POVM."
+    },
+    {
+      "id": "E2",
+      "type": "source_fact",
+      "content": "For valid words q_rt=|phi_r^dagger psi_t|^2, raw=q+eps with eps=1e-6, D_r=sum_t raw, alpha_rt=raw/D_r. V(h) is an affine1024->64 map, u_rt=decoder_r dot V(h_t), z_r=b_r+sum_t alpha_rt*u_rt. Signed u is input-dependent. Original labels train the head with CE, validation selects checkpoint, test labels evaluate only. Preparation/values may coadapt. Masking an entity word after contextual encoding is not entity-invariance."
+    },
+    {
+      "id": "E3",
+      "type": "audited_formal_evidence",
+      "content": "For the trained frozen-encoder Q-RMEA output heads on official Re-TACRED, non-entity context weight-to-value alignment contributes to fixed-model task predictions. Population-level label-blind replacement degrades the predeclared CE diagnostic across all five seeds; the same models have established Macro utility over uniform pooling. Statistical confirmation is conditional on independent approximately normal training-seed differences on this fixed benchmark, for the sole conjunction of the original Macro utility and CE alignment endpoints.",
+      "details": {
+        "run": "20261029T021229Z_fresh5",
+        "seeds": [
+          29,
+          53,
+          71,
+          97,
+          113
+        ],
+        "counts": [
+          58465,
+          19584,
+          13418
+        ],
+        "macro_q_minus_uniform_mean": 0.305841137525207,
+        "macro_ci95": [
+          0.2813721472972543,
+          0.33031012775315965
+        ],
+        "ce_context_weight_shuffle_minus_actual_mean": 0.2020138257661081,
+        "ce_ci95": [
+          0.17847348514455386,
+          0.22555416638766235
+        ],
+        "both_differences_positive_seeds": 5,
+        "exact_two_sided_signflip_p": 0.0625,
+        "assumptions": "Independent approximately-normal5seed differences for parametric confirmation, fixed officialcohort.",
+        "exclusion": "Uniform has fewerparameters. Context intervention holds selected model/values fixed and permutes nonentity-context weight assignment; it does not mediate total utility gain. No quantum/phase/necessary relation conditioning/SOTA/generalization/resource attribution."
+      }
+    },
+    {
+      "id": "E4",
+      "type": "audited_comparator_constraint",
+      "content": "Original fresh5 intervals for Q minus matched relation-softmax/real-overlap/dephased all span0; neither superiority nor equivalence established. Previous matched classical attention work exists; classwise/labelwise attention is not new."
+    },
+    {
+      "id": "E5",
+      "type": "bounded_exploration_not_confirmation",
+      "content": "A previous fixed-readout audit on7outcome-selected validation cases/35traces across5heads used CPU-rebuilt features: quantum rank8 projection changed logits but0of7argmax; real-overlap3of7. Not population equivalence or highrank necessity. No new fitting of these7cases, anchor/rank/tolerance rescue or label-selected premises."
+    },
+    {
+      "id": "E6",
+      "type": "negative_and_known_tool_constraints",
+      "content": "Stopped partial-swap/ordered/joint/direct complement/outcome/spectrum families cannot be reopened by tuning seeds/coefficients/budget. Existing phase-off evidence does not establish phase necessity or rare-class recovery. Generic PSD/kernel/PGM/MMSE/calibration/attention-nonidentifiability arguments, elementary derivatives, conditional quantum mean-estimation ratio/margin composition and nonlinear rank lifting are known tools, not sufficient novelty. Raw-input separation does not lower-bound a contextual encoder plus complete learned readout."
+    },
+    {
+      "id": "E7",
+      "type": "original_source_transfer_boundaries",
+      "content": "Selected originals in R20-22:1612.08731v4 matrix-marginal PSD transport differs from pure-ray Born attention;2303.17062v1 folds label posteriors under a specified loss;2107.05719v1 decision calibration restricts posterior-only rules, final-softmax calibration unmeasured;1807.08305v2 assumes a finite scalar-ADC task estimation model;2201.12854v1 MCA already budgets value-projection computation using known attention;1902.03475v1 allows arbitrary finite answers and constrained mean model M, so general normalized-classifier bandit embedding is not new."
+    },
+    {
+      "id": "E8",
+      "type": "analytic_scope_counterexample_not_executed_model",
+      "content": "Native capacity subfamily: two h=e0,-e0; preparation zero makes same psi=|000>; value still distinguishes them, u_1=(1,-1), b1=0, other class z2=.25 and others-2. A one-RY relation effect gives q11=q12=cos(theta/2)^2; class2always. Free q=(.9,.1) flips answer but is infeasible in this shared-state subfamily. Free-model sampling lower bounds may overstate native difficulty. Known information-set monotonicity, not an actual-checkpoint result or new theory. Current known8D circuit is not an unknown mean oracle without an extra access assumption."
+    }
+  ],
+  "boundaries": [
+    "Return problem proposals and concise mathematical hypotheses, not code or an experiment launch.",
+    "No primary candidate draft is included. Do an independent pass before proposing questions.",
+    "At most2questions and exactly1recommended only if justified; return no_qualified_question when appropriate.",
+    "A natural premise must be externally meaningful and specified without selecting true labels, desired outputs or teacher-fit representations after seeing them.",
+    "Separate current implemented-head questions from method changes; a changed method inherits no automatic oldL4.",
+    "Do not demand hardware advantage, classical non-simulability or quantum-specific superiority unless that is the chosen claim.",
+    "No repository/tools/server authority, private data/weights, new formal experiments, external messaging or data uploads.",
+    "Any cited paper or novelty lead is unverified advice until primary original-source checking. Do not certify first-of-kind or L5."
+  ],
+  "output_contract": {
+    "format": "Compact JSON object",
+    "required": [
+      "status",
+      "questions",
+      "recommendation",
+      "key_reasons",
+      "risks",
+      "corrections_to_primary",
+      "confidence"
+    ],
+    "question_fields": [
+      "id",
+      "question",
+      "natural_premise",
+      "link_to_E_inputs",
+      "nontrivial_theory_target",
+      "nearest_known_tool_collision",
+      "discriminating_prediction",
+      "smallest_analytic_falsifier",
+      "same_core_L4_bridge_or_gap",
+      "stop_condition"
+    ],
+    "status_values": [
+      "questions_proposed",
+      "no_qualified_question"
+    ],
+    "max_questions": 2,
+    "max_visible_words": 1600
+  },
+  "provenance": {
+    "public_source_revision": "a4dfe1fd1966418a578492b4bd1038a27cfc7ead",
+    "public_source_path": "experiments/rmea_semantic_probe/legacy/rmea.py",
+    "public_source_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "historical_formal_source_sha256": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+    "l4_card_sha256": "ba10c598e8f12b91668a339cff8d367647025124494afac0f37221c1f023d89e",
+    "latest_audit_revision": "649cac4cf557a8ef590b80582a7ecf59f1af3622",
+    "no_raw_private_inputs": true
+  }
+}
