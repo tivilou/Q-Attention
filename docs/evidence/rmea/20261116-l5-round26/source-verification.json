@@ -1,0 +1,133 @@
+{
+  "schema": "qattn.l5.bounded-source-verification.v1",
+  "independent_review": false,
+  "claims": [
+    {
+      "claim": "Locally scored normalized Born weights automatically imply leakage-free feature selection.",
+      "verdict": "FALSE_AS_GENERAL_SELECTION_CLAIM",
+      "sources": [
+        "2407.11778v1:PDFp3Cor2.5",
+        "2407.11778v1:PDFp4footnote2"
+      ],
+      "finding": "The normalization denominator can depend on omitted features. A hypothetical one-token categorical selector with valid Born probabilities changes posterior of an omitted bit, including EPS1e-6. Current deterministic Q-RMEA is not diagnosed by this example."
+    },
+    {
+      "claim": "Current soft pooling directly implements SUWR or its proof assumptions.",
+      "verdict": "NO_CODE_CORRESPONDENCE",
+      "sources": [
+        "current_source_mapping:forward",
+        "2407.11778v1:PDFpp4-5Alg1",
+        "2407.11778v1:PDFpp13-14ThmC.1"
+      ],
+      "finding": "Current source forms contextual states, globally normalizes over valid positions and sums signed utilities; no monotone masked-information acquisition process."
+    },
+    {
+      "claim": "SUWR uniqueness or Eq10 can be used as a proved universal characterization.",
+      "verdict": "CONJECTURE_AND_SUPPORT_SCOPE_LIMIT",
+      "sources": [
+        "2407.11778v1:PDFp5Eq10andparagraph"
+      ],
+      "finding": "Uniqueness is expressly conjectured. As naturally read on distinct coordinates, displayed pairwise positive support is weaker than full joint Cartesian support; parity-support illustration shows the difference. TheoremC.1 is not refuted. AppendixD not read."
+    },
+    {
+      "claim": "RORA provides an exact semantic/causal evidence certificate for this head.",
+      "verdict": "NOT_ESTABLISHED",
+      "sources": [
+        "2402.18678v3:PDFpp2-4Eq1-8"
+      ],
+      "finding": "Free-text rationale evaluation, restricted predictive family and trained detector/augmentation/invariance approximation are distinct objects; no perfect-leakage-removal or Q-RMEA guarantee established."
+    }
+  ],
+  "arithmetic": {
+    "status": "PASS",
+    "fixture_sha256": "d8b28cae9df705eddf60a5d227b9216d8a8e59d57a282683241858980a2787b9",
+    "exact_joint_enumeration": [
+      {
+        "epsilon": "0/1",
+        "selector_one_by_x2": [
+          "1/2",
+          "1/3"
+        ],
+        "prior_x2_one": "1/2",
+        "joint_enumeration_posterior_x2_one": "2/5",
+        "closed_form": "2/5",
+        "posterior_changed": true
+      },
+      {
+        "epsilon": "1/1000000",
+        "selector_one_by_x2": [
+          "1/2",
+          "500001/1500002"
+        ],
+        "prior_x2_one": "1/2",
+        "joint_enumeration_posterior_x2_one": "500001/1250002",
+        "closed_form": "500001/1250002",
+        "posterior_changed": true
+      }
+    ],
+    "pairwise_support": {
+      "0,1": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "0,2": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "1,2": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "joint_support_size": 4,
+    "full_cartesian_size": 8,
+    "interpretation": "Known limitation of selector normalization; support gap in stated conjecture wording. Not a novel theorem, native-circuit witness, checkpoint diagnosis or independent scientific review.",
+    "new_model_forwards": 0,
+    "training": 0,
+    "l5_accepted": false
+  },
+  "arithmetic_is_independent_scientific_review": false,
+  "l5_accepted": false
+}
