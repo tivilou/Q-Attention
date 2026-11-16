@@ -1,0 +1,89 @@
+{
+  "schema": "qattn.l5.cnet-source-verification.v1",
+  "formal_source_composite": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+  "formal_source_files": [
+    {
+      "path": "baselines/retacred/rmea_confirmation_run.py",
+      "sha256": "9f6de9013354dd90122b839a12e4a8cfc8b6946a2e2169e41fd248b472511e19"
+    },
+    {
+      "path": "baselines/retacred/rmea_confirmation_protocol.py",
+      "sha256": "bdccafa853365c1cbcb548947e48433d560490a4af4ccdea54b70c26a7e07cc0"
+    },
+    {
+      "path": "baselines/retacred/rmea.py",
+      "sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+    },
+    {
+      "path": "baselines/retacred/frozen_feature_head.py",
+      "sha256": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+    }
+  ],
+  "repository": "https://github.com/crasmarum/CNet",
+  "commit": "0073ea943aba3fd6962f06ac8718e9726e4858fe",
+  "commit_date": "2026-11-10T10:09:23Z",
+  "code_files": [
+    {
+      "path": "impl/bornattn.h",
+      "sha256": "35966e5aadb24336dbecc24e4b84c26f61dad6fef07c4c592caf3c762814a816",
+      "git_blob": "fb9f0026f0c117959bafa8a748e3f25e7d36c9b1",
+      "lines": 249,
+      "locators": [
+        "forward lines146-176",
+        "backward lines186-228 read, not executed/proof-certified; optional step/linear/decay excluded"
+      ]
+    },
+    {
+      "path": "impl/seqcrossent.h",
+      "sha256": "902209b2e218e7732ac2f5ba0134c93a96db45916415a7b1cd80006b9885b982",
+      "git_blob": "2b96428f1bb00b469ed1f87845fd2be8c97fc825",
+      "lines": 206,
+      "locators": [
+        "forward/loss lines91-121",
+        "target-gradient floor contract lines21-30, backward lines125-145 read, not numerically certified"
+      ]
+    },
+    {
+      "path": "impl/tokennorm.h",
+      "sha256": "0235cb8ce3879e593d3ecfabf1124a1681c8bbaf8ae76618bc54f9b4e27409f6",
+      "git_blob": "7bfaed26344e889ce4c45fe4fe707330b1fbef31",
+      "lines": 118,
+      "locators": [
+        "definition lines18-20",
+        "forward lines57-76"
+      ]
+    },
+    {
+      "path": "examples/gollm.cpp",
+      "sha256": "832a4912583c8af36f882530bf2a9849a282146bd01d2321c282f8d32f06d806",
+      "git_blob": "75992c0d57046289c0f51e46d85221d8cacfcd60",
+      "lines": 566,
+      "locators": [
+        "buildLM lines187-233"
+      ]
+    },
+    {
+      "path": "examples/README_gollm.md",
+      "sha256": "78c6239cee9f3d318612517a5a444cf95d31336642954aeecc87e3726587ce19",
+      "git_blob": "bc889f5f5ac3c751741603cf409f9ffa9e56bea5",
+      "lines": 299,
+      "locators": [
+        "lines1-6",
+        "recipes/metrics lines115-135 and gradient-floor description lines159-162 are unverified source reports"
+      ]
+    }
+  ],
+  "paper_version_code_binding": "not_certified",
+  "transport": {
+    "raw_http": "TimeoutError",
+    "headless_raw_browser": "ERR_CONNECTION_RESET",
+    "official_git_blob_api": "5/5 HTTP200,git blob and SHA256 verified"
+  },
+  "acquisition_command_sha256": "d1329181534a3bd5ac0cd5a3df183fa747c6877ce63bc9f8093039ea9cf8c00e",
+  "identity_commands_sha256": "800062675d2ea63ec8faf445e7911b428add8eb487ef56e5ef1aa1f50ce25528",
+  "api_recovery_sha256": "64bbfcb94e02674e467f94f65e86b47576904f08e13b7986dea0d56f1d793008",
+  "no_import_compile_or_tests": true,
+  "no_model_execution": true,
+  "no_private_restore": true,
+  "l5_accepted": false
+}

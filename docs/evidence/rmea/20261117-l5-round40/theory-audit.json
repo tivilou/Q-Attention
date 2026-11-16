@@ -1,0 +1,46 @@
+{
+  "schema": "qattn.l5.cnet-contract-comparison.v1",
+  "status": "generic_score_collision_confirmed_specific_function_differences_retained",
+  "cnet": {
+    "paper": "2610.08592v3",
+    "repository_commit": "0073ea943aba3fd6962f06ac8718e9726e4858fe",
+    "paper_code_exact_revision_certified": false,
+    "query": "projected token field",
+    "key": "projected token field",
+    "score": "s=abs(Q dot conj(K))**2",
+    "normalization": "A=s/(sum_causal(s)+delta), zero denominator gives zero output",
+    "value": "complex token V, followed by projections/residual blocks",
+    "final_readout": "Born amplitude-normalized sequence classification; current CPU forward/loss floors at1e-15"
+  },
+  "native": {
+    "query": "40 learned relation effects independent of the current bag",
+    "key": "unit pure3-qubit state from affine1028->12, pi*tanh, two RY/RZ/CNOT layers",
+    "score": "q=abs(phi^H psi)**2",
+    "normalization": "alpha=(q+epsilon)/sum_valid(q+epsilon), epsilon=1e-6",
+    "value": "signed real utilities from value1024->64 and decoder40x64",
+    "readout": "40 real logits plus bias, ordinary softmax CE",
+    "formal_source_composite": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce"
+  },
+  "known_boundaries": {
+    "epsilon": "C denominator floor is substochastic if delta>0; Q additive per-token floor is stochastic for any nonempty valid bag.",
+    "zero_scores": "C output zero by explicit guard; Q attention uniform. Pooling contrast only, not a native trained-model diagnosis.",
+    "scale": "At delta=0 and nonzero row, query norm cancels; unequal key norms remain. At delta>0 even query norm changes row mass.",
+    "rms": "||TokenNorm(x)||^2=sum|x|^2/(sum|x|^2/d+eta), not generally1; a subsequent unconstrained projection also does not ensure unit Q/K.",
+    "novelty": false,
+    "empirical_evidence": false
+  },
+  "source_claim_caution": [
+    "The author states first/no clean real analogue. Neither is adopted as verified priority or a realification impossibility. R39 gives the known real16 two-axis form.",
+    "Current code has linear/streaming and decay switches. Those branches/kernels/paper are not audited or run here, and are not transferred to Q-RMEA."
+  ],
+  "dedup_correction": "Round14 CAML/LAAT already establish label-wise pooling predecessors; reuse them rather than repeating their acquisition.",
+  "next_action": "Reuse the existing original-reading bank (including R14 CAML/LAAT, R1/R13 QHA, R39 ReadingWhy and R40 CNet). Perform at most two task-specific original-source discovery queries for quantum/measurement relation extraction under contextual features, selecting at most one unexamined direct comparator. Read its actual task/learning assumptions before selecting any new mechanism. If it supplies only generic Born normalization or label-wise pooling, close that transfer; do not repeat kernel/rank/optimizer or stopped families. No automatic L4 transfer, model run, private restore or formal rerun.",
+  "independent_theory_review": false,
+  "new_method_selected": false,
+  "new_model_execution": 0,
+  "new_training": 0,
+  "private_arrays_read": 0,
+  "new_rank_demo": 0,
+  "old_l4_unchanged": true,
+  "l5_accepted": false
+}

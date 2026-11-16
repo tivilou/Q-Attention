@@ -4,8 +4,8 @@
 
 ## 当前研究总览
 
-限定L4保持，L5尚未接受。新增直接近邻ReadingWhy v4并核对两份PSD原文：normalized Born/realification已有先例，对方held-polynomial归因不适用于当前tanh/旋转/softmax头。没有新rank演示或模型执行。下一步读其引用的CNet原文，厘清实质任务机制。
-最新：[第三十九轮](../audits/20261117-q-rmea-l5-round39.md)。
+限定L4保持，L5未接受。CNet两版原文及固定提交五文件确认generic Born score已有先例；具体epsilon、状态、查询和readout差异不等于新理论。已审CAML/LAAT复用，不重复获取。下一门限定同任务未审原始近邻及真实任务假设；零新模型/训练/私有恢复。
+最新：[第四十轮](../audits/20261117-q-rmea-l5-round40.md)。
 
 ## 时间线
 
@@ -49,3 +49,4 @@
 | 2026-11-16T19:23:58.641860+00:00（MIL条件与完整端点） | q-rmea-l5-round37 | 三篇原文、25条件/50矩阵重算；margin线索待研究，L5尚未接受 | [entry](20261116T-192358Z-q-rmea-l5-round37.md) |
 | 2026-11-16T19:41:00.693424+00:00（共享置换margin） | q-rmea-l5-round38 | 3原文与精确枚举；单行集中度不足，通用公式不算新理论，L5未接受 | [entry](20261116T-194100Z-q-rmea-l5-round38.md) |
 | 2026-11-16T20:01:26.786957+00:00（Born直接近邻） | q-rmea-l5-round39 | 3原文/8页图；实数化与归因迁移边界，CNet原文待查；L5未接受 | [entry](20261116T-200126Z-q-rmea-l5-round39.md) |
+| 2026-11-16T20:22:36.576174+00:00（CNet合同） | q-rmea-l5-round40 | 2版本/6图/5固定源码；generic Born先例已核实，具体函数不同但未达L5 | [entry](20261116T-202236Z-q-rmea-l5-round40.md) |
