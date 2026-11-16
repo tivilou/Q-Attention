@@ -1,0 +1,57 @@
+{
+  "schema": "qattn.l5.observable-quotient-source.v1",
+  "formal_source_composite": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+  "formal_source_files": [
+    {
+      "path": "baselines/retacred/rmea_confirmation_run.py",
+      "sha256": "9f6de9013354dd90122b839a12e4a8cfc8b6946a2e2169e41fd248b472511e19"
+    },
+    {
+      "path": "baselines/retacred/rmea_confirmation_protocol.py",
+      "sha256": "bdccafa853365c1cbcb548947e48433d560490a4af4ccdea54b70c26a7e07cc0"
+    },
+    {
+      "path": "baselines/retacred/rmea.py",
+      "sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+    },
+    {
+      "path": "baselines/retacred/frozen_feature_head.py",
+      "sha256": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+    }
+  ],
+  "runner_static_findings": {
+    "torch_save_calls": [
+      {
+        "line": 109,
+        "payload": "head.state_dict() only"
+      },
+      {
+        "line": 131,
+        "payload": "head.state_dict() only"
+      }
+    ],
+    "optimizer_state_saved": false,
+    "first_update": {
+      "before_and_raw_gradient_lines": [
+        122,
+        123
+      ],
+      "batch_indices_and_loss_line": 124,
+      "clip_and_step_line": 125,
+      "after_parameters_line": 127,
+      "npz_line": 128
+    }
+  },
+  "rmea_static_findings": {
+    "circuit_lines": [
+      14,
+      33
+    ],
+    "same_circuit_call_line": 57,
+    "quantum_squared_overlap_line": 59,
+    "dephased_probability_dot_line": 61,
+    "final_layer_is_common_fixed_basis_permutation": true
+  },
+  "new_runtime_binding": false,
+  "source_imported": false
+}

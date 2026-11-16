@@ -1,0 +1,34 @@
+{
+  "schema": "qattn.l5.observable-mechanism-decision.v1",
+  "status": "no_qualified_l5_candidate",
+  "positive_findings": [
+    "Exact producer source declares private first-update before/raw-gradient/after and actual minibatch indices.",
+    "Common terminal CNOT ring cancels from native Born overlap and permutes both dephased distributions, so scalar outputs are invariant."
+  ],
+  "theory": {
+    "quantum": "For common fixed unitary U: |(U phi)^dagger(U psi)|^2=|phi^dagger psi|^2.",
+    "dephased": "For common fixed basis permutation P: sum_j |(P phi)_j|^2 |(P psi)_j|^2=sum_j |phi_j|^2 |psi_j|^2.",
+    "derivative_scope": "Scalar functions equal for every remaining parameter value; derivatives and real-arithmetic optimizer histories agree under same initialization, inputs, optimizer state and reference update, if only this parameter-free terminal ring is removed. No native floating-point replay was run.",
+    "not_claimed": "Not a new theorem, quantum advantage, prior full-run comparison, irrelevance of the internal entangler, or invariance of arbitrary internal trace/entanglement values. Arbitrary common unitary statement applies to Born, not dephased."
+  },
+  "arithmetic_fixture": {
+    "sha256": "484768c4a6126ffc90297c25167cd0ede592c60291616021ff96974cdedd483e",
+    "pairs": 16,
+    "born_and_dephased_invariant": true,
+    "purity_wire1_before": "1",
+    "purity_wire1_after": "1/2",
+    "scope": "Exact rational permutation and normalized-inner-product/diagonal-overlap arithmetic only; no torch import, native head/encoder execution, real inputs, training or performance test."
+  },
+  "command_record_sha256": "bcc0c1c7c3fcfa970003d165e0c50e7f28de09ebbdc0b90b567cb61b89695bb7",
+  "next_action": "Read bounded original work on class-conditional multiple-instance learning and latent responsibility identification. Seek an explicit task-generating condition that predicts a held-out local weight-to-value alignment contrast for the actual normalized head, with a meaningful matched control. Keep this exploratory: no selected method, new training, private-array restoration or L4 inheritance before novelty and discriminating-prediction gates.",
+  "l5_accepted": false,
+  "new_method_selected": false,
+  "independent_scientific_review": false,
+  "new_native_model_forwards": 0,
+  "scientific_jobs": 0,
+  "new_training": 0,
+  "new_formal_runs": 0,
+  "private_array_or_checkpoint_reads": 0,
+  "cos_reads": 0,
+  "old_l4_unchanged": true
+}

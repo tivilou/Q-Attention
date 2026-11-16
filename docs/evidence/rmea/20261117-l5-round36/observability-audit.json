@@ -1,0 +1,38 @@
+{
+  "schema": "qattn.l5.first-update-observability.v1",
+  "created_at_utc": "2026-11-16T18:55:35.126074+00:00",
+  "run_id": "20261029T021229Z_fresh5",
+  "scope": "Existing seven compact report files and exact four source blobs only. No private content was loaded.",
+  "findings": [
+    {
+      "object": "initial parameters / raw first gradient / first after parameters / actual first minibatch indices / loss",
+      "status": "producer_declares_private_npz",
+      "limit": "Not values in the compact seven-file report. Private member existence and exact shapes were not reverified in this round."
+    },
+    {
+      "object": "initial and selected head checkpoints",
+      "status": "head_state_only_declared",
+      "limit": "No serialized optimizer moments/state in either torch.save call of exact runner."
+    },
+    {
+      "object": "later optimization trajectory",
+      "status": "not_observed_by_this_schema",
+      "limit": "Epoch valid histories and initial/selected inference traces do not identify later per-batch gradients or optimizer moments. Do not infer histories or promise exact training resume."
+    },
+    {
+      "object": "closed_inventories",
+      "status": "six_stage_digest_only",
+      "limit": "Values are SHA256 strings, not embedded member lists. Prior archive restore acceptance certifies closed inventory at archive time; current private member enumeration not performed."
+    },
+    {
+      "object": "pinned formal archive",
+      "status": "prior_acceptance_reused",
+      "limit": "Archive acceptance remains unchanged; no new COS read/write/index inspection or retrieval."
+    }
+  ],
+  "decision": "No private restoration or native first-step execution solely to reproduce generic Taylor/chain-rule identities. First propose a substantive discriminating hypothesis and choose the smallest predeclared evidence slice.",
+  "scientific_jobs": 0,
+  "new_training": 0,
+  "private_arrays_read": 0,
+  "l5_accepted": false
+}
