@@ -1,0 +1,79 @@
+{
+  "requests": [
+    {
+      "name": "same_task_quantum_extraction",
+      "origin": "independent_problem_search",
+      "parameters": {
+        "search_query": "all:\"relation extraction\" AND all:\"quantum\"",
+        "start": 0,
+        "max_results": 7,
+        "sortBy": "relevance",
+        "sortOrder": "descending"
+      },
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22relation+extraction%22+AND+all%3A%22quantum%22&start=0&max_results=7&sortBy=relevance&sortOrder=descending",
+      "method": "GET",
+      "requested_at_utc": "2026-11-16T20:29:39.353973+00:00",
+      "cache": false,
+      "status": 200,
+      "final_url": "https://export.arxiv.org/api/query?search_query=all%3A%22relation+extraction%22+AND+all%3A%22quantum%22&start=0&max_results=7&sortBy=relevance&sortOrder=descending",
+      "sha256": "225e5d836602fbe198012d7397f8a2c4ece2c7582f50856c6f15e25f553c76d6",
+      "rows": 2
+    },
+    {
+      "name": "measurement_relation_classification",
+      "origin": "independent_problem_search",
+      "parameters": {
+        "search_query": "all:\"relation classification\" AND (all:\"quantum\" OR all:\"measurement\")",
+        "start": 0,
+        "max_results": 7,
+        "sortBy": "relevance",
+        "sortOrder": "descending"
+      },
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22relation+classification%22+AND+%28all%3A%22quantum%22+OR+all%3A%22measurement%22%29&start=0&max_results=7&sortBy=relevance&sortOrder=descending",
+      "method": "GET",
+      "requested_at_utc": "2026-11-16T20:29:43.533393+00:00",
+      "cache": false,
+      "status": 200,
+      "final_url": "https://export.arxiv.org/api/query?search_query=all%3A%22relation+classification%22+AND+%28all%3A%22quantum%22+OR+all%3A%22measurement%22%29&start=0&max_results=7&sortBy=relevance&sortOrder=descending",
+      "sha256": "a23742849ee6b68d9df34bc2171aa0dddfd2094952411a8ab7905817dacf2e1d",
+      "rows": 7
+    }
+  ],
+  "metadata_rows": 9,
+  "distinct_metadata_ids": 9,
+  "provider_failure": {
+    "provider": "web.run",
+    "queries": [
+      "\"relation extraction\" quantum attention",
+      "\"relation classification\" quantum measurement"
+    ],
+    "status": "tool_route_404",
+    "error": "Invalid URL POST /v1/alpha/search api_route_not_found",
+    "results": 0,
+    "site_access_control": false,
+    "decision": "No repeat to failing tool route; same task discovery through official arXiv API"
+  },
+  "selected_originals": [
+    "arxiv:2204.12111v1"
+  ],
+  "selection_reason": "An unexamined same-task attention source whose abstract claims a mathematical account of function-word redundancy and inverse-relation discrimination. It is classical few-shot prototype learning, not a quantum relation-extraction predecessor. Read to check the task-premise bridge, not to revive stopped ordered/joint mechanisms.",
+  "bank_dedup": {
+    "command": [
+      "rg",
+      "-l",
+      "2204\\.12111|Function.words Enhanced|FAEA",
+      "docs/evidence/rmea",
+      "docs/audits",
+      ".ai-progress/workstreams/quantum-projector-v2/refs"
+    ],
+    "stdout": "",
+    "stderr": "",
+    "exit_status": 1,
+    "scope": "Exact ID/title/acronym search of current public evidence/audits/owning refs, not proof of global absence"
+  },
+  "unselected": "All other rows metadata-only; quantum/extraction query returned irrelevant physics. Selected FAEA is classical, not a verified quantum same-task predecessor.",
+  "not_exhaustive": true,
+  "priority_claim": false,
+  "browser_needed": false,
+  "selected_pdf_http_success": true
+}

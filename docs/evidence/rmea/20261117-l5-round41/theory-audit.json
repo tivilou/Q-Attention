@@ -1,0 +1,103 @@
+{
+  "schema": "qattn.l5.same-task-premise-transfer.v1",
+  "status": "direct_transfer_rejected_no_new_mechanism_selected",
+  "source": {
+    "paper_id": "arxiv:2204.12111v1",
+    "classical_not_quantum": true,
+    "title_variant": true,
+    "task": "FewRel episodic support/query accuracy with relation descriptions",
+    "native_task": "fixed40class Re-TACRED/frozen1024+4role features/signed utilities/softmax CE and Macro-F1",
+    "source_proof_appendix_located": false,
+    "eq14_intention_resolved": false
+  },
+  "analytic_checks": {
+    "status": "PASS",
+    "protocol_sha256": "ac579f6fa4210bd6ed60a128c0ebc337be887c32cd853f161508c02b2c7a68b8",
+    "exact_cases": 2,
+    "test_a": {
+      "fixed_vectors": {
+        "keyword_i": [
+          1,
+          0
+        ],
+        "keyword_j": [
+          1,
+          1
+        ],
+        "function_i": [
+          0,
+          1
+        ],
+        "function_j": [
+          2,
+          1
+        ]
+      },
+      "squared_absolute_cosines": {
+        "function": "1/5",
+        "keyword": "1/2",
+        "sum": "25/26"
+      },
+      "premise_satisfied": true,
+      "claimed_implication": false,
+      "cross_dot_terms": [
+        "2",
+        "1"
+      ],
+      "scope": "Hypothetical cosine interpretation only; not a refutation of unspecified intended Eq14."
+    },
+    "test_b": {
+      "fixed_vectors": {
+        "query": [
+          1,
+          0
+        ],
+        "true_prototype": [
+          1,
+          1
+        ],
+        "competitor": [
+          0,
+          6
+        ]
+      },
+      "initial_dot_scores": [
+        "1",
+        "0"
+      ],
+      "updated_dot_scores": [
+        "5",
+        "6"
+      ],
+      "same_label_dot_increases": true,
+      "true_class_argmax_before": true,
+      "true_class_argmax_after": false,
+      "scope": "Pair-update logical implication only; not FAEA adaptive graph or Q-RMEA."
+    },
+    "literal_source_definition": "For nonzero scalar inner product s, abs(s)/norm2(s)=1; undefined at s=0. No inferred intended repair.",
+    "no_model_execution": true,
+    "no_training": true,
+    "no_private_data": true,
+    "nontrivial_new_theory": false,
+    "l5_accepted": false
+  },
+  "proof_protocol_sha256": "ac579f6fa4210bd6ed60a128c0ebc337be887c32cd853f161508c02b2c7a68b8",
+  "math_command_sha256": "848128867630ebd11d22f16129283d91a658a7aed5f3883efd10ecc2dbfcf39a",
+  "correspondence": {
+    "source_components": "Class-general/class-specific word attention, adaptive support graph, prototypes and query dot product",
+    "native_components": "unit3qubit state and fixed40binary effects, per-token epsilon normalization, value1024->64 and decoder40x64, real logits plusbias",
+    "source_equations_mapped_to_native": false,
+    "task_premise_independently_supported": false,
+    "similarity_guarantee_not_macro_or_margin_guarantee": true
+  },
+  "next_action": "Build one task-premise/endpoint design packet for the unchanged circuit-constrained relation scorer. Require an independently measurable premise on frozen contextual features, roles and labels, an explicit competing nonlinear label-wise explanation, and a prediction about actual signed-value class margins rather than similarity alone. Try to break the premise analytically before any model/data admission. Reject Q-realizability, generic capacity/smoothing, missing cross-term assumptions and already-stopped quotient/spectral/rank/ordered/joint/complement routes. Do not add another generic paper queue or run training; old L4 does not supply the new premise.",
+  "new_method_selected": false,
+  "independent_theory_review": false,
+  "nontrivial_new_theory": false,
+  "old_l4_unchanged": true,
+  "l5_accepted": false,
+  "new_model_execution": 0,
+  "new_training": 0,
+  "private_arrays_read": 0,
+  "new_rank_demo": 0
+}

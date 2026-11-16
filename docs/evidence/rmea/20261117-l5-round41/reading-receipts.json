@@ -1,0 +1,47 @@
+{
+  "schema": "qattn.l5.original-reading.v1",
+  "created_at_utc": "2026-11-16T20:39:54.090198+00:00",
+  "reader": "primary_agent",
+  "independent_scientific_review": false,
+  "papers": [
+    {
+      "paper_id": "arxiv:2204.12111v1",
+      "title": "Function-words Enhanced Attention Networks for Few-Shot Inverse Relation Classification",
+      "observed_pdf_title": "Function-words Adaptively Enhanced Attention Networks for Few-Shot Inverse Relation Classification",
+      "title_variant": true,
+      "version": "2204.12111v1",
+      "pdf_sha256": "cfcc6ef84a7b4b2a2e2613655fb8e98df34a20e6fa8ba38f5227b4d7b2aa56a5",
+      "pdf_pages": 8,
+      "parsed_sha256": "a90211b330b4536f1ff80b456a759c5d76c7c7bef9c643d9a39e47f340e7c558",
+      "integrity_sha256": "bd5c4d2a51ef9546876d8784ecd88b8ec5203e9dd4f8e1e3f12129039492f14e",
+      "pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "images": [
+        1,
+        4,
+        5
+      ],
+      "findings": [
+        "Sections3.1-3.5 use episodic support/query FewRel classification with relation name/description BERT inputs, class-specific keyword/function-word attention, label-aware support graph and mean prototypes; this is a classical few-shot model.",
+        "Section3.6 p4 Eq14 literally divides absolute scalar inner product by its own2-norm; this is1 for nonzero scalar and undefined at zero, not standard cosine. Intended correction not independently resolved.",
+        "Theorem1 uses an additive keyword/function representation and an ordering premise on pure-component similarities. A hypothetical cosine repair needs mixed cross-term control; fixed counterexample rejects implication under that repair only.",
+        "Theorem2 pairwise inner-product comparison is not a full graph/readout or classification guarantee. Fixed pair-update example demonstrates insufficiency for a third-prototype argmax.",
+        "Section4.2/Table1-4 p5 report episodic average accuracy on FewRel, not fixed40class Re-TACRED Macro-F1."
+      ],
+      "limits": [
+        "Selected reading, p6 not read, Fig2 p3 not visually audited; no code/weights/data or performance reproduction.",
+        "P4 refers to an Appendix proof, not located in acquired8page version. No supplement requested; do not claim no proof exists elsewhere or refute an unspecified intended theorem.",
+        "Two elementary analytical counterexamples concern explicit transport claims; not executions of source FAEA, native Q-RMEA, natural language features or independent evidence of task utility.",
+        "Current full-data L4 does not measure an additive content/function split, its cross terms or support-query prototype geometry. No new task premise or method accepted."
+      ]
+    }
+  ],
+  "selected_page_images": 3
+}
