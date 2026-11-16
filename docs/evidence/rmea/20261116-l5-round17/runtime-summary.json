@@ -1,0 +1,60 @@
+{
+  "schema": "qattn.affine-curve.runtime-summary.v1",
+  "status": "PASS",
+  "source_revision": "909bbc56a9c330da21084f846af9d3b225c84606",
+  "source_sha256": "172a858f5f6a4c3b5776167eaae516bd979bc998a14834a444aa34a0be4a6001",
+  "contract_sha256": "657f60ec85a2578198f9b6d22f422f2c28c5113d129f280f8b18bc80770d365d",
+  "freeze_sha256": "48903de14a9426352cf5f1aad8014796352de91e3922290e4d17d4542b16efe5",
+  "recipe": {
+    "kind": "diagnostic",
+    "command": [
+      "{python}",
+      "-B",
+      "docs/evidence/rmea/20261116-l5-round16/affine_curve_fixture.py",
+      "--source-root",
+      ".",
+      "--out-dir",
+      "{output}/fixture"
+    ],
+    "timeout": 180,
+    "max_attempts": 1,
+    "replay_safe": false,
+    "resources": {
+      "cpu": 1,
+      "ram_mb": 4096,
+      "disk_mb": 128,
+      "gpus": 0,
+      "gpu_mb": 0
+    },
+    "outputs": [
+      "fixture/affine-curve-result.json"
+    ]
+  },
+  "mechanism_review": "Round16 PASS_WITH_RISK",
+  "lifecycle_review": "PASS_WITH_RISK",
+  "initial_lifecycle_review": "BLOCK: database-relative leader lock and persisted completion-receipt binding; both fixed and re-reviewed before execution",
+  "focused_guard_tests": "One valid receipt and7 rejected mismatches",
+  "attempt_count": 1,
+  "terminal_quiescent": true,
+  "real_parent_launch_canary": true,
+  "local_copy_injection": {
+    "failed_attempts": 1,
+    "successful_retry": 1,
+    "same_immutable_attempt_and_result_hash": true,
+    "partial_removed": true,
+    "scientific_reexecution": false
+  },
+  "exact_owner_worker_binding_restoration": true,
+  "controller_online_after_restoration": true,
+  "scheduler_core_unchanged": true,
+  "source_unchanged": true,
+  "cos_requests": 0,
+  "formal_runs": 0,
+  "old_l4_card_unchanged": true,
+  "l5_accepted": false,
+  "limits": [
+    "Preflight refreshes cgroupv1 headroom but deployed worker dispatch-time probe checks v2 only; resource availability can change.",
+    "Leader lock does not exclude external task submissions; concurrent queue/configuration remains an operational coordination risk.",
+    "Static verdict does not certify activation, forward, injected-copy recovery or restoration; retain actual evidence."
+  ]
+}

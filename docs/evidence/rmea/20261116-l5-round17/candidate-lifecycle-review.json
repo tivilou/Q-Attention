@@ -1,0 +1,39 @@
+{
+  "review_mode": "subagent_fallback",
+  "reviewer": "/root/l5_theory_builder",
+  "review_scope": "lifecycle",
+  "packet_sha256": "2a42eee70618f8da5c0baa89f5e0338b707732ae2f64179b68ed06214d6175ec",
+  "selection_sha256": "38a82713555d275c789b9b1d100157dd323ff76f97c58fb39aa4c146d3b871aa",
+  "source_sha256": "172a858f5f6a4c3b5776167eaae516bd979bc998a14834a444aa34a0be4a6001",
+  "contract_sha256": "657f60ec85a2578198f9b6d22f422f2c28c5113d129f280f8b18bc80770d365d",
+  "freeze_sha256": "48903de14a9426352cf5f1aad8014796352de91e3922290e4d17d4542b16efe5",
+  "verdict": "PASS_WITH_RISK",
+  "correctness": {
+    "hashes": "Nine embedded frozen files, four supplied runtime files, worker, contract and reconstructed freeze match. Selection binds current packet.",
+    "scientific_budget": "One nine-input batch, one forward, CPU only, zero training and no scientific retry.",
+    "focused_tests": "One valid receipt and seven rejected mutations reported; source checked but not executed by reviewer."
+  },
+  "lifecycle_correctness": {
+    "L1": "Resolved: leader lock derives from actual Store database parent, matching controller.",
+    "restart": "Fresh controller heartbeat newer than restart request required.",
+    "paired_restore": "Original-pair activation, compensation, readback, quiescent restore and unknown reservation retention intact."
+  },
+  "artifact_and_recovery": {
+    "A1": "Resolved: stored request and persisted receipt identities/recipe/output inventory bound; remote terminal state equals full database receipt and bytes match original hash/size.",
+    "copy_retry": "Local-copy injection/retry uses same completed attempt and artifact identity.",
+    "source_recovery": "Exact public Git bundle recovery and nested output boundary unchanged."
+  },
+  "must_fix": [],
+  "risks": [
+    "Preflight refreshes cgroupv1 headroom but deployed worker dispatch-time probe checks v2 only; resource availability can change.",
+    "Leader lock does not exclude external task submissions; concurrent queue/configuration remains an operational coordination risk.",
+    "Static verdict does not certify activation, forward, injected-copy recovery or restoration; retain actual evidence."
+  ],
+  "confidence": "High for corrected static lifecycle/hash bindings; runtime unobserved.",
+  "execution_performed": false,
+  "mechanism_approved": false,
+  "new_method_approved": false,
+  "novelty_accepted": false,
+  "natural_data_claim_accepted": false,
+  "l5_accepted": false
+}

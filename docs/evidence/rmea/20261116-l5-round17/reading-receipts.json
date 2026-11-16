@@ -1,0 +1,31 @@
+{
+  "schema": "qattn.scoped-original-reading.v1",
+  "papers": [{
+    "paper_id": "arxiv:2608.11173v3",
+    "title": "A Quantum Roadmap for Softmax Attention: Exact Born-Rule Analogs for Softmax Attention on the Probability Simplex",
+    "source_url": "https://arxiv.org/pdf/2608.11173v3",
+    "version": "preprint v3, submitted 15 October 2026",
+    "sha256": "f8a580b96a58a2b240c8cbd8b862cfa8bae77b49485b609b0c9ce20be67d8c0f",
+    "acquisition_receipt": ".codex-artifacts/qattn-l5-round17-20261116/fulltext/4608a857b08d50ca/receipt.json",
+    "identity": "verified from official history and PDFp1 exact title/authors/revision/date",
+    "reading": "scoped_original_read",
+    "pages_total": 27,
+    "pages_read": [1,2,3,4,8,9],
+    "rendered_pages_inspected": [8],
+    "findings": [
+      "P4 Assumption1/Remark2 use simplex inputs, values and outputs, lifted features and normalized overlaps; this is not the existing signed-feature/value Q-RMEA interface.",
+      "P8 Definition11/Proposition12 compile controlled token-register state preparation from classically known normalized cosine amplitudes, rather than the current per-token overlap/classical normalization.",
+      "P8-9 Theorem13 gives pointwise distribution-family equality via score=2log(cos(angle/2)); it does not equate restricted parameter-to-input function classes.",
+      "P9 Theorem14 strict boundary extension requires free angles reaching pi and zero numerators without a positive floor. Existing Q-RMEA adds epsilon1e-6 for every valid token, so this premise is absent."
+    ],
+    "transfer_assessment": [
+      "The positive-score log-softmax identity is known and does not establish L5. It does not alone refute the fixed-head affine-curve separation: mapped log scores need not be affine functions of that curve.",
+      "Do not claim exact sparse-boundary expressivity for unchanged epsilon-smoothed Q-RMEA. The candidate concerns alternating strict class margins, a narrower different property."
+    ],
+    "limitations": [
+      "Only listed pages read; no independent audit of full paper, code, Lean appendix or QSVT theorem.",
+      "No novelty clearance, natural-feature support or new task evidence.",
+      "Two title queries/newest ten each are not exhaustive; Q-Interference2608.17288v1 reused from Round7, not reread."
+    ]
+  }]
+}
