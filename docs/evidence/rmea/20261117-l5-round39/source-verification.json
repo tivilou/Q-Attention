@@ -1,0 +1,118 @@
+{
+  "schema": "qattn.l5.factorization-source-verification.v1",
+  "formal_source_composite": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+  "formal_source_files": [
+    {
+      "path": "baselines/retacred/rmea_confirmation_run.py",
+      "sha256": "9f6de9013354dd90122b839a12e4a8cfc8b6946a2e2169e41fd248b472511e19"
+    },
+    {
+      "path": "baselines/retacred/rmea_confirmation_protocol.py",
+      "sha256": "bdccafa853365c1cbcb548947e48433d560490a4af4ccdea54b70c26a7e07cc0"
+    },
+    {
+      "path": "baselines/retacred/rmea.py",
+      "sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+    },
+    {
+      "path": "baselines/retacred/frozen_feature_head.py",
+      "sha256": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+    }
+  ],
+  "source_locators": {
+    "rmea": [
+      "circuit lines10-32",
+      "prepare/probability/normalization/readout lines55-65"
+    ],
+    "shared_head": [
+      "key/query initialization lines20-21",
+      "real_overlap lines38-40"
+    ]
+  },
+  "acquisition_command_sha256": "b1acc5700e6fadc98f23e80c939a30219a8a9672e80c76d22505039a28971721",
+  "identity_commands_sha256": "46f84a8f775f87065e30c94fc15503818e77b451532cdb79ea8c20d69fa83f1d",
+  "search_scope": {
+    "requests": [
+      {
+        "name": "normalized_psd",
+        "origin": "independent_search",
+        "query": "ti:\"positive semidefinite rank\"",
+        "url": "https://export.arxiv.org/api/query?search_query=ti%3A%22positive+semidefinite+rank%22&start=0&max_results=7&sortBy=relevance&sortOrder=descending",
+        "method": "GET",
+        "requested_at_utc": "2026-11-16T19:51:33.322018+00:00",
+        "cache": false,
+        "status": 200,
+        "final_url": "https://export.arxiv.org/api/query?search_query=ti%3A%22positive+semidefinite+rank%22&start=0&max_results=7&sortBy=relevance&sortOrder=descending",
+        "sha256": "3d31f5471fa7a5d39504a27ece2a7044736e9c3ee73b51de33c6a62d59efee2c",
+        "rows": 7
+      },
+      {
+        "name": "complex_real_factorization",
+        "origin": "cross_domain_search",
+        "query": "all:\"complex\" AND all:\"real\" AND all:\"positive semidefinite rank\"",
+        "url": "https://export.arxiv.org/api/query?search_query=all%3A%22complex%22+AND+all%3A%22real%22+AND+all%3A%22positive+semidefinite+rank%22&start=0&max_results=7&sortBy=relevance&sortOrder=descending",
+        "method": "GET",
+        "requested_at_utc": "2026-11-16T19:51:37.727944+00:00",
+        "cache": false,
+        "status": 200,
+        "final_url": "https://export.arxiv.org/api/query?search_query=all%3A%22complex%22+AND+all%3A%22real%22+AND+all%3A%22positive+semidefinite+rank%22&start=0&max_results=7&sortBy=relevance&sortOrder=descending",
+        "sha256": "7b0ae9e306665bfff6d93793fa63cdcae7b08d79234273b8467be2d43900a005",
+        "rows": 2
+      },
+      {
+        "name": "born_model_classical",
+        "origin": "independent_search",
+        "query": "all:\"Born\" AND (all:\"attention\" OR all:\"kernel\") AND (all:\"classical\" OR all:\"expressivity\")",
+        "url": "https://export.arxiv.org/api/query?search_query=all%3A%22Born%22+AND+%28all%3A%22attention%22+OR+all%3A%22kernel%22%29+AND+%28all%3A%22classical%22+OR+all%3A%22expressivity%22%29&start=0&max_results=7&sortBy=relevance&sortOrder=descending",
+        "method": "GET",
+        "requested_at_utc": "2026-11-16T19:51:41.818613+00:00",
+        "cache": false,
+        "status": 200,
+        "final_url": "https://export.arxiv.org/api/query?search_query=all%3A%22Born%22+AND+%28all%3A%22attention%22+OR+all%3A%22kernel%22%29+AND+%28all%3A%22classical%22+OR+all%3A%22expressivity%22%29&start=0&max_results=7&sortBy=relevance&sortOrder=descending",
+        "sha256": "3b4fbcfc41cdda258d14dd0142c5d8cf85d14e93787af54715e5f161550f3eaf",
+        "rows": 7
+      }
+    ],
+    "queries": [
+      {
+        "name": "normalized_psd",
+        "origin": "independent_search",
+        "query": "ti:\"positive semidefinite rank\""
+      },
+      {
+        "name": "complex_real_factorization",
+        "origin": "cross_domain_search",
+        "query": "all:\"complex\" AND all:\"real\" AND all:\"positive semidefinite rank\""
+      },
+      {
+        "name": "born_model_classical",
+        "origin": "independent_search",
+        "query": "all:\"Born\" AND (all:\"attention\" OR all:\"kernel\") AND (all:\"classical\" OR all:\"expressivity\")"
+      }
+    ],
+    "metadata_rows": 16,
+    "distinct_metadata_ids": 15,
+    "selected_originals": [
+      "arxiv:2611.05355v4",
+      "arxiv:1407.4095v1",
+      "arxiv:1605.00988v3"
+    ],
+    "paper_bank": [
+      "docs/audits/20261117-q-rmea-l5-round38.md",
+      "docs/audits/20261116-q-rmea-l5-round19.md",
+      "docs/audits/20261116-q-rmea-l5-round16.md"
+    ],
+    "not_exhaustive": true,
+    "browser_needed": false,
+    "selected_pdfs_http_success": true,
+    "collision_gate": {
+      "stopped": "Round19 rank-lifting-to-task-necessity route; no new rank39/40 synthetic demonstration, changed rank/anchor/tolerance or repeated selected-case fitting.",
+      "status": "honored_before_execution"
+    },
+    "next_original": "ReadingWhy p36 ref9 CNet arxiv2610.08592, cited original not yet verified/read"
+  },
+  "no_model_execution": true,
+  "no_new_rank_demo": true,
+  "no_private_restore": true,
+  "l5_accepted": false
+}

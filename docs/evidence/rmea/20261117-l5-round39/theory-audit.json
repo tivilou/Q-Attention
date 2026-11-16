@@ -1,0 +1,48 @@
+{
+  "schema": "qattn.l5.factorization-and-born-evidence-neighbor.v1",
+  "status": "new_direct_nearest_original_and_transfer_limits",
+  "realification": {
+    "phi": "u+i*v",
+    "psi": "x+i*y",
+    "identity": "|phi^H psi|^2=(u.x+v.y)^2+(u.y-v.x)^2",
+    "real_state": "[x;y]",
+    "effect_axes": "a=[u;v], J*a=[-v;u]",
+    "projector": "a*a^T+(J*a)*(J*a)^T, rank2 for unit phi, commutes with J",
+    "native_dimension": "complex8 -> real16 coordinates; not16qubits",
+    "known_result": true,
+    "control_limit": "Existing real_overlap is one squared dot product in real8 with normalized affine key, not this exact same-feature-map real16 two-axis simulator."
+  },
+  "normalization": {
+    "fixed_bag": "alpha_rt=Tr[((E_r+epsilon*I)/S_r)*rho_t], with S_r=sum_valid(q_rt+epsilon)>0",
+    "scope": "Positive row scaling is known. Factors here are a mathematical representation, not new trainable native effect matrices; the normalizer depends on the bag. General PSD cone relaxes pure/unit-trace/circuit/affine constraints.",
+    "cpsd_limit": "A rectangular class/token cross table is not automatically the symmetric single-family CPSD Gram matrix of1605.00988."
+  },
+  "nearest_original": {
+    "paper_id": "arxiv:2611.05355v4",
+    "overlap": "row-normalized squared complex overlap/Born attention explicitly in Eq2; exact attribution is held-polynomial IG and authors acknowledge classical polynomial exactness",
+    "differences": [
+      "Source: token-query transformer,16complex modes/twoheads/quadratic feedforward/Born3classreadout.",
+      "Native: frozen1024feature+orderedroles,3qubitPQC,40independentbinaryrelationeffects,epsilon-normalized weights,signed64value/decoder,40classCEsoftmax."
+    ],
+    "not_established": "These architectural differences alone do not prove substantive novelty, priority, task necessity, superiority or L5."
+  },
+  "analytic_transfer_counterexample": {
+    "scope": "Source-corresponding synthetic continuous frozen-feature interface, not a claim that RoBERTa maps natural strings onto this curve; no model execution.",
+    "native_parameters": "First layer all zero; second layer wire0 RY=pi*tanh(x), other angles zero; effect angles allzero. Prepare row selects feature x with zero bias, finite permitted parameters; other valid token has x=0.",
+    "probability": "q(x)=cos^2((pi/2)*tanh(x)); q(0)=1 and q(x)->0 as |x|->infinity.",
+    "proof": "q is bounded nonconstant and real analytic on R, so cannot be a polynomial; equality on an open interval would extend by analytic identity and contradict bounded nonconstancy. Holding a row denominator fixed leaves q(x)+epsilon nonpolynomial. Final exp-softmax also lacks the source quadratic-only assumption.",
+    "conclusion": "No transfer of the source finite-degree/finite-Gauss-node guarantee to native Q-RMEA. This is an elementary assumption counterexample, not a novel theory, numerical counterexample or refutation of the source."
+  },
+  "task_observability": {
+    "identity": "For fixed utilities, changes delta_alpha with zero row sum and delta_alpha.u=0 leave logits unchanged. Feasible free-weight perturbations need not be native-ansatz reachable.",
+    "scope": "Known attention/output distinction, consistent with stopped Round19; no new rank demonstration, selected-case fit or model diagnosis."
+  },
+  "next_action": "Acquire and read exact original CNet arxiv2610.08592 cited by ReadingWhy, verifying version/date/code links and actual Born attention/normalization/value/readout contracts. Compare to the unchanged relation-hypothesis binary-effect head before any selected novelty claim. Seek a task-observable mechanism beyond generic normalized overlap/realification or held-polynomial attribution. Keep rank-lifting and stopped families closed; no model execution/private restore/formal rerun or automatic L4 transfer.",
+  "l5_accepted": false,
+  "new_method_selected": false,
+  "new_model_execution": 0,
+  "new_training": 0,
+  "private_arrays_read": 0,
+  "new_rank_demo": 0,
+  "old_l4_unchanged": true
+}
