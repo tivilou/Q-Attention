@@ -1,0 +1,25 @@
+{
+  "schema": "qattn.l5.train-only-task-premise-audit.v1",
+  "status": "FROZEN_BEFORE_DATA_ACCESS",
+  "population": "All58465rows of exact historical normalized Re-TACRED train.jsonl only",
+  "expected_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+  "expected_rows": 58465,
+  "expected_label_count": 40,
+  "selection": "All eligible train rows; no sampling, model outputs, exposed case outcomes or desired effects.",
+  "input_validation": "Require nonempty tokens list of strings, subject/object valid integer half-open nonempty spans within original tokens, string label. Abort identity/completeness acceptance if any invalid row or original bytes hash/count mismatch. Do not read valid/test files.",
+  "grouping": "Exact original token-string tuple; no lowercasing, lexical/entity anonymization or semantic rewriting. Within tokens group use ordered (subject_span,object_span) as query. Full duplicate identity adds label.",
+  "statistics": [
+    "Total rows, valid rows, distinct labels, distinct token groups, unique(tokens,query,label), exact duplicate extra rows.",
+    "Queries with conflicting labels and token groups containing such conflicts; report separately, exclude entire conflicted token group from primary premise count.",
+    "Among conflict-free token groups, number with>=2distinct ordered entity queries; number additionally having>=2distinct labels; associated raw and deduplicated rows.",
+    "Groups with exact reversed subject/object pair present; descriptive only, no inverse-label law assumed."
+  ],
+  "interpretation": "A positive primary count witnesses that this finite annotated train set contains same words with different ordered entity-query labels. It can only challenge raw-token-only predictors. Existing marked-H classical and uniform heads already receive entity information; no quantum prediction, performance, semantic annotation truth, independent-view or inverse-law claim follows.",
+  "stop": "If exact data is absent, retain protocol and inspect existing durable identity without restoring full models/caches. If primary structure absent/insufficient, close this premise; no encoder/model/training job to rescue it. Even positive counts do not authorize a new mechanism/formal experiment.",
+  "execution": "Stdlib-only bounded CPU diagnostic through shared research scheduler with source/data hash binding, finite timeout and aggregate-only output; no direct scientific SSH bypass. Read-only file existence/stat inventory may precede scheduling.",
+  "output": "Aggregate counts plus source/protocol/data identity and decision boundaries only. No raw text, examples, row IDs, labels-per-example, arrays, checkpoints or private operational configuration in public artifacts.",
+  "new_model_or_encoder_forwards": 0,
+  "training_or_formal_runs": 0,
+  "cos_restore": false,
+  "l5_accepted": false
+}
