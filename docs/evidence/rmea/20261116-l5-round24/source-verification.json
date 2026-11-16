@@ -1,0 +1,74 @@
+{
+  "schema": "qattn.l5.bounded-source-verification.v1",
+  "workflow": "Primary inline original-source fact-check; not independent theory review",
+  "independent_review": false,
+  "scope": "Selected original methods/evaluation and two pinned DREEAM source files",
+  "claims": [
+    {
+      "claim": "Evidence-guided normalized pooling is a new general direction of Q-RMEA.",
+      "verdict": "KNOWN_DIRECTION",
+      "sources": [
+        "2302.08675v1:PDFpp2-5",
+        "2106.08657v2:PDFpp3-5"
+      ]
+    },
+    {
+      "claim": "Their evidence-only inference is merely postencoder attention masking.",
+      "verdict": "WRONG_TRANSFER",
+      "sources": [
+        "2302.08675v1:PDFp5sec3.3",
+        "2106.08657v2:PDFpp4-5sec3.2"
+      ]
+    },
+    {
+      "claim": "DREEAM printed negative KL directly specifies the audited program objective.",
+      "verdict": "PRINT_CODE_DISCREPANCY",
+      "sources": [
+        "2302.08675v1:renderedPDFp4Eq10",
+        "YoumiMa/dreeam@476a7004521d5f9b7bb3be66fc6678495b3cf291:model.py:32,246-261"
+      ],
+      "limit": "Current public forward returns KLDivLoss calls without printed minus; full trainer and historical run source not certified."
+    },
+    {
+      "claim": "Eider evidence BCE is reproduced verbatim by its printed equation.",
+      "verdict": "PRINTED_FIRST_LOG_MISSING_CODE_UNRESOLVED",
+      "sources": [
+        "2106.08657v2:renderedPDFp4Eq7"
+      ],
+      "limit": "Paper text says BCE but first positive term lacks log. Old alias tree failed, canonical API403rate-limit, stopped origin. No implementation claim."
+    },
+    {
+      "claim": "Existing Q-RMEA local alignment establishes human-evidence correctness or evidence-only prediction sufficiency.",
+      "verdict": "NOT_ESTABLISHED",
+      "sources": [
+        "prior_scoped_L4_card",
+        "transfer-limits.md"
+      ]
+    }
+  ],
+  "public_code": [
+    {
+      "repository": "YoumiMa/dreeam",
+      "revision": "476a7004521d5f9b7bb3be66fc6678495b3cf291",
+      "path": "model.py",
+      "blob_sha": "692a8bb7a53109b40f76ea5c96213db5430cf5d0",
+      "sha256": "dd8710cb5d90ba3c56c10b26226a337ec955dbd6b518a9f64c079e832fe5e8b9",
+      "bytes": 11996,
+      "executed": false,
+      "imported": false
+    },
+    {
+      "repository": "YoumiMa/dreeam",
+      "revision": "476a7004521d5f9b7bb3be66fc6678495b3cf291",
+      "path": "losses.py",
+      "blob_sha": "c89f0d56f1aad4a5c864e477f36f395efa1d6d4d",
+      "sha256": "808105990ea0d22680636556691842fdd54069c3db83ece61a7a80c4e14a1da4",
+      "bytes": 1695,
+      "executed": false,
+      "imported": false
+    }
+  ],
+  "original_experiment_source_certified": false,
+  "source_license_adoption": "No code vendored/imported; license not audited for reuse.",
+  "l5_accepted": false
+}
