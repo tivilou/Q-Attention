@@ -1,0 +1,48 @@
+{
+  "schema": "qattn.l5.bounded-discovery.v1",
+  "question": "Which existing paired-example vector-contraction bounds actually cover coupled multiclass losses, and what additional restrictions would be needed for a meaningful normalized shared-gate result?",
+  "origin": [
+    "independent_search",
+    "cross_domain_search"
+  ],
+  "queries": [
+    {
+      "query": "au:\"Maurer\" AND ti:\"vector\" AND ti:\"contraction\"",
+      "url": "https://export.arxiv.org/api/query?search_query=au%3A%22Maurer%22+AND+ti%3A%22vector%22+AND+ti%3A%22contraction%22&start=0&max_results=10&sortBy=relevance&sortOrder=descending",
+      "retrieved_at_utc": "2026-11-16T16:49:43.365126+00:00",
+      "http_status": 200,
+      "sha256": "081725f7bc272c406ddf19b0317a8b8284f856032f6e2459e2030b87f2620f83"
+    },
+    {
+      "query": "ti:\"multiclass\" AND ti:\"generalization\" AND (abs:\"coupling\" OR abs:\"norm\")",
+      "url": "https://export.arxiv.org/api/query?search_query=ti%3A%22multiclass%22+AND+ti%3A%22generalization%22+AND+%28abs%3A%22coupling%22+OR+abs%3A%22norm%22%29&start=0&max_results=10&sortBy=relevance&sortOrder=descending",
+      "retrieved_at_utc": "2026-11-16T16:49:48.786476+00:00",
+      "http_status": 200,
+      "sha256": "1ba778f6aed0404a300248b454f18ddd9a07324cecfcac2649e1f5bed7b680d5"
+    },
+    {
+      "query": "ti:\"self-normalized\" AND (abs:\"importance sampling\" OR abs:\"ratio\")",
+      "url": "https://export.arxiv.org/api/query?search_query=ti%3A%22self-normalized%22+AND+%28abs%3A%22importance+sampling%22+OR+abs%3A%22ratio%22%29&start=0&max_results=10&sortBy=relevance&sortOrder=descending",
+      "retrieved_at_utc": "2026-11-16T16:49:52.852927+00:00",
+      "http_status": 200,
+      "sha256": "247843319a8239dcb1b50bbb3b977c22daafb5425b1ea3b559a4246da6fabcf8"
+    }
+  ],
+  "metadata_rows": 14,
+  "distinct_ids": 14,
+  "selected": [
+    "arxiv:1605.00251v1"
+  ],
+  "unselected_metadata_only": 13,
+  "budget": {
+    "queries": 3,
+    "max_results_each": 10,
+    "sort": "relevance descending",
+    "minimum_origin_spacing_seconds": 3,
+    "retries": 0,
+    "browser_render_fallback_batches": 1
+  },
+  "coverage": "One exact vector-contraction lookup, one multiclass norm query and one cross-domain self-normalized ratio query, not exhaustive novelty/priority audit. SNIS and newer linear-model loss-geometry works remain metadata-only, no method transfer or theorem claim.",
+  "transport": "Three metadata GETs and one exactPDF all HTTP200; no access block, retry or browser fallback. User-authorized ordinary headless browser remains available.",
+  "novelty_established": false
+}

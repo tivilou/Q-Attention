@@ -1,0 +1,50 @@
+{
+  "schema": "qattn.l5.bounded-source-verification.v1",
+  "independent_review": false,
+  "claims": [
+    {
+      "claim": "A coupled40way cross-entropy loss has no existing contraction framework.",
+      "verdict": "DIRECT_EXISTING_FRAMEWORK",
+      "sources": [
+        "1605.00251v1:PDFp3-5Theorem3Cor4Sec3.1"
+      ],
+      "finding": "For fixed labels, logsumexp(z)-z_y is globally sqrt2-Lipschitz in Euclidean logits because its gradient is softmax(z)-e_y. Cor4 supplies an unnormalized complexity bound with constant2. Samplewise contraction needs no iid assumption on the fixed design; population generalization requires the matching sampling and loss conditions."
+    },
+    {
+      "claim": "Auxiliary epsilon_ik means there are n*40 independent training examples.",
+      "verdict": "AUXILIARY_RANDOMIZATION_NOT_DATA",
+      "sources": [
+        "1605.00251v1:PDFp4-5"
+      ],
+      "finding": "Independent signs appear only in the Rademacher complexity upper bound. The actual dataset remains n iid labeled examples in the paper multiclass example; no40task sample bonus."
+    },
+    {
+      "claim": "Bounding Born scores in[0,1] makes the full native logit class bounded.",
+      "verdict": "MISSING_VALUE_DECODER_BIAS_NORM_CONTROL",
+      "sources": [
+        "rmea.py:raw_normalizer_values_logits",
+        "frozen_feature_head.py:bias_value_decoder_parameters",
+        "R27constant_output_family"
+      ],
+      "finding": "In the inspected mathematical head parameterization, setting decoder0 leaves arbitrary trainable bias. A centered bias direction remains unbounded after removing the common-softmax-shift direction. Finite trained weights or weight decay do not supply a predeclared hard function-class radius. No whole-training-pipeline no-regularization claim made."
+    },
+    {
+      "claim": "The vector contraction inequality proves a sharing advantage.",
+      "verdict": "COMPLEXITY_COMPARISON_NOT_ESTABLISHED",
+      "sources": [
+        "1605.00251v1:PDFp8Sec4.1,p8-9Sec4.2"
+      ],
+      "finding": "The coupled class is contained in the coordinatewise product superset, but inclusion alone proves no strict or useful quantitative gap. Native shared preparation and value paths require full class/norm analysis; known Frobenius/trace-norm templates do not establish a new theorem or actual held-out Macro gain."
+    },
+    {
+      "claim": "This failed direct bound invalidates oldL4 or all possible generalization analysis.",
+      "verdict": "NO_SUCH_INFERENCE",
+      "sources": [
+        "unchangedL4card",
+        "L5same_core_contract"
+      ],
+      "finding": "Only direct unbounded full-class and standard-contraction-as-novelty routes close. Localized/data-dependent/margin analyses with justified assumptions remain possible. No old empirical claim upgraded or revoked."
+    }
+  ],
+  "l5_accepted": false
+}
