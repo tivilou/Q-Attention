@@ -1,0 +1,55 @@
+{
+  "schema": "qattn.l5.evidence-ownership.premise-design.v1",
+  "status": "DESIGN_FROZEN_NO_DATA_READ_OR_READER_LAUNCH",
+  "purpose": "Test the smallest remaining task-side semantic premise: an unchanged text fragment supports one natural entity query but is irrelevant to another. Not quantum identification, performance or a selected method.",
+  "source": {
+    "split": "train_only",
+    "train_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+    "expected_rows": 58465,
+    "prior_multi_query_groups": 10153,
+    "prior_mixed_label_groups": 5286,
+    "identity_reference": "R44 aggregate-only audited task; no valid/test access"
+  },
+  "sampling": {
+    "eligibility": "All exact original-token groups with>=2distinct ordered(subject_span,object_span) queries; ignore label values entirely for selection, including mixed-label eligibility.",
+    "group_key": "SHA256(UTF8(qattn-evidence-ownership-v1\n)+UTF8(canonical JSON original tokens, ensure_ascii=True,separators=comma/colon)); break hash ties by canonical tokens.",
+    "group_budget": 32,
+    "query_budget_per_group": 2,
+    "query_choice": "First two lexicographically ordered unique(subject_start,subject_end,object_start,object_end) tuples; no sampling by label, label difference, model outcome, annotatability or desired evidence.",
+    "no_rescue": "Preserve every selected group including ambiguity/insufficient context, no replacement or larger sample to force a positive. Record any known historical exposure; no exclusion by its outcome.",
+    "source_identity_check": "Hash all source bytes and58465rows while streaming; parsing consumes source containing train labels but selector must never consult or export label values. Do not describe byte consumption as no training-label access."
+  },
+  "blinding": {
+    "reader_inputs": "Exact unchanged original tokens plus two natural span queries, opaque deterministic group/query IDs and fixed annotation instructions. No original example labels, predictions, model scores, prior32pool or mixed-label stratum information.",
+    "private_location": "Exact owner attempt-scoped private output; no raw snippets/pack/IDs or annotation text in public Git/consultation packet. Only aggregate/hash protocol receipts collected publicly.",
+    "reader_independence": "Two separately bounded readers submit without seeing each other; implementation must resolve suitable reader authority and privacy before launch. Do not send raw data to external model consultation transports. Human adjudication is required before treating model-only agreement as gold evidence."
+  },
+  "annotation": {
+    "per_query": [
+      "supported: one or more explicit relationship-evidence token intervals beyond entity identities alone",
+      "unsupported_in_text",
+      "ambiguous_or_context_missing"
+    ],
+    "cross_query_fragment_labels": [
+      "supports_A_only",
+      "supports_B_only",
+      "supports_both",
+      "neither",
+      "uncertain"
+    ],
+    "guidance": "Use text and resolved references only, no world-knowledge label guessing or assumed inverse relation. Allow multiple/discontinuous spans and uncertain status. At most one concise evidence-linked justification per judgment; no private chain-of-thought.",
+    "agreement": "Preserve both raw judgments privately; report group-level ownership agreement, disagreements, uncertain/missing units and descriptive span overlap. Never force agreement through repeated annotation."
+  },
+  "gates": {
+    "before_extraction": "Exact frozen source/contract/output allowlist, memory/privacy review, one bounded lifecycle canary, project-authorized shared-scheduler admission; no direct scientific SSH. Existing controller/node capacity unchanged.",
+    "before_readers": "Validate selected IDs/spans, private pack hash and label/prediction blinding; freeze reader prompt/identity and authority; no messaging or external raw-data transfer.",
+    "premise_status": "At least one unambiguous ownership-switch group agreed by both readers is only a finite diagnostic witness; otherwise close this32group probe as no_supported_witness, not population impossibility. Model-only agreement is provisional regardless of count.",
+    "after_positive": "Require a separate nontrivial full40class signed-margin prediction against entity-aware classical controls before any model job. No quantum distinction, generalization or L5 follows from annotation alone."
+  },
+  "retention": "Public Git contains design/code/source IDs and compact aggregate/hash reports. Raw text is a rebuildable private cache; never upload checkpoints/caches for this design. Decide minimal retention of new irreplaceable annotations by future consumer and privacy before publication; no COS operation now.",
+  "new_model_forwards": 0,
+  "new_training_or_formal_runs": 0,
+  "new_data_read_this_design": false,
+  "reader_launches": 0,
+  "l5_accepted": false
+}
