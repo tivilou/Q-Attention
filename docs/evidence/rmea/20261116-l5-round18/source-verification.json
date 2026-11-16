@@ -1,0 +1,37 @@
+{
+  "schema": "qattn.l5.bounded-source-verification.v1",
+  "workflow": "academic-research-suite/deep-research fact-check; inline source-verification phase only, primary agent synthesis separate",
+  "independent_review": false,
+  "scope": "Selected original mathematical claims and transfers, not a venue-wide novelty search or manuscript review",
+  "claims": [
+    {
+      "claim": "The new Boolean-head papers directly subsume the continuous affine-curve lemma.",
+      "verdict": "NOT_ESTABLISHED",
+      "reason": "Boolean per-token encoding makes exponentials affine on bits; continuous curve leaves real exponentials. Domain and parameter maps differ. Their normal-form/sign-change strategy is prior art, so a different domain alone does not establish substantive novelty.",
+      "sources": [
+        "2610.25341v1:pp3-6/19/21",
+        "2608.04243v1:pp5-7/14-15"
+      ]
+    },
+    {
+      "claim": "A nonlinear positive scoring rule can exceed the log-probability rank of a low-dimensional softmax.",
+      "verdict": "KNOWN_PRIOR_RESULT",
+      "reason": "MoS and sigsoftmax already establish nonlinear log-score rank lifting. A Q-RMEA specialization requires additional same-core contribution and task evidence.",
+      "sources": [
+        "1711.03953v4:pp2-4/13",
+        "1805.10829v1:pp4-6/11"
+      ]
+    },
+    {
+      "claim": "Sigsoftmax theorem4 establishes exact inclusion for finite parameters.",
+      "verdict": "REJECT_TRANSFER",
+      "reason": "Its infinite-shift construction establishes a limit. For S=span{(-1,0,1),1}, strict concavity of g(z)=2z-log(1+exp(z)) prevents any finite nonconstant point from equaling softmax((-1,0,1)); only closure inclusion follows from that argument.",
+      "sources": [
+        "1805.10829v1:p6 eq13-18",
+        "nearest-work-and-premise-note.md:section4"
+      ]
+    }
+  ],
+  "publication_limits": "Primary mathematical original sources; only selected proofs checked. Workshop/preprint identity is provenance, not an evidence-quality guarantee. No Lean code or empirical replication.",
+  "l5_accepted": false
+}

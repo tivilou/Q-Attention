@@ -1,0 +1,163 @@
+{
+  "schema": "qattn.l5.round18.empirical-premise.v1",
+  "scope": "Existing original full-data reports, all five fixed seeds/conditions; no new metrics selected or model runs",
+  "source_path": ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/report/summary.json",
+  "source_sha256": "fad5c12213f6b8ea1e8fc1a724f5fa28e535c39035a8af8fc8653dc385d74522",
+  "seeds": [
+    "29",
+    "53",
+    "71",
+    "97",
+    "113"
+  ],
+  "per_seed": [
+    {
+      "seed": 29,
+      "test_macro_f1": {
+        "uniform": 0.2314856570537112,
+        "relation_softmax": 0.5086113135465773,
+        "real_overlap": 0.5123072600456406,
+        "quantum": 0.5211132775104067,
+        "dephased": 0.5081381195191252
+      },
+      "parameter_counts": {
+        "uniform": 68200,
+        "relation_softmax": 76752,
+        "real_overlap": 76752,
+        "quantum": 81028,
+        "dephased": 81028
+      }
+    },
+    {
+      "seed": 53,
+      "test_macro_f1": {
+        "uniform": 0.21021412477100476,
+        "relation_softmax": 0.5228109436557368,
+        "real_overlap": 0.5111131552893982,
+        "quantum": 0.5465709043591499,
+        "dephased": 0.4945293540660057
+      },
+      "parameter_counts": {
+        "uniform": 68200,
+        "relation_softmax": 76752,
+        "real_overlap": 76752,
+        "quantum": 81028,
+        "dephased": 81028
+      }
+    },
+    {
+      "seed": 71,
+      "test_macro_f1": {
+        "uniform": 0.21051816419696007,
+        "relation_softmax": 0.5406793146071911,
+        "real_overlap": 0.5390841244850023,
+        "quantum": 0.5238560396670014,
+        "dephased": 0.5375382688351338
+      },
+      "parameter_counts": {
+        "uniform": 68200,
+        "relation_softmax": 76752,
+        "real_overlap": 76752,
+        "quantum": 81028,
+        "dephased": 81028
+      }
+    },
+    {
+      "seed": 97,
+      "test_macro_f1": {
+        "uniform": 0.20847481224460215,
+        "relation_softmax": 0.49708200389343543,
+        "real_overlap": 0.51751495121088,
+        "quantum": 0.4976927374652861,
+        "dephased": 0.5207936561918689
+      },
+      "parameter_counts": {
+        "uniform": 68200,
+        "relation_softmax": 76752,
+        "real_overlap": 76752,
+        "quantum": 81028,
+        "dephased": 81028
+      }
+    },
+    {
+      "seed": 113,
+      "test_macro_f1": {
+        "uniform": 0.21386819822999015,
+        "relation_softmax": 0.522211605187394,
+        "real_overlap": 0.4991380124271111,
+        "quantum": 0.5145336851204592,
+        "dephased": 0.5253485759506279
+      },
+      "parameter_counts": {
+        "uniform": 68200,
+        "relation_softmax": 76752,
+        "real_overlap": 76752,
+        "quantum": 81028,
+        "dephased": 81028
+      }
+    }
+  ],
+  "attribution_contrasts": {
+    "relation_softmax": {
+      "deltas": [
+        0.01250196396382941,
+        0.02375996070341313,
+        -0.016823274940189648,
+        0.0006107335718506524,
+        -0.007677920066934796
+      ],
+      "mean": 0.0024742926463937496,
+      "sd": 0.016066815543565822,
+      "ci95": [
+        -0.01747529377983261,
+        0.022423879072620112
+      ],
+      "positive_seeds": 3,
+      "paired_t_gate": false,
+      "exact_two_sided_sign_flip_p": 0.8125,
+      "n": 5
+    },
+    "real_overlap": {
+      "deltas": [
+        0.008806017464766058,
+        0.03545774906975174,
+        -0.015228084818000864,
+        -0.019822213745593897,
+        0.015395672693348073
+      ],
+      "mean": 0.004921828132854222,
+      "sd": 0.02277892345194024,
+      "ci95": [
+        -0.023361941035259445,
+        0.033205597300967886
+      ],
+      "positive_seeds": 3,
+      "paired_t_gate": false,
+      "exact_two_sided_sign_flip_p": 0.625,
+      "n": 5
+    },
+    "dephased": {
+      "deltas": [
+        0.01297515799128146,
+        0.05204155029314422,
+        -0.013682229168132332,
+        -0.02310091872658282,
+        -0.010814890830168733
+      ],
+      "mean": 0.0034837339119083597,
+      "sd": 0.03022339067947877,
+      "ci95": [
+        -0.0340435621984477,
+        0.041011030022264416
+      ],
+      "positive_seeds": 2,
+      "paired_t_gate": false,
+      "exact_two_sided_sign_flip_p": 0.875,
+      "n": 5
+    }
+  },
+  "interpretation": "Small mixed-sign quantum-minus-control differences with all three saved confidence intervals spanning zero; neither superiority nor equivalence established. Does not test the affine-curve hypothesis or overturn accepted scoped L4.",
+  "new_model_forwards": 0,
+  "training": 0,
+  "l5_accepted": false
+}

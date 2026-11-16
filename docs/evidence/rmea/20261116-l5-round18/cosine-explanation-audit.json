@@ -1,0 +1,24 @@
+{
+  "schema": "qattn.l5.round18.cosine-explanation.v1",
+  "status": "PASS",
+  "immutable_source_sha256": "91416518bce02c4d8da51c2e941aa4b1b9e1833fb5ac26aa1633629d4e1696ec",
+  "procedure": "Closed-form scalar math compared with stored Round17 output; no model imported, constructed or called",
+  "equations": [
+    "theta=pi*tanh(x)",
+    "q_plus_minus=(1 +/- cos(4*theta))/8",
+    "s_r1=log(q_r+epsilon), s_r2=log(1/8+epsilon)",
+    "z_r=softmax(s_r1,s_r2)[0]"
+  ],
+  "epsilon": 1e-06,
+  "points": 9,
+  "probability_max_absolute_error": 1.1102230246251565e-16,
+  "logit_max_absolute_error": 1.1102230246251565e-16,
+  "labels_equal": true,
+  "full_curve_identity": "Algebraic for all real x; numerical check only reuses nine stored evaluations",
+  "scope": "Explicit nonlinear classical foil lies outside the restricted affine-key baseline. Retains the separation, but witness does not discriminate quantum coherence from a scalar cosine feature.",
+  "new_model_forwards": 0,
+  "quantum_simulator_calls": 0,
+  "training": 0,
+  "natural_feature_reads": 0,
+  "l5_accepted": false
+}
