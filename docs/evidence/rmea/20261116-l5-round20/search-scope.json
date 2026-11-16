@@ -1,0 +1,51 @@
+{
+  "schema": "qattn.l5.bounded-discovery.v1",
+  "origins": [
+    "prior_project_banks",
+    "independent_problem_search",
+    "cross_domain_search"
+  ],
+  "question": "Decision-relevant structure beyond attention rank: matrix transport and decision-focused compression",
+  "queries": [
+    {
+      "query": "quantum optimal transport",
+      "url": "https://arxiv.org/search/?query=quantum+optimal+transport&searchtype=all&abstracts=show&order=&size=50",
+      "retained_result_count": 10,
+      "read_status": "metadata_only_unless_in_reading_receipts"
+    },
+    {
+      "query": "quantum Schrodinger bridge",
+      "url": "https://arxiv.org/search/?query=quantum+Schrodinger+bridge&searchtype=all&abstracts=show&order=&size=50",
+      "retained_result_count": 10,
+      "read_status": "metadata_only_unless_in_reading_receipts"
+    },
+    {
+      "query": "quantum optimal transport",
+      "url": "https://arxiv.org/search/?query=quantum+optimal+transport&searchtype=title&abstracts=show&order=announced_date_first&size=50",
+      "retained_result_count": 14,
+      "read_status": "metadata_only_unless_in_reading_receipts"
+    },
+    {
+      "query": "decision focused learning",
+      "url": "https://arxiv.org/search/?query=decision+focused+learning&searchtype=title&abstracts=show&order=announced_date_first&size=50",
+      "retained_result_count": 14,
+      "read_status": "metadata_only_unless_in_reading_receipts"
+    }
+  ],
+  "budget": "3 broad all-field queries newest10 each (third timed out);2 title queries oldest14 each;2 exact abs and PDF follow-ups",
+  "selected": [
+    "arxiv:1612.08731v4",
+    "arxiv:2303.17062v1"
+  ],
+  "prior_bank_check": "Selected exact-ID reading banks only; no exact hit for the two selected originals",
+  "failures": [
+    "web search returned404 Invalid URL POST /v1/alpha/search",
+    "Third broad browser navigation timed out; first2 results kept and own browser closed",
+    "Initial normal PDF helper wrapper timed out; no live matching child afterward",
+    "First browser download adapter failed dynamic-import callback before a binary request; corrected to native Download.saveAs"
+  ],
+  "recovery": "Ordinary headless browser fetched official exact-version PDFs; local acquire offline, parse and structural preflight PASS",
+  "all_task_owned_browser_batches_closed": true,
+  "unrelated_browser_preserved": true,
+  "coverage": "Bounded scouting, not systematic or exhaustive. Metadata candidates are not treated as read papers."
+}

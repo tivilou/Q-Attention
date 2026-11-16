@@ -1,0 +1,61 @@
+{
+  "schema": "qattn.l5.transfer-audit.v1",
+  "status": "NO_DIRECT_TRANSFER",
+  "code": {
+    "revision": "a4dfe1fd1966418a578492b4bd1038a27cfc7ead",
+    "path": "experiments/rmea_semantic_probe/legacy/rmea.py",
+    "sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "lines": {
+      "psi=circuit(angles);phi=circuit(effect_angles)": 57,
+      "probability=torch.einsum('rd,btd->brt',phi.conj(),psi).abs().square()": 59,
+      "raw=(probability+EPS)*mask[:,None,:]": 62,
+      "logits=(alpha*utilities).sum(-1)+self.bias": 65
+    },
+    "source_only": true,
+    "imported": false,
+    "scalar_floor_is_not_matrix_depolarization": true,
+    "relation_rows_are_separate_binary_effects": true,
+    "token_weights_are_not_label_posterior": true,
+    "values_input_dependent_and_signed": true,
+    "source_unchanged": true
+  },
+  "routes": [
+    {
+      "source": "1612.08731v4",
+      "source_domain": "real symmetric PSD tensor fields with matrix marginal KL",
+      "target": "complex pure-state token and relation effects with independently normalized Born overlap",
+      "hypothesis": "Use tensor transport as an explanation or direct replacement of current attention",
+      "result": "Distinct pure rays force PSD coupling blocks to zero. Strict-PD literal KL has no finite marginal; ordinary closed-PSD KL admits only zero coupling if no rays match.",
+      "boundary": "Only this specific PSD-block/matrix-marginal construction; not all quantum transport.",
+      "repair": "Full-rank regularization changes the method; explicit single-pair limit differs from Born overlap.",
+      "novelty": "Known PSD support argument and log-Euclidean specialization; no novelty claim",
+      "disposition": "close_direct_transfer_keep_decision_information_question"
+    },
+    {
+      "source": "2303.17062v1",
+      "source_domain": "outcome posterior, finite actions, externally specified loss",
+      "target": "input-token weights and signed input-dependent class utilities; primary Macro-F1",
+      "hypothesis": "Fold token attention using the decision-abstraction theorem",
+      "result": "Variables and loss do not map. For label0/1 loss, any multi-label worst-case fold loses Bayes optimality at a vertex.",
+      "boundary": "No claim against finite-sample regularization or other action/loss structures.",
+      "novelty": "Known Bayes-risk specialization; no novelty claim",
+      "disposition": "close_unmapped_fold_transfer"
+    }
+  ],
+  "prior_work_reused": {
+    "paper": "1004.3794v4",
+    "reading": "Round4 pp1/16-18 already scoped-read",
+    "record": "docs/evidence/rmea/20261115-l5-round4/reading-receipts.json",
+    "reacquired": false
+  },
+  "new_model_forwards": 0,
+  "scientific_jobs": 0,
+  "training": 0,
+  "private_array_reads": 0,
+  "checkpoints_or_cos_reads": 0,
+  "new_formal_runs": 0,
+  "independent_theory_review": false,
+  "old_l4_unchanged": true,
+  "new_method_selected": false,
+  "l5_accepted": false
+}

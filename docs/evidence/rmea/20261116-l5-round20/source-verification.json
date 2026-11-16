@@ -1,0 +1,44 @@
+{
+  "schema": "qattn.l5.bounded-source-verification.v1",
+  "workflow": "ARS deep-research fact-check, source-verification role performed inline",
+  "independent_review": false,
+  "scope": "Selected original definitions, assumptions, proof and transfer limits, not a systematic novelty audit",
+  "claims": [
+    {
+      "claim": "Matrix-marginal Q-OT is already the executed Born attention.",
+      "verdict": "REJECT_DIRECT_IDENTIFICATION",
+      "sources": [
+        "1612.08731v4:PDFpp4-6",
+        "transfer-limits.md:sections1-2"
+      ],
+      "reason": "Different variables, support constraints, real/complex domains and objective; scalar floor changes no state support."
+    },
+    {
+      "claim": "General noncommuting8D quantum Sinkhorn contraction is established by this source.",
+      "verdict": "NOT_SUPPORTED",
+      "sources": [
+        "1612.08731v4:PDFp10 Remark6"
+      ],
+      "reason": "The stated contraction check is scalar/isotropic; dimensions2/3 are observed numerically."
+    },
+    {
+      "claim": "The paper unambiguously specifies finite KL for singular first arguments.",
+      "verdict": "CONVENTION_MUST_BE_EXPLICIT",
+      "sources": [
+        "1612.08731v4:PDFpp4-5, rendered p5"
+      ],
+      "reason": "Keep its singular extension discussion separate from the printed S++ indicator; do not silently certify the closed-PSD transfer as literal source theorem."
+    },
+    {
+      "claim": "ORIGAMI provides a lossless compression guarantee for current token attention/Macro-F1.",
+      "verdict": "NOT_SUPPORTED",
+      "sources": [
+        "2303.17062v1:PDFpp2-4/14",
+        "transfer-limits.md:section3"
+      ],
+      "reason": "Outcome partitions require an explicit loss map; the weighted extension retains original probability information.0/1 vertex counterexample blocks a universal label-fold guarantee."
+    }
+  ],
+  "mathematical_status": "Primary-agent analytic applicability check of known tools; no independently accepted new theorem",
+  "l5_accepted": false
+}
