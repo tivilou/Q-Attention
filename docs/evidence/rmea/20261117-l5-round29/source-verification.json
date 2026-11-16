@@ -1,0 +1,52 @@
+{
+  "schema": "qattn.l5.bounded-source-verification.v1",
+  "independent_review": false,
+  "claims": [
+    {
+      "claim": "Forty relation labels give40independent MTL task datasets.",
+      "verdict": "SAMPLING_ASSUMPTION_MISMATCH",
+      "sources": [
+        "1505.06279v2:PDFp4,6Theorem1,p21Theorem9,p23-24proof",
+        "current_multiclass_training_contract"
+      ],
+      "finding": "Same text examples and onehot label coordinates share randomness. Product across fixed tasks in Theorem1 is not met by treating label coordinates as tasks. Theorem1 does not require the task distributions themselves to be iid; Theorem2 new-task transfer does."
+    },
+    {
+      "claim": "Current joint CE/Macro endpoints are the theorem scalar task average.",
+      "verdict": "LOSS_AND_ENDPOINT_BRIDGE_UNPROVED",
+      "sources": [
+        "1505.06279v2:PDFp3-4,6",
+        "frozen_feature_head.py:multiclass_loss_and_evaluation"
+      ],
+      "finding": "Current40way CE couples logits; Macro is a distinct classification metric. Uniform Theorem13 allows arbitrary hypotheses given its assumptions; oracle excess-risk proof uses global minimizers. No automatic guarantee for a finite-budget optimizer or Macro gain."
+    },
+    {
+      "claim": "Threequbits mean a3dimensional shared task representation.",
+      "verdict": "INCOMPLETE_FUNCTIONAL_DECOMPOSITION",
+      "sources": [
+        "rmea.py:state_value_decoder_paths",
+        "20261116-l5-round28/transfer-limits.md"
+      ],
+      "finding": "Shared preparation alone omits signed value features and relation decoder/bias. Whole fixed-bag moment representation can use65*64+65=4225real coordinates, a sufficient nonminimal upper representation. Neither3qubits nor8complex amplitudes alone is the complete common representation."
+    },
+    {
+      "claim": "Operator-valued RKHS notation certifies a new output coupling theorem.",
+      "verdict": "KNOWN_FEATURE_MAP_TEMPLATE_ONLY",
+      "sources": [
+        "0807.1659v1:PDFp6Eq1-3,Prop1",
+        "current_learned_normalized_ratio_class"
+      ],
+      "finding": "Positive kernel factorization is established prior mathematics. A jointly learned normalized ratio with signed value path is not automatically the same fixed regularized linear RKHS hypothesis class. No representer/generalization theorem imported."
+    },
+    {
+      "claim": "Failure of direct MTL transfer proves no sharing benefit or reversesL4.",
+      "verdict": "NO_SUCH_INFERENCE",
+      "sources": [
+        "unchangedL4card",
+        "L5milestone_same_core_contract"
+      ],
+      "finding": "The audit closes only a direct independent-task/sample-bonus and notation-based novelty route. It proves neither negative transfer nor absence of possible sharing benefit. Old ordinaryL4 and historical experiments remain unchanged."
+    }
+  ],
+  "l5_accepted": false
+}
