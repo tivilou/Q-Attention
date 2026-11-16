@@ -1,0 +1,48 @@
+{
+  "schema": "qattn.l5.functional-update-static-source.v1",
+  "formal_audit": {
+    "path": "docs\\evidence\\rmea\\20261115-l4-statistical-audit\\audit.json",
+    "sha256": "6d3ebae5279e4fd3a3b11cbdf7775210e11617a015aa855ee4f2e42925e1e812",
+    "source_composite": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce"
+  },
+  "formal_source_files": [
+    {
+      "path": "baselines/retacred/rmea_confirmation_run.py",
+      "sha256": "9f6de9013354dd90122b839a12e4a8cfc8b6946a2e2169e41fd248b472511e19"
+    },
+    {
+      "path": "baselines/retacred/rmea_confirmation_protocol.py",
+      "sha256": "bdccafa853365c1cbcb548947e48433d560490a4af4ccdea54b70c26a7e07cc0"
+    },
+    {
+      "path": "baselines/retacred/rmea.py",
+      "sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+    },
+    {
+      "path": "baselines/retacred/frozen_feature_head.py",
+      "sha256": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+    }
+  ],
+  "locators": {
+    "real_control": "frozen_feature_head.py lines19-21,39-41: affine key, query rows, normalized squared overlap plus attention floor.",
+    "born_effect": "rmea.py: one40x2x3x2 effect tensor, pi*tanh then circuit; fixed preparation gives12 real effect coordinates per relation.",
+    "optimizer": "rmea_confirmation_run.py lines111-128; actual clipping/first-step boundary retained from Round34."
+  },
+  "normalize_reference": {
+    "url": "https://raw.githubusercontent.com/pytorch/pytorch/v2.7.1/torch/nn/functional.py",
+    "transport": "browser_rendered_snapshot",
+    "snapshot_sha256": "af8c8911c2c9b017928424f18256b2959082c716f8b3e525e69a1b0ca4836310",
+    "rendered_body_sha256": "4905e223c9a1efe34853c239ac52df8063ce6c25368aef5e2ecf123802e96273",
+    "scope": "Pinned v2.7.1 source rendered in headless Chromium. Snapshot collapses whitespace; hashes bind snapshot/rendered text, NOT original HTTP source bytes. Selected normalize signature/body only, no imports or runtime binding.",
+    "finding": "normalize divides by max(norm,eps); reference default eps=1e-12. Scale invariance below is restricted to inactive normalization floors."
+  },
+  "browser_failure_recovery": {
+    "http": "Terminal25s TimeoutError",
+    "evaluation": "Terminal55s TimeoutExpired; no eval result asserted",
+    "completed": "One successful saved headless navigation snapshot, offline extraction, browser closed"
+  },
+  "limits": "Static formal/source and pinned framework-reference correspondence; no native models, actual initialization scales, optimizer states or training arrays inspected. No new runtime-distribution/foreach/fused certification.",
+  "l5_accepted": false,
+  "new_model_forwards": 0,
+  "training": 0
+}

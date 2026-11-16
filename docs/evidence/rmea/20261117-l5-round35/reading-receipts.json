@@ -1,0 +1,95 @@
+{
+  "schema": "qattn.l5.scoped-original-reading.v1",
+  "papers": [
+    {
+      "paper_id": "arxiv:2609.17352v1",
+      "title": "Adaptive Relational Learning on Multi-instance Quantum Data with Photonic Processors",
+      "url": "https://arxiv.org/pdf/2609.17352v1",
+      "version": "2609.17352v1",
+      "sha256": "e89300a6357e22002bbe35d4370790161be358a8657ec071a439a0517aff1ad2",
+      "bytes": 1984754,
+      "pdf_pages": 13,
+      "pages_with_read_sections": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "rendered_pages_inspected": [
+        1,
+        2,
+        4
+      ],
+      "reading": "agent_read_for_selected_scope",
+      "findings": "SectionII/Eqs1-7 learns independent local transformations then measures an n-state Bargmann invariant with CYCLE/SWAP. Pairwise transition probabilities and higher-order geometric phases are explicit existing learning features. SectionIII/p4 distinguishes its Gaussian mechanism examples from quantum advantage over efficient Gaussian-specific methods.",
+      "limits": "Selected setup, abstract and p4 task passages only; full proofs, later shot-complexity comparison, implementation blueprint, experiments and code not audited. The source uses multiple quantum-data inputs and collective measurement, not the native classical-token/40-effect head. Neither its higher-order label construction nor shot advantage transfers automatically."
+    },
+    {
+      "paper_id": "arxiv:2111.02951v2",
+      "title": "Quantum tangent kernel",
+      "url": "https://arxiv.org/pdf/2111.02951v2",
+      "version": "2111.02951v2",
+      "sha256": "39e8a1bc7c83efdd91eeb12e94d504611caeb0a9ee16499e25480e03ad42b5c2",
+      "bytes": 1054583,
+      "pdf_pages": 8,
+      "pages_with_read_sections": [
+        1,
+        3,
+        4
+      ],
+      "rendered_pages_inspected": [
+        1,
+        3
+      ],
+      "reading": "agent_read_for_selected_scope",
+      "findings": "SectionII-B/Eq8 and SectionIII/Eq17 define tangent kernels from inner products of parameter derivatives. Using the initialization kernel to model training is conditional on a valid local linearization/lazy regime. The reported illustration uses a ten-qubit model, MSE and SGD; no general native AdamW guarantee follows.",
+      "limits": "Title/abstract and pp3-4 selected setup read. Full experiments, appendices/code and asymptotic theory not reproduced. An instantaneous derivative inner product remains a known tool even outside a verified global lazy approximation; it is not novel theory or a forecast of native alignment gain."
+    },
+    {
+      "paper_id": "arxiv:2006.06997v1",
+      "title": "Complex Dynamics in Simple Neural Networks: Understanding Gradient Flow in Phase Retrieval",
+      "url": "https://arxiv.org/pdf/2006.06997v1",
+      "version": "2006.06997v1",
+      "sha256": "05620ead148bb9183ac65f2b6bcb6312244988bd814aa2aa09e8672feac6c5e3",
+      "bytes": 897065,
+      "pdf_pages": 17,
+      "pages_with_read_sections": [
+        1,
+        2,
+        9
+      ],
+      "rendered_pages_inspected": [
+        1,
+        2
+      ],
+      "reading": "agent_read_for_selected_scope",
+      "findings": "Section1/p2 Eqs1-4 specify real Gaussian sensing directions, teacher-generated squared projections, a quartic intensity loss and spherical gradient flow. p9 explains reliance on a symmetry-supported random-guess phase and leaves broader learning settings open.",
+      "limits": "Selected abstract/setup/limitations only; full statistical-physics derivation, thresholds, simulations and proofs not audited. Complex Dynamics in the title refers to dynamics, not complex-amplitude training data. NLP contextual features, normalized attention, CE and AdamW do not satisfy the specified model merely because Born scores are squared overlaps."
+    },
+    {
+      "paper_id": "arxiv:1706.05350v1",
+      "title": "L2 Regularization versus Batch and Weight Normalization",
+      "url": "https://arxiv.org/pdf/1706.05350v1",
+      "version": "1706.05350v1",
+      "sha256": "652e327537bc80b7f6fb0019f704e69c806bbda9663654847f0b31c4273293be",
+      "bytes": 164439,
+      "pdf_pages": 9,
+      "pages_with_read_sections": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "rendered_pages_inspected": [
+        1,
+        5
+      ],
+      "reading": "agent_read_for_selected_scope",
+      "findings": "Sections2-3 show normalization can preserve a function while rescaling parameter gradients; Section5.3/Table1 explicitly discuss Adam retaining scale dependence. This is direct prior for a normalization/optimizer explanation, not a new quantum mechanism.",
+      "limits": "Selected pp1-5 read, not complete experiments or code. The paper discusses L2/normalization and Adam; the present clipped AdamW first-step bound is separately scoped. No transfer of equilibrium weight-scale approximations or every displayed formula was assumed. NIPS2017 footer observed, publisher record not separately certified."
+    }
+  ],
+  "whole_papers_read": false,
+  "independent_scientific_review": false
+}

@@ -1,0 +1,60 @@
+{
+  "schema": "qattn.l5.functional-update-comparison.v1",
+  "question": "Can gauge-invariant higher-order state relations yield a signed function-space attention-alignment update prediction for the native Born head versus its real-overlap control, after actual circuit pullback and clipped AdamW history are accounted for?",
+  "fixed_preparation_effect_geometry": {
+    "ambient_space": "CP7, real dimension14",
+    "per_relation_effect_parameters": 12,
+    "horizontal_pullback_rank_upper_bound": 12,
+    "full_tangent_isotropic_pullback_unsupported": true,
+    "scope": "Effect branch only with prepared token states fixed; measured subspace approximations and joint prepare changes are not excluded."
+  },
+  "native_real_control_scale_gauge": {
+    "scaling": "key.weight,key.bias,query multiplied by same s>0; common value/decoder/bias held fixed",
+    "function_invariance": "Exact in real arithmetic when normalization floors inactive",
+    "first_step_bound": "For standard zero-moment AdamW, each adaptive coordinate displacement magnitude <=eta even after whole-head clipping. Positive common radial decay preserves normalized function; attention-only change on a fixed finite nondegenerate input pool is O(1/s).",
+    "scope": "Function-only universal response is insufficient; actual fixed initialization protocol not invalidated. Not an empirical runtime/trajectory assertion."
+  },
+  "higher_order_geometry": "Known horizontal squared-overlap derivative inner products involve Re of a three-state Bargmann invariant; its imaginary orientation is not by itself a signed update prediction. Native circuit pullback, normalization, signed utilities and AdamW history remain essential.",
+  "exact_query_fixture": {
+    "status": "PASS",
+    "fixture_sha256": "31b1be415900a8adc66af174e0bf60c814eb5beec7f0b439a0867563d067bd86",
+    "rows": [
+      {
+        "scale": "2",
+        "attention_before": "1/2",
+        "adaptive_step": "50000/50000001",
+        "attention_after": "4170759500332418343303366766667/8333185750498171686606733533334",
+        "attention_change": "2083312541666250000000000000/4166592875249085843303366766667",
+        "upper_bound": "25000000/49999599999"
+      },
+      {
+        "scale": "4",
+        "attention_before": "1/2",
+        "adaptive_step": "25000/25000001",
+        "attention_after": "1042168893311131879970016766667/2083296130330597509940033533334",
+        "attention_change": "260414072916562500000000000/1041648065165298754970016766667",
+        "upper_bound": "12500000/49999599999"
+      },
+      {
+        "scale": "8",
+        "attention_before": "1/2",
+        "adaptive_step": "12500/12500001",
+        "attention_after": "260477128438061890490841766667/520824049834457218481683533334",
+        "attention_change": "32551760416640625000000000/260412024917228609240841766667",
+        "upper_bound": "6250000/49999599999"
+      }
+    ],
+    "scope": "Exact scalar/rational illustration embedded in the real control query interface. Keys/value/head fixed. Not native execution, no data, no coupled training trajectory.",
+    "new_native_model_forwards": 0,
+    "new_training": 0
+  },
+  "command_record_sha256": "e11593347da4d94fabae464e0cd272bbf779f561b2a3e32e39b44f16576633f5",
+  "l5_accepted": false,
+  "new_method_selected": false,
+  "nontrivial_new_theory_established": false,
+  "independent_discriminating_evidence": false,
+  "scientific_jobs": 0,
+  "new_training": 0,
+  "new_formal_runs": 0,
+  "private_arrays_read": 0
+}
