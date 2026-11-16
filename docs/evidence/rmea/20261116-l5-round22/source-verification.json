@@ -1,0 +1,57 @@
+{
+  "schema": "qattn.l5.bounded-source-verification.v1",
+  "workflow": "ARS source-verification fact-check inline; synthesis by primary agent",
+  "independent_review": false,
+  "scope": "Original selected model/answer definitions, stated theory and selected proofs, plus analytic applicability boundaries",
+  "source_assessment": {
+    "paper_id": "arxiv:1902.03475v1",
+    "evidence_kind": "original_theory_preprint",
+    "clinical_evidence_hierarchy": "not_applicable",
+    "author_identity": "official_arxiv_and_pdf_match",
+    "peer_review": "not_independently_certified_for_this_pdf",
+    "venue": "PMLRvolXXplaceholder",
+    "COI": "not_assessed",
+    "predatory_screen": "not_performed_no_venue_quality_claim",
+    "currency": "foundational_framework_not_complete_current_novelty_coverage"
+  },
+  "claims": [
+    {
+      "claim": "General constrained means and arbitrary finite answer sets are a new framework here.",
+      "verdict": "COLLISION_WITH_ORIGINAL",
+      "sources": [
+        "1902.03475v1:PDFpp2-4"
+      ]
+    },
+    {
+      "claim": "The original has an efficient oracle for every circuit-constrained fractional classification region.",
+      "verdict": "NOT_ESTABLISHED",
+      "sources": [
+        "1902.03475v1:PDFpp5-8",
+        "transfer-limits.md:sections1-2"
+      ]
+    },
+    {
+      "claim": "Its Gaussian halfspace formula applies unchanged to Bernoulli/circuit constraints.",
+      "verdict": "NOT_SUPPORTED",
+      "sources": [
+        "1902.03475v1:PDFpp28-29,renderedp29"
+      ]
+    },
+    {
+      "claim": "A harder free-mean model supplies a lower bound for the easier native submodel.",
+      "verdict": "WRONG_TRANSFER_DIRECTION",
+      "sources": [
+        "transfer-limits.md:sections3-4"
+      ]
+    },
+    {
+      "claim": "The zero-preparation native witness describes the actual trained checkpoint.",
+      "verdict": "EXCLUDED_CAPACITY_COUNTEREXAMPLE_ONLY",
+      "sources": [
+        "transfer-audit.json:witness"
+      ]
+    }
+  ],
+  "mathematical_status": "Primary-agent known/elementary analytic check; no independently accepted novel theorem",
+  "l5_accepted": false
+}

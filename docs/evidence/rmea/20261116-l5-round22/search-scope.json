@@ -1,0 +1,40 @@
+{
+  "schema": "qattn.l5.bounded-discovery.v1",
+  "origins": [
+    "selected_prior_reading_banks",
+    "independent_source_feedback_queries"
+  ],
+  "question": "How do original pure-exploration frameworks account for feasible alternative models and nontrivial answer regions?",
+  "queries": [
+    {
+      "query": "pure exploration structured",
+      "url": "https://arxiv.org/search/?query=pure+exploration+structured&searchtype=title&abstracts=show&order=announced_date_first&size=50",
+      "retained_result_count": 2,
+      "read_status": "metadata_only_unless_in_reading_receipts"
+    },
+    {
+      "query": "multiple correct answers",
+      "url": "https://arxiv.org/search/?query=multiple+correct+answers&searchtype=title&abstracts=show&order=announced_date_first&size=50",
+      "retained_result_count": 6,
+      "read_status": "metadata_only_unless_in_reading_receipts"
+    },
+    {
+      "query": "optimal best arm identification",
+      "url": "https://arxiv.org/search/?query=optimal+best+arm+identification&searchtype=title&abstracts=show&order=announced_date_first&size=50",
+      "retained_result_count": 10,
+      "read_status": "metadata_only_unless_in_reading_receipts"
+    }
+  ],
+  "budget": "Three title queries oldest10 metadata each;one selected exact PDF, one failed download event then one bounded recovery request.",
+  "selected": [
+    "arxiv:1902.03475v1"
+  ],
+  "prior_bank_check": "Selected exact-ID/title reading-bank checks only, no exact prior hit; not exhaustive",
+  "failures": [
+    "First browser download event timed out with no target file. Parse launcher then rejected missing download-success status before acquisition."
+  ],
+  "recovery": "New bounded request preserved prior failure; complete fetch before installing download event, exact PDF saved; offline parse/integrity/identity PASS. Cause of first timeout not proven.",
+  "all_task_owned_browser_batches_closed": true,
+  "unrelated_browser_preserved": true,
+  "coverage": "Bounded source audit, not systematic or novelty clearance"
+}
