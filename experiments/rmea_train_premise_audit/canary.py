@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--output',type=Path,required=True);a=ap.parse_args();root=a.output.resolve();assert not root.exists();root.mkdir(parents=True)
+    ap=argparse.ArgumentParser();ap.add_argument('--output',type=Path,required=True);a=ap.parse_args();root=a.output.resolve();assert not root.exists() or root.is_dir() and not any(root.iterdir());root.mkdir(parents=True,exist_ok=True)
     sandbox=root/'synthetic-only';sandbox.mkdir();data=sandbox/'train.jsonl';protocol=sandbox/'protocol.json';target=sandbox/'result'
     source=Path(__file__).resolve().with_name('train_premise_audit.py');source_hash=hashlib.sha256(source.read_bytes()).hexdigest()
     def row(t,s,o,y):return dict(tokens=t,subject=s,object=o,label=y)

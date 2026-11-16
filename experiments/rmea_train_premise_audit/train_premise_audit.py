@@ -32,14 +32,14 @@ def aggregate(lines):
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--input',type=Path,required=True);ap.add_argument('--protocol',type=Path,required=True);ap.add_argument('--output',type=Path,required=True);a=ap.parse_args()
-    assert not a.output.exists(),'preserve completed output'
+    assert not a.output.exists() or a.output.is_dir() and not any(a.output.iterdir()),'preserve nonempty output'
     raw=a.protocol.read_bytes();protocol=json.loads(raw)
     assert protocol['schema']=='qattn.l5.train-only-task-premise-audit.v1'
     assert a.input.name=='train.jsonl' and a.input.is_file() and a.input.stat().st_size<=64*1024**2
     with a.input.open('rb') as f:counts=aggregate(f)
     assert counts['train_sha256']==protocol['expected_sha256'] and counts['rows']==protocol['expected_rows'] and counts['distinct_labels']==protocol['expected_label_count'],'wrong data identity or population'
     result=dict(schema='qattn.l5.train-only-task-premise-result.v1',status='PASS',counts=counts,protocol_sha256=hashlib.sha256(raw).hexdigest(),source_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),original_input_bytes=a.input.stat().st_size,claim_scope=protocol['interpretation'],new_model_forwards=0,new_training=0,valid_or_test_files_read=False,raw_examples_exported=False,l5_accepted=False)
-    a.output.mkdir(parents=True)
+    a.output.mkdir(parents=True,exist_ok=True)
     (a.output/'compact-report.json').write_bytes((json.dumps(result,indent=2)+'\n').encode());(a.output/'RUN_COMPLETE').write_bytes(b'train-only task premise audit complete\n')
     print(json.dumps(dict(status='PASS',counts=counts,l5_accepted=False)))
 
