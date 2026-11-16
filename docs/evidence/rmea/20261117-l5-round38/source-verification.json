@@ -1,0 +1,135 @@
+{
+  "schema": "qattn.l5.permutation-source-verification.v1",
+  "formal_source_composite": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+  "formal_source_files": [
+    {
+      "path": "baselines/retacred/rmea_confirmation_run.py",
+      "sha256": "9f6de9013354dd90122b839a12e4a8cfc8b6946a2e2169e41fd248b472511e19"
+    },
+    {
+      "path": "baselines/retacred/rmea_confirmation_protocol.py",
+      "sha256": "bdccafa853365c1cbcb548947e48433d560490a4af4ccdea54b70c26a7e07cc0"
+    },
+    {
+      "path": "baselines/retacred/rmea.py",
+      "sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+    },
+    {
+      "path": "baselines/retacred/frozen_feature_head.py",
+      "sha256": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+    }
+  ],
+  "enumeration_design": {
+    "schema": "qattn.l5.exact-permutation-design.v1",
+    "timing": "Frozen before executing exact enumeration; formula reasoning is theory development, not blind empirical confirmation.",
+    "question": "Do fixed eligible-token means and shared-permutation tensor-Gram covariance hold, and does the producer's identity-to-left-cycle rule change these moments? Can equal row concentrations/spreads fail to determine margin sign retention?",
+    "inputs": "Deterministic rational fixtures n=0,1,2,3,4; three relation rows for nondegenerate generic fixture; positive eligible attention with class-dependent total mass and fixed ineligible contribution. A two-class n3 counterexample compares equal row concentration and utility spread, identical first-class utility and attention, but aligned versus opposite second-class utility.",
+    "checks": [
+      "Enumerate every permutation once, with exact fractions, and verify mean/covariance against finite-population formula for n>=2.",
+      "Apply the actual identity-to-left-cycle rule to the entire permutation multiset, retaining the repeated left-cycle; compare exact first/second moment correction against enumerated covariance.",
+      "Verify pairwise margin variance equals the squared difference of centered weight/utility tensor products divided by n-1 under the uniform reference.",
+      "Enumerate independent relation-row permutations as a deliberately wrong comparator; it drops off-diagonal covariance and generally changes margin variance.",
+      "For n0/n1, no eligible permutation occurs and variance is exactly zero; for n2 with identity redirection, every permutation becomes the swap and variance is zero.",
+      "Show equal per-row norms/concentration do not identify margin sign retention in the fixed n3 counterexample; retain all results regardless of direction."
+    ],
+    "failure_rule": "Any exact mismatch is a derivation failure; no tolerance and no selectively discarded fixture.",
+    "success_scope": "Elementary finite-population identity, implementation correspondence and synthetic counterexample only. No novel theorem, native model trajectory, actual cohort margin diagnosis, empirical confirmation, utility superiority, quantum necessity or L5 acceptance.",
+    "new_model_runs": 0,
+    "private_arrays_read": 0,
+    "no_training": true
+  },
+  "enumeration_design_sha256": "61b891a1cb4bc00453cf01908fed7f154840ebe297c080f5fa95fe83c230f054",
+  "enumeration_script": "import hashlib,itertools,json\nfrom fractions import Fraction as F\nfrom pathlib import Path\nP=Path(__file__).resolve().parent\ndef dot(a,b):return sum((x*y for x,y in zip(a,b)),F(0))\ndef center(a):\n    m=sum(a,F(0))/len(a);return [x-m for x in a]\ndef moments(z):\n    k=len(z[0]);m=[sum((v[r] for v in z),F(0))/len(z) for r in range(k)]\n    sec=[[sum((v[r]*v[s] for v in z),F(0))/len(z) for s in range(k)] for r in range(k)]\n    return m,sec,[[sec[r][s]-m[r]*m[s] for s in range(k)] for r in range(k)]\ndef encode(x):\n    if isinstance(x,F):return str(x)\n    if isinstance(x,list):return [encode(y) for y in x]\n    if isinstance(x,dict):return {k:encode(v) for k,v in x.items()}\n    return x\ndef zvalue(a,u,c,pi):return [c[r]+sum((a[r][pi[t]]*u[r][t] for t in range(len(pi))),F(0)) for r in range(len(a))]\ndesign=P/'enumeration-design.json';assert design.exists()\nrows=[]\nfor n in [0,1,2,3,4]:\n    a=[[F((r+1)*(t+1)+1,40*(n+1)) for t in range(n)] for r in range(3)]\n    u=[[F((-1)**(r+t)*(t+1+r),3) for t in range(n)] for r in range(3)]\n    c=[F(1,7),F(-2,9),F(3,11)]\n    assert all(sum(v,F(0))<1 for v in a)\n    perms=list(itertools.permutations(range(n)));ident=tuple(range(n));cycle=ident[1:]+ident[:1]\n    z=[zvalue(a,u,c,pi) for pi in perms];mean,second,cov=moments(z)\n    if n>=2:\n        ac=[center(v) for v in a];uc=[center(v) for v in u]\n        predmean=[c[r]+sum(a[r],F(0))*sum(u[r],F(0))/n for r in range(3)]\n        predcov=[[dot(ac[r],ac[s])*dot(uc[r],uc[s])/F(n-1) for s in range(3)] for r in range(3)]\n        assert mean==predmean and cov==predcov\n        for r in range(3):\n            for s in range(3):\n                tensor=[ac[r][i]*uc[r][j]-ac[s][i]*uc[s][j] for i in range(n) for j in range(n)]\n                assert cov[r][r]+cov[s][s]-2*cov[r][s]==dot(tensor,tensor)/F(n-1)\n        zr=zvalue(a,u,c,cycle);zi=zvalue(a,u,c,ident);count=F(len(perms))\n        cm=[mean[r]+(zr[r]-zi[r])/count for r in range(3)]\n        cs=[[second[r][s]+(zr[r]*zr[s]-zi[r]*zi[s])/count for s in range(3)] for r in range(3)]\n        cc=[[cs[r][s]-cm[r]*cm[s] for s in range(3)] for r in range(3)]\n        zcorr=[zvalue(a,u,c,cycle if pi==ident else pi) for pi in perms]\n        am,ass,acov=moments(zcorr);assert (am,ass,acov)==(cm,cs,cc)\n        indep=[ [zvalue(a,u,c,(p if r==0 else q))[r] for r in [0,1]] for p in perms for q in perms]\n        _,_,icov=moments(indep);assert icov[0][1]==0\n        if n==2:assert all(v==0 for row in acov for v in row)\n        row=dict(n=n,permutations=len(perms),uniform_mean=mean,uniform_covariance=cov,corrected_mean=am,corrected_covariance=acov,shared_margin_variance=cov[0][0]+cov[1][1]-2*cov[0][1],wrong_independent_margin_variance=icov[0][0]+icov[1][1],identical_row_independence_assumption=False)\n    else:\n        assert all(v==0 for row in cov for v in row)\n        row=dict(n=n,permutations=len(perms),uniform_mean=mean,uniform_covariance=cov,identity_correction='not_applied',variance_zero=True)\n    rows.append(row)\na=[[F(1,2),F(1,3),F(1,6)]]*2\nur=[F(1),F(0),F(-1)];perms=list(itertools.permutations(range(3)));ident=(0,1,2);cycle=(1,2,0)\nexamples=[]\nfor name,us in [('common_utility',ur),('opposite_utility',[-x for x in ur])]:\n    u=[ur,us];c=[F(1,4),F(0)]\n    zs=[zvalue(a,u,c,pi) for pi in perms];zc=[zvalue(a,u,c,cycle if pi==ident else pi) for pi in perms]\n    margins=[v[0]-v[1] for v in zs];mc=[v[0]-v[1] for v in zc]\n    examples.append(dict(name=name,weights=a,utilities=u,fixed_contribution=c,per_row_attention_squared_norms=[dot(v,v) for v in a],per_row_centered_utility_squared_norms=[dot(center(v),center(v)) for v in u],uniform_mean_margin=sum(margins,F(0))/6,uniform_margins=margins,uniform_sign_failure_rate=F(sum(v<=0 for v in margins),6),corrected_margins=mc,corrected_sign_failure_rate=F(sum(v<=0 for v in mc),6)))\nassert examples[0]['per_row_attention_squared_norms']==examples[1]['per_row_attention_squared_norms']\nassert examples[0]['per_row_centered_utility_squared_norms']==examples[1]['per_row_centered_utility_squared_norms']\nassert examples[0]['uniform_mean_margin']==examples[1]['uniform_mean_margin']\nassert examples[0]['uniform_sign_failure_rate']==0 and examples[1]['uniform_sign_failure_rate']==F(1,2)\nassert examples[1]['corrected_sign_failure_rate']==F(2,3)\nout=dict(status='PASS',design_sha256=hashlib.sha256(design.read_bytes()).hexdigest(),scope='Exact abstract pooling arithmetic; no native forward or empirical validation.',generic_fixtures=rows,concentration_counterexample=examples,maximum_permutations=24,l5_accepted=False,new_theory_claim=False)\n(P/'enumeration-result.json').write_bytes((json.dumps(encode(out),indent=2)+'\\n').encode())\nprint(json.dumps(encode(dict(status=out['status'],fixtures=len(rows),maximum_permutations=24,counterexample=[dict(name=x['name'],uniform_failure=x['uniform_sign_failure_rate'],corrected_failure=x['corrected_sign_failure_rate']) for x in examples],native_model_runs=0,l5_accepted=False))))\n",
+  "enumeration_script_sha256": "27a0a3a3d92e160c7e6b2b4f0dc94ca79de22d32b0eee690c42b8e3d6d2957d0",
+  "enumeration_command": {
+    "command": [
+      "D:\\Software\\Dev\\Language\\Anaconda3\\envs\\QT2\\python.exe",
+      "-X",
+      "utf8",
+      "-B",
+      "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\qattn-l5-round38-20261117\\enumerate_covariance.py"
+    ],
+    "input": "enumeration-design.json plus fixed rational literals in script",
+    "stdout": "{\"status\": \"PASS\", \"fixtures\": 5, \"maximum_permutations\": 24, \"counterexample\": [{\"name\": \"common_utility\", \"uniform_failure\": \"0\", \"corrected_failure\": \"0\"}, {\"name\": \"opposite_utility\", \"uniform_failure\": \"1/2\", \"corrected_failure\": \"2/3\"}], \"native_model_runs\": 0, \"l5_accepted\": false}\n",
+    "stderr": "",
+    "exit_status": 0
+  },
+  "search_scope": {
+    "requests": [
+      {
+        "name": "attention_permutation",
+        "origin": "independent_search",
+        "query": "ti:\"attention\" AND (all:\"permutation\" OR all:\"shuffle\") AND (all:\"explanation\" OR all:\"robustness\")",
+        "url": "https://export.arxiv.org/api/query?search_query=ti%3A%22attention%22+AND+%28all%3A%22permutation%22+OR+all%3A%22shuffle%22%29+AND+%28all%3A%22explanation%22+OR+all%3A%22robustness%22%29&start=0&max_results=7&sortBy=relevance&sortOrder=descending",
+        "method": "GET",
+        "requested_at_utc": "2026-11-16T19:31:33.700211+00:00",
+        "cache": false,
+        "status": 200,
+        "final_url": "https://export.arxiv.org/api/query?search_query=ti%3A%22attention%22+AND+%28all%3A%22permutation%22+OR+all%3A%22shuffle%22%29+AND+%28all%3A%22explanation%22+OR+all%3A%22robustness%22%29&start=0&max_results=7&sortBy=relevance&sortOrder=descending",
+        "sha256": "e19746513c779e16314204ad5ae26da3e81962fd082d8ae22f8fea62730e5ff1",
+        "rows": 7
+      },
+      {
+        "name": "combinatorial_variance",
+        "origin": "cross_domain_search",
+        "query": "all:\"permutation\" AND (all:\"covariance\" OR all:\"variance\") AND all:\"Hoeffding\"",
+        "url": "https://export.arxiv.org/api/query?search_query=all%3A%22permutation%22+AND+%28all%3A%22covariance%22+OR+all%3A%22variance%22%29+AND+all%3A%22Hoeffding%22&start=0&max_results=7&sortBy=relevance&sortOrder=descending",
+        "method": "GET",
+        "requested_at_utc": "2026-11-16T19:31:41.431364+00:00",
+        "cache": false,
+        "status": 200,
+        "final_url": "https://export.arxiv.org/api/query?search_query=all%3A%22permutation%22+AND+%28all%3A%22covariance%22+OR+all%3A%22variance%22%29+AND+all%3A%22Hoeffding%22&start=0&max_results=7&sortBy=relevance&sortOrder=descending",
+        "sha256": "aba10a714597c5fad829c9a89897b2d9a37bc5681854f9d03ebe0ccbd177486a",
+        "rows": 7
+      },
+      {
+        "name": "attention_margin_geometry",
+        "origin": "independent_search",
+        "query": "all:\"attention\" AND all:\"margin\" AND (all:\"stability\" OR all:\"robustness\")",
+        "url": "https://export.arxiv.org/api/query?search_query=all%3A%22attention%22+AND+all%3A%22margin%22+AND+%28all%3A%22stability%22+OR+all%3A%22robustness%22%29&start=0&max_results=7&sortBy=relevance&sortOrder=descending",
+        "method": "GET",
+        "requested_at_utc": "2026-11-16T19:31:45.636326+00:00",
+        "cache": false,
+        "status": 200,
+        "final_url": "https://export.arxiv.org/api/query?search_query=all%3A%22attention%22+AND+all%3A%22margin%22+AND+%28all%3A%22stability%22+OR+all%3A%22robustness%22%29&start=0&max_results=7&sortBy=relevance&sortOrder=descending",
+        "sha256": "3f249a1e2cf76f54e66024930a1d83cc09bd629078942bd475661e230f989d71",
+        "rows": 7
+      }
+    ],
+    "queries": [
+      {
+        "name": "attention_permutation",
+        "origin": "independent_search",
+        "query": "ti:\"attention\" AND (all:\"permutation\" OR all:\"shuffle\") AND (all:\"explanation\" OR all:\"robustness\")"
+      },
+      {
+        "name": "combinatorial_variance",
+        "origin": "cross_domain_search",
+        "query": "all:\"permutation\" AND (all:\"covariance\" OR all:\"variance\") AND all:\"Hoeffding\""
+      },
+      {
+        "name": "attention_margin_geometry",
+        "origin": "independent_search",
+        "query": "all:\"attention\" AND all:\"margin\" AND (all:\"stability\" OR all:\"robustness\")"
+      }
+    ],
+    "metadata_rows": 21,
+    "selected_originals": [
+      "arxiv:1304.5001v3",
+      "arxiv:1908.04626v2",
+      "arxiv:1902.10186v3"
+    ],
+    "selected_origin": "Exact original backward/critique chain and classical permutation-statistic reference; all exact identities verified. Broad query results remain metadata-only.",
+    "paper_bank": [
+      "docs/audits/20261117-q-rmea-l5-round37.md",
+      "docs/audits/20261116-q-rmea-l5-round24.md",
+      "docs/audits/20261116-q-rmea-l5-round25.md"
+    ],
+    "not_exhaustive": true,
+    "browser_needed": false,
+    "all_selected_pdf_http_success": true
+  },
+  "new_native_model_forwards": 0,
+  "training": 0,
+  "l5_accepted": false
+}
