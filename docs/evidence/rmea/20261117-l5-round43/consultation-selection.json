@@ -1,0 +1,828 @@
+{
+  "schema": "qattn.l5.question-consultation-selection.v2",
+  "created_at_utc": "2026-11-16T21:14:54.807615+00:00",
+  "task": {
+    "type": "candidate-blind task-grounded mechanism/theory design",
+    "depth": 5,
+    "risk": "high",
+    "modality": "text",
+    "tools": false
+  },
+  "candidate_universe": {
+    "total_records": 2159,
+    "hle_rows": 119,
+    "bounded_top": 5,
+    "scope": "Fresh single-source HLE difficult-knowledge proxy, no exact research-ideation comparison or absolute capability ranking."
+  },
+  "ranked_candidates": [
+    {
+      "rank": 1,
+      "model_id": "claude-fable-5.2",
+      "benchmark_model_id": "claude-fable-5-2",
+      "api_model_id": null,
+      "capability_status": "proxy_supported",
+      "capability_proxy_score": 0.732,
+      "mapping_status": "unverified",
+      "protocol": "anthropic-messages",
+      "reasoning_effort": "max",
+      "benchmark_effort_equivalence": "unknown",
+      "transport_status": "unavailable_at_shared_preflight",
+      "dispatch_eligible": false,
+      "attempt_status": "skipped_before_context",
+      "reason": "Fresh shared catalog route URLError; exact API identity/native-max profile unverified. No guessed alias/context call. Does not prove each model offline."
+    },
+    {
+      "rank": 2,
+      "model_id": "claude-fable-5.1",
+      "benchmark_model_id": "claude-fable-5-1",
+      "api_model_id": null,
+      "capability_status": "proxy_supported",
+      "capability_proxy_score": 0.65,
+      "mapping_status": "unverified",
+      "protocol": "anthropic-messages",
+      "reasoning_effort": "max",
+      "benchmark_effort_equivalence": "unknown",
+      "transport_status": "unavailable_at_shared_preflight",
+      "dispatch_eligible": false,
+      "attempt_status": "skipped_before_context",
+      "reason": "Fresh shared catalog route URLError; exact API identity/native-max profile unverified. No guessed alias/context call. Does not prove each model offline."
+    },
+    {
+      "rank": 3,
+      "model_id": "claude-mythos-preview",
+      "benchmark_model_id": "claude-mythos-preview",
+      "api_model_id": null,
+      "capability_status": "proxy_supported",
+      "capability_proxy_score": 0.647,
+      "mapping_status": "unverified",
+      "protocol": "anthropic-messages",
+      "reasoning_effort": "max",
+      "benchmark_effort_equivalence": "unknown",
+      "transport_status": "unavailable_at_shared_preflight",
+      "dispatch_eligible": false,
+      "attempt_status": "skipped_before_context",
+      "reason": "Fresh shared catalog route URLError; exact API identity/native-max profile unverified. No guessed alias/context call. Does not prove each model offline."
+    },
+    {
+      "rank": 4,
+      "model_id": "claude-opus-5",
+      "benchmark_model_id": "claude-opus-5",
+      "api_model_id": null,
+      "capability_status": "proxy_supported",
+      "capability_proxy_score": 0.647,
+      "mapping_status": "unverified",
+      "protocol": "anthropic-messages",
+      "reasoning_effort": "max",
+      "benchmark_effort_equivalence": "unknown",
+      "transport_status": "unavailable_at_shared_preflight",
+      "dispatch_eligible": false,
+      "attempt_status": "skipped_before_context",
+      "reason": "Fresh shared catalog route URLError; exact API identity/native-max profile unverified. No guessed alias/context call. Does not prove each model offline."
+    },
+    {
+      "rank": 5,
+      "model_id": "claude-fable-5",
+      "benchmark_model_id": "claude-fable-5",
+      "api_model_id": null,
+      "capability_status": "proxy_supported",
+      "capability_proxy_score": 0.645,
+      "mapping_status": "unverified",
+      "protocol": "anthropic-messages",
+      "reasoning_effort": "max",
+      "benchmark_effort_equivalence": "unknown",
+      "transport_status": "unavailable_at_shared_preflight",
+      "dispatch_eligible": false,
+      "attempt_status": "skipped_before_context",
+      "reason": "Fresh shared catalog route URLError; exact API identity/native-max profile unverified. No guessed alias/context call. Does not prove each model offline."
+    }
+  ],
+  "excluded_candidates": [
+    {
+      "model_id": "glm-5.3",
+      "benchmark_model_id": "glm-5.3",
+      "score": 0.625,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "muse-spark-1.1",
+      "benchmark_model_id": "muse-spark-1.1",
+      "score": 0.621,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "deepseek-v4-pro-0813",
+      "benchmark_model_id": "deepseek-v4-pro-0813",
+      "score": 0.6,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "muse-spark",
+      "benchmark_model_id": "muse-spark",
+      "score": 0.584,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "claude-opus-4.8",
+      "benchmark_model_id": "claude-opus-4-8",
+      "score": 0.579,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "claude-sonnet-5",
+      "benchmark_model_id": "claude-sonnet-5",
+      "score": 0.574,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gpt-5.5-pro",
+      "benchmark_model_id": "gpt-5.5-pro",
+      "score": 0.572,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "kimi-k3",
+      "benchmark_model_id": "kimi-k3",
+      "score": 0.56,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "seed-2.1-pro",
+      "benchmark_model_id": "seed-2.1-pro",
+      "score": 0.557,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "glm-5.3-flash",
+      "benchmark_model_id": "glm-5.3-flash",
+      "score": 0.553,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "claude-opus-4.7",
+      "benchmark_model_id": "claude-opus-4-7",
+      "score": 0.547,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "glm-5.2",
+      "benchmark_model_id": "glm-5.2",
+      "score": 0.547,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "seed-2.1-turbo",
+      "benchmark_model_id": "seed-2.1-turbo",
+      "score": 0.546,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "claude-opus-4.6",
+      "benchmark_model_id": "claude-opus-4-6",
+      "score": 0.531,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "glm-5.1",
+      "benchmark_model_id": "glm-5.1",
+      "score": 0.523,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gpt-5.5",
+      "benchmark_model_id": "gpt-5.5",
+      "score": 0.522,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "qwen4-max",
+      "benchmark_model_id": "qwen4-max",
+      "score": 0.517,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gemini-3.1-pro",
+      "benchmark_model_id": "gemini-3.1-pro-preview",
+      "score": 0.514,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "kimi-k3.1-pro",
+      "benchmark_model_id": "kimi-k3.1-pro",
+      "score": 0.511,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "kimi-k2-thinking-0905",
+      "benchmark_model_id": "kimi-k2-thinking-0905",
+      "score": 0.51,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "grok-4-heavy",
+      "benchmark_model_id": "grok-4-heavy",
+      "score": 0.507,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "kimi-k2.5",
+      "benchmark_model_id": "kimi-k2.5",
+      "score": 0.502,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "claude-sonnet-4.6",
+      "benchmark_model_id": "claude-sonnet-4-6",
+      "score": 0.49,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "qwen3.5-27b",
+      "benchmark_model_id": "qwen3.5-27b",
+      "score": 0.485,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "deepseek-v4-pro-max",
+      "benchmark_model_id": "deepseek-v4-pro-max",
+      "score": 0.482,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "qwen3.5-122b-a10b",
+      "benchmark_model_id": "qwen3.5-122b-a10b",
+      "score": 0.475,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "qwen3.5-35b-a3b",
+      "benchmark_model_id": "qwen3.5-35b-a3b",
+      "score": 0.474,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gemini-3-pro",
+      "benchmark_model_id": "gemini-3-pro-preview",
+      "score": 0.458,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "deepseek-v4-flash-max",
+      "benchmark_model_id": "deepseek-v4-flash-max",
+      "score": 0.451,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "inkling-2-small",
+      "benchmark_model_id": "inkling-2-small",
+      "score": 0.441,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "qwen3.8-max",
+      "benchmark_model_id": "qwen3.8-max",
+      "score": 0.436,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gemini-3-flash",
+      "benchmark_model_id": "gemini-3-flash-preview",
+      "score": 0.435,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "glm-4.7",
+      "benchmark_model_id": "glm-4.7",
+      "score": 0.428,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "deepseek-v4.1-flash-1017",
+      "benchmark_model_id": "deepseek-v4.1-flash-1017",
+      "score": 0.426,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "qwen3.7-max",
+      "benchmark_model_id": "qwen3.7-max",
+      "score": 0.414,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "deepseek-v3.2",
+      "benchmark_model_id": "deepseek-v3.2",
+      "score": 0.408,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "deepseek-v4-flash-0423",
+      "benchmark_model_id": "deepseek-v4-flash-0423",
+      "score": 0.403,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gemini-3.5-flash",
+      "benchmark_model_id": "gemini-3.5-flash",
+      "score": 0.402,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "grok-4",
+      "benchmark_model_id": "grok-4",
+      "score": 0.4,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gpt-5.4",
+      "benchmark_model_id": "gpt-5.4",
+      "score": 0.398,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "ernie-5.0",
+      "benchmark_model_id": "ernie-5.0",
+      "score": 0.39,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "nemotron-3-ultra-550b-a55b",
+      "benchmark_model_id": "nemotron-3-ultra-550b-a55b",
+      "score": 0.374,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "deepseek-v4.1-flash",
+      "benchmark_model_id": "deepseek-v4.1-flash",
+      "score": 0.368,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gpt-5.2-pro",
+      "benchmark_model_id": "gpt-5.2-pro-2025-12-11",
+      "score": 0.366,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "kimi-k2.6",
+      "benchmark_model_id": "kimi-k2.6",
+      "score": 0.364,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "beam-1.0",
+      "benchmark_model_id": "beam-1.0-501b-a23b",
+      "score": 0.36,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "qwen3.8-flash",
+      "benchmark_model_id": "qwen3.8-flash",
+      "score": 0.359,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "qwen3.8-flash-next",
+      "benchmark_model_id": "qwen3.8-flash-next",
+      "score": 0.359,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "qwen3.7-plus",
+      "benchmark_model_id": "qwen3.7-plus",
+      "score": 0.347,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gpt-5.2",
+      "benchmark_model_id": "gpt-5.2-2025-12-11",
+      "score": 0.345,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "mimo-v2.5-pro",
+      "benchmark_model_id": "mimo-v2.5-pro",
+      "score": 0.34,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "k2-horizon-375b-a23b",
+      "benchmark_model_id": "k2-horizon-375b-a23b",
+      "score": 0.32,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "nemotron-3.5-super-vl-120b-a12b",
+      "benchmark_model_id": "nemotron-3.5-super-vl-120b-a12b",
+      "score": 0.3179,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "inkling-small",
+      "benchmark_model_id": "inkling-small",
+      "score": 0.316,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "qwen3.8-27b",
+      "benchmark_model_id": "qwen3.8-27b",
+      "score": 0.308,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "deepseek-v3.2-speciale",
+      "benchmark_model_id": "deepseek-v3.2-speciale",
+      "score": 0.306,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "qwen3.6-plus",
+      "benchmark_model_id": "qwen3.6-plus",
+      "score": 0.288,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "qwen3.5-397b-a17b",
+      "benchmark_model_id": "qwen3.5-397b-a17b",
+      "score": 0.287,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gpt-5.4-mini",
+      "benchmark_model_id": "gpt-5.4-mini",
+      "score": 0.282,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gemma-4-31b",
+      "benchmark_model_id": "gemma-4-31b-it",
+      "score": 0.265,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "nemotron-3.5-bolt-74b-a9b-24gb",
+      "benchmark_model_id": "nemotron-3.5-bolt-74b-a9b-24gb",
+      "score": 0.253,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "k2-horizon-32b",
+      "benchmark_model_id": "k2-horizon-32b",
+      "score": 0.252,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "k2-horizon-mova-36b-a4b",
+      "benchmark_model_id": "k2-horizon-mova-36b-a4b",
+      "score": 0.252,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "longcat-flash-thinking-2601",
+      "benchmark_model_id": "longcat-flash-thinking-2601",
+      "score": 0.252,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "deepseek-v3.2-thinking",
+      "benchmark_model_id": "deepseek-reasoner",
+      "score": 0.251,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gpt-5",
+      "benchmark_model_id": "gpt-5-2025-08-07",
+      "score": 0.248,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gpt-5.4-nano",
+      "benchmark_model_id": "gpt-5.4-nano",
+      "score": 0.243,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "qwen3.6-27b",
+      "benchmark_model_id": "qwen3.6-27b",
+      "score": 0.24,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "nemotron-3-super-120b-a12b",
+      "benchmark_model_id": "nemotron-3-super-120b-a12b",
+      "score": 0.2282,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "mimo-v2-flash",
+      "benchmark_model_id": "mimo-v2-flash",
+      "score": 0.221,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "minimax-m2.1",
+      "benchmark_model_id": "minimax-m2.1",
+      "score": 0.22,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "muse-glimmer-30b",
+      "benchmark_model_id": "muse-glimmer-30b",
+      "score": 0.22,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gemini-2.5-pro-preview-06-05",
+      "benchmark_model_id": "gemini-2.5-pro-preview-06-05",
+      "score": 0.216,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "qwen3.6-35b-a3b",
+      "benchmark_model_id": "qwen3.6-35b-a3b",
+      "score": 0.214,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "grok-4-fast",
+      "benchmark_model_id": "grok-4-fast",
+      "score": 0.2,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "deepseek-v3.2-exp",
+      "benchmark_model_id": "deepseek-v3.2-exp",
+      "score": 0.198,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "k2-horizon-7b",
+      "benchmark_model_id": "k2-horizon-7b",
+      "score": 0.186,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "qwen3-235b-a22b-thinking-2507",
+      "benchmark_model_id": "qwen3-235b-a22b-thinking-2507",
+      "score": 0.182,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "mai-code-1-flash",
+      "benchmark_model_id": "mai-code-1-flash",
+      "score": 0.18,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gemini-2.5-pro",
+      "benchmark_model_id": "gemini-2.5-pro",
+      "score": 0.178,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "deepseek-r1-0528",
+      "benchmark_model_id": "deepseek-r1-0528",
+      "score": 0.177,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gemma-4-26b-a4b",
+      "benchmark_model_id": "gemma-4-26b-a4b-it",
+      "score": 0.172,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "glm-4.6",
+      "benchmark_model_id": "glm-4.6",
+      "score": 0.172,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gpt-5-mini",
+      "benchmark_model_id": "gpt-5-mini-2025-08-07",
+      "score": 0.167,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gemini-3.1-flash-lite",
+      "benchmark_model_id": "gemini-3.1-flash-lite-preview",
+      "score": 0.16,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "deepseek-v3.1",
+      "benchmark_model_id": "deepseek-v3.1",
+      "score": 0.159,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "nemotron-3-nano-30b-a3b",
+      "benchmark_model_id": "nemotron-3-nano-30b-a3b",
+      "score": 0.155,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gpt-oss-120b",
+      "benchmark_model_id": "gpt-oss-120b",
+      "score": 0.149,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "o3",
+      "benchmark_model_id": "o3-2025-04-16",
+      "score": 0.147,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "o4-mini",
+      "benchmark_model_id": "o4-mini",
+      "score": 0.147,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "glm-4.5",
+      "benchmark_model_id": "glm-4.5",
+      "score": 0.144,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "glm-4.7-flash",
+      "benchmark_model_id": "glm-4.7-flash",
+      "score": 0.144,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "k2-horizon-3.7b",
+      "benchmark_model_id": "k2-horizon-3.7b",
+      "score": 0.14,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "qwen3-vl-235b-a22b-thinking",
+      "benchmark_model_id": "qwen3-vl-235b-a22b-thinking",
+      "score": 0.136,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "minimax-m2",
+      "benchmark_model_id": "minimax-m2",
+      "score": 0.125,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "diffusiongemma-26b-a4b",
+      "benchmark_model_id": "diffusiongemma-26b-a4b-it",
+      "score": 0.119,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "nemotron-3.5-lightning-30b-a3b",
+      "benchmark_model_id": "nemotron-3.5-lightning-30b-a3b",
+      "score": 0.1172,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "sarvam-105b",
+      "benchmark_model_id": "sarvam-105b",
+      "score": 0.112,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gemini-2.5-flash",
+      "benchmark_model_id": "gemini-2.5-flash",
+      "score": 0.11,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gpt-oss-20b",
+      "benchmark_model_id": "gpt-oss-20b",
+      "score": 0.109,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "nemotron-labs-dory-1.0-4b",
+      "benchmark_model_id": "nemotron-labs-dory-1.0-4b",
+      "score": 0.1089,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "glm-4.5-air",
+      "benchmark_model_id": "glm-4.5-air",
+      "score": 0.106,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "magistral-medium",
+      "benchmark_model_id": "magistral-medium",
+      "score": 0.09,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gpt-5-nano",
+      "benchmark_model_id": "gpt-5-nano-2025-08-07",
+      "score": 0.087,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "minimax-m1-80k",
+      "benchmark_model_id": "minimax-m1-80k",
+      "score": 0.084,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "minimax-m1-40k",
+      "benchmark_model_id": "minimax-m1-40k",
+      "score": 0.072,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "lfm3-1.7b",
+      "benchmark_model_id": "lfm3-1.7b",
+      "score": 0.0717,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gpt-4.1",
+      "benchmark_model_id": "gpt-4.1-2025-04-14",
+      "score": 0.054,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gpt-4o",
+      "benchmark_model_id": "gpt-4o-2024-08-06",
+      "score": 0.053,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gemma-4-12b",
+      "benchmark_model_id": "gemma-4-12b-it",
+      "score": 0.052,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gemini-2.5-flash-lite",
+      "benchmark_model_id": "gemini-2.5-flash-lite",
+      "score": 0.051,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "kimi-k2-instruct",
+      "benchmark_model_id": "kimi-k2-instruct",
+      "score": 0.047,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "kimi-k2-instruct-0905",
+      "benchmark_model_id": "kimi-k2-instruct-0905",
+      "score": 0.047,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    },
+    {
+      "model_id": "gpt-4.1-mini",
+      "benchmark_model_id": "gpt-4.1-mini-2025-04-14",
+      "score": 0.037,
+      "reason": "Below bounded top5 source-proxy queue, not excluded by transport."
+    }
+  ],
+  "source_evidence": [
+    {
+      "path": "model-metadata.json",
+      "sha256": "379db2c61be6072130ef73a08a745d6964dff5fb17963e2bd1c88422f0aa0c25"
+    },
+    {
+      "path": "llm-stats-universe.json",
+      "sha256": "3b1f119110779ef8603797a876439bce53c896584d261d1fcb5a513eeda39f04"
+    },
+    {
+      "path": "provider-preflight.json",
+      "sha256": "5e5e59641064aed36b4ae891d6365ff52f0af33cb24f83a980b503f5328b5646"
+    },
+    {
+      "path": "packet-freeze.json",
+      "sha256": "7010f07d086f423f5f59f5abba4cf2450a36f5a8779377cf8b52164102ece0be"
+    }
+  ],
+  "other_source_scope": "Arena R23 ordinary HTTP/headless403Cloudflare remains historical evidence only, not retried or claimed fresh; Vellum/BenchLM not collected because no exact task evidence established and bounded single-source proxy is explicitly used. No cross-source consensus claimed.",
+  "selected_external_model": null,
+  "external_context_calls": 0,
+  "availability_attempts": [
+    {
+      "scope": "shared fresh catalog route",
+      "result": "unavailable",
+      "error_class": "URLError",
+      "context_sent": false,
+      "retries": 0
+    }
+  ],
+  "fallback_reason": "Entire bounded capability queue skipped at required shared API identity/profile gate.",
+  "fallback": {
+    "type": "bounded isolated same-host subagent",
+    "basis": "model-consultation-orchestrator Ranked Availability Fallback and Workflow7/8",
+    "same_packet": true,
+    "packet_sha256": "2e9f7684d2d089ca4e225c0ac7fb45beb662beae389cd1fc256ea1e85b0848c7",
+    "primary_retains_ownership": true
+  },
+  "uncertainties": [
+    "HLE proxy is not mathematical novelty/design evidence.",
+    "Source alias/benchmark strength does not establish provider mapping/native-effort parity.",
+    "Advice is not source validation, empirical proof or L5 acceptance."
+  ]
+}
