@@ -1,0 +1,42 @@
+{
+  "schema": "qattn.independent-resource-proof-review.v1",
+  "scope": "source_proof_only",
+  "packet_sha256": "1d439d7eacf19b70e4728e46883d7a698052b284dbab83d5f621ce9e709b6785",
+  "selection_sha256": "e87d9e4ac4452ad45974e26600e55d47f83c15db938fe701099a58e5fe28ac3e",
+  "consultant": "Bounded independent subagent /root/l5_theory_builder; ranked-availability fallback, not either external model",
+  "verdict": "PASS_WITH_RISK",
+  "proof_scope": "Independent symbolic check of the supplied epsilon-coin construction, ratio perturbation, confidence accounting and actual constant-dimensional classical comparator. Source theorem statements and historical evidence are supplied facts, not original reading or execution by this reviewer.",
+  "proof_checks": {
+    "domain": "T>=1 valid tokens, normalized states in C^8, epsilon>0, known U_r>0 bounding every relevant |u_t|, 0<e<=1, 0<beta<1, and a known common lower bound 0<p0<=p_r. U_r=0 is the exact bias-only case.",
+    "epsilon_coin": "With eta=epsilon/(1+epsilon), an always-accept branch of probability eta and an orthogonally retained Born branch of probability 1-eta yield a_t=eta+(1-eta)q_t=(q_t+epsilon)/(1+epsilon). Uniform token indexing gives p_r=mean(a_t) and Pr(t|accept)=a_t/(T p_r)=alpha_t. All q_t=0 gives uniform alpha. Orthogonal branch records must remain available when computing this marginal; summing branch amplitudes or claiming an automatically clean pure square-root-alpha state would exceed the argument.",
+    "signed_utility": "w_t=(u_t+U_r)/(2U_r) lies in [0,1]. A controlled value rotation with joint accept event has probability m_r=mean(a_t w_t), so 0<=m_r<=p_r and z_r=2U_r(m_r/p_r)-U_r+b_r. This uses the stated coherent signed-value access, not existing classical samples alone.",
+    "ae_error": "Condition on the supplied AE bound holding for x=p_r and x=m_r. For k>=16*pi/(e*sqrt(p0)), its square-root term is <=e*sqrt(p_r*p0)/8<=e*p_r/8; its quadratic term is <=e^2*p0/256<=e*p_r/256. Hence each error is <=33*e*p_r/256<e*p_r/4. The ceiling in k is harmless.",
+    "ratio_error": "On both good events, p_hat>=p_r(1-e/4)>0 and |m_hat/p_hat-m_r/p_r|<=(e/2)/(1-e/4)<=2e/3<=e. Projection to [0,1] cannot increase error because the true ratio lies there. Thus |z_hat_r-z_r|<=2U_r e.",
+    "confidence": "A median requires independent repetitions of a base estimator whose success probability is bounded above 1/2; the usual AE theorem supplies such a constant, but its exact source statement was not independently read here. Reducing each of the 2R estimator failure probabilities to beta/(2R), then taking a union bound, gives simultaneous score bounds with probability >=1-beta for one fixed input. Independence across different labels or between p and m is not needed for that union bound. The resulting reflection-query order is O(R*log(R/beta)/(e*sqrt(p0))) for the assumed ideal access model.",
+    "decision_and_loss": "If all R scores have absolute error <=delta, a strict top-score margin >2delta preserves hard argmax. Multiclass softmax cross-entropy changes by at most 2delta, by the infinity-norm Lipschitz bound for log-sum-exp plus the target-score term. For relation-specific U_r, a common delta can be max_r(2U_r e). These per-input facts imply no Macro-F1 gain, and observed margins were not checked.",
+    "worst_case_epsilon": "Since q_t>=0, p_r>=epsilon/(1+epsilon); the supplied inverse-square-root value for epsilon=1e-6 is consistent. This lower bound prevents a zero denominator but gives no favorable runtime conclusion for the actual short, 8-dimensional head.",
+    "classical_comparator": "After preparing the actual length-8 complex vectors, direct inner products evaluate all overlaps in O(8RT) arithmetic and exact normalization uses the same epsilon. Shared value projection and per-label utility evaluation, state preparation, chosen numerical precision and the global contextual encoder must also be charged. This direct comparator needs no stochastic rejection sampling. It is an available upper bound, not a claim that O(RT) is an optimal classical lower bound; fixed-dimensional contractions and shared computation may also be relevant. An Omega(RT) cost applies to explicitly materializing an RT-entry table, not to every possible algorithm."
+  },
+  "critical_issues": [],
+  "source_model_caveats": [
+    "Only the two authorized JSON inputs were read. Montanaro theorem details, the rejection-sampling paper, PDFs, receipts, algebra fixtures and historical report identities were not independently inspected or rerun.",
+    "The query theorem is conditional on coherent preparation, its inverse, reflections, index access and bounded-value rotations. Any controlled reflections or controlled oracle calls required by the chosen AE implementation must also be available and charged; controllability is not free for a generic unspecified black box. This does not establish an efficient reversible implementation of RoBERTa, angle generation, utilities, loading or reuse.",
+    "The confidence accounting is for one input. A simultaneous guarantee over N inputs requires a further failure-budget allocation, such as beta/(2RN) per estimator, and the corresponding logarithmic factor. Expected or empirical aggregate guarantees must be stated separately.",
+    "Finite-precision state preparation, coin and value rotations, AE arithmetic and bias handling need an explicit additional error budget before this is an implementation theorem. The present proof assumes ideal oracles and real-valued bounds.",
+    "Direct classical evaluation is exact at the formula level and numerical at chosen finite precision. It remains visible even though classical simulability itself is not a reason to reject a useful contribution.",
+    "No lower bound or optimality statement from the supplied quantum rejection-sampling source transfers automatically to these unknown learned scores or ratio readout.",
+    "The packet's corrected historical-baseline scope is retained as supplied; this review creates no historical rerun requirement and independently certifies none of those results."
+  ],
+  "claim_ceiling": "A mathematically consistent conditional implementation/resource note combining known amplitude estimation with elementary acceptance conditioning, ratio perturbation and score stability. It establishes neither a new algorithm or optimality theorem, end-to-end speedup, a task-dependent learning explanation, empirical performance of an approximate implementation nor an L5 contribution. Accepted scoped L4 remains unchanged.",
+  "one_next_question": "justified_stop for promoting this resource-composition route: it supplies no task-dependent learning premise. No additional learning-theory question is supported by this packet; no closed family, retuning or new experiment is proposed.",
+  "execution_boundary": {
+    "scientific_execution": false,
+    "new_model_forwards": 0,
+    "data_or_weights_read": false,
+    "remote_access": false,
+    "source_reading_claimed": false,
+    "only_owned_result_written": true
+  },
+  "new_method_approved": false,
+  "l5_accepted": false
+}

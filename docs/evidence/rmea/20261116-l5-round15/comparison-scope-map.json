@@ -1,0 +1,580 @@
+{
+  "schema": "qattn.completed-study-scope-map.v1",
+  "status": "PASS",
+  "reference_suite": {
+    "report_commit": "6f3d9e488d7377f23d3453d826359a859b423e23",
+    "configurations": 15,
+    "complete": 15,
+    "seeds": [
+      13
+    ],
+    "counts": {
+      "train": 58465,
+      "valid": 19584,
+      "test": 13418
+    },
+    "fidelity": {
+      "paper_interpretive": 14,
+      "source_faithful_adapted": 1
+    },
+    "rows": [
+      {
+        "model": "metaentail",
+        "status": "complete",
+        "seed": 13,
+        "updates": 28548,
+        "fidelity": "paper_interpretive",
+        "epochs": 3,
+        "logical_batch": 32,
+        "learning_rate": 2e-05,
+        "selection": "dev_all_example_non_null_micro_f1",
+        "recipe_metadata_scope": "Per-model executed contract, not a claim all fifteen use identical optimization.",
+        "source_data": {
+          "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+          "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+          "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+        },
+        "adapter_output_data": {
+          "train": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57",
+          "valid": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4",
+          "test": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b"
+        }
+      },
+      {
+        "model": "sequence_routing_h3",
+        "status": "complete",
+        "seed": 13,
+        "updates": 12185,
+        "fidelity": "paper_interpretive",
+        "epochs": 5,
+        "logical_batch": 24,
+        "learning_rate": 1e-05,
+        "selection": "dev_all_example_non_null_micro_f1",
+        "recipe_metadata_scope": "Per-model executed contract, not a claim all fifteen use identical optimization.",
+        "source_data": {
+          "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+          "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+          "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+        },
+        "adapter_output_data": {
+          "train": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57",
+          "valid": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4",
+          "test": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b"
+        }
+      },
+      {
+        "model": "ctl_drp_supervised",
+        "status": "complete",
+        "seed": 13,
+        "updates": 1150,
+        "fidelity": "paper_interpretive",
+        "epochs": null,
+        "logical_batch": null,
+        "learning_rate": null,
+        "selection": null,
+        "recipe_metadata_scope": "Per-model executed contract, not a claim all fifteen use identical optimization.",
+        "source_data": {
+          "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+          "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+          "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+        },
+        "adapter_output_data": {
+          "train": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57",
+          "valid": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4",
+          "test": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b"
+        }
+      },
+      {
+        "model": "typed_marker_comparison_2025",
+        "status": "complete",
+        "seed": 13,
+        "updates": 4570,
+        "fidelity": "paper_interpretive",
+        "epochs": 5,
+        "logical_batch": 64,
+        "learning_rate": 3e-05,
+        "selection": "dev_all_example_non_null_micro_f1",
+        "recipe_metadata_scope": "Per-model executed contract, not a claim all fifteen use identical optimization.",
+        "source_data": {
+          "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+          "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+          "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+        },
+        "adapter_output_data": {
+          "train": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57",
+          "valid": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4",
+          "test": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b"
+        }
+      },
+      {
+        "model": "curriculum",
+        "status": "complete",
+        "seed": 13,
+        "updates": 9700,
+        "fidelity": "paper_interpretive",
+        "epochs": 6,
+        "logical_batch": 32,
+        "learning_rate": 0.0005,
+        "selection": "dev_all_example_non_null_micro_f1",
+        "recipe_metadata_scope": "Per-model executed contract, not a claim all fifteen use identical optimization.",
+        "source_data": {
+          "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+          "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+          "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+        },
+        "adapter_output_data": {
+          "train": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57",
+          "valid": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4",
+          "test": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b"
+        }
+      },
+      {
+        "model": "ctl_drp_unsupervised",
+        "status": "complete",
+        "seed": 13,
+        "updates": 1150,
+        "fidelity": "paper_interpretive",
+        "epochs": null,
+        "logical_batch": null,
+        "learning_rate": null,
+        "selection": null,
+        "recipe_metadata_scope": "Per-model executed contract, not a claim all fifteen use identical optimization.",
+        "source_data": {
+          "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+          "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+          "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+        },
+        "adapter_output_data": {
+          "train": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57",
+          "valid": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4",
+          "test": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b"
+        }
+      },
+      {
+        "model": "typed_marker_punct",
+        "status": "complete",
+        "seed": 13,
+        "updates": 4570,
+        "fidelity": "paper_interpretive",
+        "epochs": 5,
+        "logical_batch": 64,
+        "learning_rate": 3e-05,
+        "selection": "dev_all_example_non_null_micro_f1",
+        "recipe_metadata_scope": "Per-model executed contract, not a claim all fifteen use identical optimization.",
+        "source_data": {
+          "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+          "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+          "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+        },
+        "adapter_output_data": {
+          "train": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57",
+          "valid": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4",
+          "test": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b"
+        }
+      },
+      {
+        "model": "ptr",
+        "status": "complete",
+        "seed": 13,
+        "updates": 4570,
+        "fidelity": "source_faithful_adapted",
+        "epochs": 5,
+        "logical_batch": 64,
+        "learning_rate": 3e-05,
+        "selection": "final_epoch",
+        "recipe_metadata_scope": "Per-model executed contract, not a claim all fifteen use identical optimization.",
+        "source_data": {
+          "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+          "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+          "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+        },
+        "adapter_output_data": {
+          "train": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57",
+          "valid": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4",
+          "test": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b"
+        }
+      },
+      {
+        "model": "luke_core",
+        "status": "complete",
+        "seed": 13,
+        "updates": 9140,
+        "fidelity": "paper_interpretive",
+        "epochs": 5,
+        "logical_batch": 32,
+        "learning_rate": 1e-05,
+        "selection": "dev_all_example_non_null_micro_f1",
+        "recipe_metadata_scope": "Per-model executed contract, not a claim all fifteen use identical optimization.",
+        "source_data": {
+          "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+          "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+          "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+        },
+        "adapter_output_data": {
+          "train": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57",
+          "valid": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4",
+          "test": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b"
+        }
+      },
+      {
+        "model": "luke_cfie",
+        "status": "complete",
+        "seed": 13,
+        "updates": 9140,
+        "fidelity": "paper_interpretive",
+        "epochs": 5,
+        "logical_batch": 32,
+        "learning_rate": 1e-05,
+        "selection": "dev_all_example_non_null_micro_f1",
+        "recipe_metadata_scope": "Per-model executed contract, not a claim all fifteen use identical optimization.",
+        "source_data": {
+          "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+          "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+          "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+        },
+        "adapter_output_data": {
+          "train": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57",
+          "valid": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4",
+          "test": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b"
+        }
+      },
+      {
+        "model": "luke_resample",
+        "status": "complete",
+        "seed": 13,
+        "updates": 9140,
+        "fidelity": "paper_interpretive",
+        "epochs": 5,
+        "logical_batch": 32,
+        "learning_rate": 1e-05,
+        "selection": "dev_all_example_non_null_micro_f1",
+        "recipe_metadata_scope": "Per-model executed contract, not a claim all fifteen use identical optimization.",
+        "source_data": {
+          "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+          "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+          "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+        },
+        "adapter_output_data": {
+          "train": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57",
+          "valid": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4",
+          "test": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b"
+        }
+      },
+      {
+        "model": "typed_marker",
+        "status": "complete",
+        "seed": 13,
+        "updates": 4570,
+        "fidelity": "paper_interpretive",
+        "epochs": 5,
+        "logical_batch": 64,
+        "learning_rate": 3e-05,
+        "selection": "dev_all_example_non_null_micro_f1",
+        "recipe_metadata_scope": "Per-model executed contract, not a claim all fifteen use identical optimization.",
+        "source_data": {
+          "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+          "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+          "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+        },
+        "adapter_output_data": {
+          "train": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57",
+          "valid": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4",
+          "test": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b"
+        }
+      },
+      {
+        "model": "entity_marker_punct",
+        "status": "complete",
+        "seed": 13,
+        "updates": 4570,
+        "fidelity": "paper_interpretive",
+        "epochs": 5,
+        "logical_batch": 64,
+        "learning_rate": 3e-05,
+        "selection": "dev_all_example_non_null_micro_f1",
+        "recipe_metadata_scope": "Per-model executed contract, not a claim all fifteen use identical optimization.",
+        "source_data": {
+          "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+          "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+          "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+        },
+        "adapter_output_data": {
+          "train": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57",
+          "valid": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4",
+          "test": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b"
+        }
+      },
+      {
+        "model": "luke_focal",
+        "status": "complete",
+        "seed": 13,
+        "updates": 9140,
+        "fidelity": "paper_interpretive",
+        "epochs": 5,
+        "logical_batch": 32,
+        "learning_rate": 1e-05,
+        "selection": "dev_all_example_non_null_micro_f1",
+        "recipe_metadata_scope": "Per-model executed contract, not a claim all fifteen use identical optimization.",
+        "source_data": {
+          "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+          "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+          "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+        },
+        "adapter_output_data": {
+          "train": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57",
+          "valid": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4",
+          "test": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b"
+        }
+      },
+      {
+        "model": "entity_marker",
+        "status": "complete",
+        "seed": 13,
+        "updates": 4570,
+        "fidelity": "paper_interpretive",
+        "epochs": 5,
+        "logical_batch": 64,
+        "learning_rate": 3e-05,
+        "selection": "dev_all_example_non_null_micro_f1",
+        "recipe_metadata_scope": "Per-model executed contract, not a claim all fifteen use identical optimization.",
+        "source_data": {
+          "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+          "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+          "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+        },
+        "adapter_output_data": {
+          "train": "4a4a08f5871b34fa450b7c79961b01941ff5c7b70306aa61bc04c77230250c57",
+          "valid": "6710cc26ae16716a74a386b353500446155950fd8a2daea1428d5230bac168f4",
+          "test": "db0fd51aa37471fb18ed821c889d7186b04cf091605481dc9b393e4447adba0b"
+        }
+      }
+    ],
+    "comparison_scope": "Completed same-task reference landscape with common source splits/evaluator; architecture, permitted representations, objectives, budget and selection vary. Not a matched frozen-head causal comparison or renewed upstream fidelity certification."
+  },
+  "rmea_confirmation": {
+    "report_commit": "84f3b2e3a10cf884b0fe55c53c71a61239d89642",
+    "source_sha256": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+    "contract_sha256": "da5541b44d89853d8ff23db7bf4750a984ae76ad18c96ca9af6252dec09aea36",
+    "phases": [
+      {
+        "seed": 29,
+        "conditions": [
+          "uniform",
+          "relation_softmax",
+          "real_overlap",
+          "quantum",
+          "dephased"
+        ],
+        "counts": {
+          "train": 58465,
+          "valid": 19584,
+          "test": 13418
+        },
+        "epochs": 20,
+        "batch_size": 128,
+        "optimizer": "AdamW",
+        "lr": 0.001,
+        "selection": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+        "claim_scope": "frozen encoder output head; not Transformer internal attention, SOTA, quantum speedup or exclusivity"
+      },
+      {
+        "seed": 53,
+        "conditions": [
+          "uniform",
+          "relation_softmax",
+          "real_overlap",
+          "quantum",
+          "dephased"
+        ],
+        "counts": {
+          "train": 58465,
+          "valid": 19584,
+          "test": 13418
+        },
+        "epochs": 20,
+        "batch_size": 128,
+        "optimizer": "AdamW",
+        "lr": 0.001,
+        "selection": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+        "claim_scope": "frozen encoder output head; not Transformer internal attention, SOTA, quantum speedup or exclusivity"
+      },
+      {
+        "seed": 71,
+        "conditions": [
+          "uniform",
+          "relation_softmax",
+          "real_overlap",
+          "quantum",
+          "dephased"
+        ],
+        "counts": {
+          "train": 58465,
+          "valid": 19584,
+          "test": 13418
+        },
+        "epochs": 20,
+        "batch_size": 128,
+        "optimizer": "AdamW",
+        "lr": 0.001,
+        "selection": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+        "claim_scope": "frozen encoder output head; not Transformer internal attention, SOTA, quantum speedup or exclusivity"
+      },
+      {
+        "seed": 97,
+        "conditions": [
+          "uniform",
+          "relation_softmax",
+          "real_overlap",
+          "quantum",
+          "dephased"
+        ],
+        "counts": {
+          "train": 58465,
+          "valid": 19584,
+          "test": 13418
+        },
+        "epochs": 20,
+        "batch_size": 128,
+        "optimizer": "AdamW",
+        "lr": 0.001,
+        "selection": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+        "claim_scope": "frozen encoder output head; not Transformer internal attention, SOTA, quantum speedup or exclusivity"
+      },
+      {
+        "seed": 113,
+        "conditions": [
+          "uniform",
+          "relation_softmax",
+          "real_overlap",
+          "quantum",
+          "dephased"
+        ],
+        "counts": {
+          "train": 58465,
+          "valid": 19584,
+          "test": 13418
+        },
+        "epochs": 20,
+        "batch_size": 128,
+        "optimizer": "AdamW",
+        "lr": 0.001,
+        "selection": "strictly greatest valid macro_f1; earliest tie; test only after selection",
+        "claim_scope": "frozen encoder output head; not Transformer internal attention, SOTA, quantum speedup or exclusivity"
+      }
+    ],
+    "completed_condition_seed_cells": 25,
+    "existing_audit_hash": "1dd3962f4c936a2f6ecf1c9a1f3b78d7f6e43fa968431145ce33541627045ce6",
+    "comparison_scope": "Completed five-condition five-seed same-feature head study; no missing baseline run established. Attribution to phase/circuit versus matched classical controls remains unsupported, as already audited."
+  },
+  "short_diagnostic": {
+    "scope": {
+      "task": "Re-TACRED40-way frozen-feature bounded development diagnostic",
+      "population": "Already-exposed1024validation,2361train including313training-only overlay",
+      "inputs": "Existing CPU-rebuilt1024-dimensional marked/contextual word features plus4roles; no test/validation-label inference input",
+      "label_reference": "Pinned round6/7 cache and original40label mapping",
+      "selection": "Four epochs/seed307/strict largest full40Macro,earliest tie, no budget extension",
+      "metric": "MacroF1 over all40labels with zero for absent/zero-denominator classes",
+      "direction": "higher",
+      "denominator": 40
+    },
+    "cohort_warning": "same-protocol available comparator only; formal common-baseline cohort incomplete",
+    "warning_does_not_apply_to_original_full_runs": true,
+    "addressable_headroom_unresolved": true
+  },
+  "task_data": {
+    "source_identity_equal_across_formal_studies": true,
+    "source_hashes": {
+      "train": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+      "valid": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+      "test": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+    },
+    "input_inspection_status": "observations_only",
+    "official_splits_preserved": true,
+    "cross_split_observations": {
+      "train/valid": {
+        "id": 0,
+        "document": 101,
+        "sentence": 19,
+        "input": 0,
+        "surface_pair": 543,
+        "input_label_conflicts": 0
+      },
+      "train/test": {
+        "id": 0,
+        "document": 33,
+        "sentence": 7,
+        "input": 1,
+        "surface_pair": 410,
+        "input_label_conflicts": 0
+      },
+      "valid/test": {
+        "id": 0,
+        "document": 11,
+        "sentence": 1,
+        "input": 1,
+        "surface_pair": 269,
+        "input_label_conflicts": 0
+      }
+    },
+    "independence_scope": "Fixed official cohort only; document/entity-disjoint population generalization and OOD are not certified.",
+    "observations_are_not_an_automatic_new_scope_qualification": true
+  },
+  "stale_metadata": {
+    "cohort_json": "Source snapshot contains older blocked/prepared planning fields. Later complete executed contracts and approved reports establish historical completion; do not reinterpret stale planning flags as unexecuted runs."
+  },
+  "primary_resolution": {
+    "blanket_baseline_blocker_removed": true,
+    "rerun_historical_baselines": false,
+    "authority": "Existing owner decision explicitly reuses fifteen completed references and puts any new interface-matched controls inside a new hypothesis-specific study.",
+    "new_method_formal_eligibility": "Not assessed for an as-yet unspecified method; freeze its actual claims and matched controls first. This is not proof that old baseline experiments are missing.",
+    "l5_gap": "Task-dependent substantive theory and discriminating independent evidence, not unfinished historical baseline execution."
+  },
+  "inputs_sha256": {
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/export_manifest.json": "2d54b0af800c0c0a016c8c759ef43acee704a02431659855413c380ca143950b",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/run_manifest.json": "27768e962f796a1e4129bd70aecd004f9aded326e6db3f6cf092869545076135",
+    ".codex-artifacts/reference-results-20261017/public_audit.json": "6107628abbe433dc9f0bc43bf71cace778463534ba371cabe5906f16ace442d1",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/metaentail_seed13/run_summary.json": "27dfa26c29d0c727497fc44f9d9b17a98ef8fc0a6033638dcb07c89ff4a88fb9",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/metaentail_seed13/data_manifest.json": "74370a6e8bb5b17d8673ab50be6807a65b7ebb98865b532e211544376bc653ec",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/sequence_routing_h3_seed13/run_summary.json": "8d7d809e69c217c7c2fd4089ec6e8f157c50e8e56ead91404d8c8ebef0356f59",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/sequence_routing_h3_seed13/data_manifest.json": "74370a6e8bb5b17d8673ab50be6807a65b7ebb98865b532e211544376bc653ec",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/ctl_drp_supervised_seed13/run_summary.json": "46976c4d8aca6892644d2daec213a18dd813b7cc316ff908b42a2552f24d4c6e",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/ctl_drp_supervised_seed13/data_manifest.json": "74370a6e8bb5b17d8673ab50be6807a65b7ebb98865b532e211544376bc653ec",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/typed_marker_comparison_2025_seed13/run_summary.json": "3f4475f4569850c44ea656399dcddca255471e04acf5ce29529308d590f012a5",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/typed_marker_comparison_2025_seed13/data_manifest.json": "74370a6e8bb5b17d8673ab50be6807a65b7ebb98865b532e211544376bc653ec",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/curriculum_seed13/run_summary.json": "3020fd4aed8b7810815c789b64973a99601f5ee3fa1bfc44e8e86e8a38b517db",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/curriculum_seed13/data_manifest.json": "74370a6e8bb5b17d8673ab50be6807a65b7ebb98865b532e211544376bc653ec",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/ctl_drp_unsupervised_seed13/run_summary.json": "042c2e6d797d41df23ec188a9c19110e4eccda1ce274d11cd838f81e6b5ec490",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/ctl_drp_unsupervised_seed13/data_manifest.json": "74370a6e8bb5b17d8673ab50be6807a65b7ebb98865b532e211544376bc653ec",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/typed_marker_punct_seed13/run_summary.json": "93382518cea34272fd742a1fb4b04540cb5db3b27b51c7196a512adbd1646a8a",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/typed_marker_punct_seed13/data_manifest.json": "74370a6e8bb5b17d8673ab50be6807a65b7ebb98865b532e211544376bc653ec",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/ptr_seed13/run_summary.json": "aad4c5d90f6a97f6968d6ee1fd108b1e4b536238794b42d00d00bfc6ae549e92",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/ptr_seed13/data_manifest.json": "74370a6e8bb5b17d8673ab50be6807a65b7ebb98865b532e211544376bc653ec",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/luke_core_seed13/run_summary.json": "f64f82f4ad11eae82ee4dbe88dfd288b55edc80dbb40762e61d114f431eab90f",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/luke_core_seed13/data_manifest.json": "74370a6e8bb5b17d8673ab50be6807a65b7ebb98865b532e211544376bc653ec",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/luke_cfie_seed13/run_summary.json": "420aabb1ac790068cf5a96380ab6720c73aff982fa14e4475ce03ed7465591c3",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/luke_cfie_seed13/data_manifest.json": "74370a6e8bb5b17d8673ab50be6807a65b7ebb98865b532e211544376bc653ec",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/luke_resample_seed13/run_summary.json": "c8960c3a342ca24c1f5db6b22f5638a71281320c44b370b6fecb3b16e8ca5bab",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/luke_resample_seed13/data_manifest.json": "74370a6e8bb5b17d8673ab50be6807a65b7ebb98865b532e211544376bc653ec",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/typed_marker_seed13/run_summary.json": "2f0baab7b12c060e1a0e6b22acae002f604c0db40bc093d78f9c3e309b4ed463",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/typed_marker_seed13/data_manifest.json": "74370a6e8bb5b17d8673ab50be6807a65b7ebb98865b532e211544376bc653ec",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/entity_marker_punct_seed13/run_summary.json": "b1cafc6d7711b0ba7b91ba9f6704c57a7192d070be57119ff973246a6e50a911",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/entity_marker_punct_seed13/data_manifest.json": "74370a6e8bb5b17d8673ab50be6807a65b7ebb98865b532e211544376bc653ec",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/luke_focal_seed13/run_summary.json": "9ac68035d87494cb9fdcdcd79f8609e3c21d41630908be7f729f7d8c90a0c44b",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/luke_focal_seed13/data_manifest.json": "74370a6e8bb5b17d8673ab50be6807a65b7ebb98865b532e211544376bc653ec",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/entity_marker_seed13/run_summary.json": "ccf98bc9223ae9565c6a81683d285e1754998f00817a29d169866ae2062f9555",
+    "git:6f3d9e488d7377f23d3453d826359a859b423e23:reports/retacred_reference_suite/20261012T112015Z/entity_marker_seed13/data_manifest.json": "74370a6e8bb5b17d8673ab50be6807a65b7ebb98865b532e211544376bc653ec",
+    ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/git-provenance.json": "8ed6f5abbd9beb8a075b745b04fd4749b9bb81f6b47d2d96521c2936e711fd26",
+    ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/report/manifest.json": "eca12022ced91b36fafeddd54ddd765515272ddd819970bacd73dacffae4097a",
+    ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/report/run_summary.json": "b7011881fc8d8cdf0e130146053813541dbb33659a9ef550573cef5e94fa4801",
+    ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/audit.json": "1dd3962f4c936a2f6ecf1c9a1f3b78d7f6e43fa968431145ce33541627045ce6",
+    "docs/evidence/rmea/20261116-l5-round9/headroom-assessment.json": "baa72ab7a02b70ea80ca2a377226d0ab61885f7d4b8b67f9e97c0bc7f037861f",
+    ".ai-progress/workstreams/quantum-projector-v2/refs/20261026-rmea-readiness/input-audit.json": "c21d23017140d89a3632853d0f33d9e76c5cb7d574d4a9108b63d1ed23bf0996",
+    ".ai-progress/workstreams/quantum-projector-v2/decisions/2026-10-26-rmea-reuse-completed-baselines.md": "cc8ef7cf0859f66f11b674341e773321d920fe3e885238e13b6dda0f3d6ec1a2"
+  },
+  "aggregate_metadata_only": true,
+  "new_model_forwards": 0,
+  "training": false,
+  "raw_dataset_checkpoint_prediction_array_reads": 0,
+  "old_l4_unchanged": true,
+  "l5_accepted": false
+}
