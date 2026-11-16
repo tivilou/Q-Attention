@@ -1,0 +1,51 @@
+{
+  "schema": "qattn.l5.bounded-source-verification.v1",
+  "independent_review": false,
+  "claims": [
+    {
+      "claim": "Sequence-length-free norm generalization is a new property of the Born head.",
+      "verdict": "ESTABLISHED_ATTENTION_TARGET",
+      "sources": [
+        "2310.13088v1:PDFp4,6-7Theorem4.1Cor4.1.1,p14-15AppendixC"
+      ],
+      "finding": "Known transformer result bounds input, value/readout and score matrices. It is not automatic coverage of the nonlinear learned Born score/value class, and absence of an explicit T term alone supplies no novel comparison or Macro explanation."
+    },
+    {
+      "claim": "Writing the Born weights as softmax proves the bilinear theorem applies unchanged.",
+      "verdict": "NORMALIZATION_IDENTITY_NOT_CLASS_EQUIVALENCE",
+      "sources": [
+        "rmea.py:57-65",
+        "2310.13088v1:PDFp4,6"
+      ],
+      "finding": "On valid tokens alpha=softmax(log(q+EPS)); log-score oscillation<=log((1+EPS)/EPS). But the original score is bilinear in token/CLS features with bounded matrices; log Born overlap from shared circuit/effects is nonlinear. Complete score covers, input/value/readout radii and multiclass loss bridge still need proof. No numerical or full-model equivalence asserted."
+    },
+    {
+      "claim": "Low-dimensional NW oracle rate follows from3qubits.",
+      "verdict": "TRUTH_SAMPLING_LOSS_AND_OPTIMIZATION_MISMATCH",
+      "sources": [
+        "1711.09200v1:PDFp1-9Theorem2.1Theorem2.2",
+        "current_multiclass_contextual_token_contract"
+      ],
+      "finding": "Source n counts iid observed covariate/outcome pairs; current summation is contextual within-text tokens and learned signed utilities. Source assumes true regression psi(X)=phi(TX), Gaussian PSD bandwidth family, boundedobservations/predictions and Kfold squared-risk selection. Threequbits do not prove a low-index true task function, whole-head bottleneck or currentCE/Macro oracle rate. General theorem has gamma term; practical local CV is not automatically gamma0."
+    },
+    {
+      "claim": "Exactv1 displayed bandwidth substitution independently certifies the stated rate.",
+      "verdict": "LOCAL_DISPLAYED_POWER_BRIDGE_UNRESOLVED",
+      "sources": [
+        "1711.09200v1:PDFp15Eq6.2,p26-27Eq7.13",
+        "frozen_power_arithmetic"
+      ],
+      "finding": "Conditional only on displayed log(n)/h bias term and h_n(m)=V(nlogn)^(1/(m+2)), the ratio to displayed targetrate grows as(nlogn)^(1/(m+2)). This says that displayed upper-bound substitution is insufficient; it does not show true risk violates the rate, refute the original theorem, inspect the missing supplement or certify a squared-bandwidth repair."
+    },
+    {
+      "claim": "These applicability failures demote the actual ordinaryL4.",
+      "verdict": "NO_EMPIRICAL_RERATING",
+      "sources": [
+        "unchangedL4card",
+        "same_coreL5contract"
+      ],
+      "finding": "Generic sequence-free and low-index transfer routes close as direct L5 contributions only. Old trained-head utility/localalignment evidence unchanged; no no-benefit or universal generalization-impossibility claim."
+    }
+  ],
+  "l5_accepted": false
+}

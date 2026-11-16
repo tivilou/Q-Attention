@@ -1,0 +1,49 @@
+{
+  "schema": "qattn.l5.bounded-discovery.v1",
+  "question": "Do original normalized-attention or adaptive-kernel statistical bounds cover the complete shared learned score/value head, and what substantive quantitative distinction remains for the native Born parameterization?",
+  "origin": [
+    "independent_search",
+    "cross_domain_search"
+  ],
+  "queries": [
+    {
+      "query": "ti:\"attention\" AND (ti:\"generalization\" OR ti:\"generalisation\") AND (abs:\"norm\" OR abs:\"normalized\")",
+      "url": "https://export.arxiv.org/api/query?search_query=ti%3A%22attention%22+AND+%28ti%3A%22generalization%22+OR+ti%3A%22generalisation%22%29+AND+%28abs%3A%22norm%22+OR+abs%3A%22normalized%22%29&start=0&max_results=10&sortBy=relevance&sortOrder=descending",
+      "retrieved_at_utc": "2026-11-16T17:02:16.260835+00:00",
+      "http_status": 200,
+      "sha256": "b7554a2171e2bab51ff74af992d377b93a4a579a2313dea8f2e10aa4b44121e4"
+    },
+    {
+      "query": "ti:\"transformers\" AND (ti:\"norm\" OR ti:\"generalization\")",
+      "url": "https://export.arxiv.org/api/query?search_query=ti%3A%22transformers%22+AND+%28ti%3A%22norm%22+OR+ti%3A%22generalization%22%29&start=0&max_results=10&sortBy=relevance&sortOrder=descending",
+      "retrieved_at_utc": "2026-11-16T17:02:20.711427+00:00",
+      "http_status": 200,
+      "sha256": "48ce3ae76e9b043015cbdd8e2ae482191bddac1436f7058b45338bf88715a2fe"
+    },
+    {
+      "query": "ti:\"Nadaraya\" AND (abs:\"learned\" OR abs:\"adaptive\" OR abs:\"generalization\")",
+      "url": "https://export.arxiv.org/api/query?search_query=ti%3A%22Nadaraya%22+AND+%28abs%3A%22learned%22+OR+abs%3A%22adaptive%22+OR+abs%3A%22generalization%22%29&start=0&max_results=10&sortBy=relevance&sortOrder=descending",
+      "retrieved_at_utc": "2026-11-16T17:02:24.948385+00:00",
+      "http_status": 200,
+      "sha256": "68c9bb3b29efb8a3db5d29ed495d6f30b7a475d5c756f05c8dccf01ad84c243f"
+    }
+  ],
+  "metadata_rows": 29,
+  "distinct_ids": 29,
+  "selected": [
+    "arxiv:2310.13088v1",
+    "arxiv:1711.09200v1"
+  ],
+  "unselected_metadata_only": 27,
+  "budget": {
+    "queries": 3,
+    "max_results_each": 10,
+    "sort": "relevance descending",
+    "minimum_origin_spacing_seconds": 3,
+    "retries": 0,
+    "browser_render_fallback_batches": 1
+  },
+  "coverage": "Three relevance-descending max10queries,29rows. Query noise retained, not exhaustive novelty/priority audit. Softmax mirror-descent paper metadata is an unselected next reading lead, no theorem/method imported.",
+  "transport": "Three metadata GETs and two exactPDFs HTTP200. No access block, retry or browser required; user-authorized ordinary headless fallback remains available.",
+  "novelty_established": false
+}
