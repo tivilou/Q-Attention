@@ -1,0 +1,51 @@
+{
+  "schema": "qattn.affine-curve.fixed-mechanism.v1",
+  "scope": "Synthetic unchanged-head interface witness only",
+  "risk": "R2",
+  "review_scope": "mechanism",
+  "source_revision": "4d64966b922158048f96f283c39ed0ab70e3a234",
+  "formal_revision": "f3f22660b609811e6fb824f7d19e9cafd0c1e446",
+  "source_files": {
+    "experiments/rmea_semantic_probe/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_semantic_probe/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "worker_sha256": "fbce93b8a4970cfb8f1df89e700d0c51ba19686504a32c40c230149413e929d5",
+  "theta_over_pi": [
+    -0.99,
+    -0.75,
+    -0.5,
+    -0.25,
+    0,
+    0.25,
+    0.5,
+    0.75,
+    0.99
+  ],
+  "epsilon": 1e-06,
+  "fixed_batch_size": 9,
+  "valid_tokens": 2,
+  "model_forwards_max": 1,
+  "device": "cpu",
+  "threads": 1,
+  "training_runs": 0,
+  "data_reads": 0,
+  "checkpoint_reads": 0,
+  "encoder_forwards": 0,
+  "scientific_retries": 0,
+  "hyperparameter_or_seed_search": false,
+  "proposed_argv": [
+    "python",
+    "-B",
+    "affine_curve_fixture.py",
+    "--source-root",
+    "EXACT_CLEAN_REPO",
+    "--out-dir",
+    "NEW_PRIVATE_CHILD_OUTPUT"
+  ],
+  "outputs": [
+    "affine-curve-result.json"
+  ],
+  "rollback": "This worker changes no source or learned assets and creates one new output child only; preserve failed/completed evidence. Scheduler integration, if later prepared, needs its own exact lifecycle review and paired restoration.",
+  "execution_gate": "Not executed. Require this mechanism review plus exact scheduler recipe/lifecycle acceptance before any circuit forward.",
+  "l5_accepted": false
+}

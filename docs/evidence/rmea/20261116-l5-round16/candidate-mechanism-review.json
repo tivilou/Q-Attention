@@ -1,0 +1,59 @@
+{
+  "schema": "qattn.complete-head-independent-mechanism-review.v1",
+  "review_scope": "mechanism",
+  "consultant": "Bounded independent subagent /root/l5_theory_builder; candidate packet reviewed after recorded ranked-route availability failures",
+  "packet_sha256": "5669243610f14ee1ea2827fc2ecd1e67e99b923440487d25f421ccd3fe260e03",
+  "selection_sha256": "38c6de00238ea2ad622d2593b26a2b10d46e4794124ae810fc62491ede81d4d3",
+  "proof_sha256": "7297e1a3aa7137ba81c222ada9c6fc40527202ee7c78bed7d726a7da5ae4d77b",
+  "worker_sha256": "fbce93b8a4970cfb8f1df89e700d0c51ba19686504a32c40c230149413e929d5",
+  "contract_sha256": "5f6fc37efcb962ed90a707056a049bd6e3b9ef469898e885a46a1d7406ec13fe",
+  "hash_scope": "Packet and selection file digests computed. Embedded proof, worker and both mirror-module UTF-8 text digests recomputed and matched. Contract digest echoed from the packet; its original serialized file was not read. No repository revision or external source identity was independently queried.",
+  "verdict": "PASS_WITH_RISK",
+  "must_fix": [],
+  "proof_findings": [
+    {
+      "claim": "Complete affine-softmax reduction",
+      "finding": "PASS. For two affine feature tokens and fixed roles, each label's key-score difference is affine. Its token utilities remain affine after the actual learned linear value map and decoder, including biases. Thus z_r=A_r+B_r*sigma(a_r*x+b_r), with affine A_r and B_r. Enlarging the shared-parameter family to independent affine coefficients is valid for an upper bound."
+    },
+    {
+      "claim": "Seven-zero bound",
+      "finding": "PASS. Clearing the two positive sigmoid denominators gives at most four distinct real exponential rates 0,a,c,a+c with affine coefficients. The divide-and-differentiate-twice induction gives at most 2k-1 zeros counted with multiplicity. Distinct-rate exponential polynomials are linearly independent, so the remaining nonzero terms cannot cancel identically after this operation. Combining coincident rates only reduces the bound. The identically-zero case cannot satisfy strict signed margins. Nine alternating strict signs require at least eight distinct intervening zeros."
+    },
+    {
+      "claim": "Three-qubit constrained witness",
+      "finding": "PASS against the embedded circuit. The sequential ring maps b to (b1 XOR b2,b0 XOR b1,b0 XOR b1 XOR b2), sends 111 to 001 and then to 101. The two RZ rounds give phase exp(i*theta*(|b|+|M b|-3)). Hence final amplitudes 000 and 101 have phases -3theta and +theta. Last-layer RY on wire2 alone prepares (000 +/- 101)/sqrt(2) after the final ring. All specified RY angles and repeated RZ angles are reachable through the actual pi*tanh parametrization. The overlaps are exactly (1 +/- cos(4theta))/8."
+    },
+    {
+      "claim": "Original normalization and full output",
+      "finding": "PASS. The constant second token has theta=pi/8 and overlap c=1/8 for both effects. The shared value map and the two decoders can simultaneously realize utilities (1,0). Keeping epsilon gives scores (q+epsilon)/(q+c+2epsilon); their difference has numerator (q_plus-q_minus)*(c+epsilon) and a positive denominator. Other class decoders are zero with bias -2, so they do not interfere. Conversely, other outputs cannot rescue an incorrect strict ordering of the selected class pair."
+    },
+    {
+      "claim": "Nine strict margins",
+      "finding": "PASS analytically. The selected theta values have alternating cosine signs and absolute cosine at least cos(0.04*pi)>0.99. With c=1/8 and epsilon=1e-6, the absolute score difference is at least 2*c*c*0.99/(2*c+2*epsilon)^2>0.49499>0.49. This verifies slack for the fixed fixture threshold without a numerical circuit run. The comparison concerns strict margin representability, not an asserted empirical accuracy or learning-rate separation."
+    }
+  ],
+  "code_findings": [
+    "The embedded worker matches the construction: all parameters are zeroed; prepare rows 6*layer+2*wire+1 select feature0; first-layer RY biases use atanh(0.5); the two effects set final-layer wire2 RY to +/-pi/2. No unoverwritten learned parameter is needed for the witness.",
+    "Input tensors, zero fixed roles, all-valid two-token masks, value selector, paired decoders and other-class biases match the proof. Float64 selects the source circuit's complex128 path. Probability tensor axes, expected logits and alternating labels are consistent.",
+    "There is exactly one explicit constructed-head batch forward. Its assertions test overlap values, epsilon-normalized logits, full argmax, nine signed margins and eight sign changes. The classical upper bound remains an analytic result; the worker does not numerically prove it or optimize a classical comparator.",
+    "The worker verifies the two module byte hashes before import, reports its own hash, refuses an existing output directory and writes one result through a pending file. Its self-reported hash does not replace the separate lifecycle binding of the exact reviewed worker, source root, interpreter and contract.",
+    "The 1e-12 equality checks are numerical fixture tolerances, with substantial slack relative to the mathematical margin. No pass or runtime compatibility is claimed before execution. A mismatch should preserve the failed attempt and trigger inspection, rather than scientific retries."
+  ],
+  "novelty_status": "unestablished",
+  "route_disposition": "one bounded fixture justified",
+  "disposition_scope": "Mechanism judgment only: the analytic construction and supplied worker are sufficiently coherent to justify the single contract-fixed deterministic fixture as a code-correspondence check. Execution still requires the separate exact scheduler/lifecycle review and CPU admission. This disposition supplies no execution authorization.",
+  "risks": [
+    "The witness is on a synthetic affine FEATURE curve. No natural string, frozen-RoBERTa feature support, role-producer realization or encoder-level separation has been shown. Existing L4 does not establish those premises.",
+    "The comparator is exactly the existing affine-key relation_softmax head with its complete learned value/decoder stack. The result does not compare against arbitrary nonlinear or Fourier classical heads, nor establish parameter efficiency, quantum necessity or speedup.",
+    "Fourier expressivity and exponential-polynomial zero counting are known tools. Whether this exact normalized complete-head comparison has a substantive nearest-work distinction remains unresolved; a passed fixture cannot settle it.",
+    "Literature facts and revision provenance are supplied packet facts, not this consultant's original reading. Embedded module checks establish internal text/hash consistency, not independent Git-tree or whole-pipeline verification.",
+    "Package initialization, imported-module resolution, runtime dependencies, scheduler mutations and rollback are outside this mechanism-only audit. Their lifecycle review remains separate.",
+    "The sigmoid-MoE regression source's parameter/expert estimation rates are not inherited by normalized Born multiclass classification. Global deterministic contextual encoding alone is also not a blanket objection to learning theory.",
+    "Even a matching fixture establishes only this constructed strict-margin expressivity witness. Optimization, population learning, held-out task utility and mechanism attribution remain open. Stopped families and accepted scoped L4 remain unchanged."
+  ],
+  "scientific_execution": false,
+  "model_or_circuit_forwards": 0,
+  "lifecycle_approved": false,
+  "new_method_approved": false,
+  "l5_accepted": false
+}

@@ -1,0 +1,75 @@
+{
+  "schema": "qattn.source-scope-transfer-gate.v1",
+  "created_at_utc": "2026-11-16T02:20:31.218709+00:00",
+  "semantic_mode": "llm_assisted_primary",
+  "selected_sources": [
+    "arxiv:2502.00281v2",
+    "arxiv:2008.08605v2"
+  ],
+  "metadata_only_not_selected": [
+    "arxiv:2512.10656"
+  ],
+  "search_coverage": "Two title queries, newest10 retained per query; 684 and2 server-listed results. Not exhaustive; first broad query mostly not relevant. One additional exact-known Fourier original selected for newly derived whole-head question.",
+  "learning_source_transfer": {
+    "status": "not_established",
+    "positive_carryover": "The input may be a whole concatenated sequence, so globally contextual features alone do not disqualify learning-theory assumptions.",
+    "mismatches": [
+      "Unnormalized sigmoid/quadratic gates versus normalized epsilon-Born weights.",
+      "Scalar Gaussian regression/least-squares and parameter/expert recovery versus40-class cross-entropy and hard-class Macro-F1.",
+      "Over-specification, identifiability and dense best-approximation targets are not certified by original Q-RMEA results."
+    ],
+    "no_claim_of_false_source_theorem": true
+  },
+  "fourier_source_transfer": {
+    "status": "known_tool",
+    "carryover": "Encoding phases generate frequencies and coefficients depend on constrained trainable circuits; actual circuit construction must be checked.",
+    "limits": "No new Fourier theorem, universal approximation or general quantum/classical separation transferred."
+  },
+  "new_candidate": {
+    "id": "rmea-complete-head-affine-curve-v1",
+    "status": "mechanism_review_PASS_WITH_RISK_not_executed",
+    "scope": "Synthetic feature-interface strict-margin representability, existing whole heads; no raw-input or natural-data claim",
+    "novelty": "unestablished",
+    "classical_zero_bound": 7,
+    "proposed_q_strict_sign_changes": 8,
+    "finite_inputs": 9,
+    "training": 0,
+    "l5_accepted": false,
+    "review_sha256": "1dd1b149bac54f780778cde9964214d6a34016d92d74c5e15f0fd9315ee0afd9",
+    "route_disposition": "one bounded fixture justified",
+    "lifecycle_approved": false,
+    "claim_ceiling": "Analytically reviewed synthetic complete-head margin-representability candidate; no numerical execution, natural-feature support, novelty or L5 acceptance."
+  },
+  "module_correspondence": {
+    "formal_revision": "f3f22660b609811e6fb824f7d19e9cafd0c1e446",
+    "mirror_revision": "4d64966b922158048f96f283c39ed0ab70e3a234",
+    "formal_files": {
+      "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+      "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+    },
+    "mirror_files": {
+      "experiments/rmea_semantic_probe/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+      "experiments/rmea_semantic_probe/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+    },
+    "status": "two_modules_byte_identical",
+    "whole_pipeline_equivalence": false
+  },
+  "scheduler_observation": {
+    "controller_online": true,
+    "task_state_counts": {
+      "complete": 181,
+      "cancelled": 22,
+      "failed": 71,
+      "timed_out": 5
+    },
+    "existing_qattn_authorized_nodes": [
+      "q-duet-p4-canary"
+    ],
+    "candidate_recipe_registered": false,
+    "source": "private status observation only; no binding/recipe/controller changes",
+    "candidate_can_execute_now": false
+  },
+  "scientific_execution": false,
+  "model_forwards": 0,
+  "l5_accepted": false
+}
