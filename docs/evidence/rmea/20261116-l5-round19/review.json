@@ -1,0 +1,53 @@
+{
+  "schema": "qattn.round19.independent-both-review.v2",
+  "review_mode": "subagent_fallback",
+  "reviewer": "/root/l5_theory_builder",
+  "review_scope": "both",
+  "packet_sha256": "06ffac86664c36842bdabc2e2153fa18ff6c3d78ec5b81b4d6e4ce77fbb9d68b",
+  "selection_sha256": "4c51080bff00d574ee69b271b63977f9e650bd923eeecf422073eb197df4a449",
+  "source_revision": "a4dfe1fd1966418a578492b4bd1038a27cfc7ead",
+  "source_sha256": "4698d0207006aa862559312b3cfa540b32733dfc4d8652fff544ab686216fbb5",
+  "contract_sha256": "0fc1fb0e8555306daedc47f6dd87ca06ce352e8b762d90ab05626cf38255f846",
+  "freeze_sha256": "955a66522c33424abb22d1b39700169886865c70d16e9a668aceafb56a9ed68a",
+  "verdict": "PASS_WITH_RISK",
+  "correctness": {
+    "hashes": "All nine embedded frozen files and four runtime files match. Source-file map, contract, recipe and reconstructed current freeze digests agree with the packet. Removing exactly the six added finally lines reproduces the previously reviewed queue_submit.py hash5866ae1f88a7a755379e640c4cf8b9f860e49034644dc24ed0a1065c3eb98f00. All other frozen-file digests are unchanged; current selection binds the current packet. No repository or trace bytes were independently read.",
+    "log_odds": "PASS. For fixed per-head query Q and affine keys K, anchored attention log ratios equal (K_t-K_anchor) Q^T/sqrt(8), so the stacked real-arithmetic matrix has rank at most eight. Stored fp32 attention is calibrated against stored keys/queries at the fixed tolerance; this is not an exact numerical-rank certificate.",
+    "projection": "PASS. L8=(U8 Sigma8) V8^T is the rank-eight Frobenius approximation of the chosen first-word-anchored log-ratio matrix. Adding a zero anchor and taking per-label word softmax reconstructs normalized attention. Each recipient retains its own utilities and bias. Native fp64 recomposition is checked against stored logits before comparing normalized versus projected scores.",
+    "compilation": "PASS within the frozen wide design. With D formed from the same common feature differences, Z=U8 Sigma8, Q8=sqrt(8) V8 and W=Dplus Z, the actual affine-key parameterization gives D W Q8^T/sqrt(8). A numerically full-row-rank D permits finite same-case interpolation; the worker reports a residual and conditions its flag on rank and tolerance. Existing value/decoder parameters can remain those generating the recipient's utilities. This is teacher fitting on the evaluated cases, not unseen-input fidelity.",
+    "scope": "The worker contains no model, encoder or checkpoint execution and no target-label fitting. All five target matrices and the fixed rank/tolerances are processed without outcome-based exclusions inside this job. The prior seven-case selection and seed/head provenance remain supplied facts, not independently confirmed by this review."
+  },
+  "lifecycle_correctness": {
+    "admission": "Preflight checks selected development-role resolution, online controller/worker/fleet evidence, a globally empty active/queued workload, existing NumPy metadata and cgroup v1/v2 effective memory. The scheduler independently reserves CPU/RAM/disk and uses zero GPU IDs. Actual readiness remains a fresh execution-time condition.",
+    "activation_and_restore": "The script uses the actual Store database-parent controller lock, requires exact original configuration bytes for activation, performs paired before/after CAS and compensates partial writes under the same lock. Other project policies and capacities remain unchanged. Restoration waits for global quiescence; active or unknown attempts retain reservations. A heartbeat newer than scheduled-task restart is required.",
+    "budget": "The exact recipe has one non-replayable attempt and a 120-second timeout. The worker performs one bounded static analysis with five target SVD/least-squares fits and no scientific retry. Supervisor termination and process-group quiescence precede accepted terminal receipts.",
+    "rollback": "The supplied rollback entry point restores when necessary, compares exact owner/worker backup bytes and checks a fresh online controller. Queue history, source traces and completed/failed outputs remain preserved.",
+    "abort_restart_correction": "PASS static check at queue_submit.py:122-138. If mutation/compensation has not established consistency, finally rereads the pair and accepts only exact (before,raw) or (after,node_after). An acquired singleton lock is released before restarting the existing controller; restart still requires a newer database heartbeat. A quiescence failure with a coherent original pair now resumes service without configuration mutation or task submission. Mixed/unknown pairs do not enter the restart branch. Active reservations remain protected by the unchanged outer-finally quiescence check.",
+    "observed_abort": "The parent reports a different project queued between preflight and lock, no configuration mutation or Q-RMEA submission, and subsequent exact-pair/fresh-heartbeat recovery. This incident was not independently observed by this static reviewer."
+  },
+  "artifact_and_recovery": {
+    "input": "Closure and sample-trace hashes are fixed in the worker. It matches seven cases across five conditions, requires 35 distinct NPZ packages, enforces the compressed inventory cap, containment, representation hashes, array shape/dtype/finite checks and common features. Only the named representation arrays are decoded; no checkpoint or raw input array is requested.",
+    "source": "Deployment verifies the exact public Git revision and worker blob, bundle identity, clean detached worker worktree and preservation of the existing checkout. Analysis imports NumPy rather than repository model code.",
+    "two_outputs": "The scheduler allowlist is exactly audit/summary.json and audit/RUN_COMPLETE. Collection validates the stored request and DB-persisted complete receipt, requires remote terminal state equality, checks command/cwd/revision/GPU identity and both original output hashes/sizes, then verifies the summary/closure linkage.",
+    "copy_recovery": "Injected failure creates only a local partial pending child. Cleanup permits only the two exact regular filenames. One collection retry promotes the same immutable two-output inventory without task resubmission or recomputation. Execution and recovery success still require their actual receipts."
+  },
+  "must_fix": [],
+  "risks": [
+    "The seven cases were selected using earlier outcomes and the five heads share one selected seed. No independent confirmation, accuracy, CE, Macro-F1, population equivalence or quantum/phase necessity follows. No source producer or raw trace was independently audited here.",
+    "SVD optimality concerns Frobenius error in this anchor-dependent log-ratio representation. It does not optimize attention distance, score preservation or argmax. Projection damage does not exclude another decision-preserving rank-eight representation; a small change supplies no population null result.",
+    "full_row_rank=keep.all() is a full-row-rank test only for a design with rows no greater than columns. This packet fixes D to 253x1028; the worker reports its actual shape but does not explicitly assert that total row count. Do not reuse that predicate or the compilation claim for a tall design. Numerical rank at rcond=1e-6 is not exact rank.",
+    "The compilation flag allows log-ratio residual below 1e-4 and does not separately certify compiled-score argmax preservation. Its parameters are real-arithmetic finite-case coefficients, with no fp32 instantiated-head, bounded-norm, optimization or generalization guarantee. Stored query equality across cases relies on the fixed-head provenance; calibration alone does not prove shared query identity.",
+    "Compressed inventory size is not a decompressed-memory bound. The pinned trusted input and stated small shapes underpin resource adequacy. NPZ bytes are hashed and subsequently reopened for decoding, so the fixed-input premise also requires source files to remain unchanged between those reads.",
+    "The deployed dispatch-time memory probe covers cgroup v2, while v1 is checked in fresh preflight. The controller leader lock does not itself exclude concurrent external submissions or unrelated configuration writers. Concurrent activity should preserve the existing stop/unknown-state handling.",
+    "The packet contains AST-only checks. The parent subsequently reports an exact-function abort/restart fixture PASS for coherent, mixed and unknown pairs; that supplementary file was not read or executed by this reviewer. Operational success and numerical results still require actual receipts.",
+    "The fallback restores scheduler liveness only for a recognized coherent configuration pair. It does not turn a pre-submission abort into task completion, clear an existing binding receipt or authorize automatic resubmission. Preserve and inspect the same durable state before any management continuation."
+  ],
+  "confidence": "High for the narrow static correction, exact-only change check and current hash bindings; prior mechanism confidence is retained for identical scientific bytes. The incident recovery and supplementary tests are parent-reported, not reviewer-executed. Live admission and numerical/operational outcomes remain unverified.",
+  "execution_performed": false,
+  "repository_or_experiment_authority_granted": false,
+  "new_method_approved": false,
+  "novelty_accepted": false,
+  "l5_accepted": false,
+  "prior_review_packet_sha256": "8a5f47187be94a9e79778f906a05777e23970cc3d61f11610921f82e2aa753aa",
+  "rereview_scope": "Narrow lifecycle abort/restart correction; prior mechanism and other lifecycle findings retained only after verifying their exact source/contract/recipe and embedded runtime hashes remain unchanged."
+}

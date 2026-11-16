@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "source_revision": "a4dfe1fd1966418a578492b4bd1038a27cfc7ead",
+  "source_sha256": "4698d0207006aa862559312b3cfa540b32733dfc4d8652fff544ab686216fbb5",
+  "contract_sha256": "0fc1fb0e8555306daedc47f6dd87ca06ce352e8b762d90ab05626cf38255f846",
+  "freeze_sha256": "955a66522c33424abb22d1b39700169886865c70d16e9a668aceafb56a9ed68a",
+  "review_scope": "both",
+  "review_verdict": "PASS_WITH_RISK",
+  "source_bound_task": "5229fe4ddf5e443890502428971b51a0",
+  "attempt": "64a1b4d21ce9438685393d902cf6ed2d",
+  "attempt_count": 1,
+  "terminal_quiescent": true,
+  "outputs": {
+    "audit/summary.json": {
+      "sha256": "9f6b105ab39d19b1a775110554be869ced435b58329d5b7ad45e2073cb0cdba1",
+      "bytes": 12350
+    },
+    "audit/RUN_COMPLETE": {
+      "sha256": "de4e4bf95c6a7cf73607c556b2ad7ba7a762168e09a585a461efdc47f34933ea",
+      "bytes": 368
+    }
+  },
+  "baseline_behavior": "Same immutable source attention/utilities/bias reproduce stored native logits across35 traces; max per-head fp64 recomposition error reported in summary, no native head rerun.",
+  "modified_behavior": "Rank8 same-case oracle uses all seven cases/all five heads, fixed own utilities/bias. Quantum predictions unchanged7/7 despite log-ratio residual. No population or necessity claim.",
+  "new_model_forwards": 0,
+  "gradient_training_runs": 0,
+  "deterministic_matrix_fits": 5,
+  "new_formal_runs": 0,
+  "old_l4_unchanged": true,
+  "l5_accepted": false,
+  "copy_only_recovery": {
+    "injected_local_copy_failure_exit": 1,
+    "retry_exit": 0,
+    "same_attempt": true,
+    "cleanup_verified": true,
+    "scientific_reexecution": false
+  },
+  "paired_binding_rollback": {
+    "owner_bytes_exact": true,
+    "worker_bytes_exact": true,
+    "controller_online": true
+  },
+  "activation_race": {
+    "before_any_mutation_or_q_rmea_submission": true,
+    "coherent_original_pair_restarted": true,
+    "independently_reviewed_exit_fix": true,
+    "four_focused_cases_passed": true
+  },
+  "private_trace_bytes_published": 0
+}
