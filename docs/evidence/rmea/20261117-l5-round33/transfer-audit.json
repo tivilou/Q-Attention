@@ -1,0 +1,62 @@
+{
+  "schema": "qattn.l5.heterogeneous-scaling-transfer.v1",
+  "code": {
+    "snapshot": "a4dfe1fd1966418a578492b4bd1038a27cfc7ead",
+    "path": "experiments/rmea_semantic_probe/legacy/rmea.py",
+    "sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "additional_source": {
+      "path": "experiments/rmea_semantic_probe/legacy/frozen_feature_head.py",
+      "sha256": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+    },
+    "scope": "Exact development cache, separate from historical formal source494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce"
+  },
+  "checks": [
+    {
+      "route": "Quasi-homogeneous class",
+      "source": "2210.03820v2 pp3-6,17-18,39-40",
+      "result": "Native logits have attention rate0, value affine ratea, decoder rate1-a and final bias rate1. This establishes a known class identity, not A6/A7, actual GF or new novelty. Multiclass CE extension exists."
+    },
+    {
+      "route": "Interior grading A7",
+      "source": "A7 p5 and native1024->64 affine value,40x64 decoder,bias",
+      "result": "For any0<a<1, only final bias has highest rate. Exact width64>=40 bias absorption gives the same complete logit function with final bias0. If any training separator exists, this grading violates A7. Endpoint gradings not ruled out; A6/optimizer remain unverified."
+    },
+    {
+      "route": "Global near2 gradient bound",
+      "source": "2502.16075v2 Definition1 p3 and native analytic input witness",
+      "result": "A nonzero preparation derivative grows R^2 while total parameter norm grows O(R) when scaling value and decoder byR. Contradicts required globally linear gradient upper bound for M2 on this admissible input, not a measured training-data violation. Scalar output O(norm^2) alone is insufficient."
+    },
+    {
+      "route": "Actual optimizer and causal discrimination",
+      "source": "Existing five-seed AdamW protocol; both sources use other algorithms/conditions",
+      "result": "Finite clipped AdamW with nonzero decay is unproved by these results. Bias absorption holds for controls using the same affine head too; no quantum-specific mechanism or comparative task gain follows."
+    }
+  ],
+  "analytic_witness": {
+    "fixture_sha256": "da9973c7fd2778b8326bb5393a52759eff5e3fdbd24fae4e96ff783bc3b15bee",
+    "cnot_basis_path": [
+      4,
+      6,
+      7,
+      3,
+      3,
+      2,
+      2
+    ],
+    "alpha2_derivative_over_pi": "-93750093750/562501500001",
+    "gradient_scale_ratios": [
+      1,
+      4,
+      16
+    ],
+    "scope": "Exact rational and CNOT basis arithmetic only. Derivative follows symbolic RY/tanh calculus in transfer-limits.md. No native model import/forward, encoder, dataset, stochastic training, scientific job or independent theoretical review."
+  },
+  "new_method_selected": false,
+  "l5_accepted": false,
+  "old_l4_unchanged": true,
+  "scientific_jobs": 0,
+  "new_model_forwards": 0,
+  "training": 0,
+  "new_formal_runs": 0,
+  "private_reads": 0
+}
