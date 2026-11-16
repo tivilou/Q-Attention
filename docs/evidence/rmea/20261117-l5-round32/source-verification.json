@@ -1,0 +1,94 @@
+{
+  "schema": "qattn.l5.source-correspondence.v1",
+  "code": {
+    "snapshot": "a4dfe1fd1966418a578492b4bd1038a27cfc7ead",
+    "path": "experiments/rmea_semantic_probe/legacy/rmea.py",
+    "sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "additional_source": {
+      "path": "experiments/rmea_semantic_probe/legacy/frozen_feature_head.py",
+      "sha256": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+    },
+    "scope": "Exact cached development snapshot reopened; not substituted for historical formal executed source494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce"
+  },
+  "optimizer_protocol": {
+    "source": "docs\\evidence\\rmea\\20261115-l4-statistical-audit\\audit.json",
+    "sha256": "6d3ebae5279e4fd3a3b11cbdf7775210e11617a015aa855ee4f2e42925e1e812",
+    "pointer": "/protocol/seed_configs",
+    "seed_configs": [
+      {
+        "seed": 29,
+        "epochs": 20,
+        "batch_size": 128,
+        "optimizer": "AdamW",
+        "lr": 0.001,
+        "weight_decay": 0.01,
+        "clip_norm": 1.0
+      },
+      {
+        "seed": 53,
+        "epochs": 20,
+        "batch_size": 128,
+        "optimizer": "AdamW",
+        "lr": 0.001,
+        "weight_decay": 0.01,
+        "clip_norm": 1.0
+      },
+      {
+        "seed": 71,
+        "epochs": 20,
+        "batch_size": 128,
+        "optimizer": "AdamW",
+        "lr": 0.001,
+        "weight_decay": 0.01,
+        "clip_norm": 1.0
+      },
+      {
+        "seed": 97,
+        "epochs": 20,
+        "batch_size": 128,
+        "optimizer": "AdamW",
+        "lr": 0.001,
+        "weight_decay": 0.01,
+        "clip_norm": 1.0
+      },
+      {
+        "seed": 113,
+        "epochs": 20,
+        "batch_size": 128,
+        "optimizer": "AdamW",
+        "lr": 0.001,
+        "weight_decay": 0.01,
+        "clip_norm": 1.0
+      }
+    ],
+    "scope": "Reopen existing audited public formal-protocol record only; no new training trace replay or fresh pipeline execution. Optimizer label/config alone does not independently prove every numerical step."
+  },
+  "checks": [
+    {
+      "route": "SVM-RP",
+      "original": "2308.16898v3 pp2,4,6; fixed head, feasible bilinear score separation, global norm-constrained minimizers, R to infinity",
+      "native": "Bounded nonlinear Born score, trained value/decoder, finite minibatch AdamW",
+      "result": "No direct theorem transfer"
+    },
+    {
+      "route": "Fixed-head MD",
+      "original": "2410.14581v5 pp5-10; explicit lp mirror map, fixed v, local cone, small stepsize, binary decreasing-margin loss",
+      "native": "40 coupled CE logits; attention parameters nonlinear and shared; AdamW plus clipping and nonzero decay",
+      "result": "No direct algorithm or hypothesis match"
+    },
+    {
+      "route": "Joint MD/RP",
+      "original": "2410.14581v5 pp11-12,49-52; joint update exists, but Theorem31 is global JointRP with AssumptionB and exponentially related radii",
+      "native": "Joint value learning is real, yet global RP optimality, geometric margin shrinkage and radius coupling unverified; finite AdamW is different",
+      "result": "Keep joint-theory prior art; reject fixed-only caricature and unearned convergence attribution"
+    },
+    {
+      "route": "QNG",
+      "original": "1909.02108v3 p3 equations7,10-13; actual QGT metric solve or pseudoinverse",
+      "native": "Audited public AdamW protocol, no QGT solve evidenced by reviewed source/protocol",
+      "result": "Quantum states do not certify natural-gradient dynamics; no new optimizer proposed"
+    }
+  ],
+  "l5_accepted": false,
+  "independent_scientific_review": false
+}
