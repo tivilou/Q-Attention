@@ -1,0 +1,52 @@
+{
+  "schema": "qattn.l5.bounded-source-verification.v1",
+  "independent_review": false,
+  "claims": [
+    {
+      "claim": "A normalized Born head has an exact finite kernel feature representation.",
+      "verdict": "KNOWN_TEMPLATE_INSTANTIATION",
+      "sources": [
+        "2006.16236v3:PDFp3Eq3-6",
+        "rmea.py:57-65"
+      ],
+      "finding": "On8-dimensional normalized pure states, rho=psi psi*, E=phi phi*, tr(E rho)=Born score. In a real orthonormal Hermitian basis the augmented feature chi(A)=(vec_H(A),sqrt(EPS)) has65coordinates and inner product score+EPS.65 is a sufficient, not claimed minimal, count."
+    },
+    {
+      "claim": "Shared operator moments create a new pooling mechanism.",
+      "verdict": "DIRECT_EQUIVALENCE_TO_PRIOR_AGGREGATION",
+      "sources": [
+        "2006.16236v3:PDFp3Eq4-6"
+      ],
+      "finding": "S=sum_valid chi(rho_t)v_t^T and Z=sum_valid chi(rho_t) give pooled_r=chi(E_r)^T S/(chi(E_r)^T Z), then logit_r=b_r+d_r^T pooled_r. This is the generic finite-kernel associativity identity, not a new theorem or end-to-end equivalence to that paper ELU transformer."
+    },
+    {
+      "claim": "The original transformer quadratic-to-linear speedup transfers to current40-query head.",
+      "verdict": "NO_CURRENT_SPEEDUP_ESTABLISHED",
+      "sources": [
+        "2006.16236v3:PDFp3Sec3.2.1",
+        "rmea.py:57-65"
+      ],
+      "finding": "After state/value features, current head is already linear in token count for fixed40relations. Direct order T*R*(d+D) vs a moment route order (T+R)*C*D with d8,D64,C65 does not prove fewer operations or wall-clock improvement. No implementation, profiling or benchmark."
+    },
+    {
+      "claim": "Fixed-feature recurrence makes current contextual encoder an RNN.",
+      "verdict": "NO_ENCODER_OR_TRAINING_BRIDGE",
+      "sources": [
+        "2006.16236v3:PDFp4Eq10-12",
+        "current_frozen_context_feature_contract"
+      ],
+      "finding": "Moment recurrence holds if old token states/values remain fixed. Frozen encoder parameters do not imply unchanged contextual outputs after text edits/appends. No raw-text online inference, constant-memory training or original gradient algorithm imported."
+    },
+    {
+      "claim": "Known classical kernel formulation invalidates old ordinaryL4.",
+      "verdict": "FALSE_RATING_TRANSFER",
+      "sources": [
+        "unchangedL4card",
+        "L5milestone_same_core_contract"
+      ],
+      "finding": "Known associative aggregation limits this proposed theory novelty only. Native learned circuit/query parameterization and executed method are not declared identical to the prior full transformer; ordinary utility evidence remains. No quantum speedup or classical non-simulability required."
+    }
+  ],
+  "mathematical_checks": "Primary symbolic Hilbert-Schmidt/associativity derivation with cited original; no native fixture, independent scientific review or new theorem certification.",
+  "l5_accepted": false
+}
