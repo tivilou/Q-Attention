@@ -25,10 +25,12 @@ source=sys.argv[1];sys.argv=[source]+sys.argv[2:];runpy.run_path(source,run_name
 '''
     def call(cmd):
         r=subprocess.run(cmd,capture_output=True,text=True,encoding='utf8',timeout=20);logs.append(dict(command=cmd,stdout=r.stdout,stderr=r.stderr,exit_status=r.returncode));return r
+    target.mkdir()  # Match the scheduler's precreated empty output directory.
     failed=call([sys.executable,'-B','-c',inject,str(source),*args]);assert failed.returncode!=0 and 'injected completion marker failure' in failed.stderr
     assert target.is_dir() and set(q.name for q in target.iterdir())=={'compact-report.json'} and not (target/'RUN_COMPLETE').exists()
     assert target.resolve().parent==sandbox.resolve() and set(q.name for q in target.iterdir())=={'compact-report.json'};shutil.rmtree(target)
     assert all(hashlib.sha256(q.read_bytes()).hexdigest()==h for q,h in pinned.items())
+    target.mkdir()
     ok=call([sys.executable,'-B',str(source),*args]);assert ok.returncode==0 and set(q.name for q in target.iterdir())=={'compact-report.json','RUN_COMPLETE'}
     result=json.loads((target/'compact-report.json').read_bytes());c=result['counts'];assert c['rows']==8 and c['exact_duplicate_extra_rows']==1 and c['conflicting_queries']==1 and c['conflict_free_multi_query_mixed_label_groups']==1 and c['raw_rows_in_primary_groups']==3 and c['deduplicated_rows_in_primary_groups']==2
     assert all(hashlib.sha256(q.read_bytes()).hexdigest()==h for q,h in pinned.items()) and source_hash==hashlib.sha256(source.read_bytes()).hexdigest()
