@@ -1,0 +1,64 @@
+{
+  "schema": "qattn.l5.bounded-source-verification.v1",
+  "independent_review": false,
+  "claims": [
+    {
+      "claim": "Eider Eq7 positive log missing; code unresolved in Round24.",
+      "verdict": "FOLLOWUP_PINNED_SOURCE_RESOLVED",
+      "sources": [
+        "yiqingxyq/Eider@558996d:model.py:187,210-212",
+        "yiqingxyq/Eider@558996d:train.py:58-66"
+      ],
+      "finding": "Standard BCE-with-logits added with positive0.1 weight; returned loss enters scaled backprop/optimizer. Historical run version uncertified."
+    },
+    {
+      "claim": "No rationale labels means unsupervised task prediction.",
+      "verdict": "INCORRECT",
+      "sources": [
+        "D16-1011:PDFpp2-4"
+      ],
+      "finding": "Joint selected-text encoder receives task targets."
+    },
+    {
+      "claim": "L2X variational decoder equals original model on deleted text.",
+      "verdict": "NOT_ESTABLISHED",
+      "sources": [
+        "chen18j:PDFpp2-4",
+        "chen18j-supp:PDFp1"
+      ],
+      "finding": "Selected-feature conditional and auxiliary Q differ; equality, function family, optimization and relaxation conditions remain."
+    },
+    {
+      "claim": "These originals establish new Q-RMEA theory or semantic evidence.",
+      "verdict": "NOT_ESTABLISHED",
+      "sources": [
+        "transfer-limits.md"
+      ]
+    }
+  ],
+  "public_code": [
+    {
+      "repository": "yiqingxyq/Eider",
+      "revision": "558996d4179d4edad64a05d98387b9a50b19559d",
+      "path": "model.py",
+      "sha256": "c4d40debf81c48f258ad33103ed61c5b10fca5e1c35036fb7f739622957edadd",
+      "bytes": 10905,
+      "extraction": "ordinary_public_browser_embedded_rawLines_joined_LF",
+      "hash_scope": "Normalized extracted source text, not exact Git blob bytes.",
+      "imported": false,
+      "executed": false
+    },
+    {
+      "repository": "yiqingxyq/Eider",
+      "revision": "558996d4179d4edad64a05d98387b9a50b19559d",
+      "path": "train.py",
+      "sha256": "c7ac09b15c1c5e55b672689ce1e8f14db26479e1f9a92e85e841145a37447203",
+      "bytes": 22214,
+      "extraction": "ordinary_public_browser_embedded_rawLines_joined_LF",
+      "hash_scope": "Normalized extracted source text, not exact Git blob bytes.",
+      "imported": false,
+      "executed": false
+    }
+  ],
+  "l5_accepted": false
+}
