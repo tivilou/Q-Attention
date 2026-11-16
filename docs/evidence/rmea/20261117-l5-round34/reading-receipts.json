@@ -1,0 +1,86 @@
+{
+  "schema": "qattn.l5.scoped-original-reading.v1",
+  "papers": [
+    {
+      "paper_id": "arxiv:2602.01642v2",
+      "title": "The Effect of Mini-Batch Noise on the Implicit Bias of Adam",
+      "url": "https://arxiv.org/pdf/2602.01642v2",
+      "version": "2602.01642v2",
+      "sha256": "a53d37c185875dcfc8db1ac43009888db793ff933d637b8b8d4e82546d2cbb7c",
+      "bytes": 2106709,
+      "pdf_pages": 46,
+      "pages_with_read_sections": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        22
+      ],
+      "rendered_pages_inspected": [
+        1,
+        6,
+        22
+      ],
+      "reading": "agent_read_for_selected_scope",
+      "findings": "Definition3.1 uses bias-corrected mini-batch Adam with epsilon inside the square root. TheoremB.1 assumes C3 per-sample losses with uniformly bounded first three derivatives on an open convex domain and gives O(eta^2) trajectory approximation for O(eta^-1) steps. Theorem3.3 is a second-order noise expansion; Section3.3 additionally averages coordinate noise ratios and discards/interprets other terms to obtain directional sharpness predictions.",
+      "limits": "Specified main sections and TheoremB.1 statement read; full proofs, experiments and upstream code not audited. No clipping/AdamW theorem for the exact native pipeline was established. Neither small eta alone nor the paper title provides an empirical error bound for fresh5. Sharpness is a proxy, not a theorem of held-out Macro gain."
+    },
+    {
+      "paper_id": "arxiv:2611.17736v1",
+      "title": "High-probability convergence of adaptive, proximal, and clipped Adam-type methods for nonconvex stochastic optimization",
+      "url": "https://arxiv.org/pdf/2611.17736v1",
+      "version": "2611.17736v1",
+      "sha256": "83d1c64f98305b60506eb4d873c1259ec32f7846fa9a6977b6718159db2ce340",
+      "bytes": 447407,
+      "pdf_pages": 30,
+      "pages_with_read_sections": [
+        1,
+        4,
+        5,
+        14,
+        15,
+        16,
+        17
+      ],
+      "rendered_pages_inspected": [
+        1,
+        4,
+        14
+      ],
+      "reading": "agent_read_for_selected_scope",
+      "findings": "Eq2/p4 uses a predictable preconditioner from past gradients. Assumptions1-5 include smoothness, deterministic metric bounds, conditionally unbiased sub-Gaussian noise and bounded true gradients. Section6/Theorem6.1 clips gradient noise relative to the true gradient. Section7/Theorem7.1 adds explicit predictive momentum alignment; the conclusion controls stationarity rather than classification utility.",
+      "limits": "Selected setup and Sections6/7 statements/derivations read, not complete proofs or numerical experiments. The noise-clipping operator and lagged preconditioner differ from the native total-gradient clipping and current-gradient second moment. Momentum alignment and unbiasedness are not verified for native random-reshuffling training. JOTA template is not proof of publication."
+    },
+    {
+      "paper_id": "arxiv:2202.08232v7",
+      "title": "Quantum Lazy Training",
+      "url": "https://arxiv.org/pdf/2202.08232v7",
+      "version": "2202.08232v7",
+      "sha256": "7670db88c4b11b055fd7756b86c38831934364ad8dbd03101f66460d16d2f677",
+      "bytes": 1182459,
+      "pdf_pages": 24,
+      "pages_with_read_sections": [
+        1,
+        7,
+        8,
+        9,
+        11,
+        12
+      ],
+      "rendered_pages_inspected": [
+        1,
+        7,
+        11
+      ],
+      "reading": "agent_read_for_selected_scope",
+      "findings": "Eq11-13 uses an m^-1/2 sum of geometrically local observables. Theorem1 assumes geometric locality and independent random circuit parameters. Theorem2 analyzes gradient flow for squared-error learning; changes of parameters/kernel and linearization error shrink with growing qubit count under stated initial-loss/time conditions.",
+      "limits": "Selected abstract, setup and theorem sections read; not whole proofs, experiments or code. Native three-qubit learned prepare/effect Born scores, token normalization, signed affine head, CE and finite AdamW do not instantiate a demonstrated growing-m local-observable family. Non-application establishes neither lazy behavior nor feature learning in fresh5."
+    }
+  ],
+  "whole_papers_read": false,
+  "independent_scientific_review": false
+}

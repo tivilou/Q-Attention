@@ -1,0 +1,117 @@
+{
+  "schema": "qattn.l5.adaptive-training-transfer-audit.v1",
+  "question": "Under actual finite clipped AdamW, which training-level property of bounded Born preparation/effects can distinguish identical affine-head controls? Do not promote generic optimizer convergence, gradients or parameter identities.",
+  "actual_protocol": [
+    {
+      "seed": 29,
+      "epochs": 20,
+      "batch_size": 128,
+      "optimizer": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.01,
+      "clip_norm": 1.0
+    },
+    {
+      "seed": 53,
+      "epochs": 20,
+      "batch_size": 128,
+      "optimizer": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.01,
+      "clip_norm": 1.0
+    },
+    {
+      "seed": 71,
+      "epochs": 20,
+      "batch_size": 128,
+      "optimizer": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.01,
+      "clip_norm": 1.0
+    },
+    {
+      "seed": 97,
+      "epochs": 20,
+      "batch_size": 128,
+      "optimizer": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.01,
+      "clip_norm": 1.0
+    },
+    {
+      "seed": 113,
+      "epochs": 20,
+      "batch_size": 128,
+      "optimizer": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.01,
+      "clip_norm": 1.0
+    }
+  ],
+  "formal_source_composite": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+  "findings": [
+    {
+      "id": "formal_source_bridge",
+      "status": "established_static",
+      "finding": "Four cached formal source blobs match the existing public statistical audit. Two head blobs also match the development snapshot previously read."
+    },
+    {
+      "id": "first_gradient_boundary",
+      "status": "established_static",
+      "finding": "Saved first gradient is before whole-head clipping; after-parameters include AdamW and decay. Raw gradient magnitudes alone do not identify parameter-update magnitudes."
+    },
+    {
+      "id": "noise_clipping_transfer",
+      "status": "direct_transfer_unestablished",
+      "finding": "2611.17736v1 uses noise truncation and a past-gradient preconditioner; native calls total-gradient clipping and standard AdamW. Assumptions not certified."
+    },
+    {
+      "id": "implicit_bias_transfer",
+      "status": "direct_transfer_unestablished",
+      "finding": "2602.01642v2 gives a smooth small-step memory-removal approximation and a simplified noise/sharpness interpretation. Native clipping, decoupled decay, outside-root epsilon and quantitative approximation error remain unbridged."
+    },
+    {
+      "id": "lazy_training_transfer",
+      "status": "direct_transfer_unestablished",
+      "finding": "2202.08232v7 gives a growing-qubit local-observable gradient-flow result. Native fixed three-qubit normalized attention plus affine CE head is not certified by it; feature learning not thereby established."
+    }
+  ],
+  "prescribed_gradient_counterexample": {
+    "status": "PASS",
+    "input_gradients": [
+      "2",
+      "-1"
+    ],
+    "beta1": "9/10",
+    "clip_max_norm": "1",
+    "clip_denominator_stabilizer": "1/1000000",
+    "clipped_gradients": [
+      "2000000/2000001",
+      "-1000000/1000001"
+    ],
+    "plain_first_moment_numerator_before_bias_factor": "4/5",
+    "clipped_first_moment_numerator_before_bias_factor": "-66666400000/666667666667",
+    "adaptive_component_signs": [
+      "positive",
+      "negative"
+    ],
+    "scope": "Prescribed two-scalar gradient history; numerator beta1*g1+g2 before common positive 1-beta1 and bias correction. Positive second-moment denominator cannot change sign. This is not a native gradient history, observed checkpoint, training replay or novel theorem. Decoupled decay excluded from compared adaptive component.",
+    "new_native_model_forwards": 0,
+    "new_training": 0
+  },
+  "counterexample_command_record_sha256": "ae3956c6746e05ffa1a41e2f0df95e9f3884cb747f9dca2b53ccb52e5456b8af",
+  "same_core_milestone": {
+    "empirical_base": "accepted scoped ordinary L4 unchanged",
+    "substantive_nearest_work_distinction": "not established",
+    "nontrivial_new_theory": "not established; elementary optimizer identities only",
+    "independent_discriminating_empirical_evidence": "not established",
+    "executed_code_correspondence": "static formal head/runner bridge improved; runtime trajectory not newly replayed"
+  },
+  "l5_accepted": false,
+  "new_method_selected": false,
+  "scientific_jobs": 0,
+  "new_training": 0,
+  "new_formal_runs": 0,
+  "private_arrays_read": 0,
+  "independent_scientific_review": false
+}
