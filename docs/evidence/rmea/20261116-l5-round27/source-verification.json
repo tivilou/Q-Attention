@@ -1,0 +1,79 @@
+{
+  "schema": "qattn.l5.bounded-source-verification.v1",
+  "independent_review": false,
+  "claims": [
+    {
+      "claim": "Current mathematical head family may be extended to satisfy optional ignorance.",
+      "verdict": "CONSTRUCTIVE_MAPPING_WITH_SCOPE",
+      "sources": [
+        "2002.10689v1:PDFp2Def1",
+        "rmea.py:64-65",
+        "frozen_feature_head.py:16-18"
+      ],
+      "finding": "For any strictly positive categorical p choose decoder=0,bias=log(p); every finite-softmax output in the range can be held constant. The mathematical null extension f[empty]=softmax(bias) is introduced for analysis, not an executed input interface. Valid nonempty masks and finite real parameters assumed."
+    },
+    {
+      "claim": "Q model-class optimum must strictly improve on uniform.",
+      "verdict": "NONSTRICT_NESTING_ONLY",
+      "sources": [
+        "2002.10689v1:PDFp3Prop2.1",
+        "rmea.py:prepare/circuit/forward",
+        "frozen_feature_head.py:uniform"
+      ],
+      "finding": "In exact arithmetic zero preparation affine parameters and zero effect angles yield identical basis0 states, score1 and uniform valid weights. Copy common value/decoder/bias to reproduce every uniform head function. This is model-class containment, not strict improvement, quantum attribution, optimizer success or finite-precision/checkpoint certification."
+    },
+    {
+      "claim": "Observed trained-head CE gap equals a gain in family-optimal V-information.",
+      "verdict": "NOT_WITHOUT_OPTIMIZATION_AND_ESTIMATION_CONTROL",
+      "sources": [
+        "2002.10689v1:PDFpp2-3Def2-3",
+        "2002.10689v1:PDFp5Def4"
+      ],
+      "finding": "With a common constant optimum, risk gap = V-information difference + excess-risk(B)-excess-risk(A). An independent-label40-class distribution gives both oracle V-information0 but arbitrary selected constant predictors p/q have gap ln40-.5ln156>0; reversing them changes the sign. Generic known distinction, not actual training evidence."
+    },
+    {
+      "claim": "Bounded Born scores certify the paper PAC bound for this unrestricted head.",
+      "verdict": "MISSING_UNIFORM_LOG_LOSS_BOUND_AND_COMPLEXITY",
+      "sources": [
+        "2002.10689v1:PDFp5Thm1",
+        "2002.10689v1:PDFpp14-17",
+        "rmea.py:64-65",
+        "frozen_feature_head.py:18"
+      ],
+      "finding": "Decoder=0,bias=(A,0,...,0), label other than0 gives CE=ln(exp(A)+39)>A. Unrestricted bias alone prevents a finite common B, even though Born scores are bounded. An explicit bounded family and its complexity could support a future bound; current source/frozen checkpoint has not established that contract."
+    },
+    {
+      "claim": "Predictive log-risk theory proves the old Macro improvement or semantic evidence guarantee.",
+      "verdict": "NO_ENDPOINT_OR_CAUSAL_BRIDGE",
+      "sources": [
+        "2002.10689v1:PDFpp2-5",
+        "unchangedL4card"
+      ],
+      "finding": "Family-optimal log risk, trained Macro classification utility and fixed-value local CE alignment are different endpoints. No new implication, independent confirmation or theory novelty established."
+    }
+  ],
+  "arithmetic": {
+    "status": "PASS",
+    "fixture_sha256": "0ab6ee454212881e1de4b936c43aee25cdb087e8bcf8e5ba164f8c74103676cb",
+    "prior_entropy_nats": "2.524928003624768523141598460702098722801879385651733538197549931643878",
+    "uniform_prediction_risk_nats": "3.688879454113936302852455697600717343752101757349283484274687919954353",
+    "particular_gap_nats": "1.163951450489167779710857236898618620950222371697549946077137988310475",
+    "closed_form": "ln(40)-0.5*ln(156)",
+    "reverse_gap_nats": "-1.163951450489167779710857236898618620950222371697549946077137988310475",
+    "family_oracle_risks": [
+      "H(p)",
+      "H(p)"
+    ],
+    "family_v_information": [
+      0,
+      0
+    ],
+    "interpretation": "Generic known optimization/family distinction. No fitted model, empirical data, native40-way circuit forward, novel theorem or independent scientific review.",
+    "model_forwards": 0,
+    "training": 0,
+    "l5_accepted": false
+  },
+  "arithmetic_is_independent_scientific_review": false,
+  "parser_note": "Absolute-value bars in Eq5/16/28/32 checked in rendered PDF; lost in parsed plain text. No spurious one-sided-bound or original-paper-error claim.",
+  "l5_accepted": false
+}
