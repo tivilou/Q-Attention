@@ -1,0 +1,99 @@
+{
+  "schema": "qattn.l5.mil-source-and-exposed-endpoint.v1",
+  "formal_source_composite": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+  "formal_source_files": [
+    {
+      "path": "baselines/retacred/rmea_confirmation_run.py",
+      "sha256": "9f6de9013354dd90122b839a12e4a8cfc8b6946a2e2169e41fd248b472511e19"
+    },
+    {
+      "path": "baselines/retacred/rmea_confirmation_protocol.py",
+      "sha256": "bdccafa853365c1cbcb548947e48433d560490a4af4ccdea54b70c26a7e07cc0"
+    },
+    {
+      "path": "baselines/retacred/rmea.py",
+      "sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+    },
+    {
+      "path": "baselines/retacred/frozen_feature_head.py",
+      "sha256": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+    }
+  ],
+  "native_locators": {
+    "runner": "rmea_confirmation_run.py88-96: fixed selected head evaluation and actual/context-permuted aggregate metrics; report producer records diagnosis.shuffled confusion matrix.",
+    "head": "rmea.py59-69: normalized Born weights, signed affine utilities and sensitivity=(utilities-weighted_mean)/normalizer.",
+    "supervision": "rmea_confirmation_run.py118-125: joint40class CE and actual clipped AdamW; no latent-word presence likelihood."
+  },
+  "report_files": {
+    "summary.json": "fad5c12213f6b8ea1e8fc1a724f5fa28e535c39035a8af8fc8653dc385d74522",
+    "manifest.json": "eca12022ced91b36fafeddd54ddd765515272ddd819970bacd73dacffae4097a",
+    "trace_validation.json": "257b1e7c79d8a24e5c24b089ab30102bf4611de0a2719118aa4173520c2503d8",
+    "receipt.json": "7a7a8012f2e6a9f9a583bf0588997e8c6a5d0a4271ece5dfacf654c86c1cfe07",
+    "run_summary.json": "b7011881fc8d8cdf0e130146053813541dbb33659a9ef550573cef5e94fa4801",
+    "data.sha256": "011f9a348b9dc44e45ae998a680e16d9e68a90e998f555ed22f1874b40327a32",
+    "data_counts.txt": "44fe5fbdcbc15f304ce4eb076a0cd3fa54b2920ffb06df0c06ea5cc4a7f28f0a"
+  },
+  "endpoint_design_sha256": "6d102e3f448181d5b313c02e838b37b53f4bc248fb9b258a919f82c13f8856d3",
+  "endpoint_command_sha256": "fd4f3d88a93b2a895c7c4a1b1d2104a9928d39bc282aeeed522365642fb2b68b",
+  "search_scope": {
+    "queries": [
+      {
+        "query": "mil_attention_task_conditions",
+        "origin": "independent_problem_search",
+        "rows": 8,
+        "sha256": "42e00bf798fd4330c868435c898c62fb4a948d93621311d4b18a3415013f6ff4"
+      },
+      {
+        "query": "mil_latent_responsibility",
+        "origin": "independent_problem_search",
+        "rows": 8,
+        "sha256": "8d0b736af421af120d4f7e640c7898d874688f5c2c2cdd49cc7686588978f117"
+      },
+      {
+        "query": "latent_attention_identification",
+        "origin": "cross_domain_search",
+        "rows": 8,
+        "sha256": "d93774c7e738e8842839522d8fdc43d543a4d873334c4ffa2816e217ad518226"
+      }
+    ],
+    "metadata_rows": 24,
+    "distinct_ids": 24,
+    "selected_originals": 3,
+    "unselected_metadata_only": 21,
+    "budget": {
+      "queries": 3,
+      "max_rows_each": 8,
+      "retries": 0,
+      "minimum_origin_spacing_seconds": 3,
+      "selected_originals_max": 3,
+      "browser_fallback_batches_max": 1
+    },
+    "search_service_failure": {
+      "status": 404,
+      "error": "api_route_not_found",
+      "retried": false
+    },
+    "official_api_requests": [
+      {
+        "url": "https://export.arxiv.org/api/query?search_query=all%3A%22multiple+instance+learning%22+AND+%28all%3A%22theory%22+OR+all%3A%22theoretical%22%29+AND+%28all%3A%22attention%22+OR+all%3A%22pooling%22%29&start=0&max_results=8&sortBy=relevance&sortOrder=descending",
+        "status": 200,
+        "sha256": "42e00bf798fd4330c868435c898c62fb4a948d93621311d4b18a3415013f6ff4"
+      },
+      {
+        "url": "https://export.arxiv.org/api/query?search_query=all%3A%22multiple+instance+learning%22+AND+%28all%3A%22generative%22+OR+all%3A%22likelihood%22+OR+all%3A%22posterior%22%29&start=0&max_results=8&sortBy=relevance&sortOrder=descending",
+        "status": 200,
+        "sha256": "8d0b736af421af120d4f7e640c7898d874688f5c2c2cdd49cc7686588978f117"
+      },
+      {
+        "url": "https://export.arxiv.org/api/query?search_query=all%3A%22attention%22+AND+%28all%3A%22identifiability%22+OR+all%3A%22identifiable%22%29+AND+%28all%3A%22latent%22+OR+all%3A%22mixture%22%29&start=0&max_results=8&sortBy=relevance&sortOrder=descending",
+        "status": 200,
+        "sha256": "d93774c7e738e8842839522d8fdc43d543a4d873334c4ffa2816e217ad518226"
+      }
+    ],
+    "browser_used": false,
+    "limits": "Bounded relevance search, not exhaustive novelty review. Broad attention/identifiability query also returns unrelated latent models; no findings taken from unselected originals."
+  },
+  "new_native_model_forwards": 0,
+  "training": 0,
+  "l5_accepted": false
+}

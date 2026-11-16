@@ -1,0 +1,78 @@
+{
+  "schema": "qattn.l5.scoped-original-reading.v1",
+  "papers": [
+    {
+      "paper_id": "arxiv:1810.09050v3",
+      "title": "A Comparison of Five Multiple Instance Learning Pooling Functions for Sound Event Detection with Weak Labeling",
+      "version": "1810.09050v3",
+      "url": "https://arxiv.org/pdf/1810.09050v3",
+      "sha256": "66ddee05fdf944db422057ca60af64267b7142f068e385be8eec70f53f85e9fe",
+      "bytes": 666425,
+      "pdf_pages": 5,
+      "pages_with_read_sections": [
+        1,
+        2,
+        3
+      ],
+      "rendered_pages_inspected": [
+        1,
+        2,
+        3
+      ],
+      "reading": "agent_read_for_selected_scope",
+      "findings": "Section2/Table1 derives weighted pooling derivatives; negative bags can learn high weights on low instance predictions, separating bag success from localization. Selected p3 discussion/Table2 distinguishes tagging and localization endpoints.",
+      "limits": "pp1-3 only. Binary independent-event probabilities in[0,1] and BCE under the standard at-least-one-positive-instance assumption; native40-class logits use signed affine utilities and joint CE. No full code/results reproduction or localization transfer."
+    },
+    {
+      "paper_id": "arxiv:1811.12346v2",
+      "title": "A Multiclass Multiple Instance Learning Method with Exact Likelihood",
+      "version": "1811.12346v2",
+      "url": "https://arxiv.org/pdf/1811.12346v2",
+      "sha256": "de8ebd68db5d09e56e16fa4841f57717a302ba9688dc4ca8a7e75efc8fd049bf",
+      "bytes": 244874,
+      "pdf_pages": 10,
+      "pages_with_read_sections": [
+        1,
+        2,
+        3,
+        4,
+        8
+      ],
+      "rendered_pages_inspected": [
+        1,
+        3,
+        8
+      ],
+      "reading": "agent_read_for_selected_scope",
+      "findings": "Section2 defines class-set binary-vector labels, background class and per-location categorical probability normalization. Assumption1 is conditional independence of location emissions; Proposition1/Eqs4-8 use products and inclusion-exclusion. p8 discusses correlated-label degeneracy and begins AppendixA.",
+      "limits": "pp1-4,8 selected reading; only part of AppendixA inspected. No complete proof/code/experiment audit. Native word-wise Born weights are not per-word categorical class emissions or exact OR-set likelihood; relation label does not annotate which words carry the relation."
+    },
+    {
+      "paper_id": "arxiv:2508.07114v2",
+      "title": "Increasing Information Extraction in Low-Signal Regimes via Multiple Instance Learning",
+      "version": "2508.07114v2",
+      "url": "https://arxiv.org/pdf/2508.07114v2",
+      "sha256": "37efd28eb10d18a9d1d92597b5be4b48f61134869ad9400b830fdff60be5e9c3",
+      "bytes": 13665122,
+      "pdf_pages": 37,
+      "pages_with_read_sections": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "rendered_pages_inspected": [
+        1,
+        4,
+        5
+      ],
+      "reading": "agent_read_for_selected_scope",
+      "findings": "Sections1/3 Eq3 uses iid collision events and sums event log-likelihood ratios. Section3.1 sqrt(N) SNR argument assumes independent homogeneous events. Section3.2 Eq15 concerns effective information lost to learned bag-LLR errors with a sublinear error-variance condition; it does not create extra raw information.",
+      "limits": "pp1-6 selected; no complete appendices, simulation/architecture reproduction or error-model certification. The source explicitly says distributed weak signal rather than finding one key instance. Contextualized words in one sentence and current CE/Macro target are not this statistical experiment. Eq12 variance/error covariance and quantitative approximation assumptions not independently certified here."
+    }
+  ],
+  "whole_papers_read": false,
+  "independent_scientific_review": false
+}
