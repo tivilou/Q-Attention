@@ -1,0 +1,83 @@
+{
+  "paper_reading": {
+    "schema": "research.paper-reading-receipt.v1",
+    "paper_id": "arxiv:2306.12929v2",
+    "title": "Quantizable Transformers: Removing Outliers by Helping Attention Heads Do Nothing",
+    "authors": [
+      "Yelysei Bondarenko",
+      "Markus Nagel",
+      "Tijmen Blankevoort"
+    ],
+    "requested_version": "arXiv v2",
+    "observed_version": "arXiv2306.12929v2 in original HTML; URL pinned v2",
+    "source_url": "https://arxiv.org/html/2306.12929v2",
+    "acquisition": "acquired",
+    "identity": "verified",
+    "version": "verified_arxiv_v2_preprint",
+    "parsing": "parsed_full_article_text_with_original_math_alttext",
+    "reading": "read_for_scope",
+    "source_sha256": "8c510994f0f9705ebd7e3ce4d7c4291a010ce4fda39697a6a479e4b108cf8a36",
+    "parsed_sha256": "723b11ea752cdf68d9bac2632b14bda7f13bde92f96c4ccbd55df0b19b7d60f9",
+    "read_scope": [
+      "S2 Background and related work",
+      "S3 Outlier analysis and hypothesis, figure captions",
+      "S4 Method, Eqs3-7",
+      "S5 Experiments, settings, tables and limitations",
+      "S6 Discussion"
+    ],
+    "not_read_or_verified": [
+      "Original PDF figures not visually measured",
+      "Appendices A-D and source implementation not deeply read",
+      "No original experiments replicated or current-field novelty clearance"
+    ],
+    "findings": [
+      {
+        "locator": "S3",
+        "fact": "Paper connects residual no-op updates with attention saturation and outliers in its settings; this does not establish the cause of Q-RMEA null-label errors."
+      },
+      {
+        "locator": "S4/Eq4",
+        "fact": "Clipped softmax stretches/clips probabilities; no subsequent renormalization is specified."
+      },
+      {
+        "locator": "S4/Eqs5-7",
+        "fact": "Learned per-token/head sigmoid gates multiply attention output, allowing attenuation."
+      },
+      {
+        "locator": "S5.4/S6",
+        "fact": "Authors limit floating-point gain generality and report a clipped-softmax failure on OPT."
+      }
+    ],
+    "transfer_status": "Components known; encoder residual/quantization objective differs from frozen-feature Q-RMEA classifier. No selected method.",
+    "candidate": "NONE",
+    "L5": "NOT_ACCEPTED"
+  },
+  "independent_review": {
+    "platform": "A6API",
+    "requested_model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "inference_requests": 1,
+    "automatic_retries": 0,
+    "request_sha256": "43457d01b30b2284cb9e9dee4cc1a0246ae91e0dc6ecf1421f08b54fd163582f",
+    "verdict_sha256": "942d4ce843427687f03266bc1583855b54df0fd2637bd25eb52841e4cab96625",
+    "verdict": {
+      "verdict": "ACCEPT_SCOPED_ELIGIBILITY_MEMO",
+      "must_fix": [],
+      "mixture_identity": "Correct for T>0 valid tokens. With mu=mean(p)>0, alpha=[mu/(mu+EPS)](p/sum(p))+[EPS/(mu+EPS)](1/T); at mu=0, alpha is uniform. EPS therefore prevents general scale invariance, but does not make mu identifiable from alpha over arbitrary p. Given mu, inversion is p_i=T(mu+EPS)alpha_i-EPS. These are known normalization identities, not L5 contributions. The stored-array results support only the reported two-case numerical checks and small smoothing effects.",
+      "source_transfer": "The source motivates investigating normalization pressure and no-op behavior, not a theorem that RMEA loses useful support information. Its clipped softmax is not renormalized, and its learned sigmoid gate changes attention-output magnitude during encoder training. Neither is equivalent to the frozen-encoder RMEA classifier setting. A deterministic mass-based multiplier remains near the magnitude-gating family; a different parameterization alone establishes neither substantive novelty nor benefit. Preserve scoped originalL4 and all stopped branches, including the prohibition on gating/coefficient/seed rescue. Keep residual no-op, semantic no_relation, and quantum acceptance distinct.",
+      "native_observability": "Unresolved. Constant arbitrary-p rows establish abstract nonidentifiability, but need not be realizable by the actual fixed word-state frame and native rank-one query circuit. For a fixed frame, write p_i=tr(rho A_i), S=sum_i A_i, and B_i=A_i-alpha_i S. The fiber producing an exact observed alpha satisfies tr(rho B_i)=EPS(T alpha_i-1). Mass is identifiable precisely when tr(rho S)/T is constant on this fiber restricted to reachable native pure states. Alpha-only nonidentifiability would still not establish information loss from the complete head, whose utilities depend on inputs.",
+      "candidate": "NONE",
+      "next_question": "For one already-selected fixed trace and one fixed label row, is mu constant on the native reachable pure-state fiber producing its exact normalized alpha? Use the original word-state frame and unchanged query circuit: either prove constancy or exhibit two reachable pure states satisfying the same normalization constraints but different tr(rho S). This pair-existence test is necessary and sufficient for nonidentifiability on that fiber. The certificate S in span_R{I,B_1,...,B_T} is sufficient for identifiability, but is not generally necessary on the restricted native fiber. A mixed-state relaxation may provide a sufficient constancy certificate; a mixed-state ambiguity is not a native pure-state counterexample, and even unrestricted pure-state ambiguity must satisfy native circuit reachability. Treat stored-array rounding separately from exact equality. This is a bounded observability question, not a proposed method or gate.",
+      "limits": [
+        "Decisive eligibility gap: no native normalization-observability result, and no demonstrated predictive relevance, substantive new rule, or benefit.",
+        "The 80 stored rows come from two fixed cases and do not establish population bounds or training behavior.",
+        "Small epsilon-floor weights neither prove irrelevance nor establish that support mass is recoverable.",
+        "The 40 effects are separate binary measurements, not a joint 40-outcome POVM; their summed responses have no automatic joint-outcome interpretation.",
+        "Resolving native observability would answer an information question, not by itself justify architecture selection, reopening stopped mechanisms, or an L5 claim."
+      ],
+      "l5_status": "NOT_ACCEPTED"
+    }
+  },
+  "candidate": "NONE",
+  "L5": "NOT_ACCEPTED"
+}

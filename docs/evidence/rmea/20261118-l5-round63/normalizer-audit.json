@@ -1,0 +1,48 @@
+{
+  "schema": "qattn.normalizer-observable-audit.v1",
+  "status": "PASS_SCOPED_STORED_ARRAY_AUDIT",
+  "epsilon": 1e-06,
+  "numpy": "1.26.4",
+  "cases": [
+    {
+      "case_index": 0,
+      "authenticated_trace_sha256": "25827062f443b8394263955f0facbf8de20ffb76e5dfded9e883e279e8782ad6",
+      "labels": 40,
+      "valid_tokens": 40,
+      "mean_born_min": 0.012908050938074211,
+      "mean_born_max": 0.029998836349113843,
+      "uniform_floor_weight_min": 3.333351516865424e-05,
+      "uniform_floor_weight_max": 7.746502859085069e-05,
+      "native_alpha_vs_ideal_mixture_max_abs": 1.1636298791195543e-07,
+      "epsilon_smoothing_tv_max": 5.9083601569036694e-05,
+      "algebraic_identity_max_abs": 1.5543122344752192e-15
+    },
+    {
+      "case_index": 1,
+      "authenticated_trace_sha256": "ce400bc5a2ff7e016fb790095a20b68c4bbdfcc8816847a0dba4cb756b8acd1f",
+      "labels": 40,
+      "valid_tokens": 50,
+      "mean_born_min": 0.004876934256208188,
+      "mean_born_max": 0.018063140597732855,
+      "uniform_floor_weight_min": 5.535829366420941e-05,
+      "uniform_floor_weight_max": 0.00020500481299590145,
+      "native_alpha_vs_ideal_mixture_max_abs": 6.882122416396186e-08,
+      "epsilon_smoothing_tv_max": 0.0001353289558867811,
+      "algebraic_identity_max_abs": 1.4432899320127035e-15
+    }
+  ],
+  "stored_attention_rows": 80,
+  "selection": "Original fixed first2 stable-ID-hash selected validation traces, seed29 quantum selected checkpoint.",
+  "measurements": "Derived from original stored probability/alpha/mask arrays; no model execution.",
+  "limits": [
+    "Two fixed cases, not benchmark or training-cohort distributions.",
+    "Tiny floor weights on these cases do not establish a population bound or irrelevance.",
+    "No utility, calibration, semantic-null, information-sufficiency or L5 conclusion.",
+    "Representation loss from alpha alone is not loss of all head information; values also depend on inputs."
+  ],
+  "model_jobs": 0,
+  "training_jobs": 0,
+  "cos_requests": 0,
+  "labels_or_outcomes_read": false,
+  "L5": "NOT_ACCEPTED"
+}
