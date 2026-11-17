@@ -1,0 +1,46 @@
+{
+  "schema": "qattn.bounded-original-reading.v1",
+  "title": "Transformers as Support Vector Machines",
+  "authors": [
+    "Davoud Ataee Tarzanagh",
+    "Yingcong Li",
+    "Christos Thrampoulidis",
+    "Samet Oymak"
+  ],
+  "version": "arXiv2308.16898v3,22February2024",
+  "url": "https://arxiv.org/pdf/2308.16898v3",
+  "pdf_sha256": "f11a455e8a5e1434f7d778fb919b8d3f517c6bfd38d8581f2f40c1d5eb1575ea",
+  "pages": 58,
+  "identity": "Official abstract metadata currentv3 plus PDFp1 title/all4authors verified. Author preprint, no final venue-version claim.",
+  "parse_scope": "All58pages parsed with no low-text pages; only below locators semantically read.",
+  "read_locators": [
+    "p1 title/authors/abstract",
+    "p3 theoretical scope and model preliminaries",
+    "p4 fixed prediction head, optimization definitions, Definition1 token scores",
+    "p5 separability and normdivergence explanation",
+    "p6 AssumptionA,Lemma2,Theorem2",
+    "p20 original-version extension discussion",
+    "p29 AppendixB.2 proofLemma2"
+  ],
+  "findings": [
+    "Definition1 fixes label-dependent token ordering through a fixed linear head. Lemma2 uses strict decreasing scalar loss and separability of selected optimal tokens.",
+    "Theorem2 assumes unique optimal indices and feasible tokenSVM; its stated Frobenius/nuclear conclusions concern regularization paths.",
+    "B.2 first bounds any convex token mixture by the fixed best-token score. Its attainability step explicitly sends a separating softmax score scale to infinity so its mass tends to that token."
+  ],
+  "source_transfer_limits": [
+    "The native40class coadapted head does not fix those scalar token scores. Its Born probabilities are bounded and have epsilon1e-6 floor.",
+    "Actual AdamW/decoupled decay/clip/finitevalidselection is not the stated regularization path or plainGD. No source-equivalent nuclear-norm/implicit-bias theorem is supplied.",
+    "The2024extension discussion does not prove joint training remains an open problem in2026. No exhaustive forward-citation review was conducted.",
+    "No full58page deep-reading claim or audit of allGD/convergence proofs."
+  ],
+  "discovery": {
+    "origin": [
+      "paper_bank:priorR1/R14/R49 boundaries",
+      "independent_search",
+      "cross_domain_search"
+    ],
+    "metadata": "OfficialarXiv title/version plus OpenAlex exacttitle/DOI matched.",
+    "coverage": "Builtinweb404; publicGoogleQUICerror, Bing rendered low-relevance results, arXivsearchtimeout.3Crossref queries mostly irrelevant; OpenAlex/officialabs and officialPDF succeeded. One researcher-owned headlessEdge session reused then closed. No access challenge bypass.",
+    "schema_repair": "Initial fulltext request used wrong sources/version fields and acquired nothing; corrected candidates/requested_version before the single actualPDF acquisition."
+  }
+}

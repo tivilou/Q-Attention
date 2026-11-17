@@ -1,0 +1,115 @@
+{
+  "schema": "qattn.optimizer-primary-review.v1",
+  "status": "OPTIMIZATION_TRANSFER_LIMIT_VERIFIED_NO_CANDIDATE",
+  "l5_accepted": false,
+  "new_method_selected": false,
+  "mathematical_result": {
+    "schema": "qattn.source-optimizer-boundary.v1",
+    "status": "PASS_EXACT_REAL_SOURCE_FORMULA",
+    "source_hashes": {
+      "rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+      "frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+      "rmea_protocol.py": "fb3486fa16dba9959256b32712e46c8bc40b6612801eff254b0f8ffe72650be1",
+      "rmea_confirmation_protocol.py": "bdccafa853365c1cbcb548947e48433d560490a4af4ccdea54b70c26a7e07cc0",
+      "rmea_confirmation_run.py": "9f6de9013354dd90122b839a12e4a8cfc8b6946a2e2169e41fd248b472511e19"
+    },
+    "scope": "Engineered legal head parameters/H/R; not actual random initialization, encoder image, trained checkpoint or floating native execution.",
+    "first_step_assumptions": {
+      "optimizer": "AdamW",
+      "lr": "1/1000",
+      "weight_decay": "1/100",
+      "optimizer_epsilon": "1/100000000",
+      "betas": "Default first-step bias correction cancels beta1/beta2; epsilon default1e-8 is assumed explicitly, not read from pinned installed PyTorch.",
+      "amsgrad": false,
+      "gradients": "Exact complete40 CE with uniform predicted probability1/40; all active coordinates accounted for; norm<1 so configured clipping is inactive."
+    },
+    "construction": "Both selectors have all prepare/effect parameters0; both heads share B00=1/400, value biases0, class0bias=-1/400 and other parameters0. They realize the same function on every admitted H/R/mask before updating, not merely the same point prediction. On the fixture two valid entity tokens have identical h[0]=1, other hidden coordinates0.",
+    "factorizations": [
+      {
+        "a": "1/20",
+        "b": "1/20",
+        "initial_B00": "1/400",
+        "initial_logits": "all40zero on fixture",
+        "gradient_norm_squared": "314301/320000",
+        "gradient_clipping_active": false,
+        "post_B00": "247252813784306134550001/95062539000004000000000000",
+        "post_target_logit": "561956762453670199730867481579/487820928819101526316000000000000",
+        "post_each_other_logit": "-449871729290047807/427635258774035088000",
+        "post_target_vs_other_margin": "310235678847351129470378416874342347513/140762069054843211490374590052000000000000"
+      },
+      {
+        "a": "1/10",
+        "b": "1/40",
+        "initial_B00": "1/400",
+        "initial_logits": "all40zero on fixture",
+        "gradient_norm_squared": "318279/320000",
+        "gradient_clipping_active": false,
+        "post_B00": "22693579916992881771591/8642049886364000000000000",
+        "post_target_logit": "11372317523228411447872797087501/9268598598187938750004000000000000",
+        "post_each_other_logit": "-100134046928147849999/97501609000788000064000",
+        "post_target_vs_other_margin": "171805105824623324200889938353656418731579/76223277987370625519966306526316000000000000"
+      }
+    ],
+    "post_margin_difference": "30965634841594106651027444383516939/619319088160479030083288729718017544000",
+    "post_margin_difference_float_illustration": 4.999948400358401e-05,
+    "prediction": "All39non-target logits are equal within each updated head. Different target-versus-other margins imply different softmax probabilities and complete40 CE after the first source-formula AdamW step.",
+    "bounded_attention": {
+      "epsilon": "1/1000000",
+      "valid_tokens": 40,
+      "max_any_weight": "1000001/1000040",
+      "min_any_weight": "1/39000040",
+      "min_l1_distance_to_one_hot": "39/500020",
+      "scope": "Universal exact q in[0,1] bound; a finite epsilon blocks exact one-hot limits for T>1. Tiny gap is not a practical disadvantage or superiority claim."
+    },
+    "interpretation": [
+      "R14 equality of readout function classes does not imply the same optimizer trajectory.",
+      "This one-step non-invariance does not disprove an eventual implicit-bias theorem, all possible norm characterizations or the original paper.",
+      "No claim that AdamW decoupled weight decay is exactly optimizing a nuclear norm penalty.",
+      "Known parameterization-sensitive optimization tools; no novelty or L5 claim."
+    ],
+    "new_native_forwards": 0,
+    "new_data_reads": 0,
+    "new_training": 0,
+    "l5_accepted": false
+  },
+  "independent_consultation": {
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "status": "completed",
+    "packet_sha256": "708c9dab7b3fa63e2a97ad113039fa2843f87d9765c1e428bd0ddd1ecdb89f2a",
+    "answer_sha256": "3bb12cbf3026008938501739b19d6d939282f18bd5e0a47b6fe38797149dc10e",
+    "verdict": {
+      "math_verdict": "PASS_SCOPED",
+      "defects": [],
+      "claim_ceiling": "The supplied exact-real calculation is internally consistent under its stated optimizer assumptions. At initialization, the two factorizations define the same function globally. On the fixture, the active gradients include all 40 decoder entries, all 40 output biases, the active value weight and its bias; selector gradients vanish. Their squared global norms are below 1, so clipping is inactive. First-step bias correction gives the stated AdamW update when optimizer epsilon is 1e-8. The resulting unequal target-versus-other margins establish unequal post-step probabilities and complete-40 cross-entropy, not native floating-point execution or a persistent training advantage. For T=40, the stated attention maximum, minimum and one-hot L1 separation follow from q in [0,1]; they are universal bounds, not proofs of simultaneous circuit attainability. Source hashes and installed optimizer defaults have not been independently verified here. Neither result establishes a new task-dependent mechanism, quantum necessity, mediation of the observed gain, or failure of every eventual implicit-bias characterization.",
+      "candidate": "NONE",
+      "next_original_question": {
+        "question": "In the original support-vector-machine paper, what exact theorem hypotheses make the label-dependent ordering of tokens fixed by the prediction head, and which step of the hard-selection argument requires softmax concentration as the attention norm diverges?",
+        "smallest_independent_evidence": "Read the relevant theorem statements, definitions of token separability and token optimality, and the specific proof steps using fixed-head ordering and exponential attention tails. Record their exact scope rather than extrapolating from the introduction or extension discussion.",
+        "uncertainty_reduced": "This would distinguish genuinely task-dependent assumptions in the original result from consequences specific to fixed prediction heads and softmax concentration. The source model jointly trains its readout and has a positive attention floor, so neither transfer is currently justified.",
+        "novelty_status": "No new mechanism proposed; novelty unsupported."
+      }
+    },
+    "scope": "Independent API judgment on supplied mathematics; no tools, installed-default/source-hash verification, new corpus or empirical evidence. Relay model echo is not upstreammodel attestation."
+  },
+  "primary_interpretation": [
+    "Accept exact-real first-step computation under explicit optimizer epsilon1e-8, not a nativefloat/model test.",
+    "All40decoder/output-bias gradients plus activevalueweight/valuebias are included; globalnorm<1 preventsclip. Parameter factorizations define the same entire head function initially, but not after one update.",
+    "OriginalSVM proof question raised by consultant is now read/resolved at PDFp4/6/29. Transfer fails without replacing fixedhead, selector-tail and optimization assumptions; this does not refute the original paper or all eventual implicitbias theories.",
+    "Officialversioned PyTorchdefault-source fetch timedout; installedoptimizerdefault verification remains absent and explicitly assumed, not repaired by model opinion.",
+    "Positiveepsilon bound shared by real/dephased controls; not a quantum-specific benefit or practicalperformance ceiling. No newsame-core mechanism selected."
+  ],
+  "math_execution": {
+    "exit_status": 0,
+    "stdout": "{\"status\": \"PASS_EXACT_REAL_SOURCE_FORMULA\", \"full40_first_step_probability_changes\": true, \"clipping_active\": false, \"margin_difference_illustration\": 4.999948400358401e-05, \"native_forward_executed\": false, \"l5_accepted\": false}\n",
+    "identical_output": true
+  },
+  "next_action": "With R56 proof-level SVM transfer boundary resolved, search original work on joint selector/readout optimization with bounded non-softmax selectors and finite AdamW/earlyselection; seek one task-dependent distinction, not a generic norm or known reparameterization result. The two globally equivalent heads diverging after one exact-real AdamW step only show functionclass equality is not trajectory equality; not actual nativefloat or persistent utility. No candidate survived the completed owner-selected gpt6.1sol medium consultation. Do not claim a2026 literature gap from a2024paper, reopen stopped families/rank/semantic probes, or launch formal training without a frozen qualified candidate. Preserve scopedL4; all API calls medium and fullruns collaborator-only.",
+  "new_native_forwards": 0,
+  "new_data_reads": 0,
+  "new_training": 0,
+  "new_formal_runs": 0,
+  "new_COS_operations": 0,
+  "external_inference_requests": 1,
+  "external_valid_verdicts": 1
+}

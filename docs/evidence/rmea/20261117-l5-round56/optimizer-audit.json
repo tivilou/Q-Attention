@@ -1,0 +1,69 @@
+{
+  "schema": "qattn.source-optimizer-boundary.v1",
+  "status": "PASS_EXACT_REAL_SOURCE_FORMULA",
+  "source_hashes": {
+    "rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "rmea_protocol.py": "fb3486fa16dba9959256b32712e46c8bc40b6612801eff254b0f8ffe72650be1",
+    "rmea_confirmation_protocol.py": "bdccafa853365c1cbcb548947e48433d560490a4af4ccdea54b70c26a7e07cc0",
+    "rmea_confirmation_run.py": "9f6de9013354dd90122b839a12e4a8cfc8b6946a2e2169e41fd248b472511e19"
+  },
+  "scope": "Engineered legal head parameters/H/R; not actual random initialization, encoder image, trained checkpoint or floating native execution.",
+  "first_step_assumptions": {
+    "optimizer": "AdamW",
+    "lr": "1/1000",
+    "weight_decay": "1/100",
+    "optimizer_epsilon": "1/100000000",
+    "betas": "Default first-step bias correction cancels beta1/beta2; epsilon default1e-8 is assumed explicitly, not read from pinned installed PyTorch.",
+    "amsgrad": false,
+    "gradients": "Exact complete40 CE with uniform predicted probability1/40; all active coordinates accounted for; norm<1 so configured clipping is inactive."
+  },
+  "construction": "Both selectors have all prepare/effect parameters0; both heads share B00=1/400, value biases0, class0bias=-1/400 and other parameters0. They realize the same function on every admitted H/R/mask before updating, not merely the same point prediction. On the fixture two valid entity tokens have identical h[0]=1, other hidden coordinates0.",
+  "factorizations": [
+    {
+      "a": "1/20",
+      "b": "1/20",
+      "initial_B00": "1/400",
+      "initial_logits": "all40zero on fixture",
+      "gradient_norm_squared": "314301/320000",
+      "gradient_clipping_active": false,
+      "post_B00": "247252813784306134550001/95062539000004000000000000",
+      "post_target_logit": "561956762453670199730867481579/487820928819101526316000000000000",
+      "post_each_other_logit": "-449871729290047807/427635258774035088000",
+      "post_target_vs_other_margin": "310235678847351129470378416874342347513/140762069054843211490374590052000000000000"
+    },
+    {
+      "a": "1/10",
+      "b": "1/40",
+      "initial_B00": "1/400",
+      "initial_logits": "all40zero on fixture",
+      "gradient_norm_squared": "318279/320000",
+      "gradient_clipping_active": false,
+      "post_B00": "22693579916992881771591/8642049886364000000000000",
+      "post_target_logit": "11372317523228411447872797087501/9268598598187938750004000000000000",
+      "post_each_other_logit": "-100134046928147849999/97501609000788000064000",
+      "post_target_vs_other_margin": "171805105824623324200889938353656418731579/76223277987370625519966306526316000000000000"
+    }
+  ],
+  "post_margin_difference": "30965634841594106651027444383516939/619319088160479030083288729718017544000",
+  "post_margin_difference_float_illustration": 4.999948400358401e-05,
+  "prediction": "All39non-target logits are equal within each updated head. Different target-versus-other margins imply different softmax probabilities and complete40 CE after the first source-formula AdamW step.",
+  "bounded_attention": {
+    "epsilon": "1/1000000",
+    "valid_tokens": 40,
+    "max_any_weight": "1000001/1000040",
+    "min_any_weight": "1/39000040",
+    "min_l1_distance_to_one_hot": "39/500020",
+    "scope": "Universal exact q in[0,1] bound; a finite epsilon blocks exact one-hot limits for T>1. Tiny gap is not a practical disadvantage or superiority claim."
+  },
+  "interpretation": [
+    "R14 equality of readout function classes does not imply the same optimizer trajectory.",
+    "This one-step non-invariance does not disprove an eventual implicit-bias theorem, all possible norm characterizations or the original paper.",
+    "No claim that AdamW decoupled weight decay is exactly optimizing a nuclear norm penalty.",
+    "Known parameterization-sensitive optimization tools; no novelty or L5 claim."
+  ],
+  "new_native_forwards": 0,
+  "new_data_reads": 0,
+  "new_training": 0,
+  "l5_accepted": false
+}
