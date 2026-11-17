@@ -1,0 +1,76 @@
+{
+  "schema": "qattn.scoped-original-reading.v1",
+  "purpose": "Retrospective benchmark/protocol interpretation of already completed studies; not novelty search or full-paper review.",
+  "paper": {
+    "paper_id": "arxiv:2104.08398v1",
+    "url": "https://arxiv.org/pdf/2104.08398v1",
+    "title": "Re-TACRED: Addressing Shortcomings of the TACRED Dataset",
+    "authors": [
+      "George Stoica",
+      "Emmanouil Antonios Platanios",
+      "Barnabas Poczos"
+    ],
+    "sha256": "e8575b782d8710e31ab97626ae7f91e328430a3bd6a641e07132a442c41019fa",
+    "pages": 10,
+    "identity_verified": true,
+    "parsed_read_pages": [
+      1,
+      2,
+      4,
+      5
+    ],
+    "partial_page6_characters": [
+      0,
+      6500
+    ],
+    "visual_pages": [
+      1,
+      5
+    ],
+    "unread_pages": [
+      3,
+      7,
+      8,
+      9,
+      10
+    ],
+    "assertions": [
+      {
+        "locator": "p1 Introduction",
+        "finding": "Relation extraction predicts the relation from a sentence and designated subject/object spans."
+      },
+      {
+        "locator": "p2 dataset background and release footnote",
+        "finding": "Original TACRED time-based splits and inherited source-data access are described. Public correction patches do not redistribute full source text."
+      },
+      {
+        "locator": "p4 refinements",
+        "finding": "Identity relations, organization membership/parent ambiguities and branch labels are corrected; these annotation changes do not certify later interventions as semantically invariant."
+      },
+      {
+        "locator": "p5 sections3.5 and4",
+        "finding": "Final dataset has91467 examples and40 relation types, retaining original train/development/test allocation."
+      }
+    ],
+    "limits": "No full-paper, supplement, model-code, data-conversion or original-license-entitlement audit claimed. Page6 was only partially read and supplies no quantitative comparison here."
+  },
+  "repository": {
+    "url": "https://github.com/gstoica27/Re-TACRED",
+    "revision": "3e8a1269c0fc59caf64499b3c886b3e1e688aaf9",
+    "readme_url": "https://github.com/gstoica27/Re-TACRED/blob/3e8a1269c0fc59caf64499b3c886b3e1e688aaf9/README.md",
+    "readme_sha256": "68b5d23c92f26c750236e515a932e3cc6b8ec67addf4ab0ff0fdc314cfcf85ae",
+    "readme_read": true,
+    "findings": [
+      "README identifies91467-example pruned release asv1.1, versus105206-examplev1.0.",
+      "Reconstruction uses public label corrections plus separately obtained original TACRED source; raw source is not redistributed.",
+      "These repository facts do not alone prove this project conversion was generated from that exact upstream patch."
+    ],
+    "scorer": {
+      "url": "https://raw.githubusercontent.com/gstoica27/Re-TACRED/3e8a1269c0fc59caf64499b3c886b3e1e688aaf9/C-GCN/utils/scorer.py",
+      "sha256": "11861148c2eaffec6ae42c86fbd0628142b5b58be6724043464acfb6f24e9132",
+      "read_scope": "score() label-accounting branches and final micro aggregation; no training code executed.",
+      "finding": "Non-no_relation true positives, guessed positives and gold positives define benchmark micro-F1. Project full40 Macro-F1 is a different declared metric.",
+      "limits": "Degenerate zero-guessed-positive precision convention differs (upstream defaults1, project0); F1 remains0. Existing25 test cells have positive denominators. No claim of general scorer-byte equivalence."
+    }
+  }
+}

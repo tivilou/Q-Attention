@@ -1,0 +1,126 @@
+{
+  "schema": "qattn.completed-cohort-audit.v1",
+  "status": "PASS",
+  "run_id": "20261029T021229Z_fresh5",
+  "executed_git_revision": "f3f22660b609811e6fb824f7d19e9cafd0c1e446",
+  "source_sha256": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+  "contract_sha256": "da5541b44d89853d8ff23db7bf4750a984ae76ad18c96ca9af6252dec09aea36",
+  "report_files_verified": 7,
+  "full_data_cells": 25,
+  "completed_epochs_per_cell": 20,
+  "updates_per_cell": 9140,
+  "metric_records_recomputed": 550,
+  "input_counts": {
+    "train": 58465,
+    "valid": 19584,
+    "test": 13418
+  },
+  "labels": 40,
+  "selection": "All25 cells: first epoch attaining greatest validation Macro-F1; test excluded from selection. Historical code source separately inspected.",
+  "initialization": "Shared value/decoder/bias initialization equal within each seed; different selector parameter counts remain.",
+  "loss_verification": "CE values copied from authenticated reports; confusion matrices do not identify CE and no CE recomputation claimed.",
+  "raw_datasets_read": 0,
+  "model_jobs": 0,
+  "formal_runs": 0,
+  "collaborator_accesses": 0,
+  "hashes": {
+    ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/report/data.sha256": "011f9a348b9dc44e45ae998a680e16d9e68a90e998f555ed22f1874b40327a32",
+    ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/report/data_counts.txt": "44fe5fbdcbc15f304ce4eb076a0cd3fa54b2920ffb06df0c06ea5cc4a7f28f0a",
+    ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/report/manifest.json": "eca12022ced91b36fafeddd54ddd765515272ddd819970bacd73dacffae4097a",
+    ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/report/receipt.json": "7a7a8012f2e6a9f9a583bf0588997e8c6a5d0a4271ece5dfacf654c86c1cfe07",
+    ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/report/run_summary.json": "b7011881fc8d8cdf0e130146053813541dbb33659a9ef550573cef5e94fa4801",
+    ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/report/summary.json": "fad5c12213f6b8ea1e8fc1a724f5fa28e535c39035a8af8fc8653dc385d74522",
+    ".codex-artifacts/qattn-rmea-implementation-20261026/fresh5-report-audit-20261030/report/trace_validation.json": "257b1e7c79d8a24e5c24b089ab30102bf4611de0a2719118aa4173520c2503d8",
+    ".ai-progress/workstreams/quantum-projector-v2/refs/20261026-rmea-readiness/input-audit.json": "c21d23017140d89a3632853d0f33d9e76c5cb7d574d4a9108b63d1ed23bf0996",
+    ".ai-progress/workstreams/quantum-projector-v2/refs/20261026-rmea-readiness/tokenization-audit.json": "4d25f24c525e7f706d829a5b5c90750a86d984404cb4fa8251813d7274e2e44a",
+    ".codex-artifacts/qattn-l5-round51-20261117/audit_completed_reports.py": "76d2bfe98d844ffdc916971b2661a00204a9e82c0505a511ca38a05895a1931c"
+  },
+  "conditions": [
+    {
+      "mode": "uniform",
+      "seeds": 5,
+      "parameters": 68200,
+      "valid_macro_f1": 0.24614191749038294,
+      "test_macro_f1": 0.21491219129925368,
+      "test_non_null_micro_f1": 0.44603355153867985,
+      "test_accuracy": 0.6550901773736771,
+      "reported_test_ce": 1.1537453261799173,
+      "test_macro_seed_sd": 0.009468221071242169
+    },
+    {
+      "mode": "relation_softmax",
+      "seeds": 5,
+      "parameters": 76752,
+      "valid_macro_f1": 0.5795196359419764,
+      "test_macro_f1": 0.5182790361780669,
+      "test_non_null_micro_f1": 0.7327652806053361,
+      "test_accuracy": 0.808108510955433,
+      "reported_test_ce": 0.60113079044321,
+      "test_macro_seed_sd": 0.0164358966644407
+    },
+    {
+      "mode": "real_overlap",
+      "seeds": 5,
+      "parameters": 76752,
+      "valid_macro_f1": 0.5680778687916648,
+      "test_macro_f1": 0.5158315006916064,
+      "test_non_null_micro_f1": 0.73352389247365,
+      "test_accuracy": 0.808987926665673,
+      "reported_test_ce": 0.5913838100390705,
+      "test_macro_seed_sd": 0.014636206175355892
+    },
+    {
+      "mode": "quantum",
+      "seeds": 5,
+      "parameters": 81028,
+      "valid_macro_f1": 0.5823767997126593,
+      "test_macro_f1": 0.5207533288244607,
+      "test_non_null_micro_f1": 0.7299191105973257,
+      "test_accuracy": 0.8045759427634521,
+      "reported_test_ce": 0.6093174826212195,
+      "test_macro_seed_sd": 0.01765487486331949
+    },
+    {
+      "mode": "dephased",
+      "seeds": 5,
+      "parameters": 81028,
+      "valid_macro_f1": 0.5809396772633988,
+      "test_macro_f1": 0.5172695949125523,
+      "test_non_null_micro_f1": 0.7209752376882229,
+      "test_accuracy": 0.7986734237591295,
+      "reported_test_ce": 0.6414834721750466,
+      "test_macro_seed_sd": 0.01650007940673021
+    }
+  ],
+  "split_correlations": {
+    "train/valid": {
+      "id": 0,
+      "document": 101,
+      "sentence": 19,
+      "input": 0,
+      "surface_pair": 543,
+      "input_label_conflicts": 0
+    },
+    "train/test": {
+      "id": 0,
+      "document": 33,
+      "sentence": 7,
+      "input": 1,
+      "surface_pair": 410,
+      "input_label_conflicts": 0
+    },
+    "valid/test": {
+      "id": 0,
+      "document": 11,
+      "sentence": 1,
+      "input": 1,
+      "surface_pair": 269,
+      "input_label_conflicts": 0
+    }
+  },
+  "limits": [
+    "Recomputes report aggregates, not predictions, checkpoint replay, feature extraction, annotation truth or licensed-source conversion.",
+    "Official fixed cohort has document/sentence/entity overlap; seeds are repeated training randomness, not independent new populations.",
+    "Five modes share input/budget/initial value-decoder fields, not equal selector parameter count or guaranteed equal optimization difficulty."
+  ]
+}

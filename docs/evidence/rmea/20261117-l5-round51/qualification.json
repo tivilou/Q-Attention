@@ -1,0 +1,105 @@
+{
+  "schema": "qattn.dataset-qualification.v1",
+  "status": "qualified",
+  "scope": "Retrospective interpretation and reuse of the existing private fixed-cohort, frozen-feature40-label relation-extraction study. Conditional on the recorded source copy; not a new independent test, raw-data certification, public redistribution or new candidate experiment approval.",
+  "task": {
+    "target": "Relation of ordered subject/object spans in a sentence",
+    "unit": "one sentence/entity-pair row",
+    "population": "Existing official-split project conversion,91467 rows; correlated documents/entities retained",
+    "input": "tokens plus ordered entity spans; marked frozen RoBERTa-large word features and deterministic four-dimensional span/distance roles",
+    "hidden": "gold labels, entity types, document and sample metadata excluded from encoder/head feature construction; labels only train/evaluate; sample IDs only order/diagnostics",
+    "label_space": "40 train-derived labels; no unseen validation/test labels",
+    "counts": {
+      "train": 58465,
+      "valid": 19584,
+      "test": 13418
+    }
+  },
+  "benchmark": {
+    "name": "Re-TACRED v1.1-consistent project conversion",
+    "selection": "Established sentence-level relation benchmark matches the declared task; no custom synthetic task required.",
+    "official_paper": "https://arxiv.org/pdf/2104.08398v1",
+    "upstream_revision": "3e8a1269c0fc59caf64499b3c886b3e1e688aaf9",
+    "source_copy_identity": {
+      ".ai-progress/workstreams/quantum-projector-v2/refs/20261026-rmea-readiness/input-audit.json": "c21d23017140d89a3632853d0f33d9e76c5cb7d574d4a9108b63d1ed23bf0996"
+    },
+    "access": "Reuse existing private source only; original TACRED terms and access remain inherited. No data download/redistribution authorized or performed.",
+    "provenance_limit": "Counts/labels agree with prunedv1.1, and hashes bind all project comparisons. This turn did not independently rebuild the conversion from licensed TACRED plus official patches or audit entitlement. Do not claim that stronger chain."
+  },
+  "splits": {
+    "official_fixed_split": true,
+    "counts": {
+      "train": 58465,
+      "valid": 19584,
+      "test": 13418
+    },
+    "cross_split_shared_keys": {
+      "train/valid": {
+        "id": 0,
+        "document": 101,
+        "sentence": 19,
+        "input": 0,
+        "surface_pair": 543,
+        "input_label_conflicts": 0
+      },
+      "train/test": {
+        "id": 0,
+        "document": 33,
+        "sentence": 7,
+        "input": 1,
+        "surface_pair": 410,
+        "input_label_conflicts": 0
+      },
+      "valid/test": {
+        "id": 0,
+        "document": 11,
+        "sentence": 1,
+        "input": 1,
+        "surface_pair": 269,
+        "input_label_conflicts": 0
+      }
+    },
+    "exposure": "Validation and test summaries have been repeatedly inspected. They are existing-study evidence, not unseen adaptive-development holdouts.",
+    "claim_boundary": "Conditional fixed-cohort results only; no independent-document/entity/new-population or OOD generalization, and no row-IID inferential claim."
+  },
+  "metrics": {
+    "primary": "Full40 Macro-F1, zero_division0 including absent labels",
+    "benchmark_secondary": "Micro-F1 excluding no_relation",
+    "selection": "Strictly greatest validation Macro-F1, earliest tie; completed run code evaluates selected checkpoint on test afterwards.",
+    "fairness": "Five head modes share source counts, frozen features, common value/decoder/bias initialization per seed,20 epochs and optimizer budget. Selector parameter counts/optimization difficulty differ; historical fine-tuned references use different protocols."
+  },
+  "validation": {
+    "evidence": "Completed25 full-data head cells and15 completed historical seed13 references; no rerun.",
+    "report_hashes_verified": 7,
+    "metric_records_recomputed": 550,
+    "tokenization": "Existing all91467-row audit: no missing entity/word rows, no over512 rows; maxima336/217/248.",
+    "learnability": "Classical relation_softmax full-test mean Macro-F1 .5182790361780669 and non-null micro-F1 .7327652806053361 establish task learnability at this scale, not new-method efficacy."
+  },
+  "baseline_scope": {
+    "reference_suite": "15 configurations/13 architectures already completed;14paper_interpretive and1source_faithful_adapted. Historical context only, not equal-protocol or strict source reproduction for all models.",
+    "reuse_authority": "Owner2026-10-26 baseline reuse decision; R15 comparison-scope-map already removed blanket baseline-completeness blocker. No historical rerun prerequisite.",
+    "matched_cohort": [
+      "uniform",
+      "relation_softmax",
+      "real_overlap",
+      "quantum",
+      "dephased"
+    ],
+    "exact_reuse_map": "docs/evidence/rmea/20261116-l5-round15/comparison-scope-map.json"
+  },
+  "superseded_old_gates": [
+    "Oct26 no mature common-protocol full-budget head cohort: superseded by25 completed cells.",
+    "Oct26 only tiny pilot learnability: superseded by completed full-data classical heads.",
+    "Oct26 no Q-RMEA implementation/evidence: superseded by source-pinned reports and separately accepted scopedL4."
+  ],
+  "unresolved_limits": [
+    "Strong original-license/conversion provenance not independently certified here; no redistribution.",
+    "Future novel candidate requires its own frozen claim, input privileges, matched controls and independent confirmation appropriate to that claim. Existing exposed tests do not establish new independent support.",
+    "No positive addressable headroom guaranteed; ceiling .975 is algebraic, not attainable frozen-feature optimum.",
+    "Same-core substantive novelty, nontrivial correct theory, discriminating evidence and executed-code linkage remain unresolved for L5."
+  ],
+  "next_permitted_stage": "Reuse completed evidence immediately for theory/mechanism design and candidate-specific planning. Do not reopen historical baselines or treat this scoped qualification as authorization to launch a new full-data run. New full formal experiments remain collaborator-only.",
+  "manual_blind_review": "Optional semantic-premise investigation, deferred; no user action or mandatory L5 gate.",
+  "new_formal_runs": 0,
+  "l5_accepted": false
+}
