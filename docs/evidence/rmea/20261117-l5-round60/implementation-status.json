@@ -1,0 +1,70 @@
+{
+  "schema": "qattn.rmea-context-geometry-implementation-status.v1",
+  "status": "IMPLEMENTED_STATIC_REVIEWED_NATIVE_UNIT_PENDING",
+  "source_revision": "7607a06f4a5ba7507a82d51acf47c653b6ff7138",
+  "source_sha256": "35fd011f44172e6160ec9200d0fadd8df6213da92d5a3c87f5dbd6ea05ce6ddf",
+  "contract_sha256": "0c14998ef71228b0e8b6efa22019fa2130df1828fb43e472724e77335c0192a3",
+  "source_files": {
+    "experiments/rmea_context_geometry/__init__.py": "4c415b0c80e7a742d90a64e13f0b9ba1ea6dbd09678ceef0442ac15fb580e799",
+    "experiments/rmea_context_geometry/contract.json": "0c14998ef71228b0e8b6efa22019fa2130df1828fb43e472724e77335c0192a3",
+    "experiments/rmea_context_geometry/core.py": "fbbe5b5de84258ca7b4c921763185d6c28f3d29c349fb2dfc181981758d47b13",
+    "experiments/rmea_context_geometry/job.py": "4cb9397df17f0b3bf64c0253b665c895c02627c0bd9b9388e0b8e0b904a6f82b",
+    "experiments/rmea_context_geometry/legacy/__init__.py": "6eca8d00d0c124272f5ee73570c37d1ada545579f19702c5241c6723beb237b9",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "config_recovery": {
+    "existing_same_owner_home_located": true,
+    "project_registration_verified": true,
+    "original_profile_preserved": true,
+    "resolved_project_profile_created": true,
+    "provider_requests": 0,
+    "credential_values_published": false
+  },
+  "inputs": {
+    "existing_head_and_two_anchors_hash_verified": true,
+    "verified_bytes": 915382,
+    "cache": "NOT_LOCATED",
+    "cache_substitution_or_rebuild": false
+  },
+  "review": {
+    "review_mode": "external",
+    "reviewer_model": "gpt-6.1-sol",
+    "review_scope": "both",
+    "freeze_sha256": "69aa2e2546d5974b1aea394b681ce28c7f037adf40f5fe9859197c023fcff62f",
+    "source_sha256": "35fd011f44172e6160ec9200d0fadd8df6213da92d5a3c87f5dbd6ea05ce6ddf",
+    "contract_sha256": "0c14998ef71228b0e8b6efa22019fa2130df1828fb43e472724e77335c0192a3",
+    "theory_mapping": "The epsilon-regularized overlaps admit a context-conditioned state and token-index POVM representation; the 40 label effects need not form a joint POVM. Effective fidelity bounds normalized attention TV, with explicit native-versus-ideal residuals. Signed-utility logit bounds include unequal-mass correction. Winner and CE certificates apply to the common float64 reduction under exactly one fixed cyclic query reassignment, not performance, necessity, novelty, or L5.",
+    "correctness": "pass",
+    "control_fairness": "pass",
+    "gradient_and_numerics": "pass",
+    "lifecycle_correctness": "partial",
+    "artifact_and_recovery": "partial",
+    "must_fix": [],
+    "risks": [
+      "Static review only: supplied digest identities are echoed, not independently recomputed; no unit forwards or resource measurements were performed.",
+      "Scheduler Store, leader-lock, remote-operation and controller implementations are not supplied. Lifecycle approval depends on attempts() exposing every live reservation and on stop/leader semantics actually preventing scheduling during pair changes.",
+      "Activation and restoration use backed-up exact bytes, locked quiescence checks, readback and compensation. A failed observation or ambiguous submission must still be investigated as the same task; the binding receipt is not itself terminal-state evidence.",
+      "Prospective diagnose records native/common-reduction residuals and argmax disagreements without a numerical acceptance threshold. Its certificates describe the common reduction, not unconditional native-float32 winner preservation; retain that distinction in any future report.",
+      "Preflight and diagnose remain unadmitted. Pinned cache/manifest availability, full input validation and separate explicit admission are prerequisites; local head/anchor verification does not satisfy them."
+    ],
+    "verdict": "PASS_WITH_RISK",
+    "confidence": "medium"
+  },
+  "verification": {
+    "static_syntax": "SYNTAX_PASS:6",
+    "actual_forward_reverse_forward": true,
+    "protected_owner_and_main_and_1_1_preserved": true,
+    "native_unit": "NOT_RUN_SHARED_NODE_OCCUPIED",
+    "scheduler_binding_changed": false,
+    "task_or_attempt_created": false
+  },
+  "environment": {
+    "python": "3.10",
+    "torch": "2.4.1+cpu",
+    "numpy": "1.24.3",
+    "isolated": true,
+    "cuda": null
+  },
+  "claim_ceiling": "No new task evidence, utility, training resume or L5. Accepted scoped L4 unchanged. Preflight/diagnose unadmitted."
+}
