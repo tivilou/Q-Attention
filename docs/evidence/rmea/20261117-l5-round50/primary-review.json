@@ -1,0 +1,296 @@
+{
+  "schema": "qattn.l5.primary-theory-audit.v1",
+  "status": "NO_QUALIFIED_CANDIDATE",
+  "l5_accepted": false,
+  "advice_packet_sha256": "f996f007b765939e7ef513abeb86a03eb481cc07c357c35a8cef6d4675236948",
+  "advice_sha256": "754bcb932d32325bff9dd0d1698dba8c8cc98a77e5607378418864fc5c54e3e0",
+  "selection": {
+    "metadata_source": "ai-model-world derived catalog, not benchmark authority",
+    "metadata_retrieved_at": "2026-11-17T01:25:23Z",
+    "capability_proxy": "Dated LLMStats HLE, not creative-theory task benchmark or universal ranking",
+    "benchmark_retrieved_at": "2026-11-16T21:12:46Z",
+    "ranked_candidates": [
+      {
+        "rank": 1,
+        "model_id": "claude-fable-5.2",
+        "benchmark_model_id": "claude-fable-5-2",
+        "capability_status": "proxy_supported",
+        "capability_proxy_score": 0.732,
+        "dispatch_eligible": false,
+        "transport_status": "unavailable_at_fresh_shared_preflight"
+      },
+      {
+        "rank": 2,
+        "model_id": "claude-fable-5.1",
+        "benchmark_model_id": "claude-fable-5-1",
+        "capability_status": "proxy_supported",
+        "capability_proxy_score": 0.65,
+        "dispatch_eligible": false,
+        "transport_status": "unavailable_at_fresh_shared_preflight"
+      },
+      {
+        "rank": 3,
+        "model_id": "claude-mythos-preview",
+        "benchmark_model_id": "claude-mythos-preview",
+        "capability_status": "proxy_supported",
+        "capability_proxy_score": 0.647,
+        "dispatch_eligible": false,
+        "transport_status": "unavailable_at_fresh_shared_preflight"
+      },
+      {
+        "rank": 4,
+        "model_id": "claude-opus-5",
+        "benchmark_model_id": "claude-opus-5",
+        "capability_status": "proxy_supported",
+        "capability_proxy_score": 0.647,
+        "dispatch_eligible": false,
+        "transport_status": "unavailable_at_fresh_shared_preflight"
+      },
+      {
+        "rank": 5,
+        "model_id": "claude-fable-5",
+        "benchmark_model_id": "claude-fable-5",
+        "capability_status": "proxy_supported",
+        "capability_proxy_score": 0.645,
+        "dispatch_eligible": false,
+        "transport_status": "unavailable_at_fresh_shared_preflight"
+      }
+    ],
+    "external_context_calls": 0,
+    "provider_gate": "Fresh shared catalog URLError, exact API/native-max mapping unverified; not proof all models offline",
+    "fallback": "One isolated same-host subagent: independent ideation, then one changed-packet analytic review. No repeated vote on unchanged proposal."
+  },
+  "independent_advice_assessment": "No candidate delivered. Proposed closure/optimizer question is a research subproblem, not established theory; generic Jensen conditional inequality adds no novelty or actual optimizer guarantee.",
+  "source_correction": "Deployed P is deterministic per sample id and positions. A probability-mixture claim needs an explicit law. Current exclusion treats the actual deterministic diagnostic as a point-mass law.",
+  "source_specific_proof": {
+    "packet_sha256": "42fb037d0d9cf4d43d422679f33c535079027532eb8b42f8c7545556702746d9",
+    "packet": {
+      "schema": "qattn.l5.bounded-source-closure-review.v1",
+      "parent_packet_sha256": "f996f007b765939e7ef513abeb86a03eb481cc07c357c35a8cef6d4675236948",
+      "scope": "Review one newly constructed source-specific analytic exclusion, no candidate acceptance",
+      "source_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+      "source_segments": {
+        "circuit": "def circuit(angles):\n    \"\"\"RY then RZ per wire, then directed CNOT ring, twice. Wire0 is MSB.\"\"\"\n    if angles.shape[-3:]!=(DEPTH,QUBITS,2):raise ValueError('Expected [...,2,3,2] angles')\n    dtype=torch.complex128 if angles.dtype==torch.float64 else torch.complex64\n    state=torch.zeros(angles.shape[:-3]+(8,),device=angles.device,dtype=dtype)\n    state[...,0]=1\n    for layer in range(DEPTH):\n        for wire in range(QUBITS):\n            shape=state.shape\n            pair=state.reshape(shape[:-1]+(2**wire,2,2**(2-wire)))\n            a,b=pair.unbind(-2)\n            y,z=angles[...,layer,wire,:].unbind(-1)\n            c,s=torch.cos(y/2),torch.sin(y/2)\n            c=c[...,None,None];s=s[...,None,None]\n            minus=torch.exp(-.5j*z)[...,None,None];plus=torch.exp(.5j*z)[...,None,None]\n            state=torch.stack(((c*a-s*b)*minus,(s*a+c*b)*plus),dim=-2).reshape(shape)\n        for control,target in ((0,1),(1,2),(2,0)):\n            permutation=[i ^ ((1 << (2-target)) if (i >> (2-control)) & 1 else 0) for i in range(8)]\n            state=state[...,permutation]\n    return state",
+        "context_permutation": "def context_permutation(mask,roles,ids):\n    \"\"\"One label/outcome/seed-blind permutation, shared by all relation rows.\"\"\"\n    if len(ids)!=len(mask):raise ValueError('Sample identities required')\n    result=[]\n    for i,sample_id in enumerate(ids):\n        eligible=torch.where(mask[i] & (roles[i,:,2]==0) & (roles[i,:,3]==0))[0].tolist()\n        order=sorted(eligible,key=lambda j:hashlib.sha256(('rmea-context-v1:'+str(sample_id)+':'+str(j)).encode()).digest())\n        if len(order)>1 and order==eligible:order=order[1:]+order[:1]\n        permutation=list(range(mask.shape[1]))\n        for dest,src in zip(eligible,order):permutation[dest]=src\n        result.append(permutation)\n    return torch.tensor(result,device=mask.device,dtype=torch.long)",
+        "RMEAHead.forward": "def forward(self,h,roles,mask,details=False):\n        if self.mode in MODES[:3]:\n            logits,alpha=super().forward(h,roles,mask)\n            if not details:return logits,alpha\n            values=self.value(h)\n            return dict(logits=logits,alpha=alpha,values=values,\n                        utilities=torch.einsum('btd,rd->brt',values,self.decoder))\n        if h.ndim!=3 or h.shape[-1]!=1024 or roles.shape!=h.shape[:2]+(4,):raise ValueError('Bad features')\n        if mask.shape!=h.shape[:2] or mask.dtype!=torch.bool or not mask.any(-1).all():raise ValueError('Bad valid mask')\n        angles=math.pi*torch.tanh(self.prepare(torch.cat((h,roles),-1))).reshape(h.shape[:2]+(2,3,2))\n        effect_angles=math.pi*torch.tanh(self.effect)\n        psi=circuit(angles);phi=circuit(effect_angles)\n        if self.mode=='quantum':\n            probability=torch.einsum('rd,btd->brt',phi.conj(),psi).abs().square()\n        else:\n            probability=torch.einsum('rd,btd->brt',phi.abs().square(),psi.abs().square())\n        raw=(probability+EPS)*mask[:,None,:]\n        normalizer=raw.sum(-1,keepdim=True);alpha=raw/normalizer\n        values=self.value(h);utilities=torch.einsum('btd,rd->brt',values,self.decoder)\n        logits=(alpha*utilities).sum(-1)+self.bias\n        if not details:return logits,alpha\n        return dict(logits=logits,alpha=alpha,values=values,utilities=utilities,\n                    angles=angles,effect_angles=effect_angles,psi=psi,phi=phi,\n                    probability=probability,normalizer=normalizer,\n                    sensitivity=(utilities-(alpha*utilities).sum(-1,keepdim=True))/normalizer*mask[:,None,:])"
+      },
+      "constants": {
+        "EPS": 1e-06,
+        "QUBITS": 3,
+        "DEPTH": 2
+      },
+      "claim_and_proof": "F_U consists of probability functions of native-head admitted feature tensors (H,R,mask; sample id carried only for diagnostic), with fixed affine values, signed decoder and biases, varying only native prepare/effects. Every member is invariant under a simultaneous permutation of complete feature/role/mask rows because all prepool operations are pointwise and sums commute. This is not raw-text invariance.\nFix five valid rows H_i=e_i in R1024. First three rows eligible context have R=0; rows3/4 have subject/object membership respectively and stay fixed. Fixed value map has channel0=H coordinate0, others0. Decoder true-class y selects channel0; all other39 rows0. All biases0. Thus u_y=(1,0,0,0,0), other utilities0.\nChoose native effect angles0, so phi=|000>. Prepare only first-layer wire0 RY angle nonzero; affine prepare weights on H coordinates1/2 are atanh(1/2),atanh(2/3), all other coefficients/bias0, and ignore R. After pi*tanh, the five angles are0,pi/2,2pi/3,0,0. RZ/all other RY angles0. Both CNOT rings are permutations fixing |000> and moving any other computational basis to another nonzero basis; hence q=(1,1/2,1/4,1,1) exactly. These coefficients are finite and satisfy original two-layer/three-qubit circuit.\nFor fixed synthetic id r50-closure-fixture, unchanged context_permutation returns P=(2,1,0,3,4). Let sigma=(0,2,1,3,4), swapping the second/third context feature rows, and define x'=sigma x jointly. Roles at swapped rows are identical, so unchanged producer returns the same P on both. This is actual deterministic hash producer, not uniform random permutation.\nLet D=15/4+5e with e=1e-6. Native unshuffled y logit on both x,x' is(1+e)/D. After the source's alpha-only shuffle, y logit on x is(1/4+e)/D and on x' is(1/2+e)/D. Other39 logits remain0. Therefore p_y^P=exp(z_y)/(exp(z_y)+39) differs strictly. Every member of F_U still gives identical probabilities on x,x'; no native prepare/effect choice represents this postprocessed function on the two-point support. For this source-specific deterministic P, the point-mass mixture is not closed in F_U.\nThe original advice did not specify the law of P. This proves only the actual deterministic-diagnostic / point-mass version, NOT nonclosure for an independent uniform distribution over all permutations including identity: that averaging restores row equivariance. R38 already contains the reference identity-to-cycle correction; no new identity/quantum novelty is claimed. The exact source-function harness used only boolean/index stubs and rational arithmetic, not Torch/forward/real data. Native head tensors are valid API inputs; no proof they belong to the frozen RoBERTa image. Hence no conclusion about actual cohort, explanation of observed CE gap, total-gain mediation, optimizer success, phase or L5. No scientific candidate or implementation is promoted.",
+      "exact_unit_record": {
+        "status": "PASS",
+        "source_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+        "producer_ast_sha256": "3595031e86a249f46c09ab20d4410fb3c35b7a278db2e19e4473ce3c91f22c67",
+        "source_function_executed": true,
+        "torch_stub_scope": "Only actual producer boolean/index operations; no Torch/model forward.",
+        "sample_id": "r50-closure-fixture",
+        "eligible": [
+          0,
+          1,
+          2
+        ],
+        "entity_indices": [
+          3,
+          4
+        ],
+        "permutation": [
+          2,
+          1,
+          0,
+          3,
+          4
+        ],
+        "row_reordering": [
+          0,
+          2,
+          1,
+          3,
+          4
+        ],
+        "conjugate": [
+          1,
+          0,
+          2,
+          3,
+          4
+        ],
+        "selected_utility_row": 0,
+        "epsilon": "1/1000000",
+        "q": [
+          "1",
+          "1/2",
+          "1/4",
+          "1",
+          "1"
+        ],
+        "denominator": "750001/200000",
+        "alpha": [
+          "1000001/3750005",
+          "500001/3750005",
+          "250001/3750005",
+          "1000001/3750005",
+          "1000001/3750005"
+        ],
+        "original_logit": "1000001/3750005",
+        "reordered_original_logit": "1000001/3750005",
+        "shuffled_logit": "250001/3750005",
+        "reordered_shuffled_logit": "500001/3750005",
+        "shuffled_logit_gap": "-50000/750001",
+        "probability_argument": "Other39 logits fixed0; p_y=exp(z_y)/(exp(z_y)+39) strictly increasing, so unequal exact logits imply unequal40-class probabilities.",
+        "native_realizability": "Admitted feature tensors H_i=e_i; prepare only first RY angle takes0,pi/2,2pi/3,0,0 using finite atanh(0),atanh(1/2),atanh(2/3) coefficients. Effects0. RZ/all other angles0. CNOT permutations fix0 and keep other basis nonzero, so overlaps1,1/2,1/4,1,1 exactly. Value/decoder selects coordinate j for y; all other rows0; biases0.",
+        "cnots_fix_zero": true,
+        "rotated_basis_after_two_rings": 2,
+        "scope": "Exact deterministic diagnostic F_U nonclosure on native-head admitted feature tensors and joint row-reorder support. No claim these tensors are in frozen RoBERTa image, no new quantum mechanism or empirical explanation.",
+        "uniform_all_permutations_case": "Not settled by this argument; averaging all permutations restores row equivariance.",
+        "optimization_guarantee": false,
+        "new_model_jobs": 0,
+        "new_data_reads": 0,
+        "new_training": 0,
+        "new_formal_runs": 0,
+        "l5_accepted": false
+      },
+      "request": "Check mathematical correctness, native finite-parameter realizability, row-invariance scope and deterministic-vs-uniform distinction. Return PASS_WITH_LIMITS or BLOCK with concrete findings; do not generate another candidate or repeat scientific acceptance. Only supplied packet, no code/data/network execution.",
+      "response_schema": {
+        "verdict": "",
+        "packet_sha256": "",
+        "findings": [],
+        "necessary_corrections": [],
+        "claim_ceiling": "",
+        "limitations": []
+      }
+    },
+    "record": {
+      "status": "PASS",
+      "source_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+      "producer_ast_sha256": "3595031e86a249f46c09ab20d4410fb3c35b7a278db2e19e4473ce3c91f22c67",
+      "source_function_executed": true,
+      "torch_stub_scope": "Only actual producer boolean/index operations; no Torch/model forward.",
+      "sample_id": "r50-closure-fixture",
+      "eligible": [
+        0,
+        1,
+        2
+      ],
+      "entity_indices": [
+        3,
+        4
+      ],
+      "permutation": [
+        2,
+        1,
+        0,
+        3,
+        4
+      ],
+      "row_reordering": [
+        0,
+        2,
+        1,
+        3,
+        4
+      ],
+      "conjugate": [
+        1,
+        0,
+        2,
+        3,
+        4
+      ],
+      "selected_utility_row": 0,
+      "epsilon": "1/1000000",
+      "q": [
+        "1",
+        "1/2",
+        "1/4",
+        "1",
+        "1"
+      ],
+      "denominator": "750001/200000",
+      "alpha": [
+        "1000001/3750005",
+        "500001/3750005",
+        "250001/3750005",
+        "1000001/3750005",
+        "1000001/3750005"
+      ],
+      "original_logit": "1000001/3750005",
+      "reordered_original_logit": "1000001/3750005",
+      "shuffled_logit": "250001/3750005",
+      "reordered_shuffled_logit": "500001/3750005",
+      "shuffled_logit_gap": "-50000/750001",
+      "probability_argument": "Other39 logits fixed0; p_y=exp(z_y)/(exp(z_y)+39) strictly increasing, so unequal exact logits imply unequal40-class probabilities.",
+      "native_realizability": "Admitted feature tensors H_i=e_i; prepare only first RY angle takes0,pi/2,2pi/3,0,0 using finite atanh(0),atanh(1/2),atanh(2/3) coefficients. Effects0. RZ/all other angles0. CNOT permutations fix0 and keep other basis nonzero, so overlaps1,1/2,1/4,1,1 exactly. Value/decoder selects coordinate j for y; all other rows0; biases0.",
+      "cnots_fix_zero": true,
+      "rotated_basis_after_two_rings": 2,
+      "scope": "Exact deterministic diagnostic F_U nonclosure on native-head admitted feature tensors and joint row-reorder support. No claim these tensors are in frozen RoBERTa image, no new quantum mechanism or empirical explanation.",
+      "uniform_all_permutations_case": "Not settled by this argument; averaging all permutations restores row equivariance.",
+      "optimization_guarantee": false,
+      "new_model_jobs": 0,
+      "new_data_reads": 0,
+      "new_training": 0,
+      "new_formal_runs": 0,
+      "l5_accepted": false
+    },
+    "checker_sha256": "621aac4f4997a84db7a2de845ce57340a79167182a2106caf91a5a0f7d94ed8b",
+    "checker_scope": "Actual producer AST with narrow boolean/index stub plus exact fractions; not a Torch forward or scientific model job."
+  },
+  "independent_review": {
+    "verdict": "PASS_WITH_LIMITS",
+    "packet_sha256": "42fb037d0d9cf4d43d422679f33c535079027532eb8b42f8c7545556702746d9",
+    "findings": [
+      "解析构造内部成立：在实数数学语义下，原生prepare、value与utility均逐行计算，effect与行位置无关，最终使用归一化求和。因此F_U的每个成员都对完整H/R/mask行的共同重排不变。这是头API上的代数性质，不是原始文本或语义不变性。",
+      "有限参数可实现性成立。prepare仅第一层wire0的RY通道取H坐标1、2上的系数atanh(1/2)、atanh(2/3)，其余系数及bias为0；得到角度0、pi/2、2pi/3、0、0，均严格位于允许的(-pi,pi)内。effect全0得到phi=|000>。两次CNOT环把|100>送至|010>且固定|000>，所以q=(1,1/2,1/4,1,1)。未借用全酉或任意纯态假设。",
+      "五条有效行、三条eligible context及两条固定实体行符合给定头API。value的第0通道选择H第0坐标、其他通道为0，decoder的y行选择该通道、其他39行与bias为0，全部由有限参数实现。signed实数decoder允许这一含零的非负特例；40个相同effect也符合独立二元projector设定，不要求构成40结果POVM。",
+      "给定包内生产器执行记录P=(2,1,0,3,4)，sigma=(0,2,1,3,4)不与P交换。共同重排后eligible位置和sample id不变，故实际位置hash生产器仍选择同一个P，而不会随特征行重排自动共轭。这正是后处理破坏头行不变性的原因。",
+      "分母D=15/4+5epsilon=750001/200000正确。原生未shuffle的y logit在两点都为1000001/3750005；alpha-only shuffle后分别为250001/3750005与500001/3750005，差为-50000/750001。其余39类logit均为0，exp(z)/(exp(z)+39)严格递增，故完整40类概率确实不同。任意F_U成员在这两点上概率相同，因此该后处理函数不属于F_U。",
+      "本构造处理的是实际确定性P所对应的点质量置换律。独立均匀平均所有eligible置换时，重排可通过置换的共轭重新索引，行不变性会恢复；当前反例随之失去排除依据。恢复行不变性也不等于证明均匀混合闭包。",
+      "不闭包的关键是位置依赖的后处理与共同重排不相容；这一机制并非量子独有。它排除一个精确函数类闭包前提，不解释观测CE差、训练收敛或任务增益。"
+    ],
+    "necessary_corrections": [
+      "正式结论建议限定为：在原生头的实数数学语义、固定所列value/decoder/bias及头API允许的两点输入支持上，包内记录的实际确定性context hash置换产生的alpha-only后处理概率函数不属于F_U。避免省略确定性、输入域或实数语义限定。",
+      "保留均匀置换情形未解决的表述；行不变性恢复只排除了本反例使用的障碍，不构成均匀混合闭包证明。",
+      "将exact明确用于解析角度、理想实数电路及有理数harness记录。此次没有执行Torch forward；字节级浮点行不变性或实际浮点概率完全等于这些解析分数尚未核验。若需要字面上的浮点实现结论，应另给舍入误差界或执行证据。",
+      "producer的P、source_sha256及producer_ast_sha256属于冻结包所载记录。本次独立重算的只有包文件哈希，没有重跑生产器或重新读取完整源码核对源码哈希。不要把本核验描述成第二次生产器执行认证。",
+      "H_i=e_i仅证明头API输入域中的可实现性；冻结RoBERTa输出像集与真实cohort上的不闭包均未由此证明。共同重排行不得改称文本、实体或语义不变性。"
+    ],
+    "claim_ceiling": "通过的是给定源片段与生产器记录对应的、确定性诊断后处理在头API输入域上的解析函数类不闭包反例。未发现该解析构造的内部数学错误；结论严格受确定性置换律、输入域、实数语义及包内执行记录的证据范围限制。这不是新候选、L5接受、量子优势、优化保证或对现有任务效用与局部对齐证据的改判。",
+    "limitations": [
+      "本次未浏览、未读取其他仓库文件、未运行模型或数据实验、未重跑生产器、未派生子任务。除核对包哈希外，只进行了指定答复文件的创建、回读、JSON解析和完整性核对。",
+      "完整源码身份及实际hash排序结果采用包内记录，未独立执行认证。",
+      "没有证明one-hot H来自冻结RoBERTa，没有证明真实数据支持集包含共同重排后的成对特征。",
+      "没有得到独立均匀置换混合的闭包或不闭包结论，也没有得到实际AdamW的优化误差界。",
+      "本轮操作顺序有偏差：先读取并核对新包，随后保存上一条完整JSON；未遵循先保存再读取的要求。读写范围仍限指定材料与两个获准答复文件。"
+    ],
+    "artifact_record": {
+      "prior_answer_path": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/qattn-l5-round50-20261117/consultant-answer.json",
+      "prior_answer_sha256": "754bcb932d32325bff9dd0d1698dba8c8cc98a77e5607378418864fc5c54e3e0",
+      "prior_answer_preservation": "创建后回读，与上一条完整JSON文本逐字符比较通过，并通过JSON解析。",
+      "review_path": "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/qattn-l5-round50-20261117/closure-consultant-review.json"
+    },
+    "verified_reading_scope": {
+      "new_source_material": "仅完整读取closure-review-packet.json的全部字段与其中提供的源码片段；包SHA256与指定值一致。",
+      "artifact_reads": "仅为保存完整性核对而回读consultant-answer.json及closure-consultant-review.json。",
+      "no_acceptance": "没有生成新候选，没有作科学接受或L5达标判断。"
+    }
+  },
+  "accepted_corrections": [
+    "Exact real-arithmetic head/API domain only, not bitwise floating execution.",
+    "Native finite-angle realizability; no arbitrary full-unitary assumption.",
+    "No proof one-hot inputs are in frozen RoBERTa image or real cohort.",
+    "Uniform all-permutation mixing remains unsettled; restored symmetry is not closure proof.",
+    "Reviewer adopted packet producer record and did not independently execute or certify full source."
+  ],
+  "scientific_conclusion": "Source-specific deterministic diagnostic is not closed in this fixed-value native-head function class on the constructed two-point feature support. This excludes automatic closure/optimality explanation; not a new quantum mechanism, current-cohort CE explanation, utility rejection or L5 result.",
+  "next_action": "Audit existing frozen-feature Re-TACRED qualification, common-protocol baseline cohort and headroom artifacts from already completed reports. State exact supported study/input/metric scope and unresolved gaps before another implementation. Preserve old L4 and no new full run. This readiness work enables later hypotheses; it does not replace substantive theory or independent evidence.",
+  "new_method_selected": false,
+  "new_model_jobs": 0,
+  "new_private_data_reads": 0,
+  "new_training": 0,
+  "new_formal_runs": 0,
+  "new_COS_operations": 0,
+  "manual_annotation_deferred": true,
+  "process_limit": "Advisor saved its original answer after reading the follow-up packet rather than before; original answer had already been delivered to primary. Advisor attests verbatim preservation; both roles/hash identities retained. No extra repository/data/network access reported."
+}

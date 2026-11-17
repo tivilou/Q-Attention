@@ -1,0 +1,160 @@
+{
+  "schema": "qattn.l5.bounded-theory-ideation.v1",
+  "created_at_utc": "2026-11-17T01:31:22.137657+00:00",
+  "assignment": {
+    "role": "independent theory builder with adversarial self-check",
+    "scope": "One materially new explanatory or design hypothesis, or explicit NO_QUALIFIED_CANDIDATE. Advisory, no acceptance vote.",
+    "tools": false,
+    "repository_authority": false,
+    "raw_data": false,
+    "max_candidates": 1,
+    "output_language": "Chinese with exact equations"
+  },
+  "objective": "Find a substantive same-core L5 contribution explaining or improving Q-RMEA task utility and local weight-to-value alignment. Existing scoped L4 is preserved; a changed method needs a new justified bridge or independent empirical support. Do not add quantum-exclusive superiority or universal per-sample correctness as acceptance requirements.",
+  "native": {
+    "source_composite_sha256": "494c9e3e0e7dba468380c692d743419600b92d994d73f680edc40ebc45b0c7ce",
+    "rmea_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "input": "Frozen RoBERTa-large H_t in R1024, already contextualized with ordered subject/object markers before encoding; explicit four entity distance/membership features R_t also enter prepare. H_t is not an independent raw word. Values affine H->64, decoder rows unconstrained signed real.",
+    "state": "Prepare affine(1028,12), pi*tanh, two layers of RY/RZ on3qubits and CNOT ring. Relation effect40x12, pi*tanh, same two-layer circuit. Pure word psi_t and effect phi_c in C8, actual constrained manifold; no unconstrained full-unitary assumption.",
+    "readout": [
+      "q_ct = abs(phi_c^dagger psi_t)^2",
+      "alpha_ct = (q_ct+1e-6)*mask_t / sum_s[(q_cs+1e-6)*mask_s]",
+      "u_ct = d_c^T value(H_t), signed; z_c = sum_t alpha_ct u_ct + b_c for40classes",
+      "CE40 trained jointly by minibatch AdamW/clipping/shuffling; effects are40 independent binary projectors, not one40-outcome POVM. Full deterministic statevector probability, no shot/random-feature bottleneck."
+    ],
+    "existing_controls": [
+      "uniform",
+      "relation_softmax",
+      "real_overlap",
+      "dephased with unchanged full circuits"
+    ],
+    "implementation_changes_this_round": false
+  },
+  "evidence": {
+    "run": "20261029T021229Z_fresh5",
+    "counts": {
+      "train": 58465,
+      "valid": 19584,
+      "test": 13418
+    },
+    "seeds": [
+      29,
+      53,
+      71,
+      97,
+      113
+    ],
+    "Q_minus_uniform_macro": {
+      "mean": 0.305841137525207,
+      "ci95": [
+        0.2813721472972543,
+        0.33031012775315965
+      ],
+      "t_p": 4.1141031641164545e-06
+    },
+    "CE_contextshuffle_minus_actual": {
+      "mean": 0.2020138257661081,
+      "ci95": [
+        0.17847348514455386,
+        0.22555416638766235
+      ],
+      "t_p": 1.8400877272653467e-05
+    },
+    "scope": "Ordinary trained-head utility plus local fixed-values context-weight alignment conjunction. Uniform fewer parameters. Same label-blind eligible-context permutation shared across all relation rows, entity rows held fixed. Not total-gain mediation.",
+    "limits": [
+      "Fixed official cohort, independent approximately normal seed-difference t inference; both5/5positive but exact two-sided signflip p=.0625.",
+      "Matched softmax/real/dephased intervals span0, neither superiority nor equivalence. No phase/quantum/relation-conditioning necessity or generalization/SOTA claim.",
+      "New-method qualification/common-protocol/headroom unresolved; exploratory hypotheses only. No new full formal training by owner."
+    ]
+  },
+  "originals": [
+    {
+      "paper_id": "pmlr:v80:ilse18a",
+      "title": "Attention-based Deep Multiple Instance Learning",
+      "source_url": "https://proceedings.mlr.press/v80/ilse18a.html",
+      "version": "publisher_version",
+      "pdf_sha256": "ec7645cd55e48d692817f0f6994648b4bd2c4e8b9a76b159cd06779541177e4a",
+      "total_pages": 10,
+      "reading_status": "scoped_original_reading",
+      "read_locators": [
+        "p1 identity/introduction",
+        "pp2-4 methodology and related work"
+      ],
+      "visually_checked_pages": [
+        1,
+        3,
+        4
+      ],
+      "source_facts": [
+        "p2: binary bag label follows max of latent instance labels; instances assumed unordered and without dependencies.",
+        "p3 Eq7-8: trainable softmax attention pooling over learned embeddings, general real-valued embeddings and learned bag classifier.",
+        "p4 Eq9: gated attention variant; high attention as key-instance proxy is framed as an ideal/interpretation, not proof that attention equals instance-label probability."
+      ],
+      "limits": [
+        "Results pp5 onward, appendix, supplement and code not audited; no reproduction.",
+        "Binary MIL label semantics and independent instances are not established for contextual entity-marked Re-TACRED word embeddings.",
+        "General f/g function statements do not establish expressivity or risk for restricted three-qubit RMEA."
+      ],
+      "receipt_sha256": "8993895d72ada04e4a5c0a33811e073b9638f106e21822746cf297e46d8d12ed",
+      "helper_reading_state": "not_started: helper does not certify reading; actual scope recorded here"
+    },
+    {
+      "paper_id": "neurips:2017:6931",
+      "title": "Deep Sets",
+      "source_url": "https://papers.nips.cc/paper/6931-deep-sets",
+      "version": "publisher_version",
+      "pdf_sha256": "ae1e9a4655b8ada5292b3dd3558dd7e18b05913106ebc36bf9f609c917f163c0",
+      "total_pages": 11,
+      "reading_status": "scoped_original_reading",
+      "read_locators": [
+        "pp1-3 introduction, theorem statements and conditional architecture"
+      ],
+      "visually_checked_pages": [
+        1,
+        2
+      ],
+      "source_facts": [
+        "p2 Theorem2: exact invariant-set decomposition stated for a countable universe; uncountable case discussed with fixed set size, with remaining generality a conjecture.",
+        "p3: sum of feature embeddings followed by rho, optionally condition phi on additional metadata z.",
+        "p2 Lemma3 concerns a particular permutation-equivariant neural layer; not a general native40-class performance theorem."
+      ],
+      "limits": [
+        "pp4-11 empirical sections/references and supplemental AppendixA proofs not audited; no code reproduction.",
+        "Universality of suitable unrestricted phi/rho does not certify finite-width, restricted circuit, ratio pooling or generalization.",
+        "Pooling-level reordering of contextual embeddings is not raw-text or entity-renaming invariance."
+      ],
+      "receipt_sha256": "adea8598538ba6fe95118382355ced6aafeadb63653dc67f008bb530b85f2747",
+      "helper_reading_state": "not_started: helper does not certify reading; actual scope recorded here"
+    }
+  ],
+  "prior_art_and_stops": [
+    "Kernel/Tr(E rho)/real16 equivalence, PGM/Helstrom/HS, convex/Bregman CE/Jensen identities, tomography, coadaptation, generalized-Rayleigh spectra, ratio derivatives, rank/Nystrom and Fourier/NTK/QNG tools already known; not sufficient novelty.",
+    "CAML/LAAT pp1-3 already read: class-specific normalized attention plus signed real decoder not new. RA/LARA exact unbiased-target versus SNIS consistency; no native sampler bottleneck.",
+    "Task-learned quantum embeddings 2001.03622v2 pp1-5: class-mean fidelity plus linear loss is a different learner; KARE2006.09796v1 pp1-8 fixedKRR MSE/observation assumptions not native CE.",
+    "Ordered/joint/direct-complement/outcome/spectrum/partialswap experimental families stopped; do not rescue by retuning seeds, coefficients, epochs or new labels.",
+    "R47 conditional pair loss softplus(-D) with D=z1a+z2b-z1b-z2a is known conditional likelihood. Other-class free bias can ruin both decisions while D fixed; no correctness from pair invariance. No claim all CE+auxiliary training impossible.",
+    "R38 exact shared-permutation covariance and actual identity-to-left-cycle correction already derived, not fresh theory. R42 two entity paths/contextual H and classical nonlinear query interactions already audited.",
+    "Train-only natural same-text/multiquery aggregate exists;32group64query semantic pack not read by humans and manual review deferred. Do not require readers or assume annotations establish a new semantic invariance."
+  ],
+  "request": [
+    "Independently propose at most one materially different live theory question/candidate, not a list. Start from strongest supported ordinary utility/alignment claim and actual constrained readout.",
+    "Give an exact contribution statement, explicit assumptions and a nontrivial proposition with proof approach. Distinguish which algebra is known and what substantive new step remains. No false novelty claim based on this packet.",
+    "State a competing explanation and a frozen low-cost falsifier/independent validation that could separate it; any utility prediction still needs appropriate utility evidence. If method changes, spell out empirical bridge needed.",
+    "Try a degenerate/adversarial case, including signed values/other40class logits where relevant. Do not silently change H, optimizer, qubits, decoder or available evidence.",
+    "If no adequate candidate, return NO_QUALIFIED_CANDIDATE and one precise next research subproblem. Do not manufacture success from generic theorem wrapping. Do not use old L4 to accept a changed design."
+  ],
+  "response_schema": {
+    "status": "EXPLORATORY_CANDIDATE or NO_QUALIFIED_CANDIDATE",
+    "contribution": "",
+    "assumptions": [],
+    "proposition": "",
+    "proof_or_gap": "",
+    "nearest_known_results": [],
+    "discriminating_prediction": "",
+    "falsifier": "",
+    "adversarial_case": "",
+    "implementation_bridge": "",
+    "next_research_action": "",
+    "limitations": []
+  }
+}

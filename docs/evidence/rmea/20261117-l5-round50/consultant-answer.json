@@ -1,0 +1,40 @@
+{
+  "status": "NO_QUALIFIED_CANDIDATE",
+  "contribution": "本冻结包内未得到同时满足实质新颖性、原生模型约束与解释力要求的候选。已有证据支持普通任务效用及固定values下的局部权重—value对齐；将其重新表述为核、协方差、CE凸性或受限参数化命题，不构成新贡献。下面只提出一个精确的下一研究子问题，不作科学接受或L5达标判断。",
+  "assumptions": [
+    "输入仍为已上下文化且带有有序实体标记的H_t∈R1024及四维实体特征；不采用独立词实例或二元MIL语义。",
+    "prepare与40个独立effect均保持原生12角、三qubit、两层RY/RZ及CNOT环约束；不扩大为任意纯态或全酉模型。",
+    "读出保持alpha_ct=(q_ct+10^-6)/Σ_s(q_cs+10^-6)，u_ct为任意signed实数，z_c=Σ_t alpha_ct u_ct+b_c，使用完整40类softmax CE。",
+    "置换P在eligible context内进行，同一个P用于全部40行，实体行保持固定。模型输出采用确定性statevector概率。",
+    "下述模型类分析固定既有values、decoder及bias，不意味着原训练采用分阶段优化，也不假设实际AdamW达到全局最优。"
+  ],
+  "proposition": "没有提出新的已成立命题。下一子问题是原生预测函数类对共享置换概率混合的闭包性：令F_U为固定signed values、decoder与bias后，仅允许原生prepare/effect参数变化所得的40类概率函数集合。对p_theta∈F_U定义pbar_theta(x)=E_P[softmax(z_theta^P(x))]。判断是否存在原生可实现的有限输入支持集，使pbar_theta不属于F_U；若存在，给出可验证的解析反例。注意pbar_theta不是softmax(E_P[z_theta^P])。",
+  "proof_or_gap": "研究动机来自已知而非新颖的条件式：令R_D(p)=E[-log p_y(x)]，J_theta=E_P R_D(p_theta^P)-R_D(pbar_theta)≥0。如果pbar_theta∈F_U，且R_D(p_theta)≤inf_{p∈F_U}R_D(p)+epsilon_opt，则置换风险差Gamma_theta=E_P R_D(p_theta^P)-R_D(p_theta)≥J_theta-epsilon_opt。证明只有CE的Jensen不等式与优化误差定义，不能作为贡献。真正未解决的步骤是，在实际受限电路、归一化overlap和signed40类读出下，证明或否证上述闭包；包中也没有epsilon_opt的界。因此该条件式尚未解释观测到的正置换差，更未解释Q相对uniform的macro增益。",
+  "nearest_known_results": [
+    "CE/Jensen、模型类逼近与优化误差分解属于已有工具，上述条件式不计为新贡献。",
+    "共享置换协方差与实际identity到left-cycle修正已在R38处理；本问题不重新包装该恒等式。",
+    "核等价、受限流形维数、rank、Fourier或谱分析本身均不解决概率混合是否仍由原生40类头实现。",
+    "包内MIL与Deep Sets阅读摘要不提供此有限受限模型类的闭包结论，也不提供实际AdamW的优化保证。"
+  ],
+  "discriminating_prediction": "目前没有可诚实给出的新机制预测。若闭包路线成立且另有非空泛的优化误差界，它预测的应是完整40类平均CE对齐，而非仅正确类logit或某个关系对分数提高。竞争解释是一般性任务适配和value—attention共同训练已足以产生观测对齐，原生函数类未必具有所需闭包。",
+  "falsifier": "优先寻找一个有限支持的解析反例，严格满足同一共享置换、固定实体行、原生12角电路、epsilon归一化和signed40类读出，并证明其pbar_theta落在F_U之外。这会否定精确闭包这条解释路线，但不否定现有任务效用或其他理论。数值拟合失败只算筛查，不算不属于F_U的证明；这里没有运行该筛查。",
+  "adversarial_case": "一个必须通过的已知竞争性检查：令40个effect完全相同，两条context行的权重为(3s/4,s/4)，其中s>0为context总权重，实体行的signed values全为0。这个3:1比值可取q_1=1、q_2=(1-2epsilon)/3实现，epsilon=10^-6。取真实类y的context values为(1,-1)，竞争类k为(2,-2)，其余38类为0；bias分别为b_y=0、b_k=10、其他类=-100。实际logits为(z_y,z_k)=(s/2,10+s)，交换后为(-s/2,10-s)。实际正确类logit更高，但实际CE=log[1+exp(10+s/2)+38exp(-100-s/2)]严格大于交换后CE=log[1+exp(10-s/2)+38exp(-100+s/2)]。因此正确类的正权重—value对齐仍可对应负的共享置换CE差。该例只是排除单行解释的检查，不是新贡献，也不指称现有训练头处于此退化状态。",
+  "implementation_bridge": "不建议本轮修改实现。即使解决闭包子问题，也仍需区分模型类结论与实际AdamW轨迹；任何严格正平均风险结论都需要相应优化或独立效用证据。若后续引入概率混合或其他闭包扩展，那将成为新方法，既有L4结果不自动转移。",
+  "next_research_action": "只解决一个二选一的数学子问题：对固定signed value/decoder/bias的原生F_U，证明共享context置换后的softmax概率混合仍在F_U内，或者构造最小有限支持的原生可实现反例并证明其不在F_U内。先处理精确闭包，不启动新训练、不调种子或系数，也不把闭包成立设为所有研究路线的接受门槛。",
+  "limitations": [
+    "闭包问题尚未求解；这里没有合格候选或新的成立定理。",
+    "所列Jensen条件式为通用论证，不能仅凭其形式宣称L5创新。",
+    "没有读取原生代码、论文原文、逐样本结果或训练轨迹；包内关于这些材料的摘要不等于独立核验。",
+    "没有新增实验、matched-control优越性结论、量子独占优势、必要性结论或逐样本全部正确要求。",
+    "建议仅供研究筛选，不代表科学接受或L5达标。"
+  ],
+  "packet_sha256": "f996f007b765939e7ef513abeb86a03eb481cc07c357c35a8cef6d4675236948",
+  "verified_reading_scope": {
+    "files_read": [
+      "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/qattn-l5-round50-20261117/consultation-packet.json"
+    ],
+    "hash_verification": "使用PowerShell Get-FileHash -Algorithm SHA256，结果与指定SHA256完全一致。",
+    "content_scope": "使用Get-Content -Raw完整读取该JSON，覆盖schema至response_schema全部字段。",
+    "other_actions": "未读取其他文件，未浏览，未运行实验，未写文件，未联络他人，未派生子任务。"
+  }
+}
