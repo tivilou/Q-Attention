@@ -1,0 +1,82 @@
+{
+  "schema": "qattn.source-native-capacity-audit.v1",
+  "status": "PASS_EXACT_HEAD_API_SCOPE",
+  "source_hashes": {
+    "rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "witness": {
+    "tokens": 40,
+    "relations": 40,
+    "valid_mask": "All40,including subject/object rows38/39",
+    "single_qubit_states": [
+      "0",
+      "+",
+      "-",
+      "+i"
+    ],
+    "code_order": "First40 lexicographic triples from0..3",
+    "source_map": "H[0:6]=atanh of six finite physical RY/RZ angle fractions; prepare selects these into first layer, second layer zero. Same common two CNOT rings cancel in overlaps. Effects use same40codes. H[6] is a spare first-token utility indicator; all role coefficients zero.",
+    "raw_angle_fractions": [
+      [
+        "0",
+        "0"
+      ],
+      [
+        "1/2",
+        "0"
+      ],
+      [
+        "-1/2",
+        "0"
+      ],
+      [
+        "1/2",
+        "1/2"
+      ]
+    ],
+    "single_gram_ldl_pivots": [
+      "1",
+      "3/4",
+      "2/3",
+      "1/2"
+    ],
+    "whole40_positive_ldl_pivots": 40,
+    "ordinary_attention_rank": 40,
+    "dephased_same_fixture_rank": 8,
+    "source_floating_forward_executed": false
+  },
+  "real_control": {
+    "global_rank_upper_bound": 37,
+    "unit_query_or_unit_key_branch_upper_bound": 36,
+    "reason": "Symmetric8x8 rank-one lift has36coordinates; epsilon adds at most one constant feature. If either full query-side or key-side vector set has unit norm, trace identity absorbs the constant without a37th coordinate. F.normalize clamp allows nonunit vectors, so37 is the unconditional source-family bound.",
+    "logical_scope": "Any real8 head fails to match this40x40 attention exactly on the chosen admitted H/R input; no strict inclusion or whole-predictor risk theorem."
+  },
+  "quantitative_bound": {
+    "exact_expression": "sigma_min(alpha)>=((5-sqrt(17))/4)^3/[40(1+epsilon)]",
+    "best_rank37_frobenius_error_at_least": "sqrt(3)*((5-sqrt(17))/4)^3/[40(1+epsilon)]",
+    "scalar_illustration_singular_bound": 0.000263391315974008,
+    "scalar_illustration_error_bound": 0.00045620714153940984,
+    "numeric_illustrations_are_not_interval_certificates": true
+  },
+  "full40_readout": {
+    "zero_utility_case": "All40logits zero under every attention, CE=log40; so structural separation need not change predictions.",
+    "signed_fixture": "Only value.W[0,6]=1 and decoder[0,0]=s=+1or-1; all other readout parameters/biases0. Targety=0, other39logits0. Same rank40 alpha either improves or worsens complete40CE versus uniform.",
+    "alpha00": "1000001/11250040",
+    "uniform_alpha00": "1/40",
+    "signed_target_logit_delta": "s*71875/1125004",
+    "loss_reason": "CE_y0(z)=log(expz+39)-z strictly decreases with target logit."
+  },
+  "limitations": [
+    "Known density-feature/PSD dimension tools; no substantive novelty claim.",
+    "Engineered admitted H/R inputs, not actual encoder-image/text/learned-checkpoint evidence.",
+    "Real64 lifted classical features reproduce the kernel; no quantum-exclusivity/hardware/resource superiority claim.",
+    "Dot-softmax may have full ordinary rank; this witness does not separate from that control.",
+    "All exact statements are mathematical, not bitwise native floating execution.",
+    "Native value/readout is coadapted; capacity alone is not utility, risk or total-gain mediation."
+  ],
+  "new_native_model_forwards": 0,
+  "new_data_reads": 0,
+  "new_training": 0,
+  "l5_accepted": false
+}

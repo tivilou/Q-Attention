@@ -1,0 +1,110 @@
+{
+  "schema": "qattn.capacity-primary-review.v1",
+  "status": "SOURCE_CAPACITY_BOUNDARY_VERIFIED_NOT_L5",
+  "l5_accepted": false,
+  "new_method_selected": false,
+  "result": {
+    "complex_native_attention_rank": 40,
+    "real8_global_upper_bound": 37,
+    "real_unit_branch_upper_bound": 36,
+    "dephased_witness_rank": 8,
+    "full40_loss": "Same rank40 attention can improve, leave unchanged, or worsen full40 CE versus uniform depending on legal readout."
+  },
+  "independent_review": {
+    "schema": "qattn.capacity-independent-proof-review.v1",
+    "packet_sha256": "51fe3b96dfb6939e9123b974942b255612c764bdd7694be7af7eac88a77dfdeb",
+    "verdict": "PASS_SCOPED_MATH",
+    "must_fix": [],
+    "defects": [],
+    "review_basis": {
+      "method": "Independent exact-real algebra and bounded source reading. No checker execution, native tensor forward, external API call, training, server interaction, data access or delegation.",
+      "input_sha256": {
+        "check_capacity.py": "37002117433f5318f8427c2818569fa4549074ef54d2719a2efffaab0c2fe1fc",
+        "capacity-audit.json": "3f80788125adc54871b71619280d39bc892b7e4e3a5a9f5a9a9f576634bc59e3",
+        "rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+        "frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+      },
+      "source_hash_result": "Both actual pinned source files match the packet's source identities."
+    },
+    "rank40_construction": {
+      "status": "VERIFIED",
+      "one_qubit_states": "The source applies RY before RZ. Physical angle pairs (0,0), (pi/2,0), (-pi/2,0), (pi/2,pi/2) yield |0>, |+>, |->, |+i>, respectively, up to irrelevant global phase. In particular the last pair yields exp(-i*pi/4)(|0>+i|1>)/sqrt(2), so the complex direction is genuinely present.",
+      "one_qubit_gram": "Squared overlaps give the stated rational 4 by 4 G. Its positive LDL pivots are 1,3/4,2/3,1/2, with determinant 1/4. Independently, its eigenvalues are 1,1/2,(5+sqrt(17))/4,(5-sqrt(17))/4, all strictly positive.",
+      "tensor_product": "The squared-overlap Gram on all 64 product codes is G tensor G tensor G and is positive definite. Selecting the same first 40 distinct codes for rows and columns gives a principal submatrix Q, which remains positive definite. K=Q+epsilon*1*1^T remains positive definite for epsilon>0. The source token row normalizer D=diag(K*1) has strictly positive entries. Thus alpha=D^(-1)K has ordinary rank exactly 40.",
+      "role_of_class_count": "The effect dimension is exactly 40 and the input token count is 40. These are 40 separate binary effects; no joint-POVM constraint excludes the selected effects. This is ordinary attention rank, with no logarithm or centered-log construction."
+    },
+    "real_control": {
+      "status": "CONSERVATIVE_GLOBAL_BOUND_37_VERIFIED",
+      "proof": "Write normalized real queries u_r and keys v_t as the actual outputs of F.normalize. Regardless of their norms, (u_r^T v_t)^2=tr((u_r u_r^T)(v_t v_t^T)). Symmetric 8 by 8 matrices have dimension 8*9/2=36, so the unregularized score matrix has rank at most 36. Adding epsilon*1*1^T raises rank by at most one. Positive token row scaling preserves rank. Therefore every real8 source-family attention on these valid tokens has rank at most 37, and cannot equal the constructed rank-40 attention.",
+      "clamp_detail": "F.normalize's denominator clamp admits zero or subunit normalized vectors when raw norms fall below its threshold. A unit-trace identity must therefore not be assumed globally. If all queries have norm one, epsilon is absorbed as tr(u_r u_r^T * epsilon I) on the key factor; if all keys have norm one, it is absorbed on the query factor. In either branch the bound improves to 36. The packet correctly uses 37 without assuming either branch.",
+      "scope": "This is an upper bound and an exact non-reproduction result. It does not assert that rank 37 is attained on this particular engineered H/R input, establish a strict inclusion between whole head function classes, or compare to the dot-softmax head."
+    },
+    "source_mapping": "Use one input batch with h shape [1,40,1024], roles [1,40,4], and an all-true Boolean mask. For each lexicographic code, h[0:6] contains atanh of its three RY/RZ fraction pairs in wire-major order. Set prepare.weight[j,j]=1 for j=0,...,5, and every other prepare weight and bias to zero. Output indices 0 through 5 reshape to the complete first layer [3,2]; output indices 6 through 11 form a zero second layer. Set effect[r,0,wire,rotation] to the corresponding atanh fraction and its second layer to zero. All raw angle magnitudes are at most atanh(1/2)=log(3)/2, approximately 0.549306, and physical angle magnitudes are at most pi/2, strictly inside the pi*tanh range. The first layer is a product of local rotations, followed by one CNOT ring; the zero-angle second layer contributes only a second identical ring. The combined U is the same unitary for every prepared state and effect, and is a computational-basis permutation because it consists only of CNOTs. Each source gather is the correct action of its involutory CNOT permutation. U cancels in the squared overlaps, and it preserves pairwise population dot products. Entity-role entries for rows 38/39 do not alter the construction because all role coefficients are zero. h[6] is independent of preparation and is available for the value indicator. Both actual source hashes match the packet. These statements describe the exact-real map specified by source; no floating forward was executed.",
+    "dephased_same_fixture": {
+      "status": "EXACT_RANK_8_VERIFIED",
+      "proof": "Before the common population permutation, the one-qubit populations are e0=(1,0) for |0> and u=(1/2,1/2) for all three other states. The first 32 codes already contain all eight product choices from {e0,u}^3. Since e0 and u are linearly independent, these eight product population vectors span R^8. Let P contain all 40 resulting population rows; rank(P)=8 and P*1_8=1_40. Thus K_dephased=P P^T+epsilon*1_40*1_40^T=P(I_8+epsilon*1_8*1_8^T)P^T has rank exactly 8. Its positive row normalization preserves rank. The common CNOT basis permutation cannot change this population Gram.",
+      "limitation": "This exact rank is for the selected product-state fixture, rather than a global rank bound for all dephased native heads."
+    },
+    "quantitative_bound": "Let lambda=(5-sqrt(17))/4>0. The smallest eigenvalue of G tensor G tensor G is lambda^3. Principal-submatrix interlacing gives lambda_min(Q)>=lambda^3, and adding the positive semidefinite epsilon floor gives lambda_min(K)>=lambda^3. Every raw probability is at most one, so max_r D_rr<=40(1+epsilon). Although alpha=D^(-1)K is generally nonsymmetric, the singular-value product inequality gives sigma_min(alpha)>=sigma_min(D^(-1))*sigma_min(K)>=lambda^3/[40(1+epsilon)]. For every rank-at-most-37 matrix B, Eckart-Young gives ||alpha-B||_F>=sqrt(sigma_38^2+sigma_39^2+sigma_40^2)>=sqrt(3)*lambda^3/[40(1+epsilon)]. This also bounds distance to the structured real8 family because that family is a subset of all rank-at-most-37 matrices. The packet's approximately 0.0002633913 singular bound and 0.0004562071 Frobenius bound are consistent scalar illustrations, with no native floating-point or interval certificate implied. The bound concerns attention Frobenius distance; it is not a loss, risk, prediction or mediation bound.",
+    "full40_ce": {
+      "status": "BOTH_SIGNS_VERIFIED",
+      "row_sum": "Code 0 is (0,0,0). Its probability row sum over the first 40 codes is 25/4+25/8+15/8=45/4. Adding epsilon at all 40 tokens gives denominator 45/4+40*epsilon.",
+      "exact_values": "For epsilon=1/1000000, alpha_00=(1+epsilon)/(45/4+40*epsilon)=1000001/11250040. Uniform attention is 1/40. Their difference is 71875/1125004>0, matching the record.",
+      "source_readout": "Set h_t[6]=1 exactly when t=0, value.weight[0,6]=1, decoder[0,0]=s in {+1,-1}, every other value weight, value bias, decoder coefficient, and class bias to zero. The target is explicitly y=0. All other 39 logits are zero; the target logit is s*alpha_00 versus s/40 under uniform attention. The selector ignores h[6], so changing s leaves its rank-40 attention unchanged.",
+      "loss_signs": "CE_0(z)=log(exp(z)+39)-z has derivative -39/(exp(z)+39)<0. Therefore s=+1 strictly improves CE versus uniform and s=-1 strictly worsens it, with all 40 classes retained. Zeroing the readout instead gives identical zero logits and CE=log(40) for every selector."
+    },
+    "full_predictor_risk": "No full coadapted-predictor risk advantage is established. The native decoder [40,64] times value.weight [64,1024] can represent any real [40,1024] matrix because its maximal required rank is only 40, below the internal width 64. Value biases and the free 40 class biases add further readout freedom. In particular, at this single constructed H/R input, any desired finite 40-vector of logits can be matched by biases alone under any selector. Thus even the positive selector approximation gap does not impose a positive prediction or CE gap here. This argument does not prove equality of predictor families or of optimal risks on every multi-input distribution; it proves that the present selector witness supplies neither a risk separation nor a risk lower bound after unrestricted coadaptation.",
+    "novelty": "The proof is a valid source-specific application of standard density-matrix features, tensor-product Gram positivity, symmetric real lifting and low-rank approximation bounds. No substantive new scientific contribution or quantum-exclusive mechanism is established. The cited PSD-rank paper was not independently opened under this bounded review; no priority or literature-completeness determination is made. An unrestricted real 64-coordinate Hermitian-feature vectorization reproduces this kernel via a classical linear feature inner product (with epsilon absorbed using trace one). That observation concerns a lifted classical feature construction, not an assertion that the current native Linear(1028,8) squared-overlap control implements those nonlinear lifted features. The dot-softmax comparator can have full ordinary rank, so this witness supplies no separation from it.",
+    "limitations": [
+      "All exact statements use the mathematical real/complex head map, exact angles and exact arithmetic. Source pi/tanh/trigonometry, complex tensor operations, normalization and the uniform .float() branch have finite-precision effects. No rank or distance bound for executed floating tensors is certified.",
+      "The input features and role assignments are engineered and admitted by the head's shape/mask API; no encoder-image, real-text, trained-checkpoint or corpus realization is proved.",
+      "The real8 bound is conservative and global; the dephased rank is fixture-specific. No strict functional containment is inferred.",
+      "The positive attention-distance lower bound does not imply any final predictor, task-risk, utility or total-gain mediation lower bound with free value/readout parameters.",
+      "The construction does not compare resource efficiency, hardware performance, robustness, or the dot-softmax family, and does not establish quantum exclusivity.",
+      "No models, data, training, native forwards, servers, APIs or new external readers were used or requested by this review."
+    ],
+    "next_question": "NONE",
+    "next_question_reason": "The packet establishes a complete selector-capacity diagnostic, while its own unrestricted readout defeats a risk claim at the exhibited single input. It supplies no identified materially different source-faithful mechanism or falsifiable same-core hypothesis beyond that diagnostic. A follow-up based on fixing utilities, restricting the decoder, requiring particular task inputs, or adding a new distribution would introduce extra assumptions that are not evidence from this witness. This review therefore does not propose another experiment or relabel the known PSD argument as a new contribution.",
+    "claim_ceiling": "Exact-real, finite-angle, source-admitted 40 by 40 ordinary-attention rank separation from the real8 squared-overlap control, with an analytic Frobenius separation bound and explicit counterexamples to rank-alone utility claims. No substantive novelty, task gain, coadapted-risk advantage, encoder-image membership, native floating-forward certification or L5 acceptance.",
+    "novelty_assessed": false,
+    "l5_accepted": false
+  },
+  "primary_acceptance": "No math/source defects found by independent review; primary checked exact proof, literal execution and source hashes. Accept the scoped theorem only.",
+  "external_review": {
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "status": "READ_TIMEOUT_AFTER_CREATED_NO_VERDICT",
+    "attempts": 1,
+    "retrieve_existing_handle_http_status": 404,
+    "duplicate_inference_requests": 0,
+    "upstream_job_status": "Unknown; client timeout/GET404 does not establish upstream cancellation.",
+    "fallback": "One bounded isolated source/math reviewer under model-consultation-orchestrator availability fallback; not an external model verdict."
+  },
+  "reproducibility": {
+    "exact_fraction_check_exit_status": 0,
+    "public_source_path_adaptation_check_exit_status": 0,
+    "identical_mathematical_outputs": true,
+    "stdout": "{\"status\": \"PASS_EXACT_HEAD_API_SCOPE\", \"ordinary_rank\": 40, \"real_global_bound\": 37, \"dephased_rank\": 8, \"full40_CE_both_signs\": true, \"l5_accepted\": false}\n",
+    "checker_sha256": "3a809bc7afc4e29dba88adf4192dadb4b3689c22f7fda2c3fe21b052163c34b3"
+  },
+  "source_hashes": {
+    "rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "original_reading_sha256": "1bdc9d16ffc671124bac10ce88ad6c929fbec2b8a9d7ac15e01737786e5a40d5",
+  "interpretation": [
+    "Engineered admitted head-API input, not an observed text/encoder/checkpoint claim.",
+    "Full40 attention-rank mismatch against real8 is a source-specific fact, not strict whole-predictor inclusion, task advantage or resource-matched quantum superiority.",
+    "No comparison with dot-softmax follows; that family can have full ordinary rank.",
+    "A single input is insufficient for coadapted prediction separation because free class biases match its finite logit vector.",
+    "Known real/complex PSD and density-feature tools explain the construction. No substantive new same-core theory-empirical mechanism was established.",
+    "Classical simulation is not used as a rejection criterion. Novelty and full-loss attribution remain separate missing evidence."
+  ],
+  "next_action": "Start a materially different bounded mechanism-discovery question from the actual accepted weight-to-value alignment result and exact full40 coadapted readout. Require a concrete task-dependent falsifier and a closest-original distinction before another theorem/probe; if none survives, record NONE rather than manufacture a method. R55 closes selector-rank/density-dimension as an L5 promotion route: exact native capacity separation is real but known, and supplies no full-predictor risk gain. Do not reopen stopped families, the closed32group semantic probe, optional seed/parameter rescue, or add readout constraints/encoder-image assumptions silently. All external API calls use medium; R55 timed-out handle is preserved, no duplicate submission. Preserve scopedL4 and collaborator-only new full formal experiments.",
+  "new_native_model_forwards": 0,
+  "new_data_reads": 0,
+  "new_training": 0,
+  "new_formal_runs": 0,
+  "new_COS_operations": 0,
+  "old_scoped_l4_card_sha256": "ba10c598e8f12b91668a339cff8d367647025124494afac0f37221c1f023d89e"
+}
