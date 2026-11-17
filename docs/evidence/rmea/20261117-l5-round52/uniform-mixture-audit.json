@@ -1,0 +1,124 @@
+{
+  "schema": "qattn.uniform-mixture-nonclosure.v1",
+  "status": "PASS",
+  "question": "Does averaging complete40-class probabilities over all context-only alpha permutations necessarily stay in the native head function family with fixed value/decoder/bias?",
+  "answer": "No, on the admitted head-feature API domain. Uniform mixing restores row-permutation symmetry but can break complete-row replication invariance.",
+  "source_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+  "control_sha256": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+  "source_forward_ast_sha256": "22a8beb481a78cb8f892f4bd489e4429747469415faf99b077046b3552eeb15b",
+  "source_replay_ast_sha256": "2d1498e7745764b694ad95ba7ba8cb796f4d427eccbda7481fb145111029df17",
+  "native_family": "All mathematical five native normalized pointwise-selector heads are invariant under k-fold duplication of every complete valid(H,R)row, including entity rows/mask. In particular the fixed-U quantum family is.",
+  "fixture": {
+    "rows": [
+      "contextA",
+      "contextB",
+      "subject",
+      "object"
+    ],
+    "features": "H_i=e_i in1024 dimensions; duplicate complete H/R/mask rows together",
+    "roles": "Two context rows have both membership bits0; subject/object rows have corresponding membership bit1. Roles are arbitrary valid head-API tensors, not asserted to be outputs of the text/role pipeline.",
+    "q": [
+      "1",
+      "1/2",
+      "1",
+      "1"
+    ],
+    "epsilon": "1/1000000",
+    "denominator": "875001/250000",
+    "utilities_y": [
+      "1",
+      "0",
+      "0",
+      "0"
+    ],
+    "other_39_utilities": "all0",
+    "biases": "all0",
+    "logit_a": "1000001/3500004",
+    "logit_b": "166667/1166668",
+    "midpoint": "750001/3500004",
+    "circuit": "Effect angles0. Prepare only first-layer first-wire RY: contextB pi/2 via finite atanh(1/2) coefficient on H_B; all other inputs/angles0. Directed CNOT rings fix|000> and do not map the orthogonal branch to0. Thus q=(1,1/2,1,1).",
+    "native_parameter_finiteness": true,
+    "cnots_fix_zero": true,
+    "orthogonal_branch_after_two_rings": 2
+  },
+  "distributions": {
+    "1": [
+      {
+        "logit": "166667/1166668",
+        "probability": "1/2"
+      },
+      {
+        "logit": "1000001/3500004",
+        "probability": "1/2"
+      }
+    ],
+    "2": [
+      {
+        "logit": "166667/1166668",
+        "probability": "1/6"
+      },
+      {
+        "logit": "750001/3500004",
+        "probability": "2/3"
+      },
+      {
+        "logit": "1000001/3500004",
+        "probability": "1/6"
+      }
+    ],
+    "3": [
+      {
+        "logit": "166667/1166668",
+        "probability": "1/20"
+      },
+      {
+        "logit": "2000003/10500012",
+        "probability": "9/20"
+      },
+      {
+        "logit": "2500003/10500012",
+        "probability": "9/20"
+      },
+      {
+        "logit": "1000001/3500004",
+        "probability": "1/20"
+      }
+    ]
+  },
+  "variances": {
+    "1": "3906250000/765626750001",
+    "2": "3906250000/2296880250003",
+    "3": "781250000/765626750001"
+  },
+  "exact_proof": [
+    "Every native logit is b_r+sum_i w_ri*u_ri/sum_i w_ri, with pointwise w and u. Complete k-fold row duplication multiplies numerator/denominator byk, so every40-class native probability is unchanged, for every parameter setting.",
+    "Uniform context-alpha permutation at replication1 yields logits a,b with probability1/2 each. At replication2 it yields a,m,b with probabilities1/6,2/3,1/6 by choosing2 of4 weight positions.",
+    "f(z)=exp(z)/(exp(z)+39). For z in[b,a] subset(0,1), f_second=39 exp(z)(39-exp(z))/(exp(z)+39)^3>0 because exp(z)<e<3<39.",
+    "M1-M2=(f(a)+f(b)-2f(m))/3>0 by strict convexity. The full40-vector differs, while every candidate native function gives equal vectors on the two duplicated inputs. Hence no native function matches M on both inputs.",
+    "For general replicationk, the count of high weights assigned to thek A positions is Hypergeometric(2k,k,k); z=b+(a-b)J/k, E z=m, Var z=(a-b)^2/[4(2k-1)]. Taylor/Jensen bounds give a cardinality-dependent mixture bias vanishing as k grows. This generic bound is not claimed novel."
+  ],
+  "illustration": {
+    "mixture_target_probability_by_replication": {
+      "1": "0.0308619210284492091799294892641497846358703142219236062285350",
+      "2": "0.0308142811245986169881805860971206962069947995224689348229638",
+      "3": "0.0308047514110061342074141118631437985522529970234413199584615"
+    },
+    "native_target_probability": "0.0329950073385753126978478964827096511471505532368639885318043",
+    "mixture_k1_minus_k2": "0.0000476399038505921917489031670290884288755146994546714055712",
+    "precision_digits": 60,
+    "status": "Numerical illustration only, not interval-certified proof. Strict inequality follows analytically from f second derivative."
+  },
+  "implementation_boundary": "No new native model or diagnostic implemented. Existing replay is one deterministic ID/hash permutation and CE comparison, not this hypothetical uniform probability-mixture ensemble. Averaging logits, probabilities and losses are distinct.",
+  "scientific_prediction": "On these fixed head-API tensors, complete feature-row replication leaves every native mode unchanged, while this uniform probability ensemble changes. This does not distinguish quantum from matched classical heads; it is an interpretation exclusion, not a selectedL5 mechanism.",
+  "limits": [
+    "Exact real-arithmetic head-API claim only; no bitwise floating-point forward or frozenRoBERTa-image realization certified.",
+    "No raw-text duplication or semantic label-preservation claim; marked encoder/role extraction can change every feature.",
+    "No explanation or rejection of actual fresh5 CE alignment/L4, and no optimizer or task-utility guarantee.",
+    "No claim that averaging logits lies inside/outside the native family, no claim for all possible postprocessing ensembles."
+  ],
+  "new_model_jobs": 0,
+  "new_dataset_reads": 0,
+  "new_training": 0,
+  "new_formal_runs": 0,
+  "l5_accepted": false
+}

@@ -1,0 +1,204 @@
+{
+  "schema": "qattn.l5-primary-theory-review.v1",
+  "status": "INTERPRETATION_RESULT_ONLY",
+  "l5_accepted": false,
+  "new_method_selected": false,
+  "result": "Existential uniform probability-mixture nonclosure on admitted variable-cardinality complete head-feature inputs, using shared replication invariance; not a real-cohort or quantum-distinguishing result.",
+  "independent_review": {
+    "original_sha256": "5363f51fd3abfdbed217193459a76d96f00e63401f180e8582690ed7ff29d400",
+    "packet_sha256": "dcfd37e1c24fec46aa916745f2bb2b99fae8e8eb10681693e7321804e859929a",
+    "verdict": "VALID_CONDITIONAL_HEAD_API_NONCLOSURE",
+    "algebra": {
+      "complete_row_replication": {
+        "result": "PASS under the stated pointwise-normalization assumption",
+        "reasoning": "For each relation r, L_r(X)=b_r+sum_i w_r(x_i)u_r(x_i)/sum_i w_r(x_i), where x_i includes H, R and validity mask. Replacing every valid complete row by k identical copies scales both sums by k. All 40 logits and therefore the complete softmax vector stay unchanged. This requires one parameter setting across cardinalities and a nonzero denominator; epsilon-positive weights and at least one valid row supply the latter here. Entity rows must be duplicated too."
+      },
+      "rational_fixture": {
+        "result": "PASS",
+        "denominator": "D=7/2+4/1000000=875001/250000",
+        "endpoints": "a=1000001/3500004; b=500001/3500004=166667/1166668; m=(a+b)/2=750001/3500004",
+        "support": "0<b<m<a<1"
+      },
+      "context_permutation_law": {
+        "result": "PASS",
+        "definition": "Uniformly average all (2k)! permutations of eligible context indices, including identity; leave the 2k entity rows fixed. Repeated numerical weights retain their index multiplicities.",
+        "law": "There are k high and k low context weights. The number J of high weights assigned to the k A utility positions has P(J=j)=C(k,j)^2/C(2k,k), j=0,...,k. Thus Z=b+(a-b)J/k, E[Z]=m and Var(Z)=(a-b)^2/[4(2k-1)].",
+        "small_cases": "k=1 gives masses (1/2,1/2) at (b,a); k=2 gives (1/6,2/3,1/6) at (b,m,a); k=3 gives (1,9,9,1)/20. The stated rational variances and interior k=3 support values are consistent."
+      },
+      "full40_jensen_sign": {
+        "result": "PASS",
+        "reasoning": "With the other 39 logits exactly zero, the target probability is f(z)=exp(z)/(exp(z)+39), and each other probability is (1-f(z))/39. Here f''(z)=39 exp(z)(39-exp(z))/(exp(z)+39)^3>0 on [b,a], since exp(z)<e<3<39. Consequently M1-M2=[f(a)+f(b)-2f(m)]/3>0. The target coordinate and hence the full40 vector differ. Every candidate native function has equal outputs on X and its complete duplication, so none can equal this mixture function on both inputs.",
+        "limitation": "The sign uses this chosen full40 logit configuration. No global convexity of softmax, arbitrary-logit Jensen sign, or binary-softmax inference is needed."
+      },
+      "limiting_bias": {
+        "result": "PASS with an explicit reference value",
+        "reasoning": "Let c_min and c_max be the minimum and maximum of f'' on [b,a]. Taylor expansion about m and E[Z-m]=0 give c_min Var(Z)/2 <= E[f(Z)]-f(m) <= c_max Var(Z)/2. Both constants are finite and positive. This is a positive Jensen gap of order 1/(2k-1), tending to zero relative to f(m). It does not tend to zero relative to the original native probability f(a), because m<a and f is increasing."
+      }
+    },
+    "native_realizability": {
+      "result": "Circuit construction is mathematically valid under the supplied circuit description; full source-level realization is not independently certified",
+      "circuit_reasoning": "Set every effect and every preparation output to zero except the first-layer first-wire RY output. For H_B=e_B, give that preparation coordinate coefficient atanh(1/2) on e_B and zero bias/role coefficients. Its angle is pi*tanh(atanh(1/2))=pi/2; the other three rows produce angle zero. Every parameter used is finite. The zero-angle effect prepares |000>. CNOT rings are invertible basis permutations fixing |000>, so a nonzero basis branch never reaches |000>. Therefore the B overlap squared is cos(pi/4)^2=1/2, while the other overlaps are 1. Under the checker's explicit bit convention, |100> maps to |011> then |010>, consistent with its recorded integer 2. That particular integer is unnecessary for the overlap proof.",
+      "all40_requirement": "Set all 40 class effects to zero so the same q weights apply in every class. Set all class biases to zero and all non-target decoder rows to zero.",
+      "utility_factorization": "If the native value map is an unrestricted affine/linear map with at least one value channel, choose value(e_A)=v with ||v||=1 and value(e_B)=value(e_subject)=value(e_object)=0; set its bias to zero and the target decoder row to v. This is a finite rank-one realization of utilities (1,0,0,0). Freeze these same value/decoder/bias parameters for every replication and every candidate comparison.",
+      "explicit_assumption": "The packet supplies decoder dot value(h), but does not expose the actual value-map implementation. The finite utility factorization above is conditional on that parameterization permitting these outputs. The checker supplies a utility list rather than constructing native value/decoder parameters. A hidden value constraint could invalidate this particular fixture and must be checked against the actual source before asserting an unconditional source-native realization."
+    },
+    "fatal_errors": [],
+    "required_corrections": [
+      {
+        "id": "R1",
+        "severity": "source-realizability qualification",
+        "correction": "Add an explicit finite value/decoder parameter construction and identify the native value-map parameterization that admits it. Until this mapping is checked in the source, retain the conditional head-API verdict and avoid describing the rational checker as an executed native forward."
+      },
+      {
+        "id": "R2",
+        "severity": "bias reference clarification",
+        "correction": "Define the vanishing mixture bias as E[f(Z_k)]-f(m). Its limiting reference is the mean-logit probability f(m), not the original native probability f(a). The latter discrepancy persists."
+      },
+      {
+        "id": "R3",
+        "severity": "claim quantifier and support clarification",
+        "correction": "When presenting the result, keep the existential closure claim, common-parameter variable-cardinality domain, complete H/R/mask duplication including entities, and uniform averaging over all eligible index permutations explicit. Do not extend the witness to an arbitrary frozen checkpoint or to the actual deterministic replay."
+      }
+    ],
+    "novelty_assessed": false
+  },
+  "primary_corrections": {
+    "schema": "qattn.theory-review-correction.v1",
+    "status": "PASS",
+    "original_review_sha256": "5363f51fd3abfdbed217193459a76d96f00e63401f180e8582690ed7ff29d400",
+    "original_packet_sha256": "dcfd37e1c24fec46aa916745f2bb2b99fae8e8eb10681693e7321804e859929a",
+    "original_verdict_preserved": "VALID_CONDITIONAL_HEAD_API_NONCLOSURE",
+    "original_audit_sha256": "7c401b1dbb498e4c6335e079d36fec056feb5d847813d085d436c17d0aca5825",
+    "source_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "control_sha256": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "R1": {
+      "status": "primary_source_mapping_checked",
+      "source": "FrozenFeatureHead.__init__: self.value=nn.Linear(1024,64), unrestricted affine; decoder is40x64 parameter, bias is40 parameter. RMEA forward uses these directly with no value activation/normalization.",
+      "parameter_construction": "Using zero-based indices, W_value[0,0]=1, all other W/bias entries0; decoder[0,0]=1, all other entries0; classbiases0. Prepare W[0,1]=atanh(1/2), all other coefficients/bias0; effects all0. H_i=e_i for i=0,1,2,3. All parameters finite.",
+      "exact_utility_shape": [
+        40,
+        4
+      ],
+      "target_row": [
+        "1",
+        "0",
+        "0",
+        "0"
+      ],
+      "other39_zero": true,
+      "limit": "Primary AST+exact sparse algebra, not independent source certification or native Torch/float forward. Reviewer explicitly did not inspect native source."
+    },
+    "R2": {
+      "status": "adopted",
+      "definition": "Jensen gap J_k=E[f(Z_k)]-f(m), m=(a+b)/2. Positive J_k is bounded above and below by constants times1/(2k-1) and tends to0.",
+      "warning": "E[f(Z_k)] tends to f(m), which differs strictly from the original native probability f(a). Do not call the latter discrepancy vanishing."
+    },
+    "R3": {
+      "status": "adopted",
+      "claim": "Existence nonclosure on the common-parameter variable-cardinality head-API domain, complete H/R/mask duplication including entity rows, uniform all index permutations including identity.",
+      "exclusions": "Not every fixed learned checkpoint/mixture, not actual deterministic replay, not raw-text invariance or frozen encoder image."
+    },
+    "new_model_jobs": 0,
+    "new_raw_data_reads": 0,
+    "new_training": 0,
+    "new_formal_runs": 0,
+    "l5_accepted": false
+  },
+  "source_scope": {
+    "paper_id": "doi:10.24963/ijcai.2020/194",
+    "url": "https://www.ijcai.org/proceedings/2020/0194.pdf",
+    "title": "Improving Attention Mechanism in Graph Neural Networks via Cardinality Preservation",
+    "authors": [
+      "Shuo Zhang",
+      "Lei Xie"
+    ],
+    "version": "IJCAI2020 proceedings",
+    "sha256": "ebbe41155f086fd1234851300eb385e0a2503644e474d6463e37dcf8451ea767",
+    "pages": 8,
+    "identity_verified": true,
+    "parsed_read_pages": [
+      1,
+      2,
+      3
+    ],
+    "visual_pages": [
+      1,
+      3
+    ],
+    "unread_pages": [
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "source_facts": [
+      {
+        "locator": "p2 equations3-5",
+        "finding": "Attention scores are softmax-normalized before weighted neighborhood aggregation."
+      },
+      {
+        "locator": "p3 theorem1 and sketch, countable feature assumption",
+        "finding": "The paper identifies equal-distribution multiset multiplicities as a normalized-attention collision. Its sufficient duplication direction is the relevant prior here."
+      }
+    ],
+    "transfer": "Native Born/real-overlap weights are also positive pointwise normalized weights, so direct numerator/denominator cancellation proves the same duplication property.",
+    "limitations": "No full appendix proof, experiments, code or broader injectivity characterization audited. No new quantum-specific replication theorem claimed."
+  },
+  "consultation": {
+    "selection_sha256": "e0f485699d9dffa1fdea0a4b4401bf276e81c2d7aca385154e0b0efb22d0c37a",
+    "metadata": "Previously retrieved same-session ai-model-world discovery reused; no new model-discovery or strongest-model claim.",
+    "capability_proxy": "Dated LLM Stats HLE knowledge proxy, not task-specific proof capability or cross-source consensus.",
+    "capability_source_age_hours_now": 7.07,
+    "previous_age_field": "age_hours in copied source evidence refers to its previous record; current reuse age is reported separately here.",
+    "current_catalog_gate": {
+      "checked_at_utc": "2026-11-17T03:24:25.006711+00:00",
+      "endpoint": "https://api.a6api.com/v1/models",
+      "retries": 0,
+      "context_sent": false,
+      "raw_catalog_saved": false,
+      "status": "unavailable",
+      "reason": "shared_catalog_route_failed",
+      "error_class": "URLError",
+      "elapsed_seconds": 0.219
+    },
+    "external_context_calls": 0,
+    "bounded_isolated_reviewers": 1,
+    "reviewer_authority": "Packet plus two exact local files; no source repo/network/model/data/script execution. Primary checked source separately."
+  },
+  "bounds": [
+    "No Torch/native floating forward or encoder-image membership was certified.",
+    "Uniform all-permutation probability mixture is hypothetical; actual fresh5 replay is one deterministic hash permutation and CE contrast.",
+    "Generic replication/Jensen facts and exact ensemble counterexample do not supply a same-core novel method, optimizer guarantee or task-gain explanation.",
+    "Matched classical controls share the replication property, so this prediction cannot distinguish a quantum advantage."
+  ],
+  "next_question": {
+    "schema": "qattn.exploratory-theory-question.v1",
+    "status": "unverified_question_not_selected_method",
+    "target": "Actual positive class-by-token attention, not a postprocessed diagnostic",
+    "question": "Can the native small-state overlap selector exhibit centered log-attention rank beyond the same-source rank8 linear softmax control, and does the matched real-overlap control share the same property?",
+    "provisional_construction_to_check": {
+      "rows_and_classes": "Ten context feature prototypes and the first ten of40 independent class effects; additional rows/classes must be handled explicitly, not omitted from logits or the API.",
+      "grid": "Even n=10, theta_j=-pi+pi/n+2pi*j/n, all strictly inside(-pi,pi).",
+      "kernel": "Common native CNOT unitary after one nonzero RY preparation/effect angle may yield q_ri=cos((theta_i-theta_r)/2)^2. Check actual circuit ordering and finite atanh coefficients.",
+      "normalization": "A_ri=(q_ri+eps)/sum_t(q_rt+eps); center log A over token columns so row normalizers cancel.",
+      "rank_question": "log(A+B*cos angle), A=1/2+eps>B=1/2, is circulant on the grid. Check nonconstant Fourier modes and any alias cancellation before asserting rank9.",
+      "classical_control": "Centered log attention from 8-dimensional dot-product softmax has rank at most8. Real-overlap with two real channels may reproduce the same kernel exactly if H includes corresponding cosine/sine coordinates. Check native affine key/source constraints.",
+      "caveat": "A representational separation from one softmax control is not novelty, task benefit, quantum exclusivity or a loss guarantee. A higher-rank result shared with real-overlap would attribute it to overlap nonlinearity."
+    },
+    "first_original_to_verify": "Breaking the Softmax Bottleneck: A High-Rank RNN Language Model, ICLR2018; verify identity and original before using any theorem.",
+    "required_next_evidence": [
+      "Source-correct finite-parameter derivation or a counterexample; no numerical rank threshold in place of proof.",
+      "Nearest-original distinction and a loss-relevant, falsifiable prediction using the same full40 signed readout.",
+      "Separate analytic capacity, actually used trained-model structure, causal task utility and independent confirmation."
+    ],
+    "new_model_or_formal_run_authorized_by_this_record": false,
+    "l5_accepted": false
+  },
+  "new_model_jobs": 0,
+  "new_raw_data_reads": 0,
+  "new_training": 0,
+  "new_formal_runs": 0,
+  "new_COS_operations": 0,
+  "manual_annotation_deferred": true
+}
