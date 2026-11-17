@@ -1,0 +1,80 @@
+{
+  "schema": "qattn.native-log-rank-derivation.v1",
+  "status": "PASS_WITH_LIMITS",
+  "source_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+  "control_sha256": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+  "claim": "On admitted finite head features, a native finite-angle Q selector and the exact matched real-overlap selector can have centered log-attention rank9, beyond the rank8 dot-softmax control. This chosen dephased witness has centered log-attention rank at most4. No utility or novelty consequence follows from rank alone.",
+  "dimensions": {
+    "classes": 40,
+    "tokens": 10,
+    "key_dimension": 8,
+    "hidden": 1024,
+    "roles": 4
+  },
+  "epsilon": "1/1000000",
+  "input": {
+    "grid_in_units_pi": [
+      "-9/10",
+      "-7/10",
+      "-1/2",
+      "-3/10",
+      "-1/10",
+      "1/10",
+      "3/10",
+      "1/2",
+      "7/10",
+      "9/10"
+    ],
+    "H": "H_i[0]=atanh(theta_i/pi), H_i[1]=cos(theta_i/2), H_i[2]=sin(theta_i/2), H_i[3]=1_{i=0}; remaining1020 coordinates0.",
+    "roles": "Any valid four-role tensor; rows8/9 may carry subject/object membership so this is8context+2entity rows, all valid. Roles coefficients in every witness selector are0. No real text/role-pipeline-image assertion.",
+    "effects": "First10 class effects use theta_r grid; remaining30 repeat theta_0. All40 rows retained.",
+    "quantum_parameters": "Only prepare.W[0,0]=1, other coefficients/bias0; effects only first-layer first-wire RY raw parameter atanh(theta_r/pi), all other angles0. All parameters finite.",
+    "real_parameters": "key selects H channels1/2 into key coordinates0/1; remaining coefficients/bias0. Query_r=(cos(theta_r/2),sin(theta_r/2),0,...,0), norm1.",
+    "circuit_argument": "The common two CNOT rings after the single RY rotation form the same unitary U on every state/effect. Inner products reduce to cos((theta_i-theta_r)/2). For dephasing, U is a basis permutation, yielding cos²(theta_i/2)cos²(theta_r/2)+sin²(theta_i/2)sin²(theta_r/2)."
+  },
+  "analytic_proof": [
+    "For dot-softmax, log alpha=S-c*1^T with S=QK^T/sqrt8. Let C=I-11^T/10. Then(log alpha)C=SC and rank<=8. Restrict to valid tokens; no padded log0.",
+    "Quantum and real raw weights are K_ri=A+B*cos(2*pi*(i-r)/10), A=1/2+eps>B=1/2. The first10 rows form a positive symmetric circulant kernel. Row normalizers all equal10A.",
+    "Let Delta=sqrt(A²-B²), t=B/(A+Delta), C0=(A+Delta)/2. Then0<t<1 and A+B*cos x=C0(1+t*exp(ix))(1+t*exp(-ix)).",
+    "logK(x)=logC0+sum_{m!=0}(-1)^(abs(m)+1)*t^abs(m)/abs(m)*exp(imx), an absolutely convergent Fourier series.",
+    "Discrete eigenvalue lambda_j for j=1,...,9 is10 times the sum of these coefficients over m congruent j modulo10. All have the same sign(-1)^(j+1), and at least one exists. Thus every nonconstant eigenvalue is nonzero; centering kills only the constant mode, giving exact rank9. Additional30 repeated class rows preserve rank9.",
+    "The ordinary, UNLOGGED attention rank is at most3, from1/cos/sin features. Do not confuse it with log-rank or final classification probability rank.",
+    "Real-overlap reproduces the entire40x10 kernel exactly on these features; this is no quantum-exclusive ability and needs no RZ phases.",
+    "Dephased raw weights are A+B*cos(theta_r)*cos(theta_i). Grid cosine values form only5 distinct columns in mirror pairs. After logarithm and centering, at most4 independent column contrasts remain, so centered log-rank<=4 for THIS witness, not for all dephased native heads."
+  ],
+  "scalar_identity_checks": {
+    "real_vs_quantum_max_residual": 4.440892098500626e-16,
+    "finite_parameters": true,
+    "grid_strictly_inside_angle_bounds": true,
+    "no_numerical_rank_threshold": true,
+    "interpretation": "Elementary scalar trigonometric checks only. Exact rank comes from the analytic Fourier argument, not numerical rank or native forward."
+  },
+  "full40_loss_counterexamples": {
+    "target_label": 0,
+    "native_target_attention": "1000001/5000010",
+    "uniform_target_attention": "1/10",
+    "positive_readout_logit_gain": "50000/500001",
+    "negative_readout_logit_gain": "-50000/500001",
+    "proof": "Other39 logits0; CE_y(z)=log(exp(z)+39)-z strictly decreases in z. Thus a positive utility at token0 improves CE versus uniform, and its negative worsens CE, with the SAME high-log-rank attention.",
+    "source_value_map": "Add feature H_i[3]=1 if i=0 else0. W_value[0,3]=1, all other value entries/bias0. Only decoder[0,0]=+1 or-1; other39 decoder rows0, all classbias0. Neither native selector nor real key reads channel3."
+  },
+  "nearest_original": "arxiv1711.03953v1 pp2-4: log-probability row-shift rank bottleneck and nonlinear high-rank mixture already prior. Native-specific construction is not by itself substantive L5 novelty.",
+  "limits": [
+    "Head-API capacity, not frozen encoder image, trained checkpoint usage or corpus prediction.",
+    "Not strict functional containment/superiority, not an epsilon-numerical-rank claim, and no larger-compute or parameter-efficiency advantage.",
+    "Attention log-rank alone permits both positive and negative full40 CE effects through signed utilities. No explanation of existing L4 utility/alignment or new empirical superiority.",
+    "Actual final outputs still pass through signed class utilities and a40-way softmax; this theorem concerns token-attention rows."
+  ],
+  "new_model_jobs": 0,
+  "new_raw_data_reads": 0,
+  "new_training": 0,
+  "new_formal_runs": 0,
+  "l5_accepted": false,
+  "review_basis": {
+    "original_checker_sha256": "a1558598b27dde827e7d959fbe90d43a2aa8e9c92618207488ff3f69bcba925d",
+    "original_record_sha256": "10995e8e33ea41a05a87d0bec2947b14408f854858b9896f7456b9ebfa3f0d04",
+    "review_sha256": "38ffa3cb7670ca0e7717d0501db77077d77abd07a827bd8bb82f8cb071c8a741",
+    "target_correction": "Explicit zero-based y=0; all40 classes retained",
+    "arithmetic_scope": "Exact-real rank/parameter statements; elementary scalar checks are illustrations, not native float forward."
+  }
+}

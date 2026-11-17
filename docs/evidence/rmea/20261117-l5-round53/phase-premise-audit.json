@@ -1,0 +1,84 @@
+{
+  "schema": "qattn.source-only-premise-audit.v1",
+  "status": "EXACT_ZERO_INITIALIZATION_PREMISE_NOT_IMPLEMENTED",
+  "source_hashes": {
+    "rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "rmea_confirmation_run.py": "9f6de9013354dd90122b839a12e4a8cfc8b6946a2e2169e41fd248b472511e19"
+  },
+  "advice_sha256": "d50b7f1874ef4ab6064ee57749c9c8f24da71e916a2fe40e82adfbeb1375b1ab",
+  "native_init": {
+    "self.mode": "mode",
+    "self.prepare": "nn.Linear(1028, DEPTH * QUBITS * 2)",
+    "self.effect": "nn.Parameter(torch.randn(40, DEPTH, QUBITS, 2) * 0.2)"
+  },
+  "runner_head_operations": [
+    {
+      "line": 87,
+      "source": "head.eval();gold=[];pred=[];loss=0.;shuffled_loss=0.;tied_loss=0.;eligible=0;max_residual=0.;cm_shuffle=[]"
+    },
+    {
+      "line": 99,
+      "source": "if head.mode=='uniform' and not torch.allclose(logits,shuffled,atol=2e-5,rtol=0):raise ValueError('Uniform shuffle must be invariant')"
+    },
+    {
+      "line": 107,
+      "source": "torch.manual_seed(cfg['seed']);head=RMEAHead(mode).to(device)"
+    },
+    {
+      "line": 108,
+      "source": "common[mode]=hashlib.sha256(b''.join(x.detach().cpu().numpy().tobytes() for x in (head.value.weight,head.value.bias,head.decoder,head.bias))).hexdigest()"
+    },
+    {
+      "line": 109,
+      "source": "torch.save(head.state_dict(),checkpoints/(mode+'-initial.pt'))"
+    },
+    {
+      "line": 111,
+      "source": "optimizer=torch.optim.AdamW(head.parameters(),lr=cfg['lr'],weight_decay=cfg['weight_decay'])"
+    },
+    {
+      "line": 114,
+      "source": "head.train();order=torch.randperm(cfg['counts']['train'],generator=torch.Generator().manual_seed(cfg['seed']+epoch)).tolist()"
+    },
+    {
+      "line": 122,
+      "source": "update={'before/'+k:v.detach().cpu().numpy().copy() for k,v in head.named_parameters()}"
+    },
+    {
+      "line": 123,
+      "source": "update.update({'gradient/'+k:v.grad.detach().cpu().numpy().copy() for k,v in head.named_parameters()})"
+    },
+    {
+      "line": 125,
+      "source": "torch.nn.utils.clip_grad_norm_(head.parameters(),cfg['clip_norm'],error_if_nonfinite=True);optimizer.step()"
+    },
+    {
+      "line": 127,
+      "source": "update.update({'after/'+k:v.detach().cpu().numpy().copy() for k,v in head.named_parameters()})"
+    },
+    {
+      "line": 131,
+      "source": "best=valid;best_epoch=epoch+1;torch.save(head.state_dict(),checkpoints/(mode+'-selected.pt'))"
+    },
+    {
+      "line": 133,
+      "source": "head.load_state_dict(torch.load(checkpoints/(mode+'-selected.pt'),map_location=device,weights_only=True));head.eval()"
+    },
+    {
+      "line": 136,
+      "source": "parameter_count=sum(v.numel() for v in head.parameters()),updates=cfg['epochs']*((cfg['counts']['train']+cfg['batch_size']-1)//cfg['batch_size']))"
+    }
+  ],
+  "finding": "The implemented contract has an ordinary nn.Linear preparation and independently random normal raw effect angles scaled by0.2. There is no prescribed all-zero RZ initialization in this constructor or runner. zero_grad clears gradients, not model parameters.",
+  "scope": "Source-only contract check. No random draw, initial or trained checkpoint, gradient, optimizer trajectory or phase curvature was read or executed.",
+  "disposition": "Do not select exact-zero phase lock as an explanation of the completed native training. Do not force zero initialization to manufacture the proposed obstruction. A near-real or arbitrary-phase optimization hypothesis would require a separately justified premise and evidence.",
+  "mathematical_status": "Conjugation symmetry and conditional zero-phase invariance are plausible conditional algebra in the isolated advice; this premise audit is not an independent proof review of all curvature propositions.",
+  "old_stops_preserved": [
+    "2026-11-14 spectrum bounded no promotion",
+    "Rounds6-8 partial-swap/fusion phase-attribution limits"
+  ],
+  "new_model_jobs": 0,
+  "new_data_reads": 0,
+  "new_training": 0,
+  "l5_accepted": false
+}

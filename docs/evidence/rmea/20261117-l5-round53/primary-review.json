@@ -1,0 +1,174 @@
+{
+  "schema": "qattn.l5-primary-theory-review.v1",
+  "status": "BOUNDARY_RESULTS_NO_SELECTED_METHOD",
+  "l5_accepted": false,
+  "new_method_selected": false,
+  "rank_result": "On a finite admitted10-token/40-relation head input, centered elementwise log-attention rank is9 for the overlap witness versus at most8 for native dot-softmax. Native real8 overlap exactly matches; chosen dephased witness has rank at most4. Unlogged overlap attention rank is3.",
+  "loss_limit": "Same high-log-rank attention can improve or worsen the complete40-class CE by changing only the sign of a native rank-one utility. Target explicitly0. No native floating-point model forward or actual encoder-image claim.",
+  "independent_proof_review": {
+    "schema": "qattn.bounded-proof-review.v1",
+    "packet_sha256": "77d5444df1ce9d0227ad95f539c4c8c84819f0cc62ae78d899828567cef39bae",
+    "verdict": {
+      "status": "PASS_WITH_EXPLICIT_ARITHMETIC_SCOPE_AND_MINOR_FIXTURE_CORRECTION",
+      "summary": "The finite-angle construction, centered log-attention rank 9, dot-softmax rank bound 8, exact-real overlap reproduction, chosen-dephased bound 4, and both signed full-40 CE comparisons are mathematically valid. The CE witness must explicitly choose target class y=0, or a class whose effect repeats theta_0. Exact identities are statements about the mathematical head map, rather than bitwise native floating-point outputs.",
+      "fatal_defects_found": false,
+      "review_basis": "Independent algebra and direct reading of the complete pinned source inline in the packet, plus the two listed local inputs. No native forward or checker execution.",
+      "input_hashes_verified": {
+        "log-rank-audit.json": "10995e8e33ea41a05a87d0bec2947b14408f854858b9896f7456b9ebfa3f0d04",
+        "check_log_rank.py": "a1558598b27dde827e7d959fbe90d43a2aa8e9c92618207488ff3f69bcba925d"
+      }
+    },
+    "algebra": {
+      "status": "VERIFIED_AS_EXACT_REAL_MATHEMATICS",
+      "dimensions": "One batch element; 40 relation rows and 10 valid tokens; C=I_10-1_10 1_10^T/10 acts on token columns.",
+      "kernel": "theta_i=(-9+2i)pi/10, i=0,...,9. First ten effect rows use the same grid. K_ri=cos^2((theta_i-theta_r)/2)+epsilon=A+B cos(2pi(i-r)/10), A=1/2+epsilon, B=1/2. For epsilon=1/1000000, 10A=5.00001, min K=epsilon and max K=1+epsilon. The remaining 30 rows repeat row 0.",
+      "normalization": "The grid sum of exp(i theta_i) is zero, hence every row sum is exactly 10A. Alpha=K/(10A), so (log Alpha)C=(log K)C. This uses the source token normalizer, rather than a normalization across the 40 relations.",
+      "factorization": "Delta=sqrt(A^2-B^2)>0, t=B/(A+Delta) in (0,1), C0=(A+Delta)/2. Then C0(1+t^2)=A and 2C0t=B, giving K(x)=C0(1+t exp(ix))(1+t exp(-ix)).",
+      "fourier_series": "log K(x)=log C0+sum over nonzero integers m of a_m exp(imx), where a_m=(-1)^(|m|+1)t^|m|/|m|. Absolute convergence follows from t<1, and justifies exchanging the sampled finite DFT sum with the infinite series.",
+      "alias_non_cancellation": "For j=1,...,9, lambda_j=10 sum_{k in Z} a_(j+10k), up to the immaterial opposite DFT index convention. No term has index zero. Since 10 is even, |j+10k| has the parity of j; every term has sign (-1)^(j+1), and the term m=j exists. Consequently all nine lambda_j are nonzero. Their reality also follows from the symmetric circulant kernel.",
+      "rank_conclusion": "Right centering annihilates exactly the constant Fourier direction and retains all nine other directions. The first 10 by 10 block therefore has centered log rank exactly 9. Appending 30 repeated rows preserves this rank, and ten centered token columns impose the matching global upper bound 9.",
+      "nonzero_margin": "For d_j=min(j,10-j), |lambda_j|>=10 t^d_j/d_j>=2t^5>0. This is an analytic nonzero bound, not a numerical rank threshold. A small enough real-valued perturbation preserves rank 9 by continuity; no bound on native floating-point implementation error was measured here.",
+      "dot_softmax_bound": "For any finite real query and key tensors on these 10 valid tokens, S=Q K^T/sqrt(8) has rank at most 8, even with source key biases and role coordinates. Rowwise log softmax gives log Alpha=S-c 1^T, hence (log Alpha)C=SC and rank<=8. Masks require restricting to valid columns before logarithms; padded zeros have no finite logarithm.",
+      "ordinary_rank_distinction": "K_ri=A+B cos(theta_r)cos(theta_i)+B sin(theta_r)sin(theta_i), so ordinary unlogged attention rank is at most 3 (indeed exactly 3 for the first ten grid rows). High centered log rank is therefore compatible with low ordinary attention rank. No conclusion follows about rank of final class probabilities or classification performance."
+    },
+    "native_source_correspondence": {
+      "status": "PINNED_SOURCE_MAP_MATCHES_THE_MATHEMATICAL_CONSTRUCTION",
+      "source_sha256_from_packet": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+      "control_sha256_from_packet": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+      "provenance_limit": "These are the packet's identities for its inline complete source texts; the original source paths were not independently opened or rehashed within this bounded review.",
+      "shapes_and_indices": "Use h shape [1,10,1024], roles [1,10,4], and an all-true Boolean mask [1,10]. prepare.weight has shape [12,1028]. Its [0,0]=1 with all other weights and biases zero reads only h channel 0. Flattened output index 0 reshapes to [layer=0,wire=0,RY=0] under shape [2,3,2]. Source effect has shape [40,2,3,2], with only [r,0,0,0] nonzero. Role channels 1024 through 1027 have zero selector coefficients.",
+      "finite_values": "All raw angle parameters and h channel 0 obey absolute value <=atanh(9/10)=log(19)/2, approximately 1.47222. Trigonometric h coordinates and indicator coordinates have absolute value <=1. All other coefficients are zero or one, and queries have unit norm. Every intended angle has absolute value <=0.9pi, strictly within the pi*tanh range.",
+      "circuit_order": "Only the first layer's first-wire RY acts nontrivially. All RZ angles and all other RY angles vanish. The two ordered CNOT rings then form one common basis permutation U for every prepared state and effect. With wire 0 as MSB, the first ring maps |100> to |011>, the second maps that to |010>, and both preserve |000>. The source gather is each CNOT's own inverse permutation, so it implements the same ordered CNOT action. Thus psi_i=cos(theta_i/2)|000>+sin(theta_i/2)|010>, and phi_r has the same form with theta_r.",
+      "overlap_and_readout": "The source phi-conjugate/psi contraction is cos((theta_i-theta_r)/2); abs-square yields the kernel probability. The common U is harmless for overlap and, being a basis permutation, also yields the stated dephased probabilities. EPS is added before token masking and normalization. The source permits all 40 effects to repeat; they are separate binary measurements, with no joint-POVM completeness constraint.",
+      "arithmetic_caveat": "The exact grid, rational epsilon, exact trigonometric identities, exact unit norms and exact cross-mode equality are mathematical statements. Native math.pi, tanh, torch trigonometry, normalization, complex arithmetic and the uniform control's .float() use finite precision; the listed rational values and exact equality are not bitwise claims. A literal treatment of math.pi as its binary constant can be accommodated in the mathematical map by using raw atanh(theta_i/math.pi_source) for exact target angles; that adjustment still leaves finite parameters strictly inside the allowed range. This review neither runs nor certifies that adjustment in native tensors.",
+      "checker_scope": "The supplied checker computes elementary scalar identities and hashes/AST facts when executed; it contains no native RMEA forward. Its finite alias loop checks a parity pattern for sampled k only. The complete infinite alias proof is the mathematical argument above, rather than an exhaustive computation. The checker was read, not executed."
+    },
+    "real_and_dephased_controls": {
+      "real_overlap": {
+        "status": "EXACT_REAL_REPRODUCTION_VERIFIED",
+        "parameters": "For the control key Linear(1028,8), set weight[0,1]=weight[1,2]=1, all remaining weights and biases zero. Set query[r]=(cos(theta_r/2),sin(theta_r/2),0,...,0). Key and query norms are exactly one in real arithmetic, so source F.normalize leaves them unchanged.",
+        "identity": "The real normalized dot product equals cos(theta_i/2)cos(theta_r/2)+sin(theta_i/2)sin(theta_r/2)=cos((theta_i-theta_r)/2). Squaring, adding the same epsilon and applying the same valid-token mask reproduces every entry of the 40 by 10 native quantum attention exactly in real arithmetic. Using the same value map, decoder and class bias also reproduces logits.",
+        "limitation": "This is a common-input head-API witness on engineered features containing both atanh(theta/pi) and the corresponding half-angle cosine/sine. It establishes neither general equality of the two function classes on arbitrary inputs nor realization by the frozen encoder. RZ phases and quantum-exclusive expressivity are absent from this witness."
+      },
+      "chosen_dephased": {
+        "status": "UPPER_BOUND_4_VERIFIED_FOR_THIS_CONSTRUCTION",
+        "identity": "Basis-permuted population overlap is cos^2(theta_i/2)cos^2(theta_r/2)+sin^2(theta_i/2)sin^2(theta_r/2)=(1+cos(theta_i)cos(theta_r))/2. Thus raw D_ri=A+B cos(theta_r)cos(theta_i), with positive entries and the same 10A row sum.",
+        "column_subspace": "Token cosines take exactly the five distinct values {-cos(pi/10),-cos(3pi/10),0,cos(3pi/10),cos(pi/10)}. Column pairs are (0,9),(1,8),(2,7),(3,6),(4,5). Taking entrywise logarithms preserves equality within each pair. Every centered row lies in the five-dimensional pair-constant subspace intersected with 1-perp, which has dimension four; hence centered log rank <=4.",
+        "limitation": "The bound uses this angle grid and this single-rotation, common-basis-permutation witness. It is not a bound for the general native dephased head. Its ordinary unlogged attention rank is at most 2."
+      }
+    },
+    "full40_loss": {
+      "status": "BOTH_SIGNS_VERIFIED_AFTER_EXPLICIT_TARGET_CLASS_SELECTION",
+      "target_class_required": "Choose y=0, using zero-based indexing, or any y in 10,...,39 whose effect repeats theta_0. The displayed self-attention rational is not valid for an unspecified arbitrary target effect.",
+      "value_and_decoder_map": "h_i[3]=1_{i=0}; set value.weight[0,3]=1 with every other value weight and bias zero. Set decoder[y,0]=s for s=+1 or -1, every other decoder coefficient zero, and all 40 class biases zero. Neither the quantum prepare map nor the real key reads channel 3. Other 39 class logits therefore remain exactly zero, including those with repeated selectors.",
+      "attention_values": {
+        "native_target_token0": "a=(1+epsilon)/(10A)=1000001/5000010",
+        "uniform_target_token0": "u=1/10",
+        "positive_logit_gain": "a-u=50000/500001",
+        "negative_logit_gain": "-a-(-u)=-50000/500001"
+      },
+      "ce_monotonicity": "CE_y(z)=log(exp(z)+39)-z has derivative -39/(exp(z)+39)<0 for every finite real z. For s=+1, z_native=a>u=z_uniform, so CE_native<CE_uniform. For s=-1, z_native=-a<-u=z_uniform, so CE_native>CE_uniform. All forty classes remain in each denominator.",
+      "explicit_differences": "Positive: log((exp(a)+39)/(exp(u)+39))-(a-u)<0. Negative: log((exp(-a)+39)/(exp(-u)+39))+(a-u)>0.",
+      "unchanged_selector": "Only the decoder sign changes between the two loss fixtures. The same 40 by 10 attention matrix retains centered log rank 9 throughout. These constructed CE comparisons are analytic counterexamples to a rank-alone utility claim, rather than observed task gains or a trained-checkpoint result."
+    },
+    "fatal_errors": [],
+    "required_corrections": [
+      {
+        "severity": "MINOR_CONSTRUCTION_SPECIFICATION",
+        "issue": "The full-40 fixture leaves y implicit while reporting alpha_y0 as a self-overlap value.",
+        "correction": "Explicitly set y=0, or y in 10,...,39 with effect theta_0, in the scientific record and checker fixture. Keep all 40 relation rows and all 40 CE logits."
+      },
+      {
+        "severity": "CLAIM_PRECISION",
+        "issue": "The words native and exactly can be read as claims about executed finite-precision tensor outputs.",
+        "correction": "State that the rank and exact-control identities concern the exact-real mathematical map specified by the pinned source, with finite parameter values. Keep scalar residual checks distinct from native execution, and do not describe the rational loss values as measured native outputs."
+      }
+    ],
+    "scope_limits": [
+      "No scripts, training, model jobs, native forwards, data reads, network requests, repository exploration, or external-model context transfer were performed for this review.",
+      "The three allowed input file hashes were verified; pinned inline source was reviewed but its original files were not independently accessed.",
+      "No claim about the frozen encoder's image, dataset realizability, corpus prediction, empirical utility, quantum advantage, parameter or compute efficiency, strict functional containment, or existing L4 mechanisms follows.",
+      "The cited prior paper was not opened in this bounded review; its novelty characterization was not independently assessed.",
+      "No L5 certification or acceptance follows from this valid head-capacity witness."
+    ],
+    "novelty_assessed": false,
+    "l5_accepted": false
+  },
+  "corrections": {
+    "status": "ADOPTED",
+    "original_review_sha256": "38ffa3cb7670ca0e7717d0501db77077d77abd07a827bd8bb82f8cb071c8a741",
+    "original_packet_sha256": "77d5444df1ce9d0227ad95f539c4c8c84819f0cc62ae78d899828567cef39bae",
+    "original_inputs_preserved": true,
+    "modified_checker_sha256": "d8dd3c0db55f0910e75090da37e54bf0cfc0b6a2a1dcc796393a650c99f9baea",
+    "modified_record_sha256": "c760a213a7276b2a628ec9396ac5d999b26f379de13bd49241b2e48199b1b54f",
+    "target_label": 0,
+    "arithmetic_scope": "Exact-real map with finite parameters; no native tensor execution, corpus realization, novelty or utility certification.",
+    "correction": "Explicit target0 for self-overlap CE fixture; rank/source proofs unchanged.",
+    "l5_accepted": false
+  },
+  "reviewed_verifier_sha256": "d8dd3c0db55f0910e75090da37e54bf0cfc0b6a2a1dcc796393a650c99f9baea",
+  "reviewed_record_sha256": "c760a213a7276b2a628ec9396ac5d999b26f379de13bd49241b2e48199b1b54f",
+  "original_reading_sha256": "ea84d79a864d2b22c65a5cd06d60c2169a6fe7d9a2b4e95cbbe412967eb3c447",
+  "literature_limit": "Softmax and attention head-size bottlenecks are already original-literature concepts. Selected pages only; no exhaustive novelty or full proof/code certification.",
+  "independent_builder": {
+    "packet_sha256": "f7973c4edae501878618dd8d0fc141dfd9f74345fcfc3a8550e563f320524ba1",
+    "answer_sha256": "d50b7f1874ef4ab6064ee57749c9c8f24da71e916a2fe40e82adfbeb1375b1ab",
+    "status": "PROVISIONAL_CANDIDATE",
+    "primary_disposition": "Do not select exact-zero phase lock as an explanation of the completed native training. Do not force zero initialization to manufacture the proposed obstruction. A near-real or arbitrary-phase optimization hypothesis would require a separately justified premise and evidence.",
+    "not_independent_proof_certification": true
+  },
+  "consultation": {
+    "proof_selection_sha256": "c10880a84d3b2bfa59fe83725d84dfcb8c445d164d523faa565399a2aa93c937",
+    "builder_selection_sha256": "73ad30f387b490c735767cbd18bab5bcee4a409994554c7b0370439024936560",
+    "bounded_complementary_advisors": 2,
+    "external_context_calls": 0,
+    "capability_limit": "Previously retrieved model metadata and dated knowledge benchmark proxy; current provider catalog unavailable. Neither strongest-model nor task-specific proof-ranking certification."
+  },
+  "semantic_reader_preference": {
+    "source": "Explicit owner instruction this turn",
+    "provider": "A6API",
+    "requested_model": "gpt 6.1 sol",
+    "status": "PENDING_EXACT_MODEL_TRANSPORT_VERIFICATION",
+    "local_probe": {
+      "schema": "qattn.explicit-model-preflight.v1",
+      "time": "2026-11-17T05:00:34.428845+00:00",
+      "selection": "Owner-selected A6API gpt 6.1 sol; no silent substitute",
+      "context_sent": false,
+      "inference_requests": 0,
+      "attempts": [
+        {
+          "mode": "environment_proxy",
+          "status": "TRANSPORT_FAILED",
+          "error_class": "URLError",
+          "reason_class": "ConnectionResetError",
+          "errno": 10054
+        },
+        {
+          "mode": "direct",
+          "status": "TRANSPORT_FAILED",
+          "error_class": "URLError",
+          "reason_class": "ConnectionResetError",
+          "errno": 10054
+        }
+      ],
+      "status": "TRANSPORT_UNAVAILABLE"
+    },
+    "owner_probe": {
+      "credential_sent": false,
+      "context_sent": false,
+      "inference_requests": 0,
+      "status": "TRANSPORT_FAILED",
+      "error_class": "URLError"
+    },
+    "private_context_sent": false,
+    "reader_calls": 0,
+    "human_annotation_required": false,
+    "evidence_limit": "Future model-blind judgments are exploratory semantic annotations, not independent humans, adjudicated gold or independent held-out task performance."
+  },
+  "next_action": "Seek an independently justified task/loss premise before selecting another L5 mechanism. The frozen32-group64-query train-only semantic pack may be read by the owner-selected A6API gpt6.1sol in isolated model-blind sessions once exact transport/model identity is verified; no human-reader prerequisite. No method/outcome/label leakage, no same-model agreement treated as independent human gold or new test evidence. Current catalog connections fail locally and at owner;0private context sent, no model substitution. Do not revive rank-only novelty, force zero-phase initialization, or repeat stopped families/seeds/epochs; preserve scopedL4 and collaborator-only formal boundary.",
+  "new_model_jobs": 0,
+  "new_raw_data_reads": 0,
+  "new_training": 0,
+  "new_formal_runs": 0,
+  "new_COS_operations": 0
+}
