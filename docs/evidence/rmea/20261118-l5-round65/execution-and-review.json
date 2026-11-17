@@ -1,0 +1,93 @@
+{
+  "schema": "qattn.original-scores.execution-audit.v1",
+  "review_model": "gpt-6.1-sol",
+  "reasoning_effort": "medium",
+  "implementation_review": {
+    "verdict": "PASS_WITH_RISK",
+    "scope": "both",
+    "must_fix": [],
+    "risks": [
+      "CPU float32 strict winners can differ from original GPU strict winners despite toleranced anchors and identical confusions. The report explicitly limits its interpretation accordingly.",
+      "Hard crashes intentionally leave a restore lock or unresolved lifecycle journal requiring owner diagnosis. Atomic JSON replacement is not a fully fsynced crash-durable transaction; recovery must preserve the stated no-retry fencing rather than infer permission from missing state.",
+      "Runtime, peak memory and download throughput remain unmeasured. Admission checks and scheduler limits bound execution, but do not guarantee completion within the declared budgets.",
+      "Private plans, expected reports, legacy implementations and scheduler internals were not supplied for independent content verification. Their asserted provenance and scheduler semantics are assumptions of this review; no hashes were independently recomputed."
+    ],
+    "freeze_sha256": "6fe5f4c00a058ce7844b814ab43779d3063a34ac2f62d4608ec2c63b09702bea"
+  },
+  "prior_review": "REVISE:0600creation and exact-task terminalreconciliation fixed beforeexecution.",
+  "result_review": {
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "verdict": "ACCEPT_DESCRIPTIVE",
+    "must_fix": [],
+    "interpretation": "The supplied counts support ALL30_DEFINED_PASS: every eligible denominator is nonzero and every strict-gold-winner proportion exceeds one half, ranging from 64.76% to 73.58%. Thus, within each evaluated frozen-head CPU replay cell, a majority of gold-positive examples predicted null retain the correct unique ranking among the 39 nonnull classes. This is an error-ranking opportunity, not evidence that an implementable threshold policy can identify those examples without labels. Suppressing null would correct the counted winners but could also introduce false positives on true-null examples. The pattern appears in both classical controls and therefore does not establish a quantum-specific advantage.",
+    "selected_next_question": "Does the unchanged core representation contain identifiable relation-specific evidence, beyond the complete frozen head-score vector, that distinguishes gold-top positive-to-null errors from correctly rejected true-null examples on held-out data?",
+    "limits": [
+      "This review used the supplied evidence only; no auditor execution, artifact authentication, or independent score reconstruction was performed.",
+      "The published auditor checks aggregate arithmetic and selected consistency conditions, not score-level eligibility, strict ranking, provenance, or complete protocol compliance.",
+      "The criterion is a finite-sample descriptive majority condition, not a statistical population-null rejection. Cells reuse examples across heads and seeds and are not 30 independent replications.",
+      "Anchor agreement and exact confusion/count reproduction support the reported replay bridge but do not establish bitwise GPU-score equivalence or identical nonnull rankings on every original GPU example.",
+      "The gold-conditioned subset supplies no deployable selector, causal explanation, calibrated probabilities, attainable gain guarantee, or precision-preserving recovery claim.",
+      "The proposed research question is unresolved and does not establish novelty, accept a method, reopen stopped families, or authorize experiments. Accepted L4 remains unchanged."
+    ],
+    "packet_sha256": "3ab9c871a0bce50cd2f9699106e836b903ed3c229eb14dceafbd35feb5683045",
+    "answer_sha256": "233bf8c27c8bfae493460aa00f1049fa8cd24837fa419070a9583990c68a3197"
+  },
+  "source_revision": "8af4adfcbab895d772c6a6e58304265f4aa52a62",
+  "tasks": {
+    "unit": {
+      "task": "a227cbe6fe1e4b9d81c15d1db166a735",
+      "attempt": "1e2bd5bceee24f659183b6a55f6f8dfd",
+      "attempt_count": 1,
+      "returncode": 0,
+      "quiescent": true,
+      "owner_binding_exact_restored": true,
+      "worker_binding_exact_restored": true
+    },
+    "restore": {
+      "task": "3836315655074127a5b3fd5083f674d1",
+      "attempt": "8ad967e90e3842a9b44b9aca39ee6e6e",
+      "attempt_count": 1,
+      "returncode": 0,
+      "quiescent": true,
+      "owner_binding_exact_restored": true,
+      "worker_binding_exact_restored": true
+    },
+    "preflight": {
+      "task": "3afe72238e784c02b5cacf1b93632b7d",
+      "attempt": "e780f4a762274f9da60b7140e333c081",
+      "attempt_count": 1,
+      "returncode": 0,
+      "quiescent": true,
+      "owner_binding_exact_restored": true,
+      "worker_binding_exact_restored": true
+    },
+    "diagnose": {
+      "task": "f9c6435493b84b3db98032951847ec34",
+      "attempt": "ddf05eb1a5db4fa39030e5d7a1f7eb4e",
+      "attempt_count": 1,
+      "returncode": 0,
+      "quiescent": true,
+      "owner_binding_exact_restored": true,
+      "worker_binding_exact_restored": true
+    }
+  },
+  "transfer": {
+    "cos_get_requests": 46,
+    "payload_bytes": 2915876864,
+    "automatic_retries": 0,
+    "all_tar_headers_verified": true,
+    "all_inner_hashes_verified": true,
+    "reproducible_large_chunks_removed": true,
+    "full_archive_restored": false,
+    "long_lived_credentials_on_worker": false
+  },
+  "restored_selected_files": 84,
+  "shared_cache_copies": 1,
+  "no_new_training": true,
+  "gpus_used": 0,
+  "cloud_writes": 0,
+  "collaborator_server_access": false,
+  "lifecycle_note": "Dedicated temporary filesystem and scheduler attempt root; old roots and otherproject tasks preserved. All four tasks terminal and exactbindings restored.",
+  "retention": "Original durableCOSarchive reused, no newcheckpointbackup. Restored selectedinputs are disposable worker cache. Privateplans/short-lived links excluded fromGit."
+}
