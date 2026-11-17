@@ -1,5 +1,5 @@
 {
-  "schema": "qattn.rmea-context-geometry.v1",
+  "schema": "qattn.rmea-context-geometry.v3",
   "legacy_sources": {
     "rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
     "frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
@@ -7,11 +7,11 @@
   "inputs": {
     "cache": {
       "name": "features.npz",
-      "sha256": "c1279284a9a5e9d59e3303c591e657cc2f4f340b510f96d3ace727b89dcd6511"
+      "sha256": "13713d103aa0fb9860cb43cc7fc94fe08f7a979f8c75950703dbd1a6fdfd183f"
     },
     "cache_manifest": {
       "name": "cache-manifest.json",
-      "sha256": "8e5c6dec3ae31b2bbb4bdb45fa6b80b2be74275cea4d6afb87da612ad80392d8"
+      "sha256": "57c391af7529fbfb4b36cba6c1d66e33ad6a2b14c78d6d26e0bfefea95dd3a59"
     },
     "head": {
       "name": "quantum-selected.pt",
@@ -27,7 +27,7 @@
     }
   },
   "train_ids_sha256": "f2df684905140be85bcff9dc3556864bfe89b52ab8c566865e86bf0c91db96c5",
-  "allowed_admission_this_phase": "unit only; preflight/diagnose require verified pinned inputs and separate explicit scheduler admission",
+  "allowed_admission_this_phase": "Exact input preflight followed by one all2048 train descriptive diagnostic only after accepted preflight; no unit/model training/formal experiment or L5 claim",
   "cohort": "all2048 fixed train; anchors are numerical checks only",
   "head": "fresh5 first seed29 original selected quantum; no training/selection",
   "query_reassignment": "r -> (r+1)mod40 fixed utilities/bias",
@@ -41,7 +41,15 @@
       "timeout": 120,
       "max_attempts": 1
     },
-    "diagnose_draft_not_admitted": {
+    "preflight": {
+      "cpu": 1,
+      "ram_mb": 1536,
+      "disk_mb": 128,
+      "gpus": 0,
+      "timeout": 120,
+      "max_attempts": 1
+    },
+    "diagnose": {
       "cpu": 1,
       "ram_mb": 4096,
       "disk_mb": 512,
@@ -63,5 +71,86 @@
     "mask_float64_atol": 1e-13,
     "padding_content_same_shape_bitwise_invariance": true
   },
-  "stop": "any source/input identity/numerical/certificate/resource/queue mismatch; no automatic replay"
+  "stop": "any source/input identity/numerical/certificate/resource/queue mismatch; no automatic replay",
+  "diagnostic_environment": {
+    "torch": "2.4.1+cpu",
+    "numpy": "1.24.3"
+  },
+  "cache_reconstruction_profile": {
+    "source_revision": "9327d5bef83bc0d718ddb4d8f475a1e498a3421d",
+    "sources": {
+      "job.py": "65ef491f584953e463611ebe5e734af6adb891b0c7727b17b7fba2fe74380ecf",
+      "marked_words.py": "437f91122df088d1ff5153bf6d4682dc81c9102ca6a9acbefa7113f7f1aa4667",
+      "contract.json": "0bd46b7ba5b2f6ff9904865cf5effb908fb1a45fab42ebaa8dcdbef994cd01ec"
+    },
+    "environment": {
+      "torch": "2.4.1+cpu",
+      "numpy": "1.24.3",
+      "transformers": "4.44.2",
+      "tokenizers": "0.19.1",
+      "safetensors": "0.4.5",
+      "huggingface-hub": "0.24.6"
+    },
+    "asset_hashes": {
+      "config.json": "82ba49810e6441735e696033ac2512ee09da555507b2917ac3865b202d592cc3",
+      "merges.txt": "1ce1664773c50f3e0cc8842619a93edc4624525b728b188a9e0be33b7726adc5",
+      "vocab.json": "9e7f63c2d15d666b52e21d250d2e513b87c9b713cfa6987a82ed89e5e6e50655",
+      "tokenizer.json": "847bbeab6174d66a88898f729d52fa8d355fafe1bea101cf960dd404581df70e",
+      "pytorch_model.bin": "36a10a8b694fadf9bf4f9049d14e257e88be45313ae02d882af9e60f39b8b2e8"
+    },
+    "train_source_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+    "labels": [
+      "no_relation",
+      "org:alternate_names",
+      "org:city_of_branch",
+      "org:country_of_branch",
+      "org:dissolved",
+      "org:founded",
+      "org:founded_by",
+      "org:member_of",
+      "org:members",
+      "org:number_of_employees/members",
+      "org:political/religious_affiliation",
+      "org:shareholders",
+      "org:stateorprovince_of_branch",
+      "org:top_members/employees",
+      "org:website",
+      "per:age",
+      "per:cause_of_death",
+      "per:charges",
+      "per:children",
+      "per:cities_of_residence",
+      "per:city_of_birth",
+      "per:city_of_death",
+      "per:countries_of_residence",
+      "per:country_of_birth",
+      "per:country_of_death",
+      "per:date_of_birth",
+      "per:date_of_death",
+      "per:employee_of",
+      "per:identity",
+      "per:origin",
+      "per:other_family",
+      "per:parents",
+      "per:religion",
+      "per:schools_attended",
+      "per:siblings",
+      "per:spouse",
+      "per:stateorprovince_of_birth",
+      "per:stateorprovince_of_death",
+      "per:stateorprovinces_of_residence",
+      "per:title"
+    ],
+    "acceptance_sha256": "84fb119376e52136ed61302ca51dc21bc691e7d28e187aaafd5b9fef49d898c6",
+    "identity_policy": "New2048 train-only reconstruction; no old-cache byte/numeric equivalence. No validation/test scientific outcomes."
+  },
+  "execution_policy": {
+    "optimize": 0,
+    "PYTHONOPTIMIZE": "absent",
+    "deterministic_algorithms": true,
+    "threads": 1,
+    "replay_safe": false,
+    "max_attempts": 1,
+    "full_requires_owner_accepted_preflight_sha256_pinned_in_recipe": true
+  }
 }

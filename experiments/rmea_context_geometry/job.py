@@ -4,7 +4,10 @@ import copy
 import hashlib
 import json
 import os
+import sys
 from pathlib import Path
+if sys.flags.optimize or 'PYTHONOPTIMIZE' in os.environ:
+    raise RuntimeError('Non-optimized Python and absent PYTHONOPTIMIZE required')
 import numpy as np
 import torch
 from core import analyze, tv_rows
@@ -48,6 +51,26 @@ def independent_circuit(angles):
 def source_check(contract):
     for name, expected in contract['legacy_sources'].items():
         assert sha(HERE / 'legacy' / name) == expected
+
+
+def source_hashes():
+    names=['__init__.py','core.py','job.py','contract.json','legacy/__init__.py',
+           'legacy/rmea.py','legacy/frozen_feature_head.py']
+    return {n:sha(HERE/n) for n in names}
+
+
+def accepted_preflight(args, contract):
+    assert args.preflight_acceptance is not None and args.preflight_acceptance_sha256 is not None
+    path=args.preflight_acceptance
+    assert all(not p.is_symlink() for p in [path.absolute(),*path.absolute().parents])
+    assert sha(path)==args.preflight_acceptance_sha256
+    receipt=json.loads(path.read_bytes())
+    assert receipt['schema']=='qattn.context-geometry.preflight.owner-acceptance.v3'
+    assert receipt['status']=='ACCEPTED_INPUT_PREFLIGHT_ONLY' and receipt['task_state']=='complete'
+    assert receipt['returncode']==0 and receipt['quiescent'] is True and receipt['attempt_count']==1
+    assert receipt['sources']==source_hashes()
+    assert receipt['input_hashes']=={k:r['sha256'] for k,r in contract['inputs'].items()}
+    assert receipt['environment']==contract['diagnostic_environment']
 
 
 def unit():
@@ -120,9 +143,24 @@ def unit():
 
 
 def inputs(contract, directory):
+    assert all(not p.is_symlink() for p in [directory.absolute(),*directory.absolute().parents])
+    assert dict(torch=torch.__version__,numpy=np.__version__)==contract['diagnostic_environment']
     for key, row in contract['inputs'].items():
         path = directory / row['name']
-        assert path.is_file() and sha(path) == row['sha256'], 'Pinned input missing or mismatched: '+key
+        assert path.is_file() and not path.is_symlink() and sha(path) == row['sha256'], 'Pinned input missing or mismatched: '+key
+    manifest=json.loads((directory/contract['inputs']['cache_manifest']['name']).read_bytes())
+    profile=contract['cache_reconstruction_profile']
+    assert manifest['schema']=='qattn.train-only-cache-reconstruction.result.v2'
+    assert manifest['action']=='rebuild' and manifest['counts']=={'train':2048}
+    assert manifest['revision']==profile['source_revision'] and manifest['sources']==profile['sources']
+    assert manifest['environment']==profile['environment'] and manifest['asset_hashes']==profile['asset_hashes']
+    assert manifest['train_source_sha256']==profile['train_source_sha256']
+    assert manifest['train_ids_sha256']==contract['train_ids_sha256']
+    assert manifest['features']['sha256']==contract['inputs']['cache']['sha256']
+    assert manifest['labels']==profile['labels'] and manifest['threads']==1 and manifest['batch_size']==4
+    assert manifest['python_execution']=={'optimize':0,'PYTHONOPTIMIZE_present':False}
+    assert not manifest['old_cache_byte_or_numeric_equivalence'] and not manifest['head_training']
+    assert not manifest['validation_test_members_read']
     head = RMEAHead('quantum').eval()
     payload = torch.load(directory / contract['inputs']['head']['name'], map_location='cpu', weights_only=True)
     head.load_state_dict(payload, strict=True)
@@ -137,7 +175,7 @@ def inputs(contract, directory):
             anchors.append(float(abs(logits.numpy()-expected).max()))
     # Open train arrays only: validation/test outcomes are not used by this diagnostic.
     with np.load(directory / contract['inputs']['cache']['name'], allow_pickle=False) as data:
-        assert not any(k.startswith('test') for k in data.files)
+        assert set(data.files)=={'train_'+k for k in ['features','roles','offsets','targets','ids']}
         train = {k:data['train_'+k].copy() for k in ['features', 'roles', 'offsets', 'targets', 'ids']}
     assert len(train['targets']) == 2048 and len(train['offsets']) == 2049
     assert train['offsets'][0] == 0 and train['offsets'][-1] == len(train['features'])
@@ -147,6 +185,7 @@ def inputs(contract, directory):
     assert train['targets'].dtype.kind in 'iu' and train['targets'].min() >= 0 and train['targets'].max() < 40
     assert hashlib.sha256(b''.join(train['ids'])).hexdigest() == contract['train_ids_sha256']
     assert len(set(train['ids'])) == 2048
+    assert np.isfinite(train['features']).all() and np.isfinite(train['roles']).all()
     return head, train, anchors
 
 
@@ -176,6 +215,7 @@ def diagnose(head, data):
             transitions['prediction_changed'] += int(original != changed)
             transitions['decision_certified'] += int(r['decision_certified'])
             transitions['native_argmax_disagreements'] += int(r['native_argmax'] != original)
+            if (i+1)%256==0:print(json.dumps({'stage':'diagnose','train_entries':i+1}),flush=True)
     pairs = [dict(labels=[i,j], **{key:float(value[i,j]/n) for key,value in sums.items()}) for i in range(40) for j in range(i+1,40)]
     assert len(pairs) == 780 and int(confusion.sum()) == n
     return dict(status='PASS_DESCRIPTIVE_ONLY', train_entries=n, class_counts=counts.tolist(),
@@ -188,8 +228,11 @@ def diagnose(head, data):
 def main():
     p = argparse.ArgumentParser(); p.add_argument('--action', choices=['unit','preflight','diagnose'], required=True)
     p.add_argument('--output', type=Path, required=True); p.add_argument('--inputs', type=Path)
+    p.add_argument('--preflight-acceptance',type=Path);p.add_argument('--preflight-acceptance-sha256')
     args = p.parse_args(); torch.set_num_threads(1); torch.use_deterministic_algorithms(True)
+    assert os.environ.get('CUDA_VISIBLE_DEVICES')=='', 'Scheduler must hide GPUs'
     contract = json.loads((HERE/'contract.json').read_bytes()); source_check(contract)
+    if args.action=='diagnose':accepted_preflight(args,contract)
     assert not args.output.exists() or not any(args.output.iterdir()), 'Output must be new/empty'
     args.output.mkdir(parents=True, exist_ok=True)
     if args.action == 'unit': result = unit()
@@ -199,7 +242,12 @@ def main():
         result = dict(status='PASS_INPUT_PREFLIGHT', anchors_max_error=anchors)
         if args.action == 'diagnose': result.update(diagnose(head, data))
     result.update(action=args.action, contract_sha256=sha(HERE/'contract.json'),
-                  environment=dict(torch=torch.__version__, numpy=np.__version__), formal_training=False)
+                  environment=dict(torch=torch.__version__, numpy=np.__version__), formal_training=False,
+                  python_execution={'optimize':sys.flags.optimize,'PYTHONOPTIMIZE_present':'PYTHONOPTIMIZE' in os.environ},
+                  sources=source_hashes())
+    if args.action!='unit':
+        result['input_hashes']={k:v['sha256'] for k,v in contract['inputs'].items()}
+        result['cache_identity_scope']='New train-only reconstruction; old-cache byte/numeric equivalence unproven'
     save(args.output/'compact-report.json', result)
     save(args.output/'RUN_COMPLETE', dict(action=args.action, files={'compact-report.json':sha(args.output/'compact-report.json')}))
     print(json.dumps(dict(action=args.action, status=result['status'])))
