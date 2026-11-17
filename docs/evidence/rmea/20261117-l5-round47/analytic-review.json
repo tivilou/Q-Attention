@@ -1,0 +1,39 @@
+{
+  "verdict": "PASS_WITH_LIMITS",
+  "packet_sha256": "386673a95b92836a30c21708fccddc1082ae528d82751b24409bde4e45d92aa0",
+  "review_mode": "one_bounded_subagent_fallback",
+  "scope": "Packet-only analytic review. SHA256 matched 386673a95b92836a30c21708fccddc1082ae528d82751b24409bde4e45d92aa0. Native-source and paper facts are supplied evidence, not independently inspected sources. No model execution or L5 certification.",
+  "findings": [
+    {
+      "severity": "INFO",
+      "claim": "The conditional probability, logistic loss, row/column cancellation, and a=b exception are mathematically correct.",
+      "correction": "Retain the product-pseudo-joint qualification. For a≠b, CE(q1,a)+CE(q2,b) = conditional_NLL - log P({a,b}); the conditional objective discards the probability assigned to the conditioning event."
+    },
+    {
+      "severity": "INFO",
+      "claim": "Both abstract logit counterexamples correctly disprove individual-query correctness from a large positive D.",
+      "correction": "Continue labeling them abstract examples. They demonstrate margin compensation and third-class domination without establishing native-circuit realizability."
+    },
+    {
+      "severity": "INFO",
+      "claim": "The separate native free-bias transformation follows from the supplied additive-bias head equation.",
+      "correction": "For d outside {a,b}, choose Δ > max(0, max over i∈{1,2}, c≠d of [z(i,c)-z(i,d)]). Increasing bias[d] by Δ makes both predictions d while preserving D exactly. More generally, the conditional loss has zero derivative with respect to every explicit class bias. This is an analytic parameter-family result, not an executed intervention."
+    },
+    {
+      "severity": "LIMIT",
+      "claim": "The result defeats a guarantee based solely on conditional-loss bias cancellation.",
+      "correction": "It does not establish that CE plus this auxiliary loss is ineffective, untrainable, or worse than CE. Bias invariance of the objective also establishes no entity-input invariance or robustness of the original inference rule."
+    },
+    {
+      "severity": "LIMIT",
+      "claim": "The proposed source-transfer boundaries are consistent with the supplied reading summaries.",
+      "correction": "Keep literature conclusions scoped to the inspected portions. Generic multi-input quantum conditioning has a supplied precedent; this is not a complete novelty audit. A numeric class-index residual penalty lacks the supplied ordinal justification for Re-TACRED."
+    }
+  ],
+  "claim_ceiling": "A standard conditional-likelihood identity and a native additive-bias counterexample establish that this objective alone cannot guarantee correctness of the original independent 40-class predictions. No quantum-specific advantage, empirical failure of CE-plus-pair training, or broader impossibility follows.",
+  "implementation_recommendation": {
+    "decision": "DEFER_CURRENT_CANDIDATE",
+    "reason": "The corrected surviving result supports retaining an analytic exclusion, not allocating implementation or coefficient/seed searches now. No additional discriminating full-decision prediction is established."
+  },
+  "smallest_next_question": "Is there a task-input-supported, relation-label-permutation-invariant premise that excludes both individual-margin compensation and third-class domination in the native head?"
+}

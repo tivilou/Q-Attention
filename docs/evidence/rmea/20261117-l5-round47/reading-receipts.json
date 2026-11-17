@@ -1,0 +1,66 @@
+{
+  "schema": "qattn.l5.scoped-readings.v1",
+  "read_at_utc": "2026-11-17T00:09:29.025530+00:00",
+  "readings": [
+    {
+      "paper_id": "arxiv:2610.04588v1",
+      "title": "Variational Quantum Attention for Molecular Graph Learning",
+      "source_url": "https://arxiv.org/pdf/2610.04588v1",
+      "version": "2610.04588v1",
+      "pdf_sha256": "4bc4f01f831d76aa01a51b9df372726f2e592bc710bb832bcec895098163bfc5",
+      "total_pages": 36,
+      "reading_status": "scoped_original_reading",
+      "locators": [
+        "pp1-3 identity/abstract/introduction",
+        "p4 related work and GAT",
+        "pp5-7 amplitude encoding, Eq7-11 conditional quantum scorer, learned scale and neighbor softmax",
+        "p8 fixed scaffold/fivefold protocol and main result boundary"
+      ],
+      "visually_inspected_pages": [],
+      "source_facts": [
+        "Eq7 p6 fuses receiver/neighbor/bond with three affine terms.",
+        "Eq8-11 p7: shared VQC, per-head Pauli-Z expectation, learned scale, classical neighbor softmax/message passing.",
+        "p8: five molecular tasks, fixed scaffold test and folds; task/config-dependent results and matched GATv2 control."
+      ],
+      "transfer_interpretation_and_limits": [
+        "Amplitude encoding/Z logit/softmax differs from native RMEA fidelity+epsilon/linear word normalization/signed40decoder.",
+        "Multi-input conditional quantum attention is not itself a new Q-RMEA contribution.",
+        "No claim about unread appendices, molecular case evidence or all36pages; no code reproduction."
+      ],
+      "receipt_sha256": "4cd5864b2681e5e49150f17562e34d2317233acf6686b58ea89c21d836bd5f55",
+      "missing": "Unread pages not claimed read; PDF helper reading field remains not_started because it does not certify semantic reading."
+    },
+    {
+      "paper_id": "arxiv:2608.20548v1",
+      "title": "Keep Your Friends Close, and the Right Neighbours Closer: Disaster-Conditioned Kernel-Regularized Graph Attention for Building Damage Classification",
+      "source_url": "https://arxiv.org/pdf/2608.20548v1",
+      "version": "2608.20548v1",
+      "pdf_sha256": "787697557351053079afce01921c9aa0bcec25f5cd5d68b87c85abba7d208dc4",
+      "total_pages": 17,
+      "reading_status": "scoped_original_reading",
+      "locators": [
+        "pp1-3 identity/problem/motivation",
+        "pp4-6 graph, frozen image representation, disaster-conditioned kernel",
+        "p7 visual Eq7-10 log-prior attention and training objective",
+        "p8 visual Eq11-14 ordinal residual correlation; stated evaluation protocol"
+      ],
+      "visually_inspected_pages": [
+        7,
+        8
+      ],
+      "source_facts": [
+        "p7 Eq7 adds lambda*log(kernel+epsilon) to learned edge logits before neighbor softmax; graph topology stays fixed.",
+        "p8: expected numeric severity and within-event centered residual Moran correlation regularizer with positive-part penalty.",
+        "Ordinal damage labels, known disaster type and geographic graph are substantive assumptions."
+      ],
+      "transfer_interpretation_and_limits": [
+        "No natural severity ordering or geographic counterpart established for40ReTACRED classes; arbitrary class-index residual penalty invalid as a transfer.",
+        "No improvement/theorem transfer from building damage to relation extraction.",
+        "Onlypp1-8 read of17; results beyondp8 and appendices not audited; no reproduction."
+      ],
+      "receipt_sha256": "cf8336b78f5f191948b3d218211c3b2dd10a858aab935560c18f960d8cb999d3",
+      "missing": "Unread pages not claimed read; PDF helper reading field remains not_started because it does not certify semantic reading."
+    }
+  ],
+  "public_scope": "Original scholarly sources only; no private dataset, model or project artifacts transferred."
+}
