@@ -1,0 +1,89 @@
+{
+  "schema": "qattn.context-geometry.native-unit-and-cache-preflight.v1",
+  "status": "PASS_UNIT_AND_INPUT_PREFLIGHT_ONLY",
+  "l5": "NOT_ACCEPTED",
+  "accepted_scoped_l4_card_sha256": "ba10c598e8f12b91668a339cff8d367647025124494afac0f37221c1f023d89e",
+  "unit": {
+    "revision": "906845c7f254d3bce5ba0cff59bf7883f194b69f",
+    "source_sha256": "64b2ca7edd59f2625e59ded0e9288f3277f498a93f64bbb325180098caea9cf1",
+    "contract_sha256": "2a6198ae8fc30db07ebfb7bed09053ae63e779614b01ebd048f2a128ac59e92d",
+    "attempt_count": 1,
+    "unit_report": {
+      "status": "PASS",
+      "cases": [
+        "independent_dense_gate_reference",
+        "native_float32_full40_bounds",
+        "padded_mask",
+        "duplicate_tokens",
+        "common_noop_reduction",
+        "signed_native_mass_correction",
+        "context_counterexample"
+      ],
+      "dense_circuit_max_error": 3.469446951953614e-16,
+      "max_logit_violation": 0.0,
+      "max_geometry_violation": 0.0,
+      "mask_float32_max_error": 8.940696716308594e-08,
+      "mask_float64_max_error": 1.3322676295501878e-15,
+      "context_tv": [
+        0.0,
+        0.9987508122093547
+      ],
+      "model_training": false,
+      "research_data_read": false,
+      "action": "unit",
+      "contract_sha256": "2a6198ae8fc30db07ebfb7bed09053ae63e779614b01ebd048f2a128ac59e92d",
+      "environment": {
+        "torch": "2.4.1+cpu",
+        "numpy": "1.24.3"
+      },
+      "formal_training": false
+    },
+    "outputs": {
+      "RUN_COMPLETE": {
+        "bytes": 135,
+        "sha256": "cac1bd24d1f36c1515cb05df8c8d6373411ce25e0ab8e754590eda12c19f2128"
+      },
+      "compact-report.json": {
+        "bytes": 795,
+        "sha256": "b8ee62e2526e127c6882574322b49b367d1fc78d3a6127bd95af6d59406a1d0c"
+      }
+    },
+    "returncode": 0,
+    "quiescent": true,
+    "owner_binding_exact_restored": true,
+    "worker_binding_exact_restored": true,
+    "old_v1_failure_retained": true,
+    "data_or_weights_loaded": false,
+    "model_training": false,
+    "cos_requests": 0,
+    "claim_ceiling": "Synthetic implementation validation only; not2048train task evidence or L5."
+  },
+  "baseline_v1": {
+    "revision": "7607a06f4a5ba7507a82d51acf47c653b6ff7138",
+    "returncode": 1,
+    "failure": "torch.equal across different GEMM batch shapes; stderr/terminal receipt retained separately, not reclassified",
+    "source_checkpoints_preserved": true
+  },
+  "reconstruction_preflight": {
+    "revision": "9327d5bef83bc0d718ddb4d8f475a1e498a3421d",
+    "counts": {
+      "train": 4
+    },
+    "peak_rss_kib": 3058620,
+    "timing": {
+      "setup_seconds": 4.759589133784175,
+      "encode_seconds": 1.8767147306352854,
+      "elapsed_seconds": 6.731284145265818
+    },
+    "projected_seconds_heuristic": 965.6375312190503,
+    "returncode": 0,
+    "quiescent": true,
+    "old_cache_byte_or_numeric_equivalence": false,
+    "input_train_ids_sha256": "f2df684905140be85bcff9dc3556864bfe89b52ab8c566865e86bf0c91db96c5",
+    "model_training": false
+  },
+  "train2048_reconstruction_at_checkpoint": "RUNNING_EXISTING_SINGLE_ATTEMPT",
+  "diagnostic_status": "NOT_ADMITTED; frozen new input hashes and independent review still required",
+  "cos_requests_this_continuation": 0,
+  "raw_text_or_tensors_or_weights_in_report": false
+}
