@@ -1,0 +1,134 @@
+{
+  "schema": "qattn.l5-round59-primary-review.v1",
+  "status": "COMPLETE_EXPLORATORY_DIAGNOSTIC_DIRECTION",
+  "l5_accepted": false,
+  "original_readings": {
+    "schema": "qattn.bounded-original-readings.v1",
+    "new_original": {
+      "title": "Joint Embedding of Words and Labels for Text Classification",
+      "url": "https://arxiv.org/abs/1805.04174v1",
+      "version": "1805.04174v1",
+      "pdf_sha256": "c7225f6a2897801df7d8027b11e76c7753a069bf4d920aabc21a3701243ced52",
+      "pages": 11,
+      "read_pages": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "findings": [
+        "p4 Eq2 cosine label-word compatibility; Eq3 phrase transform; Eq4 max across labels; Eq5 wordsoftmax; Eq6 one shared sequence representation.",
+        "p5 Eq7 singlelabel CE/free linearreadout and Eq9 classifies label embeddings as regularization. Label embeddings are trained, with descriptions used for initialization; this is not a fixedMUBcodebook.",
+        "Thus label-word compatibility and geometry-sensitive label regularization are prior mechanisms. Exact perlabel Born normalization, fixedMUBcodes and current full40classifier are not identical to this source."
+      ],
+      "limits": "Bounded original reading; no code, experiments, fullproof or exhaustive current literature audit."
+    },
+    "reused_scoped_originals": {
+      "docs/evidence/rmea/20261116-l5-round14/reading-receipts.json": "e1015914a4ca7c66ab0ec91cdcea2928ccce60daffcd0b687fd59210e692c790",
+      "docs/evidence/rmea/20261116-l5-round14/attention-mapping-audit.json": "25f7df6856f1f680534655441159be73407f4be77bdd9dfc55ddc807d0cdb89f",
+      "docs/evidence/rmea/20261116-l5-round14/next-theory-advice.json": "d7516803bae1f1628844757d0295c23390c9d53d6bbf66709a27423ec70e40ab"
+    },
+    "dedup_correction": "CAML and LAAT originals were already read in R14. R58 pending labelattention work means a candidate-specific comparison, not absence of those original readings."
+  },
+  "source_proof": {
+    "source_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "source_locators": [
+      "rmea.py circuit",
+      "rmea.py forward quantum probability, EPS, mask normalizer, utilities and bias"
+    ],
+    "proof": "For valid unit token states rho_t=|psi_t><psi_t|, unit query phi, eps>0, set A_t=rho_t+eps I8 and B=sum_valid A_t. Then B is positive definite. Set M_t=B^-1/2 A_t B^-1/2, so M_t>=0 and sum M_t=I8. Set chi_phi=B^1/2 phi/sqrt(phi^dagger B phi). Source alpha_t=(Tr(P_phi rho_t)+eps)/(sum_valid Tr(P_phi rho_t)+T eps)=<chi_phi|M_t|chi_phi>. This is an equivalent token-index POVM representation, not a new learned40label POVM or model modification. Measurement contracts trace distance, giving TV(alpha_phi,alpha_psi)<=sqrt(1-|phi^dagger B psi|^2/((phi^dagger B phi)(psi^dagger B psi))). One proof takes the sum of M_t over the positive probability-difference event as an effect0<=E<=I; its expectation difference is bounded by the trace distance of the two pure states, whose two nonzero eigenvalues are +/-sqrt(1-fidelity). For fixed arbitrary real utilities u_rt and query reassignment pi(r), |z'_r-z_r|<=osc(u_r)*TV(alpha_r,alpha_pi(r))=:delta_r by TV duality. Thus all40decisions are unchanged if each original winning margin z_y-z_r>delta_y+delta_r. For any fixed true target y, CE(z',y)<=log(1+sum_{r!=y}exp(z_r-z_y+delta_r+delta_y)). No positivity, common utility or shared bias restriction is imposed on this general bound; no Macro-F1 or gain guarantee follows. These are known operator/data-processing/TV tools, not newL5theory. Identities are in exact arithmetic; finite native norms and reductions need explicit residual checks, not bitwise equivalence assumptions.",
+    "independent_review": false,
+    "l5_accepted": false
+  },
+  "exact_math": {
+    "schema": "qattn.context-conditioned-query-audit.v1",
+    "status": "PASS",
+    "epsilon": "1/1000000",
+    "exact_arithmetic": "Fraction for all normalization, fidelity, TV and logit quantities; floats only for illustrative log-exp evaluation.",
+    "fixture_dimension": "Two-dimensional support embedded in C8; no native depth2 ansatz reachability claim.",
+    "fixed_query_coordinates": [
+      [
+        "9999/10001",
+        "200/10001"
+      ],
+      [
+        "9999/10001",
+        "-200/10001"
+      ]
+    ],
+    "raw_query_fidelity": "9988003799880001/10004000600040001",
+    "raw_query_fidelity_float": 0.9984009596960703,
+    "contexts": {
+      "uninformative": {
+        "attention_tv": "0",
+        "effective_query_fidelity": "9996020583972788843801880001/9996020599969605000602040001",
+        "illustrative_floats": {
+          "TV": 0.0,
+          "effective_fidelity": 0.9999999983996816
+        },
+        "exact_tv_data_processing_checked": true,
+        "signed_utility_TV_duality_checked": true,
+        "full40": {
+          "query_permutation": "r -> (r+1) mod40",
+          "native_model": false,
+          "fixed_target": 7,
+          "original_argmax": 39,
+          "reassigned_argmax": 39,
+          "decision_certified": true,
+          "CE_original": 3.8913253345511856,
+          "CE_reassigned": 3.8913253345511856,
+          "CE_upper": 3.8913253345511856
+        }
+      },
+      "discriminating": {
+        "attention_tv": "7998400080000000000/8008404080600040001",
+        "effective_query_fidelity": "99919996007201340071999599920001/64134535918171371984703256162800080001",
+        "illustrative_floats": {
+          "TV": 0.9987508122093547,
+          "effective_fidelity": 1.5579748816564025e-06
+        },
+        "exact_tv_data_processing_checked": true,
+        "signed_utility_TV_duality_checked": true,
+        "full40": {
+          "query_permutation": "r -> (r+1) mod40",
+          "native_model": false,
+          "fixed_target": 7,
+          "original_argmax": 38,
+          "reassigned_argmax": 39,
+          "decision_certified": false,
+          "CE_original": 4.543650863233149,
+          "CE_reassigned": 3.5021780948501124,
+          "CE_upper": 6.6316549572737244
+        }
+      }
+    },
+    "conclusion": "The same fixed nearly identical queries yield TV0 or TV>.99 in two contexts. Raw query overlap alone does not establish attention collapse or harmful task crosstalk.",
+    "source_identity": "A_t=rho_t+eps I; B=sum_t A_t; M_t=B^-1/2 A_t B^-1/2; chi=B^1/2 phi/sqrt(phi^dagger B phi). Alpha=chi^dagger M_t chi, sum_t M_t=I.",
+    "proven_bound": "TV(alpha(phi),alpha(psi)) <= sqrt(1-|phi^dagger B psi|^2/(phi^dagger B phi psi^dagger B psi)). For fixed utilities: abs(logit(querychange)) <= utility_range*TV. Full40 margin certificate and CE upper bound follow coordinatewise.",
+    "novelty": "Known POVM, pure-state trace distance and TV duality; not a new L5 contribution.",
+    "new_model_forwards": 0,
+    "new_data_reads": 0,
+    "new_training": 0,
+    "new_formal_runs": 0,
+    "l5_accepted": false
+  },
+  "decisions": [
+    "Reuse R14 CAML/LAAT originals rather than acquire/review them again. LEAM is an additional close original, not a quantum fixed-codebook identity.",
+    "Rawqueryfidelity is not sufficient to infer attention collapse. Fixedquerypair fidelity .99840096 yields TV0 or .99875081 in two contexts; exactrationalchecks and full40 signed-readout bounds pass.",
+    "Equivalent token-POVM/B-conditionedgeometry is known algebra, not a new mechanism or L5 theory. It does not reopen stopped joint40label methods.",
+    "Advance toward a bounded task-evidence measurement, not another selected geometric method. Draftprotocol is not reviewed worker code, actual admission or a runnable scientific result."
+  ],
+  "infrastructure": {
+    "old_CPU_endpoint": "Two read-only SSH connections refused; provider lifecycle and input survival unknown.",
+    "controller": "Observedonline; no diagnostic launched.",
+    "new_worker_admitted": false
+  },
+  "next_action": "Prepare and review the bounded context-geometry evidence diagnostic, then obtain fresh explicit scheduler CPU admission on an already authorized suitable node. First verify the pinned selectedhead and2048traincache; reuse existing copies or separately recover minimal pinned inputs, never infer loss from SSH failure. Do not silently rebuild/cache/substitute or launch from this draft. Use B-conditioned fidelity/actualTV and full40signedutility effects, not rawqueryoverlap as a bottleneck. Currentfixedlabelcodebook remains unselected; no formaltraining or oldL4transfer. AllAPIcallsmedium.",
+  "new_native_model_forwards": 0,
+  "new_private_model_or_data_reads": 0,
+  "new_training": 0,
+  "new_formal_runs": 0,
+  "new_COS_operations": 0,
+  "external_API_requests": 0,
+  "independent_theory_reviewers": 0
+}

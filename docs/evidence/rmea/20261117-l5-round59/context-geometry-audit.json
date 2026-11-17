@@ -1,0 +1,72 @@
+{
+  "schema": "qattn.context-conditioned-query-audit.v1",
+  "status": "PASS",
+  "epsilon": "1/1000000",
+  "exact_arithmetic": "Fraction for all normalization, fidelity, TV and logit quantities; floats only for illustrative log-exp evaluation.",
+  "fixture_dimension": "Two-dimensional support embedded in C8; no native depth2 ansatz reachability claim.",
+  "fixed_query_coordinates": [
+    [
+      "9999/10001",
+      "200/10001"
+    ],
+    [
+      "9999/10001",
+      "-200/10001"
+    ]
+  ],
+  "raw_query_fidelity": "9988003799880001/10004000600040001",
+  "raw_query_fidelity_float": 0.9984009596960703,
+  "contexts": {
+    "uninformative": {
+      "attention_tv": "0",
+      "effective_query_fidelity": "9996020583972788843801880001/9996020599969605000602040001",
+      "illustrative_floats": {
+        "TV": 0.0,
+        "effective_fidelity": 0.9999999983996816
+      },
+      "exact_tv_data_processing_checked": true,
+      "signed_utility_TV_duality_checked": true,
+      "full40": {
+        "query_permutation": "r -> (r+1) mod40",
+        "native_model": false,
+        "fixed_target": 7,
+        "original_argmax": 39,
+        "reassigned_argmax": 39,
+        "decision_certified": true,
+        "CE_original": 3.8913253345511856,
+        "CE_reassigned": 3.8913253345511856,
+        "CE_upper": 3.8913253345511856
+      }
+    },
+    "discriminating": {
+      "attention_tv": "7998400080000000000/8008404080600040001",
+      "effective_query_fidelity": "99919996007201340071999599920001/64134535918171371984703256162800080001",
+      "illustrative_floats": {
+        "TV": 0.9987508122093547,
+        "effective_fidelity": 1.5579748816564025e-06
+      },
+      "exact_tv_data_processing_checked": true,
+      "signed_utility_TV_duality_checked": true,
+      "full40": {
+        "query_permutation": "r -> (r+1) mod40",
+        "native_model": false,
+        "fixed_target": 7,
+        "original_argmax": 38,
+        "reassigned_argmax": 39,
+        "decision_certified": false,
+        "CE_original": 4.543650863233149,
+        "CE_reassigned": 3.5021780948501124,
+        "CE_upper": 6.6316549572737244
+      }
+    }
+  },
+  "conclusion": "The same fixed nearly identical queries yield TV0 or TV>.99 in two contexts. Raw query overlap alone does not establish attention collapse or harmful task crosstalk.",
+  "source_identity": "A_t=rho_t+eps I; B=sum_t A_t; M_t=B^-1/2 A_t B^-1/2; chi=B^1/2 phi/sqrt(phi^dagger B phi). Alpha=chi^dagger M_t chi, sum_t M_t=I.",
+  "proven_bound": "TV(alpha(phi),alpha(psi)) <= sqrt(1-|phi^dagger B psi|^2/(phi^dagger B phi psi^dagger B psi)). For fixed utilities: abs(logit(querychange)) <= utility_range*TV. Full40 margin certificate and CE upper bound follow coordinatewise.",
+  "novelty": "Known POVM, pure-state trace distance and TV duality; not a new L5 contribution.",
+  "new_model_forwards": 0,
+  "new_data_reads": 0,
+  "new_training": 0,
+  "new_formal_runs": 0,
+  "l5_accepted": false
+}
