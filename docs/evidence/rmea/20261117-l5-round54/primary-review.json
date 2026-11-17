@@ -1,0 +1,338 @@
+{
+  "schema": "qattn.l5-semantic-premise-primary-review.v1",
+  "status": "INSUFFICIENT_SEMANTIC_EVIDENCE",
+  "l5_accepted": false,
+  "new_method_selected": false,
+  "observed_result": {
+    "schema": "qattn.semantic-model-blind.compact.v2",
+    "status": "COMPLETE_REQUESTS_PARTIAL_STRUCTURAL_ACCEPTANCE",
+    "source_pack_sha256": "de7789feaa5824262615059e9d61481bd1450e2ce94c26c087b55e1724500234",
+    "protocol_sha256": "b1cd55b22f6955c8b1ef44130143c62c695e44f581283bc99e4d260a16bfba0a",
+    "execution_amendment_sha256": "28bc184105c5fac7a88e0fab733946aacc8889ef68458b4c1ddeac3ba67a38de",
+    "readers": {
+      "R1": {
+        "planned_groups": 32,
+        "accepted_groups": 8,
+        "structurally_rejected_groups": 24,
+        "query_status_counts": {
+          "unsupported_in_text": 4,
+          "supported": 12
+        },
+        "fragment_ownership_counts": {
+          "supports_B_only": 5,
+          "supports_both": 4,
+          "supports_A_only": 3
+        },
+        "groups_with_exclusive_fragment": 5
+      },
+      "R2": {
+        "planned_groups": 32,
+        "accepted_groups": 8,
+        "structurally_rejected_groups": 24,
+        "query_status_counts": {
+          "unsupported_in_text": 8,
+          "supported": 7,
+          "ambiguous_or_context_missing": 1
+        },
+        "fragment_ownership_counts": {
+          "supports_both": 2,
+          "supports_A_only": 3,
+          "supports_B_only": 2
+        },
+        "groups_with_exclusive_fragment": 4
+      }
+    },
+    "rejected_batches": [
+      {
+        "reader": "R1",
+        "batch": 1,
+        "planned_groups": 8,
+        "error_class": "AssertionError"
+      },
+      {
+        "reader": "R1",
+        "batch": 2,
+        "planned_groups": 8,
+        "error_class": "AssertionError"
+      },
+      {
+        "reader": "R1",
+        "batch": 3,
+        "planned_groups": 8,
+        "error_class": "AssertionError"
+      },
+      {
+        "reader": "R2",
+        "batch": 1,
+        "planned_groups": 8,
+        "error_class": "AssertionError"
+      },
+      {
+        "reader": "R2",
+        "batch": 2,
+        "planned_groups": 8,
+        "error_class": "AssertionError"
+      },
+      {
+        "reader": "R2",
+        "batch": 3,
+        "planned_groups": 8,
+        "error_class": "AssertionError"
+      }
+    ],
+    "query_status_agreement": {
+      "observed_agreements": 1,
+      "observed_disagreements": 1,
+      "comparable_queries": 2,
+      "planned_queries": 64,
+      "uncompared_queries": 62
+    },
+    "jointly_supported_queries": 0,
+    "literal_fragment_matches": 0,
+    "receipts": [
+      {
+        "reader": "R1",
+        "batch": 1,
+        "response_sha256": "ab3348086ca6a862682e66e0020408de435fb2a613de866ec6bc4b7bbdef9aa1",
+        "bytes": 20408,
+        "request_sha256": "ba2963054d930618adc62f79a69e45a86480ce9f1a839aac08936a088d1e8f01",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "medium",
+        "usage": {
+          "input_tokens": 2661,
+          "output_tokens": 2866,
+          "total_tokens": 5527,
+          "availability": "complete"
+        }
+      },
+      {
+        "reader": "R1",
+        "batch": 2,
+        "response_sha256": "a612db4fe69a64045c341781e9d9b76ca1fe3c9bb992709c7ddca7b57d199ee5",
+        "bytes": 22902,
+        "request_sha256": "48d996182a3ebc28e0d862ac2e987ce3c9560c629782ccceed643381bc5b5947",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "medium",
+        "usage": {
+          "input_tokens": 2860,
+          "output_tokens": 3529,
+          "total_tokens": 6389,
+          "availability": "complete"
+        }
+      },
+      {
+        "reader": "R1",
+        "batch": 3,
+        "response_sha256": "03b92c089831f6d46457308f49a4ad7043bd2b93c10e9ccb5b6770573057920f",
+        "bytes": 22295,
+        "request_sha256": "45a9b9832789282ac207f5d515ef5e6f45cc587f9e49d8417ff9cc6108b5b4eb",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "medium",
+        "usage": {
+          "input_tokens": 2879,
+          "output_tokens": 3010,
+          "total_tokens": 5889,
+          "availability": "complete"
+        }
+      },
+      {
+        "reader": "R1",
+        "batch": 4,
+        "response_sha256": "7f7cf9500b14040d43f4c18f58401e8de325057b90155b422f0ad96c587270c2",
+        "bytes": 24175,
+        "request_sha256": "7aba6af84bd1d9fce440ef13fe456ad86a0674515723b475edf8ce16d0e9acf9",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "medium",
+        "usage": {
+          "input_tokens": 2764,
+          "output_tokens": 3293,
+          "total_tokens": 6057,
+          "availability": "complete"
+        }
+      },
+      {
+        "reader": "R2",
+        "batch": 1,
+        "response_sha256": "e37e9ff6c88a55970b54c6291f6ca1b87e31d2577ef5a3bd07bdfaf7c56c7f8e",
+        "bytes": 23402,
+        "request_sha256": "82ff6630c4cf6c1f049f0868efb6e7726efbe364ba92fa219f36367df43a92a3",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "medium",
+        "usage": {
+          "input_tokens": 2670,
+          "output_tokens": 3372,
+          "total_tokens": 6042,
+          "availability": "complete"
+        }
+      },
+      {
+        "reader": "R2",
+        "batch": 2,
+        "response_sha256": "2569d359c27e12d12ece5390e46e0fcdc1be491a5826168629ba0ad710033fe9",
+        "bytes": 25087,
+        "request_sha256": "ebbbc33363a07e456a2a34cbc2bea98b2cf32cf190c426288d6a85db53c9c0e1",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "medium",
+        "usage": {
+          "input_tokens": 3008,
+          "output_tokens": 3813,
+          "total_tokens": 6821,
+          "availability": "complete"
+        }
+      },
+      {
+        "reader": "R2",
+        "batch": 3,
+        "response_sha256": "2b33c9fb431a4be22728268f112a51a7db4bc4165f774bd0380a7952c7771b12",
+        "bytes": 21301,
+        "request_sha256": "f6eaeeed64dc734d1422c323518b9eb1cc41e97e822e8cc7d02b7b49656616ce",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "medium",
+        "usage": {
+          "input_tokens": 2771,
+          "output_tokens": 3022,
+          "total_tokens": 5793,
+          "availability": "complete"
+        }
+      },
+      {
+        "reader": "R2",
+        "batch": 4,
+        "response_sha256": "c9227fe806132b76934a47e283f28cfacbfb5ee2fc2d141a68c51ea4ff8b898d",
+        "bytes": 22354,
+        "request_sha256": "92bb152107edd3f45172c434dc7ca2669a5dec80a9559a6d99f423abd317732e",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "medium",
+        "usage": {
+          "input_tokens": 2715,
+          "output_tokens": 2938,
+          "total_tokens": 5653,
+          "availability": "complete"
+        }
+      }
+    ],
+    "reader_requests": 8,
+    "span_overlap": {
+      "jointly_supported_queries": 0,
+      "intersection_tokens": 0,
+      "union_tokens": 0,
+      "pooled_token_iou": null,
+      "interpretation": "Descriptive query-matched span overlap even if predicates differ; not semantic agreement."
+    },
+    "evidence_limit": "Same-model exploratory judgments; rejected batches remain missing evidence and all32planned groups stay accounted for. Accepted subsets can be selection-biased. Status/literal matches are not semantic truth, independent human gold, population inference, class-label correctness or L5.",
+    "raw_text_or_annotations_public": false,
+    "new_corpus_reads": 0,
+    "new_encoder_forwards": 0,
+    "new_training": 0,
+    "new_formal_runs": 0,
+    "l5_accepted": false
+  },
+  "completion_audit": {
+    "status": "PASS",
+    "semantic_reader_requests": 8,
+    "new_requests_after_amendment": 7,
+    "first_response_unchanged": true,
+    "first_response_sha256": "ab3348086ca6a862682e66e0020408de435fb2a613de866ec6bc4b7bbdef9aa1",
+    "private_modes_verified": true,
+    "full_planned_denominators_accounted": true,
+    "raw_text_or_annotations_exported": false,
+    "l5_accepted": false,
+    "report_sha256": "1ea1ba5f629485cf094cb57e6372c8dafded97a1d47acb622e8c9aeeb01ed84c",
+    "reviewer_post_checks": "All specified count/receipt/first-response invariants checked against the actual terminal ledger; not semantic truth."
+  },
+  "route_sha256": "ea84358a07560d1aa10e438bad35ff48bfd68128a93fe28a8fd8b4cdf622b10e",
+  "reviews": {
+    "v1_block_sha256": "692a3048baa6455af1ba7b19eaa724810053878ee3e0019c69841079b30e7e98",
+    "v2_sha256": "ee6ec9c31fe1ea73ab0e5c4480fcc8bc1d550f50aea52204e7fb28e7f90eec45",
+    "v3": {
+      "schema": "qattn.semantic-reader.boundary-review.v3",
+      "freeze_sha256": "3ede1bacd6eb58485fc43358b015a7fe1787b50e32d78a8f26229f335508fb0f",
+      "review_scope": "both",
+      "verdict": "PASS_WITH_LIMITS",
+      "must_fix": [],
+      "review_route": "One isolated same-host delta review of a changed execution/accounting contract after a reported first-batch structural rejection. No private answer or semantic-reader verdict was supplied to this reviewer.",
+      "previous_review_sha256": "ee6ec9c31fe1ea73ab0e5c4480fcc8bc1d550f50aea52204e7fb28e7f90eec45",
+      "original_block_sha256": "692a3048baa6455af1ba7b19eaa724810053878ee3e0019c69841079b30e7e98",
+      "reviewed_files": {
+        "reader-protocol.json": "b1cd55b22f6955c8b1ef44130143c62c695e44f581283bc99e4d260a16bfba0a",
+        "reader-execution-amendment.json": "28bc184105c5fac7a88e0fab733946aacc8889ef68458b4c1ddeac3ba67a38de",
+        "readers.py": "c3dd9a84bfb86891f340508cb6d0bb77c5c4cfd6a6296a629241cbc68275a875",
+        "check_readers_fixture.py": "0896cf9f16c5d53298f8c90478e6a2bdcac7ab24e2073b60ca6e54cdbac64a49",
+        "reader-fixture-result.json": "d858b78e3203381e9c79dcb4af798c45e3052b84f8c7454711c76b47a8f4beb1",
+        "a6-medium-smoke.json": "1b728470d4ca2fa47178de72bbaa111cdd100f37e65661fac0e45b11e549a759"
+      },
+      "current_files_match_packet": true,
+      "amendment_assessment": {
+        "disposition": "Acceptable transparent post-failure execution amendment for this exploratory probe, not a changed acceptance threshold or an additional annotation budget.",
+        "unchanged_contract": "The protocol hash is identical to the reviewed v2 protocol. Prompt, A/B binding, cohort/order rule, medium profile, eight original request slots and inspected validation rules are retained. The amendment is separate from the API payload.",
+        "reported_trigger": "The packet reports that the saved completed R1 batch1 response failed has_nonentity. The reviewer did not inspect or independently reproduce that private event.",
+        "evidence_ceiling": "Completing the remaining originally planned requests can yield a complete request ledger with partial structural acceptance. It cannot restore complete annotations, make the rejected batch negative evidence or establish preregistered statistical confirmation."
+      },
+      "passed_static_checks": [
+        "All six current listed files match their exact embedded packet contents.",
+        "The cache is read before any submit. An existing response is checked against the deterministic request hash and reused without an API call. A started slot without a saved response still stops before resubmission.",
+        "The request payload remains independent of the amendment and contains no first-batch failure, other-reader answer, original label or desired conclusion. No reannotation instruction or prompt repair is sent.",
+        "parse_batch returns either the whole validated answer or no answer plus an exception class. It does not edit evidence spans, repair entities, salvage selected queries or return partially validated groups.",
+        "A rejected whole batch contributes eight missing groups to that reader and contributes no supported, unsupported or ambiguous semantic labels. The preexisting raw response remains read-only in the cache path.",
+        "Transport/persistence errors, wrong model/status and invalid public usage remain outside the annotation-rejection wrapper and stop execution. The amendment does not convert those trust-boundary failures into missing semantic units and continue silently.",
+        "Per-reader accounting checks accepted group count plus eight times rejected batch count equals32. The public report exposes planned32, accepted and structurally rejected group counts for each reader.",
+        "Cross-reader comparisons use only the intersection of accepted group IDs and verify query identity before comparing statuses. comparable_queries is twice the accepted-ID intersection size; observed disagreements are comparable minus agreements; uncompared is64 minus comparable. Missing annotations are therefore neither agreements nor disagreements.",
+        "Span overlap remains restricted to jointly supported, identity-matched queries within comparable groups. Its query denominator and pooled token intersection/union are reported, with an explicit nonsemantic interpretation even when predicates differ.",
+        "All eight request slots must be traversed before the final compact report is produced. The partial-acceptance status and rejected-batch ledger distinguish completed requests from completed annotations. The final eight-count describes the original slots including a reused first response, not eight additional calls.",
+        "The fixture adds a valid parse, malformed JSON rejection and an entity-only invalid answer that is returned as missing without mutating the original fixture. It also retains the public-usage, A/B, span and SSE checks. The reviewer inspected these reported results but did not execute them."
+      ],
+      "risks": [
+        "This amendment was made after observing a real structural failure. Preserve that timing and the original response/earlier review history; do not describe the revised missing-data handling as prospectively predeclared for the original run.",
+        "Whole-batch rejection can discard otherwise valid queries and can depend on text length, indexing difficulty or semantic complexity. The accepted subset is not demonstrably missing at random; its counts or agreement cannot be generalized to the32-group cohort or a population.",
+        "The fixture demonstrates parse-level rejection but not a full live eight-slot resume/accounting execution. Primary audit must verify the actual response ledger, original first-response integrity and final count identities after execution. No real private response was inspected here.",
+        "The first reported rejection is not pinned to an independently inspected raw baseline by this review. The code does not rewrite cached responses and checks request identity; the primary remains responsible for showing that the original saved response bytes were preserved.",
+        "The state is controlled by one primary process. The local lock and before-call journal do not certify distributed fencing across hosts; a started slot without a terminal response must be inspected through its existing handle, not replaced automatically.",
+        "The existing v2 transport limitations remain: socket timeout is not a strict total deadline, store=false does not prove later GET recovery, private writes can be interrupted before full publication, and actual owner permissions/network failures were not tested by this reviewer.",
+        "The launch gate relies on assertions and the exact both-scoped review/freeze. Normal Python assertions-enabled execution is assumed; changes to prompt, validator, retry policy, source or profile require a new freeze and scoped review.",
+        "Structural acceptance still does not establish semantic correctness of in-range spans, SUBJECT/OBJECT predicates or ownership labels. Contradictory or weak semantic judgments can remain among accepted answers."
+      ],
+      "scientific_limits": [
+        "Rejected batches are missing annotations, not unsupported_in_text outcomes and not evidence that the task-side premise is false.",
+        "One accepted reader for a group does not constitute two-reader agreement. The comparison denominator is the accepted intersection; all64 planned query pairs must remain visible alongside any comparable subset.",
+        "The same model supplies both annotation replicates. Stateless sessions prevent direct answer sharing but do not establish independent human evidence or remove shared bias and possible prior corpus exposure.",
+        "The predicates are open-ended, reader-generated discoveries. Status agreement, literal equality and token overlap are separate descriptive properties; none verifies a task label or semantic truth.",
+        "Any available exclusive-fragment example is at most a provisional finite model annotation. Neither this handling change nor completion of the request ledger establishes a population rate, held-out utility, quantum necessity, failure of entity-aware classical controls or L5.",
+        "This review concerns one existing pinned private artifact and its bounded external annotation workflow. It does not inspect or authorize corpus extraction, owner model execution, formal experiments, checkpoints or storage expansion."
+      ],
+      "post_execution_checks_not_executed_by_reviewer": [
+        "Each reader: accepted_groups + structurally_rejected_groups =32; sum(query_status_counts)=2*accepted_groups.",
+        "Exactly eight unique original(reader,batch) receipts, with no replacement first response and only the seven still-unstarted original slots newly requested.",
+        "observed_agreements + observed_disagreements = comparable_queries; comparable_queries + uncompared_queries =64.",
+        "jointly_supported_queries <= comparable_queries; literal_fragment_matches <= jointly_supported_queries;0<=intersection_tokens<=union_tokens.",
+        "If no jointly supported query exists, token intersection/union must be zero and pooled_token_iou null; do not fabricate an agreement rate for an empty comparable set."
+      ],
+      "execution": {
+        "reviewed_scripts_executed": false,
+        "fixture_results": "Inspected supplied frozen results only; not rerun",
+        "raw_pack_read": false,
+        "private_text_or_annotations_seen": false,
+        "server_access": false,
+        "network_or_model_calls": 0,
+        "other_agents_spawned": 0
+      },
+      "explanation": "The v3 correction retains the original failed answer and unchanged validation while allowing only the remaining original request slots to proceed. Rejected batches are represented as missing; accepted-intersection comparisons and explicit planned/comparable/uncompared counts prevent their silent conversion into negative labels or agreements. No new launch-blocking defect was found in this exact single-controller accounting path. PASS_WITH_LIMITS requires transparent post-failure provenance, accepted-subset bias and the distinction between a complete request ledger and incomplete annotations; live integrity, recovery and semantic truth remain unverified.",
+      "l5_accepted": false
+    },
+    "external_preparatory_review": "One max-profile code/protocol request timed out before the later medium instruction; no verdict, no private material. One same-host isolated reviewer handled changed boundary revisions, not semantic annotations."
+  },
+  "interpretation": [
+    "Open-ended predicates and spans were reader-generated. Structural acceptance does not certify relation truth.",
+    "Whole-batch structural rejection is missing evidence, not unsupported semantic labels; accepted subsets may be biased.",
+    "Same-model independent sessions only prevent direct answer sharing. They are not independent humans, new test data, gold or a population estimate.",
+    "Post-failure missing-data amendment retained the original first response and prompt; only the original remaining7slots were newly called.",
+    "No quantum necessity, failure of entity-aware classical controls, new task utility or same-core L5 follows. Do not require more annotations to resume other research."
+  ],
+  "next_action": "Investigate whether the native complex8-dimensional overlap family has a source-realizable ordinary-attention capacity distinction from the matched real8 family, and whether ANY such distinction survives the full40 signed value/readout rather than rank alone. This is an unverified analytical question, not a method. First check prior R1/R14 kernel/readout scope and nearest real/complex positive-semidefinite dimension originals; generic rank lifting is known and insufficient for L5. Keep raw-feature/encoder-image and matched-resource limits, no expected gain or quantum exclusivity assumption. The32-group model-blind probe is closed with missing evidence; no reannotation, replacement samples or mandatory human readers. All subsequent API calls use owner-selected medium. Preserve scopedL4/stopped routes; new formal runs remain collaborator-only.",
+  "semantic_reader_requests": 8,
+  "new_training": 0,
+  "new_formal_runs": 0,
+  "new_native_model_forwards": 0,
+  "new_corpus_scans": 0,
+  "new_COS_operations": 0,
+  "retention": "Raw answers and source/prompt/model provenance remain0700/0600owner-private. Public report hashes/counts only; no source text, annotation text or original IDs. No checkpoint/cache upload or deletion."
+}
