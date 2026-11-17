@@ -1,0 +1,106 @@
+{
+  "schema": "qattn.round64.review-and-protocol.v1",
+  "independent_review": {
+    "platform": "A6API",
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "requests": 1,
+    "automatic_retries": 0,
+    "request_sha256": "013c08244e2063f1eea5fcf297be46c2a2cb4b788fb49de3ef54ae9bfd94c606",
+    "original_verdict": {
+      "verdict": "REVISE",
+      "must_fix": [
+        "For the diagnostic, freeze eligibility, score precision, tie handling and denominators before score recovery. A cell with no gold-positive/predicted-null examples is undefined, not a pass; report counts as well as proportions.",
+        "Separate failure of the stipulated >50%-in-every-cell criterion from statistical rejection of a population claim. This is a finite-sample descriptive test, not an inferential or gain guarantee.",
+        "State that the PSD certificate requires exact Hermiticity, positive semidefiniteness and kernel span(q), not merely a small numerical residual."
+      ],
+      "psd_statement": "The implication is valid. Since eps>0, normalization denominators are positive. Equal alpha vectors make the unnormalized response vectors proportional by a positive scalar. Thus tr(rho H) is proportional to tr(rho0 H)=0. For PSD rho and H, zero trace product forces support(rho) into ker(H); a one-dimensional kernel and trace one then give rho=rho0. This certifies uniqueness even among mixed states, but failure to construct this sufficient certificate proves neither certificate infeasibility nor a collision. Neither numerical construction is a certificate.",
+      "local_statement": "The stated real and imaginary derivatives are correct for Hermitian C_i. The nonzero exact 14x14 minor gives an invertible derivative for 14 selected outputs on the 14-real-dimensional projective chart. The inverse function theorem therefore yields neighborhood-wise injectivity for pure rays and local determination of the mean Born response. The claim applies to the unit-normalized rational stored-state snapshot only: it establishes neither mixed-state uniqueness, global pure-state uniqueness, a quantified neighborhood, stable inversion nor an exact native-circuit result.",
+      "native_family_statement": "The analytic counterexample is valid under the stated circuit order and parameterization. With zero preparation rotations, every word state is |000>; with only the specified query RY active, both CNOT rings preserve the |000> amplitude. Consequently mu=cos^2(theta/2), while constant per-token responses yield alpha_i=1/T despite different mu values. Finite atanh(theta/pi) realizes both proposed angles. With fixed utilities and downstream inputs, identical alpha gives identical pooled rowlogits. This is an exact native parameter-family counterexample at a degenerate word frame, not a collision in the original trained frame or evidence of useful discarded information.",
+      "selected_next_action": "ORIGINAL_NULL_MARGIN_DIAGNOSTIC",
+      "next_question": "In each of the original 30 matched cells, among gold-positive/predicted-null examples, is the gold relation the unique highest-scoring nonnull relation in strictly more than half of eligible examples? Freeze definitions and report cell counts, ties and proportions; any defined cell at or below 50% fails the stipulated all-cell criterion, while empty cells remain unassessable. Before considering score recovery, assess the proposed four pinned 64 MiB inventory reads solely to resolve cross-seed cache reuse and estimate recovery costs, subject to separate access and scheduling review.",
+      "reason": "This tests a task-relevant necessary descriptive condition for the broad null-competition explanation using original scores, rather than extending an inverse problem without a predictive consequence. Failure would constrain that explanation; passing would justify only a separately specified prospective test. It can narrow a same-core L5 research question, but is not itself an L5 contribution. Inventory-first review is proportionate because reuse is unresolved and recovery is not admitted; the earlier 0.25 GiB operation cap must not be reinterpreted as a global budget.",
+      "limits": [
+        "No experiment, inventory read, replay, recovery job or scheduler admission is authorized or executed here; no collaborator raw-host access is proposed.",
+        "The score dump is absent. The stated seed29 feature/head footprint and source-chunk footprint do not establish cross-seed reuse or total recovery cost.",
+        "Unique highest nonnull score is not equivalent to a recoverable gain under one shared null threshold, nor does it establish causality, calibration, precision preservation or generalization.",
+        "Keep abstract architectural nonidentification, exact native-family nonidentification, rational-snapshot local identifiability and the unresolved original trained-frame global question distinct.",
+        "Original scoped L4 remains unchanged. All stopped families remain stopped; no gate, coefficient, seed or learned-threshold rescue is selected. Formal complete-data runs remain collaborator-only."
+      ],
+      "candidate": "NONE",
+      "l5_status": "NOT_ACCEPTED"
+    },
+    "rereview_performed": false
+  },
+  "primary_resolution": {
+    "status": "RESOLVED_IN_DELIVERABLES_NOT_REREVIEWED",
+    "items": [
+      {
+        "review_item": 1,
+        "resolution": "Core protocol freezes nativefloat32/indexargmax/strictuniquegoldwinner, inclusive denominator, exactties, invalid/empty behavior and all30rows before score recovery."
+      },
+      {
+        "review_item": 2,
+        "resolution": "Protocol and report explicitly distinguish finite-sample criterion failure from population statistical rejection; neither outcome guarantees gain."
+      },
+      {
+        "review_item": 3,
+        "resolution": "Report requires exact Hermiticity, PSD and one-dimensional kernel; both attempted numerical constructions remain inconclusive, no PSD proof claimed."
+      }
+    ]
+  },
+  "frozen_diagnostic_core": {
+    "schema": "qattn.original-null-margin-diagnostic.core.v1",
+    "status": "CORE_DEFINITIONS_FROZEN_REPLAY_NOT_ADMITTED",
+    "provenance": "Retrospective descriptive diagnosis proposed after prior aggregate results; not predeclared confirmation of the original L4 claim.",
+    "run": "20261029T021229Z_fresh5",
+    "seeds": [
+      29,
+      53,
+      71,
+      97,
+      113
+    ],
+    "heads": [
+      "quantum",
+      "relation_softmax",
+      "real_overlap"
+    ],
+    "splits": [
+      "valid",
+      "test"
+    ],
+    "expected_cells": 30,
+    "checkpoint": "Original validation-selected checkpoint, independently pinned hash per head/seed; no reselection.",
+    "data": "Original archived fixed encoder cache, label mapping and complete original split. No new train2048 substitute.",
+    "score_precision": "Primary native float32 forty-class logits, original index order0..39. No score renormalization, quantization, float64 replacement, rounding or tolerance-based ties in the primary calculation.",
+    "prediction": "argmax over all40scores with ascending-index first occurrence; nullindex0 therefore wins an exact maximum tie.",
+    "eligible": "Every valid original-split sample with gold in1..39 and primary prediction0; each sample counted exactly once, no filtering by margin, length, correctness elsewhere or case interest.",
+    "numerator": "Eligible samples with z_gold > max(z_r for r in1..39 except gold). Gold must be the unique highest nonnull score.",
+    "denominator": "All eligible samples in this cell, including exact nonnull ties, wrong-positive winners and null/positive ties.",
+    "ties": "Exact equality of nativefloat32 values. Gold tying another nonnull at maximum is a numerator failure; report all nonnull-maximum tie counts and null/positive maximum ties separately.",
+    "undefined": "Denominator0 gives UNDEFINED_EMPTY, never PASS or a proportion0/1. Do not silently drop an emptycell from allcell acceptance.",
+    "invalid": "Nonfinite score, invalid mapping/counts, duplicate/missing sample, wrongcheckpoint/cache or failed replaybridge yields INVALID, never filtered-out observations.",
+    "criterion": "A definedcell passes iff2*numerator>denominator. Any definedcell with2*numerator<=denominator fails the stipulated allcell condition. ALL30_DEFINED_PASS requires all30valid and nonempty, eachstrictly>50%; otherwise FAIL_DEFINED_CELL or UNASSESSABLE/INVALID as appropriate.",
+    "required_outputs": [
+      "Per-cell totaloriginalsamples, goldpositivecount, predictednullcount, eligiblecount, strictgoldwinnercount, exactnonnulltiecount, nullpositivetiecount, fraction or undefinedreason, numerator/denominator integer criterion, data/checkpoint/source identities.",
+      "All30cells including empty/invalid rows, plus overall descriptive status; no best-seed/label/split selection."
+    ],
+    "inference_boundary": "Finite-sample descriptive criterion only; failure is not statistical rejection of a population claim, and passing is not significance, causality, precision-preserving gains, one-shared-threshold recoverability or generalization.",
+    "replay_boundary": "Existing fullscore dump is absent. A separately reviewed replay contract must freeze batch/precision/TF32/evaluation details, original fullsplit confusion/count bridge and stored-anchor tolerances before any model execution. Failed bridge stops thatcell. This core contract does not admit a scheduler job.",
+    "execution_boundary": "No collaborator-host/rawrun/process access; original private pinned COS archive only. Model replay requires explicit project-authorized CPU admission through research-infrastructure and review, never new formal training.",
+    "forbidden": [
+      "Threshold/gate/coefficient/seed search",
+      "Relabeling a learnedthreshold as novelty",
+      "New baseline training",
+      "Formal complete-data owner experiment",
+      "Changing accepted L4 or stopped family decisions"
+    ],
+    "stage": "Inventory-only next: inspect four pinned64MiB prefixes, retain RUN_COMPLETE metadata, assess cross-seed cache reuse/cost; no selected payload or model job recovery.",
+    "candidate": "NONE",
+    "L5": "NOT_ACCEPTED"
+  },
+  "actual_inventory_step": "Four pinned inventory GETs completed; no selected-asset recovery or model replay.",
+  "candidate": "NONE",
+  "L5": "NOT_ACCEPTED"
+}

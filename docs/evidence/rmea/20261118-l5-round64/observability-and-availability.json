@@ -1,0 +1,123 @@
+{
+  "schema": "qattn.round64.compact-evidence.v1",
+  "fixed_trace_sha256": "25827062f443b8394263955f0facbf8de20ffb76e5dfded9e883e279e8782ad6",
+  "fixed_trace_index": 0,
+  "fixed_label_row": 0,
+  "numeric_psd_constructions": {
+    "v1": {
+      "status": "INCONCLUSIVE_CONSTRUCTION",
+      "numeric": {
+        "status": "NUMERIC_CONSTRUCTION",
+        "action_rank": 15,
+        "nullity": 25,
+        "h_plus_rho_min_eigenvalue": -0.03341684005680587,
+        "h_phi_norm": 2.852173049699222e-16
+      },
+      "ambiguity_proven": false,
+      "L5": "NOT_ACCEPTED"
+    },
+    "v2": {
+      "status": "INCONCLUSIVE_CONSTRUCTION",
+      "numeric": {
+        "status": "NUMERIC_CONVEX_FEASIBILITY_CONSTRUCTION",
+        "iterations": 250,
+        "iteration_cap": 250,
+        "cone_floor": 0.1,
+        "action_rank": 15,
+        "nullity": 25,
+        "h_plus_rho_min_eigenvalue": -0.0032682223936443657,
+        "h_phi_norm": 2.424240418390721e-16
+      },
+      "ambiguity_proven": false,
+      "L5": "NOT_ACCEPTED"
+    },
+    "boundary": "Neither is a PSD certificate or proof of infeasibility/collision."
+  },
+  "exact_local_rational_result": {
+    "schema": "qattn.local-observability.audit.v1",
+    "status": "EXACT_RATIONAL_LOCAL_RANK14_PASS",
+    "input_trace_sha256": "25827062f443b8394263955f0facbf8de20ffb76e5dfded9e883e279e8782ad6",
+    "trace_index": 0,
+    "label_row": 0,
+    "valid_tokens": 40,
+    "rank": 14,
+    "exact_minor_nonzero": true,
+    "numeric_jacobian_singular_min": 0.007790342243379901,
+    "numeric_jacobian_singular_max": 1.7402779569484217,
+    "certificate_sha256": "34da8001f408789aad506c235fe8d7ad0c514c7196d3969ef4661380fdc74c2f",
+    "scope": "Local pure-state identifiability in a projective chart of the unit-normalized rational stored-state frame.",
+    "implies": "Inverse function theorem gives some neighborhood with a unique query ray and hence locally determined mean Born response.",
+    "not_proven": [
+      "Global identifiability or absence of distant native collisions.",
+      "Exact circuit vectors, a quantified neighborhood radius, or numerically stable reconstruction.",
+      "Predictive relevance, a useful gate, new architecture, formal utility or L5."
+    ],
+    "model_jobs": 0,
+    "circuit_evaluations": 0,
+    "cos_requests": 0,
+    "labels_or_outcomes_read": false,
+    "candidate": "NONE",
+    "L5": "NOT_ACCEPTED"
+  },
+  "native_family_analytic_counterexample": {
+    "status": "ANALYTIC_NOT_MODEL_EXECUTED",
+    "frame": "All wordstates |000> from zero prepare.",
+    "query": "One first-layer wire0 RY; all other rotations0.",
+    "theta": [
+      "pi/2",
+      "pi/3"
+    ],
+    "mean_born": [
+      "1/2",
+      "3/4"
+    ],
+    "attention": "Uniform1/T for both, with EPS>0.",
+    "scope": "Native parameter-family degenerate frame only; not the original trained frame."
+  },
+  "original_archive_availability": {
+    "schema": "qattn.cross-seed-availability.v1",
+    "status": "AUTHENTICATED_INVENTORY_COMPARISON_PASS",
+    "seeds": [
+      29,
+      53,
+      71,
+      97,
+      113
+    ],
+    "artifact_files_per_seed": 159,
+    "cache_assets_compared": 9,
+    "all5_declared_cache_content_hashes_equal": true,
+    "selected_head_hashes_distinct_per_condition": true,
+    "logical_shared_cache_and15heads_bytes": 2402441115,
+    "logical_5separatecopies_bytes": 11993234535,
+    "logical_shared_cache_and15heads_gib": 2.237447644583881,
+    "source_derived_chunk_read_bytes_noanchors": 2751463424,
+    "source_derived_chunk_read_gib_noanchors": 2.5625,
+    "source_derived_chunk_read_bytes_with60anchors": 2915876864,
+    "source_derived_chunk_read_gib_with60anchors": 2.7156219482421875,
+    "source_derived_total_lengths_match_all5archives": true,
+    "layout_status": "SOURCE_DERIVED_OFFSETS_NOT_INDEPENDENTLY_BYTE_VERIFIED; NOT_AN_ACCEPTED_PARTIAL_RESTORER",
+    "new_inventory_get_requests": 4,
+    "new_inventory_payload_bytes": 268435456,
+    "sdk_and_http_retries": 0,
+    "cloud_writes": 0,
+    "retained_large_segments": 0,
+    "price_quote": null,
+    "recovery_admitted": false,
+    "score_replay_executed": false,
+    "model_jobs": 0,
+    "limits": [
+      "Matching declared hashes permits a shared-content recovery plan; actual bytes must be restored and hashed before use.",
+      "All source-derived offsets/header lengths still require byte checks in a reviewed partial restorer; matching total sizes does not certify individual offsets.",
+      "Snapshot-specific COS objects remain separate; this read comparison does not change existing cloud storage or install deduplication.",
+      "Traffic estimates are bytes, not a current monetary quote; actual route, finite retries and temporary disk/RAM admission remain to be frozen."
+    ],
+    "candidate": "NONE",
+    "L5": "NOT_ACCEPTED"
+  },
+  "public_local_recompute_code_sha256": "a90ee202cb45a0578b64c4d0145c2c93bede31f1124c30c1f8283ca4b42ae32f",
+  "current_exact_native_global_question": "UNRESOLVED_NOT_REPLACED_BY_LOCAL_RESULT",
+  "new_model_or_circuit_jobs": 0,
+  "candidate": "NONE",
+  "L5": "NOT_ACCEPTED"
+}
