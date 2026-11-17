@@ -1,5 +1,6 @@
 """Source-bound CPU unit/preflight/diagnostic job; never trains a model."""
 import argparse
+import copy
 import hashlib
 import json
 import os
@@ -72,8 +73,20 @@ def unit():
                         head.bias.numpy(), detail['logits'][i].numpy(), i)
             results.append(r)
         trimmed = head(h[:1, :3], roles[:1, :3], mask[:1, :3], details=True)
-        assert torch.equal(detail['alpha'][0, :, :3], trimmed['alpha'][0])
+        mask_alpha_error = float((detail['alpha'][0, :, :3]-trimmed['alpha'][0]).abs().max())
+        assert torch.allclose(detail['alpha'][0, :, :3], trimmed['alpha'][0], rtol=2e-6, atol=1e-7)
         assert torch.allclose(detail['logits'][0], trimmed['logits'][0], rtol=1e-6, atol=1e-6)
+        # Same-shape masked perturbation isolates padding from GEMM shape effects.
+        altered_h=h.clone();altered_roles=roles.clone()
+        altered_h[~mask]=100;altered_roles[~mask]=-100
+        altered=head(altered_h,altered_roles,mask,details=True)
+        assert torch.equal(detail['alpha'],altered['alpha'])
+        assert torch.equal(detail['logits'],altered['logits'])
+        double=copy.deepcopy(head).double()
+        full64=double(h.double(),roles.double(),mask,details=True)
+        trimmed64=double(h[:1,:3].double(),roles[:1,:3].double(),mask[:1,:3],details=True)
+        mask_float64_error=float((full64['alpha'][0,:,:3]-trimmed64['alpha'][0]).abs().max())
+        assert torch.allclose(full64['alpha'][0,:,:3],trimmed64['alpha'][0],rtol=1e-12,atol=1e-13)
         assert torch.equal(detail['alpha'][0, :, 0], detail['alpha'][0, :, 1])
         assert torch.count_nonzero(detail['alpha'][0, :, 3:]) == 0
     # Constant signed utilities expose the omitted native row-mass correction.
@@ -102,6 +115,7 @@ def unit():
                 'context_counterexample'], dense_circuit_max_error=error,
                 max_logit_violation=max(x['logit_violation'] for x in results),
                 max_geometry_violation=max(x['geometry_violation'] for x in results),
+                mask_float32_max_error=mask_alpha_error,mask_float64_max_error=mask_float64_error,
                 context_tv=values, model_training=False, research_data_read=False)
 
 
