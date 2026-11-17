@@ -1,0 +1,62 @@
+{
+  "schema": "qattn.rmea-context-geometry.v1",
+  "legacy_sources": {
+    "rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "inputs": {
+    "cache": {
+      "name": "features.npz",
+      "sha256": "c1279284a9a5e9d59e3303c591e657cc2f4f340b510f96d3ace727b89dcd6511"
+    },
+    "cache_manifest": {
+      "name": "cache-manifest.json",
+      "sha256": "8e5c6dec3ae31b2bbb4bdb45fa6b80b2be74275cea4d6afb87da612ad80392d8"
+    },
+    "head": {
+      "name": "quantum-selected.pt",
+      "sha256": "1c392139393b72a54946ca3f8796569aeeebff8610185467e3dcd2c0044efb77"
+    },
+    "anchor0": {
+      "name": "quantum-selected-valid-0.npz",
+      "sha256": "25827062f443b8394263955f0facbf8de20ffb76e5dfded9e883e279e8782ad6"
+    },
+    "anchor1": {
+      "name": "quantum-selected-valid-1.npz",
+      "sha256": "ce400bc5a2ff7e016fb790095a20b68c4bbdfcc8816847a0dba4cb756b8acd1f"
+    }
+  },
+  "train_ids_sha256": "f2df684905140be85bcff9dc3556864bfe89b52ab8c566865e86bf0c91db96c5",
+  "allowed_admission_this_phase": "unit only; preflight/diagnose require verified pinned inputs and separate explicit scheduler admission",
+  "cohort": "all2048 fixed train; anchors are numerical checks only",
+  "head": "fresh5 first seed29 original selected quantum; no training/selection",
+  "query_reassignment": "r -> (r+1)mod40 fixed utilities/bias",
+  "retention": "Git compact code/report only; no new COS objects or private arrays",
+  "resources": {
+    "unit": {
+      "cpu": 1,
+      "ram_mb": 1536,
+      "disk_mb": 128,
+      "gpus": 0,
+      "timeout": 120,
+      "max_attempts": 1
+    },
+    "diagnose_draft_not_admitted": {
+      "cpu": 1,
+      "ram_mb": 4096,
+      "disk_mb": 512,
+      "gpus": 0,
+      "timeout": 1200,
+      "max_attempts": 1
+    }
+  },
+  "numerics": {
+    "norm_tolerance": 5e-06,
+    "geometry_tolerance": 1e-08,
+    "native_mass_correction": true,
+    "native_and_common_reduction_separate": true,
+    "anchor_rtol": 0.0003,
+    "anchor_atol": 5e-05
+  },
+  "stop": "any source/input identity/numerical/certificate/resource/queue mismatch; no automatic replay"
+}
