@@ -1,0 +1,36 @@
+{
+  "schema": "qattn.label-geometry-audit.v1",
+  "status": "PASS",
+  "exact_arithmetic": "Gaussian integers and Fraction",
+  "source_construction": "quant-ph/0103162v3 Theorem4.4, Lemma4.3; field-trace instantiation independently checked.",
+  "dimension": 8,
+  "bases": 5,
+  "rank_one_projectors": 40,
+  "all_1600_overlaps_checked": true,
+  "per_row_overlap_counts": {
+    "1": 1,
+    "0": 7,
+    "1/8": 32
+  },
+  "signal_alpha": {
+    "correct": "1000001/2000009",
+    "same_basis_wrong": "1/1000009",
+    "cross_basis_wrong": "1/9"
+  },
+  "background": "Eight tokens forming the computational basis, sum of projectors I; one signal token aligned to the assigned label projector.",
+  "utilities": "Common signed signal utility, zero on background; full40 logits, zero class biases. Abstract fixture only.",
+  "assignment_conclusion": "Under the aligned-signal/isotropic-background/common-utility assumptions, every label assignment has the same CE. The proof uses the exact row multiset, not only the two checked permutations.",
+  "important_limit": "Does not prove invariance when queries are relabelled but physical inputs/encoder remain fixed; does not rule out training or label-dependent noise effects.",
+  "geometry_alone_not_utility": "Positive, zero and negative common signed readouts give benefit, null and harm versus uniform attention in this abstract fixture.",
+  "illustrative_float_CE_only": {
+    "positive_common_signal_utility_CE": 3.2934514582550047,
+    "zero_utilities_CE": 3.6888794541139363,
+    "negative_common_signal_utility_CE": 4.0901998888228475
+  },
+  "projectors_sha256": "777876df179cc6359ae63f7617496a7cc2fd1de092d7cf76683242f570a31ffc",
+  "native_ansatz_reachability_verified": false,
+  "new_model_forwards": 0,
+  "new_data_reads": 0,
+  "training": 0,
+  "l5_accepted": false
+}

@@ -1,0 +1,139 @@
+{
+  "schema": "qattn.l5-round58-primary-review.v1",
+  "status": "COMPLETE_NO_NEW_METHOD_SELECTED",
+  "l5_accepted": false,
+  "publication_parent": "4e9bf2bf0a0c9498dfba612102a5388ad1e6dc9b",
+  "source_readings": {
+    "schema": "qattn.bounded-original-readings.v1",
+    "papers": [
+      {
+        "arxiv_id": "1907.02085v3",
+        "title": "Data re-uploading for a universal quantum classifier",
+        "url": "https://arxiv.org/pdf/1907.02085v3",
+        "pdf_sha256": "858ccd7600f1dca271cf7cab4167fc9eb9c245a3b40326ea7be4185a671fcc1f",
+        "pages": 19,
+        "locators": [
+          "p1 identity/version",
+          "p4 section2.3 measurement",
+          "p5 Fig3 and Eq7-9"
+        ],
+        "bounded_findings": "Fixed maximally separated class label states and fidelity/weighted-fidelity losses already used; not token attention with complete signed value aggregation.",
+        "reading_limit": "Bounded original sections only; parsing is not full reading, proof/code audit or experiment reproduction.",
+        "extraction_limit": null
+      },
+      {
+        "arxiv_id": "quant-ph/0103162v3",
+        "title": "A new proof for the existence of mutually unbiased bases",
+        "url": "https://arxiv.org/pdf/quant-ph/0103162v3",
+        "pdf_sha256": "839b449bf0a113612f417590298e9a3b773fb47673b6950555c986009e9e803e",
+        "pages": 19,
+        "locators": [
+          "p1 identity/version",
+          "p3 MUB definition",
+          "p4 construction overview",
+          "p11 Theorem3.5 and section4.1",
+          "p12 Lemma4.1",
+          "p14 Lemma4.3",
+          "p15 Theorem4.4"
+        ],
+        "bounded_findings": "Prime-power commuting-Pauli construction and symmetric binary matrices are known; exact GF8 instantiation below is verification, not new theory.",
+        "reading_limit": "Bounded original sections only; parsing is not full reading, proof/code audit or experiment reproduction.",
+        "extraction_limit": null
+      },
+      {
+        "arxiv_id": "cs/9501101v1",
+        "title": "Solving Multiclass Learning Problems via Error-Correcting Output Codes",
+        "url": "https://arxiv.org/pdf/cs/9501101v1",
+        "pdf_sha256": "c161e793a33579683365a7af5cfb1c1c84eb0ff8d98d0db7a115d2c273b1185f",
+        "pages": 24,
+        "locators": [
+          "PDFp1 printed263 identity",
+          "PDFp3 printed265 code examples",
+          "PDFp4 printed266 distance/decoding",
+          "PDFp5 printed267 continuation",
+          "PDFp7 printed269 section2.3 row/column separation"
+        ],
+        "bounded_findings": "Class-code distance and relatively uncorrelated component errors are established issues; no automatic error-correction theorem for Born word normalization and a free signed readout.",
+        "reading_limit": "Bounded original sections only; parsing is not full reading, proof/code audit or experiment reproduction.",
+        "extraction_limit": "ECOC embedded-font corruption; rendered pages were used for semantic reading."
+      }
+    ],
+    "nearest_attention_coverage": "Prior QSANN reading reused only; no exhaustive 2026 label-aware-attention novelty claim."
+  },
+  "exact_math": {
+    "schema": "qattn.label-geometry-audit.v1",
+    "status": "PASS",
+    "exact_arithmetic": "Gaussian integers and Fraction",
+    "source_construction": "quant-ph/0103162v3 Theorem4.4, Lemma4.3; field-trace instantiation independently checked.",
+    "dimension": 8,
+    "bases": 5,
+    "rank_one_projectors": 40,
+    "all_1600_overlaps_checked": true,
+    "per_row_overlap_counts": {
+      "1": 1,
+      "0": 7,
+      "1/8": 32
+    },
+    "signal_alpha": {
+      "correct": "1000001/2000009",
+      "same_basis_wrong": "1/1000009",
+      "cross_basis_wrong": "1/9"
+    },
+    "background": "Eight tokens forming the computational basis, sum of projectors I; one signal token aligned to the assigned label projector.",
+    "utilities": "Common signed signal utility, zero on background; full40 logits, zero class biases. Abstract fixture only.",
+    "assignment_conclusion": "Under the aligned-signal/isotropic-background/common-utility assumptions, every label assignment has the same CE. The proof uses the exact row multiset, not only the two checked permutations.",
+    "important_limit": "Does not prove invariance when queries are relabelled but physical inputs/encoder remain fixed; does not rule out training or label-dependent noise effects.",
+    "geometry_alone_not_utility": "Positive, zero and negative common signed readouts give benefit, null and harm versus uniform attention in this abstract fixture.",
+    "illustrative_float_CE_only": {
+      "positive_common_signal_utility_CE": 3.2934514582550047,
+      "zero_utilities_CE": 3.6888794541139363,
+      "negative_common_signal_utility_CE": 4.0901998888228475
+    },
+    "projectors_sha256": "777876df179cc6359ae63f7617496a7cc2fd1de092d7cf76683242f570a31ffc",
+    "native_ansatz_reachability_verified": false,
+    "new_model_forwards": 0,
+    "new_data_reads": 0,
+    "training": 0,
+    "l5_accepted": false
+  },
+  "conditional_proof": "Let40 rank1 queries be five MUBs of8 states in C8. Choose one class y; its signal projector equals its assigned query P_pi(y). Eight background states sum to I. q_r=Tr(P_pi(r)P_pi(y)); alpha_r=(q_r+eps)/(q_r+1+9eps). Every row has q=1 once,0 seven times,1/8 thirty-two times. With all40 signed utilities equal to a on the signal and0 on background and classbias0, CE=log(1+7exp(a(alpha0-alpha1))+32exp(a(alpha1/8-alpha1))). Thus ALL bijective label assignments tie under THESE aligned-signal assumptions, for every a. Changing a's sign preserves query geometry but reverses attention utility versus uniform, and a0 gives log40. This does NOT say relabelling queries with a fixed physical encoder has invariant loss. The aligned-signal distribution changes with the label assignment. It also says nothing about actual optimization or label-dependent noise.\nRobust conditional variant: n backgrounds with B=n/8>kappa>=0; ||sumrho_bg-BI||op<=kappa; signal trace distance from its assigned projector<=delta<1. Utilities u_rt=u0+a*1_signal+e_rt, a>0, |e_rt|<=eta; classbias differences c_y-c_r>=-beta. Let T=n+1, L=(1-delta+eps)/(1-delta+B+kappa+T*eps), U(mu)=(min(1,mu+delta)+eps)/(min(1,mu+delta)+B-kappa+T*eps). Measurement duality and monotonicity give margin_y,r>=a(L-U(mu_y,r))-2eta-beta. Hence full40CE<=log(1+7exp(-m(0))+32exp(-m(1/8))) for uniform nuisance bounds. This bound ALSO cannot rank the assignments. Elementary conditional calculation, not novel theory or measured task premise.",
+  "independent_static_review": {
+    "math_verdict": "PASS",
+    "defects": [],
+    "scope_verdict": "Pass on mathematical inspection, assuming nonnegative smoothing epsilon and trace distance defined as half the trace norm. The GF(8) trace forms, Pauli phases and projector normalization are consistent: the code represents projectors as numerators divided by 8, so overlap traces are divided by 64. The five bases yield row counts 1, 7 and 32 at overlaps 1, 0 and 1/8. Both full-40 CE formulas are correct under their stated assumptions; the robust margin also correctly includes the normalized-utility error penalty 2 eta and bias penalty beta. Assignment equality applies to the ideal aligned-signal fixture; the robust result supplies an assignment-independent bound, not equality of actual noisy losses. Neither establishes fixed-encoder relabelling invariance or empirical failure. Signed utility can reverse the benefit without changing geometry. Code execution, hashes and source contents were not independently verified here. The supplied bounded source findings and this conditional calculation do not establish a new L5 attention contribution or an exhaustive literature exclusion.",
+    "l5_contribution_established": false,
+    "required_next_evidence": [
+      "For reproducibility claims, independently validated execution artifacts matching the supplied code and projector hashes; the present review is static only.",
+      "A precise L5 contribution claim and bounded comparison separating it from known fixed-label fidelity classification, MUB constructions and output-code geometry.",
+      "A mathematical connection to the intended attention implementation, including realizable states, complete signed value aggregation, normalization and class biases; native-ansatz reachability is currently unverified.",
+      "For any assignment-ranking or task-performance claim, evidence holding the physical encoder and inputs fixed across assignments, with justified noise and utility assumptions. The conditional fixture does not supply that evidence, and this review authorizes no additional training or experiments."
+    ]
+  },
+  "review_usage": {
+    "input_tokens": 3989,
+    "output_tokens": 762,
+    "total_tokens": 4751
+  },
+  "acceptance": [
+    "Accept exact40rank1MUBprojectors and all1600overlaps as deterministic algebra, not native circuit preparation or new MUB theory.",
+    "Accept conditional ideal40CE assignment equality and robust assignment-independent bound. No equality claim for actual noisy losses or fixed-encoder query relabelling.",
+    "Accept signedutility benefit/null/harm fixture. No native task-performance or training conclusion follows.",
+    "Known fixed-label fidelity classification, MUB construction and output-code geometry substantially constrain the contribution story; no exact token-attention collision or exhaustive novelty exclusion established.",
+    "Current generic fixed-label-state attention is NOT_SELECTED_NO_PROMOTION_ON_CURRENT_JUSTIFICATION. A materially different, task-grounded prediction may be researched; the present calculation does not justify formal runs."
+  ],
+  "unresolved": [
+    "Label-wise attention originals not exhaustively read.",
+    "Native depth2 circuit reachability/cost unverified.",
+    "Harmful query crosstalk, pair-dependent nuisance conditions and beneficial train-only assignment unobserved.",
+    "Matched real/lifted controls, implementation and independent task evidence absent."
+  ],
+  "candidate_status": "NOT_SELECTED_NO_PROMOTION_ON_CURRENT_JUSTIFICATION",
+  "next_action": "Audit closest original label-wise quantum/classical attention before any fixed-codebook implementation. Seek a precise task-grounded pair-dependent prediction holding physical encoder/inputs fixed, retaining full40signedreadout; the aligned/isotropic/common-utility calculation cannot rank assignments. Currentgenericlabelgeometry has no promotion. Any new owner diagnostic needs its own bounded train-only scheduler contract; no data/model job now, no reannotation, no stopped-family reopening or historicalbaseline redo. All external APIs medium; newformal runs collaborator-only.",
+  "new_native_forwards": 0,
+  "new_data_reads": 0,
+  "new_training": 0,
+  "new_formal_runs": 0,
+  "new_COS_operations": 0,
+  "external_mathematical_review_requests": 1,
+  "external_mathematical_review_verdicts": 1
+}
