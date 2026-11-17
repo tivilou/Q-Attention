@@ -1,0 +1,36 @@
+{
+  "schema": "qattn.problem-selection.memo.v1",
+  "candidate": "NONE",
+  "observed": "Common positive-to-null error pattern acrossQ/softmax/real-overlap; no classconsistent Qadvantage acrossbothsplits/bothcomparators/all5seeds",
+  "unidentified": [
+    "calibration",
+    "positive ranking",
+    "feature/attention limits",
+    "parametercount effects"
+  ],
+  "next_question": "For each of the 30 frozen head/seed/split cells, is the gold relation the unique highest-scoring non-null label on more than half of positive examples currently predicted as null, when evaluated using the original decision scores without retraining, threshold sweeps or tuning?",
+  "proposed_full_scope": "30 original frozen head/seed/split cells, score-level descriptive replay only; NOT_RUN, no implementation/admission",
+  "required_observables": [
+    "Per-example gold labels and original predictions for the existing selected-validation and exposed-test examples.",
+    "Original inference-time scores for all labels from each frozen selected checkpoint, including the exact decision rule and tie handling.",
+    "For each cell, the positive-to-null denominator and counts where the gold label ranks uniquely first, ties for first, or ranks below first among non-null labels."
+  ],
+  "falsification": "The bounded hypothesis that a majority of null misses retain correct unique top-positive ranking in every cell is falsified if any cell has a unique-top-gold fraction at or below 50%. Higher fractions show retained positive ranking on those examples; lower fractions show that removing null alone would not recover most misses. Neither result identifies calibration, attention or a causal mechanism.",
+  "resource_gate": "First inspect existing owner archive metadata for retained decision scores. Do not download complete feature caches or launch30replays. If missing, cost a minimal score-only recovery/replay using pinned originals before any admission. A train2048development probe, if separatelydesigned, would not answer this30cell question.",
+  "identifiability": "Forpositiveexamples with deterministic tiehandling: errors split into incorrect top-positive ranking OR correct top-positive ranking suppressed bynull. Confusionmatrices do not identify the second-best label. Unique-top criterion separatelyrecords ties. Oracle nullremoval is not a deployable policy.",
+  "scope": "Hypothesisgeneration on exposed historicalreports; no newaccuracy gain or quantum-specific attribution; no L5.",
+  "literature": {
+    "source": "https://arxiv.org/abs/2010.11304",
+    "title": "Document-Level Relation Extraction with Adaptive Thresholding and Localized Context Pooling",
+    "read_scope": "title+abstractonly",
+    "coverage_limit": "Documentlevelmultilabel differs from sentencelevelsinglelabel. Thresholding itself cannot be claimednovel; originalfulltext needed beforedeveloping any transfer."
+  },
+  "search_failure": "web search route POST /v1/alpha/search returned404; directprimaryarxiv HTTPabstract verified. No exhaustive search/noveltyclearance.",
+  "scientific_limits": [
+    "Required per-example scores are absent from the compact report; aggregates cannot answer this question.",
+    "Gold-conditioned null exclusion is an oracle diagnostic, not a deployable decision rule or estimated utility gain.",
+    "Selected validation and exposed test support descriptive diagnosis, not fresh confirmation.",
+    "Correct non-null ranking does not establish calibration or explain why null won.",
+    "No execution, architecture change, novelty claim or literature clearance is authorized."
+  ]
+}
