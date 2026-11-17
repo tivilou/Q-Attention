@@ -1,0 +1,67 @@
+{
+  "schema": "qattn.l5.scoped-original-readings.v1",
+  "created_at_utc": "2026-11-17T00:33:03.972925+00:00",
+  "readings": [
+    {
+      "paper_id": "arxiv:2204.04667v2",
+      "title": "Linear Complexity Randomized Self-attention Mechanism",
+      "source_url": "https://arxiv.org/pdf/2204.04667v2",
+      "version": "2204.04667v2",
+      "pdf_sha256": "735ba3c92954a60ca62cdfa4dbbc4e582cef93cfa7c12792cd48376987cb491c",
+      "total_pages": 31,
+      "reading_status": "scoped_original_reading",
+      "read_locators": [
+        "p1 title/abstract",
+        "pp2-5 background, Prop3.1/3.2 and RA/LARA",
+        "pp14-16 AppendixA/B proofs"
+      ],
+      "visually_checked_pages": [
+        3,
+        5
+      ],
+      "source_facts": [
+        "p3 Prop3.1: positive exponential random features yield a query-specific Gaussian mixture target.",
+        "p3 Prop3.2 andp16 proof: exact-target sampled RA is unbiased for full softmax attention; p4 explains O(MN) reuse limitation.",
+        "p5 Eq10: linear LARA reinstates self-normalization; stated guarantee is consistency, not general finite-sample unbiasedness."
+      ],
+      "limits": [
+        "Most31pages, AppendixD optimalweight proof, implementation and source empirical tables not audited.",
+        "Softmax-positive Gaussian mixture is not an established Born-kernel sampler. NativeQ-RMEA uses full-state deterministic probability, not this random-feature estimator."
+      ],
+      "receipt_sha256": "4a74fdeffc3da6a0edd97b8e4e3bf347ba0e7fa75f1bdf74c27c54ee7dce03db",
+      "helper_reading_state": "not_started: helper does not certify semantic reading; this researcher receipt records actual scope"
+    },
+    {
+      "paper_id": "arxiv:2509.11390v1",
+      "title": "Quantum Graph Attention Networks: Trainable Quantum Encoders for Inductive Graph Learning",
+      "source_url": "https://arxiv.org/pdf/2509.11390v1",
+      "version": "2509.11390v1",
+      "pdf_sha256": "0639a99062d2196d58e6b72310712e71d4d489f0a00df803d7ebc078ec14cecd",
+      "total_pages": 12,
+      "reading_status": "scoped_original_reading",
+      "read_locators": [
+        "pp1-10 identity, body, method, results andconclusion"
+      ],
+      "visually_checked_pages": [
+        5,
+        6,
+        8,
+        9
+      ],
+      "source_facts": [
+        "p5 Eq6-8: trainable neighbor coefficients scale classical inputs before quantum feature mapping; QGCN aggregation follows.",
+        "p7 Algorithm1 receives trainablealpha; inspected equations do not establish a dynamically recomputed normalized pair-scoring function.",
+        "p8 Table1 andtrainingdiscussion plusp9 figures:30/40training samples, reportedtraining loss/R2; no independent heldout generalization established by these results.",
+        "p6 Eq13-14 factorization has unresolved subsystem/channel interpretation; no general tensor factorization theorem imported."
+      ],
+      "limits": [
+        "Referencespp11-12 andcode notaudited; no reproduction.",
+        "Do not equate trained neighbor scaling with nativeRMEA relation-effect Born score/normalization/signed readout.",
+        "Do not assert wholepaper invalidity from notation ambiguity."
+      ],
+      "receipt_sha256": "88947fed2b9ef4fdfc22f368c9946e9c7efe921acf5e2173819ffd251f4f0c50",
+      "helper_reading_state": "not_started: helper does not certify semantic reading; this researcher receipt records actual scope"
+    }
+  ],
+  "source_experiments_reproduced": false
+}
