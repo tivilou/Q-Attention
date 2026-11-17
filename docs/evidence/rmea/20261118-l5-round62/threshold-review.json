@@ -1,0 +1,19 @@
+{
+  "verdict": "ACCEPT_SCOPED_COLLISION_MEMO",
+  "must_fix": [],
+  "decision_identity": "correct",
+  "loss_algebra": "correct",
+  "allowed_claim": "For finite real, unchanged logits and exactly one output, setting TH=z0 and selecting the highest positive only when it strictly exceeds TH reproduces the frozen argmax: null wins ties involving index 0, and positive ties retain original index order. No counterexample exists under these assumptions. For one positive, CE=log(1+a+ab), ATL=log((1+a)(1+b)), and ATL−CE=log(1+b/(1+a+ab)); for NA, omitting L1 makes ATL equal target-0 CE. Thus a threshold reinterpretation alone adds no decision expressivity at fixed scores, while the published adaptive-threshold loss is genuinely different.",
+  "forbidden_claims": [
+    "An independently parameterized threshold, retraining, or changed scores must preserve the original predictions.",
+    "The decision identity establishes parameterization, training-objective, or general multilabel equivalence with ATLOP.",
+    "A learned null score necessarily varies across observed inputs, is calibrated, or is sufficiently expressive; architectural input dependence does not establish those empirical properties.",
+    "The supplied context independently verifies every Q-RMEA scoring or training implementation detail; its CE and input-dependence statements remain contextual premises.",
+    "Positive-to-null error counts establish a calibration defect or recoverable improvement.",
+    "ATLOP's DocRED ablations establish Q-RMEA gains, or this narrow collision excludes all null-aware approaches.",
+    "This algebra or renamed threshold establishes novelty or L5."
+  ],
+  "next_action": "Deprioritize full-30-cell score recovery solely as support for the renamed-threshold proposal: its fixed-score identity requires no score dump. Keep the descriptive score question pending and explicitly unresolved; missing logits prevent conclusions about margins, calibration, or recoverability. Do not initiate replay under the stated constraints. Reconsider recovery only for a separately justified descriptive or intervention question.",
+  "candidate": "NONE",
+  "l5_status": "NOT_ACCEPTED"
+}

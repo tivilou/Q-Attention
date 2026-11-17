@@ -1,0 +1,66 @@
+{
+  "schema": "research.paper-reading-receipt.v1",
+  "paper_id": "arxiv:2010.11304v3",
+  "title": "Document-Level Relation Extraction with Adaptive Thresholding and Localized Context Pooling",
+  "authors": [
+    "Wenxuan Zhou",
+    "Kevin Huang",
+    "Tengyu Ma",
+    "Jing Huang"
+  ],
+  "requested_version": "arXiv v3 preprint",
+  "observed_version": "arXiv2010.11304v3 in original HTML; source URL pinned v3",
+  "source_url": "https://arxiv.org/html/2010.11304v3",
+  "acquisition": "acquired",
+  "identity": "verified",
+  "version": "verified_arxiv_v3_preprint",
+  "parsing": "parsed_full_article_text_with_original_math_alttext",
+  "reading": "read_for_scope",
+  "source_sha256": "2b6f5b053fc9aa18be9533da85e2aa5f2ba1ad2fe02a39b775d58e7756456b6a",
+  "parsed_sha256": "141c249f40a64091700f2536a546289515cc148fb830c4e4d11db9f46e6cbbbc",
+  "read_scope": [
+    "Sx2 Problem Formulation",
+    "Sx3 Enhanced BERT Baseline",
+    "Sx4 Adaptive Thresholding, two loss terms and Fig2 caption",
+    "Sx5 Localized Context Pooling, equations and Fig3 caption",
+    "Sx6 Experiments including Tables1-6 and threshold/context analyses"
+  ],
+  "not_read_or_verified": [
+    "Introduction/RelatedWork/References not deeply read in this scope",
+    "Original PDF body timed out; no PDF visual check",
+    "Code, supplements and independent replication not inspected",
+    "No paper-wide or current-field novelty clearance"
+  ],
+  "findings": [
+    {
+      "locator": "Sx4",
+      "fact": "ATLOP learns input-dependent TH and uses strict comparison for multilabel predictions; its adaptive-threshold objective differs from BCE."
+    },
+    {
+      "locator": "Sx5",
+      "fact": "LOP multiplies subject/object pretrained attention, sums heads and normalizes token weights; no learned relation-specific quantum query."
+    },
+    {
+      "locator": "Sx6/Table5",
+      "fact": "Thresholding rule without its intended loss is not an interchangeable inference improvement; this is a paper-reported DocRED result, not Q-RMEA evidence."
+    },
+    {
+      "locator": "Sx6/Table6",
+      "fact": "Posthoc perclass threshold dev gains do not carry to the reported test in this setup; no general theorem about all threshold tuning."
+    }
+  ],
+  "primary_interpretation": [
+    "At fixed shared scores with null ties, singlelabel max-positive-vs-TH rule equals original40argmax.",
+    "For one positive y, a=exp(z0-zy), b=sum_negative exp(zr-z0), CE=log(1+a+ab), ATL=log((1+a)(1+b)); they are generally different.",
+    "Renaming learned null score supplies no new decision rule; known loss adaptation remains a possible baseline, not selected same-core L5."
+  ],
+  "model_review": {
+    "verdict": "ACCEPT_SCOPED_COLLISION_MEMO",
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "response_id": "resp_026ef1d7d684babc016afc8c27d9fc87d2bfd111037e0c0bf7"
+  },
+  "handoff": "Do not spend a full score replay solely to validate a renamed threshold novelty claim. Preserve descriptive30cell question as pending; inspect materially different leads before admitting new science.",
+  "candidate": "NONE",
+  "L5": "NOT_ACCEPTED"
+}
