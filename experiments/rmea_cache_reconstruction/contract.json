@@ -1,0 +1,164 @@
+{
+  "schema": "qattn.train-only-cache-reconstruction.v2",
+  "status": "PREPARED_NOT_ADMITTED",
+  "input_train_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+  "full_train_count": 58465,
+  "train_count": 2048,
+  "train_ids_sha256": "f2df684905140be85bcff9dc3556864bfe89b52ab8c566865e86bf0c91db96c5",
+  "labels": [
+    "no_relation",
+    "org:alternate_names",
+    "org:city_of_branch",
+    "org:country_of_branch",
+    "org:dissolved",
+    "org:founded",
+    "org:founded_by",
+    "org:member_of",
+    "org:members",
+    "org:number_of_employees/members",
+    "org:political/religious_affiliation",
+    "org:shareholders",
+    "org:stateorprovince_of_branch",
+    "org:top_members/employees",
+    "org:website",
+    "per:age",
+    "per:cause_of_death",
+    "per:charges",
+    "per:children",
+    "per:cities_of_residence",
+    "per:city_of_birth",
+    "per:city_of_death",
+    "per:countries_of_residence",
+    "per:country_of_birth",
+    "per:country_of_death",
+    "per:date_of_birth",
+    "per:date_of_death",
+    "per:employee_of",
+    "per:identity",
+    "per:origin",
+    "per:other_family",
+    "per:parents",
+    "per:religion",
+    "per:schools_attended",
+    "per:siblings",
+    "per:spouse",
+    "per:stateorprovince_of_birth",
+    "per:stateorprovince_of_death",
+    "per:stateorprovinces_of_residence",
+    "per:title"
+  ],
+  "asset_repository": "FacebookAI/roberta-large",
+  "asset_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+  "assets": [
+    {
+      "name": "config.json",
+      "size_bytes": 482,
+      "sha256": "82ba49810e6441735e696033ac2512ee09da555507b2917ac3865b202d592cc3"
+    },
+    {
+      "name": "merges.txt",
+      "size_bytes": 456318,
+      "sha256": "1ce1664773c50f3e0cc8842619a93edc4624525b728b188a9e0be33b7726adc5"
+    },
+    {
+      "name": "vocab.json",
+      "size_bytes": 898823,
+      "sha256": "9e7f63c2d15d666b52e21d250d2e513b87c9b713cfa6987a82ed89e5e6e50655"
+    },
+    {
+      "name": "tokenizer.json",
+      "size_bytes": 1355863,
+      "sha256": "847bbeab6174d66a88898f729d52fa8d355fafe1bea101cf960dd404581df70e"
+    },
+    {
+      "name": "pytorch_model.bin",
+      "size_bytes": 1425941629,
+      "sha256": "36a10a8b694fadf9bf4f9049d14e257e88be45313ae02d882af9e60f39b8b2e8"
+    }
+  ],
+  "marked_words_source_sha256": "5f7860e47a7a0979976e5acc435ed34acede4c96bfac799d79d3018366b6aef8",
+  "marked_words_function_sha256": "129d3120aa2137dc3c3c66938f643a78080d5b9ee78b098e0ba9aef0f7cbc9d0",
+  "environment": {
+    "torch": "2.4.1+cpu",
+    "numpy": "1.24.3",
+    "transformers": "4.44.2",
+    "tokenizers": "0.19.1",
+    "safetensors": "0.4.5",
+    "huggingface-hub": "0.24.6"
+  },
+  "python_minor": [
+    3,
+    10
+  ],
+  "threads": 1,
+  "batch_size": 4,
+  "float_profile": "CPU float32 encoder/wordpiece mean; saved float16",
+  "preflight_count": 4,
+  "resources": {
+    "preflight": {
+      "cpu": 1,
+      "ram_mb": 4096,
+      "disk_mb": 128,
+      "gpus": 0,
+      "timeout": 300,
+      "max_attempts": 1
+    },
+    "rebuild": {
+      "cpu": 1,
+      "ram_mb": 4096,
+      "disk_mb": 512,
+      "gpus": 0,
+      "timeout": 3600,
+      "max_attempts": 1
+    }
+  },
+  "full_gate": {
+    "accepted_preflight_required": true,
+    "same_source_contract_assets_data_environment": true,
+    "max_peak_rss_kib": 3670016,
+    "elapsed_extrapolation_seconds": 3300,
+    "confirmed_quiescence_required": true,
+    "timing_interpretation": "Heuristic first-four extrapolation only; not a conservative completion or RSS guarantee. Hard timeout and no automatic replay remain."
+  },
+  "minimum_disk_before_dependency_preparation_bytes": 2684354560,
+  "dependency_installation_while_other_task_active": false,
+  "old_cache_sha256": "c1279284a9a5e9d59e3303c591e657cc2f4f340b510f96d3ace727b89dcd6511",
+  "old_cache_environment_differs": {
+    "torch": "2.5.1+cpu",
+    "numpy": "1.26.4",
+    "threads": 4,
+    "valid_count": 1024
+  },
+  "identity_policy": "New train-only cache identity. Never report old feature/manifest hashes or numeric equivalence. Same2048 sample-ID hash and exact source preprocessing/assets are required. Diagnostic must be revised/reviewed against new accepted input hashes before use.",
+  "forbidden": [
+    "training or optimizer",
+    "validation/test scientific outcomes or cache arrays",
+    "new seed/head/cohort selection",
+    "extra COS upload or complete archive download",
+    "automatic replay or source substitution",
+    "new paid resources or capacity expansion"
+  ],
+  "outputs": [
+    "features.npz",
+    "cache-manifest.json",
+    "cache-validation.json",
+    "RUN_COMPLETE"
+  ],
+  "input_storage": {
+    "root": "/tmp/q-attention-r60-cache-inputs-20261117",
+    "minimum_free_before_preparation_bytes": 2684354560,
+    "independent_filesystem_checked": true,
+    "disposable_rebuildable_inputs": true
+  },
+  "minimum_work_free_before_dependency_preparation_bytes": 805306368,
+  "execution_policy": {
+    "optimize": 0,
+    "PYTHONOPTIMIZE": "must be absent in all parent/child processes",
+    "USE_TF": "0",
+    "USE_FLAX": "0",
+    "TOKENIZERS_PARALLELISM": "false",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "full_requires_owner_accepted_preflight_sha256_pinned_in_recipe": true
+  }
+}
