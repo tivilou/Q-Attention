@@ -1,0 +1,151 @@
+{
+  "schema": "qattn.adamw-epsilon-transfer-counterexample.v1",
+  "status": "PASS_EXACT_CONDITIONAL_FORMULA",
+  "objective": "Generic scalar convex loss L(x)=-optimizer_epsilon*x, not the native complete40 CE or actual dataset.",
+  "optimizer": {
+    "lr": "1/1000",
+    "weight_decay": "1/100",
+    "beta1": "9/10",
+    "beta2": "999/1000",
+    "epsilon": "1/100000000",
+    "bias_correction": true,
+    "initial_moment_states_zero": true
+  },
+  "exact_fixed_point": "50",
+  "box_radius": "100",
+  "gradient": "-1/100000000",
+  "argument": "At every positive step, bias-corrected m=-eps and sqrt(v)=eps. Adaptive direction=-1/2, while decay*50=1/2; updates cancel. Thus all iterates remain50. This is interior to[-100,100] with nonzero gradient and is not a KKT point of min L over that box; its minimizer is100.",
+  "original_algorithm_difference": "2404.04454v1 Algorithm1 omits this positiveepsilon/bias-corrected implementation. The example does not refute its stated theorem; it blocks importing that theorem unchanged to another optimizer formula.",
+  "without_denominator_epsilon_first_x": "100001/2000",
+  "verified_steps": [
+    {
+      "step": 1,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 2,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 3,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 4,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 5,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 6,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 7,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 8,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 9,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 10,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 11,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 12,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 13,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 14,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 15,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 16,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 17,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 18,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 19,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    },
+    {
+      "step": 20,
+      "x": "50",
+      "corrected_first_moment": "-1/100000000",
+      "corrected_sqrt_second_moment": "1/100000000"
+    }
+  ],
+  "limits": [
+    "Conditional exact-real formula, not nativefloat execution or verification of the installed PyTorch build.",
+    "Generic convex counterexample, not a Q-RMEA empirical failure or full40 CE result.",
+    "Does not disprove approximate/more general box constraints, every optimizer theorem, or produce a novel quantum mechanism."
+  ],
+  "new_native_forwards": 0,
+  "new_data_reads": 0,
+  "new_training": 0,
+  "l5_accepted": false
+}

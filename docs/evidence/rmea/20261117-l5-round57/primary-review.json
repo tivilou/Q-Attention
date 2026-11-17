@@ -1,0 +1,255 @@
+{
+  "schema": "qattn.optimizer-neighbor-and-discovery-primary.v1",
+  "status": "CLOSEST_OPTIMIZER_BOUNDARY_UPDATED_PROVISIONAL_LEAD_ONLY",
+  "l5_accepted": false,
+  "new_method_selected": false,
+  "original_readings": {
+    "schema": "qattn.bounded-original-readings.v1",
+    "papers": [
+      {
+        "title": "Implicit Bias of AdamW: l_infinity Norm Constrained Optimization",
+        "url": "https://arxiv.org/pdf/2404.04454v1",
+        "version": "2404.04454v1",
+        "pdf_sha256": "7a303f7ca1275e11e51653f11ed317c6cbcf2b2e9964218826035faa1f2cc8d5",
+        "pages": 31,
+        "read_locators": [
+          "p1 title/authors/version",
+          "p2 Algorithm1/Theorem1.1",
+          "p3 scope/preliminaries",
+          "p8 positiveepsilon updatebound discussion/Lemma4.3"
+        ],
+        "coverage": "Allpages parsed, no lowtextpages; bounded semantic reading only, not full proofs/code or experimental reproduction."
+      },
+      {
+        "title": "Stiefel-AdamW: Geometry-Aware AdamW for Linear Factorization Blocks",
+        "url": "https://arxiv.org/pdf/2609.21039v1",
+        "version": "2609.21039v1",
+        "pdf_sha256": "e6af3200a369f7d45969a38b558f9bc5419597eb1f02204d70a775fffac6b5c6",
+        "pages": 26,
+        "read_locators": [
+          "p1 title/authors/version",
+          "p2-3 motivation/claimedcontributions",
+          "p4 roworthonormal formulation",
+          "p5 Algorithm1/update description"
+        ],
+        "coverage": "Allpages parsed, no lowtextpages; bounded semantic reading only, not full proofs/code or experimental reproduction."
+      }
+    ],
+    "facts": [
+      "AdamW Theorem1.1 assumes fullbatch differentiable loss, beta1<=beta2<1, nonincreasing steps with divergent sum and convergence; its KKT claim is conditional.",
+      "The positiveepsilon discussion onp8 extends average-update-size bounds and discusses finite/stochastic iterate norms. It must not be omitted or confused with an unchanged exact KKT theorem for default biascorrected positiveepsilon AdamW.",
+      "Stiefel-AdamW already addresses W=BA linear factorization blocks through one roworthonormal factor and one Euclidean factor, with ambient moments/tangentprojection/retraction."
+    ],
+    "transfer": [
+      "Nativevalue64x1024 and decoder40x64 form precisely such a linearproduct for fixed relationpooling. Direct orthogonalization is a known-method application, not a newquantum operation.",
+      "The circuit prepare/effect map is nonlinear; a linearfactor GL transformation is not automatically a symmetry of the source circuit family.",
+      "No theorem/empirical benefit or strict optimizer-invariance claim of Stiefel-AdamW was independently proved here."
+    ],
+    "discovery": {
+      "initial_budget": "3OpenAlexqueries,2selectedoriginalPDFs",
+      "adaptive_extension": "2metadata queries after a new provisional labelstate-attention lead; no additionalPDF acquisition yet.",
+      "origin": [
+        "priorbank R14/R49/R56",
+        "independent_search",
+        "cross_domain_search"
+      ],
+      "coverage": "Bounded metadata search, not exhaustive novelty or forwardcitation audit. Fixed-label quantumclassification/MUB/ECOC originals remain unread for the new lead."
+    }
+  },
+  "epsilon_counterexample": {
+    "schema": "qattn.adamw-epsilon-transfer-counterexample.v1",
+    "status": "PASS_EXACT_CONDITIONAL_FORMULA",
+    "objective": "Generic scalar convex loss L(x)=-optimizer_epsilon*x, not the native complete40 CE or actual dataset.",
+    "optimizer": {
+      "lr": "1/1000",
+      "weight_decay": "1/100",
+      "beta1": "9/10",
+      "beta2": "999/1000",
+      "epsilon": "1/100000000",
+      "bias_correction": true,
+      "initial_moment_states_zero": true
+    },
+    "exact_fixed_point": "50",
+    "box_radius": "100",
+    "gradient": "-1/100000000",
+    "argument": "At every positive step, bias-corrected m=-eps and sqrt(v)=eps. Adaptive direction=-1/2, while decay*50=1/2; updates cancel. Thus all iterates remain50. This is interior to[-100,100] with nonzero gradient and is not a KKT point of min L over that box; its minimizer is100.",
+    "original_algorithm_difference": "2404.04454v1 Algorithm1 omits this positiveepsilon/bias-corrected implementation. The example does not refute its stated theorem; it blocks importing that theorem unchanged to another optimizer formula.",
+    "without_denominator_epsilon_first_x": "100001/2000",
+    "verified_steps": [
+      {
+        "step": 1,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 2,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 3,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 4,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 5,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 6,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 7,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 8,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 9,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 10,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 11,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 12,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 13,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 14,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 15,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 16,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 17,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 18,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 19,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      },
+      {
+        "step": 20,
+        "x": "50",
+        "corrected_first_moment": "-1/100000000",
+        "corrected_sqrt_second_moment": "1/100000000"
+      }
+    ],
+    "limits": [
+      "Conditional exact-real formula, not nativefloat execution or verification of the installed PyTorch build.",
+      "Generic convex counterexample, not a Q-RMEA empirical failure or full40 CE result.",
+      "Does not disprove approximate/more general box constraints, every optimizer theorem, or produce a novel quantum mechanism."
+    ],
+    "new_native_forwards": 0,
+    "new_data_reads": 0,
+    "new_training": 0,
+    "l5_accepted": false
+  },
+  "independent_ideation": {
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "status": "completed",
+    "packet_sha256": "3b5d1d426d2e195100d2982f62c9319a4654b3f27b8782aec0284becd1b272f6",
+    "answer_sha256": "9e615bb497db15fade18995062594976e9246fb26b03977dca12b25df5b8e3ee",
+    "usage": {
+      "input_tokens": 2519,
+      "output_tokens": 250,
+      "total_tokens": 2769
+    },
+    "result": {
+      "candidate": "NONE",
+      "decision": "No materially different mechanism is sufficiently supported by the supplied evidence. The permutation result supports sensitivity to learned context-weight assignment, but does not identify a task bottleneck requiring a new quantum operation. The rank and optimizer counterexamples establish limitations of particular arguments, not a causal route to improved redistribution. Proposing a new operation here would require an unsupported bottleneck or an unverified novelty claim. NONE is an evidence-limited decision, not an impossibility result.",
+      "one_next_original_source_question": "NONE",
+      "forbidden_claims": [
+        "The existing scoped L4 result transfers to a changed module.",
+        "Quantum coherence or phase is necessary for the observed gain.",
+        "The existing model outperforms matched real, dephased, or softmax controls.",
+        "Attention permutation sensitivity establishes mediation of the total gain.",
+        "A representation-rank gap establishes a task advantage.",
+        "The cited AdamW theorem applies unchanged to the actual training procedure.",
+        "The epsilon counterexample demonstrates failure on native full-40-class cross-entropy.",
+        "A new mechanism has verified novelty, empirical support, or L5 status."
+      ]
+    },
+    "scope": "Ideation opinion on supplied facts, not independent math/source proof review or empirical support. Packet froze before later p8epsilon discussion and before primary labelstate hypothesis."
+  },
+  "primary_acceptance": [
+    "Accept exact conditional scalar epsilon counterexample only; original paper explicitly treats some positiveepsilon bounds atp8, and is not refuted.",
+    "No actual native40CE/PyTorch/stochastic training failure was measured. Source defaultverification remains unclaimed.",
+    "Ordinary readoutfactor gauge/orthogonalization is covered by a recent original. No actual querycollapse or semanticbottleneck was established.",
+    "The independent model returned NONE. The primary later recorded an explicitly speculative new operation for nearest-original audit; no modelendorsement, theorem, nativepreparation, experiment or noveltyclaim is implied."
+  ],
+  "provisional_hypothesis_sha256": "8b2a61b2e352c00baee254a643e0fbe4fd71a1ac5100782dba73175a3c93987a",
+  "next_action": "First audit closest original fixed-target-state multiclass quantum classification (including data re-uploading), MUB constructions/packing, error-correcting class codes and label-wise quantumattention against the primary provisional40-fixed-label-state attention hypothesis. No candidate is selected; actual harmfulquerycrosstalk and utility/noise premises are unverified. Keep complete40free signedreadout and samebenchmark; no readoutrestriction/theorem-only substitute. If a substantive distinction survives, construct exact40projectors and prove/falsify a task-conditional complete40margin/CE statement before any implementation or diagnostic. Nativeansatzreachability/cost and matchedreal/lifted controls must be checked, oldL4notinherited. Do not relabel generic optimizer/norm/gauge facts as L5; preserve stopped families/closedsemanticprobe. AllAPIcallsmedium; newformalruns collaborator-only.",
+  "math_exit_status": 0,
+  "new_native_forwards": 0,
+  "new_data_reads": 0,
+  "new_training": 0,
+  "new_formal_runs": 0,
+  "new_COS_operations": 0,
+  "external_ideation_requests": 1,
+  "external_ideation_verdicts": 1,
+  "external_mathematical_reviews": 0
+}
