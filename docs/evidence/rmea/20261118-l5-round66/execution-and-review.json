@@ -1,0 +1,140 @@
+{
+  "schema": "qattn.utility-dispersion.execution-audit.v1",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "medium",
+  "implementation_review": {
+    "verdict": "PASS_WITH_RISK",
+    "scope": "both",
+    "must_fix": [],
+    "freeze_sha256": "e8c9f3190d1c31e76df844f7a6bbd347f35680b64fe49c62d39464c150c2a238",
+    "risks": [
+      "Static review only: private assets, freeze manifests, deployed revision and scheduler implementations were not independently inspected or executed. Lifecycle approval relies on the stated Store, terminal-receipt and unknown-attempt semantics.",
+      "Heads were selected using the entire original validation set. The label-blind hash partition separates probe fitting from probe evaluation, but cannot provide independent method validation; shared examples also make seeds dependent.",
+      "The quadratic control matches feature count, not function class or effective capacity. Improvements establish only the predefined finite-sample comparison against these two restricted controls.",
+      "Strict positive logloss differences have no numerical margin or inferential guarantee. Probability clipping makes scoring finite but can affect extremely saturated predictions; very small wins should remain descriptive.",
+      "Dispersion relies on the pinned head providing normalized, nonnegative attention and aligned signed utilities. Float64 accumulation improves stability but does not remove original float32 attention-rounding error.",
+      "Recovery deliberately fails closed on unresolved submissions, active or unknown attempts, and unfamiliar configuration bytes. Such cases can retain temporary bindings and require inspection of the same task, not resubmission."
+    ]
+  },
+  "initial_review": "REVISE: new empty input root corrected to verified reused R65 restored root before any execution.",
+  "result_review": {
+    "verdict": "ACCEPT_DEVELOPMENT_DESCRIPTION",
+    "must_fix": [],
+    "recomputed_criterion": "NOT_MET. Dispersion improves evaluation logloss over linear scores in 5/5 seeds, by [0.00654224, 0.00671267, 0.00290233, 0.00491821, 0.00605331]. It loses to quadratic scores in 5/5 seeds, with improvements [-0.01716540, -0.01500735, -0.01995914, -0.01770000, -0.01633622]. Thus 0/5 seeds satisfy improvement over both controls, and the all-five primary criterion fails. PASS_DEVELOPMENT_PROBE denotes completed execution, not scientific success.",
+    "interpretation": "The supplied results support a narrow development finding: adding dispersion helps this fixed linear readout, but the fixed squared-score expansion performs better on both logloss and Brier score in every seed. This neither establishes additional conditional information in dispersion nor establishes score sufficiency. The reported bridges, anchors and solver convergence support the stated scoped execution description; they do not provide independent method validation. No interpretation must-fix is apparent.",
+    "costs": "Across the five overlapping seed evaluations, dispersion triggers 881 changes: 282 correct recoveries, 360 true-null false positives and 239 positive wrong-label reassignments. Linear scores yield 240 recoveries, 290 false positives and 195 wrong-label reassignments; quadratic scores yield 337, 490 and 260 respectively. Relative to linear, dispersion adds 42 recoveries alongside 70 additional true-null false positives and 44 additional wrong-label reassignments. Dispersion false positives exceed recoveries in every seed. Wrong-label reassignments remain incorrect rather than constituting correct recoveries; their class-level consequences differ from newly introduced false positives. These overlapping descriptive totals and binary losses are not multiclass F1 gains or deployment evidence.",
+    "selected_next_question": "Does relation-specific signed token-contribution cancellation, rather than aggregate utility dispersion, causally distinguish recoverable positive null predictions from true-null cases under prespecified matched-score comparisons and controlled token-contribution interventions on the frozen same core?",
+    "reason": "The consistent quadratic advantage shows that score nonlinearity is an essential alternative explanation, while the trigger costs show that identifying positive presence alone does not ensure safe, correct-label recovery. A targeted causal study of contribution organization could investigate a distinct mechanism beyond variance without retraining heads or retuning this failed probe. A substantive contribution would require evidence that this mechanism is identifiable and useful beyond score-only explanations; the present results do not establish it or select a method.",
+    "limits": [
+      "Audit uses supplied source and results only; no execution or independent artifact verification was performed.",
+      "Original heads were selected using the entire validation set; the hash split separates probe fitting from evaluation but does not create independent method validation.",
+      "Shared examples across seeds preclude treating the five outcomes as independent replications.",
+      "Equal coordinate counts do not equate function classes or effective capacity; the quadratic control includes squared scores, not all quadratic interactions.",
+      "Utility dispersion is an ordinary classical statistic, not quantum-specific uncertainty or a calibrated no-relation probability.",
+      "The next question is prospective, not a demonstrated mechanism, novelty claim or authorization to execute.",
+      "Existing scoped L4 remains unchanged; this result closes only the frozen dispersion diagnostic."
+    ],
+    "candidate": "NONE",
+    "l5_status": "NOT_ACCEPTED"
+  },
+  "review_hashes": {
+    "packet": "994fea161b5135983095ba3379424e9f8f5dcf885b19f659ee72c876a7ccd58c",
+    "answer": "719dd34b27151bb82cc7ddfa1cf2b7287498ae97a5f78dc3d840663acbd998cb"
+  },
+  "tasks": {
+    "unit": {
+      "task": "eb94c8b27ed743498728a238a139b5a7",
+      "attempt": "88b6451842494d4d8d21c286bce966fa",
+      "attempt_count": 1,
+      "returncode": 0,
+      "quiescent": true,
+      "owner_binding_exact_restored": true,
+      "worker_binding_exact_restored": true
+    },
+    "preflight": {
+      "task": "024e248707694c5ca6e22632ac785c81",
+      "attempt": "021a2f2f59864a5caf4fdaaa2b067dfa",
+      "attempt_count": 1,
+      "returncode": 0,
+      "quiescent": true,
+      "owner_binding_exact_restored": true,
+      "worker_binding_exact_restored": true
+    },
+    "diagnose": {
+      "task": "dbd5f0812a3b4fdc928e7acc56f88bc3",
+      "attempt": "5c61395811594b0281c47f4d75473580",
+      "attempt_count": 1,
+      "returncode": 0,
+      "quiescent": true,
+      "owner_binding_exact_restored": true,
+      "worker_binding_exact_restored": true
+    }
+  },
+  "selected_heads": 5,
+  "original_anchors": 20,
+  "anchors_max_absolute_error": 8.58306884765625e-06,
+  "all5_original_validation_confusions_exact": true,
+  "diagnostic_seconds": 97.56739128381014,
+  "gpus_used": 0,
+  "cos_gets": 0,
+  "cos_writes": 0,
+  "new_capacity": false,
+  "collaborator_server_access": false,
+  "retained_outputs": "Git source/config and compact aggregates only; original COS archive preserved. Existing restored input cache reused.",
+  "literature": {
+    "at": "2026-11-17T23:53:54.488569+00:00",
+    "papers": [
+      {
+        "paper_id": "arxiv:2203.10807v1",
+        "title": "ViM: Out-Of-Distribution with Virtual-logit Matching",
+        "url": "https://arxiv.org/abs/2203.10807v1",
+        "version": "2203.10807v1",
+        "sha256": "9bed6efe13123d85e3b6e01d510ef59d9846d46f54f6df7defeb598cb5077e5d",
+        "bytes": 2883154,
+        "reading": "read_for_scope",
+        "scope": [
+          "p1identity/abstract",
+          "pp3-5sections3-4eq1-8"
+        ],
+        "source_facts": [
+          "Linearclassificationfeaturescancontainnullspace/principalresidualinformationnotexpressedbylogits.",
+          "ViMaddsresidualnormscaledbymeanmaxlogit/meanresidual tovirtualOODlogit; monotone scoreequivalenttovirtual-logit-minus-logsumexp.",
+          "PaperstudiesOODnot an in-distributionsemanticno_relationclass."
+        ],
+        "transfer_interpretation": "Directcollisionagainstgenericextra-feature/NOTAcalibrationnovelty; doesnotestablishutilityorprecludenewquantumattentionmechanism.",
+        "limits": [
+          "Code/supplement/completeexperiments notread.",
+          "Bias-removalidentityusingpseudoinverse assumes b lies inrange(W^T) for equality; not a blanketcondition forarbitraryW,b.",
+          "No noveltyclearance, relevance notutilityproof."
+        ]
+      },
+      {
+        "paper_id": "arxiv:2410.00412v1",
+        "title": "TPN: Transferable Proto-Learning Network towards Few-shot Document-Level Relation Extraction",
+        "url": "https://arxiv.org/abs/2410.00412v1",
+        "version": "2410.00412v1",
+        "sha256": "1c5d6fe202d18c958bc21c278d204549a60e647e01cc126abd78fc1b5e0e0ea0",
+        "bytes": 1799840,
+        "reading": "read_for_scope",
+        "scope": [
+          "p1identity/abstract/introduction",
+          "pp3-4methodsEq1-11/resultsTablesI-III"
+        ],
+        "source_facts": [
+          "AdaptiveNOTAprototype constructedbydoubleMLPfromsupportNOTAinstances.",
+          "Relation-specificconfidenceusesrelationandNOTA logits anddynamiclossweight; VATcross-domain objective.",
+          "FewshotdocumentlevelFREDo/ReFREDo episodeswithheavyNOTA differsfromfrozenfullsupervisionRe-TACRED."
+        ],
+        "transfer_interpretation": "Directcollisionagainstgenericextra-feature/NOTAcalibrationnovelty; doesnotestablishutilityorprecludenewquantumattentionmechanism.",
+        "limits": [
+          "Notallreportedsettingswin(TableI3Doccases); do notgeneralizeabstractsuperiority.",
+          "Completeexperiments/implementation/supplementsnotread.",
+          "No directplug-in ornewtheoryinthisproject."
+        ]
+      }
+    ],
+    "search_coverage": "Bounded originalarXivmetadata; genericwebroute404 retained; no exhaustivepriorityclaim."
+  },
+  "builder_disposition": "NEEDS_SOURCE_OR_INFORMATION",
+  "lifecycle": "Initial unit acceptance waited for exact terminal/quiescent proof and explicit restore-only reconciliation. No scientific resubmission. All three tasks one attempt, exact owner/worker configurations restored."
+}
