@@ -1,0 +1,119 @@
+{
+  "schema": "qattn.post-screen-premise-audit.v1",
+  "status": "ATTRIBUTION_PREMISE_UNIDENTIFIED",
+  "previous_turn": "R81 PROGRESS: actual preflight and development screen completed, fixed null decision accepted.",
+  "observed": {
+    "R81_decision": "INCONCLUSIVE_NO_PROMOTION",
+    "primary_macro_delta": 0.0002855303018927391,
+    "classical_routing_superiority": "NOT_IDENTIFIED_FROM_JOINTLY_TRAINED_DIAGONAL_RESULTS",
+    "complete_entity_swap_invariance": "NOT_ESTABLISHED; added ECQP summary is symmetric but roles remain ordered."
+  },
+  "analytical_result": {
+    "status": "SOURCE_LEGAL_ANALYTICAL_WITNESS",
+    "statement": "Identical full40 diagonal logits can arise with zero routing contribution or with the entire logit difference from routing.",
+    "scope": "Two explicitly constructed legal endpoint parameter worlds and one legal two-token input; not the actual R81 models or training trajectory.",
+    "source_files": {
+      "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+      "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+      "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+      "experiments/rmea_ecqp_screen/runner.py": "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+      "experiments/rmea_ecqp_screen/metrics.py": "9d039c538453dadc648e2fcdd9f7ade79acd24cb5997a07a8d6f1d69da4e7716",
+      "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e",
+      "docs/evidence/rmea/20261118-l5-round72/screen-design.json": "1668609d349ac5ce441239138f1ffb2bb5b26462d83fcd1be2c4dff5937fe595"
+    },
+    "runtime_model_execution": false,
+    "novelty": "Known identifiability logic; not a new L5 theorem."
+  },
+  "implementation": {
+    "status": "DRAFT_NOT_REVIEWED_NOT_ADMITTED",
+    "path": "experiments/rmea_crossed_replay/job.py",
+    "sha256": "a2779d1ac5277dba4c7187305ffe0c1bbe8ee5e7bc6540207efa16a315e8f716",
+    "exact_launch_contract": "NOT_FROZEN",
+    "source_review": "NOT_REQUESTED",
+    "model_execution": false
+  },
+  "consultation": {
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "response_id": "resp_0a9501578e79f352016afdbc6aceb087d2a007c90a47e5f2fe",
+    "status": "COMPLETED",
+    "verdict": "NONE",
+    "candidates": [],
+    "packet_sha256": "dfd30380a6473c2d775d510817430f0b3269305cfebdbf042484fd66a54ef5bf",
+    "answer_sha256": "db5f9bf67925e990281c7cb16e72637de69d243f594c5b14c0b522823a2e6198",
+    "inference_requests": 1,
+    "automatic_retries": 0,
+    "independent_pass": true,
+    "primary_proposal_not_shown": true,
+    "no_tools_or_literature_verification": true,
+    "summary": "No justified new method from the supplied packet. Symmetric added summary does not make the entire head swap-invariant."
+  },
+  "literature": {
+    "status": "SCOPED_ORIGINAL_READING",
+    "papers": [
+      {
+        "paper_id": "arxiv:2106.07682v1",
+        "title": "Revisiting Model Stitching to Compare Neural Representations",
+        "url": "https://arxiv.org/pdf/2106.07682v1",
+        "pdf_sha256": "2b80c242e9205ef2d0a95c7e10025729b1f4b512425d7c61f563569c5c406134",
+        "pages": 17,
+        "identity": "VERIFIED_TITLE_THREE_AUTHORS_AND_ARXIV_V1_FOOTER",
+        "locators": [
+          "Page1 title/authors/abstract and version footer",
+          "Page3 main text and Figure2 visually inspected",
+          "Page4 Section2, Equation1 and direct-plugging limitation"
+        ],
+        "full_paper_read": false,
+        "reading": "READ_FOR_SCOPE",
+        "findings": [
+          "Stitching risk is defined by an infimum over a specified simple adapter family; the adapter is optimized on training data and evaluated on test data.",
+          "The paper warns that direct plugging can fail even for neuron permutations. Our fixed alpha/utility interface avoids an arbitrary latent-value basis swap, but coadaptation remains possible.",
+          "No trained adapter or general representation-equivalence conclusion is part of the proposed Q-RMEA diagnostic."
+        ],
+        "limitations": [
+          "Only indicated portions of pages1,3,4 read; experiments, appendices and later revisions not audited.",
+          "The descriptive crossed replay is not a new stitching method or an estimate of the adapter-optimized infimum."
+        ]
+      },
+      {
+        "paper_id": "arxiv:2106.02997v1",
+        "title": "Causal Abstractions of Neural Networks",
+        "url": "https://arxiv.org/pdf/2106.02997v1",
+        "pdf_sha256": "f1e859cc9bfaf63d8d5276cc1f2dc54f10d6333df1b29f248f8311ec49df3e40",
+        "reading": "REUSED_PREVIOUS_SCOPED_READING",
+        "prior_receipt": "docs/evidence/rmea/20261115-l5-round4/reading-receipts.json",
+        "pages_read": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "findings": [
+          "Constructive causal abstraction needs a high-level variable alignment and correspondence of interventions; arbitrary crossed heads do not establish it."
+        ],
+        "limitations": [
+          "No new reading or causal abstraction proof claimed; original limited scope retained."
+        ]
+      }
+    ],
+    "novelty_clearance": false,
+    "unread_newer_lead": {
+      "paper_id": "arxiv:2603.12433v3",
+      "scope": "Metadata/abstract only; not read or a source for a scientific conclusion."
+    }
+  },
+  "discovery": {
+    "web_search_transport": "404 before search results; no evidence obtained from that tool.",
+    "primary_search": "Four paced direct arXiv API queries: quantum natural gradient, causal abstraction, model stitching, causal mediation.",
+    "origins": [
+      "Prior project bank and verified causal-abstraction original reused",
+      "Independent problem-driven source search",
+      "Cross-domain representation-compatibility/model-stitching search"
+    ],
+    "bounds": "1 initial search plus3 title searches, no automatic retries. One exact-version PDF acquired; no browser needed.",
+    "stop_reason": "Known compatibility and causal-abstraction boundaries suffice for this premise audit; no novelty clearance."
+  },
+  "decision": "Develop and review the bounded crossed replay before attributing the classical point gap to a routing bottleneck; no new method selected.",
+  "existing_L4": "UNCHANGED",
+  "L5": "NOT_ACCEPTED"
+}

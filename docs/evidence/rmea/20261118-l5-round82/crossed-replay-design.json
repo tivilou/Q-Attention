@@ -1,0 +1,245 @@
+{
+  "schema": "qattn.routing-readout-crossed-replay.design.v1",
+  "status": "IMPLEMENTED_DRAFT_NOT_REVIEWED_NOT_ADMITTED",
+  "exploratory_only": true,
+  "purpose": "Discriminate fixed-checkpoint routing transfer from readout/coadaptation explanations of R81; not a new method or a causal abstraction claim.",
+  "data": {
+    "original_split": "train",
+    "evaluation_examples": 972,
+    "groups": 866,
+    "selected_split": "Existing R72 evaluation partition; no new cohort, sampling or official valid/test.",
+    "prefix_receipt_sha256": "27cb566401bc60de8c8fae0611c78a97370b3b2f452838e9d84df90eebf4ad83",
+    "plan_sha256": "00f0c5eedb24ecb2ee146914cba4e72ff320881ad206a05e17a21a9d72159dc5",
+    "cohort_sha256": "dbca6227d405b932bf1c463935383e87f6dd870d0ec0280139a8b460f89b1999",
+    "donors_sha256": "12abb735b1eb6358ecd306d01bb154739baa8afb2689928c23b85944eeb28538"
+  },
+  "checkpoints": {
+    "ecqp_quantum": {
+      "filename": "ecqp_quantum-final.pt",
+      "sha256": "394e2d05d028917806f528d4b63b1e715209062647f075963a8a7652d091e8c5",
+      "parameters": 81220,
+      "final_epoch": 4
+    },
+    "softmax12_entity": {
+      "filename": "softmax12_entity-final.pt",
+      "sha256": "3ac8fcae61f50765b02124e52610c88e3d90ffa054c4393aeb4a99be4b903609",
+      "parameters": 81220,
+      "final_epoch": 4
+    },
+    "real_overlap12_entity": {
+      "filename": "real_overlap12_entity-final.pt",
+      "sha256": "e663a38962283baceceb3ee88361dc132b6d77d6ffd7a40a1bd4fa021247a381",
+      "parameters": 81220,
+      "final_epoch": 4
+    },
+    "square_quantum": {
+      "filename": "square_quantum-final.pt",
+      "sha256": "aff30bec6455005577bf4a79ce174cf506db7e7626bdc69079c2f8a12a4a6787",
+      "parameters": 81220,
+      "final_epoch": 4
+    },
+    "softmax12_token_square": {
+      "filename": "softmax12_token_square-final.pt",
+      "sha256": "961c1c3fc08957fc0dedd07083d22203e1d1e471d38f8a6217318477d4785742",
+      "parameters": 81220,
+      "final_epoch": 4
+    },
+    "real_overlap12_token_square": {
+      "filename": "real_overlap12_token_square-final.pt",
+      "sha256": "ea75d767506d72e00f519f732f72f67f5673ace9a3d03f561a953090474fc845",
+      "parameters": 81220,
+      "final_epoch": 4
+    }
+  },
+  "source_files": {
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+    "experiments/rmea_ecqp_screen/runner.py": "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+    "experiments/rmea_ecqp_screen/metrics.py": "9d039c538453dadc648e2fcdd9f7ade79acd24cb5997a07a8d6f1d69da4e7716",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e",
+    "docs/evidence/rmea/20261118-l5-round72/screen-design.json": "1668609d349ac5ce441239138f1ffb2bb5b26462d83fcd1be2c4dff5937fe595"
+  },
+  "cells": [
+    {
+      "feature": "entity",
+      "selector": "ecqp_quantum",
+      "readout": "ecqp_quantum"
+    },
+    {
+      "feature": "entity",
+      "selector": "ecqp_quantum",
+      "readout": "softmax12_entity"
+    },
+    {
+      "feature": "entity",
+      "selector": "ecqp_quantum",
+      "readout": "real_overlap12_entity"
+    },
+    {
+      "feature": "entity",
+      "selector": "softmax12_entity",
+      "readout": "ecqp_quantum"
+    },
+    {
+      "feature": "entity",
+      "selector": "softmax12_entity",
+      "readout": "softmax12_entity"
+    },
+    {
+      "feature": "entity",
+      "selector": "softmax12_entity",
+      "readout": "real_overlap12_entity"
+    },
+    {
+      "feature": "entity",
+      "selector": "real_overlap12_entity",
+      "readout": "ecqp_quantum"
+    },
+    {
+      "feature": "entity",
+      "selector": "real_overlap12_entity",
+      "readout": "softmax12_entity"
+    },
+    {
+      "feature": "entity",
+      "selector": "real_overlap12_entity",
+      "readout": "real_overlap12_entity"
+    },
+    {
+      "feature": "token_square",
+      "selector": "square_quantum",
+      "readout": "square_quantum"
+    },
+    {
+      "feature": "token_square",
+      "selector": "square_quantum",
+      "readout": "softmax12_token_square"
+    },
+    {
+      "feature": "token_square",
+      "selector": "square_quantum",
+      "readout": "real_overlap12_token_square"
+    },
+    {
+      "feature": "token_square",
+      "selector": "softmax12_token_square",
+      "readout": "square_quantum"
+    },
+    {
+      "feature": "token_square",
+      "selector": "softmax12_token_square",
+      "readout": "softmax12_token_square"
+    },
+    {
+      "feature": "token_square",
+      "selector": "softmax12_token_square",
+      "readout": "real_overlap12_token_square"
+    },
+    {
+      "feature": "token_square",
+      "selector": "real_overlap12_token_square",
+      "readout": "square_quantum"
+    },
+    {
+      "feature": "token_square",
+      "selector": "real_overlap12_token_square",
+      "readout": "softmax12_token_square"
+    },
+    {
+      "feature": "token_square",
+      "selector": "real_overlap12_token_square",
+      "readout": "real_overlap12_token_square"
+    }
+  ],
+  "environment": {
+    "numpy": "1.24.3",
+    "torch": "2.4.1+cpu"
+  },
+  "original_report_sha256": "76b06a70aa80612689ccb050f5cc624a367c737c693e3fc43406c20eb04b2537",
+  "wiring": {
+    "equation": "logit[s,v,r] = sum_t alpha[s,r,t] * utility[v,r,t] + bias[v,r]",
+    "selector_block": "Complete frozen preparation, interaction, circuit/effect or classical routing; no retraining.",
+    "readout_block": "value.weight + value.bias + decoder + output bias, all from the same frozen head.",
+    "index_contract": "Identical sample/token/mask/40-class ordering and common fixed H.",
+    "excluded": "No isolated value/decoder exchange, learned adapter, checkpoint selection or cross-feature mixing."
+  },
+  "preconditions": [
+    "Authenticate exact R81 six checkpoints, R79 prefix receipt and all five assets; no COS or cache regeneration.",
+    "Same CPU/float32/Torch2.4.1+cpu/NumPy1.24.3, threads1, batch32, deterministic algorithms and eval mode.",
+    "Recompute each of six diagonal cells; exact original counts/confusions/predictions where retained, and original CE/Macro parity. Freeze numeric parity contract in source review before execution.",
+    "Authenticate source and launch/output/recovery contracts in a new exact both-scope review; R80 review does not authorize this changed diagnostic."
+  ],
+  "endpoints": {
+    "primary": "Fixed positive-39 Macro-F1; preserve missing classes and all 40-class counts/confusions.",
+    "secondary": [
+      "CE",
+      "accuracy",
+      "all eighteen cells"
+    ],
+    "comparisons": [
+      {
+        "feature": "entity",
+        "quantum": "ecqp_quantum",
+        "classical": "softmax12_entity"
+      },
+      {
+        "feature": "entity",
+        "quantum": "ecqp_quantum",
+        "classical": "real_overlap12_entity"
+      },
+      {
+        "feature": "token_square",
+        "quantum": "square_quantum",
+        "classical": "softmax12_token_square"
+      },
+      {
+        "feature": "token_square",
+        "quantum": "square_quantum",
+        "classical": "real_overlap12_token_square"
+      }
+    ],
+    "fixed_readout_effects": [
+      "S[classical,quantum]-S[quantum,quantum]",
+      "S[classical,classical]-S[quantum,classical]"
+    ],
+    "readout_effects": [
+      "S[quantum,classical]-S[quantum,quantum]",
+      "S[classical,classical]-S[classical,quantum]"
+    ],
+    "interaction": "S[c,c]-S[c,q]-S[q,c]+S[q,q]",
+    "direction": "S=Macro for primary, S=-CE for CE decomposition; never select the favorable endpoint.",
+    "uncertainty": "Descriptive point contrasts only; no population, training-randomness or significance claim.",
+    "interpretation": "Signs may identify fixed-block transfer or interaction in this replay only; no training-gain mediation or semantic necessity."
+  },
+  "stop_rules": {
+    "invalid": "Any source/input/checkpoint/ordering/diagonal parity/nonfinite/output-integrity failure.",
+    "successful_execution": "COMPLETED_DESCRIPTIVE_CROSSED_REPLAY; never promotes ECQP or accepts L5.",
+    "rescue": "No seed, epoch, cohort, threshold, weight fitting or learned stitching adapter."
+  },
+  "proposed_budget": {
+    "cpu": 1,
+    "ram_mb": 4096,
+    "disk_mb": 512,
+    "gpus": 0,
+    "timeout_seconds": 600,
+    "max_attempts": 1,
+    "replay_safe": false,
+    "optimizer_steps": 0,
+    "training": false,
+    "COS_GET_requests": 0,
+    "cloud_writes": 0
+  },
+  "publication": {
+    "allowed": "Code and compact aggregate report only; no raw weights, text or predictions.",
+    "proposed_outputs": [
+      "compact-report.json",
+      "RUN_COMPLETE"
+    ]
+  },
+  "implementation_ready": false,
+  "admission": false,
+  "new_method_candidate": null,
+  "formal_handoff": false,
+  "L5": "NOT_ACCEPTED"
+}
