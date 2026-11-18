@@ -7,6 +7,7 @@ from pathlib import Path
 import resource
 import sys
 import time
+import urllib.parse
 
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 from experiments.rmea_original_scores.common import complete,guard,read,safe,sha
@@ -40,7 +41,13 @@ def main():
     assert root!=output and not root.is_relative_to(output) and not output.is_relative_to(root)
     assert not root.exists(), 'Fresh attempt only; inspect a previous recovery instead of replaying'
     assert not output.exists() or not list(output.iterdir())
-    assert len(read(urls_path))==6
+    urls=read(urls_path);assert set(urls)=={row['id'] for row in plan['chunks']} and len(urls)==6
+    for row in plan['chunks']:
+        u=urllib.parse.urlsplit(urls[row['id']])
+        assert u.scheme=='https' and u.hostname==row['host'] and u.port in (None,443)
+        assert not u.username and not u.password and not u.fragment
+        assert urllib.parse.unquote(u.path)=='/'+row['key']
+        assert urllib.parse.parse_qs(u.query).get('versionId')==[row['version']]
     from experiments.rmea_ecqp_recovery import restore
     started=time.monotonic()
     receipt=restore.run(plan_path,c['plan_sha256'],urls_path,sidecars,root)
