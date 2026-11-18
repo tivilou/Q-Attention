@@ -1,0 +1,36 @@
+{
+  "schema": "qattn.ecqp.real-prefix-recovery.v1",
+  "allowed_actions": [
+    "recover"
+  ],
+  "environment": {
+    "numpy": "1.24.3"
+  },
+  "dependencies": {
+    "experiments/rmea_ecqp_recovery/restore.py": "cfbf885cf7b097af19663edb3fb1cf107a395b1410196612fcf35be2ef52541d",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e"
+  },
+  "plan_sha256": "00f0c5eedb24ecb2ee146914cba4e72ff320881ad206a05e17a21a9d72159dc5",
+  "resources": {
+    "recover": {
+      "cpu": 1,
+      "ram_mb": 2048,
+      "disk_mb": 1536,
+      "gpus": 0,
+      "timeout": 900
+    }
+  },
+  "outputs": [
+    "compact-report.json",
+    "RUN_COMPLETE"
+  ],
+  "max_attempts": 1,
+  "replay_safe": false,
+  "maximum_get_requests": 6,
+  "maximum_payload_bytes": 402653184,
+  "cloud_writes": 0,
+  "recovery": "Failed GET preserves journal and chunks; no automatic retry or fresh-root replay. Separately recover cleanup from the same sealed receipt.",
+  "model_forwards": 0,
+  "task_training": false,
+  "L5": "NOT_ACCEPTED"
+}
