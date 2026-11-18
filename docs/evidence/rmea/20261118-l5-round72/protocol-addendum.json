@@ -1,0 +1,42 @@
+{
+  "schema": "qattn.ecqp.design-addendum.v1",
+  "status": "PRIMARY_DESIGN_CLARIFICATION_BEFORE_LABELS",
+  "base_screen_sha256": "1668609d349ac5ce441239138f1ffb2bb5b26462d83fcd1be2c4dff5937fe595",
+  "external_review_verdict_sha256": "e8a20a46a2d51274c43057eeff8cb0a82e8e9267737e7a9f6d8511d88c74f7bf",
+  "supersedes": "Only ambiguous decision precedence/bootstrap wording of frozen screen-design v1; unchanged data/cohort/seed/budgets/conditions/endpoints.",
+  "decision_precedence": [
+    "INVALID first: provenance/leakage/source/projection/numerics failure; do not interpret task effects.",
+    "CATASTROPHIC_FIXED_SCREEN second: primary Macro delta<=-.05 AND CE delta>=.1; close this frozen screen, not whole family.",
+    "INCONCLUSIVE_NO_PROMOTION third: primary95percent group-bootstrap interval includes0 (including endpoints), or any positive class absent in fit or evaluation; overrides all positive point estimates. Retain descriptive outputs.",
+    "EXPLORATORY_SCREEN_POSITIVE only if valid/noncatastrophic, all39positiveclasses supported, primary lower95percent endpoint>0, primary Macro delta>0 AND entity-minus-mismatch>0 AND entity-minus-square>0. Not formal utility/L5 or automatic handoff.",
+    "NO_POSITIVE_SCREEN otherwise: no optional seeds/epochs/threshold/cohort rescue; ordinary short null is not whole-family failure."
+  ],
+  "bootstrap": {
+    "groups": 866,
+    "unit": "Frozen evaluation unordered entity-surface pair",
+    "replicates": 2000,
+    "seed": 20261119,
+    "procedure": "For each replicate draw866groupindices with replacement; include all original samples of each chosen group with multiplicity. Recompute paired candidate/control confusion and official positive39Macro on identical sampled rows; absent classes get0F1, denominator always39.",
+    "interval": "Empirical .025/.975 quantiles using NumPy1.24.3 method=linear; describe conditional group sampling, not training-seed/population replication.",
+    "scope": "One evaluation graph/cohort with frozen donor permutation; mismatch route is input-transductive and coupled across donor groups. Intervals are descriptive, not calibrated causal/independent-deployment inference."
+  },
+  "quantum_attribution": "No quantum-necessary or quantum-specific claim. No between-route interaction primary endpoint is introduced; classical controls remain descriptive.",
+  "input_identity": {
+    "original_train_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+    "owner_train_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+    "exact_match": true,
+    "original_report_data_sha256_file": "011f9a348b9dc44e45ae998a680e16d9e68a90e998f555ed22f1874b40327a32",
+    "all58465_ids_joined": true,
+    "all4096_roles_exact": true,
+    "original_order_rule": "SHA256(rmea-sample-v1:split:original_id) ascending, not current JSONL line order"
+  },
+  "implementation_must_fix": [
+    "Projection recursion validation actual wrapper/corrupt/missing/substitution tests.",
+    "Actual pinned restorer/training/metrics/bootstrap source implementation, focused tests, exact both-scope review and scheduler/budget admission remain pending."
+  ],
+  "external_review_scope": "External review applies exactly to3frozen original design files. This primary addendum has no separate external implementation review; next source-ready review MUST bind original+addendum hashes.",
+  "COS_requests": 0,
+  "model_forwards": 0,
+  "training_admitted": false,
+  "L5": "NOT_ACCEPTED"
+}

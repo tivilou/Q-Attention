@@ -1,0 +1,176 @@
+{
+  "schema": "qattn.ecqp.train-only-screen-design.v1",
+  "candidate": "ECQP_EXPLORATORY_ONLY",
+  "status": "DESIGN_FROZEN_IMPLEMENTATION_AND_ADMISSION_PENDING",
+  "L5": "NOT_ACCEPTED",
+  "premise": "An explicit low-rank multiplicative entity-summary path before quantum preparation may help optimize relation selection, although frozen contextual H already includes entity markers. No additional information or quantum necessity is presumed.",
+  "novelty": "Entity-conditioned attention/low-rank bilinear interactions are known; substantive new contribution and task-linked theory remain unresolved. This experiment screens utility, not novelty.",
+  "exact_conditional_prediction": "For a fixed word state, alternate summaries a,a_prime change the added pre-tanh term by B diag(P h) P(a-a_prime). At B=0 this vanishes and native forward/shared-parameter gradients match; B gradients may differ. This known bilinear identity predicts computation, not benefit.",
+  "input": {
+    "original_split": "train",
+    "prefix_examples": 4096,
+    "cache_order": "Original SHA256(rmea-sample-v1:split:original_id) ascending; NOT current JSONL order",
+    "cohort_sha256": "dbca6227d405b932bf1c463935383e87f6dd870d0ec0280139a8b460f89b1999",
+    "group_policy_sha256": "e6cb087ec32c32d2fe60e26bfccd44bb7661330ff679ccff635928115422c774",
+    "fit_items": 3124,
+    "evaluation_items": 972,
+    "fit_groups": 2714,
+    "evaluation_groups": 866,
+    "group_overlap": 0,
+    "group": "Unordered normalized entity-surface pair; metadata SHA256(str(original_id)) join to rawJSONL; original all4096 role arrays exact.",
+    "IDs_joined": 58465,
+    "raw_order_match": false,
+    "selection_uses_labels": false,
+    "validation_or_test_read": false,
+    "limitation": "Same entity-surface-pair exclusion, not single-entity/document/semantic independence. All are original training examples; development only."
+  },
+  "donors": {
+    "mapping_sha256": "12abb735b1eb6358ecd306d01bb154739baa8afb2689928c23b85944eeb28538",
+    "same_split": true,
+    "whole_cohort": true,
+    "group_excluding": true,
+    "bijective": true,
+    "construction": "Exact R71 cohort_derangement rule, frozen fit/eval separately before labels; no minibatch reshuffle",
+    "mismatch_train": "Use the frozen donor entity summary for every forward, including fitting; evaluation donors come only from evaluation cohort.",
+    "postfit": "For the correct-summary trained ECQP only, additionally evaluate fixed mismatched summaries; a distribution-shift intervention, not semantic ground truth."
+  },
+  "conditions": [
+    {
+      "id": "native_quantum",
+      "routing": "quantum",
+      "feature": null,
+      "donor": false,
+      "params": 81028
+    },
+    {
+      "id": "ecqp_quantum",
+      "routing": "quantum",
+      "feature": "entity",
+      "donor": false,
+      "params": 81220
+    },
+    {
+      "id": "mismatch_quantum",
+      "routing": "quantum",
+      "feature": "entity",
+      "donor": true,
+      "params": 81220
+    },
+    {
+      "id": "square_quantum",
+      "routing": "quantum",
+      "feature": "token_square",
+      "donor": false,
+      "params": 81220
+    },
+    {
+      "id": "linear_quantum",
+      "routing": "quantum",
+      "feature": "token_linear",
+      "donor": false,
+      "params": 81220
+    },
+    {
+      "id": "softmax12_entity",
+      "routing": "softmax12",
+      "feature": "entity",
+      "donor": false,
+      "params": 81220
+    },
+    {
+      "id": "softmax12_token_square",
+      "routing": "softmax12",
+      "feature": "token_square",
+      "donor": false,
+      "params": 81220
+    },
+    {
+      "id": "real_overlap12_entity",
+      "routing": "real_overlap12",
+      "feature": "entity",
+      "donor": false,
+      "params": 81220
+    },
+    {
+      "id": "real_overlap12_token_square",
+      "routing": "real_overlap12",
+      "feature": "token_square",
+      "donor": false,
+      "params": 81220
+    }
+  ],
+  "training": {
+    "device": "cpu",
+    "threads": 1,
+    "seed": 20261118,
+    "independent_initializations": 1,
+    "epochs": 4,
+    "batch_size": 32,
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "clip_norm": 1.0,
+    "precision": "float32; original stored H float16 cast per batch",
+    "order": "Same seed-generated fit permutations for all9conditions; only fit indices in optimizer batches; no evaluation-based checkpoint selection.",
+    "initialization": "One frozen native initial state; identical unchanged prepare/value/decoder/effect members copied to each condition; B=0. Native and quantum branches initially exact. Classical12 routing changes functions.",
+    "feature_scaling": "None: native source interface, no fitted normalization, no new hyperparameter tuning.",
+    "checkpoint": "Final epoch4 only; record every epoch descriptively, no best-epoch/condition/seed selection.",
+    "schedules": "No early stopping, LR tuning, additional epochs/seeds, adaptive prefix extension or outcome-driven retries."
+  },
+  "endpoints": {
+    "primary": "Fixed final-epoch official positive39 Macro-F1 difference: ecqp_quantum minus native_quantum",
+    "secondary": [
+      "CE",
+      "accuracy",
+      "per-class support/confusion",
+      "B norm and pre-tanh/circuit/attention/logit intervention effects"
+    ],
+    "mechanism_comparisons": [
+      "ecqp_quantum minus mismatch_quantum",
+      "ecqp_quantum minus square_quantum",
+      "ecqp_quantum minus linear_quantum"
+    ],
+    "classical": "Compare entity-minus-square within each classical12 route; parameter matched, not matched compute/activecapacity or historical8Dcontrols.",
+    "uncertainty": "Descriptive paired group bootstrap over972 evaluation samples grouped into866 pairs;2000 fixed-seed resamples, retain all9conditions. Sampling interval is conditional on one fit/initialization and this development cohort, not training-seed or population replication."
+  },
+  "decision": {
+    "screen_positive": "Primary Macro delta>0 and same sign for prespecified entity-vs-mismatch and entity-vs-square; report CE/accuracy harms and uncertainty without suppressing any control.",
+    "mechanism_not_supported": "Correct/mismatched postfit outputs numerically equal, no finite B gradient/update, or matches simple token/control explanation: no entity-specific/quantum claim.",
+    "inconclusive": "Primary interval crosses0, sparse/missing class support or ordinary short-screen null: no promotion and not whole-family rejection. No optional budget rescue.",
+    "stop": "Provenance/leakage/source/projection/numerics failure invalidates run. Primary Macro decrease>=.05 AND CE increase>=.1 is catastrophic for this frozen screen, not the entire trainable family.",
+    "sensitivity": "All40 class supports must be reported after label admission. If any of39 positives absent in fit/eval, Macro remains fixed denominator39 but rare-class/generalization interpretation is explicitly insufficient; no relabel/stratified reselection.",
+    "no_formal_handoff": "Screen is exploratory. Future full-data single-seed and replication require separate prospective contract, original formal handoff package and collaborator execution; no L1-L5 inheritance."
+  },
+  "implementation_gates": [
+    "Implement reviewed pinned prefix restorer and test multichunk/NPY/truncation/hash/reuse failures.",
+    "Revalidate original source/manifest/VersionId headers and exact prefix extraction; freeze actual output hashes before scientific fit.",
+    "Fix/verify P integrity under outer-module recursive state loading before integrating training.",
+    "R2 exact source+mechanism+lifecycle review, scheduler source binding, existing CPU memory/cgroup/disk admission, real parent-child canary and one-attempt quiescent receipt.",
+    "Enforce task-only input paths excluding recovered valid/test; unit test ID/donor split isolation and zeroB shared-gradient parity; no full formal owner run."
+  ],
+  "execution": {
+    "admitted": false,
+    "restore_GETs_this_round": 0,
+    "model_forwards_this_round": 0,
+    "task_training_this_round": false,
+    "proposed_screen_resources": {
+      "cpu": 1,
+      "ram_mb": 4096,
+      "disk_mb": 1536,
+      "gpus": 0,
+      "timeout_seconds": 7200
+    },
+    "max_attempts": 1,
+    "replay_safe": false,
+    "scientific_outputs": [
+      "compact-report.json",
+      "RUN_COMPLETE"
+    ],
+    "retention": "If closed exploratory without continuation or unique model-analysis consumer: Git source/config/compact reports only; no new COS checkpoint/cache upload. Preserve existing bytes until separate cleanup."
+  },
+  "source": {
+    "ecqp_head_sha256": "60d8c25ccb0d93b208c815ad8264a280b63ef7d61d7e7a7115930f644bf62c5f",
+    "original_quantum_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "original_L4_card_sha256": "ba10c598e8f12b91668a339cff8d367647025124494afac0f37221c1f023d89e"
+  }
+}
