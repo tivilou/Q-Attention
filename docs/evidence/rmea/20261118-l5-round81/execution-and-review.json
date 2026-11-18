@@ -1,0 +1,138 @@
+{
+  "schema": "qattn.ecqp.actual-execution-review.v1",
+  "status": "EXACT_REVIEW_REUSED_FOR_TWO_SINGLE_ATTEMPTS",
+  "review": {
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "scope": "both",
+    "verdict": "PASS_WITH_RISK",
+    "must_fix": [],
+    "freeze_sha256": "43aba067cffe23606000a8f5039e7506cac093e2ce257fe6a5886dba5cc1db35",
+    "response_id": "resp_0b607eac4c62429a016afdad22ded887d285466616addeef2e",
+    "observer": "Unchanged exact inspect_phase.py from the reviewed packet."
+  },
+  "phases": {
+    "preflight": {
+      "status": "ACCEPTED_REAL_INPUT_AND_PARENT_PATH_PREFLIGHT_ONLY",
+      "task": "6696498154e9476682b07523454b8c06",
+      "attempt": "c5cd0562c10a417fb6084d9e1480ae4f",
+      "attempt_count": 1,
+      "returncode": 0,
+      "quiescent": true,
+      "duration_seconds": 10.254781246185303,
+      "outputs": {
+        "RUN_COMPLETE": {
+          "bytes": 204,
+          "sha256": "5a6fb28f9ed891c3eb57ab616006cb50cb52a6b736173df1012a235ba9690cc1"
+        },
+        "compact-report.json": {
+          "bytes": 4406,
+          "sha256": "5ea2f16e209c2c9ff91449489618630c998b57cbfa7ffbc8962a9f14d02afce4"
+        }
+      },
+      "marker": {
+        "schema": "qattn.ecqp.bounded.closed.v1",
+        "phase": "preflight",
+        "files": {
+          "compact-report.json": "5ea2f16e209c2c9ff91449489618630c998b57cbfa7ffbc8962a9f14d02afce4"
+        },
+        "training": false
+      },
+      "input": {
+        "original_split": "train",
+        "prefix_examples": 4096,
+        "prefix_tokens": 151571,
+        "hidden_size": 1024,
+        "fit": 3124,
+        "evaluation": 972,
+        "valid_or_test_read": false
+      },
+      "task_training": false,
+      "GPU_count": 0,
+      "COS_requests": 0,
+      "cloud_writes": 0,
+      "owner_binding_restored": true,
+      "worker_binding_restored": true
+    },
+    "screen": {
+      "status": "ACCEPTED_FIXED_TRAIN_ONLY_DEVELOPMENT_SCREEN",
+      "task": "531f1d86978f47c9b4e45eb98d6bd19e",
+      "attempt": "95982ef15af24f0ab3acedb7695921f3",
+      "attempt_count": 1,
+      "returncode": 0,
+      "quiescent": true,
+      "duration_seconds": 348.669504404068,
+      "outputs": {
+        "RUN_COMPLETE": {
+          "bytes": 200,
+          "sha256": "a0c48f614a538f5bd3c78e6be3a6a24455b28698f19575cb20bbba1c4bb2c9f7"
+        },
+        "compact-report.json": {
+          "bytes": 246924,
+          "sha256": "76b06a70aa80612689ccb050f5cc624a367c737c693e3fc43406c20eb04b2537"
+        }
+      },
+      "marker": {
+        "schema": "qattn.ecqp.bounded.closed.v1",
+        "phase": "screen",
+        "files": {
+          "compact-report.json": "76b06a70aa80612689ccb050f5cc624a367c737c693e3fc43406c20eb04b2537"
+        },
+        "training": true
+      },
+      "input": {
+        "original_split": "train",
+        "prefix_examples": 4096,
+        "prefix_tokens": 151571,
+        "hidden_size": 1024,
+        "fit": 3124,
+        "evaluation": 972,
+        "valid_or_test_read": false
+      },
+      "task_training": true,
+      "GPU_count": 0,
+      "COS_requests": 0,
+      "cloud_writes": 0,
+      "owner_binding_restored": true,
+      "worker_binding_restored": true
+    }
+  },
+  "source_files": {
+    "experiments/rmea_ecqp_screen/runner.py": "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+    "experiments/rmea_ecqp_screen/metrics.py": "9d039c538453dadc648e2fcdd9f7ade79acd24cb5997a07a8d6f1d69da4e7716",
+    "experiments/rmea_ecqp_screen/__init__.py": "904efb70071a9c9b1e10c47b28efbb6d10f6465ce56826b49dc236b4f2294581",
+    "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+    "experiments/rmea_ecqp/__init__.py": "ec4e8fc85df383e97c287ee004c4e6dfddbd2752cffb1424951a45b6435c922f",
+    "experiments/rmea_context_geometry/legacy/__init__.py": "6eca8d00d0c124272f5ee73570c37d1ada545579f19702c5241c6723beb237b9",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_original_scores/__init__.py": "fc614e6d3b7aca7260d75e3830eba3b4c4256a28a62896348f5bd46ff0eb4bc2",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e",
+    "experiments/rmea_ecqp_screen/real_job.py": "f0179ca1a20efe15f5e4db6fda7c2401b3023253cb21883a1762b12833ae0cf9",
+    "docs/evidence/rmea/20261118-l5-round72/cohort-summary.json": "62b3a254cd999d14002d1e472da67a7fa32e5fa92879d7b5e7e3be0ec5991162",
+    "docs/evidence/rmea/20261118-l5-round72/execution-and-review.json": "3abda588364abe51b699be129f633cc9179d3bdb9300dfbeb904ec1f3efe7594",
+    "docs/evidence/rmea/20261118-l5-round72/protocol-addendum.json": "9a6d83f1a16e66188845562c58280575f7f6e978ae7cf7296fbe25e1071aa36e",
+    "docs/evidence/rmea/20261118-l5-round72/recovery-cost.json": "a2438c5ded67e5cbe4d570545999091d7a3853ed7163c41db9351d199425a416",
+    "docs/evidence/rmea/20261118-l5-round72/screen-design.json": "1668609d349ac5ce441239138f1ffb2bb5b26462d83fcd1be2c4dff5937fe595",
+    "experiments/rmea_ecqp_screen/real_contract.json": "5c8497ee8d5a80f6facf36ac431109b7c9f829ec923bac48785f348ce1d98b00"
+  },
+  "control_files": {
+    "cpu_ops.py": "e13cf409d070fa612245470bafd75e3a3903e60f041ca7220edbb8478ad2618f",
+    "deploy_worker.py": "3cf3a7cac6d64979b3ff9a04323f69e0b64f55eb3e93a25537073e7c6068796b",
+    "stage_inputs.py": "1096a5f5bb97043bef4d74bd003c5e7a211b4a3db65daeb6ab35849e1b882d9e",
+    "queue_submit.py": "ec6d373e210a2b7b5301bacb1149edaf23e68cd08c5b9dcca072273f7b95c55a",
+    "inspect_phase.py": "207b9ca68830ee98b40359356ea0b1314862dda3db68c7c187036e0b4b5c3731"
+  },
+  "no_new_scientific_source_change": true,
+  "no_task_replay": true,
+  "historical_R80_readiness_preserved": true,
+  "scientific_interpretation": "INCONCLUSIVE_NO_PROMOTION; no full experiment handoff or L5 acceptance.",
+  "unresolved_review_risks": [
+    "Paired binding files are not a single crash-atomic transaction; unknown states fail closed.",
+    "A child timeout can omit captured child logs; these two children exited normally.",
+    "Single-initialization development data and donor coupling limit interpretation."
+  ],
+  "COS_requests": 0,
+  "cloud_writes": 0,
+  "L5": "NOT_ACCEPTED"
+}
