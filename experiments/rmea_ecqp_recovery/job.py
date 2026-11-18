@@ -11,6 +11,7 @@ import subprocess
 import tarfile
 import tempfile
 import time
+import tokenize
 from pathlib import Path
 from unittest.mock import patch
 
@@ -67,7 +68,9 @@ def recovery_unit(folder):
     must_fail(lambda:restore.parse_header(root,bad))
     checks.append('wrong_tar_hash_NPY_shape_and_out_of_range_prefix_rejected')
     first=root/'chunks/seed29/0.bin';original=first.read_bytes();broken=bytearray(original);broken[512+10]=255;first.write_bytes(broken)
-    must_fail(lambda:restore.parse_header(root,plan));first.write_bytes(original)
+    # NumPy's malformed header tokenizer can raise TokenError directly, before
+    # its usual ValueError conversion. Both explicitly mean rejected input.
+    must_fail(lambda:restore.parse_header(root,plan),errors=(ValueError,tokenize.TokenError));first.write_bytes(original)
     middle=root/'chunks/seed29/2.bin';old=middle.read_bytes();middle.write_bytes(b'')
     must_fail(lambda:restore.read_range(root,'seed29',2048,10,chunk_size));middle.write_bytes(old)
     checks.append('malformed_NPY_header_and_truncated_chunk_rejected')
