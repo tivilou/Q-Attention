@@ -1,0 +1,77 @@
+{
+  "status": "SCOPED_ORIGINAL_READINGS",
+  "readings": [
+    {
+      "id": "2208.10342v2",
+      "title": "Efficient algorithms for quantum information bottleneck",
+      "identity_evidence": "p1 Hayashi/Yang title/authors; footer arXiv2208.10342v2 25Feb2023, Quantum accepted21Feb2023. p10 Lemmas6-7/Eq52-55 visually inspected.",
+      "read_scope": [
+        "pp1-3: problem definition, cq channel and objective; not full convergence proof.",
+        "p10: uniform-source fixed-dimension quantum/classical optimum Lemmas6-7.",
+        "pp11-12: HS-kernel classifier/access and noisy synthetic experiment description."
+      ],
+      "visual_pages": [
+        10
+      ],
+      "findings": [
+        "p2 Eq1-3 allows classical X and quantum or diagonal classical Y; classical labels are an allowed special case, so a quantum relevance variable is not mandatory.",
+        "p10 Lemmas6-7 compare entropic objective values at fixed memory dimension. Their pure-state frame differs from a classical probability simplex.",
+        "p11 Eq60-62 uses quantum-state/Hilbert-Schmidt kernel features; p12 source-reported synthetic classification is not a one-copy POVM or the relation benchmark.",
+        "Specializing to uniform3labels/qubit gives a strict QIB-objective advantage while the one-copy best classification accuracy equals the classical-bit optimum2/3. That last operational comparison is our analytic application of standard dimension bounds, not claimed novelty or a source experiment."
+      ],
+      "limitations": [
+        "No source code, reproduced experiments, complete convergence proof or current-field priority audit.",
+        "pp4,6-9 text was inspected/previewed but not a certified convergence proof; remaining appendices and sufficiency-statistic example not audited.",
+        "No loss or optimizer adopted for the native head."
+      ],
+      "url": "https://arxiv.org/abs/2208.10342v2",
+      "pdf_sha256": "c894f8030a333fdad17f335849a3a9bb1c9735191d6db9ebaec9957fb71d3069",
+      "pages": 17,
+      "bytes": 1625814,
+      "requested_version": "2208.10342v2",
+      "observed_version": "2208.10342v2",
+      "identity": "verified",
+      "reading": "read_for_listed_scope_only",
+      "novelty_clearance": false
+    },
+    {
+      "id": "1810.03644v3",
+      "title": "Convexity and Operational Interpretation of the Quantum Information Bottleneck Function",
+      "identity_evidence": "p1 Datta/Hirche/Winter title/authors; footer arXiv1810.03644v3 22Mar2019. p3 conditional source-coding setup/Fig2 visually inspected.",
+      "read_scope": [
+        "p1: identity and abstract.",
+        "p2: Eq4/channel definition and operational context.",
+        "pp3-4: flagged-channel convexity argument and quantum WAK protocol/conditions; no complete coding proof audit."
+      ],
+      "visual_pages": [
+        3
+      ],
+      "findings": [
+        "p2 Eq4 optimizes over CPTP encoders, not the native low-depth pure-state parameter family.",
+        "pp3-4 coding interpretation uses asymptotic iid source, shared entanglement, helper/decoder side information, quantum rates and a reconstruction-fidelity criterion.",
+        "Neither that operational coding theorem nor convexity alone yields relation-classification improvement, a fixed-memory convergence certificate or a task-specific readout mechanism."
+      ],
+      "limitations": [
+        "No appendix/full source-coding proof, code, experimental reproduction or priority audit.",
+        "Displayed/extracted equations are not transplanted as algorithm or rate bounds."
+      ],
+      "url": "https://arxiv.org/abs/1810.03644v3",
+      "pdf_sha256": "79702477f36e87dd780c3a3cdc73d380bf3d341a83fd766c87d6f0f54ff1ebb2",
+      "pages": 10,
+      "bytes": 631227,
+      "requested_version": "1810.03644v3",
+      "observed_version": "1810.03644v3",
+      "identity": "verified",
+      "reading": "read_for_listed_scope_only",
+      "novelty_clearance": false
+    }
+  ],
+  "discovery": {
+    "queries": 3,
+    "max_entries_each": 5,
+    "automatic_retries": 0,
+    "scope": "Bounded arXiv metadata/abstract search, not exhaustive. Luders keyword mostly returned names/unrelated papers, so no measurement-original priority claim."
+  },
+  "independent_ideation_originals": "Metadata/abstracts only in that pass; host later read selected originals. Review tasks stay separate.",
+  "new_method_eligible": false
+}

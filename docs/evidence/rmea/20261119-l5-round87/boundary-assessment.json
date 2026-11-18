@@ -1,0 +1,114 @@
+{
+  "schema": "qattn.task-information-access-boundary.v1",
+  "status": "TASK_INFORMATION_ACCESS_BOUNDARIES_REVIEWED",
+  "parent": "b85ff40ffaede460fe359b3cc221ef929bc66b3c",
+  "theory_path": "docs/evidence/rmea/20261119-l5-round87/task-information-access.md",
+  "theory_sha256": "0d37e1e9e4734838b12caad241b772ed0d57adcc369a2d83ec017cbbf9068c03",
+  "findings": [
+    {
+      "id": "operational-objective-separation",
+      "result": "Source uniform3label/qubit example: strict QIB-objective advantage over a classicalbit, but optimal one-copy label accuracy equals2/3 in both.",
+      "consequence": "Entropy, kernel-feature access and one-copy decisions have different contracts. Standard-bound application, no new primitive or rejection of source kernel classifier."
+    },
+    {
+      "id": "instrument-observability",
+      "result": "The actual head consumes only p, classicalu, mask and bias. Changing only an instrument with the same effect leaves all40logits fixed.",
+      "consequence": "New retained-state mechanisms change the architecture; generic information preservation is not a new task mechanism."
+    },
+    {
+      "id": "rank-and-side-information",
+      "result": "Rank1 effect makes local normalized output independent of input. Side register conditional state is determined by the effect and can retain information.",
+      "consequence": "No claim of erasing all sideinformation. For nativeEPS, the equivalent effect is fullrank, so rank1 localcollapse is inapplicable."
+    },
+    {
+      "id": "native-EPS",
+      "result": "Valid-token cq representation with E=(M+EPS I)/(1+EPS) recovers exact smoothedalpha in both quantum/dephased branches.",
+      "consequence": "Quantum/dephased spectra explicitly distinct. Utility readout recovers a logit in expectation, not as a deterministic one-shot sample. Exact arithmetic only; no physical implementation asserted."
+    }
+  ],
+  "independent_ideation": {
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "response_id": "resp_09d4bac48310625c016afdda0258ac87d297ae00d8a42360fe",
+    "verdict": "NONE",
+    "candidate": null,
+    "packet_sha256": "880b85cb845a3f9228faf08566164fa0a674df20cec0a68eac166d051320f7e0",
+    "answer_sha256": "4fc1669a47ca13baae75fe59bc0c589eb4e7fc1b96e74c17e5578630bf76ebf2",
+    "inference_requests": 1,
+    "automatic_retries": 0,
+    "original_source_scope": "New discovery abstracts only; selected original readings happened later."
+  },
+  "prior_independent_ideation": {
+    "round": "R85",
+    "verdict": "NONE",
+    "candidates": [],
+    "response_id": "resp_0fa2ea5ddaa77cfa016afdcfe0774487d1b954bbd5bd7ecec0",
+    "preserved": true,
+    "repeated": false
+  },
+  "exact_review": {
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "response_id": "resp_0b5250654c2da7a0016afddcc461bc87d198b83bbdeb3bc17b",
+    "verdict": "PASS",
+    "must_fix": [],
+    "checked": {
+      "qib_specialization": "pass",
+      "one_copy_decision": "pass",
+      "instrument_and_side_information": "pass",
+      "native_EPS_correspondence": "pass",
+      "transfer_scope": "pass"
+    },
+    "risks": [
+      "The diagonal utility observable reproduces the logit minus bias in expectation; a single measurement generally returns a random utility value, not the deterministic logit.",
+      "Execution history, empirical carryover, external priority and source authenticity remain outside this review. Supplied hashes are identifiers, not independently verified digests."
+    ],
+    "proof_summary": "The prior spectrum must-fix is resolved, and the valid-token and review-scope qualifications are explicit. For X=Y, alpha=1 gives f=(1-beta)I(T:Y). The trine average is I/2 with pure conditionals, attaining the qubit upper bound I=1. For fixed uniform input, classical mutual information is convex in the channel, so a deterministic extreme-point maximizer exists; the best binary partition has entropy h2(1/3). The strict objective gap follows for beta>1. For one-copy label prediction, rho_j<=I gives success<=d/q; the trine POVM sums to I and attains 2/3, as does a binary classical partition. The supplied kernel classifier uses a different access contract, so this equality does not negate its reported utility. A rank-one effect forces every Kraus operator to annihilate the orthogonal complement, yielding a fixed normalized system output on success. Tracing out that output leaves the side-register conditional operator determined only by the effect, without implying loss of side information. EPS smoothing is full rank, so the rank-one conclusion is correctly excluded. In both native branches, conditioning the valid-token cq state on E_EPS yields exactly alpha_t=(p_t+EPS)/sum_s(p_s+EPS); the stated branch-specific spectra are correct. The supplied forward computation consumes probabilities and classical utilities, not instrument outputs, so fixing p, u, mask and bias fixes all 40 logits in exact arithmetic. No unsupported native reachability, novelty, resource advantage or new utility claim is established.",
+    "source_sha256": {
+      "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+      "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+    },
+    "packet_sha256": "c3b223387dc028039d0ed8fc9ab4bc90831ff51f022bdd4b3dc2fe2fd10fa22a",
+    "answer_sha256": "d31dd89d800a0b8ef6e0875ede8103a25cccbc44c6c396e29c476c084b0598a4",
+    "inference_requests": 1,
+    "automatic_retries": 0,
+    "scope": "Corrected mathematics, supplied original excerpts and exact supplied native source. Empiricalhistory/authenticity/priority outside scope."
+  },
+  "review_revision_chain": [
+    {
+      "revision": 1,
+      "theory_sha256": "a31ea56b2d493f3580f0acf0990abdaf7c108033eb69551704127bd5dc623933",
+      "response_id": "resp_0387b60553b113b0016afddc33916c87d197b9783f3f018c77",
+      "verdict": "PASS_WITH_RISK",
+      "must_fix": [
+        "Explicitly restrict the stated spectrum of E_EPS to the quantum branch, where M_r=|phi_r><phi_r|. The supplied dephased branch instead has M_r=diag(|phi_r,k|^2), so its smoothed eigenvalues are (|phi_r,k|^2+EPS)/(1+EPS), not generally 1 and EPS/(1+EPS). The cq normalization identity and logit invariance still hold in that branch."
+      ],
+      "disposition": "Not accepted for publication; exact bytes and mustfix retained."
+    },
+    {
+      "revision": 2,
+      "theory_sha256": "0d37e1e9e4734838b12caad241b772ed0d57adcc369a2d83ec017cbbf9068c03",
+      "response_id": "resp_0b5250654c2da7a0016afddcc461bc87d198b83bbdeb3bc17b",
+      "verdict": "PASS",
+      "must_fix": [],
+      "disposition": "Spectrum restricted perbranch, validtokens and exactarithmetic/externalcontext explicit. Substantive revised review, not transport retry."
+    }
+  ],
+  "research_disposition": {
+    "method_candidate": null,
+    "implementation_eligible": false,
+    "formal_handoff": false,
+    "novelty_clearance": false,
+    "next_action": "Find measured task structure lost at an observed input-to-decision link, then propose a different standalone mechanism with an explicit readout/access contract and discriminating prediction. Generic information retention alone is closed.",
+    "stopped_families": "Unchanged. No loss/rank/phase/coefficient/seed/epoch rescue."
+  },
+  "execution": {
+    "model_or_math_fixture_run": false,
+    "training": false,
+    "scheduler_operations": 0,
+    "COS_requests": 0,
+    "checkpoints_created": 0
+  },
+  "accepted_scoped_L4": "UNCHANGED",
+  "L5": "NOT_ACCEPTED"
+}
