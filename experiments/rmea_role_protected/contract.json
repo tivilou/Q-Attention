@@ -1,0 +1,166 @@
+{
+  "schema": "qattn.role-protected.development-contract.v1",
+  "candidate": "P1-ROLE-PROTECTED-NUISANCE-FILTER",
+  "seeds": [
+    29,
+    53,
+    71,
+    97,
+    113
+  ],
+  "heads": [
+    "quantum",
+    "real_overlap"
+  ],
+  "environment": {
+    "torch": "2.4.1+cpu",
+    "numpy": "1.24.3"
+  },
+  "original_contract": {
+    "schema": "qattn.original-scores.execution.v1",
+    "seeds": [
+      29,
+      53,
+      71,
+      97,
+      113
+    ],
+    "heads": [
+      "quantum",
+      "relation_softmax",
+      "real_overlap"
+    ],
+    "counts": {
+      "valid": 19584,
+      "test": 13418
+    },
+    "batch_size": 128,
+    "threads": 1,
+    "device": "cpu",
+    "environment": {
+      "torch": "2.4.1+cpu",
+      "numpy": "1.24.3"
+    },
+    "anchor_atol": 5e-05,
+    "anchor_rtol": 0.0003,
+    "core_protocol_sha256": "abecf3c29dfaa49e4684e31e17f5288115595ada0f2d1ee705c8601fe9cb39fd",
+    "restore_plan_sha256": "085fc0cf2c5971a5845cff39b328519b7ca7ecb815381364a6c88c02b117f0d9",
+    "expected_report_sha256": "0f095397f6e24f4e232b6619568181aba26c9f596ec4de5afd6c909fd73f44b8",
+    "legacy_sources": {
+      "experiments/rmea_context_geometry/legacy/__init__.py": "6eca8d00d0c124272f5ee73570c37d1ada545579f19702c5241c6723beb237b9",
+      "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+      "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+    },
+    "score_scope": "Native CPUfloat32 replay; no bitwiseoriginalGPUscoreequivalence claim. Exact fullsplit confusion/count bridge and60tolerancedanchors required.",
+    "invalid_bridge": "Emit INVALID cell; overall INVALID and exit2. No tolerance/seed/cache changes after seeing outcomes.",
+    "uncertainty": "Descriptive strictwinner eligibility/ties; no threshold search or gain/generalization/L5 conclusion.",
+    "resources": {
+      "unit": {
+        "cpu": 1,
+        "ram_mb": 1024,
+        "disk_mb": 256,
+        "gpus": 0,
+        "timeout": 240
+      },
+      "restore": {
+        "cpu": 1,
+        "ram_mb": 256,
+        "disk_mb": 8192,
+        "gpus": 0,
+        "timeout": 900
+      },
+      "preflight": {
+        "cpu": 1,
+        "ram_mb": 4096,
+        "disk_mb": 256,
+        "gpus": 0,
+        "timeout": 360
+      },
+      "diagnose": {
+        "cpu": 1,
+        "ram_mb": 6144,
+        "disk_mb": 512,
+        "gpus": 0,
+        "timeout": 3600
+      }
+    },
+    "max_attempts": 1,
+    "replay_safe": false,
+    "outputs": [
+      "compact-report.json",
+      "RUN_COMPLETE"
+    ],
+    "training": false
+  },
+  "dependency_sources": {
+    "experiments/rmea_original_scores/__init__.py": "fc614e6d3b7aca7260d75e3830eba3b4c4256a28a62896348f5bd46ff0eb4bc2",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e",
+    "experiments/rmea_original_scores/core.py": "07e6aee1198d0377e3d688667b128794cda41d38eb3addde0e6ccf8a5f50223c",
+    "experiments/rmea_original_scores/restore.py": "5bcad5531f740d218708b2a9d8cc013ea15bf3459795d92931d9ac1b6b6c996e",
+    "experiments/rmea_original_scores/job.py": "23b5f8ee08515a577696a648a02db48d9c789d1f250b6fa39f85e677deffbeb5",
+    "experiments/rmea_original_scores/contract.json": "5e44ac5f03ca5bfe2fb5e048dffb55f0d237b2c2063f3f7300d5dcee01baaa32",
+    "experiments/rmea_evidence_dispersion/__init__.py": "9dc9c5ad29492842c1e56e4b779b484ed1c65302fea1e91ae3d70c316c53fe3a",
+    "experiments/rmea_evidence_dispersion/job.py": "122eace4cceca1b50c4cfc9141408454e16680863acd92ce9720625a2318f6e1",
+    "experiments/rmea_evidence_dispersion/contract.json": "dd18d70fab9c8312a8fffec6802f2e1cf9ad63f83f87d265c70e746b8dcfd123"
+  },
+  "mechanism": "Native8D unit states/effects. Role2/3 mean densities -> complete leading eigenspaces -> union projection P,Q=I-P. ContextC excludes both roles. F=(I+8QCQ)^-1. Normalize Fphi; original EPS1e-6/mask/Born weights and signed value/decoder/bias retained. No added learned parameters.",
+  "numerical": {
+    "dtype": "complex128 eigensystems and inverse; output alpha castfloat32; unchanged nativefloat32 utilities and bias.",
+    "norm_floor": 1e-12,
+    "role_top_cluster": 1e-08,
+    "role_cluster_ambiguity_closed": [
+      5e-09,
+      1.5e-08
+    ],
+    "union_singular_drop_at_or_below": 1e-07,
+    "union_singular_keep_strictly_above": 1e-05,
+    "union_ambiguity_closed": [
+      1e-07,
+      1e-05
+    ],
+    "fallback": "Missing either role, no nonentity context, any tiny/nonfinite valid state/effect, roleclusterboundary or unionrankboundary -> BOTHfilters originalalpha. Allfallbacks counted; no droppedexamples.",
+    "identity": "Same unit-normalization/complex128 Born/float32alpha/readout, no filter. Require logitsallcloseatol5e-5rtol3e-4 AND exactargmax acrossall19584 for eachhead; failureSTOP."
+  },
+  "controls": [
+    "native baseline",
+    "matched numerical identity",
+    "unprotected(I+8C)^-1 with same eligibility/fallback",
+    "R66fixed scorequadratic80[S,S²] logisticλ.01Newton50Armijo24gradient1e-8; q>.5 onbaselineprednull,elsekeepbaseline",
+    "samefullcomparison onowntrainedreal-overlaphead,not isolatedquantum attribution"
+  ],
+  "partition": "SameR66 SHA256(rmea-dispersion-probe-v1:+id_hash),first8hexintmod3==0 evaluation,elsefit. Binaryscoreprobe fitsbaselineprednull Y>0 onfitonly. EverypolicycomparedonALLhashevalexamples,samepositive39macroF1.",
+  "primary": "All5Qseeds protectedpositive39MacroF1 STRICTLY exceeds nativebaseline,unprotected and scorequadratic on ALLhashevalexamples. Developmentcriteriononly,notstatisticalconfirmation. All10cells/40classconfusions/costsreported.",
+  "stop": "No coefficient,cluster/rankthreshold,trigger,seed,epoch orpenalty retuning. Negativeclosesexactfixedheadintervention,notalltraining-dependentvariants. No confirmatorytestreuse.",
+  "scope": "Originalvalidation19584developmentonly; headsselectedwholevalid. No newtestpredictionsexceptalreadyfrozen2anchors/head. No mainheadtraining; onefixedscoreprobe fitperhead. Sharedexamples/seedsnotindependentconfirmation.",
+  "resources": {
+    "unit": {
+      "cpu": 1,
+      "ram_mb": 1024,
+      "disk_mb": 256,
+      "gpus": 0,
+      "timeout": 240
+    },
+    "preflight": {
+      "cpu": 1,
+      "ram_mb": 4096,
+      "disk_mb": 256,
+      "gpus": 0,
+      "timeout": 300
+    },
+    "diagnose": {
+      "cpu": 1,
+      "ram_mb": 6144,
+      "disk_mb": 256,
+      "gpus": 0,
+      "timeout": 1800
+    }
+  },
+  "max_attempts": 1,
+  "replay_safe": false,
+  "outputs": [
+    "compact-report.json",
+    "RUN_COMPLETE"
+  ],
+  "cos_requests": 0,
+  "L5": "NOT_ACCEPTED"
+}
