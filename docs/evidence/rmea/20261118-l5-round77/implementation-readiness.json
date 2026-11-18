@@ -1,0 +1,48 @@
+{
+  "status": "DIFFERENTIAL_UNIT_NOT_SUBMITTED",
+  "source_revision": "50d6ee058b552233a0e4780363e7bd8fbc4a7c7f",
+  "source_sha256": "bc4679eb13113ced139597d770a89b1ee4b56ec19703dfe77e7f311cde43fa72",
+  "contract_sha256": "3aca21e1231839fa92f123c767b5f3db82ad47f5446b1190bcb8fe0cff5b5a5f",
+  "synthetic_unit_executed": false,
+  "checks_passed": null,
+  "planned_wrong_dtypes": [
+    "<f4",
+    "<f8",
+    "<i4",
+    "<u8",
+    ">i8"
+  ],
+  "planned_behavior": "Historical reader accepts equal-valued wrong-dtype offsets; corrected reader rejects before pooling. Valid int64 outputs must match before/after and across revisions.",
+  "review": {
+    "verdict": "PASS_WITH_RISK",
+    "review_scope": "both",
+    "must_fix": [],
+    "risks": [
+      {
+        "location": "offset_dtype_checks.py: wrong-dtype rejection handling",
+        "finding": "The child checks AssertionError and zero pooling calls, but does not verify the dtype assertion's message. The supplied one-line reader difference supports attribution; the harness alone would not distinguish another pre-pooling assertion failure."
+      },
+      {
+        "location": "queue_submit.py: stopped_change",
+        "finding": "An abrupt interruption between paired configuration writes can leave a mixed before/after pair. A subsequent restore rejects that pair before set_pair can reconcile it. This fails closed with the controller stopped, but may require explicit operator recovery."
+      }
+    ],
+    "freeze_sha256": "0e7fe752a6c0b2be8f94085a6e256d08e931346f64a20054bbc17ee09c12d013",
+    "source_sha256": "bc4679eb13113ced139597d770a89b1ee4b56ec19703dfe77e7f311cde43fa72",
+    "contract_sha256": "3aca21e1231839fa92f123c767b5f3db82ad47f5446b1190bcb8fe0cff5b5a5f",
+    "unit_execution_eligible": true,
+    "real_GET_admitted": false,
+    "training_admitted": false,
+    "L5": "NOT_ACCEPTED",
+    "rationale": "Source review supports the strict little-endian int64 gate immediately after offsets loading, before pooling. Fresh sequential children select and verify their respective runners, reject optimized execution, preserve numeric offset values and artificial receipt consistency, and compare valid summary hashes before/after mutation and across revisions. The prior baseline-path blocker is resolved: the recipe uses contract argv and pre-binding admission verifies the distinct historical checkout. Lifecycle controls require shared-queue idleness, stopped-controller singleton protection, configuration checks/readback, and exact keyed terminal/quiescent proof before restoration; unresolved submission retains bindings. Eligibility is limited to the proposed one-attempt synthetic unit, not an execution result or closure of the empirical reader gate. No repetition of the prior 17 checks is required."
+  },
+  "deployed_clean": true,
+  "unit_task_id": null,
+  "real_task_data_reads": 0,
+  "object_GETs": 0,
+  "task_training": false,
+  "original_R76_17_checks_remain_historical": true,
+  "scoped_L4_unchanged": true,
+  "utility": "NOT_RUN",
+  "L5": "NOT_ACCEPTED"
+}

@@ -1,0 +1,177 @@
+{
+  "schema": "qattn.ecqp.offset-dtype-readiness-audit.v1",
+  "source_revision": "50d6ee058b552233a0e4780363e7bd8fbc4a7c7f",
+  "frozen_files": {
+    "experiments/rmea_ecqp_screen/__init__.py": "904efb70071a9c9b1e10c47b28efbb6d10f6465ce56826b49dc236b4f2294581",
+    "experiments/rmea_ecqp_screen/job.py": "9e37acf8f70fc4311ddcd8c80e29ce5e2566bcf4296cea32b8e6e9a89ce62dcb",
+    "experiments/rmea_ecqp_screen/metrics.py": "9d039c538453dadc648e2fcdd9f7ade79acd24cb5997a07a8d6f1d69da4e7716",
+    "experiments/rmea_ecqp_screen/prefix_reader_checks.py": "6f549f3e8c6969199f5cff82e7e01887a707aa276e91ec7ae973d02310b8ad72",
+    "experiments/rmea_ecqp_screen/recovery_lifecycle_checks.py": "894e994f7cd743a06a0653dc856508bc2857721f95e515ade21015e1a354d6e1",
+    "experiments/rmea_ecqp_screen/runner.py": "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+    "experiments/rmea_ecqp_screen/synthetic_checks.py": "ad41d9adab0393369b93be52c3963d1da4dd9f6ac722173e4474de49ee2b20fb",
+    "experiments/rmea_ecqp_screen/offset_dtype_checks.py": "72097aef7d41538b1f88b2157d123c21f5ac2b0bee5d1b04e6e6bdbe72c3028f",
+    "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+    "experiments/rmea_ecqp/job.py": "ece0c6d207716778c755d323f0e68ecbbbc40ea5122a4678a74b4489185f3cc9",
+    "experiments/rmea_ecqp/contract.json": "e47c9952a1df90d1f1463e7e5088dc3940ad1e00afd91a067c3f64dceae23c97",
+    "experiments/rmea_context_geometry/legacy/__init__.py": "6eca8d00d0c124272f5ee73570c37d1ada545579f19702c5241c6723beb237b9",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_original_scores/__init__.py": "fc614e6d3b7aca7260d75e3830eba3b4c4256a28a62896348f5bd46ff0eb4bc2",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e",
+    "experiments/rmea_ecqp/__init__.py": "ec4e8fc85df383e97c287ee004c4e6dfddbd2752cffb1424951a45b6435c922f",
+    "experiments/rmea_ecqp_recovery/__init__.py": "e5308510a52a607ce35769621455ce69ca4c0ed7a1fa9138d9b633e558728791",
+    "experiments/rmea_ecqp_recovery/restore.py": "cfbf885cf7b097af19663edb3fb1cf107a395b1410196612fcf35be2ef52541d",
+    "docs/evidence/rmea/20261118-l5-round72/cohort-summary.json": "62b3a254cd999d14002d1e472da67a7fa32e5fa92879d7b5e7e3be0ec5991162",
+    "docs/evidence/rmea/20261118-l5-round72/execution-and-review.json": "3abda588364abe51b699be129f633cc9179d3bdb9300dfbeb904ec1f3efe7594",
+    "docs/evidence/rmea/20261118-l5-round72/protocol-addendum.json": "9a6d83f1a16e66188845562c58280575f7f6e978ae7cf7296fbe25e1071aa36e",
+    "docs/evidence/rmea/20261118-l5-round72/recovery-cost.json": "a2438c5ded67e5cbe4d570545999091d7a3853ed7163c41db9351d199425a416",
+    "docs/evidence/rmea/20261118-l5-round72/screen-design.json": "1668609d349ac5ce441239138f1ffb2bb5b26462d83fcd1be2c4dff5937fe595",
+    "experiments/rmea_ecqp_screen/contract.json": "05daf759ecdc9ea127b1ef49ee35113cdfb9e4595d78fa6119fc3648ad6c853a"
+  },
+  "reviewed_controls": {
+    "cpu_ops.py": "e13cf409d070fa612245470bafd75e3a3903e60f041ca7220edbb8478ad2618f",
+    "deploy_worker.py": "ded3b17cca82f4326b154d1e4f9000756f0e2ecab945570ed6b89b738098a838",
+    "queue_submit.py": "c84866f66a19208af37d0671d25d44cd0fd006b891acf805c69255a8736758b6"
+  },
+  "review": {
+    "model": "gpt-6.1-sol",
+    "reasoning": "medium",
+    "scope": "both",
+    "first_verdict": "BLOCK",
+    "first_must_fix": [
+      {
+        "location": "queue_submit.py: recipe argv --baseline-root",
+        "finding": "The queued recipe points the baseline at /tmp/qattn-ecqp-prefix-dtype-20261118/source, which deploy_worker.py populates with the modified revision. The execution contract instead specifies /tmp/qattn-ecqp-screen-20261118/source as the historical baseline. Consequently, the submitted unit will fail its baseline revision/hash checks rather than perform the differential comparison.",
+        "required_change": "Use the contract's historical baseline root in the queued recipe and verify that checkout's expected revision, cleanliness, and runner hash before binding activation. Update the affected source-bound hashes and review freeze."
+      }
+    ],
+    "correction": "Use exact contract launch argv instead of replacing the historical baseline path; verify distinct baseline root, pinned revision, cleanliness and runner hash in pre-binding metadata admission.",
+    "revised_verdict": "PASS_WITH_RISK",
+    "revised_must_fix": [],
+    "risks": [
+      {
+        "location": "offset_dtype_checks.py: wrong-dtype rejection handling",
+        "finding": "The child checks AssertionError and zero pooling calls, but does not verify the dtype assertion's message. The supplied one-line reader difference supports attribution; the harness alone would not distinguish another pre-pooling assertion failure."
+      },
+      {
+        "location": "queue_submit.py: stopped_change",
+        "finding": "An abrupt interruption between paired configuration writes can leave a mixed before/after pair. A subsequent restore rejects that pair before set_pair can reconcile it. This fails closed with the controller stopped, but may require explicit operator recovery."
+      }
+    ],
+    "response_id": "resp_0cf0eea4d3d9db36016afd82dc5fd487d1ba5e50d6018bb798",
+    "freeze_sha256": "0e7fe752a6c0b2be8f94085a6e256d08e931346f64a20054bbc17ee09c12d013"
+  },
+  "launch": {
+    "schema": "qattn.ecqp.offset-dtype-differential-unit.v1",
+    "allowed_actions": [
+      "unit"
+    ],
+    "environment": {
+      "torch": "2.4.1+cpu",
+      "numpy": "1.24.3"
+    },
+    "resources": {
+      "unit": {
+        "cpu": 1,
+        "ram_mb": 2048,
+        "disk_mb": 1024,
+        "gpus": 0,
+        "timeout": 600
+      }
+    },
+    "max_attempts": 1,
+    "replay_safe": false,
+    "outputs": [
+      "compact-report.json",
+      "RUN_COMPLETE"
+    ],
+    "launch": {
+      "argv": [
+        "{python}",
+        "-B",
+        "experiments/rmea_ecqp_screen/offset_dtype_checks.py",
+        "--baseline-root",
+        "/tmp/qattn-ecqp-screen-20261118/source",
+        "--baseline-revision",
+        "7850bb8d162e104f113fb76fb3788ec1900571aa",
+        "--baseline-hash",
+        "b623302dd64c8beee8fb5681778173f07a94d847400941cd209f26e23e4cdd7f",
+        "--modified-hash",
+        "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+        "--output",
+        "{output}"
+      ],
+      "CUDA_VISIBLE_DEVICES": ""
+    },
+    "baseline": {
+      "revision": "7850bb8d162e104f113fb76fb3788ec1900571aa",
+      "runner_sha256": "b623302dd64c8beee8fb5681778173f07a94d847400941cd209f26e23e4cdd7f",
+      "read_only": true
+    },
+    "modified": {
+      "revision": "50d6ee058b552233a0e4780363e7bd8fbc4a7c7f",
+      "runner_sha256": "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e"
+    },
+    "checks": {
+      "wrong_dtypes": [
+        "<f4",
+        "<f8",
+        "<i4",
+        "<u8",
+        ">i8"
+      ],
+      "baseline_expected": "Accept all numerically identical wrong-dtype offsets.",
+      "modified_expected": "Reject all five before entity pooling; valid int64 summaries identical before/after and to baseline."
+    },
+    "fixture_scope": "Artificial 4096-row/151571-token prefix in temporary directories. No original arrays, COS, optimizer, model fitting or real task training.",
+    "peak_logical_fixture_bytes_bound": 700000000,
+    "real_data_reads": 0,
+    "COS_requests": 0,
+    "task_training": false,
+    "L5": "NOT_ACCEPTED"
+  },
+  "storage_cost": {
+    "status": "STANDARD_INFERRED_FROM_VERSION_PINNED_HEAD_AND_DOCUMENTED_HEADER_SEMANTICS",
+    "evidence": "All six successful pinned-version HEAD responses match the expected versions/sizes and omit x-cos-storage-class. Official HEAD Object documentation says this header is returned only for non-STANDARD objects.",
+    "original_source": "https://cloud.tencent.com/document/product/436/7745",
+    "official_page_sha256": "d53f9489df8c40ad82ce7922b3b32c22314526a39064aedddb4d6a6f91f23249",
+    "HEAD_journal_sha256": "cf33054ae878d1c6a971d88f4aa35a6d10fba167a58eb109abd2ddfe7df4e33f",
+    "classification": "Inference from documented response semantics, not an explicitly present storage-class header.",
+    "actual_HEAD_requests": 6,
+    "actual_GET_requests": 0,
+    "object_payload_bytes": 0,
+    "finite_next_restore": {
+      "GET_requests": 6,
+      "maximum_payload_bytes": 402653184,
+      "max_attempts_per_chunk": 1,
+      "no_retry": true
+    },
+    "public_rate_source": "https://buy.cloud.tencent.com/price/cos",
+    "public_rate_date": "2026-11-18",
+    "region": "ap-beijing",
+    "route": "PUBLIC_OR_UNVERIFIED",
+    "conservative_CNY": {
+      "egress": "0.1875",
+      "six_observed_HEAD": "0.000006",
+      "six_planned_GET": "0.000006",
+      "combined": "0.187512"
+    },
+    "account_discount_not_assumed": true,
+    "real_restore_admitted": false,
+    "cloud_writes": 0
+  },
+  "limitations": [
+    "No differential unit has been submitted or executed; planned behavior is not a runtime result.",
+    "Wrong-dtype rejection catches AssertionError; source comparison narrows expected cause, report alone will not identify its message.",
+    "A hard interruption leaving a mixed config pair fails closed and needs explicit recovery while the controller remains stopped.",
+    "Metadata HEAD authenticates reported version/size, not payload hashes or a successful prefix restore.",
+    "Real recovery and training need their own exact reviewed input/launch contract and actual scheduler admission."
+  ],
+  "real_data_reads": 0,
+  "actual_COS_HEADs": 6,
+  "actual_COS_GETs": 0,
+  "COS_writes": 0,
+  "new_capacity": false,
+  "utility": "NOT_RUN",
+  "L5": "NOT_ACCEPTED"
+}
