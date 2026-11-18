@@ -28,6 +28,20 @@ for _name in ('alpha', 'utilities', 'probability', 'sensitivity', 'routing_score
     AXES[_name] = ['sample', 'relation', 'word']
 AXES['normalizer'] = ['sample', 'relation', 'singleton']
 
+# Independent source-defined inventories: completeness is not inferred only
+# from the intersection of whichever representations a producer happened to emit.
+INPUT_TENSORS = {'h', 'roles', 'mask', 'features'}
+CORE = {'logits', 'alpha', 'values', 'utilities', 'decoder', 'bias', 'angles', 'effect_angles'}
+ECQP = CORE | {'prepare_raw', 'routing_scores', 'entities', 'entity_summary',
+               'projected_word', 'projected_entity', 'interaction'}
+EXPECTED_TENSORS = {
+    'native_quantum': CORE | {'psi', 'phi', 'probability', 'normalizer', 'sensitivity'},
+    'ecqp_quantum': ECQP | {'psi', 'phi', 'probability', 'normalizer'},
+    'softmax12_entity': ECQP,
+    'real_overlap12_entity': ECQP | {'probability', 'normalizer'},
+}
+
+
 
 def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -92,6 +106,8 @@ def build(root, records, design, design_sha256, revision):
         for path in (root / record['input_file'], root / record['head_file']):
             artifact = ref(root, path)
             with np.load(path, allow_pickle=False) as arrays:
+                expected = INPUT_TENSORS if path.name.endswith('-inputs.npz') else EXPECTED_TENSORS[record['condition']]
+                assert set(arrays.files) == expected
                 for name in arrays.files:
                     a = arrays[name]
                     assert name in AXES and len(AXES[name]) == a.ndim and np.isfinite(a).all()

@@ -1,0 +1,272 @@
+{
+  "schema": "qattn.training-paired-case.design.v1",
+  "status": "IMPLEMENTED_DRAFT_NOT_REVIEWED_NOT_ADMITTED",
+  "exploratory_only": true,
+  "purpose": "Observe matched input/preparation/measurement/signed-value/decision paths after R81 and R84. No new method, oracle gain, semantic causality or L5 claim.",
+  "data": {
+    "original_split": "train",
+    "evaluation_examples": 972,
+    "groups": 866,
+    "selected_split": "Existing R72 evaluation partition; no new cohort, sampling or official valid/test.",
+    "prefix_receipt_sha256": "27cb566401bc60de8c8fae0611c78a97370b3b2f452838e9d84df90eebf4ad83",
+    "plan_sha256": "00f0c5eedb24ecb2ee146914cba4e72ff320881ad206a05e17a21a9d72159dc5",
+    "cohort_sha256": "dbca6227d405b932bf1c463935383e87f6dd870d0ec0280139a8b460f89b1999",
+    "donors_sha256": "12abb735b1eb6358ecd306d01bb154739baa8afb2689928c23b85944eeb28538"
+  },
+  "original_report_sha256": "76b06a70aa80612689ccb050f5cc624a367c737c693e3fc43406c20eb04b2537",
+  "checkpoints": {
+    "native_quantum": {
+      "filename": "native_quantum-final.pt",
+      "sha256": "dd58e950cda8e965476e71334569da6124c97e3a7c59fc96afbb2d51fc68ada3",
+      "parameters": 81028,
+      "final_epoch": 4
+    },
+    "ecqp_quantum": {
+      "filename": "ecqp_quantum-final.pt",
+      "sha256": "394e2d05d028917806f528d4b63b1e715209062647f075963a8a7652d091e8c5",
+      "parameters": 81220,
+      "final_epoch": 4
+    },
+    "softmax12_entity": {
+      "filename": "softmax12_entity-final.pt",
+      "sha256": "3ac8fcae61f50765b02124e52610c88e3d90ffa054c4393aeb4a99be4b903609",
+      "parameters": 81220,
+      "final_epoch": 4
+    },
+    "real_overlap12_entity": {
+      "filename": "real_overlap12_entity-final.pt",
+      "sha256": "e663a38962283baceceb3ee88361dc132b6d77d6ffd7a40a1bd4fa021247a381",
+      "parameters": 81220,
+      "final_epoch": 4
+    }
+  },
+  "source_files": {
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+    "experiments/rmea_ecqp_screen/runner.py": "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+    "experiments/rmea_ecqp_screen/metrics.py": "9d039c538453dadc648e2fcdd9f7ade79acd24cb5997a07a8d6f1d69da4e7716",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e",
+    "docs/evidence/rmea/20261118-l5-round72/screen-design.json": "1668609d349ac5ce441239138f1ffb2bb5b26462d83fcd1be2c4dff5937fe595",
+    "experiments/rmea_semantic_probe/scripts/validate_sample_trace_v2.py": "55e7bcb34a048b3b8c6cd3837364d75ab8f3a24a23b276999dc009495b7df2c9"
+  },
+  "implementation_files": {
+    "experiments/rmea_training_case_trace/job.py": "21f21990edc9efbb8cb965392492140561e914b6bc31b8301a06026f760f23d6",
+    "experiments/rmea_training_case_trace/trace.py": "acc77c9e73d7d733b5af73b6e26450a7a41c95b99247366839fe6b7671e6b22e"
+  },
+  "environment": {
+    "numpy": "1.24.3",
+    "torch": "2.4.1+cpu"
+  },
+  "trace_adequacy": {
+    "status": "PARTIAL_EXISTING_EVIDENCE_NEW_TRACE_NOT_RUN",
+    "previous_seven_cases": {
+      "source": "R3/R19 sample-trace.v2",
+      "split": "valid",
+      "outcome_selected": true,
+      "matched_conditions": 5,
+      "base_cases": 7,
+      "disposition": "Historical exploratory evidence; not relabelled train or repeated."
+    },
+    "previous_training_semantic_cases": {
+      "source": "R11/R12",
+      "base_cases": 2,
+      "hypothetical_inputs": 6,
+      "disposition": "Previously executed/closed event-date triplets; license creation outputs_seen=false is historical, not an unexecuted experiment."
+    },
+    "R84": {
+      "source": "Exact eighteen-cell crossed replay",
+      "availability": "Aggregate metrics/confusions and same-forward diagonal identities.",
+      "limitation": "Not a retained historical per-example dump; cannot infer ECQP semantic trajectories from aggregate differences."
+    },
+    "actual_recovery_metadata": {
+      "sha256": "66e8057aaafc0c94d39acdb668294febb68f89a02672834cced7f1c957ac6dfc",
+      "train_rows": 4096,
+      "row_keys": [
+        "id_hash",
+        "words",
+        "tokens",
+        "subject",
+        "object",
+        "input_ids",
+        "attention_mask",
+        "word_pieces"
+      ],
+      "checkpoint_directory_present": true,
+      "access": "Read-only metadata keys/identity; no model or array computation."
+    }
+  },
+  "selection": {
+    "rule": "For each represented gold class in the existing972 eval partition, select the lexicographically smallest original id_hash; freeze selection.json before model loading/forward.",
+    "scope": "Existing R72 group-separated eval partition of the original training prefix; not official valid/test and not a new independent population.",
+    "expected_base_cases": 34,
+    "expected_condition_cases": 136,
+    "labels_used_only_for": "Stratification and post-forward audit; never model input.",
+    "missing_classes": [
+      17,
+      23,
+      24,
+      32,
+      36,
+      37
+    ],
+    "model_outputs_used_for_selection": false,
+    "limits": "New per-case selection rule is outcome-blind, but earlier aggregate results already informed this diagnostic. One case/class is exploratory and not representative or a confirmatory causal test."
+  },
+  "observation": {
+    "input_boundary": "Existing fp16 word features cast to fp32; preserve full original batch padding in each recorded case.",
+    "arrays": "All available actual-forward tensors, shared h/roles/mask/features, decoder/bias; detached complete NPZ arrays with declared axes.",
+    "lineage": "Producer-owned ordered stages: inputs, preparation, values, measurement, prediction. Frozen encoder/training are outside this replay boundary.",
+    "validation": "Four exact original972 aggregate metric/confusion/CE reproductions; exact detached alpha*utilities+bias logit identity; sample-trace.v2 complete structure and first/last arbitrary-coordinate reader checks for every representation.",
+    "historical_logits": "No historical per-example logit dump; do not claim equality to one.",
+    "semantic_boundary": "Token attention or entity mass is not semantic relevance. No masking/editing/intervention or semantic-causality claim.",
+    "inventory_enforcement": "Fixed condition-specific source inventories plus shared-input inventory; exact NPZ keys and produced representations independently checked."
+  },
+  "retention": {
+    "public_outputs": [
+      "compact-report.json",
+      "RUN_COMPLETE"
+    ],
+    "private_outputs": "selection.json, case-inputs.json, sample-trace.json, shared input NPZ, per-condition head NPZ, exact local closure marker under scientific-work/private-trace.",
+    "public_forbidden": [
+      "tokens",
+      "raw_inputs",
+      "per_example_predictions",
+      "numeric_arrays",
+      "checkpoint_bytes",
+      "secrets"
+    ],
+    "new_checkpoints": 0,
+    "COS_requests": 0,
+    "cloud_writes": 0,
+    "recovery": "Existing accepted inputs and checkpoints reused on the same node. Source alone does not certify their durable recovery. No new COS protection claimed.",
+    "private_launch_metadata": "Exact child argv in scientific-work/child-command.json; public parent_child includes only its hash and exit/synchrony/log hashes. Observer verifies argv privately and returns no argv/path contents."
+  },
+  "proposed_budget": {
+    "cpu": 1,
+    "ram_mb": 4096,
+    "disk_mb": 512,
+    "gpus": 0,
+    "timeout_seconds": 600,
+    "max_attempts": 1,
+    "replay_safe": false,
+    "optimizer_steps": 0,
+    "training": false,
+    "COS_GET_requests": 0,
+    "cloud_writes": 0,
+    "private_trace_bytes_max": 134217728
+  },
+  "admission": {
+    "status": "NOT_ADMITTED",
+    "requires": [
+      "New exact BOTH implementation/lifecycle review, including tests, launch argv, private execution contract, whitelist and read-only observer.",
+      "Fresh controller/node health and whole shared queue quiescence before paired temporary binding transaction.",
+      "Single finite CPU diagnostic via shared scheduler; terminal/quiescent proof and exact binding restore.",
+      "No use of R83 review hashes for changed source; no direct SSH model execution."
+    ]
+  },
+  "primary_after_collection": "Inspect paired stronger/weaker/unchanged cases and task text without declaring semantics from attention. Update recovery dossier only for observed links; generate a distinct mechanism only after evidence audit.",
+  "method_candidate": null,
+  "implementation_execution_eligible": false,
+  "model_forwards": 0,
+  "accepted_scoped_L4": "UNCHANGED",
+  "L5": "NOT_ACCEPTED",
+  "predecessor_design_sha256": "582e3ad620d469bf5c708a7f3f617c5468e2a1ce45b594d4afd6e1c8222aa957",
+  "review_authority": {
+    "owner_side": "Exact source/contract/control freeze plus structured BOTH review is authenticated by deployment and queue controls.",
+    "worker_side": "Checks frozen source, input identities and exact launch contract. Contract review_scope is a requirement, not proof of review.",
+    "circular_review_record_in_contract": false
+  },
+  "condition_tensor_inventory": {
+    "native_quantum": [
+      "alpha",
+      "angles",
+      "bias",
+      "decoder",
+      "effect_angles",
+      "logits",
+      "normalizer",
+      "phi",
+      "probability",
+      "psi",
+      "sensitivity",
+      "utilities",
+      "values"
+    ],
+    "ecqp_quantum": [
+      "alpha",
+      "angles",
+      "bias",
+      "decoder",
+      "effect_angles",
+      "entities",
+      "entity_summary",
+      "interaction",
+      "logits",
+      "normalizer",
+      "phi",
+      "prepare_raw",
+      "probability",
+      "projected_entity",
+      "projected_word",
+      "psi",
+      "routing_scores",
+      "utilities",
+      "values"
+    ],
+    "softmax12_entity": [
+      "alpha",
+      "angles",
+      "bias",
+      "decoder",
+      "effect_angles",
+      "entities",
+      "entity_summary",
+      "interaction",
+      "logits",
+      "prepare_raw",
+      "projected_entity",
+      "projected_word",
+      "routing_scores",
+      "utilities",
+      "values"
+    ],
+    "real_overlap12_entity": [
+      "alpha",
+      "angles",
+      "bias",
+      "decoder",
+      "effect_angles",
+      "entities",
+      "entity_summary",
+      "interaction",
+      "logits",
+      "normalizer",
+      "prepare_raw",
+      "probability",
+      "projected_entity",
+      "projected_word",
+      "routing_scores",
+      "utilities",
+      "values"
+    ]
+  },
+  "input_tensor_inventory": [
+    "features",
+    "h",
+    "mask",
+    "roles"
+  ],
+  "revision_chain": [
+    {
+      "revision": 1,
+      "verdict": "BLOCK",
+      "must_fix": [
+        "R3-PUBLIC-PRIVATE-PATH-LEAK"
+      ],
+      "freeze_sha256": "f7678e8208a6f429e953c8d03aec1766add3269aba0fc4e894187da7c1af0661",
+      "response_id": "resp_011d552d5b3b2788016afde536290c87d2882448ebe672d133",
+      "disposition": "Exact source/control/contract/fixture preserved in review-v1; not admitted or executed."
+    }
+  ]
+}

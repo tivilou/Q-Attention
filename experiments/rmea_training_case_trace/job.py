@@ -15,9 +15,9 @@ import time
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from experiments.rmea_original_scores.common import guard, read, sha
-from experiments.rmea_training_case_trace.trace import AXES, build, ref, save, value_cli
+from experiments.rmea_training_case_trace.trace import AXES, EXPECTED_TENSORS, INPUT_TENSORS, build, ref, save, value_cli
 
-DESIGN = ROOT / 'docs/evidence/rmea/20261119-l5-round89/training-case-design.json'
+DESIGN = ROOT / 'docs/evidence/rmea/20261119-l5-round89/training-case-design-v2.json'
 PATH_ARGUMENTS = ['assets', 'receipt', 'cohort', 'donors', 'checkpoints', 'original_report',
                   'execution_contract', 'output']
 
@@ -43,6 +43,8 @@ def checked(a):
     # deployment/submission. Do not embed a future review verdict in its own
     # hashed review input (which would be circular).
     assert c['review_scope'] == 'both'
+    assert d['condition_tensor_inventory'] == {n: sorted(v) for n, v in EXPECTED_TENSORS.items()}
+    assert d['input_tensor_inventory'] == sorted(INPUT_TENSORS)
     for n, digest in {**d['source_files'], **d['implementation_files']}.items():
         assert sha(ROOT / n) == digest
     for name in PATH_ARGUMENTS:
@@ -134,6 +136,7 @@ def child(a, design):
                         if AXES[key][0] == 'sample':
                             value = value[j:j+1]
                         values[key] = value.detach().cpu().numpy().copy()
+                    assert set(values) == EXPECTED_TENSORS[name]
                     # Verify detached full padded-token values reproduce the actual logits.
                     reconstructed = (torch.from_numpy(values['alpha']) * torch.from_numpy(values['utilities'])).sum(-1) + torch.from_numpy(values['bias'])
                     assert torch.equal(reconstructed, torch.from_numpy(values['logits']))
@@ -186,6 +189,7 @@ def main():
     for name in PATH_ARGUMENTS:
         command += ['--' + name.replace('_', '-'), str(getattr(a, name).absolute())]
     command += ['--child']
+    save(work / 'child-command.json', dict(argv=command))
     stdout, stderr = work / 'child-stdout.json', work / 'child-stderr.log'
     with stdout.open('xb') as out, stderr.open('xb') as err:
         result = subprocess.run(command, cwd=ROOT, stdout=out, stderr=err,
@@ -196,7 +200,7 @@ def main():
     assert report['status'] == 'TRAIN_ONLY_PAIRED_CASE_TRACE_COMPLETE' and not report['task_training']
     assert report['design_sha256'] == sha(DESIGN) and report['job_sha256'] == sha(Path(__file__))
     assert sha(work / 'private-trace/RUN_COMPLETE') == report['private_closed_sha256']
-    report['parent_child'] = dict(command=command, returncode=0, synchronous=True,
+    report['parent_child'] = dict(command_sha256=sha(work / 'child-command.json'), returncode=0, synchronous=True,
         stdout_sha256=sha(stdout), stderr_sha256=sha(stderr), parent_imported_torch=False)
     output = a.output.absolute()
     output.mkdir(exist_ok=True)
