@@ -1,0 +1,92 @@
+{
+  "schema": "qattn.ecqp.actual-offset-dtype-acceptance.v1",
+  "status": "ACCEPTED_OFFSET_DTYPE_DIFFERENTIAL_SYNTHETIC_ONLY",
+  "source_revision": "50d6ee058b552233a0e4780363e7bd8fbc4a7c7f",
+  "source_sha256": "bc4679eb13113ced139597d770a89b1ee4b56ec19703dfe77e7f311cde43fa72",
+  "contract_sha256": "3aca21e1231839fa92f123c767b5f3db82ad47f5446b1190bcb8fe0cff5b5a5f",
+  "scheduler": {
+    "task": "74899380a170442f8779f13549e7e2eb",
+    "attempt": "8323ae9ef80a4449b4342498f882d3f9",
+    "attempt_count": 1,
+    "returncode": 0,
+    "quiescent": true
+  },
+  "current_restoration": {
+    "scope": "Point-in-time owner and worker Q-Attention plus non-project fields, with endpoint byte rechecks.",
+    "q_attention_exact": true,
+    "nonproject_fields_exact": true,
+    "unrelated_project_updates_preserved": true,
+    "whole_current_owner_config_byte_equal_backup": false,
+    "historical_pair_restoration_proved_by_frozen_control": true,
+    "atomic_or_continuous_stability_claimed": false
+  },
+  "acceptance_review": {
+    "model": "gpt-6.1-sol",
+    "reasoning": "medium",
+    "scope": "lifecycle",
+    "verdict": "PASS_WITH_RISK",
+    "must_fix": [],
+    "risks": [
+      "Submission lacked an explicit private-contract rehash before recipe derivation. Retrospective contract, requested-recipe and expanded-worker-argv verification supports this run only; future launches must add a pre-admission contract hash guard.",
+      "Abrupt interruption between configuration writes can leave a mixed pair that restoration rejects, failing closed with the controller stopped and potentially requiring operator recovery. The supplied evidence establishes successful exact-pair restoration for this run.",
+      "Rejection checks establish AssertionError before pooling, not an exact error message. Attribution to the dtype gate relies additionally on the frozen accepted source review."
+    ],
+    "acceptance_ceiling": "Accept this completed, single-attempt synthetic differential reader unit only: all five value-identical wrong offset dtypes were accepted by the historical reader with 4096 pooling calls each and rejected by the modified reader with zero pooling calls; valid int64 summaries matched before/after and across revisions. No original-data access, COS requests, optimizer/training, task utility, novelty or L5 acceptance.",
+    "response_id": "resp_01442f4c58e15261016afd9262257887d185ab516b43ba6369",
+    "freeze_sha256": "84e03823ec914c67b5a4e3f69048819d3a4ea4def1142201585d44300385f5fb"
+  },
+  "execution": {
+    "command": {
+      "argv": [
+        "/hy-tmp/Q-Attention/rmea-context-geometry-20261117/env/bin/python",
+        "-B",
+        "experiments/rmea_ecqp_screen/offset_dtype_checks.py",
+        "--baseline-root",
+        "/tmp/qattn-ecqp-screen-20261118/source",
+        "--baseline-revision",
+        "7850bb8d162e104f113fb76fb3788ec1900571aa",
+        "--baseline-hash",
+        "b623302dd64c8beee8fb5681778173f07a94d847400941cd209f26e23e4cdd7f",
+        "--modified-hash",
+        "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+        "--output",
+        "/tmp/qattn-ecqp-prefix-dtype-20261118/attempts/8323ae9ef80a4449b4342498f882d3f9/output"
+      ],
+      "cwd": "/tmp/qattn-ecqp-prefix-dtype-20261118/source",
+      "gpu_ids": [],
+      "revision": "50d6ee058b552233a0e4780363e7bd8fbc4a7c7f"
+    },
+    "inputs": "Artificial 4096-row, 151571-token arrays; five value-identical wrong offset dtypes and valid little-endian int64.",
+    "stdout": "{\"status\": \"PASS_OFFSET_DTYPE_DIFFERENTIAL_SYNTHETIC_UNIT\", \"elapsed_seconds\": 70.37963910214603, \"wrong_dtypes\": 5, \"valid_int64_outputs_identical\": true, \"L5\": \"NOT_ACCEPTED\"}\n",
+    "stderr": "",
+    "exit_status": 0,
+    "elapsed_seconds": 70.37963910214603
+  },
+  "restart": {
+    "owner_confirmed_manual_shutdown_and_restart": true,
+    "same_authorized_worker": true,
+    "observed_GPU_count": 1,
+    "GPU_assigned_to_unit": 0,
+    "new_capacity": false,
+    "other_project_tasks_mutated": false
+  },
+  "private_sidecar_staging": {
+    "status": "HASH_VERIFIED_EXISTING_OWNER_TO_WORKER_INPUTS",
+    "files": 4,
+    "total_file_bytes": 46195739,
+    "local_disk_payload_bytes": 0,
+    "COS_requests": 0,
+    "unit_consumes_original_sidecars": false,
+    "scope": "Existing original offsets, roles, targets and metadata only. No hidden feature prefix downloaded and no task data computation."
+  },
+  "limitations": [
+    "Wrong-type rejection catches AssertionError without matching its exact message; frozen source delta supports attribution to dtype validation.",
+    "Private contract was not explicitly rehashed by the submission control. Exact contract hash, reviewed packet, actual recipe and expanded worker argv were independently verified for this completed attempt. Future launch controls require a pre-admission hash guard.",
+    "Real COS restore, authenticated feature-prefix admission and actual bounded task training remain separate pending gates.",
+    "Synthetic correctness establishes no task utility, new method evidence, nontrivial theory, substantive novelty or L5."
+  ],
+  "previous_R77_readiness_unchanged": true,
+  "scoped_L4_unchanged": true,
+  "utility": "NOT_RUN",
+  "L5": "NOT_ACCEPTED"
+}

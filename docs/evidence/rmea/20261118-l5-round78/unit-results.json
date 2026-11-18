@@ -1,0 +1,126 @@
+{
+  "status": "PASS_OFFSET_DTYPE_DIFFERENTIAL_SYNTHETIC_UNIT",
+  "results": {
+    "baseline": {
+      "status": "BASELINE_WRONG_DTYPES_ACCEPTED",
+      "runner_sha256": "b623302dd64c8beee8fb5681778173f07a94d847400941cd209f26e23e4cdd7f",
+      "valid_int64_before_and_after": true,
+      "valid_summary_sha256": "0828219565cdc1a7472a75057da76c39aa5b00ec6e3f3eede7557e0e55fcbf0d",
+      "cases": [
+        {
+          "dtype": "<f4",
+          "numerical_offsets_identical": true,
+          "accepted": true,
+          "entity_pool_calls": 4096
+        },
+        {
+          "dtype": "<f8",
+          "numerical_offsets_identical": true,
+          "accepted": true,
+          "entity_pool_calls": 4096
+        },
+        {
+          "dtype": "<i4",
+          "numerical_offsets_identical": true,
+          "accepted": true,
+          "entity_pool_calls": 4096
+        },
+        {
+          "dtype": "<u8",
+          "numerical_offsets_identical": true,
+          "accepted": true,
+          "entity_pool_calls": 4096
+        },
+        {
+          "dtype": ">i8",
+          "numerical_offsets_identical": true,
+          "accepted": true,
+          "entity_pool_calls": 4096
+        }
+      ]
+    },
+    "modified": {
+      "status": "MODIFIED_WRONG_DTYPES_REJECTED",
+      "runner_sha256": "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+      "valid_int64_before_and_after": true,
+      "valid_summary_sha256": "0828219565cdc1a7472a75057da76c39aa5b00ec6e3f3eede7557e0e55fcbf0d",
+      "cases": [
+        {
+          "dtype": "<f4",
+          "numerical_offsets_identical": true,
+          "accepted": false,
+          "entity_pool_calls": 0
+        },
+        {
+          "dtype": "<f8",
+          "numerical_offsets_identical": true,
+          "accepted": false,
+          "entity_pool_calls": 0
+        },
+        {
+          "dtype": "<i4",
+          "numerical_offsets_identical": true,
+          "accepted": false,
+          "entity_pool_calls": 0
+        },
+        {
+          "dtype": "<u8",
+          "numerical_offsets_identical": true,
+          "accepted": false,
+          "entity_pool_calls": 0
+        },
+        {
+          "dtype": ">i8",
+          "numerical_offsets_identical": true,
+          "accepted": false,
+          "entity_pool_calls": 0
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "command": [
+        "/hy-tmp/Q-Attention/rmea-context-geometry-20261117/env/bin/python",
+        "-B",
+        "/tmp/qattn-ecqp-prefix-dtype-20261118/source/experiments/rmea_ecqp_screen/offset_dtype_checks.py",
+        "--child",
+        "--root",
+        "/tmp/qattn-ecqp-screen-20261118/source",
+        "--expected-hash",
+        "b623302dd64c8beee8fb5681778173f07a94d847400941cd209f26e23e4cdd7f",
+        "--folder",
+        "/tmp/ecqp-offset-dtype-ext2ul2k/baseline",
+        "--baseline"
+      ],
+      "stdout": "{\"status\": \"BASELINE_WRONG_DTYPES_ACCEPTED\", \"runner_sha256\": \"b623302dd64c8beee8fb5681778173f07a94d847400941cd209f26e23e4cdd7f\", \"valid_int64_before_and_after\": true, \"valid_summary_sha256\": \"0828219565cdc1a7472a75057da76c39aa5b00ec6e3f3eede7557e0e55fcbf0d\", \"cases\": [{\"dtype\": \"<f4\", \"numerical_offsets_identical\": true, \"accepted\": true, \"entity_pool_calls\": 4096}, {\"dtype\": \"<f8\", \"numerical_offsets_identical\": true, \"accepted\": true, \"entity_pool_calls\": 4096}, {\"dtype\": \"<i4\", \"numerical_offsets_identical\": true, \"accepted\": true, \"entity_pool_calls\": 4096}, {\"dtype\": \"<u8\", \"numerical_offsets_identical\": true, \"accepted\": true, \"entity_pool_calls\": 4096}, {\"dtype\": \">i8\", \"numerical_offsets_identical\": true, \"accepted\": true, \"entity_pool_calls\": 4096}]}\n",
+      "stderr": "",
+      "exit_status": 0
+    },
+    {
+      "command": [
+        "/hy-tmp/Q-Attention/rmea-context-geometry-20261117/env/bin/python",
+        "-B",
+        "/tmp/qattn-ecqp-prefix-dtype-20261118/source/experiments/rmea_ecqp_screen/offset_dtype_checks.py",
+        "--child",
+        "--root",
+        "/tmp/qattn-ecqp-prefix-dtype-20261118/source",
+        "--expected-hash",
+        "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+        "--folder",
+        "/tmp/ecqp-offset-dtype-ext2ul2k/modified"
+      ],
+      "stdout": "{\"status\": \"MODIFIED_WRONG_DTYPES_REJECTED\", \"runner_sha256\": \"6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e\", \"valid_int64_before_and_after\": true, \"valid_summary_sha256\": \"0828219565cdc1a7472a75057da76c39aa5b00ec6e3f3eede7557e0e55fcbf0d\", \"cases\": [{\"dtype\": \"<f4\", \"numerical_offsets_identical\": true, \"accepted\": false, \"entity_pool_calls\": 0}, {\"dtype\": \"<f8\", \"numerical_offsets_identical\": true, \"accepted\": false, \"entity_pool_calls\": 0}, {\"dtype\": \"<i4\", \"numerical_offsets_identical\": true, \"accepted\": false, \"entity_pool_calls\": 0}, {\"dtype\": \"<u8\", \"numerical_offsets_identical\": true, \"accepted\": false, \"entity_pool_calls\": 0}, {\"dtype\": \">i8\", \"numerical_offsets_identical\": true, \"accepted\": false, \"entity_pool_calls\": 0}]}\n",
+      "stderr": "",
+      "exit_status": 0
+    }
+  ],
+  "elapsed_seconds": 70.37963910214603,
+  "wrong_dtypes": 5,
+  "valid_int64_outputs_identical": true,
+  "real_data_reads": 0,
+  "COS_requests": 0,
+  "task_training": false,
+  "utility": "NOT_RUN",
+  "L5": "NOT_ACCEPTED"
+}
