@@ -1,0 +1,157 @@
+{
+  "schema": "qattn.ecqp.exploratory-review.v1",
+  "candidate": "ECQP",
+  "status": "EXPLORATORY_ONLY",
+  "eligible_candidates": 0,
+  "implementation_ready": false,
+  "utility": "NOT_RUN",
+  "L5": "NOT_ACCEPTED",
+  "mechanism_review": {
+    "verdict": "ACCEPT_EXPLORATORY_DESIGN_WITH_LIMITS",
+    "review_scope": "mechanism",
+    "freeze_sha256": "27d26d158d53086904e7c2015ddafcf2d9b83c043d10f3f62a3c984cd2378dcb",
+    "must_fix": [],
+    "verified_from_supplied_text": [
+      "The identity B[(Ph)⊙(Pa)]_j = h^T M_j a holds with M_j = P^T diag(B_j)P. Each M_j is symmetric and has rank at most 16; all components share a restricted projected subspace. This is known restricted bilinear feature engineering, not arbitrary bilinear compatibility or an L5 theorem.",
+      "Parameter arithmetic matches the supplied legacy code: value/decoder/bias contribute 68,200; preparation contributes 12,348; effects contribute 480; total 81,028. A bias-free 12×16 B adds 192, yielding 81,220. A fixed P adds no trainable parameters.",
+      "A token-linear BPh term folds into the h columns of W. Token-square features can be non-affine, but the checker's scalar second-difference example does not establish expressivity or utility of the full head.",
+      "The checker contains exact rational toy identities, parameter assertions and deterministic sign-byte construction. It does not execute the proposed projection buffer, circuit, model, gradients or data, and has not been run here. Its symmetry test is a toy-instance check; the general rank bound follows algebraically, not from a checker assertion.",
+      "The computational insertion-point distinction is supported: ordered uses entity-conditioned unitaries, equivalently effective queries, while retaining separately prepared words; joint contracts separate entity registers into an unnormalized conditional effect and uses a 4D word register. ECQP instead conditions the original 8D word preparation before tanh. This establishes neither complete-function-class separation nor absence of entity information in contextual H.",
+      "Zero B preserves the native function when shared parameters and numerical behavior are matched. This is an initialization identity, not evidence of trainability, useful gradients or successful conditioning.",
+      "Retaining ECQP solely for a speculative premise-contract is scientifically reasonable. Known entity-aware and projected-Hadamard precedents create substantial novelty collision risk, but neither that risk nor classical simulability alone rules out bounded performance investigation.",
+      "The proposed controls appropriately distinguish cross-input information from token-only quadratic features, added capacity and classical routing. Gold-conditioned errors are motivation only; diagnostic associations require separated fit/evaluation and cannot establish trained architectural utility. Weak negative screens cannot reject the conditioning family without declared sensitivity.",
+      "The documents explicitly withhold old L4 inheritance, candidate utility and L5 acceptance. A substantive task-linked theory remains open; the current bilinear identity does not satisfy that target."
+    ],
+    "limitations": [
+      "No tools, execution, hash authentication or independent paper inspection were performed. Literature correspondence is assessed only against supplied receipts and summaries; the referenced historical experiment artifacts are not supplied in full.",
+      "No material algebraic correction is required before running the isolated checker. Its PASS label must remain scoped to its assertions, not interpreted as candidate implementation validation.",
+      "Implementation readiness still requires exact pooling and empty-entity behavior, sign-to-buffer mapping, dtype/device and finite-value checks, projection scaling, initialization parity, resource bounds and trace tests.",
+      "At B=0, correct and mismatched summaries produce identical outputs. Summary-effect tests must distinguish initialization parity from post-update or trained behavior.",
+      "Mismatch must be a frozen whole-cohort same-split derangement, with fit/evaluation boundaries and entity-group handling explicit. Label-blind mismatching alone does not eliminate identity memorization or donor-induced distribution shifts.",
+      "Matched classical controls must specify where the identical interaction features enter; nominal parameter matching alone is not active-capacity or compute matching. Signed readout and full 40-class competition prevent routing changes from guaranteeing useful prediction changes."
+    ],
+    "next_action": "Freeze one bounded train-only premise/implementation contract before candidate execution: specify pooling, the exact P buffer, cohort/group and fit/evaluation boundaries, whole-cohort mismatch mapping, zero-B parity and gradient checks, and a predeclared association endpoint with sensitivity and an inconclusive region. State explicitly that passing this diagnostic only motivates separately reviewed matched head training, not architectural utility or L5.",
+    "candidate_status": "EXPLORATORY_ONLY",
+    "implementation_ready": false,
+    "utility": "NOT_RUN",
+    "L5": "NOT_ACCEPTED"
+  },
+  "freeze_sha256": "27d26d158d53086904e7c2015ddafcf2d9b83c043d10f3f62a3c984cd2378dcb",
+  "frozen_files": {
+    "docs/evidence/rmea/20261118-l5-round70/candidate-transfer.md": "3e2db86377120415bdcb7cc382bf7587a825e6f6fc0450a4292864c9d17e974c",
+    "docs/evidence/rmea/20261118-l5-round70/check_ecqp_algebra.py": "c8591269a15239bf8a5b55a0e8fe3449e38727a64a82d3cb8eb03016f25a75b4",
+    "docs/evidence/rmea/20261118-l5-round70/reading-receipts.json": "d8d778caeb4c42c1fb4f75d8e289f9c3be8dc3a4c58af5425d4841ada2f9f144",
+    "docs/evidence/rmea/20261118-l5-round70/source-comparison.json": "37ec992adda1ef759f597b5ffb8f9859e49e43e4d5287ae8b3a6c5fbaf191c36",
+    "docs/evidence/rmea/20261118-l5-round70/mechanism-recovery.json": "0311f7fe1f5a20211bc81c3bec00e97184e063f0a5e069a64a45a8685f2c0392",
+    "docs/evidence/rmea/20261118-l5-round70/idea-portfolio.json": "c1fc5daf25a4794ad0caf8ea4ea3a4fa6f9f6be8ed9128286682848d0eaa98d6"
+  },
+  "canonical_source_sha256": {
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "historical_source_copies": {
+    "rmea_joint.py": "e9e61ab84a2fb61000010eabc59b4431f1033372b73332e4ba1b23fde829481a",
+    "rmea_entity.py": "6e312842135edfd1245ec8f6e38e3ce99f721403a77497c4db320b320719168a"
+  },
+  "consultations": [
+    {
+      "role": "independent-construction",
+      "model": "gpt-6.1-sol",
+      "reasoning": "medium",
+      "request_sha256": "1800934cf14594f6aa0377ec08321a6d1d217a2253136555f608bb7212a55ac0",
+      "answer_sha256": "9f635eb76a2501ed06c27e8c5116d3bce48f97869bc1e2f49f486047f24eda21",
+      "packet_sha256": "9f190681546892a01a4a954e62f5d77b1ece23b0b5fd2ff4c06988a35aa0dd4c",
+      "inference_requests": 1,
+      "automatic_retries": 0
+    },
+    {
+      "role": "design-review",
+      "model": "gpt-6.1-sol",
+      "reasoning": "medium",
+      "request_sha256": "3c45aeffacf140a1733811dea40eaa4469048030fbbfd915683542a82fd6172d",
+      "answer_sha256": "ed90bdf60b7ec908f81527c08a48861c4d0023242fb004ab98534ca256b94976",
+      "packet_sha256": "0fc4adcc826b627f4403aede6b2628eff0a6fbb744427ffa12131f9ab4571c9f",
+      "inference_requests": 1,
+      "automatic_retries": 0
+    }
+  ],
+  "executions": [
+    {
+      "command": [
+        "python",
+        "-B",
+        "docs/evidence/rmea/20261118-l5-round70/check_ecqp_algebra.py"
+      ],
+      "cwd": "Q-Attention project root",
+      "inputs": "Frozen files; no model or data inputs.",
+      "stdout": "{\"L5\": \"NOT_ACCEPTED\", \"added_parameters\": 192, \"bilinear_value\": \"-107/12\", \"candidate_parameters\": 81220, \"circuit_evaluations\": 0, \"fixed_projection_signs_sha256\": \"e028c261fb310a727de4a1929d1b704d98555b051e8f83b99e4e8a5394ca659d\", \"model_forwards\": 0, \"original_parameters\": 81028, \"projection_entry_scale\": \"1/32\", \"projection_shape\": [16, 1024], \"status\": \"PASS_ECQP_EXACT_FEATURE_IDENTITIES\", \"symmetric_matrix_exact\": true, \"token_linear_control_folds_into_original_affine_map\": true, \"token_square_second_difference\": \"2\", \"training\": false, \"utility_evidence\": \"NOT_RUN\"}\r\n",
+      "stderr": "",
+      "exit_status": 0,
+      "record_kind": "Literal local output; portable command; exact QT2 invocation retained privately."
+    },
+    {
+      "command": [
+        "python",
+        "-B",
+        "SKILL/scripts/validate_mechanism_recovery.py",
+        "docs/evidence/rmea/20261118-l5-round70/mechanism-recovery.json"
+      ],
+      "cwd": "Q-Attention project root",
+      "inputs": "Frozen files; no model or data inputs.",
+      "stdout": "OK: mechanism-recovery dossier validated\r\n",
+      "stderr": "",
+      "exit_status": 0,
+      "record_kind": "Literal local output; portable command; exact QT2 invocation retained privately."
+    },
+    {
+      "command": [
+        "python",
+        "-B",
+        "-c",
+        "import json,sys;from pathlib import Path;sys.path.insert(0,sys.argv[1]);from validate_idea_portfolio import validate;p=Path(sys.argv[2]);e=validate(json.loads(p.read_text(encoding='utf8')),dossier_base=Path(sys.argv[3]));print('\\n'.join('ERROR: '+x for x in e) if e else 'OK: 1 ideas validated with project-root evidence paths');raise SystemExit(bool(e))",
+        "SKILL/scripts",
+        "docs/evidence/rmea/20261118-l5-round70/idea-portfolio.json",
+        "."
+      ],
+      "cwd": "Q-Attention project root",
+      "inputs": "Frozen files; no model or data inputs.",
+      "stdout": "OK: 1 ideas validated with project-root evidence paths\r\n",
+      "stderr": "",
+      "exit_status": 0,
+      "record_kind": "Literal local output; portable command; exact QT2 invocation retained privately."
+    }
+  ],
+  "arithmetic": {
+    "L5": "NOT_ACCEPTED",
+    "added_parameters": 192,
+    "bilinear_value": "-107/12",
+    "candidate_parameters": 81220,
+    "circuit_evaluations": 0,
+    "fixed_projection_signs_sha256": "e028c261fb310a727de4a1929d1b704d98555b051e8f83b99e4e8a5394ca659d",
+    "model_forwards": 0,
+    "original_parameters": 81028,
+    "projection_entry_scale": "1/32",
+    "projection_shape": [
+      16,
+      1024
+    ],
+    "status": "PASS_ECQP_EXACT_FEATURE_IDENTITIES",
+    "symmetric_matrix_exact": true,
+    "token_linear_control_folds_into_original_affine_map": true,
+    "token_square_second_difference": "2",
+    "training": false,
+    "utility_evidence": "NOT_RUN"
+  },
+  "structural_validation": "PASS_ONLY_SCHEMA_NOT_SCIENTIFIC_ACCEPTANCE",
+  "validation_correction": "Portfolio CLI assumed dossier-file-relative paths; preserved initial failure, then used the unchanged validator API with explicit project-root dossier_base for the unchanged frozen root-relative references.",
+  "model_forwards": 0,
+  "circuit_evaluations": 0,
+  "training": false,
+  "scientific_scheduler_jobs": 0,
+  "COS_GETs": 0,
+  "COS_writes": 0,
+  "new_capacity": false,
+  "collaborator_host_access": false,
+  "scoped_L4_unchanged": true,
+  "next_action": "Freeze one bounded train-only premise/implementation contract before candidate execution: specify pooling, the exact P buffer, cohort/group and fit/evaluation boundaries, whole-cohort mismatch mapping, zero-B parity and gradient checks, and a predeclared association endpoint with sensitivity and an inconclusive region. State explicitly that passing this diagnostic only motivates separately reviewed matched head training, not architectural utility or L5."
+}

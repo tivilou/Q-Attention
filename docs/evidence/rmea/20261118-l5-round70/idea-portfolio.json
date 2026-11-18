@@ -1,0 +1,182 @@
+{
+  "schema_version": "experiment-grounded-ideation.idea-portfolio.v2",
+  "semantic_mode": "llm_audited",
+  "evidence_status": "mixed",
+  "mechanism_recovery": {
+    "dossier_path": "docs/evidence/rmea/20261118-l5-round70/mechanism-recovery.json",
+    "dossier_sha256": "0311f7fe1f5a20211bc81c3bec00e97184e063f0a5e069a64a45a8685f2c0392",
+    "schema_version": "experiment-grounded-ideation.mechanism-recovery.v2",
+    "disposition": "candidate",
+    "selected_candidate_id": "ECQP"
+  },
+  "ranking_policy": {
+    "weights": {
+      "feasibility": 0.45,
+      "innovation": 0.35,
+      "theoretical_elegance": 0.2
+    },
+    "ordering": [
+      "eligible",
+      "speculative",
+      "blocked",
+      "rejected"
+    ]
+  },
+  "ideas": [
+    {
+      "id": "ECQP",
+      "rank": 1,
+      "status": "speculative",
+      "title": "Entity-conditioned quantum preparation",
+      "observed_problem": {
+        "statement": "Existing heads share positive-to-null errors, without an identified routing cause.",
+        "evidence_refs": [
+          "docs/audits/20261118-q-rmea-l5-round65.md",
+          "docs/evidence/rmea/20261118-l5-round68/filter-results.json"
+        ]
+      },
+      "hypothesis": "Explicit entity–word preparation interactions may retain useful compatibility beyond contextualH and native score controls.",
+      "mechanism": "z=(Ph)⊙(Pa),addBz before original12angles; quantum-only attention routing, originalsignedreadout.",
+      "theoretical_formulation": "M_j=P^Tdiag(B_j)P is a known lowrank symmetric bilinear form. A nontrivial task-risk/learning prediction with partial encoder sufficiency and full40class readout remains open.",
+      "novelty": {
+        "nearest_work": [
+          "arxiv:1901.08163v1",
+          "arxiv:1610.04325v4",
+          "historical ordered/joint implementations"
+        ],
+        "difference": "Token-side conditional re-encoding at original8D, rather than entity-side query changes or4Dwordjoint contraction; complete model novelty not established.",
+        "collision_risk": "high",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261118-l5-round70/candidate-transfer.md",
+          "docs/evidence/rmea/20261118-l5-round70/reading-receipts.json"
+        ]
+      },
+      "predictions": [
+        {
+          "statement": "Input-specific summaries should outperform mismatched summaries and token-only quadratic features under a frozen matched training protocol.",
+          "discriminator": "A gain retained after summary mismatch or explained by samefeature classical head weakens the conditioning/L5 account."
+        }
+      ],
+      "minimum_experiment": {
+        "change": "First freeze one bounded training-only feature/association protocol; then consider a reviewed bounded head-training screen.",
+        "baselines": [
+          "nativeQ",
+          "token-squareQ",
+          "entity-summary-mismatchQ",
+          "sameinteraction classicalsoftmax/realoverlap",
+          "parameter/computationmatchedtokenonlyextension"
+        ],
+        "metrics": [
+          "positive39MacroF1",
+          "CE",
+          "accuracy",
+          "positive-to-null",
+          "nullfalsepositive",
+          "wrongpositive",
+          "lostcorrectpositive"
+        ],
+        "seeds_or_statistics": "No seed or budget selected by outcomes; exact cohorts/fit-eval split/sensitivity to be frozen in the next contract. No confirmatory inference from development heads.",
+        "success_criteria": "Correct conditioning effect exceeds matched controls on predeclared outputs without leakage; independent confirmation and substantive theory remain separate gates.",
+        "kill_criteria": "Fatal trace/implementation/leakage failure; after a sensitive declared premise test negative evidence closes its exact premise. No proof of whole-family failure from an underpowered shortscreen.",
+        "resource_estimate": "Existing frozen cache/CPU first; no new capacity/COS. Exact resource admission and costs pending next contract.",
+        "screen_budget": "NOT_FROZEN; no execution in this round.",
+        "formal_single_seed_budget": "NOT_FROZEN; collaborator-only full protocol after readiness.",
+        "replication_plan": "Independent stochastic full runs only after formal single-seed audit; no optional seed rescue.",
+        "screen_null_policy": "inconclusive"
+      },
+      "implementation": {
+        "insertion_points": [
+          "New isolated head subclass before rmea.circuit; preserve legacy source."
+        ],
+        "dependencies": [
+          "Existing originalfrozenfeaturecache",
+          "Exactrole2/3maskpooling",
+          "Fixedprojectionidentity",
+          "Numerics/trace/launchcontract pending"
+        ],
+        "conflicts": [
+          "OldL4doesnottransfer",
+          "No stoppedfamilyretune",
+          "ContextualHalreadycontainsentitypath"
+        ],
+        "failure_signatures": [
+          "Noentitycontentbenefit",
+          "Saturation/gradientfailure",
+          "Identitymemorization",
+          "Gainexplainedbyclassical/token-onlycontrol"
+        ]
+      },
+      "failure_lineage": {
+        "failure_family": "P1-ROLE-PROTECTED-NUISANCE-FILTER_EXACT_FIXED_INTERVENTION",
+        "positive_mechanism_refs": [
+          "docs/audits/20261115-q-rmea-ordinary-l4-acceptance.md"
+        ],
+        "rejected_neighbor_refs": [
+          "docs/evidence/rmea/20261118-l5-round68/filter-results.json",
+          "docs/audits/20261118-q-rmea-l5-round69.md"
+        ],
+        "mechanism_delta": "Cross-input preparation changes the routing representation, not fixed nuisance geometry or quotas."
+      },
+      "recovery_candidate_id": "ECQP",
+      "trace_predictions": [
+        {
+          "stage": "preparation",
+          "fields": [
+            "entity_summary",
+            "projected_word",
+            "projected_entity",
+            "prepare_raw",
+            "angles"
+          ],
+          "prediction": "Correct versus mismatched summaries alter token preparation on matched samples."
+        },
+        {
+          "stage": "routing",
+          "fields": [
+            "psi",
+            "phi",
+            "probability",
+            "normalizer",
+            "alpha"
+          ],
+          "prediction": "Preparation changes relation-dependent routing beyond identity controls."
+        },
+        {
+          "stage": "readout",
+          "fields": [
+            "utilities",
+            "logits",
+            "prediction",
+            "full40classconfusion"
+          ],
+          "prediction": "Any gain must follow the observed path and retain all harms as well as recoveries."
+        }
+      ],
+      "scores": {
+        "feasibility": 75,
+        "innovation": 25,
+        "theoretical_elegance": 35,
+        "evidence_fit": 40,
+        "confidence": 25,
+        "priority": 49.5
+      }
+    }
+  ],
+  "consultations": [
+    {
+      "model_id": "gpt-6.1-sol",
+      "role": "candidate-blind construction / medium",
+      "status": "completed",
+      "assignment_reason": "Owner-selected bounded independent construction from equations and history, no primary candidate supplied.",
+      "changed_outcome": "ReturnedECQP; primary retained only exploratory status after source collisions and historical code comparison."
+    }
+  ],
+  "resolution": "One speculative candidate for next premise-contract design; zero eligible candidates, no experiment/L5 approval.",
+  "limitations": [
+    "R68 is development evidence; no semantic cause localized.",
+    "R65 statistics are gold-conditioned and common to classical controls.",
+    "No newcandidate model, circuit, feature probe or task utility execution.",
+    "Known entity-aware/bilinear mechanisms give high novelty collision risk.",
+    "Advisory scores are primary-model judgments, not measured probabilities or novelty certification."
+  ]
+}

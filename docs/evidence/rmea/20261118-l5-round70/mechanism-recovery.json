@@ -1,0 +1,134 @@
+{
+  "schema_version": "experiment-grounded-ideation.mechanism-recovery.v2",
+  "evidence_packet": {
+    "path": "docs/evidence/rmea/20261118-l5-round68/filter-results.json",
+    "sha256": "8fe5cbfe0c573f9984a6cad9283debb1b13f67f38797befd46a49e8ca78c7925",
+    "code_revision": "a8bd422629f72fc089f5dd2f0f8d9ea1afba3855",
+    "validity_status": "mixed"
+  },
+  "causal_trace": {
+    "intervention_execution": {
+      "claim": "R68 exact fixed filter executed with frozen numerics; identity/parity checks passed.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261118-l5-round68/filter-results.json"
+      ]
+    },
+    "intended_intermediate": {
+      "claim": "Protected Born mass increased in aggregate; semantic nuisance removal was not observed.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261118-l5-round68/filter-results.json"
+      ]
+    },
+    "observable_output": {
+      "claim": "Complete40class confusion outputs changed, including recoveries and harms.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261118-l5-round68/filter-results.json"
+      ]
+    },
+    "task_utility": {
+      "claim": "Role-protected filter decreased development Macro on all10Q/realheads; not an independent population or whole-family finding.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261118-l5-round68/filter-results.json"
+      ]
+    }
+  },
+  "trace_adequacy": {
+    "status": "partial",
+    "schema_version": "sample-trace.v2",
+    "artifact_refs": [
+      "docs/evidence/rmea/20261118-l5-round68/filter-results.json",
+      "docs/evidence/rmea/20261118-l5-round70/candidate-transfer.md"
+    ],
+    "selection_rule": "Reuse original R68 fixed cohort/hashfold and aggregate summaries; no new outcome-selected cases.",
+    "covered_stages": [
+      "R68execution/parity",
+      "aggregaterouting",
+      "completeclassoutputs"
+    ],
+    "missing_stages": [
+      "per-casematchedsemanticcause",
+      "ECQPprepare/routing/readout/training"
+    ],
+    "target_boundary": "Gold/error strata motivate a hypothesis, never choose inference thresholds or formaltest examples.",
+    "causal_links_observed": {
+      "R68_execution": true,
+      "R68_aggregate_utility": true,
+      "semantic_nuisance_removal": false,
+      "ECQP_mechanism": false
+    },
+    "notes": "No paired CaseStudy was manufactured. Candidate trace predictions are prospective, not materialized evidence."
+  },
+  "failure_analysis": {
+    "primary_explanation": {
+      "statement": "The fixed geometric protection rule was not sufficient for useful task routing; it may suppress useful context.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261118-l5-round68/filter-results.json"
+      ],
+      "confidence": "low"
+    },
+    "alternative_explanations": [
+      {
+        "statement": "Frozen-head coadaptation and the chosen subspace can explain damage without identifying semantics.",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261118-l5-round68/filter-results.json"
+        ],
+        "confidence": "low"
+      }
+    ],
+    "discriminating_measurement": {
+      "uncertainty": "Whether input-specific entity–context compatibility adds useful routing information beyond contextualH and score calibration.",
+      "measurement": "Freeze a bounded train-only association and later matched-training design with token-square/classical/summary-mismatch controls.",
+      "primary_outcome": "Correct entity conditioning improves predeclared outputs and exceeds matched controls.",
+      "alternative_outcome": "No detectable association at declared sensitivity, or matched/mismatched controls explain the effect."
+    },
+    "closed_family": {
+      "id": "P1-ROLE-PROTECTED-NUISANCE-FILTER_EXACT_FIXED_INTERVENTION",
+      "rejected_variant_refs": [
+        "docs/evidence/rmea/20261118-l5-round68/filter-results.json"
+      ],
+      "closure_evidence_refs": [
+        "docs/evidence/rmea/20261118-l5-round68/filter-results.json"
+      ],
+      "forbidden_rescue_variants": [
+        "Retunefilterstrength/eigenspace/rank/threshold/seed/epoch on observedvalidation.",
+        "Treat high frequency as measured nuisance without evidence."
+      ]
+    }
+  },
+  "positive_carryovers": [
+    {
+      "id": "C1",
+      "mechanism": "Original trained routing-to-value alignment has scoped task utility.",
+      "evidence_refs": [
+        "docs/audits/20261115-q-rmea-ordinary-l4-acceptance.md"
+      ],
+      "transport_constraint": "Retain circuit-derived routing and signed readout, but a changed representation inherits no oldL4."
+    }
+  ],
+  "recovery_outcome": {
+    "disposition": "candidate",
+    "selected_candidate": {
+      "id": "ECQP",
+      "title": "Entity-conditioned quantum preparation",
+      "positive_carryover_ids": [
+        "C1"
+      ],
+      "recovery_mode": "new_causal_path",
+      "causal_difference": "Replace fixed background filtering with cross-input entity–word features before wordstate preparation; no filter/transport/outcome retune.",
+      "changed_causal_links": [
+        "intervention_execution",
+        "intended_intermediate"
+      ],
+      "discriminating_measurement": "Samefeatures/budget classical and token-square controls, with same-split ID-blind mismatched summaries, full40class outputs.",
+      "success_gate": "First obtain an exact bounded premise/implementation contract; subsequent genuine performance and mechanism gates must pass independently before formal eligibility.",
+      "kill_condition": "Stop the exact candidate on a fatal implementation/premise failure; a weak short screen alone does not reject all training-dependent conditioning. NoL5 if only known feature engineering remains.",
+      "authorization_boundary": "Exploratory design only now; no model job launched. Exact implementation review/scheduler before bounded execution; collaborator-only new full formal runs."
+    }
+  },
+  "limitations": [
+    "R68 is development evidence; no semantic cause localized.",
+    "R65 statistics are gold-conditioned and common to classical controls.",
+    "No newcandidate model, circuit, feature probe or task utility execution.",
+    "Known entity-aware/bilinear mechanisms give high novelty collision risk."
+  ]
+}
