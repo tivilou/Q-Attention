@@ -1,0 +1,84 @@
+{
+  "schema": "qattn.ecqp.real-diagnostic-readiness.v1",
+  "status": "REVIEWED_DEPLOYED_PREFLIGHT_NOT_SUBMITTED",
+  "source_revision": "16140ad652b3a319f1e6d4b77280169ddaae57c6",
+  "source_sha256": "c478b7a1f65380ca4a19ddce1631a50c5638ce43ffc27fcea4cebc1cdbdf4574",
+  "contract_sha256": "02bd4a08d8736f05d217a60acff28a761798cf425a9bff224fdabab013bf6265",
+  "input_hashes": {
+    "prefix_receipt_sha256": "27cb566401bc60de8c8fae0611c78a97370b3b2f452838e9d84df90eebf4ad83",
+    "plan_sha256": "00f0c5eedb24ecb2ee146914cba4e72ff320881ad206a05e17a21a9d72159dc5",
+    "cohort_sha256": "dbca6227d405b932bf1c463935383e87f6dd870d0ec0280139a8b460f89b1999",
+    "donors_sha256": "12abb735b1eb6358ecd306d01bb154739baa8afb2689928c23b85944eeb28538"
+  },
+  "design_hashes": {
+    "docs/evidence/rmea/20261118-l5-round72/cohort-summary.json": "62b3a254cd999d14002d1e472da67a7fa32e5fa92879d7b5e7e3be0ec5991162",
+    "docs/evidence/rmea/20261118-l5-round72/execution-and-review.json": "3abda588364abe51b699be129f633cc9179d3bdb9300dfbeb904ec1f3efe7594",
+    "docs/evidence/rmea/20261118-l5-round72/protocol-addendum.json": "9a6d83f1a16e66188845562c58280575f7f6e978ae7cf7296fbe25e1071aa36e",
+    "docs/evidence/rmea/20261118-l5-round72/recovery-cost.json": "a2438c5ded67e5cbe4d570545999091d7a3853ed7163c41db9351d199425a416",
+    "docs/evidence/rmea/20261118-l5-round72/screen-design.json": "1668609d349ac5ce441239138f1ffb2bb5b26462d83fcd1be2c4dff5937fe595"
+  },
+  "resources": {
+    "preflight": {
+      "cpu": 1,
+      "ram_mb": 4096,
+      "disk_mb": 1536,
+      "gpus": 0,
+      "timeout": 600
+    },
+    "screen": {
+      "cpu": 1,
+      "ram_mb": 4096,
+      "disk_mb": 1536,
+      "gpus": 0,
+      "timeout": 7200
+    }
+  },
+  "max_attempts": 1,
+  "replay_safe": false,
+  "review": {
+    "model": "gpt-6.1-sol",
+    "reasoning": "medium",
+    "scope": "both",
+    "verdict": "PASS_WITH_RISK",
+    "must_fix": [],
+    "risks": [
+      "Two-file binding changes are not crash-atomic. A hard crash can leave a mixed pair requiring explicit audit; the reviewed path keeps the controller stopped on an unrecognized pair rather than promising general recovery.",
+      "A child timeout raises before captured stdout/stderr are written to scientific-work. Existing private work remains, but complete child diagnostics are not guaranteed for that failure mode.",
+      "The screen is one initialization on an original-training-prefix development split. Entity-pair exclusion does not establish entity, document, semantic or population independence; frozen evaluation donors introduce transductive coupling.",
+      "Hash identities and prior runtime guarantees are supplied evidence, not independently recomputed or exercised in this no-tools review. Execution acceptance still requires the exact observer's actual artifacts and queue receipts."
+    ],
+    "response_id": "resp_0b607eac4c62429a016afdad22ded887d285466616addeef2e",
+    "freeze_sha256": "43aba067cffe23606000a8f5039e7506cac093e2ce257fe6a5886dba5cc1db35"
+  },
+  "readiness": {
+    "existing_accepted_prefix_reused": true,
+    "private_cohort_and_donors_staged": true,
+    "staged_bytes": 1544970,
+    "new_COS_requests": 0,
+    "new_capacity": false,
+    "credentials_transferred": false
+  },
+  "parent_child": {
+    "parent_imports_torch": false,
+    "synchronous": true,
+    "threads": 1,
+    "CUDA_visible": "",
+    "preflight": "Eight fit samples, nine finite forward passes, no optimizer; full input/receipt/cohort/donor validation.",
+    "screen": "Separate one-attempt task after authenticated same-source/contract preflight; fixed nine conditions/four epochs/seed20261118.",
+    "closed_marker_training": {
+      "preflight": false,
+      "screen": true
+    }
+  },
+  "actual": {
+    "preflight_submitted": false,
+    "preflight_executed": false,
+    "screen_submitted": false,
+    "screen_executed": false,
+    "COS_requests": 0,
+    "task_training": false
+  },
+  "claim_ceiling": "Reviewed source/deployment only. No new preflight runtime, task effect, quantum necessity, novelty or L5.",
+  "old_scoped_L4_unchanged": true,
+  "L5": "NOT_ACCEPTED"
+}
