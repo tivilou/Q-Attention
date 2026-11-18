@@ -1,0 +1,74 @@
+{
+  "schema": "qattn.ecqp.real-prefix-readiness.v1",
+  "status": "REVIEWED_DEPLOYED_NOT_SUBMITTED",
+  "source_revision": "24107db0a0cc1b43675c522472382a120d695894",
+  "source_sha256": "ee5ba02330a0522b3ccb5a5dd25d3c767dc086ae72c298d086c9465fb8a14bf9",
+  "contract_sha256": "7ced94af5ca9eb4e39d1e18b40befd261497fdcb8f410119767422a5b2423e9f",
+  "frozen_plan_sha256": "00f0c5eedb24ecb2ee146914cba4e72ff320881ad206a05e17a21a9d72159dc5",
+  "resources": {
+    "recover": {
+      "cpu": 1,
+      "ram_mb": 2048,
+      "disk_mb": 1536,
+      "gpus": 0,
+      "timeout": 900
+    }
+  },
+  "review": {
+    "model": "gpt-6.1-sol",
+    "reasoning": "medium",
+    "scope": "lifecycle",
+    "verdict": "PASS_WITH_RISK",
+    "must_fix": [],
+    "risks": [
+      "Hard interruption can leave recovery.lock, unsealed extraction, or mixed owner/worker bindings. These require explicit inspection and recovery; neither fresh-root replay nor automatic controller restart is justified.",
+      "common.save atomically replaces journals and receipts but does not fsync their contents or parent directories. Atomic visibility is supported; power-loss durability and crash-proof exactly-once accounting are not established.",
+      "URL expiry is checked at admission, not immediately before each GET. Scheduling or execution delays can cause a preserved, non-retried failure.",
+      "This is static lifecycle acceptance only. Prior mocked tests do not establish actual COS transfer, extraction, or scheduler acceptance."
+    ],
+    "response_id": "resp_0fbe04467b65b2f0016afd9c9edb0887d18009aaf3ab675cbc",
+    "freeze_sha256": "fadd2a881c681de9eaa9751e61b9eb7b390f0ca11213e8ec68e05658217f0f14"
+  },
+  "deployment": {
+    "clean_exact_source": true,
+    "same_authorized_worker": true,
+    "new_capacity": false,
+    "credentials_transferred": false
+  },
+  "download_envelope": {
+    "planned_GET_requests": 6,
+    "maximum_payload_bytes": 402653184,
+    "attempts_per_chunk": 1,
+    "cloud_writes": 0,
+    "route": "PUBLIC_OR_UNVERIFIED",
+    "public_rate_date": "2026-11-18",
+    "external_CNY_per_GiB": "0.5",
+    "expected_egress_CNY": "0.1875",
+    "six_prior_HEAD_plus_six_planned_GET_CNY": "0.000012",
+    "combined_estimate_CNY": "0.187512",
+    "STANDARD": "Inferred from earlier pinned HEAD observations and official header semantics; no repeated HEAD."
+  },
+  "actual": {
+    "submission": false,
+    "binding": false,
+    "URL_issuance": false,
+    "GET_requests": 0,
+    "payload_bytes": 0,
+    "task_training": false,
+    "model_forwards": 0
+  },
+  "retained_inputs": {
+    "existing_authenticated_sidecars": true,
+    "new_payload_staged": false
+  },
+  "admission_blocker": "Existing other-project shared CPU task running; no preemption, configuration mutation, resource expansion or scientific SSH bypass.",
+  "limitations": [
+    "Static lifecycle review and code-only deployment do not prove actual COS transfer or prefix extraction.",
+    "Hard interruption can require explicit same-root lock/unsealed-extraction/configuration-pair recovery.",
+    "Atomic journal replacement is not fsync-backed crash-proof request accounting.",
+    "URL expiry checked at admission can still expire after a queue delay; failure preserves state without retry.",
+    "No full original H hash, task utility, novelty or L5 result."
+  ],
+  "scoped_L4_unchanged": true,
+  "L5": "NOT_ACCEPTED"
+}
