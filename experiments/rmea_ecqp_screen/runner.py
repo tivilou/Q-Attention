@@ -66,6 +66,7 @@ def read_training_prefix(assets,receipt,cohort_path,cohort_sha256,donors_path,do
     assert ids==[r['id_hash'] for r in cohort] and len(set(ids))==4096
     assert [r['source_index'] for r in cohort]==list(range(4096))
     offsets=np.load(assets/'train-offsets.npy',mmap_mode='r',allow_pickle=False)
+    assert offsets.dtype==np.dtype('<i8'), 'Offsets must be little-endian int64'
     h=np.load(assets/'train-h.npy',mmap_mode='r',allow_pickle=False)
     roles=np.load(assets/'train-roles.npy',mmap_mode='r',allow_pickle=False)
     targets=np.load(assets/'train-targets.npy',mmap_mode='r',allow_pickle=False)
