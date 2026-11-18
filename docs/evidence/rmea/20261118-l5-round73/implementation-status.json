@@ -1,0 +1,74 @@
+{
+  "schema": "qattn.ecqp.recovery-implementation-status.v1",
+  "status": "SOURCE_REVIEW_AND_FIXTURE_VERIFIED_MANAGED_UNIT_PENDING",
+  "source_revision": "74cd0637ca48aa66d852d9a3a85f9d92678e84ec",
+  "source_files": {
+    "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+    "experiments/rmea_ecqp_recovery/__init__.py": "e5308510a52a607ce35769621455ce69ca4c0ed7a1fa9138d9b633e558728791",
+    "experiments/rmea_ecqp_recovery/job.py": "96d3c0e5482dc86209a03503dde52d1968b533fc19cee203254dac89b531847c",
+    "experiments/rmea_ecqp_recovery/restore.py": "cfbf885cf7b097af19663edb3fb1cf107a395b1410196612fcf35be2ef52541d",
+    "experiments/rmea_ecqp_recovery/contract.json": "27583404490631ee114f6eb5e082ad2bb63365111cd4b6dec4014fe943f9ffba"
+  },
+  "source_sha256": "ea03609873bb59262b1793334920ab3c6305129b13a5488052006fc3c3ac514b",
+  "contract_sha256": "27583404490631ee114f6eb5e082ad2bb63365111cd4b6dec4014fe943f9ffba",
+  "modified_branch": "ECQPHead recursive _load_from_state_dict validates persistent projection even strict=False.",
+  "transport_scope": "Pinned whole-chunk prefix recovery implemented; run lifecycle not covered by six original unit checks.",
+  "managed_unit": {
+    "state": "NOT_SUBMITTED_QUEUE_BUSY",
+    "key": "rmea-ecqp-recovery-unit-ea03609873bb-275834044906",
+    "intended_checks": {
+      "recovery": 6,
+      "projection": 3,
+      "prior_regression": 11
+    },
+    "actual_result": null,
+    "no_binding_mutation": true,
+    "no_duplicate_attempt": true
+  },
+  "source_fixture": {
+    "status": "PASS_SOURCE_FIXTURE_ONLY",
+    "baseline": {
+      "command": [
+        "D:\\Software\\Dev\\Language\\Anaconda3\\envs\\QT2\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "-c",
+        "import ast,json,sys;from pathlib import Path\nr=Path(sys.argv[1]);p=r/'experiments/rmea_ecqp/head.py';tree=ast.parse(p.read_bytes())\nc=next(x for x in tree.body if isinstance(x,ast.ClassDef) and x.name=='ECQPHead')\npresent=any(isinstance(x,ast.FunctionDef) and x.name=='_load_from_state_dict' for x in c.body)\nprint(json.dumps(dict(recursive_projection_hook_present=present,scope='STRUCTURAL_ONLY')))\nraise SystemExit(0 if present else 1)\n",
+        "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\qattn-l5-round73-20261118\\r73-source-roles-yg5607_b"
+      ],
+      "input_sha256": null,
+      "stdout": "{\"recursive_projection_hook_present\": false, \"scope\": \"STRUCTURAL_ONLY\"}\r\n",
+      "stderr": "",
+      "exit_status": 1
+    },
+    "modified": {
+      "command": [
+        "D:\\Software\\Dev\\Language\\Anaconda3\\envs\\QT2\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "-c",
+        "import ast,json,sys;from pathlib import Path\nr=Path(sys.argv[1]);p=r/'experiments/rmea_ecqp/head.py';tree=ast.parse(p.read_bytes())\nc=next(x for x in tree.body if isinstance(x,ast.ClassDef) and x.name=='ECQPHead')\npresent=any(isinstance(x,ast.FunctionDef) and x.name=='_load_from_state_dict' for x in c.body)\nprint(json.dumps(dict(recursive_projection_hook_present=present,scope='STRUCTURAL_ONLY')))\nraise SystemExit(0 if present else 1)\n",
+        "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\qattn-l5-round73-20261118\\r73-source-roles-yg5607_b"
+      ],
+      "input_sha256": null,
+      "stdout": "{\"recursive_projection_hook_present\": true, \"scope\": \"STRUCTURAL_ONLY\"}\r\n",
+      "stderr": "",
+      "exit_status": 0
+    },
+    "forward_reverse_forward": true,
+    "existing_head_exact_restored": true,
+    "unrelated_preserved": true,
+    "patch_sha256": "34f21cab56bc94f0b6c3cbcd93a70c18d8592cf63d5c2a02c4fe8515ee5b1270",
+    "rollback_sha256": "a07237197d60bad95fbccc83abbf4130b102648a8b3bac54dcdf9639768956e3",
+    "scope": "Structural source/patch fixture only; no model or transport execution."
+  },
+  "next_action": "Inspect exact queue/key, wait for whole-queue idleness, then run the already-reviewed one-attempt CPU unit. Preserve unknown attempts. Real recovery and task training require separate complete-source review and admission.",
+  "real_data_reads": 0,
+  "COS_requests": 0,
+  "task_training": false,
+  "new_capacity": false,
+  "utility": "NOT_RUN",
+  "L5": "NOT_ACCEPTED"
+}

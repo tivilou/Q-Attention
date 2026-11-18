@@ -1,0 +1,69 @@
+{
+  "schema": "qattn.ecqp.recovery-source-audit.v1",
+  "source_revision": "74cd0637ca48aa66d852d9a3a85f9d92678e84ec",
+  "freeze_sha256": "7855c8eff5f15f1f852327ee91e344e39fa8a286da01b70689026abcda88d333",
+  "review": {
+    "verdict": "PASS_WITH_RISK",
+    "review_scope": "both",
+    "freeze_sha256": "7855c8eff5f15f1f852327ee91e344e39fa8a286da01b70689026abcda88d333",
+    "source_sha256": "ea03609873bb59262b1793334920ab3c6305129b13a5488052006fc3c3ac514b",
+    "contract_sha256": "27583404490631ee114f6eb5e082ad2bb63365111cd4b6dec4014fe943f9ffba",
+    "must_fix": [],
+    "risks": [
+      "Static review only: no tests, hash recomputation, environment verification or scheduler execution was performed. Imported scheduler/runtime behavior remains an external dependency.",
+      "Another project's running task blocks submission and binding mutation. Review eligibility is not immediate launch permission; preserve the whole-queue idle and locked recheck gates.",
+      "A crash between owner/worker configuration writes can leave a mixed pair. stopped_change rejects such a pair before set_pair can reconcile it, conservatively leaving the controller stopped; recovery requires inspection rather than replay.",
+      "Projection rejection is not containing-module load-atomic, and load_native can partially copy shared tensors before a later shape error. Discard failed instances.",
+      "The six recovery checks exercise extract, parse_header, read_range and fake download, not the complete real run acceptance/cleanup lifecycle. They do not establish real restoration readiness."
+    ],
+    "mechanism_summary": "No material unit-launchability defect identified. The float16 NPY fixture has consistent full offsets, role/target dimensions and prefix counts; extraction crosses chunk boundaries and verifies actual prefix values and sidecar identities. Transport tests patch build_opener for every download invocation, preventing real GETs while checking reuse, wrong-version one-attempt preservation and foreign-host rejection. Zero-B shared-gradient equality is explicitly tested. Recursive _load_from_state_dict validation rejects missing, substituted, malformed and NaN projection buffers under both strict settings; valid wrapper serialization is tested separately. The immutable prior implementation is hash-checked before synthetic execution. All outcomes remain unexecuted assertions, not observed passes.",
+    "lifecycle_summary": "The supplied lifecycle gates bind review, deployment, source, contract, revision and recipe; require queue idleness before mutation; stop the controller and acquire the singleton lock before rechecking; and verify configuration bytes during paired updates and compensation. Unknown submission outcomes retain bindings. Restoration requires the exact keyed task's terminal, quiescent, revision/node/recipe-bound attempt proof, or explicit proof submission never started. Inspection checks the exact output whitelist, hashes, clean source and restored configurations. The unit-only argparse action invokes synthetic fixtures and legacy synthetic checks, not restore.run or task training. Eligibility is limited to one managed CPU unit after admission and queue-idle gates; real restoration, its budget, training, metrics and bootstrap remain separately unadmitted.",
+    "unit_execution_eligible": true,
+    "real_GET_admitted": false,
+    "training_admitted": false,
+    "utility": "NOT_RUN",
+    "L5": "NOT_ACCEPTED"
+  },
+  "consultation": {
+    "model": "gpt-6.1-sol",
+    "reasoning": "medium",
+    "requests": 1,
+    "automatic_retries": 0,
+    "packet_sha256": "6e478a3d8edae36e7c591801792c3a5d4ff5ae20778da4e7172d25001094c5d8",
+    "request_sha256": "951160547489fa2a00dec918bee81994314bbdd258bcacb3c0d5cb677d7ad600",
+    "answer_sha256": "f1889753692416a037a6bb2ce6f751eea0d3795cd70dcc921eecc1e0f10c5102"
+  },
+  "deployment": {
+    "clean_exact_revision": true,
+    "existing_checkout_preserved": true,
+    "real_data_transferred": false,
+    "credentials_transferred": false
+  },
+  "actual_execution": {
+    "scientific_unit": false,
+    "source_fixture": true,
+    "baseline_structural_exit": 1,
+    "modified_structural_exit": 0,
+    "rollback_exercised_in_isolated_fixture": true
+  },
+  "pending_gates": [
+    "Execute exact managed R73 synthetic unit after queue-idle admission.",
+    "Whole restore.run lifecycle including acceptance cleanup needs separate actual tests before real GET.",
+    "Train runner/metrics/bootstrap are private unreviewed drafts; no execution or efficacy evidence.",
+    "Real six-GET recovery still requires finite cost/budget and source-bound admission.",
+    "Task utility, substantive novelty, nontrivial task theory and independent confirmation remain open."
+  ],
+  "canonical_dependencies": {
+    "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+    "experiments/rmea_ecqp/job.py": "ece0c6d207716778c755d323f0e68ecbbbc40ea5122a4678a74b4489185f3cc9",
+    "experiments/rmea_ecqp/contract.json": "e47c9952a1df90d1f1463e7e5088dc3940ad1e00afd91a067c3f64dceae23c97",
+    "experiments/rmea_context_geometry/legacy/__init__.py": "6eca8d00d0c124272f5ee73570c37d1ada545579f19702c5241c6723beb237b9",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_original_scores/__init__.py": "fc614e6d3b7aca7260d75e3830eba3b4c4256a28a62896348f5bd46ff0eb4bc2",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e"
+  },
+  "scoped_L4_unchanged": true,
+  "utility": "NOT_RUN",
+  "L5": "NOT_ACCEPTED"
+}
