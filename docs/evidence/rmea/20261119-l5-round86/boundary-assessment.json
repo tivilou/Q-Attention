@@ -1,0 +1,80 @@
+{
+  "schema": "qattn.coherent-readout-boundary.v1",
+  "status": "PHASE_QUOTIENT_AND_RESOURCE_BOUNDARIES_REVIEWED",
+  "parent": "93d0198dfde09bd848998358ce196a6e2f909088",
+  "theory_path": "docs/evidence/rmea/20261119-l5-round86/phase-and-resource-boundary.md",
+  "theory_sha256": "eb85138caa5b83e8322b140028d47e89340d686bdd49a924bf82e9e41b412f2d",
+  "analytical_scope": "Specified pure coherent state/readout, real utilities, positive total overlap, nonzero denominator. No EPS equivalence or native arbitrary-phase reachability claim.",
+  "findings": [
+    {
+      "id": "phase-quotient",
+      "result": "Real coherent weak readout invariant to all independent token phases iff: one active token; or two equal utilities/equal amplitudes; or at least3 active tokens all utilities equal.",
+      "consequence": "Closes phase-free anomalous drop-in readout on the old independent-projector interface, not explicit controlled-phase models."
+    },
+    {
+      "id": "phase-erasure",
+      "result": "E[pW]/E[p] equals unsmoothed Born pooling under independent uniform token phases.",
+      "consequence": "Success-weighted ratio of expectations only; not E[W], finite-sample exact equality or the EPS-smoothed original head."
+    },
+    {
+      "id": "amplification-bound",
+      "result": "p|W-m|^2 <= (1-p)Var_Psi(O), m=mean(u).",
+      "consequence": "Physical postselection needs a resource contract. Not a classical runtime, meter-validity or classifier-performance theorem."
+    },
+    {
+      "id": "specified-canonical-alignment",
+      "result": "Aligning all overlaps to positive real produces sqrt(Born-score) nonnegative pooling.",
+      "consequence": "That specified phase choice is an ordinary scalar transform; no general prohibition of other task-defined phases."
+    }
+  ],
+  "exact_review": {
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "response_id": "resp_045f170b29fe53ac016afdd701680487d19dba3b53b6964047",
+    "verdict": "PASS",
+    "must_fix": [],
+    "checked": {
+      "phase_classification": "pass",
+      "weighted_erasure": "pass",
+      "success_bound": "pass",
+      "transfer_scope": "pass"
+    },
+    "risks": [
+      "Unweighted W need not be integrable near destructive interference; this does not affect the bounded, continuously extended product pW used in the proof.",
+      "The success bound is exact for the stated state geometry, but does not itself quantify finite-coupling meter behavior, estimator performance, classical runtime or classifier utility.",
+      "Source conclusions are assessed only against the supplied excerpts. Source authenticity, citation priority and supplied hashes were not independently verified."
+    ],
+    "proof_summary": "No mathematical correction or counterexample found. Phase classification: D is a nonzero trigonometric polynomial, so its nonzero domain is dense. Extending the real-readout identity by continuity and matching Fourier coefficients gives u_i+u_j=2C and the constant-coefficient condition. These are necessary and sufficient, yielding the stated singleton case, equal-amplitude two-token exception, and equal-utility requirement for at least three active overlaps. Zero overlaps correctly drop out. Weighted erasure: pW=AD*/n^2 extends continuously to zero at D=0 and is bounded; independent phase averaging eliminates all off-diagonal terms. Positive total overlap ensures E[p]>0. The result is a ratio of expectations, not an unweighted or exact finite-sample ratio, and contains no EPS smoothing. Success bound: v=(O-m)|Psi> is orthogonal to |Psi>; projecting the normalized postselection onto that orthogonal complement and applying Cauchy–Schwarz proves the inequality. For defined W, p=1 or sigma=0 forces W=m; p=0 leaves W undefined and is properly excluded. The real-excursion consequence follows directly. The text does not establish native phase reachability, novelty, task utility, inherited L4 or L5 acceptance. PASS is limited to the supplied analytical statements and transfer boundaries, not a novelty certificate.",
+    "packet_sha256": "f11167645ce7dcf947cfc5e3dcd33cbd189eff5fe44792b038ff7d9bdabcbcbc",
+    "answer_sha256": "e9a15944e346f00b84ab049563c9d9fb8766fe3794c7b5a7a0eada466fef2b72",
+    "inference_requests": 1,
+    "automatic_retries": 0,
+    "scope": "Mathematics and supplied-source applicability only; not implementation, citation authenticity or priority review."
+  },
+  "prior_independent_ideation": {
+    "round": "R85",
+    "verdict": "NONE",
+    "candidates": [],
+    "response_id": "resp_0fa2ea5ddaa77cfa016afdcfe0774487d1b954bbd5bd7ecec0",
+    "assessment_sha256": "a78c5742f7248e51a073fbfac3b9f74d9d683df4f376eba43cf6deb84cea112d",
+    "preserved": true,
+    "repeated": false
+  },
+  "research_disposition": {
+    "method_candidate": null,
+    "implementation_eligible": false,
+    "formal_handoff": false,
+    "novelty_clearance": false,
+    "next_action": "Leave phase-free weak-value amplification closed; seek a task-defined phase/information mechanism or structurally different quantum readout with a distinct causal link and prediction.",
+    "stopped_families": "Unchanged. No parameter, seed, epoch or phase-grid rescue."
+  },
+  "execution": {
+    "model_or_math_fixture_run": false,
+    "training": false,
+    "scheduler_operations": 0,
+    "COS_requests": 0,
+    "checkpoints_created": 0
+  },
+  "accepted_scoped_L4": "UNCHANGED",
+  "L5": "NOT_ACCEPTED"
+}
