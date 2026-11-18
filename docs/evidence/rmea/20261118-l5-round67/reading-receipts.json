@@ -1,0 +1,55 @@
+{
+  "papers": [
+    {
+      "paper_id": "arxiv:2409.06456v2",
+      "title": "Attention-Based Beamformer For Multi-Channel Speech Enhancement",
+      "version": "2409.06456v2",
+      "url": "https://arxiv.org/abs/2409.06456v2",
+      "sha256": "a9566f53a420c90223af300affadf6e51fd5b5085dfb39532bd953a525f1c89c",
+      "bytes": 650810,
+      "pages": 5,
+      "reading": "read_for_scope",
+      "scope": [
+        "p1 title/authors/version/introduction",
+        "p2 methodologyA-C (text; complexfigure notfullyaudited)",
+        "p3 methodologyD-E Eq2-6,renderedpage"
+      ],
+      "source_facts": [
+        "ABIC-MVDR estimates separate speech/noise instantaneous spatial covariance matrices and attention-weighted time-varying SCMs.",
+        "Page3Eq5 uses inverse noise SCM times speech SCM, normalized by trace and applied to a reference-channel selector; Eq6 filters the complex observed signal.",
+        "Target and background estimation are operational learned parts of the source system; this paper does not identify relational nuisance from text roles."
+      ],
+      "limits": [
+        "No complete experimental/ablation/code audit.",
+        "No claim that the proposed Q-RMEA formula is identical to source Eq5.",
+        "No transfer of speech SNR gains or distortionless guarantee to classification."
+      ]
+    },
+    {
+      "paper_id": "arxiv:2610.13261v1",
+      "title": "Data-Adaptive Mahalanobis Metric Learning for Cross-Head Attention in Transformers",
+      "version": "2610.13261v1",
+      "url": "https://arxiv.org/abs/2610.13261v1",
+      "sha256": "58f3b4701d6a1f835b803a76f908ef4b307f144096826605c2e08930d6a7b79e",
+      "bytes": 15847505,
+      "pages": 27,
+      "reading": "read_for_scope",
+      "scope": [
+        "pp1-2 identity,introduction and scope",
+        "pp3-4 methodology3.1-3.4,Eq1-8",
+        "p4 rendered Eq4-8"
+      ],
+      "source_facts": [
+        "DAMCHA defines a learned input-dependent cross-head metric, row-sums blocks, computes input-dependent bilinear scores and applies softmax (p4Eq4-8).",
+        "Its Mahalanobis-like matrix is explicitly not required positive definite (p2); do not silently interpret it as a covariance inverse.",
+        "Input-adaptive attention geometry already has a direct precursor; role-protected covariance filtering is not established by that general framing."
+      ],
+      "limits": [
+        "No appendix/theorem/code/complete experimental audit.",
+        "Dimensions and global expressivity claims not independently certified.",
+        "PDF NeurIPS2026 header observed, venue acceptance not independently verified."
+      ]
+    }
+  ],
+  "coverage": "Two selected originals from three bounded arXiv queries. Not exhaustive novelty clearance; general web provider route404 recorded privately."
+}

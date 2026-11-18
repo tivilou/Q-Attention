@@ -1,0 +1,107 @@
+{
+  "schema": "qattn.role-protected-nuisance.design-audit.v1",
+  "status": "PASS_DESIGN_WITH_RISK",
+  "review_scope": "mechanism",
+  "mechanism_review": {
+    "verdict": "PASS_DESIGN_WITH_RISK",
+    "review_scope": "mechanism",
+    "freeze_sha256": "ce08cb5dd3d013604edc74ad60d92979b94dacee9919f210bd372aec77a8adf3",
+    "must_fix": [],
+    "mathematical_findings": [
+      "Value-bias gauge is correct under the stated normalized-routing and independence assumptions: c→c+δ and b→b−Dδ preserve every logit. Raw utility signs and the stated cancellation statistic are gauge-dependent; centered utilities and normalized-routing readout differences are invariant.",
+      "For unit token states and nonempty eligible context, C is PSD with trace one, 0≤K≤I, and F fixes range(P) while contracting its orthogonal complement. Its eigenvalues lie in [1/9,1], so ν lies in [1/81,1] and effect normalization always exists. Identity fallbacks are consistent.",
+      "For s in range(P), s†Fφ=s†φ. Normalization therefore cannot decrease its Born score, but this does not imply increased final attention or preservation of a classification decision.",
+      "The epsilon-aware ratio is correct: multiplying normalized-effect scores by ν introduces εν in both numerator and denominator. The spectral numerator bound applies to unit n in the specified high-eigenvalue subspace, not arbitrary mixed-direction tokens. A scalar action Fφ=λφ leaves routing unchanged.",
+      "The estimator bounds are valid: ||K−K~||≤2η_P+η_C and ||F−F~||≤8(2η_P+η_C). The normalized-vector bound follows from the common norm lower bound 1/9. These are conditional bounds and do not establish stability of the projector estimator.",
+      "The Born-score, attention L1, and signed-logit bounds are valid for fixed evaluated token states, identical valid-token support, fixed utilities, and positive attention denominators. The U_r/2 factor correctly exploits zero total attention difference. The strict pairwise margin condition is sufficient for winner preservation.",
+      "The harmful-context counterexample is realizable by assigning both role groups state e1 and eligible context state e2. With mixed φ, filtering reduces context attention even with epsilon present; appropriate fixed utilities and class bias can consequently turn a correct positive prediction into null."
+    ],
+    "novelty_limit": "The definition is operationally distinct enough to justify designing one bounded diagnostic, but not a novelty claim. Spectral contraction, protected-subspace filtering, and input-adaptive attention geometry are established ideas. The unresolved contribution is whether this particular role-derived protection rule identifies useful relational evidence and provides reproducible benefit beyond matched alternatives. No new L5 theorem is established.",
+    "empirical_gap": "The candidate is design-only and NOT_RUN. Neither the algebra nor the supplied historical results establish nuisance identifiability, improved routing, classification benefit, or acceptable false-positive costs. A diagnostic design is not implementation or executed evidence; existing L4 does not transfer to this modification.",
+    "risks": [
+      "Frequent off-anchor directions can carry indispensable relation evidence rather than nuisance.",
+      "Projector instability can arise both from role eigenspace near-degeneracy and from nearly dependent protected subspaces: their combined span can change rank even when individual role eigengaps are healthy.",
+      "Large protected rank, identity fallbacks, or an effect aligned with an eigendirection can make the intervention ineffective.",
+      "The supplied source distinctions are appropriate: speech target/noise SCM estimation does not identify textual nuisance; the cited adaptive metric is not automatically a covariance inverse. Neither source establishes this filter's semantic premise.",
+      "Original two-layer circuit reachability, controlled preparation or filtering costs, and any hardware advantage remain explicitly unverified."
+    ],
+    "next_design_decision": "Freeze one deterministic numerical projector-construction specification before inspecting outcomes: role top-eigenvalue clustering tolerance, rank threshold for the combined protected span, and treatment and logging of near-degenerate cases. Explicitly distinguish any tolerance-based approximation from the exact mathematical projector; leave existing score-control gates unchanged.",
+    "candidate_status": "EXPLORATORY_NOT_ACCEPTED",
+    "L5": "NOT_ACCEPTED"
+  },
+  "freeze_sha256": "ce08cb5dd3d013604edc74ad60d92979b94dacee9919f210bd372aec77a8adf3",
+  "frozen_files": {
+    "docs/evidence/rmea/20261118-l5-round67/historical-lessons.json": "2c4ac156d5b0c3b95759f07046a66c61dd3b26062ca2ea978bec06a4178abd69",
+    "docs/evidence/rmea/20261118-l5-round67/reading-receipts.json": "e68bdd603a8fb46becc77c3d5d02a2633a2e6c506a64d088a1b86c7792c42b39",
+    "docs/evidence/rmea/20261118-l5-round67/candidate.json": "18da8ba22cbf96c0d7792cf2f231ef9ecefc12592576e4b3f84baf7a9b0369b6",
+    "docs/evidence/rmea/20261118-l5-round67/mechanism-theory.md": "56ffee7215a5be094cb47adc0d7713e76616ac8e29a3ebad077fc2d022cf9b13"
+  },
+  "consultations": [
+    {
+      "role": "construction-review",
+      "model": "gpt-6.1-sol",
+      "reasoning": "medium",
+      "packet_sha256": "b4a0f27b044c19ca883babbbf3c7d4f1db3c00326db6f3f8fed5dd925c1d91bf",
+      "answer_sha256": "40bae341ccfe9421f2c7676863b8d3ba85d604a7f2d7ef92ef89baa0ea19cfb7",
+      "automatic_retries": 0
+    },
+    {
+      "role": "theory-review",
+      "model": "gpt-6.1-sol",
+      "reasoning": "medium",
+      "packet_sha256": "087ba549ba2ceb7d54f805aaa11bd3fda4be05e047df480837b236c379e47a2d",
+      "answer_sha256": "39281abe095a18eb33c131007567eb26b695971c805af2627fbb52e8519c574b",
+      "automatic_retries": 0
+    }
+  ],
+  "constructor": {
+    "disposition": "ONE_EXPLORATORY_HYPOTHESIS",
+    "gauge_review": "The gauge is correct for the supplied implementation: value.bias=c, decoder rows=d_r, and head.bias=b. Because each alpha row sums to one and routing is independent of value parameters, c→c+delta and b→b−Ddelta preserve logits in exact arithmetic. Raw utility signs, positive/negative masses, and cancellation are therefore not function-identifiable. The supplied counterexample is valid. Invariant alternatives include u_rt−sum_j alpha_rj u_rj, pairwise utility differences, and routing-intervention contrasts sum_t(alpha_rt−alpha'_rt)u_rt when both rows normalize to one. Centering fixes the representation ambiguity but does not establish a causal mechanism or rescue the R66 dispersion result. The supplied sensitivity is also gauge invariant. Floating-point normalization introduces only an implementation qualification, not a substantive exception.",
+    "selected_id": "P1-ROLE-PROTECTED-NUISANCE-FILTER",
+    "core_question": "Can an inference-time, role-anchored protection rule suppress common contextual state directions without erasing the contextual evidence needed for positive relations or increasing false positives on true-null examples?",
+    "mechanism": [
+      "Use the existing quantum psi and phi, value projection, decoder, and biases without additional learned parameters. For each of the two protected role indicators in columns 2 and 3, form the mean density matrix of valid tokens with that indicator nonzero. Let P project onto the union of their leading eigenspaces. Include the complete leading eigenspace in an exact tie; use identity routing if either protected group is absent. This construction is invariant to individual token-state phases and protects representative role directions, not every entity-token state.",
+      "Let Q=I−P. Over the same eligible context tokens used by context_permutation, set C=mean_t |psi_t><psi_t|. Define F=P+Q(I+8QCQ)^−1Q. If there are no eligible context tokens, use F=I. The factor 8 is fixed by state dimension, not selected using outcomes.",
+      "Replace each effect by w_r=F phi_r/||F phi_r|| and use alpha'_rt proportional to |w_r†psi_t|²+EPS with the existing mask. Keep the signed utility aggregation and class biases unchanged. F is positive definite, so the effect normalization exists.",
+      "The protection rule is the substantive hypothesis: role-representative directions should be retained even when frequent, while frequent directions outside that protected span are provisionally treated as nuisance. It neither assumes that all context is nuisance nor asserts that entity anchors contain the complete relation signal."
+    ],
+    "history_support": [
+      "H1 supports preserving learned relation-dependent contextual routing rather than replacing it with uniform aggregation.",
+      "H2 rules out motivating this intervention as a repair for established global query collapse.",
+      "H3 and H4 motivate a shared positive-to-null bottleneck, but require explicit accounting for true-null false positives and wrong-positive labels.",
+      "H5 makes a generic second-moment or score-nonlinearity explanation mandatory competition; the proposed intervention instead changes token routing before aggregation.",
+      "H6 excludes treating inverse-covariance algebra or a value-bias reinterpretation as the missing L5 contribution."
+    ],
+    "change_vs_original": "Original phi_r is input independent. The proposed effect depends on sentence context through an explicit role-protected contraction. This is an unexecuted routing-method change; it inherits none of the original scoped L4 acceptance. The supplied source exposes the required psi, phi, roles, mask, utilities, and bias, but contains no implementation or result for this filter.",
+    "theory_target": "Prove a conditional protection–attenuation statement and then test its applicability: for fixed P,C,F, write phi=a+b with a=Pphi and b=Qphi. If the relevant nuisance components lie in a spectral subspace N of QCQ with eigenvalues at least mu>0, filtering preserves effect responses to states in P up to the common effect-normalization factor, while contracting the response to a unit nuisance state n in N to at most ||Pi_N b||/(1+8mu), before that normalization. Consequently, for a unit protected state s with |a†s|>0, the nuisance/protected Born-score ratio is bounded by ||Pi_N b||²/[(1+8mu)²|a†s|²]. The target is improved protected-to-nuisance routing selectivity, not an unconditional accuracy guarantee.",
+    "proof_or_gap": "For s in P, s†Fphi=s†a. On N, the spectral theorem gives ||F Pi_N b||≤||Pi_N b||/(1+8mu); Cauchy–Schwarz gives the nuisance bound. Normalizing Fphi cancels in the ratio of unsmoothed Born scores. EPS prevents directly transferring that ratio to implemented attention. Mixed signal/nuisance states introduce interference, and attention normalization plus signed utilities prevents deriving a classification improvement from attenuation alone. Crucially, this is a fixed-estimator theorem: recomputing P and C after token perturbations requires additional eigengap and estimator-stability analysis. The operational premise is label-free and executable, but whether role-leading directions protect relation evidence is an empirical question, not an assumed theorem conclusion.",
+    "counterexample": "Take orthogonal states e1,e2, with P projecting onto e1 and all context states equal to e2. Let phi=(e1+e2)/sqrt(2), so Fphi is proportional to e1+e2/9. Suppose the context token carries a large positive utility necessary for a correct positive prediction, while protected tokens have zero utility. Filtering sharply reduces its attention and can turn a correct positive into null. All anchor and covariance computations remain operational and label-free. Thus contextual frequency outside the protected span does not identify nuisance; the history does not exclude this failure mode.",
+    "known_collision": "Inverse-covariance beamforming, MVDR, whitening, and constrained subspace filtering already supply the underlying linear algebra. Protecting a prescribed subspace is also familiar. P2 currently offers less discrimination: without an operational perturbation class, its robust objective risks becoming standard DRO or a bound disconnected from errors. Neither candidate is novel merely because quantum states supply its features.",
+    "substantive_missing_insight": "The missing contribution is a task-grounded explanation of when role-derived anchor geometry identifies what must not be suppressed, while off-anchor covariance identifies removable background rather than relation-bearing context. It must predict selective error changes beyond generic whitening and complete-score transformations. The conditional attenuation result supplies a mechanism check, not that missing identification result.",
+    "smallest_discriminating_action": "Run exactly one preregistered frozen-checkpoint matched diagnostic on existing development cohorts, preserving every available checkpoint/seed cell and using no test selection or training. Evaluate the fixed filter above against unchanged routing, unprotected F=(I+8C)^−1, the same role-protected construction on normalized real-overlap keys/queries, and the existing [S,S²] score-control procedure frozen without new outcome-based tuning. Treat its temperature/nonlinearity controls as competing explanations, not prerequisites. Report paired changes in Macro score, gold-positive/predicted-null errors, true-null false positives, wrong-positive labels, and newly lost correct positives; also report actual changes in protected-token attention and high-covariance off-anchor attention, including full-span or fallback frequency. Use all cells rather than selecting favorable labels or seeds. Continue only if the protected variant shows a consistent net diagnostic benefit and protection-specific advantage over unprotected whitening that is not matched by the score control; a matched classical gain supports a generic protection mechanism, not quantum specificity. A negative result rejects this frozen intervention and operational anchor rule, not every trainable member of the broader family. No execution has occurred in this consultation.",
+    "nearest_unverified_sources": [
+      "UNVERIFIED memory lead: linearly constrained minimum-variance beamforming and generalized sidelobe cancellation; inspect originals for protected-response and blocking-subspace equivalences.",
+      "UNVERIFIED memory lead: subspace projection and covariance-based interference suppression; inspect originals before claiming distinction for the role-derived protected subspace.",
+      "UNVERIFIED memory lead: regularized whitening and Mahalanobis attention; inspect originals for input-dependent query transformation equivalents."
+    ],
+    "candidate_status": "EXPLORATORY_NOT_ACCEPTED",
+    "l5_status": "NOT_ACCEPTED"
+  },
+  "source_dependencies": {
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "model_execution": false,
+  "scientific_tasks_started": 0,
+  "new_model_code": false,
+  "training": false,
+  "COS_GETs": 0,
+  "COS_writes": 0,
+  "collaborator_server_access": false,
+  "new_capacity": false,
+  "static_review_not_private_input_or_execution_acceptance": true,
+  "pending": "Numerical eigenspace clustering/rank thresholds/fallback contract; one matched finite development diagnostic design and exact implementation/lifecycle review before any model run.",
+  "protection_risk": "Combined role subspace rank can be unstable even when each role top eigengap is healthy; conditional projector perturbation bounds do not prove estimator stability.",
+  "L5": "NOT_ACCEPTED",
+  "candidate_status": "EXPLORATORY_NOT_ACCEPTED"
+}
