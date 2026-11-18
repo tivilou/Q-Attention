@@ -1,0 +1,72 @@
+{
+  "schema": "qattn.ecqp.screen-readiness-audit.v1",
+  "status": "SOURCE_READY_UNIT_PENDING_SHARED_QUEUE",
+  "source_revision": "7850bb8d162e104f113fb76fb3788ec1900571aa",
+  "source_sha256": "472f52844d872aefc15712818000f9816d49194a37b60416c321a8388851992b",
+  "contract_sha256": "456fc86dad99811553e1b3d4bc4d8ebabf35520a14649625dce60178fee06440",
+  "freeze_sha256": "21393a2463ab37dee5186f22383ce82a088cb72ba8862a708f94bfa65d815bd1",
+  "review": {
+    "verdict": "PASS_WITH_RISK",
+    "review_scope": "both",
+    "freeze_sha256": "21393a2463ab37dee5186f22383ce82a088cb72ba8862a708f94bfa65d815bd1",
+    "source_sha256": "472f52844d872aefc15712818000f9816d49194a37b60416c321a8388851992b",
+    "contract_sha256": "456fc86dad99811553e1b3d4bc4d8ebabf35520a14649625dce60178fee06440",
+    "must_fix": [],
+    "risks": [
+      "Static review only: supplied hashes are reproduced exactly, not independently recomputed. Dependency versions, scheduler internals, resource sufficiency and test success remain admission/execution checks.",
+      "Before future real training, bind expected receipt, authenticated plan, cohort and donor hashes to a separately reviewed launch contract. The reader verifies caller-supplied hashes and receipt declarations; it does not independently authenticate the plan or establish that supplied cohort/donor hashes are the frozen scientific inputs. Synthetic fixture hashes intentionally do not establish real provenance.",
+      "Before future real training, explicitly require offsets dtype '<i8'. The reader currently validates shape, endpoints, monotonicity and lengths but later converts offsets with int(); integral floating-point offsets could pass. This is not blocking for the current integer synthetic fixture.",
+      "Bootstrap intervals are conditional descriptive group resampling for one fitted initialization and fixed cohort. Donor coupling across groups prevents interpreting them as calibrated independent-deployment, causal or training-seed uncertainty.",
+      "Mocked recovery composition does not establish real transport, six-chunk extraction, authenticated COS provenance or real recovery readiness. Prior acceptance is supplied historical evidence, not independently rerun here.",
+      "The lifecycle uses stopped-controller locking, exact-byte checks and compensating writes, not a crash-atomic distributed transaction. Unknown outcomes require retaining bindings/reservations and inspecting the same task; failed checkpoint loads require discarding model instances."
+    ],
+    "mechanism_summary": "No concrete unit-blocking fixture, oracle, gradient, serialization or wiring error identified. The hand-counted Macro-F1 and accuracy assertion is correct. Per-group TP and support-plus-prediction statistics, weighted by sampled group multiplicities, reproduce explicit duplicated-row fixed39 F1 in principle; shared draws preserve pairing. Decision ordering matches the addendum: invalid numerical inputs reject, catastrophic precedes missing-class/zero-inclusive-interval inconclusiveness, and positive screening requires the specified comparisons. Nine conditions share copied native state and fit orders, with final containing-module checkpoint roundtrips and finite-gradient checks. These establish only synthetic numerical behavior, not utility, novelty or quantum necessity.",
+    "lifecycle_summary": "Eligibility is limited to one managed synthetic CPU unit after independent admission. Unit CLI exposes no real-data or recovery action. Recovery calls occur inside patches replacing validation, download and extraction, so the shown unit path does not invoke live GET transport. Composition checks cover real chunk validation, seal-before-cleanup, zero-download reuse, preservation failures and postseal cleanup continuation. Review/source/contract gates, immutable task key, one-attempt non-replay recipe, queue-idle checks, controller singleton locking and bound terminal-quiescent proof support exact restoration. Resource admission and successful execution remain unproven; review is not launch permission.",
+    "unit_execution_eligible": true,
+    "real_GET_admitted": false,
+    "training_admitted": false,
+    "utility": "NOT_RUN",
+    "L5": "NOT_ACCEPTED"
+  },
+  "consultation": {
+    "model": "gpt-6.1-sol",
+    "reasoning": "medium",
+    "requests": 1,
+    "automatic_retries": 0,
+    "response_id": "resp_03a2237da2cd255c016afd7417a08487d29b07cd88ccd3a879",
+    "packet_sha256": "089f021a293a14e71c91656db24bbd9b43df57a21b79ff281e71f0b96770b725",
+    "answer_sha256": "123e332a18a1a1396a365cd463280ab76141504afa28de680ca8e816b744c564"
+  },
+  "static_scope": "Exact source/control review only; test success and runtime resources remain unproven.",
+  "planned_tests": "Fixed39/group-bootstrap multiplicity oracle; full-shape artificial prefix; nine-condition/final-checkpoint synthetic optimization; actual restore.run with validate_plan/download/extract mocked.",
+  "real_training_gates": [
+    "Explicit <i8 offsets rejection",
+    "Authenticated frozen receipt/plan/cohort/donor contract",
+    "Actual finite recovery cost/route and admission",
+    "Managed synthetic unit acceptance"
+  ],
+  "recovery_byte_envelope": {
+    "full_chunk_GETs": 6,
+    "bytes": 402653184,
+    "gib": 0.375,
+    "automatic_retries": 0,
+    "actual_GETs": 0,
+    "monetary_admission": "PENDING; example prices in a billing document do not establish the current account rate"
+  },
+  "public_price_check": "Official billing and pricing-center pages fetched; current account-specific rate not established. Search tool route returned404, one compressed-body decode failure preserved and corrected.",
+  "unit_submissions": 0,
+  "owner_binding_changed": false,
+  "worker_binding_changed": false,
+  "real_data_reads": 0,
+  "COS_requests": 0,
+  "task_training": false,
+  "new_capacity": false,
+  "known_limits": [
+    "Known entity-aware and bilinear near-neighbors remain.",
+    "Conditional group bootstrap does not establish independent-deployment or training-seed inference.",
+    "Mocked recovery composition does not authenticate COS data or real transport."
+  ],
+  "scoped_L4_unchanged": true,
+  "utility": "NOT_RUN",
+  "L5": "NOT_ACCEPTED"
+}

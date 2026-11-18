@@ -1,0 +1,49 @@
+{
+  "schema": "qattn.ecqp.screen-implementation-readiness.v1",
+  "status": "UNIT_NOT_SUBMITTED",
+  "source_revision": "7850bb8d162e104f113fb76fb3788ec1900571aa",
+  "source_sha256": "472f52844d872aefc15712818000f9816d49194a37b60416c321a8388851992b",
+  "contract_sha256": "456fc86dad99811553e1b3d4bc4d8ebabf35520a14649625dce60178fee06440",
+  "source_files": {
+    "experiments/rmea_ecqp_screen/__init__.py": "904efb70071a9c9b1e10c47b28efbb6d10f6465ce56826b49dc236b4f2294581",
+    "experiments/rmea_ecqp_screen/contract.json": "456fc86dad99811553e1b3d4bc4d8ebabf35520a14649625dce60178fee06440",
+    "experiments/rmea_ecqp_screen/job.py": "9e37acf8f70fc4311ddcd8c80e29ce5e2566bcf4296cea32b8e6e9a89ce62dcb",
+    "experiments/rmea_ecqp_screen/metrics.py": "9d039c538453dadc648e2fcdd9f7ade79acd24cb5997a07a8d6f1d69da4e7716",
+    "experiments/rmea_ecqp_screen/prefix_reader_checks.py": "6f549f3e8c6969199f5cff82e7e01887a707aa276e91ec7ae973d02310b8ad72",
+    "experiments/rmea_ecqp_screen/recovery_lifecycle_checks.py": "894e994f7cd743a06a0653dc856508bc2857721f95e515ade21015e1a354d6e1",
+    "experiments/rmea_ecqp_screen/runner.py": "b623302dd64c8beee8fb5681778173f07a94d847400941cd209f26e23e4cdd7f",
+    "experiments/rmea_ecqp_screen/synthetic_checks.py": "ad41d9adab0393369b93be52c3963d1da4dd9f6ac722173e4474de49ee2b20fb"
+  },
+  "source_published": true,
+  "clean_isolated_worker_deployed": true,
+  "exact_review_completed": true,
+  "static_review_verdict": "PASS_WITH_RISK",
+  "planned_checks": {
+    "metrics": 4,
+    "prefix_reader": 4,
+    "training_components": 5,
+    "mocked_recovery_lifecycle": 4
+  },
+  "planned_synthetic_optimizer_steps": 36,
+  "planned_synthetic_samples": 8,
+  "planned_synthetic_prefix_shape": [
+    151571,
+    1024
+  ],
+  "queue_observation": {
+    "at": "2026-11-18T10:05:49.619995+00:00",
+    "nonterminal_tasks": 1,
+    "active_attempts": 1,
+    "ecqp_tasks": 0,
+    "binding_changed": false,
+    "capacity_changed": false
+  },
+  "blocker": "The existing shared CPU slot is occupied by another live task. Exact temporary bindings require whole-queue quiescence.",
+  "synthetic_unit_executed": false,
+  "checks_passed": null,
+  "real_data_reads": 0,
+  "COS_requests": 0,
+  "task_training": false,
+  "utility": "NOT_RUN",
+  "L5": "NOT_ACCEPTED"
+}
