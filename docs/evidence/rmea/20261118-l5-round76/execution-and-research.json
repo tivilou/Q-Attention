@@ -1,0 +1,146 @@
+{
+  "schema": "qattn.ecqp.actual-synthetic-acceptance.v1",
+  "status": "ACCEPTED_SYNTHETIC_IMPLEMENTATION_ONLY",
+  "source_revision": "7850bb8d162e104f113fb76fb3788ec1900571aa",
+  "source_sha256": "472f52844d872aefc15712818000f9816d49194a37b60416c321a8388851992b",
+  "contract_sha256": "456fc86dad99811553e1b3d4bc4d8ebabf35520a14649625dce60178fee06440",
+  "scheduler": {
+    "task": "d986b76e6b8a4ba9a82f0022618202ac",
+    "attempt": "7d8fede596d149ddbf9023dc481a2a8e",
+    "attempt_count": 1,
+    "returncode": 0,
+    "quiescent": true
+  },
+  "current_restoration": {
+    "scope": "Exact Q-Attention project and non-project fields on owner and worker at bounded read windows.",
+    "q_attention_exact": true,
+    "nonproject_fields_exact": true,
+    "unrelated_project_updates_preserved": true,
+    "whole_current_global_bytes_equal_backup": false,
+    "historical_pair_restoration_proved_by_frozen_control": true,
+    "limitation": "Point-in-time observations and endpoint rechecks, not atomic or continuous stability."
+  },
+  "implementation_review": {
+    "model": "gpt-6.1-sol",
+    "reasoning": "medium",
+    "scope": "both",
+    "verdict": "PASS_WITH_RISK",
+    "must_fix": []
+  },
+  "restoration_review": {
+    "model": "gpt-6.1-sol",
+    "reasoning": "medium",
+    "first_verdict": "BLOCK",
+    "first_must_fix": [
+      "Restore the frozen acceptance assertion report['synthetic_epochs'] == 4. The proposed observer omits it, weakening output acceptance independently of the intended scoped-restoration change.",
+      "Require the receipt output-name set to equal exactly {'compact-report.json', 'RUN_COMPLETE'} before remote inspection. The current directory comparison authenticates against the receipt-provided set, not an independent fixed whitelist, so additional receipt-listed outputs can pass."
+    ],
+    "resolution": "Restored synthetic_epochs==4 and exact independent two-output whitelist; added worker config endpoint recheck. Same attempt re-inspected, no scientific rerun.",
+    "revised_verdict": "PASS_WITH_RISK",
+    "revised_must_fix": [],
+    "risks": [
+      "Source and output authentication remains point-in-time: files can change between hashing and subsequent reads. No atomic snapshot or continuing immutability is established.",
+      "Owner and worker configuration byte rechecks detect endpoint differences, not transient change-and-reversion or changes after each observation window.",
+      "Validation relies on Python assertions remaining enabled. This review assesses the supplied source and observations without independently executing or hashing artifacts."
+    ],
+    "freeze_sha256": "1c299fffa2616ccde905d23d5cc489dedeae8c486a25c2732d18bcb7d716c0b1",
+    "response_id": "resp_0ed29151037f7222016afd7f5ce04887d2a06be4609ff2fb71"
+  },
+  "independent_discovery": {
+    "status": "NO_VERIFIED_ANSWER",
+    "model": "gpt-6.1-sol",
+    "reasoning": "medium",
+    "inference_requests": 1,
+    "automatic_retries": 0,
+    "stream_observation": "TimeoutError",
+    "existing_response_GET_status": 404,
+    "provider_terminal_state": "UNKNOWN",
+    "conclusion": "No usable consultation conclusion; no replay or acceptance."
+  },
+  "cross_domain_probe": {
+    "paper_id": "mcfadden-nobel-lecture-economic-choices-2000",
+    "receipt_sha256": "39ed039ab459400900f1e939f7cb7a73da256cdf620310360cfac8f52a4f3141",
+    "pdf_sha256": "3589a61fe884d72cc61aedf56273bf59b308464239774a7884dbcca6d1cbd0db",
+    "title": "Economic Choices",
+    "author": "Daniel L. McFadden",
+    "version": "Prize Lecture, 8 December 2000",
+    "original_source": "https://www.nobelprize.org/uploads/2018/06/mcfadden-lecture.pdf",
+    "reading": "partial_visual_read_for_scoped_probe",
+    "pages_read": [
+      1,
+      4,
+      5,
+      6
+    ],
+    "printed_pages": [
+      330,
+      333,
+      334,
+      335
+    ],
+    "parsing": "ocr_required; no full OCR or full-paper reading claimed",
+    "source_facts": [
+      {
+        "locator": "PDF4 / printed333, IIA discussion and equation1",
+        "finding": "IIA fixes the ratio of choice probabilities for two alternatives across sets containing both; the lecture gives the multinomial logit form."
+      },
+      {
+        "locator": "PDF5 / printed334",
+        "finding": "The lecture discusses random utility foundations and nested choice models; no novelty or attention claim is supplied."
+      }
+    ],
+    "interpretation": "Positive fixed token scores normalized across the valid-token menu obey the same ratio cancellation. This is a known structure, not new Q-RMEA theory.",
+    "transfer_hypothesis": "Use menu-dependence as a proposed discriminator of entity conditioning.",
+    "disposition": "REJECT_SIMPLE_TRANSFER_AS_L5_ROUTE",
+    "reason": "At fixed frozen features and fixed entity summary ECQP still has tokenwise positive scores; changing only nonentity menu entries cancels the common denominator in pairwise ratios. Natural-text edits alter contextual features, so they violate the fixed-attribute premise.",
+    "limitations": [
+      "No full source/citation-neighborhood survey.",
+      "No empirical menu intervention performed.",
+      "Does not close every discrete-choice research direction."
+    ],
+    "L5": "NOT_ACCEPTED"
+  },
+  "cost_preparation": {
+    "status": "CURRENT_PUBLIC_RATE_OBSERVED_OFFLINE_BYTE_ENVELOPE_ARITHMETIC_ONLY",
+    "source": "https://buy.cloud.tencent.com/price/cos",
+    "observed_at": "2026-11-18T10:23:25.353127+00:00",
+    "region": "ap-beijing",
+    "external_CNY_per_GiB": "0.5",
+    "selected_bytes": 402653184,
+    "passes": 1,
+    "max_attempts": 1,
+    "egress_estimate_CNY": "0.1875",
+    "six_STANDARD_GET_estimate_CNY": "0.000006",
+    "storage_class_verified": false,
+    "actual_transfer_admitted": false,
+    "offline_execution_exit": 0,
+    "COS_requests": 0
+  },
+  "execution": {
+    "command": [
+      "python",
+      "-B",
+      "experiments/rmea_ecqp_screen/job.py",
+      "--action",
+      "unit",
+      "--output",
+      "SCHEDULER_OUTPUT"
+    ],
+    "inputs": "Artificial arrays and mocked restore boundaries only.",
+    "stdout": "{\"status\": \"PASS_ECQP_SCREEN_AND_RECOVERY_LIFECYCLE_SYNTHETIC_UNIT\", \"metric_checks\": 4, \"prefix_reader_checks\": 4, \"training_checks\": 5, \"recovery_lifecycle_checks\": 4, \"real_data_reads\": 0, \"COS_requests\": 0}\n",
+    "stderr": "",
+    "exit_status": 0,
+    "elapsed_seconds": 13.058998612686992
+  },
+  "limitations": [
+    "17 checks establish implementation behavior only.",
+    "Actual restore.run uses mocked validate_plan/download/extract.",
+    "Real training still needs strict <i8 offsets and separately reviewed authenticated input/receipt contract.",
+    "No real arrays, COS object reads, task training, utility, substantive novelty or L5."
+  ],
+  "previous_R75_readiness_unchanged": true,
+  "scoped_L4_unchanged": true,
+  "new_capacity": false,
+  "utility": "NOT_RUN",
+  "L5": "NOT_ACCEPTED"
+}
