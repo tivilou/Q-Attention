@@ -88,13 +88,37 @@ class ECQPHead(RMEAHead):
         self.verify_projection()
         return result
 
+    def _load_from_state_dict(self, state_dict, prefix, local_metadata, strict,
+                              missing_keys, unexpected_keys, error_msgs):
+        # nn.Module.load_state_dict recurses through this method, not through a
+        # child's load_state_dict override. Missing P is an error even with
+        # strict=False: a checkpoint must carry the frozen persistent identity.
+        key = prefix + 'projection'
+        try:
+            if key not in state_dict or projection_sign_fingerprint(state_dict[key]) != SIGN_SHA256:
+                raise ValueError('Missing or substituted fixed projection')
+        except (ValueError, TypeError, RuntimeError, AttributeError) as exc:
+            error_msgs.append(key + ': invalid frozen projection (' + type(exc).__name__ + ')')
+            return
+        super()._load_from_state_dict(state_dict, prefix, local_metadata, strict,
+                                     missing_keys, unexpected_keys, error_msgs)
+        # Loading is not transaction-atomic for the complete containing module;
+        # callers must discard any model whose load raised an error.
+
     def load_native(self, native):
         """Copy only unchanged original members, without silently replacing B/P."""
         if not isinstance(native, RMEAHead) or native.mode != 'quantum':
             raise ValueError('An original quantum RMEA head is required')
-        result = super().load_state_dict(native.state_dict(), strict=False)
-        if set(result.missing_keys) != {'B', 'projection'} or result.unexpected_keys:
+        source = native.state_dict()
+        destination = self.state_dict()
+        if set(destination) - set(source) != {'B', 'projection'} or set(source) - set(destination):
             raise RuntimeError('Unexpected shared-state correspondence')
+        self.verify_projection()
+        with torch.no_grad():
+            for name, value in source.items():
+                if destination[name].shape != value.shape:
+                    raise ValueError('Native shared-state shape mismatch')
+                destination[name].copy_(value)
         self.verify_projection()
 
     @staticmethod
