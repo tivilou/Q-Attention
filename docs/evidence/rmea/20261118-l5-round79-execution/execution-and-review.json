@@ -1,0 +1,108 @@
+{
+  "schema": "qattn.ecqp.real-prefix-acceptance.v1",
+  "status": "ACCEPTED_SINGLE_PASS_REAL_TRAIN_PREFIX_RECOVERY",
+  "source_revision": "24107db0a0cc1b43675c522472382a120d695894",
+  "source_sha256": "ee5ba02330a0522b3ccb5a5dd25d3c767dc086ae72c298d086c9465fb8a14bf9",
+  "contract_sha256": "7ced94af5ca9eb4e39d1e18b40befd261497fdcb8f410119767422a5b2423e9f",
+  "scheduler": {
+    "task": "f28abae92e914d038c1d71fa6221f149",
+    "attempt": "c65009d9916449449ad22831f9882dd9",
+    "attempt_count": 1,
+    "returncode": 0,
+    "quiescent": true
+  },
+  "implementation_review": {
+    "model": "gpt-6.1-sol",
+    "reasoning": "medium",
+    "scope": "lifecycle",
+    "verdict": "PASS_WITH_RISK",
+    "response_id": "resp_0fbe04467b65b2f0016afd9c9edb0887d18009aaf3ab675cbc"
+  },
+  "acceptance_review": {
+    "model": "subagent/inherited",
+    "review_mode": "subagent_fallback",
+    "reasoning": null,
+    "scope": "lifecycle",
+    "verdict": "PASS_WITH_RISK",
+    "must_fix": [],
+    "risks": [
+      "This packet review relies on the supplied observation and frozen review chain; it does not independently authenticate live artifacts or scheduler state.",
+      "Original tar headers and deleted chunks were verified by the accepted producer, not independently reread by the observer. Full original H integrity remains unestablished.",
+      "Missing fsync durability, hard-interruption locks and mixed bindings remain unresolved general recovery risks. URL expiry is checked at admission."
+    ],
+    "acceptance_ceiling": "Accept only the reported successful lifecycle of task f28abae92e914d038c1d71fa6221f149, attempt c65009d9916449449ad22831f9882dd9, revision 24107db0a0cc1b43675c522472382a120d695894: one exit-0, quiescent recovery of 4096 training rows and 151571 tokens with hidden size 1024; six reported version-pinned GETs totaling 402653184 payload bytes, zero automatic retries and cloud writes; five restored files rehashed; two whitelisted outputs matched; scoped owner/worker bindings restored with endpoint byte-stability checks and unrelated project updates preserved. This establishes this completed prefix recovery only, without general crash-recovery guarantees, scientific utility evidence, training admission, or L5 acceptance.",
+    "freeze_sha256": "b59d4f72a14d556a835dc4c493111f14182fbb62c61b3ca81dc34bec476ff442",
+    "unavailable_external_route": {
+      "model": "gpt-6.1-sol",
+      "reasoning": "medium",
+      "inference_requests": 1,
+      "automatic_retries": 0,
+      "response_id": "resp_05caed6fb05d20cf016afda275805087d2939502ca4640dcc9",
+      "stream_error": "TimeoutError",
+      "existing_response_GET_status": 404,
+      "provider_terminal_state": "UNKNOWN",
+      "usable_answer": false
+    }
+  },
+  "execution": {
+    "command": {
+      "argv": [
+        "/hy-tmp/Q-Attention/rmea-context-geometry-20261117/env/bin/python",
+        "-B",
+        "experiments/rmea_ecqp_recovery/real_job.py",
+        "--plan",
+        "/tmp/qattn-ecqp-real-prefix-20261118/inputs/plan.json",
+        "--urls",
+        "/tmp/qattn-ecqp-real-prefix-20261118/inputs/urls.json",
+        "--sidecars",
+        "/tmp/qattn-ecqp-prefix-dtype-20261118/recovery-inputs/sidecars",
+        "--root",
+        "/tmp/qattn-ecqp-real-prefix-20261118/recovery",
+        "--output",
+        "/tmp/qattn-ecqp-real-prefix-20261118/attempts/c65009d9916449449ad22831f9882dd9/output"
+      ],
+      "cwd": "/tmp/qattn-ecqp-real-prefix-20261118/source",
+      "gpu_ids": [],
+      "revision": "24107db0a0cc1b43675c522472382a120d695894"
+    },
+    "inputs": "Six immutable version-pinned archive chunks plus four already authenticated original sidecars.",
+    "stdout": "{\"stage\": \"restore_chunk\", \"completed\": 1, \"planned\": 6}\n{\"stage\": \"restore_chunk\", \"completed\": 2, \"planned\": 6}\n{\"stage\": \"restore_chunk\", \"completed\": 3, \"planned\": 6}\n{\"stage\": \"restore_chunk\", \"completed\": 4, \"planned\": 6}\n{\"stage\": \"restore_chunk\", \"completed\": 5, \"planned\": 6}\n{\"stage\": \"restore_chunk\", \"completed\": 6, \"planned\": 6}\n{\"status\": \"PASS_REAL_PINNED_TRAIN_PREFIX_RECOVERY\", \"GET_requests\": 6, \"payload_bytes\": 402653184, \"prefix_examples\": 4096, \"prefix_tokens\": 151571, \"model_forwards\": 0, \"task_training\": false}\n",
+    "stderr": "",
+    "exit_status": 0,
+    "elapsed_seconds": 14.88344394043088
+  },
+  "verification": {
+    "five_private_prefix_files_rehashed": true,
+    "prefix_NPY_headers_rechecked": true,
+    "offsets_roles_hashes_match_original_plan": true,
+    "exact_output_whitelist_and_source": true,
+    "producer_chunk_hash_and_tar_header_checks": true,
+    "independent_chunk_or_tar_header_reread": false,
+    "full_original_H_hash_recomputed": false,
+    "new_COS_requests_by_inspector": 0,
+    "six_complete_single_request_journal_entries": true,
+    "reproducible_chunks_removed": true,
+    "scoped_binding_restored": true,
+    "point_in_time_endpoint_checks_only": true,
+    "unrelated_project_updates_preserved": true
+  },
+  "cost": {
+    "actual_GET_requests": 6,
+    "actual_payload_bytes": 402653184,
+    "automatic_retries": 0,
+    "cloud_writes": 0,
+    "public_rate_date": "2026-11-18",
+    "route": "PUBLIC_OR_UNVERIFIED",
+    "estimated_egress_CNY": "0.1875",
+    "estimated_six_GET_CNY": "0.000006",
+    "estimated_prior_six_HEAD_CNY": "0.000006",
+    "combined_estimate_CNY": "0.187512",
+    "actual_bill_verified": false
+  },
+  "next": "Bind this authenticated receipt into the separately reviewed fixed4096-row, nine-condition bounded diagnostic; no automatic training admission.",
+  "pre_execution_readiness_reports_unchanged": true,
+  "scoped_L4_unchanged": true,
+  "task_training": false,
+  "utility": "NOT_RUN",
+  "L5": "NOT_ACCEPTED"
+}
