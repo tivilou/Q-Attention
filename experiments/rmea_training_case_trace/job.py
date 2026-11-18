@@ -17,7 +17,7 @@ sys.path.insert(0, str(ROOT))
 from experiments.rmea_original_scores.common import guard, read, sha
 from experiments.rmea_training_case_trace.trace import AXES, build, ref, save, value_cli
 
-DESIGN = ROOT / 'docs/evidence/rmea/20261119-l5-round88/training-case-design.json'
+DESIGN = ROOT / 'docs/evidence/rmea/20261119-l5-round89/training-case-design.json'
 PATH_ARGUMENTS = ['assets', 'receipt', 'cohort', 'donors', 'checkpoints', 'original_report',
                   'execution_contract', 'output']
 
@@ -39,8 +39,10 @@ def checked(a):
     assert c['budget'] == d['proposed_budget'] and c['budget']['optimizer_steps'] == 0
     assert os.environ.get('CUDA_VISIBLE_DEVICES') == ''
     assert {n: importlib.metadata.version(n) for n in d['environment']} == d['environment']
-    assert c['implementation_review']['scope'] == 'both' and c['implementation_review']['must_fix'] == []
-    assert c['implementation_review']['verdict'] in ('PASS', 'PASS_WITH_RISK')
+    # The owner admission controls authenticate the exact external review before
+    # deployment/submission. Do not embed a future review verdict in its own
+    # hashed review input (which would be circular).
+    assert c['review_scope'] == 'both'
     for n, digest in {**d['source_files'], **d['implementation_files']}.items():
         assert sha(ROOT / n) == digest
     for name in PATH_ARGUMENTS:
