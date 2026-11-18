@@ -1,0 +1,110 @@
+{
+  "schema": "qattn.ecqp.recovery-unit-audit.v1",
+  "status": "ACCEPTED_SYNTHETIC_IMPLEMENTATION_ONLY",
+  "source_revision": "ed43313c97131d578bc87cf51c3af8aadcee7138",
+  "source_sha256": "05d7b3959d41c2cac0379a8c4be9ee2db4467a1b113bddae5a59592dc185842b",
+  "contract_sha256": "27583404490631ee114f6eb5e082ad2bb63365111cd4b6dec4014fe943f9ffba",
+  "source_files": {
+    "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+    "experiments/rmea_ecqp_recovery/__init__.py": "e5308510a52a607ce35769621455ce69ca4c0ed7a1fa9138d9b633e558728791",
+    "experiments/rmea_ecqp_recovery/job.py": "00b74e58197412a427968086f3baeb459f316fddad599e800d06b2885e0d6826",
+    "experiments/rmea_ecqp_recovery/restore.py": "cfbf885cf7b097af19663edb3fb1cf107a395b1410196612fcf35be2ef52541d",
+    "experiments/rmea_ecqp_recovery/contract.json": "27583404490631ee114f6eb5e082ad2bb63365111cd4b6dec4014fe943f9ffba"
+  },
+  "freeze_sha256": "f97418330f7079e764352ac76eb79c2152abe7e7dd4d96b14bbc26076f2d84e4",
+  "review": {
+    "verdict": "PASS_WITH_RISK",
+    "review_scope": "both",
+    "freeze_sha256": "f97418330f7079e764352ac76eb79c2152abe7e7dd4d96b14bbc26076f2d84e4",
+    "source_sha256": "05d7b3959d41c2cac0379a8c4be9ee2db4467a1b113bddae5a59592dc185842b",
+    "contract_sha256": "27583404490631ee114f6eb5e082ad2bb63365111cd4b6dec4014fe943f9ffba",
+    "must_fix": [],
+    "risks": [
+      "Static review only: supplied hashes were not recomputed, and no tests, deployment, environment checks or scheduler operations were performed. Scheduler/runtime behavior remains an external dependency.",
+      "The previous managed attempt genuinely failed before projection tests and final report completion. Preceding successful assertions are partial evidence, not a whole-unit PASS; the corrected cohort still requires its own closed managed receipt.",
+      "A crash between paired configuration writes can leave mixed owner/worker bindings. The current locked consistency check conservatively leaves the controller stopped rather than automatically reconciling that pair; inspect and recover without replay.",
+      "Containing-module checkpoint rejection and native shared-state copying are not transaction-atomic. Discard instances after any failed load or copy.",
+      "Synthetic checks do not cover the complete restore.run acceptance/cleanup lifecycle, real transport readiness, task training, metrics or bootstrap."
+    ],
+    "mechanism_summary": "The precise fix is appropriate: only the deliberately malformed NPY-header call accepts ValueError or tokenize.TokenError as rejection. Successful parsing still fails the assertion, and unrelated exception classes still propagate; the default helper behavior and numerical assertions are unchanged. The prior failure is a test expectation mismatch, not model efficacy evidence. No concrete remaining unit-blocking defect was identified in the supplied source. Recursive projection validation covers missing, substituted, malformed and NaN buffers under both strict settings; valid wrapper serialization and zero-B shared-gradient parity remain explicit tests. Six recovery, three projection/shared-gradient and eleven legacy checks remain pending complete execution.",
+    "lifecycle_summary": "The supplied controls rebind review/deployment/admission to the new source cohort and isolated /tmp/qattn-ecqp-recovery-fix-20261118 path, with source/contract-derived task key and exact revision checks. Eligibility is for one new managed CPU unit only: CPU1, 1024 MiB RAM, GPU0, 300 seconds, max_attempts=1 and replay_safe=false. Preserve whole-queue idleness, controller stop, singleton lock and idle recheck before paired binding changes. Unknown submission outcomes retain bindings/reservation; restoration requires exact keyed terminal/quiescent revision/node/recipe proof or explicit proof submission never started. Inspection requires closed hashed outputs, clean exact source and restored bindings. Never replay the prior failed key. The unit-only action does not invoke restore.run or task training; accepted narrow L4 and stopped routes remain unchanged.",
+    "unit_execution_eligible": true,
+    "real_GET_admitted": false,
+    "training_admitted": false,
+    "utility": "NOT_RUN",
+    "L5": "NOT_ACCEPTED"
+  },
+  "consultation": {
+    "model": "gpt-6.1-sol",
+    "reasoning": "medium",
+    "requests": 1,
+    "automatic_retries": 0,
+    "response_id": "resp_0780a5e78660c25e016afd7185c56887d0ac6bfc4b2c09530a",
+    "packet_sha256": "58f79da09cde96de4c7c220ee8a951f04ad6274b35c14906b02a77f8a2029830",
+    "answer_sha256": "03613c85c04b7b7bfc5479054c53f3f5382c533a71dce6fba47f4ce50b5dca7f"
+  },
+  "failed_predecessor": {
+    "task": "bc80a5fcf99a424ebb24a702b5758f43",
+    "attempt": "2abc6e182b174a4e9b5437ed0b54ef63",
+    "source_revision": "74cd0637ca48aa66d852d9a3a85f9d92678e84ec",
+    "returncode": 1,
+    "quiescent": true,
+    "bindings_exact_restored": true,
+    "output_files": 0,
+    "failure": "Malformed NPY input correctly rejected with tokenize.TokenError; test omitted that expected exception.",
+    "correction": "Only this deliberately malformed-header assertion accepts ValueError or tokenize.TokenError; no parser/model/transport behavior changed.",
+    "no_automatic_replay": true
+  },
+  "scheduler": {
+    "task": "565478cd269d4d75a72a8d489791ece5",
+    "attempt": "19659be4ce964715ab02d4084b6eed04",
+    "attempt_count": 1,
+    "returncode": 0,
+    "quiescent": true,
+    "outputs": {
+      "RUN_COMPLETE": {
+        "bytes": 202,
+        "sha256": "5f9b3f75835ab52dd7937c91bfa11d7d73121fed2e117bbc3b9db2d9bbe059ef"
+      },
+      "compact-report.json": {
+        "bytes": 4152,
+        "sha256": "2cd0019ee3b443e259c301ad6fef25523f0113e240c64813d9ab703fe09be947"
+      }
+    },
+    "owner_binding_exact_restored": true,
+    "worker_binding_exact_restored": true,
+    "clean_source": true,
+    "all_output_hashes_independently_checked": true
+  },
+  "execution": {
+    "command": [
+      "python",
+      "-B",
+      "experiments/rmea_ecqp_recovery/job.py",
+      "--action",
+      "unit",
+      "--output",
+      "SCHEDULER_OUTPUT"
+    ],
+    "inputs": "Synthetic tiny multichunk tar/NPY values, fake HTTP transport, synthetic Torch tensors and pinned previous head source.",
+    "stdout": "{\"stage\": \"restore_chunk\", \"completed\": 1, \"planned\": 1}\n{\"status\": \"PASS_ECQP_RECOVERY_AND_RECURSIVE_PROJECTION_UNIT\", \"recovery_checks\": 6, \"projection_checks\": 3, \"legacy_checks\": 11}\n",
+    "stderr": "",
+    "exit_status": 0,
+    "literal_private_record": "R74 verification.json retains the actual worker argv/cwd and failed/passing outputs."
+  },
+  "limitations": [
+    "Six recovery checks do not execute full restore.run acceptance/cleanup lifecycle.",
+    "No real tar/NPY header, COS object, train prefix or task dataset was read.",
+    "Containing-module loading is not atomic; discard failed instances.",
+    "Private train/metrics/bootstrap/lifecycle drafts remain unreviewed and unexecuted.",
+    "Known bilinear/entity-aware precedents remain; no task utility, substantive novelty or L5 evidence."
+  ],
+  "real_data_reads": 0,
+  "COS_GETs": 0,
+  "COS_writes": 0,
+  "task_training": false,
+  "new_capacity": false,
+  "scoped_L4_unchanged": true,
+  "utility": "NOT_RUN",
+  "L5": "NOT_ACCEPTED"
+}

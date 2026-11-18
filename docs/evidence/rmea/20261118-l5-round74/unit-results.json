@@ -1,0 +1,113 @@
+{
+  "status": "PASS_ECQP_RECOVERY_AND_RECURSIVE_PROJECTION_UNIT",
+  "recovery_checks": [
+    "actual_multichunk_NPY_prefix_values_sidecar_hashes_and_distinct_prefix_identity",
+    "unsealed_or_existing_output_is_not_overwritten",
+    "wrong_tar_hash_NPY_shape_and_out_of_range_prefix_rejected",
+    "malformed_NPY_header_and_truncated_chunk_rejected",
+    "pinned_transport_reuse_zero_extra_GET_and_wrong_version_one_attempt_no_retry",
+    "foreign_signed_host_rejected_before_GET"
+  ],
+  "projection": {
+    "legacy_regression": {
+      "status": "PASS_ECQP_IMPLEMENTATION_UNIT",
+      "checks": [
+        "original_zero_B_and_mismatch_initialization_exact_float32_float64",
+        "fixed_projection_sign_hash_and_parameter_count",
+        "finite_gradients_and_B_central_difference",
+        "one_SGD_step_and_post_update_summary_effect",
+        "padding_NaN_ignored_zero_attention_and_zero_gradient",
+        "word_permutation_equivariance_and_sample_order_independence",
+        "missing_entity_invalid_mask_nonfinite_and_role_rejections",
+        "same_parameter_classical12_and_token_square_controls_forward_backward",
+        "token_linear_control_folds_into_native_affine_map",
+        "whole_cohort_group_excluding_bijection_order_invariant_and_infeasible_rejected",
+        "state_roundtrip_and_corrupt_projection_rejected"
+      ],
+      "parity_max_abs": {
+        "torch.float32": 0.0,
+        "torch.float64": 0.0
+      },
+      "projection_sign_sha256": "e028c261fb310a727de4a1929d1b704d98555b051e8f83b99e4e8a5394ca659d",
+      "parameters": 81220,
+      "gradient_check": {
+        "index": [
+          0,
+          9
+        ],
+        "analytic": 0.00039924668386456797,
+        "central_difference": 0.0003992466801605587,
+        "step": 1e-05
+      },
+      "post_update_prepare_raw_summary_effect": 3.590632626157553e-07,
+      "controls": [
+        {
+          "routing": "quantum",
+          "feature": "entity",
+          "parameters": 81220
+        },
+        {
+          "routing": "quantum",
+          "feature": "token_square",
+          "parameters": 81220
+        },
+        {
+          "routing": "softmax12",
+          "feature": "entity",
+          "parameters": 81220
+        },
+        {
+          "routing": "softmax12",
+          "feature": "token_square",
+          "parameters": 81220
+        },
+        {
+          "routing": "real_overlap12",
+          "feature": "entity",
+          "parameters": 81220
+        },
+        {
+          "routing": "real_overlap12",
+          "feature": "token_square",
+          "parameters": 81220
+        }
+      ],
+      "unit_optimizer_steps": 1,
+      "task_training": false,
+      "real_data_reads": 0,
+      "COS_requests": 0,
+      "utility": "NOT_RUN",
+      "novelty": "UNESTABLISHED",
+      "L5": "NOT_ACCEPTED",
+      "limitations": [
+        "Synthetic source/gradient checks only, no task utility, real encoder reachability or family separation.",
+        "Equal trainable parameter counts do not imply equal active capacity or computational cost.",
+        "Clinical, signal-processing and bilinear precedents supply ideas, not transferred performance or novelty."
+      ]
+    },
+    "shared_gradient_max_abs": 0.0,
+    "recursive_invalid_states_rejected": 8,
+    "baseline_behavior": "Pinned previous implementation accepts substituted P through outer-module recursive strictFalse loading.",
+    "modified_behavior": "All8 recursive invalid-state combinations rejected; valid save/load forward and shared gradients exact.",
+    "checks": [
+      "zero_B_all_shared_native_gradients_exact",
+      "actual_torch_save_load_outer_module_forward_exact",
+      "recursive_missing_sign_substitution_bad_shape_NaN_rejected_with_strict_true_and_false"
+    ]
+  },
+  "contract_sha256": "27583404490631ee114f6eb5e082ad2bb63365111cd4b6dec4014fe943f9ffba",
+  "elapsed_seconds": 1.5937863495200872,
+  "environment": {
+    "torch": "2.4.1+cpu",
+    "numpy": "1.24.3"
+  },
+  "python_execution": {
+    "optimize": 0,
+    "PYTHONOPTIMIZE_present": false
+  },
+  "task_training": false,
+  "real_data_reads": 0,
+  "COS_requests": 0,
+  "utility": "NOT_RUN",
+  "L5": "NOT_ACCEPTED"
+}
