@@ -1,0 +1,103 @@
+{
+  "schema": "qattn.crossed-replay.reviewed-readiness.v1",
+  "status": "REVIEWED_DEPLOYED_WAITING_SHARED_QUEUE",
+  "source_revision": "bbe7f1f72bb6ece16ea2cc079c37dd71b4802062",
+  "source_sha256": "225aab2de06bd10ac352e155b716f1b611fee8d7e27cd489e17e7a8ffc5d3d3e",
+  "contract_sha256": "8aac7cfaf3514830c3e3578d9befaaa6514f0e26a232c9f0814dc4d5ea15b341",
+  "freeze_sha256": "60d69c3b066cc9ce8a9bb03cda87a7a3b19e88ff0324d13c065800311e16924a",
+  "source_files": {
+    "docs/evidence/rmea/20261118-l5-round72/screen-design.json": "1668609d349ac5ce441239138f1ffb2bb5b26462d83fcd1be2c4dff5937fe595",
+    "docs/evidence/rmea/20261118-l5-round82/crossed-replay-design.json": "b2969f739f6ed834bdf2b23df7b0eef4e0573d8a73ccc5cb5e3bcdac4d671ccc",
+    "experiments/rmea_context_geometry/legacy/__init__.py": "6eca8d00d0c124272f5ee73570c37d1ada545579f19702c5241c6723beb237b9",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_crossed_replay/job.py": "a2779d1ac5277dba4c7187305ffe0c1bbe8ee5e7bc6540207efa16a315e8f716",
+    "experiments/rmea_ecqp/__init__.py": "ec4e8fc85df383e97c287ee004c4e6dfddbd2752cffb1424951a45b6435c922f",
+    "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+    "experiments/rmea_ecqp_screen/__init__.py": "904efb70071a9c9b1e10c47b28efbb6d10f6465ce56826b49dc236b4f2294581",
+    "experiments/rmea_ecqp_screen/metrics.py": "9d039c538453dadc648e2fcdd9f7ade79acd24cb5997a07a8d6f1d69da4e7716",
+    "experiments/rmea_ecqp_screen/runner.py": "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+    "experiments/rmea_original_scores/__init__.py": "fc614e6d3b7aca7260d75e3830eba3b4c4256a28a62896348f5bd46ff0eb4bc2",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e"
+  },
+  "control_files": {
+    "cpu_ops.py": "e13cf409d070fa612245470bafd75e3a3903e60f041ca7220edbb8478ad2618f",
+    "deploy_worker.py": "a699d551c027ecd097226eaed01d36cf8ea1cd1e5dc734521b4fccb480b5f10f",
+    "stage_inputs.py": "4c6af2f7a6e9647c7ad1a74213108e5530a97c2a53b04c4dd9a9821c61984ea3",
+    "queue_submit.py": "add1025f4218b2cbdae404798b6e01419fd3d6c9407531cc87f22e230e6482d5",
+    "inspect_result.py": "c7c5268aa47ae6d0ced190a13b3dd3ef0a3c223c0f6bc603b84c6ecae146fda4",
+    "parent_failure_fixture.py": "2f59412d29aff91fe927f1f75a5001ab8eed187cc804c8c2c0d54171c865765e",
+    "accept_review.py": "164478ac00f98aa755694962072a3bd29fd0917a59fa7eec3a453eec994d7c8a"
+  },
+  "review": {
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "response_id": "resp_07731532a88153f3016afdc8a5c2bc87d2844cbe3fe6b77bda",
+    "review_scope": "both",
+    "verdict": "PASS_WITH_RISK",
+    "must_fix": [],
+    "answer_sha256": "1a021876aa66d50f501e004558f07eabba5ad8008cbe2979599bcfb105f2efb7",
+    "packet_sha256": "9c4a3553744aef1000e2eccfa2bc43bbe5fd5f4767bf736097757554d28611ed",
+    "inference_requests": 1,
+    "automatic_retries": 0,
+    "risks": [
+      "This is a supplied-source review, not independent filesystem authentication or execution. Digest validity, deployed identities and scheduler behavior remain subject to the specified runtime checks.",
+      "Routing includes each selector's complete learned preparation and interaction parameters. A routing-associated contrast cannot isolate the quantum circuit from those coadapted parameters.",
+      "Matched parameter counts do not match function classes or compute. Off-diagonal degradation can reflect incompatibility or coadaptation rather than inferior standalone components.",
+      "Exact aggregate parity is deliberately brittle: any arithmetic or environment mismatch invalidates the attempt; it must not trigger tolerance relaxation or an automatic scientific retry.",
+      "A crash leaving a mixed owner/worker binding pair is not automatically recovered by stopped_change: its initial consistency check rejects mixed pairs. This fails closed but can require separately authorized operational reconciliation; the fixture does not test it.",
+      "Controller-stop, leader-lock, process-quiescence receipts and scheduler resource enforcement depend on existing infrastructure not included in the supplied implementation. No scheduler fault-recovery certification follows from this review."
+    ],
+    "fidelity_gaps": [
+      "Historical per-example logits are unavailable. Same-forward diagonal tensor identities establish current wiring, while exact six-way aggregate equality supplies the historical reproduction check.",
+      "The parent failure fixture replaces input checking and scientific child dispatch. It establishes parent failure/marker behavior only, as explicitly disclosed."
+    ]
+  },
+  "execution": {
+    "budget": {
+      "cpu": 1,
+      "ram_mb": 4096,
+      "disk_mb": 512,
+      "gpus": 0,
+      "timeout_seconds": 600,
+      "max_attempts": 1,
+      "replay_safe": false,
+      "optimizer_steps": 0,
+      "training": false,
+      "COS_GET_requests": 0,
+      "cloud_writes": 0
+    },
+    "source_clean": true,
+    "private_contract_staged_bytes": 4568,
+    "private_contract_files": 1,
+    "old_assets_maps_checkpoints_reused": true,
+    "task_submitted": false,
+    "scientific_execution": "NOT_RUN",
+    "model_forwards": 0,
+    "scheduler_changed": false,
+    "COS_requests": 0,
+    "cloud_writes": 0,
+    "formal_handoff": false,
+    "first_batch_canary": "PLANNED inside the one bounded replay; not executed.",
+    "parity_scope": "Six exact historical aggregate reproductions plus current same-forward tensor identities. No historical per-example logit dump exists here.",
+    "outputs": [
+      "compact-report.json",
+      "RUN_COMPLETE"
+    ],
+    "max_attempts": 1,
+    "replay_safe": false
+  },
+  "observation": {
+    "observed": 1795017176.8780217,
+    "node_reachable": true,
+    "gpu_count": 1,
+    "workload_gpus": 0,
+    "active_attempt_count": 1,
+    "queued_count": 0,
+    "qattn_crossed_tasks": 0,
+    "scope": "Read-only metadata; no other-project source, logs, processes or files inspected."
+  },
+  "accepted_scoped_L4": "UNCHANGED",
+  "R81_decision": "INCONCLUSIVE_NO_PROMOTION",
+  "L5": "NOT_ACCEPTED"
+}
