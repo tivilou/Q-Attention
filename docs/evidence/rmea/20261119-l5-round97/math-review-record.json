@@ -1,0 +1,81 @@
+{
+  "schema": "qattn.r97.exact-math-review.v1",
+  "freeze": {
+    "schema": "qattn.r97.math-freeze.v1",
+    "files": {
+      "docs/evidence/rmea/20261119-l5-round97/local-response-v001.md": "c6115cc64f71a8b4906e8a44e68ca6fcd0c82b351892476cf4cd2182e6d6ed0e",
+      "experiments/rmea_utility_measurement/head.py": "7afde7ef88b60afdf08c87f1a1d812aca33234830d24f2403220af9cc7d6c009",
+      "experiments/rmea_utility_measurement/train.py": "298ad452743324a275ec2577eacf73b8d43d45b9c0c2bca6e4e1a593e860d990"
+    },
+    "reading_sha256": "e2044a673f1af1e806beebb2aa9e5342ac7b037dfbaff831c442a3e92c0e13ab",
+    "math_only": true,
+    "numerical_execution_authorized_by_review": false
+  },
+  "freeze_sha256": "3b1acc810e58506a4a960608dc21d099c3a4c6e116bd2db7540db0e153ebd35d",
+  "response_id": "resp_07ec049f25b69a17016afe9ad48db487d29f8f8d67e62df493",
+  "reasoning_effort": "medium",
+  "review": {
+    "reviewer_model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "review_scope": "mechanism",
+    "freeze_sha256": "3b1acc810e58506a4a960608dc21d099c3a4c6e116bd2db7540db0e153ebd35d",
+    "verdict": "PASS_WITH_RISK",
+    "must_fix": [],
+    "risks": [
+      "The proposed symmetric finite-difference canary requires negative eta, but measured_attention rejects eta < 0. A future diagnostic contract must specify a separate signed-eta mathematical evaluator or another justified derivative check; it cannot call the supplied function unchanged.",
+      "The nonnegative quadratic response requires construction_utilities to equal readout utilities. With a permutation or other construction override, the derivative is generally tr[A_readout L(A_construction)]/(N_construction D), which need not be nonnegative. Explicitly exclude these controls when applying Propositions 1–3.",
+      "The imported legacy implementation and EPS definition are not supplied. Exact EPS=1e-6, native attention equivalence to the stated eta-zero baseline, and legacy normalization cannot be independently authenticated from these excerpts.",
+      "The identities assume exactly normalized states. The implementation accepts small normalization errors, so projector identities and the analytic log0 expression hold only approximately for accepted numerical inputs.",
+      "No uniform small-epsilon conclusion follows for changing representations or arbitrarily small F. Neither finite-eta task benefit nor training-induced signed alignment follows from the local identities.",
+      "The supplied source excerpt supports the logarithmic-mean integral and inverse distinction. Paper acquisition, hashes, remaining locators, and empirical results were not independently verified."
+    ],
+    "equation_checks": [
+      {
+        "item": "Definitions and equation (1)",
+        "result": "PASS",
+        "summary": "For normalized phi, P is rank one and E0 has the stated positive eigenvalues. Nonempty normalized tokens imply D>0. The logarithmic mean gives the stated ell and block decomposition; L is the covariance-side operator, not the inverse Fisher-metric operator."
+      },
+      {
+        "item": "Proposition 1 and equation (2)",
+        "result": "PASS",
+        "summary": "The Frechet derivative integral is correct. Global exponential normalization cancels exactly in the utility ratio. Quotient differentiation gives tr[A L(A)]/(ND). Hermitian block orthogonality supplies the factor 2, and positivity follows from positive block coefficients. Indeed G=0 iff A=0."
+      },
+      {
+        "item": "Proposition 2 and equation (3)",
+        "result": "PASS",
+        "summary": "Keeping the full-A normalization and original readout yields precisely the diagonal-block response. The difference is exactly 2 ell ||PAQ||_F^2/(ND). Renormalizing after pinching or altering the readout changes the comparison."
+      },
+      {
+        "item": "Proposition 3",
+        "result": "PASS",
+        "summary": "Centering gives (1+epsilon)tr(PA)+epsilon tr(QA)=0. Rank one converts the first trace into the PAP norm, making its contribution O(epsilon^2). Fixed representations and F>0 imply A=A_star+O(epsilon), D→F and N→N_star. Thus G_pinched=O(epsilon), while C>0 gives the stated positive logarithmic limit and Theta(1/log(1/epsilon)) cross response. Both vanish; this does not establish a Theta(epsilon) pinched response."
+      },
+      {
+        "item": "Excluded F=0 case",
+        "result": "PASS",
+        "summary": "The exclusion is essential. Choose two orthonormal token states in Q with utilities +1 and -1. Then F=0, f0=0, A=rho1-rho2, N=sqrt(3), and G=G_pinched=1/sqrt(3) for every epsilon>0. The responses need not vanish outside the stated hypotheses."
+      },
+      {
+        "item": "Proposition 4 and equations (4)–(5)",
+        "result": "PASS",
+        "summary": "The softmax chain rule gives CE'(0)=sum p_r G_r-G_y, and pairwise margin derivatives are G_y-G_k. Full and pinched paths share eta-zero logits, so their CE derivative difference is exactly -H_cross. Nonnegative class responses do not guarantee improved CE. Labels are diagnostic only, and no F1 conclusion follows."
+      },
+      {
+        "item": "Claim boundaries and proposed diagnostics",
+        "result": "PASS_WITH_RISK",
+        "summary": "The separation between eta-zero derivatives, deployed eta-one scores, and separately trained baselines is correct. Algebra checks and signed competition measurements are coherent after resolving the signed-eta canary issue. They test implementation and decomposition, not nearest-work novelty, independent confirmation, or training causality."
+      }
+    ],
+    "implementation_correspondence": "partial",
+    "useful_next_step": "Refine, but do not execute, a bounded diagnostic specification: resolve negative-eta evaluation, restrict quadratic-identity checks to matched construction/readout utilities, authenticate legacy EPS and baseline attention, and predeclare fixtures and tolerances. Keep each checkpoint's eta-zero diagnostic separate from its deployed readout. This review approves no execution contract.",
+    "novelty_established": false,
+    "numerical_execution_admitted": false,
+    "L5": "NOT_ACCEPTED"
+  },
+  "inference_requests": 1,
+  "automatic_retries": 0,
+  "response_artifact": "docs/evidence/rmea/20261119-l5-round97/review-response-and-next-diagnostic.md",
+  "response_artifact_independently_rereviewed": false,
+  "note": "Immutable v001 reviewed once; follow-up specification addresses risks without changing the reviewed note",
+  "L5": "NOT_ACCEPTED"
+}
