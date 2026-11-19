@@ -1,0 +1,43 @@
+{
+  "schema": "qattn.class-centered.review-record.v1",
+  "status": "STATIC_REVIEW_ACCEPTED_PENDING_MANAGED_ADMISSION",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "medium",
+  "response_id": "resp_05c17169fccd6f47016aff00aaf11087d2ab4cb980727ad7fb",
+  "inference_requests": 1,
+  "automatic_retries": 0,
+  "freeze_sha256": "c4cb4dc088a603621d22d3575cf4094db6affbc956d52109696ef5e9e0e24f6f",
+  "source_revision": "cb4ab502c8fe0255456bfe432efad8afacc594d4",
+  "contract_sha256": "555a277b41f2ffb8477553d6d5e13b6bda3944af0dd2aadb92d24e998df54719",
+  "review": {
+    "review_scope": "both",
+    "verdict": "PASS_WITH_RISK",
+    "must_fix": [],
+    "risks": [
+      "Static review only: no numerical checks or managed terminal evidence were supplied. This assessment is conditional on unchanged reviewed source; supplied hashes, publication and recovery claims were not independently verified.",
+      "Centering correctly subtracts the uniform all-40-class mean, including class 0, independently per token. Masked utilities are zeroed before centering. Joint centering feeds centered utilities into both construction and readout; construction-only centering retains the common component in readout and therefore does not guarantee invariant logits.",
+      "Native and full controls preserve the respective source computations for qualified finite inputs. The canary asserts exact logits/attention parity at one synthetic state and input, not universal numerical equivalence. The adapter adds validation, so rejection behavior is not identical to the unrestricted original interface.",
+      "Autograd lineage remains intact through centering, covariance construction, smooth scaling, matrix exponential and readout. The canary checks finite parameter gradients, centered decoder-gradient row sums, one utility directional finite difference and a detached-construction contrast. These checks do not establish nonzero gradients for every parameter or comprehensive end-to-end gradient correctness.",
+      "All variants retain 81028 stored parameters with matching state keys. Centered-native and centered-full remove the 64-dimensional common decoder-row translation from the forward map; this is a decoder restriction, not equal effective capacity or a complete model-identifiability count. Construction-only does not remove those readout directions.",
+      "Eight checks are actually implemented. Invalid-input coverage is selective; zero/common-utility and single-token tests assert finite utility gradients rather than their complete analytic values. The helpful/harmful-label witness uses abstract normalized states with source epsilon and fixed other-class biases, not original-circuit realizability, updated-path utility or real-data evidence.",
+      "The parent remains Torch-free on the supplied import path and synchronously waits for its child. Child failure, timeout, invalid JSON or failed report gates prevent normal completion publication and retain available private logs. Timeout handling kills and waits for the direct child, not an arbitrary descendant process tree; no descendant spawning appears in the reviewed canary.",
+      "Report and completion-marker writes are individually atomic but not jointly transactional. Failure after report publication can leave a report without RUN_COMPLETE. Neither file alone establishes managed success: require scheduler terminal success, an observer and matching artifact hashes. No automatic retry or replay is admitted.",
+      "The wrapper checks environment versions, source hashes, matching budgets, empty output and selected report fields, but does not independently enforce CPU/RAM/disk limits, max attempts, scheduler identity or every execution-contract field. Scheduler containment and exact external contract binding remain necessary; hash checks are not protection against concurrent source mutation.",
+      "Queue admission is explicitly NOT_REGISTERED, so execution is not currently eligible. This review conveys no command authority. No task-utility, novelty, formal sample-trace readiness, real-data training or L5 acceptance follows."
+    ],
+    "freeze_sha256": "c4cb4dc088a603621d22d3575cf4094db6affbc956d52109696ef5e9e0e24f6f",
+    "source_revision": "cb4ab502c8fe0255456bfe432efad8afacc594d4",
+    "contract_sha256": "555a277b41f2ffb8477553d6d5e13b6bda3944af0dd2aadb92d24e998df54719",
+    "source_implementation_consistent": true,
+    "canary_execution_eligible": false,
+    "real_data_training_admitted": false,
+    "formal_training_admitted": false,
+    "L5": "NOT_ACCEPTED"
+  },
+  "numerical_checks_executed": 0,
+  "managed_admission": "NOT_REGISTERED",
+  "canary_execution_eligible": false,
+  "real_data_training_admitted": false,
+  "formal_handoff": false,
+  "L5": "NOT_ACCEPTED"
+}
