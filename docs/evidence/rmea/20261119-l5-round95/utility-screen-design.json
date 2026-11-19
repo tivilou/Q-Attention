@@ -1,0 +1,91 @@
+{
+  "schema": "qattn.utility-measurement.screen-design.v1",
+  "purpose": "One fixed postfit inference utility screen, not candidate fitting or independent confirmation",
+  "mechanism": "R93 v002 / R94 qualified float64 CPU implementation",
+  "data": {
+    "original_split": "train",
+    "evaluation_examples": 972,
+    "groups": 866,
+    "selected_split": "Existing R72 evaluation partition; no new cohort, sampling or official valid/test.",
+    "prefix_receipt_sha256": "27cb566401bc60de8c8fae0611c78a97370b3b2f452838e9d84df90eebf4ad83",
+    "plan_sha256": "00f0c5eedb24ecb2ee146914cba4e72ff320881ad206a05e17a21a9d72159dc5",
+    "cohort_sha256": "dbca6227d405b932bf1c463935383e87f6dd870d0ec0280139a8b460f89b1999",
+    "donors_sha256": "12abb735b1eb6358ecd306d01bb154739baa8afb2689928c23b85944eeb28538"
+  },
+  "checkpoint": {
+    "filename": "native_quantum-final.pt",
+    "sha256": "dd58e950cda8e965476e71334569da6124c97e3a7c59fc96afbb2d51fc68ada3",
+    "parameters": 81028,
+    "final_epoch": 4
+  },
+  "environment": {
+    "numpy": "1.24.3",
+    "torch": "2.4.1+cpu"
+  },
+  "source_files": {
+    "experiments/rmea_utility_measurement/screen.py": "e6b024887aaca749a22dfa9230979a35a775971726704b4ade2d7113bccd588d",
+    "experiments/rmea_utility_measurement/screen_job.py": "8365f5f1c40279a751d17304d020666d99a8dad6d718edb96075da38265cb863",
+    "experiments/rmea_utility_measurement/head.py": "7afde7ef88b60afdf08c87f1a1d812aca33234830d24f2403220af9cc7d6c009",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+    "experiments/rmea_ecqp_screen/runner.py": "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+    "experiments/rmea_ecqp_screen/metrics.py": "9d039c538453dadc648e2fcdd9f7ade79acd24cb5997a07a8d6f1d69da4e7716",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e"
+  },
+  "seed": 20261119,
+  "batch_size": 4,
+  "conditions": [
+    "native",
+    "full",
+    "simplex",
+    "pinched",
+    "permuted"
+  ],
+  "update": {
+    "eta": 1,
+    "scale": "sqrt(1+||A||F^2)",
+    "tuning": false
+  },
+  "controls": {
+    "native": "Same frozen native head cast from FP32 checkpoint to FP64, direct epsilon Born attention and original signed readout",
+    "full": "R94 measured_attention full eta1",
+    "simplex": "beta proportional alpha0*exp((u-f0)/M), M=max valid absolute centered utility, M=1 if zero; padding excluded before exp. Same utility access, not compute matched",
+    "pinched": "R94 query-block pinching with full A normalization; changes magnitude and offblock",
+    "permuted": "Exact R93 input-ID utility permutation, construction path only; recipient original utilities retained in final readout"
+  },
+  "tolerances": {
+    "zero_update_absolute": 2e-10,
+    "own_gain_absolute": 2e-10
+  },
+  "primary": "Positive39 Macro-F1 full-minus-native, all39 included and absent classes zero. CE secondary.",
+  "decision": "DISCOVERY_POINT_POSITIVE_NOT_CONFIRMATORY iff full Macro delta>0 and CE delta<=0; otherwise NO_POSITIVE_FIXED_CHECKPOINT_SCREEN. Always retain all five outcomes and signed deltas. No formal promotion or new evidence tier from this screen.",
+  "scientific_stop": "Nonfinite, input identity failure, zero-update tolerance failure or own-gain bound failure stops same attempt. No clipping, tolerance adjustment, automatic retry or coefficient search.",
+  "limitations": [
+    "Repeated discovery cohort; no independent confirmation or population inference",
+    "Native final4 checkpoint only; postfit update mismatch does not test jointly trained candidate",
+    "FP64 batch4 baseline is deliberately prospective for all conditions; no claim of historical FP32 bitwise equivalence, old strict gates unchanged",
+    "Missing evaluation classes17/23/24/32/36/37; original full-data utility not remeasured",
+    "No unique quantum attribution from pinching/permutation, no cost-parity or novelty proof"
+  ],
+  "budget": {
+    "cpu": 1,
+    "ram_mb": 4096,
+    "disk_mb": 32,
+    "gpus": 0,
+    "timeout_seconds": 600,
+    "optimizer_steps": 0,
+    "new_checkpoints": 0,
+    "COS_requests": 0,
+    "cloud_writes": 0
+  },
+  "outputs": [
+    "compact-report.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": "Only child command/stdout/stderr; no per-example predictions, arrays, dataset or new weights retained",
+  "max_attempts": 1,
+  "replay_safe": false,
+  "formal_handoff": false,
+  "L5": "NOT_ACCEPTED"
+}
