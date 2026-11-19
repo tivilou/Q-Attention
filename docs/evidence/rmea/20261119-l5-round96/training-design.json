@@ -1,0 +1,94 @@
+{
+  "schema": "qattn.utility-training.design.v1",
+  "purpose": "Matched train-only diagnostic of joint optimization of R93/R94, not re-execution of failed R95 postfit inference",
+  "data": {
+    "original_split": "train",
+    "evaluation_examples": 972,
+    "groups": 866,
+    "selected_split": "Existing R72 evaluation partition; no new cohort, sampling or official valid/test.",
+    "prefix_receipt_sha256": "27cb566401bc60de8c8fae0611c78a97370b3b2f452838e9d84df90eebf4ad83",
+    "plan_sha256": "00f0c5eedb24ecb2ee146914cba4e72ff320881ad206a05e17a21a9d72159dc5",
+    "cohort_sha256": "dbca6227d405b932bf1c463935383e87f6dd870d0ec0280139a8b460f89b1999",
+    "donors_sha256": "12abb735b1eb6358ecd306d01bb154739baa8afb2689928c23b85944eeb28538",
+    "fit_examples": 3124,
+    "fit_groups": 2714
+  },
+  "environment": {
+    "numpy": "1.24.3",
+    "torch": "2.4.1+cpu"
+  },
+  "source_files": {
+    "experiments/rmea_utility_measurement/train.py": "298ad452743324a275ec2577eacf73b8d43d45b9c0c2bca6e4e1a593e860d990",
+    "experiments/rmea_utility_measurement/train_job.py": "25d9376439fa2df98dc67e061710e9755b83bd93c1ebe3d42e151c5e06acb9c4",
+    "experiments/rmea_utility_measurement/head.py": "7afde7ef88b60afdf08c87f1a1d812aca33234830d24f2403220af9cc7d6c009",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+    "experiments/rmea_ecqp_screen/runner.py": "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+    "experiments/rmea_ecqp_screen/metrics.py": "9d039c538453dadc648e2fcdd9f7ade79acd24cb5997a07a8d6f1d69da4e7716",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e"
+  },
+  "training": {
+    "seed": 20261118,
+    "epochs": 4,
+    "batch_size": 32,
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "clip_norm": 1.0,
+    "threads": 1,
+    "device": "cpu",
+    "precision": "float64/complex128",
+    "independent_initializations": 1
+  },
+  "conditions": [
+    "native",
+    "full",
+    "simplex"
+  ],
+  "initialization": "torch.manual_seed(20261118), RMEAHead quantum initialized as FP32 then cast FP64. Exact same state_dict copied to all three heads; no warm start from final4. Same four predetermined fit permutations, fingerprinted. Same original head tensors/81028params.",
+  "controls": "Native Born, full R94 eta1/smooth-scale measurement, and R93 bounded centered utility simplex tilt. Same states/value/decoder parameterization, training precision/data/optimizer/budget. No new learned tensors, no compute-parity claim.",
+  "task_objective": "Original40class cross-entropy, fit labels only. No labels enter attention at inference. End-to-end differentiate utilities/initial-effect/operator/scale/matrix exponential. Simplex max control uses Torch subgradients at ties, no smoothness claim.",
+  "validation": "Actual first fit minibatch finite loss/gradients with zero optimizer steps and immutable initial state, then 392 training steps per condition. All parameters finite after every step. Only final4 evaluation, no checkpoint/epoch selection. Save final states, exact first evaluation batch replay after weights_only reload.",
+  "primary": "Full-minus-native positive39 Macro-F1 delta; any strict positive point recorded as discovery Macro-positive. CE and full-vs-simplex recorded separately, never erase a positive primary due to a control or CE.",
+  "decision": "DISCOVERY_MACRO_POINT_POSITIVE iff full Macro delta>0, else NO_POSITIVE_JOINT_TRAINING_SCREEN. Separate joint_macro_ce_positive iff Macro delta>0 and CE delta<=0. No formal/tier/L5 promotion from reused development cohort.",
+  "stop": "Nonfinite/hash/gradient/reload violation stops one attempt. Macro<=0 stops joint-training promotion for this fixed protocol. No extra seed/epoch/coefficient, optional rerun or tolerance repair.",
+  "limitations": [
+    "Repeated discovery cohort; no independent confirmation or population inference",
+    "Missing fitclass23 and evalclasses17/23/24/32/36/37; data is original training-only, repeatedly used for discovery",
+    "New matched FP64 training controls are required to test the new computational graph, not reruns to repair historical baselines; old source/metrics remain unchanged",
+    "Generic Gibbs own-score theorem is not a task-risk theorem or substantive new contribution; nearest-work novelty unresolved",
+    "Numerical/source qualification only; full sample-trace.v2/formal architecture/hardware claims pending"
+  ],
+  "budget": {
+    "cpu": 1,
+    "ram_mb": 8192,
+    "disk_mb": 32,
+    "gpus": 0,
+    "timeout_seconds": 1800,
+    "optimizer_steps": 1176,
+    "new_checkpoints": 3,
+    "private_checkpoint_bytes_max": 4194304,
+    "COS_requests": 0,
+    "cloud_writes": 0
+  },
+  "outputs": [
+    "compact-report.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": "child-command/stdout/stderr plus checkpoints/{native,full,simplex}-final.pt and exact hash marker; no per-example arrays or raw dataset copies",
+  "recovery": "Bounded CPU diagnostic restarts only from pinned source and existing authenticated inputs with separate authorization. No automatic retry or checkpoint resume; no COS protection claim. GPU acceptance not used.",
+  "retention": "3 final model states <=4MiB for exact reload audit and potential post-training follow-up. No mandatory COS copy for a stopped exploration; preserve local bytes until evidence/dependency closeout and separately authorized cleanup.",
+  "max_attempts": 1,
+  "replay_safe": false,
+  "task_training": true,
+  "full_formal_run": false,
+  "independent_confirmation": false,
+  "formal_handoff": false,
+  "L5": "NOT_ACCEPTED"
+}

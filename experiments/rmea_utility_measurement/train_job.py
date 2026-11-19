@@ -1,0 +1,71 @@
+"""Frozen bounded training child; parent has no Torch allocations."""
+import argparse
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT))
+from experiments.rmea_original_scores.common import guard,read,save,sha
+DESIGN=ROOT/'docs/evidence/rmea/20261119-l5-round96/training-design.json'
+PATH_ARGUMENTS=['assets','receipt','cohort','donors','execution_contract','output']
+
+
+def arguments():
+    p=argparse.ArgumentParser()
+    for n in PATH_ARGUMENTS:p.add_argument('--'+n.replace('_','-'),type=Path,required=True)
+    p.add_argument('--child',action='store_true',help=argparse.SUPPRESS)
+    return p.parse_args()
+
+
+def checked(a):
+    guard();d,c=read(DESIGN),read(a.execution_contract)
+    assert d['schema']=='qattn.utility-training.design.v1' and c['schema']=='qattn.utility-training.execution.v1'
+    assert c['job_sha256']==sha(Path(__file__)) and c['design_sha256']==sha(DESIGN) and c['budget']==d['budget']
+    assert c['review_scope']=='both' and c['training'] is True and c['full_formal_run'] is False
+    assert os.environ.get('CUDA_VISIBLE_DEVICES')==''
+    assert {n:importlib.metadata.version(n) for n in d['environment']}==d['environment']
+    for n,h in d['source_files'].items():assert sha(ROOT/n)==h
+    for n in PATH_ARGUMENTS:
+        p=getattr(a,n).absolute();assert all(not q.is_symlink() for q in [p,*p.parents])
+    assert a.output.is_dir() and not list(a.output.iterdir())
+    return d,c
+
+
+def main():
+    a=arguments();d,c=checked(a)
+    if a.child:
+        from experiments.rmea_utility_measurement.train import run
+        r=run(a,d);r.update(job_sha256=sha(Path(__file__)),design_sha256=sha(DESIGN),environment=d['environment'])
+        print(json.dumps(r,allow_nan=False),flush=True);return
+    assert 'torch' not in sys.modules
+    work=a.output.parent/'scientific-work';assert not work.exists();work.mkdir()
+    command=[sys.executable,'-B',str(Path(__file__).resolve())]
+    for n in PATH_ARGUMENTS:command+=['--'+n.replace('_','-'),str(getattr(a,n).absolute())]
+    command+=['--child'];save(work/'child-command.json',dict(argv=command))
+    stdout,stderr=work/'child-stdout.json',work/'child-stderr.log'
+    with stdout.open('xb') as out,stderr.open('xb') as err:
+        done=subprocess.run(command,cwd=ROOT,stdout=out,stderr=err,timeout=c['budget']['timeout_seconds']-60,
+            env=dict(os.environ,OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1'))
+    assert done.returncode==0,'Training diagnostic failed; private partials retained, no public marker'
+    r=read(stdout);assert r['status']=='TRAIN_ONLY_UTILITY_JOINT_OPTIMIZATION_COMPLETE'
+    assert r['job_sha256']==sha(Path(__file__)) and r['design_sha256']==sha(DESIGN)
+    assert r['conditions']==d['conditions'] and r['training']==d['training'] and r['optimizer_steps']==1176
+    assert set(r['private_checkpoints'])=={n+'-final.pt' for n in d['conditions']} and r['new_checkpoints']==3
+    assert r['task_training'] and r['full_formal_run'] is False and r['formal_handoff'] is False and r['L5']=='NOT_ACCEPTED'
+    cp=work/'checkpoints';marker=read(cp/'RUN_COMPLETE');assert sha(cp/'RUN_COMPLETE')==r['private_checkpoint_marker_sha256']
+    assert set(p.name for p in cp.iterdir())==set(r['private_checkpoints'])|{'RUN_COMPLETE'}
+    for n,v in r['private_checkpoints'].items():
+        assert Path(n).name==n and not (cp/n).is_symlink() and sha(cp/n)==v['sha256'] and (cp/n).stat().st_size==v['bytes']
+    assert marker==dict(schema='qattn.utility-training.checkpoints.v1',files={n:v['sha256'] for n,v in r['private_checkpoints'].items()},training=True)
+    r['parent_child']=dict(command_sha256=sha(work/'child-command.json'),returncode=0,synchronous=True,
+        stdout_sha256=sha(stdout),stderr_sha256=sha(stderr),parent_imported_torch=False)
+    assert not list(a.output.iterdir());save(a.output/'compact-report.json',r)
+    save(a.output/'RUN_COMPLETE',dict(schema='qattn.utility-training.public.v1',files={'compact-report.json':sha(a.output/'compact-report.json')},training=True))
+    print(json.dumps(dict(status=r['status'],decision=r['decision'],L5='NOT_ACCEPTED')))
+
+
+if __name__=='__main__':main()
