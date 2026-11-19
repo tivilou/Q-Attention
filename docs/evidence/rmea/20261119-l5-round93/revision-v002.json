@@ -1,0 +1,21 @@
+{
+  "schema": "qattn.preexecution-mechanism-revision.v1",
+  "initial_draft_sha256": "6f3499730956f697cbd1a7847b6e1ca7f2820573b21c5f1dcdb3fb5c518b8708",
+  "initial_review_response_id": "resp_0874363e773464a7016afe7135a88887d1b6781d57273c0a8f",
+  "initial_review_sha256": "912f754c2b9524afd98f88ab7c505562df6d319ecdefd7b6f5c4fd3805f0cf2e",
+  "initial_review_must_fix": [
+    "Specify the differentiation contract before training. A/||A||op is generally discontinuous at A=0, and the operator norm is not differentiable at every nonzero A. Returning E0 at exactly zero defines a forward branch, not a generally valid derivative. A finite-gradient canary cannot establish global differentiability; any smoothing or threshold changes the stated mechanism and must be declared.",
+    "Define the wrong-utility intervention precisely: donor utilities should change only the effect-construction path, while recipient utilities remain in the final readout. Prespecify token alignment, masks and donor selection. Swapping both paths would not isolate utility-to-measurement alignment."
+  ],
+  "active_draft": "docs/evidence/rmea/20261119-l5-round93/utility-coupled-measurement-v002.md",
+  "active_draft_sha256": "c3ae1a6dca1342004f74d5dd83ca2ccfbcd12a39a453d9e1502a9504ebbf8a38",
+  "changes": [
+    "smooth N=sqrt(1+tr A^2), no zero branch; remove scale invariance",
+    "explicit input-only within-sample permutation, construction path only, recipient readout unchanged",
+    "analytic log E0 and differentiable matrix exponential; no eigenvector gradients"
+  ],
+  "experiments_before_revision": 0,
+  "coefficient_search": false,
+  "review_status": "PENDING_FRESH_EXACT_REVIEW",
+  "L5": "NOT_ACCEPTED"
+}

@@ -1,0 +1,155 @@
+{
+  "schema": "qattn.mechanism-draft-independent-review.v1",
+  "status": "V002_DESIGN_REVIEWED_IMPLEMENTATION_NOT_STARTED",
+  "reviews": [
+    {
+      "version": 1,
+      "response_id": "resp_0874363e773464a7016afe7135a88887d1b6781d57273c0a8f",
+      "freeze_sha256": "e62f7a64876cba4ef34bbac86031119684a2d08d57e76f668e2bb61b0f5734a6",
+      "request_sha256": "530be632ec78e120504b35683a8e76eecc183c892d7795d022a5354dcd44a81a",
+      "answer_sha256": "18aaf954372d695f934d588f795a890182a35d3999ada8dc47d84bd6910c4d91",
+      "review": {
+        "reviewer_model": "gpt-6.1-sol",
+        "reasoning_effort": "medium",
+        "review_scope": "mechanism",
+        "freeze_sha256": "e62f7a64876cba4ef34bbac86031119684a2d08d57e76f668e2bb61b0f5734a6",
+        "verdict": "PASS_WITH_RISK",
+        "must_fix": [
+          "Specify the differentiation contract before training. A/||A||op is generally discontinuous at A=0, and the operator norm is not differentiable at every nonzero A. Returning E0 at exactly zero defines a forward branch, not a generally valid derivative. A finite-gradient canary cannot establish global differentiability; any smoothing or threshold changes the stated mechanism and must be declared.",
+          "Define the wrong-utility intervention precisely: donor utilities should change only the effect-construction path, while recipient utilities remain in the final readout. Prespecify token alignment, masks and donor selection. Swapping both paths would not isolate utility-to-measurement alignment."
+        ],
+        "risks": [
+          "Near A=0, roundoff residuals can be normalized into an order-one B. Attention can therefore change substantially even when utility variation is negligible. Test exact-zero and near-zero cases separately; do not silently repair them with an undeclared tolerance.",
+          "E0 has a sevenfold repeated eigenvalue. Naive differentiation through an eigendecomposition-based matrix logarithm can produce unstable gradients despite a well-defined matrix function. Its logarithm is available analytically from P and I-P.",
+          "The simplex control matches utility access but not update magnitude or computational cost. Full-versus-pinched differences also combine cross-block structure with the reduction in perturbation size caused by pinching; they do not alone establish a uniquely coherence-driven task benefit.",
+          "Own-logit amplification can worsen class margins and calibration. The draft correctly establishes this limitation rather than supplying a task-utility guarantee.",
+          "The supplied historical and literature summaries are evidence provided for review, not independently verified empirical results or an exhaustive novelty search."
+        ],
+        "mathematical_checks": [
+          {
+            "check": "Epsilon correspondence",
+            "result": "PASS",
+            "summary": "For normalized token states, tr(E0 rho_t)=(|<phi|psi_t>|^2+epsilon)/(1+d epsilon). The common factor cancels over valid tokens, exactly reproducing source attention in real arithmetic. E0 is positive definite, trace one and bounded by I. Source float arithmetic and bitwise equality remain separate implementation questions."
+          },
+          {
+            "check": "Hermitian Gibbs update and bound",
+            "result": "PASS",
+            "summary": "Real signed utilities make U, A and B Hermitian. For N>0, the normalized exponential uniquely maximizes eta tr(E B)-D(E||E0) over density matrices. Since tr(E0 A)=0, the stated relative-entropy lower bound follows. Singular S is harmless: positive-definite E1 gives tr(E1 S)>0 for a nonempty valid sequence."
+          },
+          {
+            "check": "Strictness and zero branch",
+            "result": "PASS_WITH_QUALIFICATION",
+            "summary": "For A!=0 and eta>0, E1 cannot equal E0: equality would require B to be scalar, and its zero E0-expectation would then force B=0. Consequently D(E1||E0)>0 and f1>f0. For A=0, returning E0 is valid. These forward statements do not establish differentiability at that branch."
+          },
+          {
+            "check": "Invariances",
+            "result": "PASS",
+            "summary": "Classwise utility shifts cancel from A and shift the aggregate by the same constant. Positive utility scaling multiplies A and N equally, preserving B and attention. Simultaneous unitary conjugation preserves all traces and conjugates the update. Token global phases leave rho unchanged. Negative scaling is not covered."
+          },
+          {
+            "check": "Forty-class harmful CE witness",
+            "result": "PASS",
+            "summary": "On the two-state span, A is proportional to X and normalization removes the positive utility amplitude, giving identical updates for the true and wrong classes. Their updated aggregates are 0.1 kappa and kappa with kappa>0. The stated CE expression and strict-worsening inequality are correct. The other 38 zero-utility classes retain logits -10."
+          },
+          {
+            "check": "Source realizability",
+            "result": "PASS_WITH_IMPLEMENTATION_CHECK",
+            "summary": "The supplied circuit supports the witness directly: first-layer first-wire RY angles +/-pi/2, all other angles zero, followed by the two shared CNOT rings, produce the required orthogonal pair. Zero query angles retain |000>. The preparation angles are strictly inside the pi*tanh range and admit finite preactivations. This does not establish realization by a natural frozen input or a trained checkpoint."
+          },
+          {
+            "check": "Changed causal link",
+            "result": "PASS",
+            "summary": "The new forward dependency is utilities -> A -> E1 -> attention, absent from the supplied original inference rule. This is more than renaming a partial swap, coherent token aggregation or whitening operation. It remains exactly classically simulable and provides no quantum-advantage conclusion."
+          }
+        ],
+        "nearest_work_status": "UNRESOLVED",
+        "recommended_next_action": "Proceed only to the bounded CPU canary. Use complex128 and an independent implementation of log(E0)=log((1+epsilon)/(1+d epsilon))P+log(epsilon/(1+d epsilon))(I-P). Check eta=0 correspondence to the supplied source, masks, positivity, normalization, the Gibbs bound, invariances, and both witnesses using actual circuit outputs. Include one-token, constant-utility, identical-state, singular-S, near-zero-A and repeated-norm-eigenvalue cases. Check derivatives against finite differences at smooth points and report nonsmooth cases separately. The first structural discriminator is full versus query-block-pinched updating on the circuit-realized witness: full must change attention and pinching must not; simplex tilt should also change it. No task benefit follows. The strongest unresolved collisions are normalized matrix exponentiated-gradient/quantum-relative-entropy proximal updates, entropy-regularized fractional readout improvement, and utility-aware attention reweighting. Any later admitted task screen should include the original, simplex, pinched and precisely specified wrong-utility controls under a frozen protocol.",
+        "bounded_canary_design_justified": true,
+        "formal_execution_admitted": false,
+        "L5": "NOT_ACCEPTED"
+      }
+    },
+    {
+      "version": 2,
+      "response_id": "resp_0ec6c9272792dbce016afe72472a6487d1bb5ae8c75337b4aa",
+      "freeze_sha256": "21f211163b1da657d01bc38b3ce714f396cae3d97d2d88f66effefcdc0a8b8eb",
+      "request_sha256": "9b86dbc0648df46e206fec69dd258e5f17c8c9c181ac9acacbf587f0174bbdb5",
+      "answer_sha256": "b1cfb225b853cf09d147e40087a4895472cbb64ed83fdb85cffa23d1ddb5249f",
+      "review": {
+        "reviewer_model": "gpt-6.1-sol",
+        "reasoning_effort": "medium",
+        "review_scope": "mechanism",
+        "freeze_sha256": "21f211163b1da657d01bc38b3ce714f396cae3d97d2d88f66effefcdc0a8b8eb",
+        "verdict": "PASS_WITH_RISK",
+        "must_fix": [],
+        "risks": [
+          "Exact-arithmetic smoothness does not establish floating-point robustness. Squaring extreme utilities, forming traces and differentiating the matrix exponential require explicit finite-input diagnostics; no undeclared clipping or tolerance repair is justified.",
+          "The wrong-utility permutation breaks alignment only partially: it can retain fixed points, repeated utilities or identical states, and n=1 is unchanged. An unchanged outcome need not show that utility alignment is irrelevant.",
+          "Full-versus-pinched comparisons change both off-block geometry and perturbation magnitude. The simplex control also differs in scale and compute. Neither comparison alone identifies a uniquely quantum task benefit.",
+          "Own-class logit amplification can worsen CE, margins and calibration. The revised counterexample establishes this limitation, not merely a hypothetical concern.",
+          "Matrix exponentials are required per sample and class, not merely forty evaluations for an entire batch. Actual implementation cost and numerical gradients remain untested.",
+          "Literature and historical summaries are supplied evidence, not independently verified results or an exhaustive novelty search. Nearest-work collision remains unresolved."
+        ],
+        "mathematical_checks": [
+          {
+            "check": "Smooth normalization and exact-zero differentiation",
+            "result": "PASS",
+            "summary": "For Hermitian A, tr(A^2) is the squared Frobenius norm. N=sqrt(1+tr(A^2)) is everywhere positive and smooth on the real space of Hermitian matrices. A/N has derivative equal to the identity at A=0, with no zero branch or norm-eigenvalue singularity. This resolves the first v1 must-fix at the mathematical specification level."
+          },
+          {
+            "check": "Analytic log-E0 and source correspondence",
+            "result": "PASS",
+            "summary": "The stated logarithm follows from the two eigenspaces P and I-P and avoids differentiating repeated eigenvectors. For normalized states, tr(E0 rho_t)=(|<phi|psi_t>|^2+epsilon)/(1+d epsilon); normalization over valid tokens reproduces the supplied original attention and logits at eta=0 in exact arithmetic. Bitwise equivalence remains untested."
+          },
+          {
+            "check": "Differentiation contract",
+            "result": "PASS",
+            "summary": "With finite normalized states and nonempty masks, the analytic log-E0, smooth normalization, matrix exponential and positive readout denominators define smooth maps. Keeping all construction quantities in the graph and differentiating matrix functions rather than eigenvectors addresses the stated degeneracy concern. Implementation correctness still requires the canary."
+          },
+          {
+            "check": "Gibbs guarantee and strictness",
+            "result": "PASS",
+            "summary": "The normalization change leaves tr(E0 B)=0 intact. Gibbs optimality therefore gives the stated relative-entropy lower bound and f1>=f0. For A!=0, equality E1=E0 would force B to be scalar, then zero by its E0 expectation, a contradiction. Thus strict improvement holds for eta>0 and A!=0. Singular S is harmless for nonempty sequences."
+          },
+          {
+            "check": "Revised invariances",
+            "result": "PASS",
+            "summary": "Utility shifts leave A and attention unchanged; simultaneous unitary conjugation and token global phases preserve probabilities. Positive rescaling now gives B(s)=sA/sqrt(1+s^2 tr(A^2)), so attention is generally not invariant. The draft explicitly and correctly drops the old scaling claim."
+          },
+          {
+            "check": "Revised harmful CE witness",
+            "result": "PASS",
+            "summary": "For utilities (+c,-c), A=cX and N=sqrt(1+2c^2), yielding the stated beta_c and two-dimensional attention contrast. The derivative of k is correct and positive, so 0<k_t<k_w. The CE expression includes all forty classes, and its lower bound on the increasing term exceeds the upper bound on the decreasing term. CE therefore strictly worsens."
+          },
+          {
+            "check": "Finite circuit correspondence and pinching witness",
+            "result": "PASS_WITH_IMPLEMENTATION_CHECK",
+            "summary": "First-layer first-wire RY angles +/-pi/2 with all other rotations zero, followed by the two source CNOT rings, produce the orthogonal pair (|000>+/-|a>)/sqrt(2); zero query angles preserve |000>. These angles have finite pi*tanh preimages. Pinching removes the witness's X block and yields no update, whereas the full and simplex rules change attention. Actual source execution remains unverified, and no natural-input realization follows."
+          },
+          {
+            "check": "Effect-path-only permutation",
+            "result": "PASS",
+            "summary": "The draft specifies an input-ID-only permutation over valid tokens, shared across classes, with an explicit nonidentity fallback and n=1 behavior. Permuted utilities enter U', f0', A', N' and E' only; original recipient utilities remain in the final readout. This resolves the second v1 must-fix without claiming donor-sample or semantic-necessity identification."
+          },
+          {
+            "check": "Review continuity and novelty boundary",
+            "result": "PASS",
+            "summary": "This review assesses the revised mechanism only. It does not replace or retroactively clear v1. The explicit utility-to-effect inference path differs from the supplied original forward rule, but the Gibbs principle is established mathematics and exact classical simulation remains available. No novelty or quantum advantage is granted."
+          }
+        ],
+        "nearest_work_status": "UNRESOLVED",
+        "recommended_next_action": "Proceed only to designing and freezing the bounded CPU canary; no new concrete mechanism must-fix blocks that design. Use complex128, an independent reference and actual source-generated witness states. Prespecify numerical tolerances and finite-difference steps. Check eta=0 source agreement, masks, positivity, normalization, the Gibbs bound, covariance, utility shifts and smooth rescaling. Include exact-zero and near-zero A, repeated eigenvalues, constant utilities, identical states, one token and singular S, with derivatives through utilities and state/query parameters. Verify both witness behavior and harmful CE, and test that permutation affects only construction utilities while padding and final readout utilities remain unchanged. Preserve all failures and unchanged cases. Canary execution requires its own bounded protocol; formal training and real-data execution are not admitted by this review.",
+        "bounded_canary_design_justified": true,
+        "formal_execution_admitted": false,
+        "L5": "NOT_ACCEPTED"
+      }
+    }
+  ],
+  "initial_findings_retained": true,
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "medium",
+  "independent_creative_pass": false,
+  "source_originals_independently_retrieved_by_consultant": false,
+  "implementation_execution_admitted": false,
+  "L5": "NOT_ACCEPTED"
+}
