@@ -1,0 +1,134 @@
+{
+  "schema": "qattn.utility-response.design.v1",
+  "purpose": "Check reviewed R97 local response against actual source and describe frozen R96 models; not independent utility confirmation or R95 rescue",
+  "data": {
+    "original_split": "train",
+    "evaluation_examples": 972,
+    "groups": 866,
+    "selected_split": "Existing R72 evaluation partition; no new cohort, sampling or official valid/test.",
+    "prefix_receipt_sha256": "27cb566401bc60de8c8fae0611c78a97370b3b2f452838e9d84df90eebf4ad83",
+    "plan_sha256": "00f0c5eedb24ecb2ee146914cba4e72ff320881ad206a05e17a21a9d72159dc5",
+    "cohort_sha256": "dbca6227d405b932bf1c463935383e87f6dd870d0ec0280139a8b460f89b1999",
+    "donors_sha256": "12abb735b1eb6358ecd306d01bb154739baa8afb2689928c23b85944eeb28538",
+    "fit_examples": 3124,
+    "fit_groups": 2714
+  },
+  "environment": {
+    "numpy": "1.24.3",
+    "torch": "2.4.1+cpu"
+  },
+  "source_files": {
+    "experiments/rmea_utility_measurement/response.py": "9a92db87abc898065ae9c2aa298f134b002e53d47a38edd93ea8e4519ed29c1a",
+    "experiments/rmea_utility_measurement/response_job.py": "b2d8de2ea29facdda917aca38804eec415ad194a27ae30c78a67e07d39f14709",
+    "experiments/rmea_utility_measurement/train.py": "298ad452743324a275ec2577eacf73b8d43d45b9c0c2bca6e4e1a593e860d990",
+    "experiments/rmea_utility_measurement/head.py": "7afde7ef88b60afdf08c87f1a1d812aca33234830d24f2403220af9cc7d6c009",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+    "experiments/rmea_ecqp_screen/runner.py": "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+    "experiments/rmea_ecqp_screen/metrics.py": "9d039c538453dadc648e2fcdd9f7ade79acd24cb5997a07a8d6f1d69da4e7716",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e"
+  },
+  "checkpoints": {
+    "native-final.pt": {
+      "sha256": "5b692c45b7df951a33941bca236760e040ba373ef335c0d939ba84098cf1261b",
+      "bytes": 651131
+    },
+    "full-final.pt": {
+      "sha256": "6faa81847e511ffd7f8d019b490a6a7421ffe83b540bc9f278910354d7b98f92",
+      "bytes": 651109
+    },
+    "simplex-final.pt": {
+      "sha256": "b3d19d78576ee645f6638da419635388c93f27313d024812d6b5c80fe70f706b",
+      "bytes": 651142
+    }
+  },
+  "checkpoint_marker_sha256": "08fa570eb8529f9bb5d069d5e123ce66337709e2f4b5c136075d3dcf0c1db811",
+  "checkpoint_consumer": "Post-training analysis only, existing local exact files; trusted pinned COS archive separately accepted, no cloud restore/read needed now",
+  "reported_result_path": "docs/evidence/rmea/20261119-l5-round96/training-result.json",
+  "reported_result_sha256": "c20b2545181f462b5a938dc467a47d04a1fef33f9472484b11f6b9b6a63b2ed0",
+  "reported_metrics": {
+    "native": {
+      "macro_f1": 0.05455256958362548,
+      "ce": 1.2461191377098144,
+      "accuracy": 0.6697530864197531
+    },
+    "full": {
+      "macro_f1": 0.05901847394515695,
+      "ce": 1.2158407871335042,
+      "accuracy": 0.6666666666666666
+    },
+    "simplex": {
+      "macro_f1": 0.059127704734673936,
+      "ce": 1.2488279850904023,
+      "accuracy": 0.6604938271604939
+    }
+  },
+  "conditions": [
+    "native",
+    "full",
+    "simplex"
+  ],
+  "seed": 20261118,
+  "batch_size": 4,
+  "derivative_step": 0.0001,
+  "sign_cutoff": 1e-10,
+  "tolerances": {
+    "identity": {
+      "absolute": 2e-10,
+      "relative": 0.0
+    },
+    "autograd": {
+      "absolute": 2e-08,
+      "relative": 2e-08
+    },
+    "finite_difference": {
+      "absolute": 2e-06,
+      "relative": 2e-05
+    },
+    "geometry_absolute": 2e-10,
+    "reported_ce_absolute": 3e-10
+  },
+  "theory": "R97 propositions1-4, eta0 local response. Matched construction/readout utilities only; same full norm for pinched control. No epsilon or eta1 theorem claim.",
+  "numerical_checks": "Scalar nonnegative eta AD sums of own aggregates and CE, per-entry three-point positive one-sided finite differences h=1e-4; full/pinched/cross signed CE identity; geometry/unit norms and actual legacy eta0 logits. First fixtures precede any real-data model analysis.",
+  "fixtures": [
+    "Source-circuit R94 witness with fixed harmful and helpful labels, same normalized construction",
+    "F=0 orthogonal-token counterexample at fixed source epsilon; response1/sqrt(3), zero cross",
+    "Constant-utility zero response"
+  ],
+  "sample_selection": "All972 existing R72 train-evaluation IDs in saved order, fixed before this execution; no outcome/case selection or new official valid/test. All4096 prefix authenticated by existing reader; no fitting.",
+  "output_meaning": "Per model eta0 response summaries and eta0/deployed metrics. Deployed actual native/full/simplex source forward replays R96 metrics. Separate model weights and eta0 analysis from deployed eta1/full or simplex tilt. Class-response activity or positive H is not causal proof.",
+  "decision": "Only ALGEBRA_AND_REPLAY_CHECKS_PASS_DESCRIPTIVE_ONLY if frozen checks pass. H sign/metric comparisons are descriptive regardless of favorable outcome. No new utility tier, novelty, formal handoff or L5.",
+  "stop": "Any source/input/hash/nonfinite/derivative/geometry/replay mismatch stops one attempt. Preserve exact failure; no tolerance, h, sample, seed, epsilon or epoch rescue.",
+  "limitations": [
+    "One initialization and repeatedly explored training development cohort, missing fit/evaluation classes",
+    "Scalar AD checks aggregate sums; per-entry finite differences separately constrain cancellation",
+    "Theory assumes exactly normalized states; record floating norm/projector/log residuals, no silent repair",
+    "Eta0 local identities do not imply finite-eta benefit, Macro-F1 derivative or training causality",
+    "Established geometry specialization, nearest-work novelty unresolved; old scopedL4 unchanged"
+  ],
+  "budget": {
+    "cpu": 1,
+    "ram_mb": 8192,
+    "disk_mb": 32,
+    "gpus": 0,
+    "timeout_seconds": 900,
+    "optimizer_steps": 0,
+    "new_checkpoints": 0,
+    "COS_requests": 0,
+    "cloud_writes": 0
+  },
+  "outputs": [
+    "compact-report.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": "child-command.json, child-stdout.json, child-stderr.log only; no checkpoint/cache/array copies or per-example outputs",
+  "recovery": "One attempt/no replay. Stop on mismatch. Existing models durable elsewhere; archive delivery never reruns science.",
+  "max_attempts": 1,
+  "replay_safe": false,
+  "task_training": false,
+  "full_formal_run": false,
+  "independent_confirmation": false,
+  "formal_handoff": false,
+  "L5": "NOT_ACCEPTED"
+}
