@@ -1,0 +1,56 @@
+{
+  "schema": "qattn.utility-measurement.canary.design.v1",
+  "mechanism": "R93 v002",
+  "draft": "docs/evidence/rmea/20261119-l5-round93/utility-coupled-measurement-v002.md",
+  "draft_sha256": "c3ae1a6dca1342004f74d5dd83ca2ccfbcd12a39a453d9e1502a9504ebbf8a38",
+  "prior_review": "docs/evidence/rmea/20261119-l5-round93/mechanism-review-record.json",
+  "source_files": {
+    "experiments/rmea_utility_measurement/head.py": "7afde7ef88b60afdf08c87f1a1d812aca33234830d24f2403220af9cc7d6c009",
+    "experiments/rmea_utility_measurement/canary.py": "ffbe314d50cf9aabe94ea66d7b6c7b8fe760b13689dc38604041e72f798a0b85",
+    "experiments/rmea_utility_measurement/job.py": "587c18b5708b7879f6e9fdd6aba5714988ba856f8cc3cbfb3a1ac945fa1e2c97",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e"
+  },
+  "environment": {
+    "numpy": "1.24.3",
+    "torch": "2.4.1+cpu"
+  },
+  "budget": {
+    "cpu": 1,
+    "ram_mb": 2048,
+    "disk_mb": 32,
+    "gpus": 0,
+    "timeout_seconds": 180,
+    "optimizer_steps": 0,
+    "real_dataset_reads": 0,
+    "COS_requests": 0,
+    "new_checkpoints": 0
+  },
+  "seed": 20261119,
+  "update": {
+    "eta": 1,
+    "scale": "sqrt(1+Frobenius(A)^2)",
+    "initial_log": "analytic projector formula",
+    "compute_dtype": "float64/complex128",
+    "new_learned_parameters": 0
+  },
+  "checks": 17,
+  "tolerances": {
+    "default_absolute": 2e-10,
+    "gradient_absolute": 2e-06,
+    "finite_difference_step": 1e-06
+  },
+  "outputs": [
+    "compact-report.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": "Only child command/stdout/stderr retained; no datasets/weights/tensor archive",
+  "max_attempts": 1,
+  "replay_safe": false,
+  "recovery": "Restart-from-fixed-source only if separately authorized; no automatic scientific retry",
+  "formal_handoff": false,
+  "task_utility": "NOT_TESTED",
+  "architecture_completion": "NOT_CLAIMED; sample-trace.v2 formal readiness still pending",
+  "L5": "NOT_ACCEPTED"
+}
