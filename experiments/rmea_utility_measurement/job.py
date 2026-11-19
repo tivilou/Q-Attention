@@ -10,7 +10,7 @@ import sys
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT))
 from experiments.rmea_original_scores.common import guard,read,save,sha
-DESIGN=ROOT/'docs/evidence/rmea/20261119-l5-round94/canary-design.json'
+DESIGN=ROOT/'docs/evidence/rmea/20261119-l5-round94/canary-design-v002.json'
 
 def arguments():
     p=argparse.ArgumentParser()
@@ -46,7 +46,9 @@ def main():
         done=subprocess.run(argv,cwd=ROOT,stdout=out,stderr=err,timeout=c['budget']['timeout_seconds']-30,
             env=dict(os.environ,OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1'))
     assert done.returncode==0,'Canary failed; private logs retained, no completion'
-    r=read(stdout);assert r['status']=='UTILITY_MEASUREMENT_NUMERICAL_CANARY_COMPLETE' and r['check_count']==len(r['checks'])
+    r=read(stdout);assert r['status']=='UTILITY_MEASUREMENT_NUMERICAL_CANARY_COMPLETE' and r['check_count']==len(r['checks'])==d['checks']
+    assert len({v['name'] for v in r['checks']})==d['checks'] and {v['name'] for v in r['checks']}==set(d['check_names'])
+    assert all(v['status']=='PASS' for v in r['checks'])
     assert r['job_sha256']==sha(Path(__file__)) and r['design_sha256']==sha(DESIGN)
     r['parent_child']=dict(command_sha256=sha(work/'child-command.json'),returncode=0,synchronous=True,
         stdout_sha256=sha(stdout),stderr_sha256=sha(stderr),parent_imported_torch=False)

@@ -1,4 +1,5 @@
 """Finite, predeclared numerical canary. Run only in its shared CPU recipe."""
+import hashlib
 import math
 
 import numpy as np
@@ -84,6 +85,25 @@ def run():
     badpsi=psi.clone();badu=u.clone();badpsi[~mask]=complex(float('nan'),0);badu.masked_fill_(~mask[:,None,:],float('nan'))
     close(measured_attention(badpsi,phi,badu,mask)['alpha'],out['alpha'])
     record('padding_nan_excluded_not_clipped')
+    # Positive rescaling is smooth, deliberately NOT invariant in v002.
+    scale_reports=[]
+    a=out['covariance'];a2=a.abs().square().sum((-1,-2))
+    for factor in [.5, 1.-1e-4, 1., 1.+1e-4, 2.]:
+        z=measured_attention(psi,phi,u*factor,mask)
+        close(z['covariance'],factor*a)
+        close(z['scale'],torch.sqrt(1+factor*factor*a2))
+        close(z['covariance']/z['scale'][...,None,None],factor*a/torch.sqrt(1+factor*factor*a2)[...,None,None])
+        rr,ee=reference(psi.numpy(),phi.numpy(),(u*factor).numpy(),mask.numpy())
+        close(z['alpha'],torch.from_numpy(rr));close(z['effect'],torch.from_numpy(ee))
+        scale_reports.append(dict(factor=factor,max_alpha_change=float((z['alpha']-out['alpha']).abs().max())))
+    sv=torch.tensor(1.,dtype=torch.float64,requires_grad=True)
+    aw=torch.arange(u.numel(),dtype=torch.float64).reshape_as(u)/u.numel()
+    def scaling_objective(v):return (measured_attention(psi,phi,u*v,mask)['alpha']*aw).sum()
+    sg=torch.autograd.grad(scaling_objective(sv),sv)[0]
+    sf=(scaling_objective(sv+1e-6)-scaling_objective(sv-1e-6))/(2e-6)
+    close(sg,sf,2e-6);assert torch.isfinite(sg)
+    assert 0<max(r['max_alpha_change'] for r in scale_reports[1:4])<1e-3
+    record('smooth_positive_utility_rescaling',scales=scale_reports,gradient_error=float((sg-sf).abs()))
     for name,pp,uu,mm in [
         ('one_token',psi[:,:1],u[:,:,:1],mask[:,:1]),
         ('identical_states',psi[:,:1].expand(-1,4,-1),u,mask),
@@ -118,6 +138,21 @@ def run():
     assert float((intervention['aggregate']-wrongread['aggregate']).abs().max())>1e-6
     assert torch.equal(permutation[~mask],torch.arange(4).expand(2,4)[~mask])
     record('permutation_changes_construction_only')
+    # Independent digest-as-integer reconstruction, including a fixed identity fallback.
+    expected_rows=[]
+    for identity,row in zip(['fixed-a','fixed-b'],mask.tolist()):
+        positions=[j for j,valid in enumerate(row) if valid]
+        order=sorted(positions,key=lambda j:int(hashlib.sha256(('r93-utility-v2:'+identity+':'+str(j)).encode()).hexdigest(),16))
+        if len(order)>1 and order==positions:order=order[1:]+order[:1]
+        mapping=list(range(len(row)))
+        for dst,src in zip(positions,order):mapping[dst]=src
+        expected_rows.append(mapping)
+    assert permutation.tolist()==expected_rows
+    fallback_id='identity-fixture-1'
+    assert sorted([0,1],key=lambda j:hashlib.sha256(f'r93-utility-v2:{fallback_id}:{j}'.encode()).digest())==[0,1]
+    assert utility_permutation([fallback_id],torch.tensor([[True,True,False]])).tolist()==[[1,0,2]]
+    assert utility_permutation(['single'],torch.tensor([[False,True,False]])).tolist()==[[0,1,2]]
+    record('permutation_independent_mapping_fallback_and_singleton')
     # Derivatives through source circuit angles and utilities, at a smooth point.
     base_theta=torch.full((1,2,2,3,2),.14,dtype=torch.float64);dir_theta=torch.zeros_like(base_theta);dir_theta[0,0,0,0,0]=1
     base_query=torch.full((1,2,3,2),-.12,dtype=torch.float64);dir_query=torch.zeros_like(base_query);dir_query[0,0,0,0]=1
@@ -135,6 +170,26 @@ def run():
         v=torch.full((1,1,2),val,dtype=torch.float64,requires_grad=True)
         z=measured_attention(wp,wq[:1],v,wm)['aggregate'].sum();g=torch.autograd.grad(z,v)[0];assert torch.isfinite(g).all()
     record('autograd_zero_nearzero_and_smooth_finite_difference',maximum_gradient_error=float((grad-fd).abs().max()))
+    # Source and query circuit gradients at repeated eigenvalues / degenerate A.
+    degenerate=[]
+    for name,n,kind in [('one_token',1,'vary'),('identical_states',2,'vary'),('zero_utility',2,'zero'),('constant_utility',2,'constant'),('near_zero_utility',2,'near')]:
+        identical=name=='identical_states'
+        st=torch.zeros((1,n,2,3,2),dtype=torch.float64) if identical else theta[:,:n].clone()
+        qt=torch.zeros((1,2,3,2),dtype=torch.float64)
+        st.requires_grad_();qt.requires_grad_()
+        if kind=='zero':vv=torch.zeros((1,1,n),dtype=torch.float64)
+        elif kind=='constant':vv=torch.full((1,1,n),.25,dtype=torch.float64)
+        else:vv=torch.linspace(-.3,.3,n,dtype=torch.float64).reshape(1,1,n)*(1e-12 if kind=='near' else 1.)
+        vv.requires_grad_();dm=torch.ones((1,n),dtype=torch.bool)
+        dz=measured_attention(circuit(st),circuit(qt),vv,dm)
+        if name in ['one_token','identical_states','zero_utility','constant_utility']:assert float(dz['covariance'].abs().max())<2e-10
+        dw=torch.arange(n,dtype=torch.float64).reshape(1,1,n)
+        ew=torch.arange(64,dtype=torch.float64).reshape(8,8)/64
+        objective=dz['aggregate'].sum()+(dz['alpha']*dw).sum()+(dz['effect'].real*ew).sum()
+        gs=torch.autograd.grad(objective,(st,qt,vv))
+        assert all(g is not None and torch.isfinite(g).all() for g in gs)
+        degenerate.append(dict(case=name,max_covariance=float(dz['covariance'].detach().abs().max()),source_query_utility_gradient_maxima=[float(g.abs().max()) for g in gs]))
+    record('degenerate_source_query_utility_gradients',cases=degenerate)
     torch.manual_seed(947)
     native=RMEAHead('quantum').double();new=UtilityMeasurementHead(eta=0).double();new.load_state_dict(native.state_dict())
     assert set(new.state_dict())==set(native.state_dict()) and sum(p.numel() for p in new.parameters())==81028

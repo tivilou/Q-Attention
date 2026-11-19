@@ -1,0 +1,70 @@
+{
+  "status": "PRE_EXECUTION_CORRECTION",
+  "prior_source_revision": "4e393b5271daa83d591f95d1f9b410af07b7831d",
+  "prior_review": {
+    "review_mode": "external",
+    "reviewer_model": "gpt-6.1-sol",
+    "review_scope": "both",
+    "freeze_sha256": "b6f22337caa495625a06b72b9ad76e828c4b462cc974d8c54f9ae811a72950af",
+    "source_sha256": "086746d98fa26a689a614c634ccf0065efc73d5c1677d03e38938bf5df081e55",
+    "contract_sha256": "ebdf98869b4241fb6fdc75698ada5dc4444ddf040022d98cd58782816717eb6c",
+    "verdict": "BLOCK",
+    "must_fix": [
+      "The mandatory smooth utility-rescaling check is absent. No check evaluates measured_attention with positively rescaled nonconstant utilities. Add a prospectively fixed check of B(s)=sA/sqrt(1+s^2||A||_F^2), reference agreement and smooth response at nearby positive scales; do not assert the explicitly abandoned scaling invariance.",
+      "Degenerate-case differentiation coverage is incomplete. The one-token, identical-state and constant-utility cases check forwards only; the exact-zero and near-zero backward checks differentiate utilities only. Add finite-gradient checks through source state and query angles at exact-zero and near-zero A, including a repeated-eigenvalue or identical-state configuration. Preserve the existing generic smooth-point finite-difference test. Update the frozen design, expected check inventory and hashes before renewed review."
+    ],
+    "risks": [
+      "This is a static review of supplied text. Artifact hashes, scheduler implementation, environment and reported fixture results were not independently verified.",
+      "The parent validates status and self-consistent check count but not the required seventeen names or PASS statuses before publishing RUN_COMPLETE. The later observer supplies that stronger acceptance gate; RUN_COMPLETE alone must not imply scientific acceptance.",
+      "The parent fixture deliberately replaces both checked() and the scientific child. It supports subprocess failure behavior, not source-integrity, resource-enforcement or numerical correctness claims.",
+      "The permutation test verifies effect-path-only readout behavior and fixed padding, but does not independently reconstruct the SHA256 mapping or exercise its identity fallback and one-token behavior.",
+      "Nearest-work distinction remains unresolved. No novelty, task utility, quantum advantage or architecture completion follows from this canary."
+    ],
+    "theory_mapping": [
+      {
+        "check": "Forward mechanism",
+        "result": "PASS_STATIC",
+        "summary": "The implementation constructs U, f0, A and the smooth Frobenius scale, uses the analytic projector logarithm and differentiable matrix exponential, and applies original signed utilities in the final readout. No second epsilon or detach is present."
+      },
+      {
+        "check": "Masking and controls",
+        "result": "PASS_STATIC",
+        "summary": "Padding is removed before operator construction. Pinching retains the full normalization scale. Construction-only permutation leaves recipient utilities in the aggregate. The simplex witness control has the intended normalized exponential-tilt form."
+      },
+      {
+        "check": "Analytic correspondence and witnesses",
+        "result": "PASS_STATIC",
+        "summary": "Eta-zero attention has the stated exact-arithmetic correspondence. The witness uses the supplied source circuit, checks full-versus-pinched attention and harmful forty-class CE, and does not establish a natural-input realization."
+      },
+      {
+        "check": "Reference and numerical coverage",
+        "result": "PARTIAL",
+        "summary": "The independent NumPy spectral forward, Gibbs bound, covariance, masking, source-head parity and generic finite differences are useful. The declared seventeen records are internally consistent, but omit mandatory rescaling and part of the degenerate differentiation coverage."
+      },
+      {
+        "check": "Parameterization",
+        "result": "PASS_STATIC",
+        "summary": "The wrapper adds no trainable tensors and retains the native state dictionary. The stated 81028 parameters agree with the supplied layer dimensions."
+      },
+      {
+        "check": "Lifecycle and scope",
+        "result": "PASS_WITH_LIMITATIONS",
+        "summary": "The supplied path uses a synchronous single child, timeout, retained private logs, compact public outputs and no optimizer or dataset access. Idle-only paired configuration CAS and guarded rollback preserve unrelated configuration by construction. Actual scheduler enforcement and quiescence remain external dependencies."
+      }
+    ],
+    "correctness": "partial",
+    "lifecycle_correctness": "partial",
+    "bounded_trace_execution_eligible": false,
+    "formal_training_admitted": false,
+    "L5": "NOT_ACCEPTED"
+  },
+  "prior_response_id": "resp_08c496624b543764016afe795c055087d28e4486bc65dc4536",
+  "changes": [
+    "positive scale B(s) reference and nearby smooth derivative check",
+    "source/query/utility gradients across five degenerate cases",
+    "independent token permutation mapping/fallback/singleton",
+    "parent enforces exact twenty-name PASS inventory"
+  ],
+  "science_before_revision": 0,
+  "L5": "NOT_ACCEPTED"
+}
