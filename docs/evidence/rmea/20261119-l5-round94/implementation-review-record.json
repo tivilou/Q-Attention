@@ -1,0 +1,145 @@
+{
+  "schema": "qattn.exact-implementation-review-record.v1",
+  "reviews": [
+    {
+      "revision": "v001",
+      "freeze_sha256": "b6f22337caa495625a06b72b9ad76e828c4b462cc974d8c54f9ae811a72950af",
+      "response_id": "resp_08c496624b543764016afe795c055087d28e4486bc65dc4536",
+      "reasoning_effort": "medium",
+      "review": {
+        "review_mode": "external",
+        "reviewer_model": "gpt-6.1-sol",
+        "review_scope": "both",
+        "freeze_sha256": "b6f22337caa495625a06b72b9ad76e828c4b462cc974d8c54f9ae811a72950af",
+        "source_sha256": "086746d98fa26a689a614c634ccf0065efc73d5c1677d03e38938bf5df081e55",
+        "contract_sha256": "ebdf98869b4241fb6fdc75698ada5dc4444ddf040022d98cd58782816717eb6c",
+        "verdict": "BLOCK",
+        "must_fix": [
+          "The mandatory smooth utility-rescaling check is absent. No check evaluates measured_attention with positively rescaled nonconstant utilities. Add a prospectively fixed check of B(s)=sA/sqrt(1+s^2||A||_F^2), reference agreement and smooth response at nearby positive scales; do not assert the explicitly abandoned scaling invariance.",
+          "Degenerate-case differentiation coverage is incomplete. The one-token, identical-state and constant-utility cases check forwards only; the exact-zero and near-zero backward checks differentiate utilities only. Add finite-gradient checks through source state and query angles at exact-zero and near-zero A, including a repeated-eigenvalue or identical-state configuration. Preserve the existing generic smooth-point finite-difference test. Update the frozen design, expected check inventory and hashes before renewed review."
+        ],
+        "risks": [
+          "This is a static review of supplied text. Artifact hashes, scheduler implementation, environment and reported fixture results were not independently verified.",
+          "The parent validates status and self-consistent check count but not the required seventeen names or PASS statuses before publishing RUN_COMPLETE. The later observer supplies that stronger acceptance gate; RUN_COMPLETE alone must not imply scientific acceptance.",
+          "The parent fixture deliberately replaces both checked() and the scientific child. It supports subprocess failure behavior, not source-integrity, resource-enforcement or numerical correctness claims.",
+          "The permutation test verifies effect-path-only readout behavior and fixed padding, but does not independently reconstruct the SHA256 mapping or exercise its identity fallback and one-token behavior.",
+          "Nearest-work distinction remains unresolved. No novelty, task utility, quantum advantage or architecture completion follows from this canary."
+        ],
+        "theory_mapping": [
+          {
+            "check": "Forward mechanism",
+            "result": "PASS_STATIC",
+            "summary": "The implementation constructs U, f0, A and the smooth Frobenius scale, uses the analytic projector logarithm and differentiable matrix exponential, and applies original signed utilities in the final readout. No second epsilon or detach is present."
+          },
+          {
+            "check": "Masking and controls",
+            "result": "PASS_STATIC",
+            "summary": "Padding is removed before operator construction. Pinching retains the full normalization scale. Construction-only permutation leaves recipient utilities in the aggregate. The simplex witness control has the intended normalized exponential-tilt form."
+          },
+          {
+            "check": "Analytic correspondence and witnesses",
+            "result": "PASS_STATIC",
+            "summary": "Eta-zero attention has the stated exact-arithmetic correspondence. The witness uses the supplied source circuit, checks full-versus-pinched attention and harmful forty-class CE, and does not establish a natural-input realization."
+          },
+          {
+            "check": "Reference and numerical coverage",
+            "result": "PARTIAL",
+            "summary": "The independent NumPy spectral forward, Gibbs bound, covariance, masking, source-head parity and generic finite differences are useful. The declared seventeen records are internally consistent, but omit mandatory rescaling and part of the degenerate differentiation coverage."
+          },
+          {
+            "check": "Parameterization",
+            "result": "PASS_STATIC",
+            "summary": "The wrapper adds no trainable tensors and retains the native state dictionary. The stated 81028 parameters agree with the supplied layer dimensions."
+          },
+          {
+            "check": "Lifecycle and scope",
+            "result": "PASS_WITH_LIMITATIONS",
+            "summary": "The supplied path uses a synchronous single child, timeout, retained private logs, compact public outputs and no optimizer or dataset access. Idle-only paired configuration CAS and guarded rollback preserve unrelated configuration by construction. Actual scheduler enforcement and quiescence remain external dependencies."
+          }
+        ],
+        "correctness": "partial",
+        "lifecycle_correctness": "partial",
+        "bounded_trace_execution_eligible": false,
+        "formal_training_admitted": false,
+        "L5": "NOT_ACCEPTED"
+      }
+    },
+    {
+      "revision": "v002",
+      "freeze_sha256": "d4267c52705c05b9fda0ce4b0ec3369b60f1935acfdb2626e6de6dacdaead053",
+      "response_id": "resp_085a0ca41fe28dfb016afe7ca3b55c87d29cc48a0fe35ef85b",
+      "reasoning_effort": "medium",
+      "review": {
+        "review_mode": "external",
+        "reviewer_model": "gpt-6.1-sol",
+        "review_scope": "both",
+        "freeze_sha256": "d4267c52705c05b9fda0ce4b0ec3369b60f1935acfdb2626e6de6dacdaead053",
+        "source_sha256": "952c5d4e9d9bbd8c1cd41f8513e36c377b6fab57b5762c8577548ed3816402eb",
+        "contract_sha256": "df0ad64e7c8abd6ce4c11d38525db57cc6a6255a078e6b987fb2afc47dcb5574",
+        "verdict": "PASS_WITH_RISK",
+        "must_fix": [],
+        "risks": [
+          "Static review only: hashes, installed environment, remote configuration, scheduler resource enforcement and reported fixture results were not independently verified. Approval is limited to the supplied frozen single canary.",
+          "Numerical tolerances and the fixed permutation fallback fixture remain unexecuted here. Any assertion failure must remain a failed attempt, without automatic scientific retry, tolerance repair or clipping.",
+          "The parent fixture replaces both checked() and the scientific child. It supports subprocess failure handling, not numerical correctness, source integrity or scheduler enforcement.",
+          "Timeout cleanup and terminal process quiescence depend on the external scheduler. The synchronous subprocess timeout alone is not proof of process-tree cleanup.",
+          "Degenerate tests establish finite gradients for the selected source/query configurations, not derivative accuracy throughout degenerate neighborhoods or robustness to extreme finite utilities.",
+          "The wrapper computes the original head details before replacing its attention readout. Parameter parity does not imply compute parity or readiness for task training.",
+          "Pinching changes update magnitude as well as off-block geometry; permutation may preserve some alignments. These controls do not uniquely identify quantum or semantic benefit.",
+          "Nearest-work distinction remains unresolved. No novelty, task utility, quantum advantage, architecture completion or L5 acceptance follows from this canary."
+        ],
+        "theory_mapping": [
+          {
+            "check": "Forward mechanism and differentiation graph",
+            "result": "PASS_STATIC",
+            "summary": "The implementation constructs U, f0, A and sqrt(1+||A||_F^2), uses the analytic projector logarithm and differentiable matrix exponential, and retains original signed utilities in the final readout. No detach, eigenvector differentiation or second epsilon is present."
+          },
+          {
+            "check": "Prior mandatory smooth utility-rescaling correction",
+            "result": "PASS_STATIC",
+            "summary": "The new check evaluates nonconstant utilities at five positive scales, verifies scaled A, normalization and B(s), compares attention and effects against NumPy, and checks a scale derivative by finite differences. It correctly tests smooth response rather than abandoned scaling invariance."
+          },
+          {
+            "check": "Prior mandatory degenerate differentiation correction",
+            "result": "PASS_STATIC",
+            "summary": "The new degenerate check differentiates through source circuit angles, query angles and utilities for one token, identical states, zero utilities, constant utilities and near-zero utilities. Identical-state and zero-utility configurations exercise repeated-eigenvalue settings. The generic smooth-point finite-difference test is preserved."
+          },
+          {
+            "check": "Masking and effect-path controls",
+            "result": "PASS_STATIC",
+            "summary": "Padding is removed before operator construction. Pinching retains the full normalization scale. Construction permutation leaves recipient utilities in the final aggregate. Independent digest reconstruction, identity fallback and singleton mapping checks supplement the effect-path test."
+          },
+          {
+            "check": "Reference, correspondence and witnesses",
+            "result": "PASS_STATIC",
+            "summary": "The separate NumPy spectral forward, eta-zero Born correspondence, positivity, normalization, Gibbs bound, covariance and source-generated harmful forty-class CE witness match the declared scope. The simplex witness control demonstrates that the witness is not uniquely quantum."
+          },
+          {
+            "check": "Parameterization and check inventory",
+            "result": "PASS_STATIC",
+            "summary": "The wrapper adds no trainable tensors and preserves native state-dictionary keys; 81028 parameters agree with the supplied dimensions. The twenty emitted check names match the revised design inventory, with fixed tolerances and seed."
+          },
+          {
+            "check": "Parent closure and observer acceptance",
+            "result": "PASS_STATIC",
+            "summary": "The parent now requires exactly the declared unique check names and all PASS statuses before writing completion. It retains private subprocess logs and uses one synchronous child. The observer additionally checks launch, source, report hashes and terminal quiescence without numerical recomputation."
+          },
+          {
+            "check": "Admission and lifecycle boundary",
+            "result": "PASS_WITH_LIMITATIONS",
+            "summary": "The supplied controls bind review to frozen source and contract, use idle-only paired configuration CAS with guarded reconciliation, and preserve unrelated configuration. Admission is restricted to one CPU diagnostic with no optimizer, dataset reads or checkpoints; actual scheduler behavior remains an external dependency."
+          }
+        ],
+        "correctness": "pass",
+        "lifecycle_correctness": "pass",
+        "bounded_trace_execution_eligible": true,
+        "formal_training_admitted": false,
+        "L5": "NOT_ACCEPTED"
+      }
+    }
+  ],
+  "first_review_block_preserved": true,
+  "scientific_attempts_before_v002": 0,
+  "formal_training_admitted": false,
+  "L5": "NOT_ACCEPTED"
+}

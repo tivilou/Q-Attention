@@ -1,0 +1,219 @@
+{
+  "schema": "qattn.utility-measurement.canary.result.v1",
+  "status": "ACCEPTED_FLOAT64_CPU_NUMERICAL_CANARY_ONLY",
+  "task": "df63bb59e68a4a919b3ee6a760801e89",
+  "attempt": "10ee7f9194954fe1b0d3939d8168a2bc",
+  "source_revision": "a58b82be52b6edfadaa1446c7de6e7f28d1e1469",
+  "attempts": 1,
+  "returncode": 0,
+  "quiescent": true,
+  "outputs": {
+    "RUN_COMPLETE": {
+      "bytes": 194,
+      "sha256": "0eb8e184490ca4abfe3bb031d29c037af676d450be212c8161c6baa646ac7a4a"
+    },
+    "compact-report.json": {
+      "bytes": 5117,
+      "sha256": "293fb78921e3261f4b8ac07e48891cc75dd540668993959c21540100689eb8b2"
+    }
+  },
+  "report": {
+    "status": "UTILITY_MEASUREMENT_NUMERICAL_CANARY_COMPLETE",
+    "checks": [
+      {
+        "name": "independent_numpy_forward",
+        "status": "PASS",
+        "max_alpha_error": 7.904787935331115e-14
+      },
+      {
+        "name": "eta_zero_original_born",
+        "status": "PASS",
+        "max_alpha_error": 3.3306690738754696e-16
+      },
+      {
+        "name": "positive_normalized_masked",
+        "status": "PASS",
+        "min_effect_eigenvalue": 5.033841598992316e-07
+      },
+      {
+        "name": "gibbs_bound",
+        "status": "PASS",
+        "minimum_own_score_gain": 0.0003047555367297061,
+        "minimum_relative_entropy": 3.045490217775922e-05
+      },
+      {
+        "name": "utility_shift_unitary_and_token_phase_covariance",
+        "status": "PASS"
+      },
+      {
+        "name": "padding_nan_excluded_not_clipped",
+        "status": "PASS"
+      },
+      {
+        "name": "smooth_positive_utility_rescaling",
+        "status": "PASS",
+        "scales": [
+          {
+            "factor": 0.5,
+            "max_alpha_change": 0.00872810726042933
+          },
+          {
+            "factor": 0.9999,
+            "max_alpha_change": 1.3174721172903858e-06
+          },
+          {
+            "factor": 1.0,
+            "max_alpha_change": 0.0
+          },
+          {
+            "factor": 1.0001,
+            "max_alpha_change": 1.3174082784672692e-06
+          },
+          {
+            "factor": 2.0,
+            "max_alpha_change": 0.010043036764647462
+          }
+        ],
+        "gradient_error": 1.437247725347146e-10
+      },
+      {
+        "name": "one_token",
+        "status": "PASS"
+      },
+      {
+        "name": "identical_states",
+        "status": "PASS"
+      },
+      {
+        "name": "zero_utility",
+        "status": "PASS"
+      },
+      {
+        "name": "constant_utility",
+        "status": "PASS"
+      },
+      {
+        "name": "near_zero_utility",
+        "status": "PASS"
+      },
+      {
+        "name": "source_circuit_offdiagonal_and_harmful_ce",
+        "status": "PASS",
+        "old_ce": 0.6940094074010119,
+        "new_ce": 0.7357383913323555,
+        "full_pinched_alpha_max": 0.04164471943682713
+      },
+      {
+        "name": "simplex_control_also_changes_witness",
+        "status": "PASS"
+      },
+      {
+        "name": "permutation_changes_construction_only",
+        "status": "PASS"
+      },
+      {
+        "name": "permutation_independent_mapping_fallback_and_singleton",
+        "status": "PASS"
+      },
+      {
+        "name": "autograd_zero_nearzero_and_smooth_finite_difference",
+        "status": "PASS",
+        "maximum_gradient_error": 3.338349041648314e-11
+      },
+      {
+        "name": "degenerate_source_query_utility_gradients",
+        "status": "PASS",
+        "cases": [
+          {
+            "case": "one_token",
+            "max_covariance": 0.0,
+            "source_query_utility_gradient_maxima": [
+              0.0,
+              0.49218356253149637,
+              1.0
+            ]
+          },
+          {
+            "case": "identical_states",
+            "max_covariance": 0.0,
+            "source_query_utility_gradient_maxima": [
+              0.010687629490949617,
+              0.49218356253149637,
+              0.5
+            ]
+          },
+          {
+            "case": "zero_utility",
+            "max_covariance": 0.0,
+            "source_query_utility_gradient_maxima": [
+              0.2499995000009999,
+              0.49218356253149637,
+              0.5260124370701164
+            ]
+          },
+          {
+            "case": "constant_utility",
+            "max_covariance": 0.0,
+            "source_query_utility_gradient_maxima": [
+              0.24999950000099994,
+              0.49218356253149637,
+              0.5260124370701164
+            ]
+          },
+          {
+            "case": "near_zero_utility",
+            "max_covariance": 3e-13,
+            "source_query_utility_gradient_maxima": [
+              0.24999950000116075,
+              0.49218356253148243,
+              0.5260124370701602
+            ]
+          }
+        ]
+      },
+      {
+        "name": "head_zero_equivalence_same_parameters_and_end_to_end_gradient",
+        "status": "PASS",
+        "parameters": 81028
+      },
+      {
+        "name": "invalid_inputs_rejected",
+        "status": "PASS",
+        "count": 4
+      }
+    ],
+    "check_count": 20,
+    "task_training": false,
+    "optimizer_steps": 0,
+    "new_checkpoints": 0,
+    "real_dataset_reads": 0,
+    "COS_requests": 0,
+    "formal_handoff": false,
+    "L5": "NOT_ACCEPTED",
+    "qualification": "Float64 CPU numerical canary only; no task utility, full Case Study or architecture completion",
+    "tolerances": {
+      "default_absolute": 2e-10,
+      "gradient_absolute": 2e-06,
+      "finite_difference_step": 1e-06
+    },
+    "seed": 20261119,
+    "job_sha256": "28f85b9d817f40c4b901b28742b61782c8e8d88bc79a4349122c3cf3fcdd168d",
+    "design_sha256": "a628c33b60025049ffb82ca6cb7fffc2be9908d4629501edcdfb431800a49f5f",
+    "environment": {
+      "numpy": "1.24.3",
+      "torch": "2.4.1+cpu"
+    },
+    "parent_child": {
+      "command_sha256": "8d38e29942a65b09795de53dbba2ecdae95754577303540928af2af79b355d4d",
+      "returncode": 0,
+      "synchronous": true,
+      "stdout_sha256": "830b29276240a9a11f050dbf0f5bf4a1ac338fa85e009a972d8c9bde8373abae",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "parent_imported_torch": false
+    }
+  },
+  "owner_acceptance_sha256": "c0831486ae16f73f39596554a28692761b184a6b920c2bbcf03aafd3dfa1451e",
+  "task_utility": "NOT_TESTED",
+  "architecture_completion": false,
+  "L5": "NOT_ACCEPTED"
+}
