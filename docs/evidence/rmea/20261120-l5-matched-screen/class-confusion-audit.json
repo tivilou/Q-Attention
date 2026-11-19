@@ -1,0 +1,129 @@
+{
+  "schema": "qattn.centering.aggregate-class-audit.v1",
+  "source_report_sha256": "897468a14d8d2d212e766e3f822014badbafb939d52ede377d9466a121ca1d57",
+  "source_task": "bb6b8ba55cde4f76a3433f80b711d7a9",
+  "source_attempt": "980ada2da26245eb899ec09227af8cc7",
+  "selection": "All40 confusion entries; all39 positive classes retained; post-hoc descriptive arithmetic, no selected examples or new model execution",
+  "conditions": {
+    "centered_native": {
+      "macro_f1": 0.05934138490286721,
+      "accuracy": 0.6882716049382716,
+      "ce": 1.171003775925422,
+      "positive_nonzero_classes": [
+        1,
+        8,
+        13,
+        15,
+        18,
+        27,
+        28,
+        39
+      ],
+      "correct": 669,
+      "null_correct": 595,
+      "positive_correct": 74,
+      "null_predicted": 811,
+      "null_support": 642
+    },
+    "centered_full": {
+      "macro_f1": 0.06453672849105976,
+      "accuracy": 0.6779835390946503,
+      "ce": 1.1955781302152042,
+      "positive_nonzero_classes": [
+        1,
+        8,
+        13,
+        15,
+        18,
+        27,
+        28,
+        39
+      ],
+      "correct": 659,
+      "null_correct": 586,
+      "positive_correct": 73,
+      "null_predicted": 804,
+      "null_support": 642
+    }
+  },
+  "changed_positive_classes": [
+    {
+      "class_index": 1,
+      "support": 18,
+      "before_f1": 0.09090909090909091,
+      "after_f1": 0.08333333333333333,
+      "f1_delta": -0.007575757575757583
+    },
+    {
+      "class_index": 8,
+      "support": 12,
+      "before_f1": 0.15384615384615385,
+      "after_f1": 0.2857142857142857,
+      "f1_delta": 0.13186813186813184
+    },
+    {
+      "class_index": 13,
+      "support": 28,
+      "before_f1": 0.4583333333333333,
+      "after_f1": 0.3111111111111111,
+      "f1_delta": -0.1472222222222222
+    },
+    {
+      "class_index": 15,
+      "support": 4,
+      "before_f1": 0.2857142857142857,
+      "after_f1": 0.4444444444444444,
+      "f1_delta": 0.15873015873015872
+    },
+    {
+      "class_index": 18,
+      "support": 3,
+      "before_f1": 0.2222222222222222,
+      "after_f1": 0.18181818181818182,
+      "f1_delta": -0.04040404040404039
+    },
+    {
+      "class_index": 27,
+      "support": 47,
+      "before_f1": 0.10909090909090909,
+      "after_f1": 0.2,
+      "f1_delta": 0.09090909090909093
+    },
+    {
+      "class_index": 28,
+      "support": 68,
+      "before_f1": 0.583941605839416,
+      "after_f1": 0.5161290322580645,
+      "f1_delta": -0.06781257358135151
+    },
+    {
+      "class_index": 39,
+      "support": 34,
+      "before_f1": 0.41025641025641024,
+      "after_f1": 0.4943820224719101,
+      "f1_delta": 0.08412561221549986
+    }
+  ],
+  "improved_classes": [
+    8,
+    15,
+    27,
+    39
+  ],
+  "degraded_classes": [
+    1,
+    13,
+    18,
+    28
+  ],
+  "new_positive_class_coverage": [],
+  "interpretation": "Macro gain reallocates performance among the same eight predicted-correct positive classes; no wider nonzero class coverage in this contrast. It does not establish a general rare-class benefit or explain CE through calibration.",
+  "limitations": [
+    "No per-sample logits or classwise CE; confidence/calibration attribution unavailable.",
+    "Repeated development cohort,one initialization,not independent evidence.",
+    "No counterfactual cause inferred from aggregate confusion."
+  ],
+  "new_training": false,
+  "scientific_model_calls": 0,
+  "L5": "NOT_ACCEPTED"
+}
