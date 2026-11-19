@@ -1,6 +1,6 @@
 {
   "schema": "qattn.cross-fold.canary.design.v1",
-  "status": "IMPLEMENTATION_WRITTEN_NUMERICAL_QUALIFICATION_PENDING",
+  "status": "FIXTURE_DTYPE_REPAIRED_CORRECTED_NUMERICAL_QUALIFICATION_PENDING",
   "purpose": "Eight fixed synthetic tests distinguish donor/recipient mechanisms and expose correlated-noise failure; no task dataset or training.",
   "environment": {
     "numpy": "1.24.3",
@@ -8,7 +8,7 @@
   },
   "source_files": {
     "experiments/rmea_utility_measurement/cross_fold.py": "739608e5c53e1b292c14b4aa7793c01a25b9267d61c93e2ceb4359bac91f2b6f",
-    "experiments/rmea_utility_measurement/cross_fold_canary.py": "ee2844468531f1b6b2b9cddd22e1a401ede1f4127562ec64bb2b5732295aac6a",
+    "experiments/rmea_utility_measurement/cross_fold_canary.py": "b319f22656a0788995150abcc3c39bec764ad132f376c7631254730a5e80436c",
     "experiments/rmea_utility_measurement/cross_fold_job.py": "f88c92e419c5c35e987060612cbf82f384d9166c02241daef4b2dd7bf5a61879",
     "experiments/rmea_utility_measurement/head.py": "7afde7ef88b60afdf08c87f1a1d812aca33234830d24f2403220af9cc7d6c009",
     "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
@@ -53,5 +53,13 @@
   "formal_run": false,
   "L5": "NOT_ACCEPTED",
   "trace_readiness": "Not certified; full-value private fixture and reader still due before formal completion.",
-  "source_count": 7
+  "source_count": 7,
+  "fixture_repair": {
+    "previous_source_revision": "7e82642ad18a30d8b83d0b69de63b842b83fdee4",
+    "failed_task": "101ade100d274803bbcd527e77c12730",
+    "failed_attempt": "c8de96267ea04167a124acfd1e7aef00",
+    "change": "Construct the same per-fold constant shifts in utility float64 before scalar arithmetic; report dtype. Keep all eight checks, tolerance, seed, mechanism and budget unchanged.",
+    "corrected_execution": "NOT_RUN",
+    "automatic_retry": false
+  }
 }

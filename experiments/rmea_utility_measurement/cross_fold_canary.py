@@ -71,14 +71,14 @@ def run():
     perturbed = fold_attention(psi, phi, changed, mask)
     close(base['alpha'][:, :, fa[0]], perturbed['alpha'][:, :, fa[0]], 0.)
     assert float((base['alpha'][:, :, fb[0]]-perturbed['alpha'][:, :, fb[0]]).abs().max()) > 1e-8
-    shifts = 1.3*fa[:, None] - .7*fb[:, None]
+    shifts = 1.3*fa[:, None].to(u.dtype) - .7*fb[:, None].to(u.dtype)
     for kind in KINDS:
         before = fold_attention(psi, phi, u, mask, kind=kind)
         after = fold_attention(psi, phi, u+shifts, mask, kind=kind)
         close(before['alpha'], after['alpha'])
         masses = before['samples'][0]['native_fold_masses']
         close(after['aggregate']-before['aggregate'], (1.3*masses[0]-.7*masses[1])[None])
-    record(own_recipient_routing_independent=True, opposite_recipient_changes=True)
+    record(own_recipient_routing_independent=True, opposite_recipient_changes=True, shift_dtype=str(shifts.dtype))
 
     # Two identical state pairs; sign of inter-fold utility alignment is controlled.
     sp = torch.zeros((1, 4, 8), dtype=torch.complex128)

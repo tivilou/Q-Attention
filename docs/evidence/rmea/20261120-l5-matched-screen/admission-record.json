@@ -1,0 +1,30 @@
+{
+  "schema": "qattn.scoped-batch-admission.public.v1",
+  "status": "SCOPED_BATCH_BINDING_WITH_DISPATCH_EXCLUSION_VERIFIED",
+  "source_revision": "7e82642ad18a30d8b83d0b69de63b842b83fdee4",
+  "review_scope": "both",
+  "review_response_id": "resp_0e5c7a3f77d39951016aff412211ec87d1ae56b5c1d1c88ce3",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "medium",
+  "verdict": "PASS_WITH_RISK",
+  "must_fix": [],
+  "freeze_sha256": "37ab0aca033a4b7aaf0dbc1e54b0f707f860a581ff7f19bcd30e31b8dff6f738",
+  "runtime_source_sha256": "060dafca601b06ae50f37701d414a86431b9a785a29f4fd62a16f9995737c881",
+  "contracts_sha256": {
+    "training": "bd3f58a541e4f144b5f83382ef4152d87df822f2b55a7b7d91d74935111db3e3",
+    "cross_fold": "c277386fe7bcbf788e3b028485032328e8c800fee9138c7c00eefa91f233c1a0"
+  },
+  "dispatch_exclusion": "continuous SQLite writer transaction before task disable through stopped-leader write",
+  "node_base_config_mutations": 0,
+  "scheduler_core_mutations": 0,
+  "scoped_fixture_cases": 6,
+  "actual_sqlite_race_fixture_cases": 6,
+  "dormant_foreign_queue_spec_preservation": true,
+  "scientific_attempts": {
+    "training": 1,
+    "cross_fold": 1
+  },
+  "earlier_block_and_busy_rejection_preserved": true,
+  "full_formal_run": false,
+  "L5": "NOT_ACCEPTED"
+}

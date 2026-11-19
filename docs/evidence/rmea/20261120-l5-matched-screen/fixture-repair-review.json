@@ -1,0 +1,39 @@
+{
+  "schema": "qattn.exact-fixture-repair-review.v1",
+  "response_id": "resp_0eaf8fee9e4a47bf016aff465d498487d1b6ac72f6afecdf17",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "medium",
+  "freeze_sha256": "9ee3517fd8424966fd293565f7f29b1750d59800a11ab8fc4a809679ed438999",
+  "reviewed_files": {
+    "experiments/rmea_utility_measurement/cross_fold_canary.py": "b319f22656a0788995150abcc3c39bec764ad132f376c7631254730a5e80436c",
+    "docs/evidence/rmea/20261120-l5-crossfold/canary-design.json": "3a6a6229a2212c88eba5bc57678f7f25b785797828bd6ada46c3fa710d4628f1",
+    "docs/evidence/rmea/20261120-l5-matched-screen/training-result.json": "897468a14d8d2d212e766e3f822014badbafb939d52ede377d9466a121ca1d57",
+    "docs/evidence/rmea/20261120-l5-matched-screen/cross-fold-failure.json": "48e361ec9cff50b54326e5354ca3e07a2d67dd566158e1a073ff38686fd3abc7",
+    "docs/evidence/rmea/20261120-l5-matched-screen/admission-record.json": "708a2f7c5bc9a020c1b4c33f61b56ebe1c1f5898e2863d9c0eae3b1e1d0daed3",
+    "docs/evidence/rmea/20261120-l5-matched-screen/screen-interpretation.md": "67a1eb37de57837ff1890952adb0f02e9598998372eef75e984ac5749f09f2a6"
+  },
+  "review": {
+    "review_scope": "both",
+    "verdict": "PASS_WITH_RISK",
+    "fixture_dtype_analysis": "Under the usual float32 default dtype, multiplying boolean masks by Python floats constructs float32 shifts. Adding those shifts to float64 utilities preserves their already-rounded constants, whereas the expected expression applies the constants directly to float64 masses. Rounding of 1.3 and -0.7 can therefore explain an aggregate discrepancy on the observed approximately 4.4e-8 scale. Casting each mask to u.dtype before multiplication removes this precision mismatch without changing the intended fold shifts. This is a source-supported repair, not proof that the corrected canary passes; numerical execution remains required.",
+    "unchanged_mechanism_and_thresholds": "The supplied before/after canary differs only in shift construction precision and shift_dtype report metadata. All eight checks, the 2e-9 default tolerance, other tolerances, seed, finite-difference steps and budget remain unchanged. The supplied mechanism sources are unchanged. No assertion is removed or weakened. This assessment is based on supplied text; hashes and runtime behavior were not independently verified.",
+    "screen_interpretation": "The interpretation correctly preserves both outcomes: centered_full has the highest observed Macro-F1 and passes all four specified Macro comparisons, but fails the joint gate because CE exceeds centered_native by 0.024574354289782274. Its Macro-F1 gain over full is 0.005518254545902816, approximately 9.35% relative. Accuracy also declines against centered_native, although accuracy is not part of the implemented gate. The no-promotion decision is consistent with the code. A single initialization on a repeatedly explored development partition supports a descriptive positive lead, not statistical confirmation, causal mechanism attribution, full-data evidence or L5 acceptance.",
+    "lifecycle": "The failed attempt remains recorded as failed and quiescent, with no report or completion marker; corrected execution is explicitly NOT_RUN. Any corrected run must be a separately admitted, newly frozen single synthetic attempt, not a replay of the old attempt or an extension of its attempt allowance. Eligibility here covers corrected synthetic source only, not runtime configuration, scheduling, real training or formal handoff.",
+    "must_fix": [],
+    "risks": [
+      "The corrected source has not executed. Later checks were not reached in the failed attempt and remain numerically unqualified.",
+      "The old error's exact magnitude is not independently reproduced; the precision explanation is consistent with the source and reported error, not conclusively established.",
+      "Separate admission must bind the corrected source and design hashes, preserve the existing budget and thresholds, and retain the failed attempt and logs.",
+      "The existing torch.linspace perturbation still uses the ambient default dtype before addition to float64 utilities. It is outside this repaired identity and does not invalidate the proposed fix, but this patch should not be described as making every fixture construction explicitly float64.",
+      "The full training artifacts, admission record and private logs were not supplied as independently inspectable evidence; their hashes alone do not verify their contents or establish prospective gate freezing.",
+      "Alternating token folds do not establish independence of task errors; even an eight-check synthetic pass would not establish task benefit or trace readiness."
+    ],
+    "corrected_synthetic_source_eligible_after_separate_admission": true,
+    "real_training_admitted": false,
+    "L5": "NOT_ACCEPTED"
+  },
+  "inference_requests": 1,
+  "automatic_retries": 0,
+  "corrected_numerical_execution": false,
+  "L5": "NOT_ACCEPTED"
+}

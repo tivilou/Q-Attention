@@ -1,0 +1,42 @@
+{
+  "schema": "qattn.cross-fold.failure-public-record.v1",
+  "status": "FAILED_CROSS_FOLD_CANARY_PRESERVED",
+  "task": "101ade100d274803bbcd527e77c12730",
+  "attempt": "c8de96267ea04167a124acfd1e7aef00",
+  "attempt_count": 1,
+  "source_revision": "7e82642ad18a30d8b83d0b69de63b842b83fdee4",
+  "returncode": 1,
+  "quiescent": true,
+  "output_directory_empty": true,
+  "report_created": false,
+  "failed_stage": "third check group: fold-constant aggregate shift identity",
+  "literal_assertion": "AssertionError: 4.376535511774193e-08",
+  "source_locator": "experiments/rmea_utility_measurement/cross_fold_canary.py:80 at executed revision",
+  "private_log_hashes": {
+    "stderr.log": {
+      "bytes": 465,
+      "sha256": "25c8ad27533f3f86b7d3e081cec3bc30b05fa1cfabdfe2151e7193970ad9818a"
+    },
+    "stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scientific-work/child-stderr.log": {
+      "bytes": 742,
+      "sha256": "4dbf15abe945de34d3214e574e984456b0c611f2bf6fd05c12194fe1dfb9f2c5"
+    },
+    "scientific-work/child-stdout.json": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "owner_observation_sha256": "7d91758d661f3658b68a2fc7af61d4a18bec97d3fde9e4e20b1e18133695e814",
+  "diagnosis": "Mixed precision in the test fixture is a source-supported explanation: bool-mask times Python float may construct float32 shifts, while expected masses are float64. Corrected numerical pass remains required.",
+  "unchanged_tolerance": 2e-09,
+  "unchanged_checks": 8,
+  "corrected_execution": "NOT_RUN",
+  "automatic_retry": false,
+  "task_training": false,
+  "formal_handoff": false,
+  "L5": "NOT_ACCEPTED"
+}
