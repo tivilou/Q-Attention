@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "review_scope": "mathematical_source_interface",
+  "reviewer_model": "gpt-6.1-sol",
+  "reasoning_effort": "medium",
+  "response_id": "resp_0395066c73359bbb016aff370aa71887d1b7a97ae40669ba10",
+  "inference_requests": 1,
+  "automatic_retries": 0,
+  "reviewed_source_revision": "7e82642ad18a30d8b83d0b69de63b842b83fdee4",
+  "source_files": {
+    "experiments/rmea_utility_measurement/cross_fold.py": "739608e5c53e1b292c14b4aa7793c01a25b9267d61c93e2ceb4359bac91f2b6f",
+    "experiments/rmea_utility_measurement/head.py": "7afde7ef88b60afdf08c87f1a1d812aca33234830d24f2403220af9cc7d6c009",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "reviewed_proposal_sha256": "37f8184a1102d536c4713928b9c06e5f70f355672f0552ae44536e8411d411b5",
+  "published_proposal_sha256": "9f0bb667cc761e781747972a45dbfb2d0aeaca13961acbd1058eb58723b7804e",
+  "status_only_edit": {
+    "old": "Primary derivation awaiting independent mathematical checking.",
+    "new": "Primary derivation independently checked: seven mathematical checks PASS; see risk-review-record.json.",
+    "mathematical_body_unchanged": true
+  },
+  "answer_sha256": "d80814689b26edf60f25df4c96b9baae7b5a225ff7047557790fe8394bc5d373",
+  "verdict_sha256": "600ee180f2a5036a7a5134b801b6827b529141e8e660e71d765566861b087cc5",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "source_reduction",
+      "status": "PASS",
+      "finding": "The supplied source gives native token weights 1/4 and fold masses 1/2. On span(e0,e1), log(E0)=cI+k sigma_x with the stated k. A two-token donor has zero construction aggregate, covariance b sigma_z and scale sqrt(1+2b^2). Exponentiation gives recipient weight difference h(a(b)). The global effect trace, exp(c), and contributions from the unused six dimensions cancel in recipient normalization."
+    },
+    {
+      "id": "logit_and_mass_factors",
+      "status": "PASS",
+      "finding": "Each recipient contributes its native mass 1/2 times its amplitude times the donor-induced weight difference, giving equation (1). Coherent four-token construction doubles the covariance to 2b sigma_z and gives scale sqrt(1+8b^2), yielding R(b) without an additional factor. Opposite full-fold amplitudes cancel the construction operator, restore native weights, and give full(b,-b)=0."
+    },
+    {
+      "id": "positive_law_and_expected_ce",
+      "status": "PASS",
+      "finding": "Sharing each fold's sign across all 39 distractors preserves independence of the two complete fold error vectors and their conditional zero means. The distractor logits are exactly F(t), xi*zeta*F(t), and either R(t) or zero for self, cross, and full respectively. Because all distractor logits coincide within each draw, equation (3) is the exact expected per-draw CE. Strict monotonicity of L proves cross risk is strictly below self risk for every s,t>0."
+    },
+    {
+      "id": "small_signal_ordering",
+      "status": "PASS",
+      "finding": "With q=tanh(k)/k, h(x)=qx+O(x^3), F(b)=qb^2+O(b^4), and R(b)=2qb^2+O(b^4). Using L'(0)=39/40 gives exactly the three stated risk expansions. For each fixed 1<r<sqrt(2), the leading coefficients satisfy -1<r^2-2<0<r^2-1, proving cross<full<native<self for sufficiently small positive s. No explicit finite threshold is established or needed."
+    },
+    {
+      "id": "negative_witness_logits",
+      "status": "PASS",
+      "finding": "The independent zero-mean amplitude errors produce observed amplitudes 0 or 2s. Cross logits are zero unless both folds are active, when they equal F(2s). Self logits are zero, F(2s)/2, or F(2s) according to the number of active folds. Thus self strictly improves true-class CE on the one-active event of probability 1/2, proving the expected-risk reversal. The expected cross logit is F(2s)/4."
+    },
+    {
+      "id": "strict_attenuation_and_jensen",
+      "status": "PASS",
+      "finding": "The stated expression for g(b)/b is correct. Its first positive factor strictly decreases; its second positive factor strictly decreases because T(b) increases and tanh(T)/T strictly decreases for T>0. Consequently g(2s)<2g(s), hence F(2s)/4<F(s). For ell(z)=log(1+39 exp(-z)), strict convexity and strict decrease give E ell(z_cross)>ell(E z_cross)>ell(F(s)). Independence also justifies replacing recipient noise by its zero conditional mean on each noisy-donor route, but not replacing donor construction by clean construction."
+    },
+    {
+      "id": "claim_scope",
+      "status": "PASS",
+      "finding": "The witnesses establish opposite strict expected-CE comparisons for the same source-interface maps under two explicit synthetic laws, including a positive region beating the full and native controls. They establish neither end-to-end feature/circuit reachability nor actual task benefit, empirical noise structure, numerical execution, novelty, quantum necessity, or L5."
+    }
+  ],
+  "must_fix": [],
+  "risks": [
+    "The results are exact-arithmetic deductions from the supplied source text; floating-point behavior and provenance hashes were not independently tested.",
+    "Utilities and states are stipulated at the measured interface; simultaneous realization by the original shared neural parameters is unproved.",
+    "The synthetic dependence structure is essential to these witnesses and is not an identified real-data noise model.",
+    "The positive-region threshold is existential, and the asymptotic result does not certify a numerically resolvable advantage at any specified signal size.",
+    "The negative witness compares self and cross; it does not establish a complete ordering involving full and native."
+  ],
+  "positive_classification_region_proved": true,
+  "negative_risk_reversal_proved": true,
+  "source_interface_mapping": "pass",
+  "numerical_execution_established": false,
+  "original_neural_reachability_established": false,
+  "real_task_benefit_established": false,
+  "novelty_established": false,
+  "quantum_necessity_established": false,
+  "L5": "NOT_ACCEPTED"
+}

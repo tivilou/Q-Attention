@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "purpose": "Bounded nearest-work and mechanism-transfer audit for the existing cross_fold family",
+  "read_on": "2026-11-20 Asia/Singapore",
+  "source_revision": "7e82642ad18a30d8b83d0b69de63b842b83fdee4",
+  "papers": [
+    {
+      "id": "1608.00060v7",
+      "title": "Double/Debiased Machine Learning for Treatment and Structural Parameters",
+      "metadata_title": "Double/Debiased Machine Learning for Treatment and Causal Parameters",
+      "authors": [
+        "Victor Chernozhukov",
+        "Denis Chetverikov",
+        "Mert Demirer",
+        "Esther Duflo",
+        "Christian Hansen",
+        "Whitney Newey",
+        "James Robins"
+      ],
+      "observed_version": "arXiv:1608.00060v7 [stat.ML] 3 Nov 2024",
+      "pages": 71,
+      "sha256": "3186133dacb9f4a31c004a00150627de1e5cf26e203d1522a25a5444c7dbdf78",
+      "scope": [
+        "p1: title/authors/version and abstract",
+        "p12 Section 2.1, Definition 2.1, equations 2.1-2.3",
+        "pp23-24 Section 3.1, Definitions 3.1/3.2, equations 3.1-3.5"
+      ],
+      "facts": [
+        "The target is a low-dimensional parameter identified by a population estimating equation with nuisance parameters.",
+        "Neyman orthogonality requires a zero pathwise derivative of the expected score with respect to the specified nuisance directions.",
+        "DML1/2 partition i.i.d. observation indices and train each nuisance estimate using only the complementary observations before evaluating the orthogonal score on the held-out fold."
+      ],
+      "interpretation": "Our within-example token partition and shared contextual/neural parameters establish none of these independence, nuisance-estimation or orthogonal-score conditions. Do not import DML inference or bias guarantees.",
+      "identity_note": "Exact arXiv ID/version and authors match. API and PDF titles differ between Causal and Structural Parameters; this variant is retained explicitly.",
+      "url": "https://arxiv.org/abs/1608.00060v7",
+      "pdf_url": "https://arxiv.org/pdf/1608.00060v7",
+      "bytes": 1120996,
+      "acquisition": "reused",
+      "identity": "verified_for_exact_id_version_with_noted_title_variant",
+      "parsing": "parsed_text",
+      "reading": "read_for_scope",
+      "uninspected": [
+        "remaining body beyond listed scope",
+        "appendix proofs",
+        "supplements",
+        "implementation source"
+      ],
+      "empirical_reproduction": false
+    },
+    {
+      "id": "1810.11579v1",
+      "title": "A²-Nets: Double Attention Networks",
+      "authors": [
+        "Yunpeng Chen",
+        "Yannis Kalantidis",
+        "Jianshu Li",
+        "Shuicheng Yan",
+        "Jiashi Feng"
+      ],
+      "observed_version": "arXiv:1810.11579v1 [cs.CV] 27 Oct 2018",
+      "pages": 10,
+      "sha256": "f3132d9ea8311c1b3aa13ca70ec07c59c60b0cbe162e7bbd52b086c581acf1df",
+      "scope": [
+        "p1: title/authors/version and abstract",
+        "pp3-4 Sections 2.1-2.3, equations 1-6"
+      ],
+      "facts": [
+        "The first attention step gathers global descriptors by second-order attention pooling.",
+        "The second step distributes those descriptors using location-conditioned soft attention.",
+        "Equation 6 composes feature gathering and feature distribution with three learned transformations of the same input."
+      ],
+      "interpretation": "Two-stage gathering/distribution is established prior art. These inspected equations do not impose disjoint donor/recipient folds or our noisy-utility risk comparison. That limited distinction is not novelty clearance.",
+      "url": "https://arxiv.org/abs/1810.11579v1",
+      "pdf_url": "https://arxiv.org/pdf/1810.11579v1",
+      "bytes": 826073,
+      "acquisition": "reused",
+      "identity": "verified",
+      "parsing": "parsed_text",
+      "reading": "read_for_scope",
+      "uninspected": [
+        "remaining body beyond listed scope",
+        "appendix proofs",
+        "supplements",
+        "implementation source"
+      ],
+      "empirical_reproduction": false
+    },
+    {
+      "id": "2106.09681v2",
+      "title": "XCiT: Cross-Covariance Image Transformers",
+      "authors": [
+        "Alaaeldin El-Nouby",
+        "Hugo Touvron",
+        "Mathilde Caron",
+        "Piotr Bojanowski",
+        "Matthijs Douze",
+        "Armand Joulin",
+        "Ivan Laptev",
+        "Natalia Neverova",
+        "Gabriel Synnaeve",
+        "Jakob Verbeek",
+        "Hervé Jégou"
+      ],
+      "observed_version": "arXiv:2106.09681v2 [cs.CV] 18 Jun 2021",
+      "pages": 18,
+      "sha256": "809a049917a6db13ab2913486ccfc777f52981149fde74c0343a18c4c679ead0",
+      "scope": [
+        "p1: title/authors/version and abstract",
+        "pp3-4 Section 3 introduction and Sections 3.1-3.2 through equation 1 and column normalization"
+      ],
+      "facts": [
+        "XCA attends along the feature dimension rather than the token dimension.",
+        "Equation 1 gives V times a softmax of column-normalized key-query cross-covariance divided by a temperature.",
+        "Each query/key column is normalized over its token axis before constructing the channel interaction matrix."
+      ],
+      "interpretation": "Cross-covariance channel attention and data-dependent shared feature maps are established. They should not be renamed as our novelty. The inspected operation is not the proposed donor-utility-to-opposite-token-fold route.",
+      "url": "https://arxiv.org/abs/2106.09681v2",
+      "pdf_url": "https://arxiv.org/pdf/2106.09681v2",
+      "bytes": 3716532,
+      "acquisition": "reused",
+      "identity": "verified",
+      "parsing": "parsed_text",
+      "reading": "read_for_scope",
+      "uninspected": [
+        "remaining body beyond listed scope",
+        "appendix proofs",
+        "supplements",
+        "implementation source"
+      ],
+      "empirical_reproduction": false
+    }
+  ],
+  "collection": {
+    "primary_sources": 3,
+    "searches": "Two bounded arXiv keyword searches and one Crossref metadata search; exact-ID arXiv metadata and original PDFs.",
+    "generic_search_failure": "web search provider returned HTTP 404; direct official arXiv/Crossref HTTP succeeded.",
+    "metadata_only_results_not_semantically_read": true,
+    "exhaustive": false,
+    "policy": "At most eight direct requests, zero retries, serial per origin; seven used; no browser escalation needed."
+  },
+  "carryover": "Prior exact-scope Double Q-learning and Double DQN reading remains applicable: selection/evaluation separation is established prior art.",
+  "transfer_hypothesis": "Separate within-token-fold utility construction from recipient weighting, then test explicit favorable and adverse distributions. No observation independence is supplied by token splitting.",
+  "novelty": "UNRESOLVED",
+  "L5": "NOT_ACCEPTED"
+}
