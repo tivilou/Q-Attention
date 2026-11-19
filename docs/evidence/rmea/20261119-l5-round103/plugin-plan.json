@@ -1,0 +1,370 @@
+{
+  "schema_version": "research-plugin-architecture.plugin-plan.v2",
+  "project": "Q-Attention",
+  "authorization": "approved",
+  "baseline": {
+    "entry_point": "experiments.rmea_context_geometry.legacy.rmea.RMEAHead",
+    "code_revision": "072ced91ec2db24608a16a5ad08fef5eed43e363",
+    "equivalence_test": "Native adapter exact source logits/alpha/state keys; full adapter exact existing measured_attention output at same state."
+  },
+  "core_invariants": [
+    "Original R98 sources remain byte-identical.",
+    "No labels in forward; no new learned tensors/residuals; no dataset/metric changes.",
+    "No scientific execution outside shared scheduler."
+  ],
+  "interfaces": [
+    {
+      "id": "utility-head",
+      "type": "transformer",
+      "input_schema": "Full source-head interface h[B,T,1024],roles[B,T,4],mask[B,T]; float64 CPU; all40classes include null.",
+      "output_schema": "logits[B,40],alpha[B,40,T]; details expose raw/classmean/centered/readout/construction utilities and measured update."
+    }
+  ],
+  "plugins": [
+    {
+      "id": "native",
+      "version": "1",
+      "role": "baseline",
+      "interface": "utility-head",
+      "insertion_point": "RMEA source utilities -> measured_attention -> readout",
+      "hypothesis": "Test joint class-centering versus source-preserving and path-specific controls.",
+      "input_schema": "Full source-head interface h[B,T,1024],roles[B,T,4],mask[B,T]; float64 CPU; all40classes include null.",
+      "output_schema": "logits[B,40],alpha[B,40,T]; details expose raw/classmean/centered/readout/construction utilities and measured update.",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "Same81028 stored tensors; centered readout removes64 effective decoder directions; CPU diagnostic only.",
+      "failure_signatures": [
+        "Baseline mismatch",
+        "Masked/nonfinite utility",
+        "Nonfinite/missing gradients",
+        "Class0 omitted"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "stages": [
+          "native_preparation",
+          "utility_centering",
+          "measurement",
+          "readout"
+        ],
+        "input_fields": [
+          "h",
+          "roles",
+          "mask",
+          "source_state"
+        ],
+        "output_fields": [
+          "logits",
+          "alpha"
+        ],
+        "emitted_fields": [
+          "raw_utilities",
+          "class_mean",
+          "centered_utilities",
+          "construction_utilities",
+          "readout_utilities",
+          "psi",
+          "phi",
+          "alpha",
+          "logits"
+        ],
+        "shape_dtype_normalization": [
+          "All40 classes included; no label inputs; masked weights0, valid rows sum1; float64/complex128."
+        ],
+        "checks": [
+          "Planned producer-owned post-training full-value replay fixture before formal completion; current synthetic compact tests do not certify CaseStudy readiness."
+        ],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "full",
+      "version": "1",
+      "role": "baseline",
+      "interface": "utility-head",
+      "insertion_point": "RMEA source utilities -> measured_attention -> readout",
+      "hypothesis": "Test joint class-centering versus source-preserving and path-specific controls.",
+      "input_schema": "Full source-head interface h[B,T,1024],roles[B,T,4],mask[B,T]; float64 CPU; all40classes include null.",
+      "output_schema": "logits[B,40],alpha[B,40,T]; details expose raw/classmean/centered/readout/construction utilities and measured update.",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "Same81028 stored tensors; centered readout removes64 effective decoder directions; CPU diagnostic only.",
+      "failure_signatures": [
+        "Baseline mismatch",
+        "Masked/nonfinite utility",
+        "Nonfinite/missing gradients",
+        "Class0 omitted"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "stages": [
+          "native_preparation",
+          "utility_centering",
+          "measurement",
+          "readout"
+        ],
+        "input_fields": [
+          "h",
+          "roles",
+          "mask",
+          "source_state"
+        ],
+        "output_fields": [
+          "logits",
+          "alpha"
+        ],
+        "emitted_fields": [
+          "raw_utilities",
+          "class_mean",
+          "centered_utilities",
+          "construction_utilities",
+          "readout_utilities",
+          "psi",
+          "phi",
+          "alpha",
+          "logits"
+        ],
+        "shape_dtype_normalization": [
+          "All40 classes included; no label inputs; masked weights0, valid rows sum1; float64/complex128."
+        ],
+        "checks": [
+          "Planned producer-owned post-training full-value replay fixture before formal completion; current synthetic compact tests do not certify CaseStudy readiness."
+        ],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "centered_native",
+      "version": "1",
+      "role": "adapter",
+      "interface": "utility-head",
+      "insertion_point": "RMEA source utilities -> measured_attention -> readout",
+      "hypothesis": "Test joint class-centering versus source-preserving and path-specific controls.",
+      "input_schema": "Full source-head interface h[B,T,1024],roles[B,T,4],mask[B,T]; float64 CPU; all40classes include null.",
+      "output_schema": "logits[B,40],alpha[B,40,T]; details expose raw/classmean/centered/readout/construction utilities and measured update.",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "Same81028 stored tensors; centered readout removes64 effective decoder directions; CPU diagnostic only.",
+      "failure_signatures": [
+        "Baseline mismatch",
+        "Masked/nonfinite utility",
+        "Nonfinite/missing gradients",
+        "Class0 omitted"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "stages": [
+          "native_preparation",
+          "utility_centering",
+          "measurement",
+          "readout"
+        ],
+        "input_fields": [
+          "h",
+          "roles",
+          "mask",
+          "source_state"
+        ],
+        "output_fields": [
+          "logits",
+          "alpha"
+        ],
+        "emitted_fields": [
+          "raw_utilities",
+          "class_mean",
+          "centered_utilities",
+          "construction_utilities",
+          "readout_utilities",
+          "psi",
+          "phi",
+          "alpha",
+          "logits"
+        ],
+        "shape_dtype_normalization": [
+          "All40 classes included; no label inputs; masked weights0, valid rows sum1; float64/complex128."
+        ],
+        "checks": [
+          "Planned producer-owned post-training full-value replay fixture before formal completion; current synthetic compact tests do not certify CaseStudy readiness."
+        ],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "centered_full",
+      "version": "1",
+      "role": "idea",
+      "interface": "utility-head",
+      "insertion_point": "RMEA source utilities -> measured_attention -> readout",
+      "hypothesis": "Test joint class-centering versus source-preserving and path-specific controls.",
+      "input_schema": "Full source-head interface h[B,T,1024],roles[B,T,4],mask[B,T]; float64 CPU; all40classes include null.",
+      "output_schema": "logits[B,40],alpha[B,40,T]; details expose raw/classmean/centered/readout/construction utilities and measured update.",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "Same81028 stored tensors; centered readout removes64 effective decoder directions; CPU diagnostic only.",
+      "failure_signatures": [
+        "Baseline mismatch",
+        "Masked/nonfinite utility",
+        "Nonfinite/missing gradients",
+        "Class0 omitted"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "stages": [
+          "native_preparation",
+          "utility_centering",
+          "measurement",
+          "readout"
+        ],
+        "input_fields": [
+          "h",
+          "roles",
+          "mask",
+          "source_state"
+        ],
+        "output_fields": [
+          "logits",
+          "alpha"
+        ],
+        "emitted_fields": [
+          "raw_utilities",
+          "class_mean",
+          "centered_utilities",
+          "construction_utilities",
+          "readout_utilities",
+          "psi",
+          "phi",
+          "alpha",
+          "logits"
+        ],
+        "shape_dtype_normalization": [
+          "All40 classes included; no label inputs; masked weights0, valid rows sum1; float64/complex128."
+        ],
+        "checks": [
+          "Planned producer-owned post-training full-value replay fixture before formal completion; current synthetic compact tests do not certify CaseStudy readiness."
+        ],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "construction_only",
+      "version": "1",
+      "role": "adapter",
+      "interface": "utility-head",
+      "insertion_point": "RMEA source utilities -> measured_attention -> readout",
+      "hypothesis": "Test joint class-centering versus source-preserving and path-specific controls.",
+      "input_schema": "Full source-head interface h[B,T,1024],roles[B,T,4],mask[B,T]; float64 CPU; all40classes include null.",
+      "output_schema": "logits[B,40],alpha[B,40,T]; details expose raw/classmean/centered/readout/construction utilities and measured update.",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "Same81028 stored tensors; centered readout removes64 effective decoder directions; CPU diagnostic only.",
+      "failure_signatures": [
+        "Baseline mismatch",
+        "Masked/nonfinite utility",
+        "Nonfinite/missing gradients",
+        "Class0 omitted"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "stages": [
+          "native_preparation",
+          "utility_centering",
+          "measurement",
+          "readout"
+        ],
+        "input_fields": [
+          "h",
+          "roles",
+          "mask",
+          "source_state"
+        ],
+        "output_fields": [
+          "logits",
+          "alpha"
+        ],
+        "emitted_fields": [
+          "raw_utilities",
+          "class_mean",
+          "centered_utilities",
+          "construction_utilities",
+          "readout_utilities",
+          "psi",
+          "phi",
+          "alpha",
+          "logits"
+        ],
+        "shape_dtype_normalization": [
+          "All40 classes included; no label inputs; masked weights0, valid rows sum1; float64/complex128."
+        ],
+        "checks": [
+          "Planned producer-owned post-training full-value replay fixture before formal completion; current synthetic compact tests do not certify CaseStudy readiness."
+        ],
+        "deterministic_replay": true
+      }
+    }
+  ],
+  "discovery": {
+    "mode": "explicit_allowlist",
+    "allowlist": [
+      "native",
+      "full",
+      "centered_native",
+      "centered_full",
+      "construction_only"
+    ]
+  },
+  "composition": {
+    "mode": "single",
+    "order": [
+      "centered_full"
+    ],
+    "merge_rule": "One explicit kind; no plugin composition.",
+    "interaction_ablations": [
+      "centered_native",
+      "construction_only",
+      "full",
+      "native"
+    ]
+  },
+  "validation": {
+    "baseline_equivalence": "Pending actual managed synthetic canary; static checks do not establish numerical equivalence.",
+    "tests": [
+      "baseline_equivalence",
+      "plugin_isolation",
+      "deterministic_replay",
+      "interaction_ablation",
+      "Baseline source parity",
+      "Shared decoder translation invariance and counterexample",
+      "All40classes/padding/rejection",
+      "Forward/backward directional parity",
+      "Complete parameter gradient and decoder null direction"
+    ]
+  },
+  "reproducibility": {
+    "config_path": "docs/evidence/rmea/20261119-l5-round103/canary-design.json",
+    "dataset_identity": "Synthetic only for canary; no dataset reads.",
+    "environment": "NumPy1.24.3/Torch2.4.1+cpu, CPU1,float64/complex128",
+    "seeds": [
+      20261119
+    ],
+    "output_manifest": "compact-report.json and RUN_COMPLETE"
+  },
+  "trace_contract": {
+    "enabled": false
+  },
+  "recovery_contract": {
+    "dossier_path": "docs/evidence/rmea/20261119-l5-round103/mechanism-recovery.json",
+    "dossier_sha256": "06761fa9795675bcce04017ed976a6538dee4006feb1640169d022a39729b8f0",
+    "candidate_id": "r102-joint-class-centering-v1",
+    "discriminating_intermediate_measurement": "raw u, per-token all-class mean b, centered u, construction/readout u and full alpha/logits"
+  },
+  "limitations": [
+    "Approved for bounded implementation only, not implemented/trace-ready certification.",
+    "Future post-training sample-trace.v2 fixture and private complete-value reader are mandatory before formal completion.",
+    "Pending exact code/lifecycle review and managed numerical tests."
+  ]
+}

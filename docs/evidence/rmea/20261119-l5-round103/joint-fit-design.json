@@ -1,0 +1,63 @@
+{
+  "schema": "qattn.class-centered.joint-fit-design.v1",
+  "status": "SCIENCE_DESIGN_ONLY_NO_EXECUTABLE_TRAINING_RUNNER",
+  "purpose": "One fixed matched developmental joint-fit screen after synthetic qualification; no legacy full baseline reproduction.",
+  "data": {
+    "original_split": "train",
+    "evaluation_examples": 972,
+    "groups": 866,
+    "selected_split": "Existing R72 evaluation partition; no new cohort, sampling or official valid/test.",
+    "prefix_receipt_sha256": "27cb566401bc60de8c8fae0611c78a97370b3b2f452838e9d84df90eebf4ad83",
+    "plan_sha256": "00f0c5eedb24ecb2ee146914cba4e72ff320881ad206a05e17a21a9d72159dc5",
+    "cohort_sha256": "dbca6227d405b932bf1c463935383e87f6dd870d0ec0280139a8b460f89b1999",
+    "donors_sha256": "12abb735b1eb6358ecd306d01bb154739baa8afb2689928c23b85944eeb28538",
+    "fit_examples": 3124,
+    "fit_groups": 2714
+  },
+  "training": {
+    "seed": 20261118,
+    "epochs": 4,
+    "batch_size": 32,
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "clip_norm": 1.0,
+    "threads": 1,
+    "device": "cpu",
+    "precision": "float64/complex128",
+    "independent_initializations": 1
+  },
+  "conditions": [
+    "native",
+    "full",
+    "simplex",
+    "centered_native",
+    "centered_full",
+    "construction_only"
+  ],
+  "same_init": "Original native state_dict and epoch orders shared; record exact identities; do not reuse old control metrics as newly matched execution.",
+  "stored_parameters_per_condition": 81028,
+  "centered_readout_null_decoder_directions": 64,
+  "primary": "Positive39 Macro-F1 with all39 included; absent class F1=0, fixed cohort denominator.",
+  "discovery_gate": "Centered_full Macro strictly above native/full/simplex/centered_native and CE no worse than native and centered_native; retain all signed deltas. Otherwise no automatic formal promotion; short normal null is inconclusive.",
+  "attribution": "Centered_native/full difference tests update beyond decoder restriction; construction_only isolates readout centering; no quantum-necessity claim.",
+  "recovery": "One attempt, no automatic replay or optional seed/epoch/eta/epsilon/centering-weight rescue. Restart from durable inputs only after a separately authorized new contract.",
+  "proposed_budget": {
+    "cpu": 1,
+    "ram_mb": 8192,
+    "gpus": 0,
+    "disk_mb": 64,
+    "timeout_seconds": 1200,
+    "optimizer_steps": 2352,
+    "new_checkpoints": 6
+  },
+  "persistence": "Future final models only if an active analysis/continuation consumer exists; no COS transfer in this design. Stopped screens Git code/compact reports by default.",
+  "real_data_training_admitted": false,
+  "formal_handoff": false,
+  "L5": "NOT_ACCEPTED"
+}

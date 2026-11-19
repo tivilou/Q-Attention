@@ -1,0 +1,136 @@
+{
+  "schema_version": "experiment-grounded-ideation.mechanism-recovery.v2",
+  "evidence_packet": {
+    "path": "docs/evidence/rmea/20261119-l5-round96/training-result.json",
+    "sha256": "c20b2545181f462b5a938dc467a47d04a1fef33f9472484b11f6b9b6a63b2ed0",
+    "code_revision": "2b6f1ed4ae470cab71c56086c63be1b2c5c64a98",
+    "validity_status": "mixed"
+  },
+  "causal_trace": {
+    "intervention_execution": {
+      "claim": "R95 frozen insertion and R96 common-init joint training actually executed; R102 not executed.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261119-l5-round95/utility-screen-result.json",
+        "docs/evidence/rmea/20261119-l5-round96/training-result.json"
+      ]
+    },
+    "intended_intermediate": {
+      "claim": "R95 all own-score gains positive; R102 source equation exposes a possible common-component margin path, not observed mediation.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261119-l5-round95/utility-screen-result.json",
+        "docs/evidence/rmea/20261119-l5-round102/common-mode-triage-v001.md"
+      ]
+    },
+    "observable_output": {
+      "claim": "R95 Macro worsened; R96 full-minus-native development Macro/CE positive, full Macro slightly below simplex.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261119-l5-round95/utility-screen-result.json",
+        "docs/evidence/rmea/20261119-l5-round96/training-result.json"
+      ]
+    },
+    "task_utility": {
+      "claim": "Discovery only, reused development and one init; new class-centering utility is not measured.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261119-l5-round96/training-result.json",
+        "docs/evidence/rmea/20261119-l5-round102/common-mode-triage-v001.md"
+      ]
+    }
+  },
+  "trace_adequacy": {
+    "status": "partial",
+    "schema_version": "source-equations-and-compact-reports",
+    "artifact_refs": [
+      "docs/evidence/rmea/20261119-l5-round95/utility-screen-result.json",
+      "docs/evidence/rmea/20261119-l5-round96/training-result.json",
+      "docs/evidence/rmea/20261119-l5-round102/common-mode-triage-v001.md"
+    ],
+    "selection_rule": "All original predeclared development examples in reports; no selected case attribution.",
+    "covered_stages": [
+      "source_readout",
+      "aggregate_output"
+    ],
+    "missing_stages": [
+      "common_mode_mediation_in_executed_candidate"
+    ],
+    "target_boundary": "Labels never enter the proposed forward path; fit labels only in supervised loss, evaluation labels metrics only."
+  },
+  "failure_analysis": {
+    "primary_explanation": {
+      "statement": "Class-common token values can alter margins under class-dependent pooling; whether this explains actual R95 harm is unmeasured.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261119-l5-round102/common-mode-triage-v001.md"
+      ],
+      "confidence": "low"
+    },
+    "alternative_explanations": [
+      {
+        "statement": "Postfit insertion and learned decoder/routing are mismatched; joint fitting may explain R96 carryover.",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261119-l5-round95/utility-screen-result.json",
+          "docs/evidence/rmea/20261119-l5-round96/training-result.json"
+        ],
+        "confidence": "medium"
+      },
+      {
+        "statement": "Centering may help only by restricting the decoder, without measurement-update benefit.",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261119-l5-round102/common-mode-triage-v001.md"
+        ],
+        "confidence": "medium"
+      }
+    ],
+    "discriminating_measurement": {
+      "uncertainty": "Class-common readout removal versus measurement construction versus ordinary decoder restriction.",
+      "measurement": "Matched class-centered native, class-centered full, construction-only full, uncentered full/native/simplex; compare common-mode contribution and task deltas.",
+      "primary_outcome": "Centered full has distinct benefit beyond centered-native and uncentered controls.",
+      "alternative_outcome": "Centered-native matches benefit or centering harms; no update-specific support."
+    },
+    "closed_family": {
+      "id": "r95-frozen-postfit-eta1-insertion",
+      "rejected_variant_refs": [
+        "docs/evidence/rmea/20261119-l5-round95/utility-screen-result.json"
+      ],
+      "closure_evidence_refs": [
+        "docs/evidence/rmea/20261119-l5-round95/utility-screen-result.json"
+      ],
+      "forbidden_rescue_variants": [
+        "No optional eta/epsilon/seed/epoch rescue of the frozen postfit contract."
+      ]
+    }
+  },
+  "positive_carryovers": [
+    {
+      "id": "r96-joint-utility-path",
+      "mechanism": "Jointly train the existing utility-to-measurement path with shared states/value/decoder tensors.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261119-l5-round96/training-result.json"
+      ],
+      "transport_constraint": "One-init development evidence only; class-centering changes the function and inherits no utility tier."
+    }
+  ],
+  "recovery_outcome": {
+    "disposition": "candidate",
+    "selected_candidate": {
+      "id": "r102-joint-class-centering-v1",
+      "title": "Joint class-centered construction and readout",
+      "positive_carryover_ids": [
+        "r96-joint-utility-path"
+      ],
+      "recovery_mode": "new_causal_path",
+      "causal_difference": "Remove the all-class token-utility mean before both measurement construction and readout; couple classes with a centered decoder.",
+      "changed_causal_links": [
+        "intended_intermediate",
+        "observable_output"
+      ],
+      "discriminating_measurement": "Expose raw utility, token class mean, centered construction/readout utilities, alpha and logits; require centered-native control.",
+      "success_gate": "Synthetic algebra/gradient/source checks pass before a separately reviewed fixed joint-fit screen; discovery gate frozen in joint-fit-design.json.",
+      "kill_condition": "Any implementation identity/finite-gradient/lineage failure stops that contract; short-screen null gives no automatic promotion or rescue.",
+      "authorization_boundary": "Owner sustained bounded research; shared scheduler only; full formal runs collaborator-only; no new capacity."
+    }
+  },
+  "limitations": [
+    "New family unimplemented/unmeasured at dossier creation.",
+    "No complete case-level causal evidence or novelty clearance.",
+    "R102 analytic invariance does not imply semantic robustness or task improvement."
+  ]
+}
