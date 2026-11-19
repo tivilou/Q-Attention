@@ -1,0 +1,36 @@
+{
+  "schema": "qattn.math-review-record.v1",
+  "reviewed_note": "docs/evidence/rmea/20261119-l5-round100/finite-epsilon-equivalence-v001.md",
+  "note_sha256": "f41757d011481c27a1f138d29779b6bdc6ad05b5b81b983d1cf25c78d271ab29",
+  "freeze_sha256": "45f157322978c0f0b7237f21d3db18f0f1856acf68c3325ec5f638bb69ec1700",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "medium",
+  "response_id": "resp_03f6747c39ea6b25016afecccccf1887d2bc09d545c83fb59d",
+  "exact_inference_requests": 1,
+  "automatic_retries": 0,
+  "review_scope": "mathematical delta only",
+  "verdict": {
+    "verdict": "PASS",
+    "must_fix": [],
+    "finite_epsilon_gradient_identity": "PASS",
+    "finite_epsilon_own_score_ascent": "PASS",
+    "training_graph_scope": "PASS",
+    "comparison_deduplication": "PASS",
+    "risks": [
+      "The real-sphere gradient is correctly 2QAphi/Z: Hermiticity makes phi*Aphi real, so real-tangent projection also gives complex horizontality. The quotient identity and exponential-map scale alpha=eta Z/(2N) are exact for every epsilon>0, including the zero-gradient case.",
+      "The strict-ascent proof is valid. Centering gives a+epsilon tr(A)=0; the orthonormal two-dimensional compression gives ||A||_F^2>=a^2+c^2+2s^2. Consequently 0<theta<1/sqrt(2), and the bracket in (6) exceeds s(3/2-sqrt(2))>0. The denominator is strictly positive because epsilon tr(S)=epsilon n>0. No complex-phase exception appears.",
+      "Training equivalence requires differentiation through all input-dependent quantities and a smoothly implemented removable singularity at s=0. Forward algebraic equality alone does not establish numerical forward or backward parity; detachment generally changes derivatives.",
+      "Removing the exactly matched sphere-gradient expression as an independent task-utility condition is justified. This does not establish literature priority, classification improvement, or training benefit.",
+      "The referenced R99 two-class counterexample and historical evidence were not supplied and are not independently verified here. Neither is needed for the finite-epsilon identities or strict-ascent proof."
+    ],
+    "novelty_accepted": false,
+    "numerical_admission": false,
+    "L5": "NOT_ACCEPTED"
+  },
+  "usage": {
+    "input_tokens": 2187,
+    "output_tokens": 526,
+    "total_tokens": 2713
+  },
+  "limitations": "No implementation/lifecycle admission. Referenced unchanged R99 CE witness was outside this new packet and was not re-reviewed. No novelty/task-efficacy acceptance."
+}
