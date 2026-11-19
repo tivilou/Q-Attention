@@ -1,0 +1,83 @@
+{
+  "schema": "qattn.native-parity.design.v1",
+  "purpose": "Identify R91 native aggregate mismatch, not accept a Case Study or improve a method.",
+  "data": {
+    "original_split": "train",
+    "evaluation_examples": 972,
+    "groups": 866,
+    "selected_split": "Existing R72 evaluation partition; no new cohort, sampling or official valid/test.",
+    "prefix_receipt_sha256": "27cb566401bc60de8c8fae0611c78a97370b3b2f452838e9d84df90eebf4ad83",
+    "plan_sha256": "00f0c5eedb24ecb2ee146914cba4e72ff320881ad206a05e17a21a9d72159dc5",
+    "cohort_sha256": "dbca6227d405b932bf1c463935383e87f6dd870d0ec0280139a8b460f89b1999",
+    "donors_sha256": "12abb735b1eb6358ecd306d01bb154739baa8afb2689928c23b85944eeb28538"
+  },
+  "environment": {
+    "numpy": "1.24.3",
+    "torch": "2.4.1+cpu"
+  },
+  "checkpoint": {
+    "filename": "native_quantum-final.pt",
+    "sha256": "dd58e950cda8e965476e71334569da6124c97e3a7c59fc96afbb2d51fc68ada3",
+    "parameters": 81028,
+    "final_epoch": 4
+  },
+  "original_report_sha256": "76b06a70aa80612689ccb050f5cc624a367c737c693e3fc43406c20eb04b2537",
+  "partial_manifest_sha256": "2634a1af28be85df22e3e14367137a1c2c4e57bbb47c103977c88cd820b0b7d1",
+  "original_selection_sha256": "7f44d5641748c5d751ac230ba135c7f64750f7f7c0aafead4ed06ee7f6940367",
+  "source_files": {
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+    "experiments/rmea_ecqp_screen/runner.py": "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+    "experiments/rmea_ecqp_screen/metrics.py": "9d039c538453dadc648e2fcdd9f7ade79acd24cb5997a07a8d6f1d69da4e7716",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e",
+    "docs/evidence/rmea/20261118-l5-round72/screen-design.json": "1668609d349ac5ce441239138f1ffb2bb5b26462d83fcd1be2c4dff5937fe595",
+    "experiments/rmea_semantic_probe/scripts/validate_sample_trace_v2.py": "55e7bcb34a048b3b8c6cd3837364d75ab8f3a24a23b276999dc009495b7df2c9",
+    "experiments/rmea_training_case_trace/trace.py": "acc77c9e73d7d733b5af73b6e26450a7a41c95b99247366839fe6b7671e6b22e"
+  },
+  "implementation_files": {
+    "experiments/rmea_replay_parity/job.py": "d2723c278ec98d6f3159d280ce144e374c936dbbf489b271f1fbec72d8059f09",
+    "experiments/rmea_replay_parity/differences.py": "cdef1e39683744a74c68c8771ef458dd6a340cbe0bfbf43e1fa4648093863aa3",
+    "experiments/rmea_replay_parity/comparison_checks.py": "46f93bdfbd01e47f7b337a0c5d38da852bf45eacea4e9179c286bc1666175029"
+  },
+  "variants": [
+    {
+      "id": "ordinary_trainable_flags",
+      "details": false,
+      "requires_grad": true
+    },
+    {
+      "id": "details_trainable_flags",
+      "details": true,
+      "requires_grad": true
+    },
+    {
+      "id": "ordinary_frozen_flags",
+      "details": false,
+      "requires_grad": false
+    },
+    {
+      "id": "details_frozen_flags",
+      "details": true,
+      "requires_grad": false
+    }
+  ],
+  "proposed_budget": {
+    "cpu": 1,
+    "ram_mb": 4096,
+    "disk_mb": 128,
+    "gpus": 0,
+    "timeout_seconds": 300,
+    "max_attempts": 1,
+    "replay_safe": false,
+    "optimizer_steps": 0,
+    "training": false,
+    "COS_GET_requests": 0,
+    "cloud_writes": 0,
+    "private_values_bytes_max": 1048576
+  },
+  "inference": "One972-example eval pass per fixed API/gradient-flag mode; same source/checkpoint/input/order/batches32/padding. All modes torch.no_grad. No fitting; gradient flags test execution-path effects only.",
+  "diagnostic_acceptance": "Produce exact observed/expected field differences including actual float values before closing; finite outputs, original inputs/weights/source/hash closure and same-attempt terminal proof. Completion means diagnostic observation only, not historical parity or case acceptance.",
+  "partial_evidence": "Existing172 R91 partial files are hash-bound and read-only. Compare34 selected native logits to current modes; never accept old trace based on equality. Old completion markers stay absent.",
+  "claim_ceiling": "No parity-tolerance relaxation, retry, new method, formal utility, quantum attribution or L5. CPU cause remains unresolved unless controlled evidence identifies it."
+}
