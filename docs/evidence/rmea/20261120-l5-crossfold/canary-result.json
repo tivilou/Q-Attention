@@ -1,0 +1,122 @@
+{
+  "schema": "qattn.cross-fold.corrected.canary.owner-acceptance.v1",
+  "status": "ACCEPTED_CORRECTED_CROSS_FOLD_NUMERICAL_CANARY",
+  "task": "d5c47b04ad9148dbac1f474875ddf27c",
+  "attempt": "ed3920204cbc4fba8ace9d1a0f33142b",
+  "attempt_count": 1,
+  "returncode": 0,
+  "quiescent": true,
+  "source_revision": "86573fb81c2cfdd5baaca18f8d86319763bd38a6",
+  "contract_sha256": "8a28bb422faa7a9030423b7e485cd6114b53ce12ef6373748f05e68f57a1cbab",
+  "outputs": {
+    "RUN_COMPLETE": {
+      "bytes": 185,
+      "sha256": "abd073b364bc1a10bb50cdcab2378dfb1e6297e29e2d442789a81fcd77659f8d"
+    },
+    "compact-report.json": {
+      "bytes": 3328,
+      "sha256": "378e38de3a063cd39debc36473f6ef6fee1c878e2afd764e518181fc0da33398"
+    }
+  },
+  "source_clean": true,
+  "observer_model_forwards": 0,
+  "scientific_imports": false,
+  "independent_confirmation": false,
+  "formal_handoff": false,
+  "L5": "NOT_ACCEPTED",
+  "report": {
+    "status": "CROSS_FOLD_NUMERICAL_CANARY_COMPLETE",
+    "checks": [
+      {
+        "name": "native_eta0_short_sequences_valid_order_and_padding",
+        "status": "PASS",
+        "masked_nan_ignored": true,
+        "all40_classes": true,
+        "short_native": true
+      },
+      {
+        "name": "all40_invalid_interfaces_and_parameter_isolation",
+        "status": "PASS",
+        "rejected": 6,
+        "stored_parameters": 81028
+      },
+      {
+        "name": "recipient_dependency_and_fold_constant_shift",
+        "status": "PASS",
+        "own_recipient_routing_independent": true,
+        "opposite_recipient_changes": true,
+        "shift_dtype": "torch.float64"
+      },
+      {
+        "name": "signed_cross_response_and_nonnegative_self_response",
+        "status": "PASS",
+        "slopes": {
+          "aligned_self_fold": 0.08357983884987874,
+          "aligned_cross_fold": 0.08357983884987874,
+          "opposing_self_fold": 0.08357983884987874,
+          "opposing_cross_fold": -0.08357983884987874
+        },
+        "scope": "Synthetic right derivatives; no CE theorem"
+      },
+      {
+        "name": "zero_utility_jacobian_signed_pairing_and_self_gram",
+        "status": "PASS",
+        "cross_eigenvalues": [
+          -0.0361911318234019,
+          -4.94358175162683e-18,
+          1.311504473800389e-18,
+          0.036191131823401904
+        ],
+        "self_eigenvalues": [
+          0.0,
+          0.0,
+          0.036191131823401904,
+          0.036191131823401904
+        ],
+        "jacobian_fd_error": 1.917260447625857e-11
+      },
+      {
+        "name": "independent_noise_identity_and_correlated_failure_witnesses",
+        "status": "PASS",
+        "means": {
+          "independent_cross": 0.0,
+          "independent_self": 0.002784914069268618,
+          "correlated_cross": 0.002784914069268618,
+          "anticorrelated_cross": -0.002784914069268611
+        },
+        "scope": "Exhaustive bounded synthetic signs; not an NLP noise model"
+      },
+      {
+        "name": "end_to_end_gradients_and_utility_directional_difference",
+        "status": "PASS",
+        "utility_fd_error": 3.316791286067655e-12,
+        "state_and_mass_fd_error": 1.6561712938567563e-11,
+        "full_parameter_gradients": true
+      },
+      {
+        "name": "deterministic_state_reload_and_kind_rejection",
+        "status": "PASS",
+        "source_native_parity": true,
+        "state_reload": true
+      }
+    ],
+    "check_count": 8,
+    "seed": 20261120,
+    "task_training": false,
+    "optimizer_steps": 0,
+    "real_dataset_reads": 0,
+    "new_checkpoints": 0,
+    "COS_requests": 0,
+    "cloud_writes": 0,
+    "independent_confirmation": false,
+    "formal_handoff": false,
+    "L5": "NOT_ACCEPTED",
+    "job_sha256": "f88c92e419c5c35e987060612cbf82f384d9166c02241daef4b2dd7bf5a61879",
+    "design_sha256": "3a6a6229a2212c88eba5bc57678f7f25b785797828bd6ada46c3fa710d4628f1",
+    "environment": {
+      "numpy": "1.24.3",
+      "torch": "2.4.1+cpu"
+    }
+  },
+  "private_acceptance_sha256": "1223304c896e23158d4c58dfa833b42d47394f354fe2358ebe0291b1abfe6d5e"
+}

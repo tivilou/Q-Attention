@@ -1,0 +1,141 @@
+{
+  "schema": "qattn.cross-fold.training.design.v1",
+  "status": "CANARY_QUALIFIED_AWAIT_EXACT_TRAINING_AND_LIFECYCLE_REVIEW",
+  "science_design": "docs/evidence/rmea/20261120-l5-crossfold/candidate-v001.md",
+  "science_design_sha256": "0ca71d7b13bf88954d10b19e4dbe24851c425c87045e971fee482e6c86f65fb2",
+  "purpose": "One donor/recipient separation matched developmental screen. New mechanism family; no historical full-baseline reproduction.",
+  "data": {
+    "original_split": "train",
+    "evaluation_examples": 972,
+    "groups": 866,
+    "selected_split": "Existing R72 evaluation partition; no new cohort, sampling or official valid/test.",
+    "prefix_receipt_sha256": "27cb566401bc60de8c8fae0611c78a97370b3b2f452838e9d84df90eebf4ad83",
+    "plan_sha256": "00f0c5eedb24ecb2ee146914cba4e72ff320881ad206a05e17a21a9d72159dc5",
+    "cohort_sha256": "dbca6227d405b932bf1c463935383e87f6dd870d0ec0280139a8b460f89b1999",
+    "donors_sha256": "12abb735b1eb6358ecd306d01bb154739baa8afb2689928c23b85944eeb28538",
+    "fit_examples": 3124,
+    "fit_groups": 2714
+  },
+  "training": {
+    "seed": 20261118,
+    "epochs": 4,
+    "batch_size": 32,
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "clip_norm": 1.0,
+    "threads": 1,
+    "device": "cpu",
+    "precision": "float64/complex128",
+    "independent_initializations": 1
+  },
+  "conditions": [
+    "native",
+    "full",
+    "simplex",
+    "self_fold",
+    "cross_fold"
+  ],
+  "environment": {
+    "numpy": "1.24.3",
+    "torch": "2.4.1+cpu"
+  },
+  "source_files": {
+    "experiments/rmea_utility_measurement/train.py": "067ae67910c79085d2dccf0ffc1c404baa14af734f4aa769d424ade20ce74605",
+    "experiments/rmea_utility_measurement/train_job.py": "db3f5cf823648392b80da5bae005eae91dbfcb90162b493ecbef71f5dca65b29",
+    "experiments/rmea_utility_measurement/head.py": "7afde7ef88b60afdf08c87f1a1d812aca33234830d24f2403220af9cc7d6c009",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+    "experiments/rmea_ecqp_screen/runner.py": "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+    "experiments/rmea_ecqp_screen/metrics.py": "9d039c538453dadc648e2fcdd9f7ade79acd24cb5997a07a8d6f1d69da4e7716",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e",
+    "experiments/rmea_utility_measurement/cross_fold_train.py": "222f249b6d94e58680c92449c387b0c78662bc3765e8953e90a3ff8989731aec",
+    "experiments/rmea_utility_measurement/cross_fold_train_job.py": "fe6e9daeadcc923db0a723064307f0eb9c98c076aa4692ef46882ff1834f2e1a",
+    "experiments/rmea_utility_measurement/cross_fold.py": "739608e5c53e1b292c14b4aa7793c01a25b9267d61c93e2ceb4359bac91f2b6f",
+    "experiments/rmea_utility_measurement/cross_fold_canary.py": "b319f22656a0788995150abcc3c39bec764ad132f376c7631254730a5e80436c",
+    "experiments/rmea_utility_measurement/cross_fold_job.py": "f88c92e419c5c35e987060612cbf82f384d9166c02241daef4b2dd7bf5a61879",
+    "docs/evidence/rmea/20261120-l5-crossfold/canary-design.json": "3a6a6229a2212c88eba5bc57678f7f25b785797828bd6ada46c3fa710d4628f1"
+  },
+  "budget": {
+    "cpu": 1,
+    "ram_mb": 8192,
+    "gpus": 0,
+    "disk_mb": 64,
+    "timeout_seconds": 1800,
+    "optimizer_steps": 1960,
+    "new_checkpoints": 5,
+    "private_checkpoint_bytes_max": 4194304,
+    "COS_requests": 0,
+    "cloud_writes": 0
+  },
+  "outputs": [
+    "compact-report.json",
+    "RUN_COMPLETE"
+  ],
+  "max_attempts": 1,
+  "replay_safe": false,
+  "primary": "Positive39 Macro-F1 with all39 included; absent class F1=0, fixed cohort denominator.",
+  "discovery_gate": "Cross_fold Macro strictly above native/full/simplex/self_fold and CE no worse than native and self_fold. Freeze before execution; report all signed deltas. Normal short null remains inconclusive; no optional seed/epoch/coefficient rescue or automatic formal handoff.",
+  "same_init": "Original native state_dict and epoch orders shared; record exact identities; do not reuse old control metrics as newly matched execution.",
+  "stored_parameters_per_condition": 81028,
+  "attribution": "Cross versus self uses identical folds, native fold masses, all values, parameters, compute structure and optimization budget; donor mapping is the intervention. Task improvement does not identify clean-noise independence or quantum necessity.",
+  "recovery": "One attempt, no automatic replay or optional seed/epoch/eta/epsilon/centering-weight rescue. Restart from durable inputs only after a separately authorized new contract.",
+  "persistence": "Future final models only if an active analysis/continuation consumer exists; no COS transfer in this design. Stopped screens Git code/compact reports by default.",
+  "synthetic_canary": {
+    "source_revision": "86573fb81c2cfdd5baaca18f8d86319763bd38a6",
+    "contract_sha256": "8a28bb422faa7a9030423b7e485cd6114b53ce12ef6373748f05e68f57a1cbab",
+    "task": "d5c47b04ad9148dbac1f474875ddf27c",
+    "attempt": "ed3920204cbc4fba8ace9d1a0f33142b",
+    "job_sha256": "f88c92e419c5c35e987060612cbf82f384d9166c02241daef4b2dd7bf5a61879",
+    "design_sha256": "3a6a6229a2212c88eba5bc57678f7f25b785797828bd6ada46c3fa710d4628f1",
+    "report_status": "CROSS_FOLD_NUMERICAL_CANARY_COMPLETE",
+    "check_names": [
+      "native_eta0_short_sequences_valid_order_and_padding",
+      "all40_invalid_interfaces_and_parameter_isolation",
+      "recipient_dependency_and_fold_constant_shift",
+      "signed_cross_response_and_nonnegative_self_response",
+      "zero_utility_jacobian_signed_pairing_and_self_gram",
+      "independent_noise_identity_and_correlated_failure_witnesses",
+      "end_to_end_gradients_and_utility_directional_difference",
+      "deterministic_state_reload_and_kind_rejection"
+    ],
+    "numerical_source_files": {
+      "experiments/rmea_utility_measurement/head.py": "7afde7ef88b60afdf08c87f1a1d812aca33234830d24f2403220af9cc7d6c009",
+      "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+      "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+      "experiments/rmea_utility_measurement/cross_fold.py": "739608e5c53e1b292c14b4aa7793c01a25b9267d61c93e2ceb4359bac91f2b6f",
+      "experiments/rmea_utility_measurement/cross_fold_canary.py": "b319f22656a0788995150abcc3c39bec764ad132f376c7631254730a5e80436c",
+      "experiments/rmea_utility_measurement/cross_fold_job.py": "f88c92e419c5c35e987060612cbf82f384d9166c02241daef4b2dd7bf5a61879",
+      "docs/evidence/rmea/20261120-l5-crossfold/canary-design.json": "3a6a6229a2212c88eba5bc57678f7f25b785797828bd6ada46c3fa710d4628f1"
+    }
+  },
+  "compatibility": "Unchanged shared training loop and three original controls; new explicit head factory only. Exact canary-qualified fold source retained. Actual five-condition training has not run.",
+  "private_outputs": "Final five state_dicts plus hash marker, child command/stdout/stderr; no optimizer,epoch weights,predictions or data copy. All checkpoints plus marker <=4MiB.",
+  "task_training": true,
+  "full_formal_run": false,
+  "independent_confirmation": false,
+  "architecture_completion": false,
+  "real_data_training_admitted": false,
+  "formal_handoff": false,
+  "L5": "NOT_ACCEPTED",
+  "synthetic_canary_observation": {
+    "task": "d5c47b04ad9148dbac1f474875ddf27c",
+    "attempt": "ed3920204cbc4fba8ace9d1a0f33142b",
+    "acceptance_sha256": "1223304c896e23158d4c58dfa833b42d47394f354fe2358ebe0291b1abfe6d5e",
+    "all_eight_checks_passed": true,
+    "observer_model_forwards": 0
+  },
+  "screen_limitations": [
+    "Repeatedly explored original train-prefix partition, not independent confirmation.",
+    "Six evaluation classes absent; fixed positive39 denominator retained.",
+    "One common initialization; short final-epoch weights, no hyperparameter search or validation selection.",
+    "Cross folds share contextual representations; conditional noise independence unproved."
+  ],
+  "budget_justification": "Five conditions share 392 updates each; self/cross perform two fold-local effect constructions per sample. 1800s is one predeclared finite bound, not timeout rescue. Existing six-condition training cost525.77s; cross/self may be slower. No new capacity."
+}
