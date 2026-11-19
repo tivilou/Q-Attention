@@ -1,0 +1,42 @@
+{
+  "schema": "qattn.exact-implementation-review-record.v1",
+  "freeze_sha256": "6245134e666db1ce1c6a4fd2c088c133e51feaa0739fd6416042b08c73649beb",
+  "response_id": "resp_08b4a6f2828b3dc1016afe88f7ac8887d1ba7f783001e7ef16",
+  "reasoning_effort": "medium",
+  "review": {
+    "review_mode": "external",
+    "reviewer_model": "gpt-6.1-sol",
+    "review_scope": "both",
+    "freeze_sha256": "6245134e666db1ce1c6a4fd2c088c133e51feaa0739fd6416042b08c73649beb",
+    "source_sha256": "9621e3b3f67cbf38689cccf6042c7f02a81dd88c68326061da71fa20791fff02",
+    "contract_sha256": "af5d92d042bfde4bde4c4aafb601bef18eb7def2fe8bee89a5568b9cee29b85f",
+    "verdict": "PASS_WITH_RISK",
+    "must_fix": [],
+    "risks": [
+      "Assessment is static and based on supplied source and reported fixtures; hashes, infrastructure behavior and numerical results were not independently executed or verified.",
+      "The 8192 MiB memory and 1800-second wall-time budgets are not established by a representative training benchmark. Budget exhaustion must terminate this single attempt without automatic retry or protocol adjustment.",
+      "One initialization and a repeatedly explored training-only evaluation cohort support descriptive discovery only. Any strictly positive Macro-F1 delta is a point result, not independent confirmation or population-level evidence.",
+      "The simplex control has different update magnitude, nonsmooth max-scale derivatives and computational cost. Winning against it would not uniquely establish a benefit from noncommutativity; trained pinching and alignment controls are outside this diagnostic.",
+      "Checkpoint replay verifies only the first evaluation batch. This satisfies the frozen contract but does not certify full-evaluation reload parity or independent metric recomputation.",
+      "Reported parent fixtures replace scientific computation and admission guards. They support failure/publication handling, not training correctness, resource feasibility or scheduler-wide descendant cleanup."
+    ],
+    "theory_mapping": [
+      "The full condition implements the analytic initial-effect logarithm, centered utility operator, smooth Frobenius normalization and differentiable matrix exponential without detaching the utility-to-measurement path or adding a second epsilon.",
+      "The simplex implementation is algebraically equivalent to the specified bounded utility tilt: centering the exponent subtracts a classwise constant that cancels during normalization.",
+      "All three conditions copy the same FP32-initialized, FP64-cast native state, retain 81028 parameters and use identical predetermined sample orders and optimizer settings. Four epochs times ceil(3124/32) gives 392 steps per condition and 1176 total.",
+      "Training gradients use fit labels only; evaluation occurs after the fourth epoch without checkpoint selection. This tests joint optimization of the new computational graph, rather than repeating the stopped fixed-checkpoint intervention.",
+      "The Gibbs argument supports own-class aggregate improvement at fixed states and utilities, not task-loss improvement during training. The harmful-CE witness and lack of established novelty remain applicable.",
+      "Positive-39 Macro-F1 is implemented consistently. Primary positivity is retained independently of CE and simplex comparisons, while formal promotion and L5 acceptance remain excluded.",
+      "Source-bound admission, idle-only paired configuration updates, one-attempt/no-replay settings, checkpoint hashing and reload checks, and publication only after successful child completion are consistent with the bounded lifecycle contract."
+    ],
+    "correctness": "pass",
+    "lifecycle_correctness": "pass",
+    "bounded_training_execution_eligible": true,
+    "formal_training_admitted": false,
+    "L5": "NOT_ACCEPTED"
+  },
+  "scientific_attempts": 1,
+  "bounded_training_admitted": true,
+  "formal_training_admitted": false,
+  "L5": "NOT_ACCEPTED"
+}
