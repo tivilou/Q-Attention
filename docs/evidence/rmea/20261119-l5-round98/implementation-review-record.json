@@ -1,0 +1,96 @@
+{
+  "schema": "qattn.r98.response.exact-review.v1",
+  "source_revision": "072ced91ec2db24608a16a5ad08fef5eed43e363",
+  "freeze_sha256": "839b82682c9d7e33c3619b51bb69713ca82921bd83ebdcb381810a6adc2786fa",
+  "source_sha256": "65a38ed5b17ad1621eb70d33ae5278828373b330995a509f73fd8488d48a07b4",
+  "source_files": {
+    "experiments/rmea_utility_measurement/response.py": "9a92db87abc898065ae9c2aa298f134b002e53d47a38edd93ea8e4519ed29c1a",
+    "experiments/rmea_utility_measurement/response_job.py": "77eb7221842b59b1ab1167aab8578e4ebf7c2af0f33d4aca62db4799a154706c",
+    "experiments/rmea_utility_measurement/train.py": "298ad452743324a275ec2577eacf73b8d43d45b9c0c2bca6e4e1a593e860d990",
+    "experiments/rmea_utility_measurement/head.py": "7afde7ef88b60afdf08c87f1a1d812aca33234830d24f2403220af9cc7d6c009",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+    "experiments/rmea_ecqp_screen/runner.py": "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+    "experiments/rmea_ecqp_screen/metrics.py": "9d039c538453dadc648e2fcdd9f7ade79acd24cb5997a07a8d6f1d69da4e7716",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e",
+    "docs/evidence/rmea/20261119-l5-round98/response-design.json": "0e3f2779aaf475fde1096a5d365aa3152b02b36c5d9ff7bb92adbba6d3b4d7e4"
+  },
+  "contract_sha256": "1f9d2613e0824ba18c94c297f531c9ee79945cd6cbf789d9ae32ef5f8d3e41ec",
+  "response_id": "resp_0a9699a69540056b016afeacb71b1087d18d01beca828b576b",
+  "reasoning_effort": "medium",
+  "review": {
+    "review_mode": "external",
+    "reviewer_model": "gpt-6.1-sol",
+    "review_scope": "both",
+    "freeze_sha256": "839b82682c9d7e33c3619b51bb69713ca82921bd83ebdcb381810a6adc2786fa",
+    "source_sha256": "65a38ed5b17ad1621eb70d33ae5278828373b330995a509f73fd8488d48a07b4",
+    "contract_sha256": "1f9d2613e0824ba18c94c297f531c9ee79945cd6cbf789d9ae32ef5f8d3e41ec",
+    "verdict": "PASS_WITH_RISK",
+    "must_fix": [],
+    "risks": [
+      "Static review only: supplied hashes, checkpoint contents, environment, scheduler implementation, transport dependency and reported test execution were not independently authenticated. Execution eligibility depends on the specified live provenance gates succeeding.",
+      "Autograd checks scalar sums, not individual class derivatives. Per-entry one-sided finite differences provide complementary coverage, but retain truncation and cancellation error. Any frozen-tolerance failure must terminate without numerical rescue.",
+      "Projector and analytic-log formulas assume exactly normalized states. The implementation permits small norm errors; recorded geometry residuals and actual native-logit comparison are necessary numerical qualifications, not exact floating-point identities.",
+      "The CE cross-gap identity is constructed from the same analytic response terms and is not an independent numerical check by itself. Separate full and pinched autograd and finite-difference CE checks provide the substantive implementation checks.",
+      "The 900-second timeout and 8192-MB allocation are prospective bounds, not demonstrated runtime sufficiency. Parent fixtures replace scientific execution and initial guards; they do not establish numerical canary success or real-data completion.",
+      "R96 evaluation uses batch size 32 while this replay uses 4. Exact prediction-derived metrics and tightly bounded CE agreement may fail from numerical differences; such failure must remain a stopped diagnostic, not justify changing tolerances or replaying.",
+      "Source revision and execution-contract authenticity rely partly on the external admission gate and scheduler receipt; response_job.checked does not independently verify the repository revision or a separately pinned execution-contract digest.",
+      "Persistent registration retains earlier recipes, including training recipes. This review admits only the single frozen response-analysis submission and does not authorize executing those retained recipes.",
+      "Reused development data and separately trained eta-zero baselines cannot establish independent benefit, training causality, finite-eta improvement or substantive novelty."
+    ],
+    "theory_mapping": [
+      {
+        "item": "Logarithmic-mean decomposition",
+        "result": "pass",
+        "summary": "The supplied EPS is 1e-6. The rank-one P/Q coefficients, logarithmic mean and factor-two cross-block contribution match equations 1–2 under normalized-state assumptions."
+      },
+      {
+        "item": "Pinched control",
+        "result": "pass",
+        "summary": "The source pinches A/N after computing the full-A scale and retains the original utility readout. decomposition uses that same scale and denominator, matching equation 3."
+      },
+      {
+        "item": "Signed class competition",
+        "result": "pass",
+        "summary": "H is implemented as the labeled response minus its eta-zero softmax-weighted average. Expected CE derivatives are -H; full-minus-pinched equals the negative cross advantage."
+      },
+      {
+        "item": "Eta differentiation",
+        "result": "pass",
+        "summary": "Each call reconstructs the same eta-independent generator from fixed states and matched utilities. Scalar eta remains in the matrix-exponential computation graph. The three-point forward formula checks the derivative without negative-eta calls."
+      },
+      {
+        "item": "Boundary fixtures",
+        "result": "pass",
+        "summary": "The fixed helpful/harmful labels test opposite CE responses. Orthogonal Q tokens with utilities +1/-1 yield diagonal response 1/sqrt(3) and zero cross response. Constant utilities yield zero response. These fixtures precede real-data analysis."
+      },
+      {
+        "item": "Native baseline and deployed replay",
+        "result": "pass",
+        "summary": "The legacy overlap-plus-EPS attention agrees algebraically with eta zero for unit states. The analysis additionally compares actual legacy logits and separately invokes each model's deployed forward, including the distinct simplex tilt."
+      },
+      {
+        "item": "Frozen-model scope",
+        "result": "pass",
+        "summary": "The execution path restores strict state dictionaries, freezes parameters, performs eta-only differentiation, and checks state fingerprints and checkpoint hashes. It invokes no optimizer, training loop, checkpoint save or cloud operation."
+      },
+      {
+        "item": "Lifecycle and claim ceiling",
+        "result": "pass",
+        "summary": "The supplied controls specify one non-replayable scheduler attempt, synchronous child execution, failure evidence retention, completion-marker-last publication, idle-only paired configuration updates and exact rollback. R97 math approval is correctly distinguished from this bounded execution review; L5 remains unaccepted."
+      }
+    ],
+    "correctness": "pass",
+    "lifecycle_correctness": "partial",
+    "bounded_analysis_execution_eligible": true,
+    "formal_training_admitted": false,
+    "L5": "NOT_ACCEPTED"
+  },
+  "inference_requests": 1,
+  "automatic_retries": 0,
+  "numerical_execution_completed": false,
+  "status_at_publication": "REVIEWED_AND_STAGED_AWAITING_SHARED_QUEUE_QUIESCENCE",
+  "full_formal_training_admitted": false,
+  "L5": "NOT_ACCEPTED"
+}
