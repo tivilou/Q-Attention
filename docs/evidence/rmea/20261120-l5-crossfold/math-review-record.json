@@ -1,0 +1,74 @@
+{
+  "schema": "qattn.crossfold.math-triage.v1",
+  "response_id": "resp_0f82e00557c62877016aff2c80b76087d290caff95ffa761d7",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "medium",
+  "request_count": 1,
+  "automatic_retries": 0,
+  "packet_sha256": "56a2d371304e1f98008fcf91f8608aaa99e85402f258bad76902dfe51c061347",
+  "reviewed_proposal_sha256": "e01f867a95c52cb8487bf01c3cf7b6d178cd2e5843fbf554ab551b147eafb5f9",
+  "published_note_sha256": "0ca71d7b13bf88954d10b19e4dbe24851c425c87045e971fee482e6c86f65fb2",
+  "source_files": {
+    "experiments/rmea_utility_measurement/head.py": "7afde7ef88b60afdf08c87f1a1d812aca33234830d24f2403220af9cc7d6c009",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "docs\\evidence\\rmea\\20261119-l5-round97\\local-response-v001.md": "c6115cc64f71a8b4906e8a44e68ca6fcd0c82b351892476cf4cd2182e6d6ed0e"
+  },
+  "source_originals_sha256": {
+    "double-q-2010": "f94cf09e58b6392da4d81504cd6349ae432023f08dc040d11c1b6d23a9a4f542",
+    "double-dqn": "a37336d7f35be5842740ef8e320bce03e725c03e56b7093afe98475c5c72e496"
+  },
+  "verdict": "PASS_WITH_RISK",
+  "review_scope": "mathematical",
+  "must_fix": [],
+  "checks": [
+    {
+      "id": "native_parity_and_normalization",
+      "status": "PASS",
+      "finding": "E0 is positive definite, and each finite Hermitian update produces a positive-definite E_D. Recipient denominators are therefore positive. Each fold's attention sums to its native mass m_D, so total attention sums to one. At eta=0, alpha_t=m_D tr(E0 rho_t)/d_D=tr(E0 rho_t)/(d_A+d_B), exactly matching native attention. The scalar normalization of E0 cancels, consistent with the supplied native source."
+    },
+    {
+      "id": "short_sequence_degeneracy",
+      "status": "PASS",
+      "finding": "A singleton donor has U_D=u_t S_D and f_D=u_t, hence A_D=0. A singleton recipient receives its fixed native fold mass regardless of donor effect. With two or three tokens, every non-singleton recipient has a singleton donor; consequently all weights are native for every eta. The one-token case is native by the specified fallback."
+    },
+    {
+      "id": "conditional_noise_identity",
+      "status": "PASS",
+      "finding": "Under the stated conditioning, recipient-fold weights are functions only of the opposite fold's errors and fixed quantities. Conditional independence and zero conditional error means imply E[alpha_t epsilon_t]=0, yielding Eq1. Conditional mean independence, E[epsilon_D | epsilon_other, fixed quantities]=0, would suffice. The target is the expected clean-value readout using noisy donor-generated routes, not the clean-construction route, native score, maximum or risk optimum."
+    },
+    {
+      "id": "cross_and_self_eta_derivatives",
+      "status": "PASS",
+      "finding": "Writing T=tr[A_A M(A_B)], quotient differentiation gives the recipient-B contribution T/[(d_A+d_B)N_A] and recipient-A contribution T/[(d_A+d_B)N_B], proving Eq2 with both distinct normalizations. M is positive definite and self-adjoint on Hermitian matrices, giving the stated Cauchy-Schwarz bound. Routing each fold from itself instead yields Eq3, a sum of nonnegative quadratic forms. Neither response uniformly dominates the other."
+    },
+    {
+      "id": "zero_utility_attention_jacobian",
+      "status": "PASS",
+      "finding": "At u=0, A_D=0 and the derivative of A_D/N_D with respect to u_t is B_t^D. Recipient quotient differentiation and m_D/d_D=1/(d_A+d_B) give Eq4. Diagonal fold blocks vanish because a recipient's weights do not depend on its own utilities. C is real, and the symmetric off-diagonal matrix has eigenvalues ±eta*sigma_j(C)/(d_A+d_B), plus zeros. The self-fold blocks are eta/(d_A+d_B) times the corresponding M-Gram matrices and are positive semidefinite at eta=1."
+    },
+    {
+      "id": "pure_noise_score_bias",
+      "status": "PASS",
+      "finding": "For u=sigma*epsilon with bounded zero-mean perturbations, the expected linear score term vanishes. The quadratic term is sigma^2 E[epsilon^T J epsilon]. Independent folds make the cross term zero; Eq1 additionally makes the entire expected cross noise readout zero at finite amplitude. At eta=1, the self-fold quadratic coefficient is nonnegative and is strictly positive exactly when at least one operator sum_t epsilon_t B_t^D is nonzero with positive probability. Nonzero token noise alone is insufficient, for example with foldwise constant perturbations."
+    },
+    {
+      "id": "structural_and_transfer_audit",
+      "status": "PASS",
+      "finding": "No missing denominator, mathematical source inconsistency or explicit label-dependent partition is apparent. Native fold masses are essential to both parity and the stated derivatives. Foldwise utility shifts leave construction operators unchanged, so between-fold mean differences cannot steer routing, although they still affect the readout. Double-Q supplies an analogy, not independence or a task-performance theorem. The proposal explicitly respects that boundary."
+    }
+  ],
+  "risks": [
+    "Disjoint contextual positions do not imply independent utility errors. Shared features, contextualization and fitting can invalidate the conditional noise assumption; the remaining noise-readout covariance can have either sign.",
+    "The conditional theorem fixes parameters and states. It does not establish unbiased training gradients, independence after adaptive fitting, or a generative noise model for the supplied dataset.",
+    "Alternating folds may separate complementary evidence, produce opposing residual operators, or discard useful between-fold mean information for routing. Short sequences receive no modification.",
+    "The self-fold control isolates the proposed routing change but does not establish quantum-specific benefit; a suitable classical matched control remains necessary.",
+    "These are exact-arithmetic mathematical checks only. Numerical stability, masking, gradient lineage, runtime and implementation fidelity remain untested.",
+    "No classification-risk, CE or Macro improvement follows. Reused development evidence cannot provide independent confirmation, and near-neighbor novelty remains unresolved."
+  ],
+  "accepted_claim": "The proposed cross-fold map is a mathematically coherent, native-compatible routing mechanism. Under explicit conditional error assumptions it removes the recipient noise-readout expectation for its own noisy-route clean-value target. Its local responses are cross-fold bilinear forms, unlike the nonnegative self-fold quadratic forms. These statements establish neither empirical benefit nor novelty.",
+  "provisional_mechanism_retained": true,
+  "implementation_execution_admitted": false,
+  "empirical_benefit_established": false,
+  "novelty_established": false,
+  "l5_accepted": false
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "scoped-primary-reading.v1",
+  "papers": [
+    {
+      "title": "Double Q-learning",
+      "author": "Hado van Hasselt",
+      "version": "NeurIPS2010 original proceedings",
+      "url": "https://proceedings.neurips.cc/paper_files/paper/2010/file/091d584fced301b442654dd8c23b3fc9-Paper.pdf",
+      "sha256": "f94cf09e58b6392da4d81504cd6349ae432023f08dc040d11c1b6d23a9a4f542",
+      "identity": "Original page1 title/author matches official citation metadata",
+      "read_scope": "Original pp1-4, Sections2.1/2.2, Eq4-7 and Lemma1; convergence theorem and experiments not used",
+      "source_fact": "Selection/evaluation separation with independent estimates; maximum-value underestimation remains possible",
+      "transfer_limit": "Our folds contain different tokens, not independent estimates of identical actions; no RL performance or convergence theorem transfers"
+    },
+    {
+      "title": "Deep Reinforcement Learning with Double Q-learning",
+      "authors": [
+        "Hado van Hasselt",
+        "Arthur Guez",
+        "David Silver"
+      ],
+      "version": "arXiv:1509.06461v3, 8Dec2015, verified original page1 header",
+      "url": "https://arxiv.org/pdf/1509.06461",
+      "sha256": "a37336d7f35be5842740ef8e320bce03e725c03e56b7093afe98475c5c72e496",
+      "identity": "Original title/authors/version header matched official arXiv metadata",
+      "read_scope": "Original p1 abstract/introduction; p2 background, Double Q Eq4 and Theorem1 statement; p3 text on nonuniform approximation errors. Appendix proof and experimental results not used; no figure visual audit",
+      "source_fact": "Selection/evaluation use can be separated, and nonuniform approximation errors may alter action preferences",
+      "transfer_limit": "No Double-DQN performance or task-risk guarantee is used"
+    }
+  ],
+  "exhaustive_search": false,
+  "novelty_status": "Nearest attention/measurement methods still unresolved",
+  "search_backend_failure": "web search route returned HTTP404; official primary endpoints succeeded",
+  "numerical_executions": 0
+}
