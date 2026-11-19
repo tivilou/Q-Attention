@@ -1,0 +1,85 @@
+{
+  "schema": "qattn.cross-fold.source-realization.review.v1",
+  "model": "gpt-6.1-sol",
+  "platform": "a6api",
+  "reasoning_effort": "medium",
+  "selection": "explicit_owner_override",
+  "response_id": "resp_03969070db021fbe016aff5b2cc23887d2b0f99c1f86ed4cb2",
+  "proposal_sha256": "b9685533972df44dade9fb46f2213a7799325a325e0d8d3159e443179118c157",
+  "dependencies": {
+    "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\experiments\\rmea_context_geometry\\legacy\\rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\experiments\\rmea_context_geometry\\legacy\\frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\experiments\\rmea_utility_measurement\\head.py": "7afde7ef88b60afdf08c87f1a1d812aca33234830d24f2403220af9cc7d6c009",
+    "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\experiments\\rmea_utility_measurement\\cross_fold.py": "739608e5c53e1b292c14b4aa7793c01a25b9267d61c93e2ceb4359bac91f2b6f",
+    "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\docs\\evidence\\rmea\\20261120-l5-crossfold\\classification-risk-v001.md": "9f0bb667cc761e781747972a45dbfb2d0aeaca13961acbd1058eb58723b7804e",
+    "C:\\Users\\14630\\AppData\\Local\\research-infrastructure\\qattn-l5-crossfold-finite-risk-20261120\\proposal.md": "2d32483ddc33316f79da42ec3086a80065bf5347f957e0188b663c1bd061f045"
+  },
+  "inference_requests": 1,
+  "automatic_retries": 0,
+  "review": {
+    "review_scope": "mechanism",
+    "verdict": "PASS",
+    "checks": [
+      {
+        "name": "ordered_CNOT_ring_basis_map",
+        "status": "PASS",
+        "evidence": "With wire0 MSB, each source gather permutation implements its self-inverse CNOT. In the executed order, (a,b,c) becomes (a,a xor b,c), then (a,a xor b,a xor b xor c), then (b xor c,a xor b,a xor b xor c). Thus M(111)=001 and 010->111->001."
+      },
+      {
+        "name": "finite_e0_e1_state_preparation",
+        "status": "PASS",
+        "evidence": "lambda=atanh(1/2)=log(3)/2 is finite and pi*tanh(lambda)=pi/2. Zero rotations preserve |000>. With all six RY angles pi/2 and all RZ angles zero, layer one produces |+++>, the first ring preserves it, layer two produces |111> because RY(pi/2)|+>=|1>, and the final ring produces |001>."
+      },
+      {
+        "name": "finite_common_query_preparation",
+        "status": "PASS",
+        "evidence": "For each effect row, the sole stored nonzero lambda at layer0/wire1/RY maps through the source tanh to pi/2. It prepares (|000>+|010>)/sqrt(2) before the rings. The two rings send 010->111->001, yielding (|000>+|001>)/sqrt(2) without relative phase. All forty identical effect rows are permitted."
+      },
+      {
+        "name": "shared_linear_prepare_map",
+        "status": "PASS",
+        "evidence": "The 1028-to-12 prepare map can assign coefficient lambda on h[0] to each of its six RY rows and zero everywhere else, including biases and role columns. Its source pi*tanh map gives all-zero angles for h[0]=0 and all six RY angles pi/2 for h[0]=1. One fixed map serves all tokens and all draws."
+      },
+      {
+        "name": "simultaneous_40class_utility_realization",
+        "status": "PASS",
+        "evidence": "The 1024-to-64 value map can output (h[1],...,h[40],0,...,0). With decoder [I40|0] and zero biases, the actual einsum gives utility_c(h)=h[c+1] simultaneously for all forty classes. These coordinates are disjoint from the sole preparation coordinate h[0], so arbitrary finite b_A,b_B do not disturb the states."
+      },
+      {
+        "name": "fold_EPS_and_interface_correspondence",
+        "status": "PASS",
+        "evidence": "Four valid tokens produce states (e0,e0,e1,e1) and utilities (b_A,b_B,-b_A,-b_B). Valid-order alternation gives A={0,2}, B={1,3}. Every squared query overlap is 1/2, so adding the same EPS and normalizing gives native weights 1/4 and fold masses 1/2 exactly. The measured and cross-fold routines therefore receive precisely the stipulated interface tensors at eta=1; no second epsilon or normalization change is introduced."
+      },
+      {
+        "name": "same_fixed_head_for_both_noise_laws",
+        "status": "PASS",
+        "evidence": "All trainable tensors are fixed independently of s, t, signs and labels. Both laws vary only the forty utility coordinates of the four input features. The positive law and the independent {0,2s} true-class law therefore share one parameter point. Encoding a synthetic class-conditional distribution in input coordinates is not a label-dependent forward branch."
+      },
+      {
+        "name": "head_vs_encoder_learning_and_claim_boundary",
+        "status": "PASS",
+        "evidence": "The construction proves exact-arithmetic expressivity over shape-legal head inputs, not membership in a pretrained encoder's output manifold. It does not establish floating-point execution, parameter discovery, NLP noise assumptions, held-out utility, quantum necessity, novelty or L5. The inherited equal cross/full argmax ceiling remains intact."
+      }
+    ],
+    "must_fix": [],
+    "risks": [
+      "The diagnostic adapters require compatible float64 parameters and inputs on CPU; no execution or numerical error bounds were established by this analytic review.",
+      "The synthetic feature laws need not be realizable by any fixed pretrained encoder. Expressivity does not establish learning or task benefit.",
+      "Review is based on the supplied source text; frozen-file hashes were not independently verified."
+    ],
+    "analytic_record_eligible": true,
+    "finite_head_realization_proved": true,
+    "numerical_validation": false,
+    "NLP_encoder_realizability_established": false,
+    "task_utility_established": false,
+    "novelty_cleared": false,
+    "L5": "NOT_ACCEPTED"
+  },
+  "finite_head_realization": "One fixed finite prepare/effect/value/decoder parameter point realizes both prior synthetic feature laws.",
+  "claim_ceiling": "Only legal-head feature expressivity; encoder manifold, learning, numerical execution, task utility and novelty remain unproved.",
+  "scientific_execution": false,
+  "training_contract_changes": 0,
+  "novelty_cleared": false,
+  "independent_task_confirmation": false,
+  "L5": "NOT_ACCEPTED"
+}
