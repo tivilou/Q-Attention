@@ -57,7 +57,10 @@ def evaluation(model, data, ids, batch_size):
     return row,first
 
 
-def run(a,design):
+def run(a,design,*,conditions=None,head_factory=TrainHead):
+    condition_names=list(CONDITIONS if conditions is None else conditions)
+    assert condition_names and len(set(condition_names))==len(condition_names)
+    assert design['conditions']==condition_names
     started=time.monotonic();torch.set_num_threads(1);torch.use_deterministic_algorithms(True)
     identity=design['data'];settings=design['training']
     data=runner.read_training_prefix(a.assets,a.receipt,a.cohort,identity['cohort_sha256'],a.donors,identity['donors_sha256'],
@@ -70,8 +73,8 @@ def run(a,design):
     order_sha=hashlib.sha256(b''.join(o.astype('<i8').tobytes() for o in orders)).hexdigest()
     checkpoints=a.output.parent/'scientific-work/checkpoints';assert not checkpoints.exists();checkpoints.mkdir(mode=0o700)
     results={};checkpoint_files={}
-    for kind in CONDITIONS:
-        model=TrainHead(kind).double();model.load_state_dict(initial);model.train()
+    for kind in condition_names:
+        model=head_factory(kind).double();model.load_state_dict(initial);model.train()
         assert runner.state_fingerprint(model.state_dict())==initial_sha and sum(p.numel() for p in model.parameters())==81028
         # Actual fit-input first-batch forward/backward, no optimizer step, then
         # discard gradients. It cannot inspect evaluation labels for gradients.
@@ -103,7 +106,7 @@ def run(a,design):
         measured,first=evaluation(model,data,ev,settings['batch_size'])
         final_sha=runner.state_fingerprint(model.state_dict());filename=kind+'-final.pt';path=checkpoints/filename
         assert not path.exists();torch.save(model.state_dict(),path);path.chmod(0o600)
-        restored=TrainHead(kind).double();restored.load_state_dict(torch.load(path,map_location='cpu',weights_only=True));restored.eval()
+        restored=head_factory(kind).double();restored.load_state_dict(torch.load(path,map_location='cpu',weights_only=True));restored.eval()
         assert runner.state_fingerprint(restored.state_dict())==final_sha
         h,r,mask,_,_=runner.batch(data,ev[:settings['batch_size']],'eval',False)
         with torch.no_grad():replay=restored(h.double(),r.double(),mask)[0]
@@ -112,23 +115,24 @@ def run(a,design):
         results[kind]=dict(metrics=measured,epochs=epochs,parameters=81028,initial_state_sha256=initial_sha,final_state_sha256=final_sha,
             checkpoint=checkpoint_files[filename],optimizer_steps=steps,first_batch_finite_gradient=True,checkpoint_reload_first_batch_exact=True,gradient_max_abs=gradient_max)
         del optimizer,restored,model
-    assert sum(v['optimizer_steps'] for v in results.values())==1176
+    total_steps=sum(v['optimizer_steps'] for v in results.values())
+    assert total_steps==design['budget']['optimizer_steps']==392*len(condition_names)
     assert set(p.name for p in checkpoints.iterdir())==set(checkpoint_files)
     save(checkpoints/'RUN_COMPLETE',dict(schema='qattn.utility-training.checkpoints.v1',files={n:v['sha256'] for n,v in checkpoint_files.items()},training=True))
     assert sum(p.stat().st_size for p in checkpoints.iterdir())<=design['budget']['private_checkpoint_bytes_max']
     base=results['native']['metrics'];deltas={}
-    for kind in CONDITIONS[1:]:
+    for kind in condition_names[1:]:
         m=results[kind]['metrics'];delta=m['macro_f1']-base['macro_f1']
         deltas[kind]=dict(macro_f1=delta,macro_relative=delta/abs(base['macro_f1']) if base['macro_f1'] else None,ce=m['ce']-base['ce'])
     full=deltas['full'];decision='DISCOVERY_MACRO_POINT_POSITIVE' if full['macro_f1']>0 else 'NO_POSITIVE_JOINT_TRAINING_SCREEN'
     return dict(status='TRAIN_ONLY_UTILITY_JOINT_OPTIMIZATION_COMPLETE',decision=decision,results=results,deltas_vs_native=deltas,
         joint_macro_ce_positive=full['macro_f1']>0 and full['ce']<=0,
         full_vs_simplex=dict(macro_f1=results['full']['metrics']['macro_f1']-results['simplex']['metrics']['macro_f1'],ce=results['full']['metrics']['ce']-results['simplex']['metrics']['ce']),
-        conditions=CONDITIONS,fit_examples=3124,evaluation_examples=972,fit_groups=2714,evaluation_groups=866,
-        training=settings,common_initial_state_sha256=initial_sha,common_epoch_order_sha256=order_sha,optimizer_steps=1176,
+        conditions=condition_names,fit_examples=3124,evaluation_examples=972,fit_groups=2714,evaluation_groups=866,
+        training=settings,common_initial_state_sha256=initial_sha,common_epoch_order_sha256=order_sha,optimizer_steps=total_steps,
         private_checkpoints=checkpoint_files,private_checkpoint_marker_sha256=sha(checkpoints/'RUN_COMPLETE'),
         dtype='float64/complex128',task_training=True,full_formal_run=False,independent_confirmation=False,
-        COS_requests=0,cloud_writes=0,new_checkpoints=3,formal_handoff=False,L5='NOT_ACCEPTED',
+        COS_requests=0,cloud_writes=0,new_checkpoints=len(condition_names),formal_handoff=False,L5='NOT_ACCEPTED',
         retention='Private final checkpoints for exact reload audit and potential post-training analysis; no COS protection claimed; stopped-result retention follows project policy.',
         scope='Single common initialization on repeatedly explored original-training group partition; not original full-data evidence or a confirmation.',
         elapsed_seconds=time.monotonic()-started)

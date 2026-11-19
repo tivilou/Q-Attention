@@ -1,0 +1,102 @@
+{
+  "schema": "qattn.class-centered.canary.owner-acceptance.v1",
+  "status": "ACCEPTED_CLASS_CENTERED_SYNTHETIC_CANARY",
+  "task": "84b91a20d7c949bba342debe2b957ebb",
+  "attempt": "a30b1577852943f1aca7d25463aa9901",
+  "attempt_count": 1,
+  "returncode": 0,
+  "quiescent": true,
+  "source_revision": "cb4ab502c8fe0255456bfe432efad8afacc594d4",
+  "contract_sha256": "555a277b41f2ffb8477553d6d5e13b6bda3944af0dd2aadb92d24e998df54719",
+  "outputs": {
+    "RUN_COMPLETE": {
+      "bytes": 189,
+      "sha256": "dc0f6720a78af0465d8b33eb4ba02216d5f3ef43a2e5aa46c1faaa21f3fb11bd"
+    },
+    "compact-report.json": {
+      "bytes": 2455,
+      "sha256": "75e58f40f22f43ea1340101c711b6687f7ea7fdb9b6c6c63bdab7360d95cd482"
+    }
+  },
+  "report": {
+    "status": "CLASS_CENTERED_NUMERICAL_CANARY_COMPLETE",
+    "checks": [
+      {
+        "name": "native_and_full_source_parity_and_parameter_isolation",
+        "status": "PASS",
+        "stored_parameters": 81028
+      },
+      {
+        "name": "all40_null_included_padding_and_invalid_inputs",
+        "status": "PASS",
+        "rejected": 5,
+        "null_class_included": true
+      },
+      {
+        "name": "common_decoder_translation_and_construction_only_limit",
+        "status": "PASS",
+        "centered_invariance": true,
+        "construction_only_logit_change": 0.01715132671407927
+      },
+      {
+        "name": "end_to_end_gradients_and_centered_decoder_null_direction",
+        "status": "PASS",
+        "decoder_null_dimensions": 64
+      },
+      {
+        "name": "utility_gradient_finite_difference_and_no_hidden_detach",
+        "status": "PASS",
+        "finite_difference_error": 1.5967627220447866e-10,
+        "detached_construction_gradient_difference": 0.011189183459881846
+      },
+      {
+        "name": "source_epsilon_helpful_and_harmful_label_witness",
+        "status": "PASS",
+        "scope": "Abstract normalized-state native routing; all40 classes with fixed other-class biases."
+      },
+      {
+        "name": "zero_common_utility_and_single_token_gradients",
+        "status": "PASS"
+      },
+      {
+        "name": "deterministic_state_reload_and_explicit_kind_rejection",
+        "status": "PASS",
+        "same_state_replay": true,
+        "new_checkpoint_files": 0
+      }
+    ],
+    "check_count": 8,
+    "seed": 20261119,
+    "task_training": false,
+    "optimizer_steps": 0,
+    "real_dataset_reads": 0,
+    "new_checkpoints": 0,
+    "COS_requests": 0,
+    "cloud_writes": 0,
+    "independent_confirmation": false,
+    "formal_handoff": false,
+    "L5": "NOT_ACCEPTED",
+    "qualification": "Synthetic float64 CPU implementation checks only; no utility, novelty or CaseStudy-readiness claim.",
+    "job_sha256": "3d75a37b95cc9f87dc6fbeab7bb3b92a37ae1d227c1b7a05b615c14d9cc21b4d",
+    "design_sha256": "694d5109dee6243ab8f2fa9bd1d376615741ae2486a36e2c093072c413c05875",
+    "environment": {
+      "numpy": "1.24.3",
+      "torch": "2.4.1+cpu"
+    },
+    "parent_child": {
+      "command_sha256": "fb769d90cf5bd242b20de9cfe2e3944d79ccdbea7f7ab5ff1d1443fe4b150894",
+      "returncode": 0,
+      "synchronous": true,
+      "stdout_sha256": "103fd55b5c298a12677b5b0096152486796861ee87225d4b5543c85b9def0bd1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "parent_imported_torch": false
+    }
+  },
+  "source_clean": true,
+  "observer_model_forwards": 0,
+  "scientific_imports": false,
+  "private_logs_preserved": true,
+  "independent_confirmation": false,
+  "formal_handoff": false,
+  "L5": "NOT_ACCEPTED"
+}

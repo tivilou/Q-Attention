@@ -25,3 +25,22 @@ simplex是后续联合训练对照，未加入该适配器allowlist。
 后续复用稳定的调度和训练接口，集中投入最小区分实验。R98已完成，无需为此重跑历史baseline。
 
 [完整代码审查](../evidence/rmea/20261119-l5-round103/implementation-review-record.json)
+
+## 后续实际进展：合成验证已完成，联合训练待审
+
+去共模合成检查现已通过共享队列实际运行并独立验收：任务84b91a20d7c949bba342debe2b957ebb，
+attempt a30b1577852943f1aca7d25463aa9901，一次，退出0且进程静默，八项检查全部PASS。
+有限差分误差约1.60e-10；移除构造路径梯度会产生约0.01119的梯度差异。
+这些结果验证固定合成输入上的实现性质，没有真实数据收益或独立确认含义。
+首次准入SSH预检查中止发生在配置写入前；恢复时保留其他项目并发更新，未重复提交科学任务。
+上文静态审查时的eligible=false和当时的未运行状态保留为历史记录。
+
+六条件执行代码已实现，复用同一训练循环与无Torch父进程，以显式factory区分条件。
+真实父进程/替代子程序的非零、超时、坏checkpoint及成功四项夹具通过；
+合成前置凭据九项隔离检查通过。数值训练仍未运行，尚待精确BOTH审查和新合同准入。
+固定原train前缀fit3124/eval972、共同初始化、四epoch及2352次总更新；
+候选须胜过native/full/simplex/centered_native的Macro，并满足冻结CE门槛。
+中心化移除64个有效解码方向，centered_native是必要对照；结果不继承原限定L4。
+
+[实际合成验收](../evidence/rmea/20261119-l5-round103/canary-owner-acceptance.json)
+[可执行联合训练设计](../evidence/rmea/20261119-l5-round103/executable-training-design.json)
