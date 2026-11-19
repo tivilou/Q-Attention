@@ -15,11 +15,12 @@ import time
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from experiments.rmea_original_scores.common import guard, read, sha
+from experiments.rmea_training_case_trace.contexts import paired_inputs
 from experiments.rmea_training_case_trace.trace import AXES, EXPECTED_TENSORS, INPUT_TENSORS, build, ref, save, value_cli
 
-DESIGN = ROOT / 'docs/evidence/rmea/20261119-l5-round89/training-case-design-v2.json'
+DESIGN = ROOT / 'docs/evidence/rmea/20261119-l5-round91/training-case-design.json'
 PATH_ARGUMENTS = ['assets', 'receipt', 'cohort', 'donors', 'checkpoints', 'original_report',
-                  'execution_contract', 'output']
+                  'case_contexts', 'execution_contract', 'output']
 
 
 def arguments():
@@ -53,6 +54,7 @@ def checked(a):
     assert a.assets.is_dir() and a.checkpoints.is_dir()
     assert not a.output.exists() or not list(a.output.iterdir())
     assert sha(a.original_report) == d['original_report_sha256']
+    assert sha(a.case_contexts) == d['case_contexts']['sha256']
     for row in d['checkpoints'].values():
         p = a.checkpoints / row['filename']
         assert not p.is_symlink() and p.is_file() and sha(p) == row['sha256']
@@ -84,15 +86,30 @@ def child(a, design):
             selected[label] = int(i)
     assert len(selected) == design['selection']['expected_base_cases'] == 34
     assert sorted(set(range(40)) - set(selected)) == [17, 23, 24, 32, 36, 37]
+    case_rows = paired_inputs(data['metadata'], selected, read(a.case_contexts),
+        train_sha256=design['case_contexts']['train_sha256'],
+        selection_sha256=design['case_contexts']['original_selection_sha256'], cohort=data['cohort'])
+    # Validate the original entity spans against all four cached role channels.
+    # Text/labels remain audit context only; forward inputs still come from batch().
+    for row in case_rows:
+        i = row['source_index']
+        lo, hi = map(int, data['offsets'][i:i+2])
+        positions = np.arange(len(row['tokens']), dtype=np.float32)
+        s, o = row['subject'], row['object']
+        expected = np.stack([np.clip((positions-(s[0]+s[1]-1)/2)/32, -1, 1),
+            np.clip((positions-(o[0]+o[1]-1)/2)/32, -1, 1),
+            ((positions>=s[0]) & (positions<s[1])).astype(np.float32),
+            ((positions>=o[0]) & (positions<o[1])).astype(np.float32)], -1)
+        assert np.array_equal(data['roles'][lo:hi], expected), 'Original text and cached role channels differ'
     private = a.output.absolute().parent / 'scientific-work/private-trace'
     private.mkdir(mode=0o700)
     selection = dict(rule=design['selection']['rule'], model_outputs_read_for_selection=False,
         rows=[dict(source_index=i, id_hash=data['metadata'][i]['id_hash'], label=label)
               for label, i in sorted(selected.items())])
     save(private / 'selection.json', selection)
-    save(private / 'case-inputs.json', dict(rows=[dict(source_index=i,
-        **{k: data['metadata'][i][k] for k in ('id_hash', 'tokens', 'subject', 'object')},
-        label=int(data['targets'][i])) for i in selected.values()]))
+    assert sha(private / 'selection.json') == design['case_contexts']['original_selection_sha256']
+    save(private / 'case-inputs.json', dict(rows=case_rows,
+        case_contexts_sha256=sha(a.case_contexts), original_train_sha256=design['case_contexts']['train_sha256']))
     original = read(a.original_report)
     assert original['status'] == 'TRAIN_ONLY_EXPLORATORY_SCREEN' and original['seed'] == 20261118
     conditions = {r['id']: r for r in read(ROOT / 'docs/evidence/rmea/20261118-l5-round72/screen-design.json')['conditions']}
@@ -168,6 +185,7 @@ def child(a, design):
         validation=validation, exact_original_aggregate_parity=list(measured),
         historical_per_example_logits_available=False, semantic_causality_tested=False,
         environment=design['environment'], elapsed_seconds=time.monotonic() - started,
+        original_context_rows_validated=len(case_rows), original_context_roles_exact=True,
         optimizer_steps=0, task_training=False, COS_requests=0, cloud_writes=0,
         new_checkpoints=0, promotion=False, formal_handoff=False, L5='NOT_ACCEPTED'), allow_nan=False), flush=True)
 
