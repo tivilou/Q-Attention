@@ -1,0 +1,83 @@
+{
+  "schema": "qattn.l5.exploration-reading-triage.v1",
+  "at": 1795120738.9324417,
+  "readings": [
+    {
+      "title": "Comparing representational geometries using whitened unbiased-distance-matrix similarity",
+      "url": "https://arxiv.org/abs/2007.02789v5",
+      "version": "2007.02789v5",
+      "pdf_sha256": "101c448cc79d01afbbfa6e8ddcb76cde36e941526878944b931a88b34bda3543",
+      "bytes": 1174643,
+      "pages": 31,
+      "scope": [
+        "PDFp1 identity",
+        "PDFpp3-6;Sections2.1-2.3;Eq1-8",
+        "PDFp6 visually checked"
+      ],
+      "facts": [
+        "Independent repeat estimates of the SAME condition patterns permit dropping self-products to remove squared-distance noise bias.",
+        "Under the stated matrix-normal assumptions, the noise-noise variance contribution is larger by M/(M-1) for the unbiased estimator.",
+        "The paper compares representational dissimilarity matrices; it does not derive NLP attention routing or multiclass CE/Macro gains."
+      ],
+      "transfer_limits": [
+        "Only these pages inspected; remaining pages,methods proofs and code unread.",
+        "Our alternating tokens are different contextualized observations rather than repeated independent estimates of each same latent quantity.",
+        "No factor-two variance claim for our model; no identified noise covariance or data-source transfer."
+      ],
+      "reading": "read_for_scope",
+      "numerical_reproduction": false
+    },
+    {
+      "title": "Consistent Multiclass Algorithms for Complex Performance Measures",
+      "url": "https://proceedings.mlr.press/v37/narasimhanb15.html",
+      "version": "publisher_version",
+      "pdf_sha256": "dea1bb0d36d44f9f01e627d8c056462f40b758def7ee4e23118ef7cf8649f5e8",
+      "bytes": 602938,
+      "pages": 10,
+      "scope": [
+        "PDFp1 identity",
+        "PDFpp2-4;Definitions1-5,9;Table1;Proposition6;Theorems11/13",
+        "PDFp3 table visually checked"
+      ],
+      "facts": [
+        "General multiclass metrics can be written as functions of a confusion matrix; Table1 includes macro F1.",
+        "Under the explicit differentiability,monotonicity and distribution conditions, optimal classifiers relate to a loss matrix formed from the metric gradient at an optimal confusion matrix.",
+        "The stated efficient algorithm instantiations target concave or ratio-of-linear metrics; arbitrary macro F1 is not automatically certified by either shortcut."
+      ],
+      "transfer_limits": [
+        "Read scope only pp1-4; algorithm proofs/experiments/supplement/code unread.",
+        "Our fixed positive39 excludes class0 and includes absent classes with zeroF1; do not substitute the paper full-n average or micro F1.",
+        "Current short repeated development data do not certify consistency,calibration or an independent optimum."
+      ],
+      "reading": "read_for_scope",
+      "numerical_reproduction": false
+    }
+  ],
+  "metric_contract": {
+    "source": "experiments/rmea_ecqp_screen/metrics.py",
+    "sha256": "9d039c538453dadc648e2fcdd9f7ade79acd24cb5997a07a8d6f1d69da4e7716",
+    "macro": "sum_{c=1..39} F1_c / 39",
+    "zero_denominator": "F1=0",
+    "evaluation_absent_classes": "remain in fixed39 denominator; no drop-class recomputation",
+    "accuracy": "all40 confusion diagonal / all examples",
+    "CE": "mean per-example40class cross entropy,confidence-sensitive",
+    "status": "SOURCE_VERIFIED_NO_MODEL_OR_NUMPY_EXECUTION"
+  },
+  "consultation": {
+    "response_id": "resp_0084795a4a720036016aff5c56c2a487d19ebd5fe45ff2463d",
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "inference_requests": 1,
+    "automatic_retries": 0,
+    "verdict": "NONE",
+    "answer_sha256": "d5840353ba1b901d3857b9b81a122a1401251fc708a97d6e22bb9eb5de398063",
+    "verdict_sha256": "25b20525e62100c594a808a2cd81af4fa35781b9c4d8241e46ab4c421d6b6925",
+    "interpretation": "No proposals from this bounded independent packet; not an exhaustive impossibility result. Metric-definition omission was in the packet,not the project. Broad closed-family summaries may limit ideation; exact project source boundaries control."
+  },
+  "scientific_execution": false,
+  "new_tested_mechanism_families": 0,
+  "new_selected_method": null,
+  "novelty_cleared": false,
+  "implementation_authorized": false,
+  "L5": "NOT_ACCEPTED"
+}
