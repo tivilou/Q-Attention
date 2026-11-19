@@ -1,0 +1,137 @@
+{
+  "schema_version": "experiment-grounded-ideation.mechanism-recovery.v2",
+  "evidence_packet": {
+    "path": "docs/evidence/rmea/20261119-l5-round96/training-result.json",
+    "sha256": "c20b2545181f462b5a938dc467a47d04a1fef33f9472484b11f6b9b6a63b2ed0",
+    "code_revision": "2b6f1ed4ae470cab71c56086c63be1b2c5c64a98",
+    "validity_status": "mixed"
+  },
+  "causal_trace": {
+    "intervention_execution": {
+      "claim": "R95 frozen insertion and R96 joint training executed; cross-fold not executed.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261119-l5-round95/utility-screen-result.json",
+        "docs/evidence/rmea/20261119-l5-round96/training-result.json"
+      ]
+    },
+    "intended_intermediate": {
+      "claim": "The same utility constructs and reads its routing; self-score response is nonnegative while CE direction is mixed. Cross-fold algebra changes self-coupling to a cross-fold bilinear response.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261119-l5-round98/response-result.json",
+        "docs/evidence/rmea/20261120-l5-crossfold/candidate-v001.md"
+      ]
+    },
+    "observable_output": {
+      "claim": "R95 Macro worsened; R96 full-minus-native development Macro/CE positive, full Macro slightly below simplex.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261119-l5-round95/utility-screen-result.json",
+        "docs/evidence/rmea/20261119-l5-round96/training-result.json"
+      ]
+    },
+    "task_utility": {
+      "claim": "R96 development positive versus native but not simplex Macro; no cross-fold task utility or independent confirmation.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261119-l5-round96/training-result.json",
+        "docs/evidence/rmea/20261119-l5-round102/common-mode-triage-v001.md"
+      ]
+    }
+  },
+  "trace_adequacy": {
+    "status": "partial",
+    "schema_version": "source-equations-and-compact-reports",
+    "artifact_refs": [
+      "docs/evidence/rmea/20261119-l5-round96/training-result.json",
+      "docs/evidence/rmea/20261119-l5-round98/response-result.json",
+      "docs/evidence/rmea/20261120-l5-crossfold/candidate-v001.md"
+    ],
+    "selection_rule": "All original predeclared development examples in reports; no selected case attribution.",
+    "covered_stages": [
+      "source_readout",
+      "aggregate_output"
+    ],
+    "missing_stages": [
+      "cross_fold_routing_in_executed_candidate",
+      "identifiable_clean_value_noise_model"
+    ],
+    "target_boundary": "Labels never enter the proposed forward path; fit labels only in supervised loss, evaluation labels metrics only."
+  },
+  "failure_analysis": {
+    "primary_explanation": {
+      "statement": "Utility reuse can favor self-response without improving multiclass discrimination; recipient noise self-selection is a hypothesis, not an observed cause.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261119-l5-round98/response-result.json",
+        "docs/evidence/rmea/20261120-l5-crossfold/candidate-v001.md"
+      ],
+      "confidence": "low"
+    },
+    "alternative_explanations": [
+      {
+        "statement": "Shared contextual errors violate conditional noise independence; cross-fold may retain biased noise coupling.",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261120-l5-crossfold/math-review-record.json"
+        ],
+        "confidence": "medium"
+      },
+      {
+        "statement": "Fold separation discards useful between-fold routing information or weakens signals; partitioning and compute, rather than donor separation, explain differences.",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261120-l5-crossfold/math-review-record.json"
+        ],
+        "confidence": "medium"
+      }
+    ],
+    "discriminating_measurement": {
+      "uncertainty": "Cross-fold donor dependence versus self-fold dependence, including correlated-noise failure and lost signal.",
+      "measurement": "Native parity, recipient-utility intervention, cross/self local responses and independent/positive-correlated/negative-correlated bounded synthetic noise at fixed states; later jointly fit native/full/self_fold/cross_fold.",
+      "primary_outcome": "Cross donor dependency and signed local geometry match exact predictions; independent synthetic noise averages zero while correlated noise can fail.",
+      "alternative_outcome": "Implementation violates parity/gradients; or realistic errors are not identified, leaving the noise interpretation unresolved regardless of math checks."
+    },
+    "closed_family": {
+      "id": "r95-frozen-postfit-eta1-insertion",
+      "rejected_variant_refs": [
+        "docs/evidence/rmea/20261119-l5-round95/utility-screen-result.json"
+      ],
+      "closure_evidence_refs": [
+        "docs/evidence/rmea/20261119-l5-round95/utility-screen-result.json"
+      ],
+      "forbidden_rescue_variants": [
+        "No optional eta/epsilon/seed/epoch rescue of the frozen postfit contract."
+      ]
+    }
+  },
+  "positive_carryovers": [
+    {
+      "id": "r96-joint-utility-path",
+      "mechanism": "Jointly train the existing utility-to-measurement path with shared states/value/decoder tensors.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261119-l5-round96/training-result.json"
+      ],
+      "transport_constraint": "One-init development evidence only; class-centering changes the function and inherits no utility tier."
+    }
+  ],
+  "recovery_outcome": {
+    "disposition": "candidate",
+    "selected_candidate": {
+      "id": "cross-fold-donor-recipient-v1",
+      "title": "Cross-fold utility construction and recipient readout",
+      "positive_carryover_ids": [
+        "r96-joint-utility-path"
+      ],
+      "recovery_mode": "new_causal_path",
+      "causal_difference": "Valid-order alternating folds: one fold constructs the other fold routing; native fold masses and all token utilities retained in readout.",
+      "changed_causal_links": [
+        "intended_intermediate",
+        "observable_output"
+      ],
+      "discriminating_measurement": "Donor fold effects/covariances/scales, native fold masses, alpha, raw utilities and logits; cross versus self-fold Jacobian and noise witnesses.",
+      "success_gate": "One reviewed managed synthetic canary must pass eight fixed source/mask/gradient/locality/noise checks; no task-utility promotion from synthetic pass.",
+      "kill_condition": "Any source mapping, nonfinite gradient or native parity failure blocks execution qualification. Correlated-noise witnesses limit the interpretation. Short later task screen null is inconclusive without rescue.",
+      "authorization_boundary": "Owner sustained bounded research; shared scheduler only; full formal runs collaborator-only; no new capacity."
+    }
+  },
+  "limitations": [
+    "No measured cross-fold task utility or identified NLP error model.",
+    "Conditional error assumptions are unverified; contextual folds need not be independent.",
+    "No novelty clearance or formal execution authority; synthetic qualification is not CaseStudy readiness."
+  ]
+}

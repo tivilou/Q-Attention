@@ -1,0 +1,108 @@
+{
+  "schema": "qattn.cross-fold.implementation-review.v1",
+  "response_id": "resp_0a22c2d25830e13f016aff32b5901087d190036b6cba3c594a",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "medium",
+  "request_count": 1,
+  "automatic_retries": 0,
+  "packet_sha256": "40fc719881a45d0691b0ab6b735e8e54565db6eae57b60b13f9b402ac1b7e3f2",
+  "review_freeze_sha256": "7ec26b6c69ecacd56b09f5e52d3ca20b664b812b0618c6a3f5b729ae912afc9f",
+  "source_files": {
+    "experiments/rmea_utility_measurement/cross_fold.py": "739608e5c53e1b292c14b4aa7793c01a25b9267d61c93e2ceb4359bac91f2b6f",
+    "experiments/rmea_utility_measurement/cross_fold_canary.py": "ee2844468531f1b6b2b9cddd22e1a401ede1f4127562ec64bb2b5732295aac6a",
+    "experiments/rmea_utility_measurement/cross_fold_job.py": "f88c92e419c5c35e987060612cbf82f384d9166c02241daef4b2dd7bf5a61879",
+    "experiments/rmea_utility_measurement/head.py": "7afde7ef88b60afdf08c87f1a1d812aca33234830d24f2403220af9cc7d6c009",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e",
+    "experiments/rmea_utility_measurement/class_centered_job.py": "3d75a37b95cc9f87dc6fbeab7bb3b92a37ae1d227c1b7a05b615c14d9cc21b4d"
+  },
+  "design_files": {
+    "experiments/rmea_utility_measurement/cross_fold.py": "739608e5c53e1b292c14b4aa7793c01a25b9267d61c93e2ceb4359bac91f2b6f",
+    "experiments/rmea_utility_measurement/cross_fold_canary.py": "ee2844468531f1b6b2b9cddd22e1a401ede1f4127562ec64bb2b5732295aac6a",
+    "experiments/rmea_utility_measurement/cross_fold_job.py": "f88c92e419c5c35e987060612cbf82f384d9166c02241daef4b2dd7bf5a61879",
+    "docs/evidence/rmea/20261120-l5-crossfold/mechanism-recovery.json": "da9d5123085a815d8f87e4e7d7b42a82b6c1348f88b8cdb7d7ce3beca9ab3a26",
+    "docs/evidence/rmea/20261120-l5-crossfold/plugin-plan.json": "3a7aeb9a9bf8d638eb50f9c08796e5727676e4a2df0db82f072320d4ba8013f3",
+    "docs/evidence/rmea/20261120-l5-crossfold/canary-design.json": "d6f8cdeb64997e5f316a1ed3f00b92f00a45af3477004e04ba5aa0d0f9db9e3d"
+  },
+  "execution_contract_sha256": "6e6017696fb9ca09ab922a5d419d369ebc9a07d05a24ec96439a5d55d4521c22",
+  "parent_fixture_result": {
+    "status": "PASS_PARENT_SUBPROCESS_FIXTURES",
+    "cases": [
+      {
+        "mode": "nonzero",
+        "error": "AssertionError",
+        "dispatches": 1,
+        "completion_marker": false,
+        "private_evidence_preserved": true
+      },
+      {
+        "mode": "timeout",
+        "error": "TimeoutExpired",
+        "dispatches": 1,
+        "completion_marker": false,
+        "private_evidence_preserved": true
+      },
+      {
+        "mode": "bad_checks",
+        "error": "AssertionError",
+        "dispatches": 1,
+        "completion_marker": false,
+        "private_evidence_preserved": true
+      },
+      {
+        "mode": "success",
+        "error": null,
+        "dispatches": 1,
+        "completion_marker": true,
+        "private_evidence_preserved": true
+      }
+    ],
+    "numerical_child_replaced": true,
+    "parent_imported_torch": false,
+    "actual_scientific_launches": 0,
+    "actual_numerical_checks": 0
+  },
+  "runtime_admission_granted": false,
+  "review_mode": "external",
+  "reviewer_model": "gpt-6.1-sol",
+  "review_scope": "both",
+  "verdict": "PASS_WITH_RISK",
+  "theory_mapping": [
+    "Native masses: fold_attention computes overlap-plus-EPS native attention and sums it within valid-order alternating folds. The common E0 normalization cancels.",
+    "Donor construction: measured_attention computes E0, log(E0), A_D=U_D-f_D S_D, N_D and the normalized matrix exponential with ordinary autograd lineage.",
+    "Recipient routing: fold_attention selects donor=1-recipient for cross_fold and donor=recipient for self_fold, then normalizes recipient weights and multiplies by the recipient's native mass.",
+    "Readout: fold_attention aggregates every valid token utility; CrossFoldUtilityHead adds only the original bias.",
+    "Equations (2)/(3): canary compares right finite-difference score derivatives with explicit logarithmic-mean bilinear/quadratic expressions for aligned and opposing witnesses.",
+    "Equation (4): canary checks zero diagonal cross blocks, symmetry, signed eigenvalue pairing, self positive semidefiniteness and an autograd-versus-finite-difference direction.",
+    "Equation (1): exhaustive bounded sign distributions test zero independent-fold noise readout and positive/negative correlated failure witnesses."
+  ],
+  "correctness": "pass",
+  "fidelity_gaps": [
+    "The Jacobian test does not directly compare every entry against the analytic B_t/logarithmic-mean formula in Equation (4), nor explicitly verify the self-fold Gram entries. Structural and directional checks provide weaker coverage.",
+    "Parameter isolation checks state-dictionary keys and total parameter count, not an explicit comparison of every named parameter shape and trainability flag.",
+    "Numerical execution, full-value trace persistence and reader readiness remain unestablished; exposed diagnostic tensors are not a completed trace implementation."
+  ],
+  "control_fairness": "pass",
+  "gradient_and_numerics": "partial",
+  "lifecycle_correctness": "pass",
+  "artifact_and_recovery": "partial",
+  "must_fix": [],
+  "risks": [
+    "No definite equation-mapping defect is apparent in the supplied source. This is static review, not execution or independent verification of the supplied hashes.",
+    "Interspersed masks, all 40 classes including null, and singleton fallback are handled faithfully. Cross-fold is mathematically native through three tokens; self-fold can redistribute at three. Both conditions execute two donor effects whenever both folds are nonempty.",
+    "Native masses and donor effects retain gradients. Utility and normalized-state directional checks are meaningful, but finite parameter gradients alone do not prove every parameter pathway is numerically correct.",
+    "Float64 matrix-exponential behavior, tolerances, runtime and resource fit remain untested. Extremely large finite utilities can overflow intermediate arithmetic and cause deliberate fail-closed rejection rather than a finite result.",
+    "The parent source uses one synchronous child launch, explicit argv/cwd, inherited environment with thread limits, report validation and marker-last publication. Supplied stub fixtures support failure/publication behavior, not execution of the scientific child or scheduler admission.",
+    "CPU, RAM and disk limits and single-attempt admission are not fully enforced by this script; they depend on the external scheduler and immutable attempt setup. The existing work-directory guard prevents ordinary same-attempt replay.",
+    "The source manifest does not transitively hash every imported module, including the inherited FrozenFeatureHead implementation. The stated immutable clean-worktree binding remains important.",
+    "The parent validates required report fields but does not enforce an exact report-key whitelist or compare the reported seed/environment against the design. The frozen child supplies them correctly in the reviewed path.",
+    "Failure logs and command evidence are retained outside the publication directory; RUN_COMPLETE authenticates only compact-report.json. Full artifact custody and independent post-execution observation remain external requirements.",
+    "Synthetic independence is stipulated, not inferred for contextual NLP errors. No unbiased training-gradient, task-benefit, novelty or formal-readiness conclusion follows."
+  ],
+  "bounded_synthetic_eligible_after_admission": true,
+  "numerical_qualification_established": false,
+  "task_utility_established": false,
+  "novelty_established": false,
+  "L5": "NOT_ACCEPTED",
+  "confidence": "medium"
+}

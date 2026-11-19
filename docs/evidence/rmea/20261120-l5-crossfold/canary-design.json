@@ -1,0 +1,57 @@
+{
+  "schema": "qattn.cross-fold.canary.design.v1",
+  "status": "IMPLEMENTATION_WRITTEN_NUMERICAL_QUALIFICATION_PENDING",
+  "purpose": "Eight fixed synthetic tests distinguish donor/recipient mechanisms and expose correlated-noise failure; no task dataset or training.",
+  "environment": {
+    "numpy": "1.24.3",
+    "torch": "2.4.1+cpu"
+  },
+  "source_files": {
+    "experiments/rmea_utility_measurement/cross_fold.py": "739608e5c53e1b292c14b4aa7793c01a25b9267d61c93e2ceb4359bac91f2b6f",
+    "experiments/rmea_utility_measurement/cross_fold_canary.py": "ee2844468531f1b6b2b9cddd22e1a401ede1f4127562ec64bb2b5732295aac6a",
+    "experiments/rmea_utility_measurement/cross_fold_job.py": "f88c92e419c5c35e987060612cbf82f384d9166c02241daef4b2dd7bf5a61879",
+    "experiments/rmea_utility_measurement/head.py": "7afde7ef88b60afdf08c87f1a1d812aca33234830d24f2403220af9cc7d6c009",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e",
+    "experiments/rmea_utility_measurement/class_centered_job.py": "3d75a37b95cc9f87dc6fbeab7bb3b92a37ae1d227c1b7a05b615c14d9cc21b4d"
+  },
+  "seed": 20261120,
+  "conditions": [
+    "self_fold",
+    "cross_fold"
+  ],
+  "checks": 8,
+  "check_names": [
+    "native_eta0_short_sequences_valid_order_and_padding",
+    "all40_invalid_interfaces_and_parameter_isolation",
+    "recipient_dependency_and_fold_constant_shift",
+    "signed_cross_response_and_nonnegative_self_response",
+    "zero_utility_jacobian_signed_pairing_and_self_gram",
+    "independent_noise_identity_and_correlated_failure_witnesses",
+    "end_to_end_gradients_and_utility_directional_difference",
+    "deterministic_state_reload_and_kind_rejection"
+  ],
+  "budget": {
+    "cpu": 1,
+    "ram_mb": 4096,
+    "gpus": 0,
+    "disk_mb": 16,
+    "timeout_seconds": 240,
+    "optimizer_steps": 0,
+    "new_checkpoints": 0,
+    "COS_requests": 0,
+    "cloud_writes": 0
+  },
+  "outputs": [
+    "compact-report.json",
+    "RUN_COMPLETE"
+  ],
+  "max_attempts": 1,
+  "replay_safe": false,
+  "discovery_gate": "All8 numerical and exact-source checks pass before any separately reviewed task screen; synthetic pass establishes no task utility or actual error independence.",
+  "failure_policy": "Preserve failed attempt/logs; no automatic replay, coefficients, seeds or budget changes.",
+  "formal_run": false,
+  "L5": "NOT_ACCEPTED",
+  "trace_readiness": "Not certified; full-value private fixture and reader still due before formal completion.",
+  "source_count": 7
+}

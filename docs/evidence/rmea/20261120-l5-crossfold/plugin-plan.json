@@ -1,0 +1,254 @@
+{
+  "schema_version": "research-plugin-architecture.plugin-plan.v2",
+  "project": "Q-Attention",
+  "authorization": "approved",
+  "baseline": {
+    "entry_point": "experiments.rmea_context_geometry.legacy.rmea.RMEAHead",
+    "code_revision": "d35c22ce3becf3775b499ead74db3f24f541ccf8",
+    "equivalence_test": "All-40 native source alpha/logits at eta0 and <=3 valid tokens, ordinary parameter/state identity; numerical tests pending managed execution."
+  },
+  "core_invariants": [
+    "Existing six-condition training source12 hashes unchanged.",
+    "No labels in partition/forward, no trainable tensors or classical residual; all40 including null.",
+    "Synthetic numerical execution only through reviewed shared scheduler."
+  ],
+  "interfaces": [
+    {
+      "id": "cross-fold-head",
+      "type": "transformer",
+      "input_schema": "Full source-head interface h[B,T,1024],roles[B,T,4],mask[B,T]; float64 CPU; all40classes include null.",
+      "output_schema": "logits[B,40],alpha[B,40,T]; fold masks, native masses, donor effects/covariances/scales exposed in details."
+    }
+  ],
+  "plugins": [
+    {
+      "id": "native",
+      "version": "1",
+      "role": "baseline",
+      "interface": "cross-fold-head",
+      "insertion_point": "RMEA normalized states/utilities -> fold-local construction -> opposite/same-fold recipient routing -> original readout",
+      "hypothesis": "Recipient separation changes utility self-coupling; conditional noise cancellation may fail under contextual correlation.",
+      "input_schema": "Full source-head interface h[B,T,1024],roles[B,T,4],mask[B,T]; float64 CPU; all40classes include null.",
+      "output_schema": "logits[B,40],alpha[B,40,T]; fold masks, native masses, donor effects/covariances/scales exposed in details.",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "81028 stored parameters, two class-wise matrix exponentials for >=4 tokens, float64/complex128 CPU; self/cross compute matched.",
+      "failure_signatures": [
+        "Native parity or mask failure",
+        "Missing/nonfinite gradients",
+        "Unexpected own-recipient routing dependence",
+        "Signed/noise identity failure"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "stages": [
+          "native_preparation",
+          "fold_construction",
+          "recipient_routing",
+          "readout"
+        ],
+        "input_fields": [
+          "h",
+          "roles",
+          "mask",
+          "source_state"
+        ],
+        "output_fields": [
+          "logits",
+          "alpha"
+        ],
+        "emitted_fields": [
+          "raw_utilities",
+          "fold_masks",
+          "native_fold_masses",
+          "donor_effects",
+          "donor_covariances",
+          "donor_scales",
+          "psi",
+          "phi",
+          "alpha",
+          "logits"
+        ],
+        "shape_dtype_normalization": [
+          "All40 classes included; no label inputs; masked weights0, valid rows sum1; float64/complex128."
+        ],
+        "checks": [
+          "Numerical fixture pending; full sample-trace.v2/value-reader readiness remains due before formal completion."
+        ],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "self_fold",
+      "version": "1",
+      "role": "adapter",
+      "interface": "cross-fold-head",
+      "insertion_point": "RMEA normalized states/utilities -> fold-local construction -> opposite/same-fold recipient routing -> original readout",
+      "hypothesis": "Recipient separation changes utility self-coupling; conditional noise cancellation may fail under contextual correlation.",
+      "input_schema": "Full source-head interface h[B,T,1024],roles[B,T,4],mask[B,T]; float64 CPU; all40classes include null.",
+      "output_schema": "logits[B,40],alpha[B,40,T]; fold masks, native masses, donor effects/covariances/scales exposed in details.",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "81028 stored parameters, two class-wise matrix exponentials for >=4 tokens, float64/complex128 CPU; self/cross compute matched.",
+      "failure_signatures": [
+        "Native parity or mask failure",
+        "Missing/nonfinite gradients",
+        "Unexpected own-recipient routing dependence",
+        "Signed/noise identity failure"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "stages": [
+          "native_preparation",
+          "fold_construction",
+          "recipient_routing",
+          "readout"
+        ],
+        "input_fields": [
+          "h",
+          "roles",
+          "mask",
+          "source_state"
+        ],
+        "output_fields": [
+          "logits",
+          "alpha"
+        ],
+        "emitted_fields": [
+          "raw_utilities",
+          "fold_masks",
+          "native_fold_masses",
+          "donor_effects",
+          "donor_covariances",
+          "donor_scales",
+          "psi",
+          "phi",
+          "alpha",
+          "logits"
+        ],
+        "shape_dtype_normalization": [
+          "All40 classes included; no label inputs; masked weights0, valid rows sum1; float64/complex128."
+        ],
+        "checks": [
+          "Numerical fixture pending; full sample-trace.v2/value-reader readiness remains due before formal completion."
+        ],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "cross_fold",
+      "version": "1",
+      "role": "idea",
+      "interface": "cross-fold-head",
+      "insertion_point": "RMEA normalized states/utilities -> fold-local construction -> opposite/same-fold recipient routing -> original readout",
+      "hypothesis": "Recipient separation changes utility self-coupling; conditional noise cancellation may fail under contextual correlation.",
+      "input_schema": "Full source-head interface h[B,T,1024],roles[B,T,4],mask[B,T]; float64 CPU; all40classes include null.",
+      "output_schema": "logits[B,40],alpha[B,40,T]; fold masks, native masses, donor effects/covariances/scales exposed in details.",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "81028 stored parameters, two class-wise matrix exponentials for >=4 tokens, float64/complex128 CPU; self/cross compute matched.",
+      "failure_signatures": [
+        "Native parity or mask failure",
+        "Missing/nonfinite gradients",
+        "Unexpected own-recipient routing dependence",
+        "Signed/noise identity failure"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "stages": [
+          "native_preparation",
+          "fold_construction",
+          "recipient_routing",
+          "readout"
+        ],
+        "input_fields": [
+          "h",
+          "roles",
+          "mask",
+          "source_state"
+        ],
+        "output_fields": [
+          "logits",
+          "alpha"
+        ],
+        "emitted_fields": [
+          "raw_utilities",
+          "fold_masks",
+          "native_fold_masses",
+          "donor_effects",
+          "donor_covariances",
+          "donor_scales",
+          "psi",
+          "phi",
+          "alpha",
+          "logits"
+        ],
+        "shape_dtype_normalization": [
+          "All40 classes included; no label inputs; masked weights0, valid rows sum1; float64/complex128."
+        ],
+        "checks": [
+          "Numerical fixture pending; full sample-trace.v2/value-reader readiness remains due before formal completion."
+        ],
+        "deterministic_replay": true
+      }
+    }
+  ],
+  "discovery": {
+    "mode": "explicit_allowlist",
+    "allowlist": [
+      "native",
+      "self_fold",
+      "cross_fold"
+    ]
+  },
+  "composition": {
+    "mode": "single",
+    "order": [
+      "cross_fold"
+    ],
+    "merge_rule": "Exactly one fold mechanism; no composition or hidden coefficient.",
+    "interaction_ablations": [
+      "self_fold",
+      "native",
+      "full"
+    ]
+  },
+  "validation": {
+    "baseline_equivalence": "Not yet numerically qualified; pending one reviewed managed canary.",
+    "tests": [
+      "baseline_equivalence",
+      "plugin_isolation",
+      "deterministic_replay",
+      "interaction_ablation",
+      "Valid-order mask/padding",
+      "Cross/self Jacobian and gradient lineage",
+      "Independent and correlated noise witnesses"
+    ]
+  },
+  "reproducibility": {
+    "config_path": "docs/evidence/rmea/20261120-l5-crossfold/canary-design.json",
+    "dataset_identity": "Synthetic only for canary; no dataset reads.",
+    "environment": "NumPy1.24.3/Torch2.4.1+cpu, CPU1,float64/complex128",
+    "seeds": [
+      20261120
+    ],
+    "output_manifest": "compact-report.json and RUN_COMPLETE"
+  },
+  "trace_contract": {
+    "enabled": false
+  },
+  "recovery_contract": {
+    "dossier_path": "docs/evidence/rmea/20261120-l5-crossfold/mechanism-recovery.json",
+    "dossier_sha256": "da9d5123085a815d8f87e4e7d7b42a82b6c1348f88b8cdb7d7ce3beca9ab3a26",
+    "candidate_id": "cross-fold-donor-recipient-v1",
+    "discriminating_intermediate_measurement": "Donor fold effects/covariances/scales, native fold masses, alpha, raw utilities and logits; cross versus self-fold Jacobian and noise witnesses."
+  },
+  "limitations": [
+    "Approved bounded implementation design only; numerical qualification and trace-ready implementation certification pending.",
+    "Synthetic noise witnesses do not identify contextual errors or prove task utility.",
+    "Review and scheduler admission must precede numeric execution; no new formal experiment."
+  ]
+}
