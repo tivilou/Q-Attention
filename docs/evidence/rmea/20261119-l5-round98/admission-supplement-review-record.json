@@ -1,0 +1,38 @@
+{
+  "schema": "qattn.r98.supplemental-admission.review.v1",
+  "status": "BLOCKED_BEFORE_ADMISSION",
+  "original_source_revision": "072ced91ec2db24608a16a5ad08fef5eed43e363",
+  "original_freeze_sha256": "839b82682c9d7e33c3619b51bb69713ca82921bd83ebdcb381810a6adc2786fa",
+  "admission_freeze_sha256": "04eb7bddd602b73a9f91b7328528fea8857eebc554d24ae078c6442c182cadc5",
+  "response_id": "resp_04a42ef6d68d1416016afeb7fba08c87d1a748485829f2e565",
+  "reasoning_effort": "medium",
+  "inference_requests": 1,
+  "automatic_retries": 0,
+  "review": {
+    "review_mode": "external",
+    "reviewer_model": "gpt-6.1-sol",
+    "review_scope": "lifecycle",
+    "admission_freeze_sha256": "04eb7bddd602b73a9f91b7328528fea8857eebc554d24ae078c6442c182cadc5",
+    "original_freeze_sha256": "839b82682c9d7e33c3619b51bb69713ca82921bd83ebdcb381810a6adc2786fa",
+    "source_sha256": "65a38ed5b17ad1621eb70d33ae5278828373b330995a509f73fd8488d48a07b4",
+    "contract_sha256": "1f9d2613e0824ba18c94c297f531c9ee79945cd6cbf789d9ae32ef5f8d3e41ec",
+    "verdict": "BLOCK",
+    "must_fix": [
+      "Establish configuration-writer serialization for both owner and node through activation, compensation and rollback. The owner byte comparison and remote expected-hash comparison are separate from their subsequent os.replace operations, not atomic compare-and-swap operations. An unrelated edit between comparison and replacement can therefore be overwritten. The supplied leader lock does not establish that every configuration writer, including remote writers, participates. Supply and enforce that shared locking contract, or use a genuinely conditional versioned update.",
+      "Add deterministic concurrent-writer fixtures covering edits after the owner comparison and after the remote hash comparison, including compensation and rollback. Verify that such edits are preserved or cause stopped-state fencing without replacement."
+    ],
+    "risks": [
+      "The scoped merge preserves unrelated project entries present in its snapshots and rejects observed q-attention or non-project binding drift. That supports rebasing already-completed unrelated changes without scientific re-review, but does not establish preservation of edits concurrent with replacement.",
+      "The supplied fixtures exercise real isolated file replacements, successful rollback, compensation after a remote write with lost observation, and early rejection of owned-scope drift and a busy queue. They replace the review gate, scheduler leadership and transport; they do not authenticate live scheduler behavior or cover concurrent configuration writers.",
+      "Failure reconciliation conservatively leaves unresolved states stopped. Interrupted publication or restart can leave changed configurations without registration evidence and require manual reconciliation; automatic crash recovery is not demonstrated.",
+      "The original BOTH gate remains active, and supplemental registration and submission bind the new review hashes. No scientific source, contract, tolerance or control change is identified. This lifecycle block does not regrade the unchanged science or establish scientific execution success."
+    ],
+    "bounded_analysis_execution_eligible": false,
+    "formal_training_admitted": false,
+    "L5": "NOT_ACCEPTED"
+  },
+  "scientific_submissions": 0,
+  "live_configuration_mutations": 0,
+  "scope": "Known immutable scientific mechanism remains reviewed. Supplemental admission blocked because read-check-rename is not a true conditional replacement against concurrent uncoordinated writers. No BLOCK shopping or science replay.",
+  "L5": "NOT_ACCEPTED"
+}

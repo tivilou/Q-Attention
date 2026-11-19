@@ -1,0 +1,44 @@
+{
+  "schema": "qattn.r99.math-review.v1",
+  "freeze": {
+    "files": {
+      "docs/evidence/rmea/20261119-l5-round99/isospectral-query-rotation-v001.md": "51882d052897d84eeb828aa0edc8dbe53e2e1cd1f959c1a0c6723390076c0c2a",
+      "experiments/rmea_utility_measurement/head.py": "7afde7ef88b60afdf08c87f1a1d812aca33234830d24f2403220af9cc7d6c009"
+    },
+    "source_scope": "Mathematics only, no implementation or runtime admission",
+    "L5": "NOT_ACCEPTED"
+  },
+  "freeze_sha256": "2dae384df3064d84ac0c43b0a854fe81540cc3997e3eb8f3f8f4248ab81d0477",
+  "response_id": "resp_07df7e0b9e4b20db016afebc09f1d487d1a665b854cc1e0bcf",
+  "reasoning_effort": "medium",
+  "inference_requests": 1,
+  "automatic_retries": 0,
+  "review": {
+    "review_mode": "external",
+    "reviewer_model": "gpt-6.1-sol",
+    "freeze_sha256": "2dae384df3064d84ac0c43b0a854fe81540cc3997e3eb8f3f8f4248ab81d0477",
+    "verdict": "PASS_WITH_RISK",
+    "must_fix": [],
+    "risks": [
+      "Proposition A passes: the leading spectral projector has the stated uniform expansion for bounded eta, while the remaining Gibbs mass is O(epsilon). Quotient expansion yields the stated coefficient. This supplies no quantitative error bound at epsilon=1e-6 or uniformly as F approaches zero.",
+      "Proposition B and derivative (B) pass. The commutator has rank at most two, with the stated rotation sign and angle, including at finite epsilon after replacing w and N. In the pure limit, denominator positivity and the strict lower bound on q* A* q establish positive own-score gain for s>0. No universal finite-epsilon gain theorem follows.",
+      "The CE witness passes as a pure-limit counterexample. For this particular witness, the exact finite-epsilon rotated score is g(a)/(1+2 epsilon), so the adverse class ordering and CE increase also persist at finite epsilon.",
+      "The supplied Gibbs source matches the analyzed full path when construction utilities equal readout utilities. With permuted construction utilities, an own-score theorem for the construction score does not automatically apply to the original-utility readout.",
+      "The factor-L_e comparison concerns cross-block local response, not the complete Gibbs derivative or matched finite-step behavior. The disclosed response-scale confound remains material to any future task comparison.",
+      "The rotation is established unitary-orbit geometry: its initial projector velocity is [[A,P],P]/N, and its pure-state update is a sphere exponential-map step along the Rayleigh-quotient gradient, with step scale F/(2N). This establishes a known-geometry equivalence, not novelty, necessity, or task benefit. Bibliographic priority and implementation behavior remain unverified."
+    ],
+    "propositions": {
+      "A": "pass",
+      "B": "pass",
+      "CE_witness": "pass"
+    },
+    "known_identity_boundary": "pass",
+    "novelty_established": false,
+    "numerical_execution_admitted": false,
+    "implementation_readiness": "not_run",
+    "L5": "NOT_ACCEPTED"
+  },
+  "implementation": false,
+  "numerical_execution": false,
+  "L5": "NOT_ACCEPTED"
+}
