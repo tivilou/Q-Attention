@@ -1,0 +1,84 @@
+{
+  "schema": "qattn.cross-fold.finite-risk.review.v1",
+  "model": "gpt-6.1-sol",
+  "platform": "a6api",
+  "reasoning_effort": "medium",
+  "selection": "explicit_owner_override",
+  "response_id": "resp_065d4d45f55570d1016aff56228e1487d2aaa204b48f6a3417",
+  "proposal_sha256": "2d32483ddc33316f79da42ec3086a80065bf5347f957e0188b663c1bd061f045",
+  "dependencies": {
+    "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\docs\\evidence\\rmea\\20261120-l5-crossfold\\classification-risk-v001.md": "9f0bb667cc761e781747972a45dbfb2d0aeaca13961acbd1058eb58723b7804e",
+    "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\docs\\evidence\\rmea\\20261120-l5-crossfold\\risk-review-record.json": "534a9509ab6860abb082b75802a4d5e9e164a652fa199ba69355ff7a092104d4",
+    "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\experiments\\rmea_utility_measurement\\head.py": "7afde7ef88b60afdf08c87f1a1d812aca33234830d24f2403220af9cc7d6c009",
+    "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\experiments\\rmea_utility_measurement\\cross_fold.py": "739608e5c53e1b292c14b4aa7793c01a25b9267d61c93e2ceb4359bac91f2b6f"
+  },
+  "inference_requests": 1,
+  "automatic_retries": 0,
+  "review": {
+    "review_scope": "mechanism",
+    "verdict": "PASS",
+    "checks": [
+      {
+        "name": "source_interface_and_noise_law",
+        "status": "PASS",
+        "evidence": "The supplied source supports native weights 1/4, fold masses 1/2, donor covariance b*sigma_z and full coherent covariance 2b*sigma_z. Recipient normalization cancels the common effect trace, yielding the stated F and R logits. Sharing signs across distractors preserves independence between the two complete fold error vectors. The four risk formulas are expectations of per-draw CE."
+      },
+      {
+        "name": "global_F_remainder",
+        "status": "PASS",
+        "evidence": "For g(T)=tanh(T)/T, monotonicity and tanh(T)>=tanh(k) give k/T<=g(T)/g(k)<=1. Thus F(b)/(q*b^2) lies between A*B and 1. The deficit bound 1-A*B<=b^2+a(b)^2/(2*k^2)<=Ck*b^2 proves equation (1) globally; b=0 is immediate."
+      },
+      {
+        "name": "global_R_remainder",
+        "status": "PASS",
+        "evidence": "For x=2*b/sqrt(1+8*b^2), R(b)/(2*q*b^2) has the analogous product lower bound. Its factor deficits are at most 4*b^2 and 2*b^2/k^2. Multiplication by 2*q*b^2 gives 8*Ck*q*b^4, proving equation (2) globally."
+      },
+      {
+        "name": "softplus_global_Taylor_bound",
+        "status": "PASS",
+        "evidence": "L'(0)=39/40 and 0<L''(x)<=1/4 globally. Taylor's integral remainder therefore gives 0<=L(x)-L(0)-p*x<=x^2/8 for both positive and negative arguments. Applying this separately before taking expectations correctly retains per-draw CE."
+      },
+      {
+        "name": "risk_gap_bounds",
+        "status": "PASS",
+        "evidence": "The X remainder is (Fs^2+Ft^2)/8<=q^2*(s^4+t^4)/8. For U, monotonicity gives 0<Rt-Rs<=Rt, so its remainder is at most ((Rt-Rs)^2+Rs^2)/16<=q^2*(t^4+s^4)/4. The mean argument Rt/2-Rs and the global R bounds yield the stated U bounds. Subtracting gives exactly B1 and B2 in equations (4)-(5)."
+      },
+      {
+        "name": "explicit_finite_window_constants",
+        "status": "PASS",
+        "evidence": "For 1<r<sqrt(2), both interval endpoints in (6) are positive, proving a nonempty sufficient window. At r^2=3/2, k>1 gives B1<=185/12 and B2<=77/6. With s^2<=1/64, the gap brackets are at least 1/2-185/768=199/768 and 1/2-77/384=115/384, respectively; both exceed 1/4. Strict F monotonicity supplies N<S."
+      },
+      {
+        "name": "argmax_event_and_confusion_ceiling",
+        "status": "PASS",
+        "evidence": "For every t>s>0, cross succeeds exactly when xi*zeta=-1 and full succeeds exactly when xi!=zeta: these are the same event of probability 1/2. True-class comparisons are strict, while self always loses. Under the common lowest-index rule, both methods predict y=7 on success and distractor 0 on failure, so replicated draws have identical confusion matrices and Macro values. Native predicts 0 from its all-zero tie and is incorrect."
+      },
+      {
+        "name": "claim_scope_and_training_preservation",
+        "status": "PASS",
+        "evidence": "The proposal establishes a finite sufficient CE window for the existing interface witness, not a new mechanism, real-task gain, novelty clearance or L5. It explicitly preserves the pending training contract and separates analytic publication from scientific execution. No tools, numerical experiments or source modifications were performed in this review."
+      }
+    ],
+    "must_fix": [],
+    "risks": [
+      "This is an exact-arithmetic review of supplied text; file hashes, repository state, runtime behavior and scheduler status were not independently verified.",
+      "Joint realization of the stipulated utilities and states through the original feature/circuit head remains unproved.",
+      "The shared-distractor sign law is synthetic; actual NLP error independence and label-relevant coherence remain unestablished.",
+      "The finite window is conservative, not a sharp boundary or a floating-point validation.",
+      "The CE advantage cannot establish a cross-versus-full argmax or Macro advantage in this witness under the stated common tie rule.",
+      "Novelty, quantum necessity and held-out task utility remain unresolved."
+    ],
+    "analytic_record_eligible": true,
+    "numerical_validation": false,
+    "task_utility_established": false,
+    "novelty_cleared": false,
+    "L5": "NOT_ACCEPTED"
+  },
+  "finite_CE_window": "EPS=1e-6, t/s=sqrt(3/2), 0<s<=1/8; cross<full<native<self",
+  "argmax_ceiling": "For every t>s>0 in the stated law, cross/full have identical predictions under the common lowest-index tie rule.",
+  "scientific_execution": false,
+  "training_contract_changes": 0,
+  "novelty_cleared": false,
+  "independent_task_confirmation": false,
+  "L5": "NOT_ACCEPTED"
+}
