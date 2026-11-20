@@ -1,4 +1,4 @@
-"""Bounded, label-blind mixed-query support certificates on sealed canary traces."""
+"""Bounded fixed-state mechanism diagnostics on sealed canary traces."""
 import argparse
 import hashlib
 import io
@@ -15,7 +15,7 @@ THEORY='docs/evidence/rmea/20261120-l5-token-graph-separation/full-vector-reacha
 SELF='experiments/q_rmea_token_transport_reachability.py'
 
 def source_identity():
-    return p.identity(dict(p.sources(),**{n:p.digest(p.ROOT/n) for n in (SELF,DESIGN,THEORY,'docs/evidence/rmea/20261120-l5-token-graph-separation/nuisance-stability.md')}))
+    return p.identity(dict(p.sources(),**{n:p.digest(p.ROOT/n) for n in (SELF,DESIGN,THEORY,'docs/evidence/rmea/20261120-l5-token-graph-separation/nuisance-stability.md','docs/evidence/rmea/20261120-l5-token-graph-separation/current-orientation.md')}))
 
 def snapshot(path,expected,limit):
     if path.is_symlink():raise ValueError('Symlinked input')
@@ -163,6 +163,132 @@ def run_nuisance(design,args,closed,request,output,torch,np,route,kinds,eps):
     print(json.dumps(dict(status=record['status'],summary=summary)),flush=True)
 
 
+def current_measurement(state,torch,eps,route,kinds,design):
+    """Frozen native-equivalent conjugation, signed currents and odd bounds."""
+    from baselines.retacred.rmea import circuit
+    psi,phi,mask,u,bias=(state[k] for k in ('psi','phi','mask','utilities','bias'))
+    n=psi.shape[1];u=u[0];tau=.25
+    def error(a,b,tolerance):
+        if not torch.isfinite(a).all() or not torch.isfinite(b).all():raise ValueError('Nonfinite current check')
+        difference=(a-b).abs()
+        if not torch.isfinite(difference).all():raise ValueError('Nonfinite current residual')
+        result=float(difference.max())
+        if result>tolerance:raise ValueError('Current identity tolerance violated: '+str(result))
+        return result
+    def logits(alpha):
+        z=(alpha[0]*u).sum(-1)+bias
+        if not torch.isfinite(z).all():raise ValueError('Nonfinite current logits')
+        return z
+    angles=state['angles'];effect=state['effect_angles']
+    cangles=angles.clone();cangles[...,1]*=-1
+    ceffect=effect.clone();ceffect[...,1]*=-1
+    cpsi,cphi=circuit(cangles),circuit(ceffect)
+    circuit_error=max(error(circuit(angles),psi,1e-10),error(circuit(effect),phi,1e-10),
+        error(cpsi,psi.conj(),1e-10),error(cphi,phi.conj(),1e-10))
+    plus={k:route(psi,phi,mask,kind=k) for k in kinds}
+    minus={k:route(psi,phi,mask,kind=k,_tau=-tau) for k in kinds}
+    conj={k:route(cpsi,cphi,mask,kind=k) for k in kinds}
+    replay_error=max(error(torch.stack([plus[k]['alpha'] for k in kinds]),state['route_swap_alpha'],1e-12),
+        error(torch.stack([logits(plus[k]['alpha'])[None] for k in kinds]),state['route_swap_logits'],1e-10))
+    reversal_error=max(error(conj[k]['alpha'],minus[k]['alpha'],1e-10) for k in kinds)
+    native_invariance=error(conj['native']['alpha'],plus['native']['alpha'],1e-10)
+    z0=logits(plus['native']['alpha']);probability=z0.softmax(0)
+    a=plus['cubic_coherent']['amplitudes'][0];den=plus['native']['normalizer'][0]
+    sigma=(a[:,:,None]*a.conj()[:,None,:]-torch.diag_embed(a.abs().square()))/den[:,None,None]
+    trace_norm=torch.linalg.eigvalsh(sigma).abs().sum(-1)
+    width=u.max(-1).values-u.min(-1).values
+    if not torch.isfinite(trace_norm).all() or not torch.isfinite(width).all():raise ValueError('Nonfinite current certificate')
+    gram=plus['cubic_coherent']['gram'][0]
+    triangle=gram[None]*a[:,None,:]*a.conj()[:,:,None]
+    upper=torch.triu(torch.ones(n,n,dtype=torch.bool,device=psi.device),diagonal=1)
+    du=u[:,:,None]-u[:,None,:];rows={};slopes={}
+    step=design['finite_difference_step'];tol=design['derivative_tolerance'];bound_tol=design['bound_tolerance'];sign_tol=design['sign_tolerance']
+    for kind,q in [('linear_coherent',1),('cubic_coherent',3)]:
+        h=plus[kind]['generator'][0];scale=plus[kind]['spectral_scale'][0]
+        if scale<=0:raise ValueError('Current probe requires nonzero graph')
+        flow=2*(h[None]*a[:,None,:]*a.conj()[:,:,None]).imag/den[:,None,None]
+        slope=(flow.sum(-1)*u).sum(-1);slopes[kind]=slope
+        pair=(du*flow)[:,upper].sum(-1)
+        comm=1j*(a.conj()*((u*a)@h.T-u*(a@h.T))).sum(-1)/den
+        current_error=max(error(flow,-flow.transpose(-2,-1),1e-10),error(slope,pair,1e-10),
+            error(slope,comm.real,1e-10),error(comm.imag,torch.zeros_like(slope),1e-10))
+        weight=gram.abs().pow(q-1)/scale
+        bargmann_error=error(flow,2*(triangle*weight[None]).imag/den[:,None,None],1e-10)
+        hp=route(psi,phi,mask,kind=kind,_tau=step);hm=route(psi,phi,mask,kind=kind,_tau=-step)
+        zp,zm=logits(hp['alpha']),logits(hm['alpha'])
+        derivative_error=error((zp-zm)/(2*step),slope,tol)
+        ce_slope=(probability*slope).sum()-slope
+        ce_fd=((zp.logsumexp(0)-zm.logsumexp(0))-(zp-zm))/(2*step)
+        ce_error=error(ce_fd,ce_slope,tol)
+        z=logits(plus[kind]['alpha']);delta_ce=(z.logsumexp(0)-z0.logsumexp(0))-(z-z0)
+        if not torch.isfinite(delta_ce).all():raise ValueError('Nonfinite all-target CE contrast')
+        nonzero=(ce_slope.abs()>sign_tol)&(delta_ce.abs()>sign_tol)
+        row=dict(current_identity_error=current_error,bargmann_identity_error=bargmann_error,
+            derivative_error=derivative_error,all_target_ce_derivative_error=ce_error,
+            mean_absolute_logit_slope=float(slope.abs().mean()),maximum_absolute_logit_slope=float(slope.abs().max()),
+            mean_absolute_native_logit_change=float((z-z0).abs().mean()),
+            all_target_nonzero_pairs=int(nonzero.sum()),
+            all_target_local_finite_sign_agreements=int(((ce_slope*delta_ce>0)&nonzero).sum()),
+            all_target_negative_ce_slopes=int((ce_slope<-sign_tol).sum()),
+            all_target_negative_finite_ce_changes=int((delta_ce<-sign_tol).sum()))
+        if q==3:
+            dep='cubic_initial_dephased'
+            odd=((z-logits(plus[dep]['alpha']))-(logits(minus[kind]['alpha'])-logits(minus[dep]['alpha'])))/2
+            residual=(odd-tau*slope).abs();bound=width*trace_norm/96
+            if any(not torch.isfinite(v).all() for v in (odd,residual,bound)):raise ValueError('Nonfinite odd certificate')
+            violation=float((residual-bound).max())
+            if violation>bound_tol:raise ValueError('Finite-time odd certificate violated')
+            certified=tau*slope.abs()>bound+bound_tol
+            if ((odd*slope<=0)&certified).any():raise ValueError('Certified odd sign differs')
+            dp=logits(route(psi,phi,mask,kind=dep,_tau=step)['alpha'])
+            dm=logits(route(psi,phi,mask,kind=dep,_tau=-step)['alpha'])
+            dephased_error=error((dp-dm)/(2*step),torch.zeros_like(slope),tol)
+            row.update(odd_certificate_maximum_violation=violation,certified_odd_sign_coordinates=int(certified.sum()),
+                mean_odd_certificate_bound=float(bound.mean()),maximum_odd_linearization_error=float(residual.max()),
+                dephased_zero_slope_error=dephased_error,
+                dephased_maximum_finite_odd_logit=float(((logits(plus[dep]['alpha'])-logits(minus[dep]['alpha']))/2).abs().max()))
+        rows[kind]=row
+    weights=gram.abs().square()/plus['cubic_coherent']['spectral_scale'][0]-1/plus['linear_coherent']['spectral_scale'][0]
+    predicted=(du*2*(triangle*weights[None]).imag/den[:,None,None])[:,upper].sum(-1)
+    reweight_error=error(slopes['cubic_coherent']-slopes['linear_coherent'],predicted,1e-10)
+    return dict(tokens=n,query_coordinates=40,circuit_conjugation_error=circuit_error,
+        route_replay_error=replay_error,conjugation_time_reversal_error=reversal_error,
+        native_conjugation_error=native_invariance,cubic_linear_current_reweighting_error=reweight_error,routing=rows)
+
+
+def run_current(design,args,closed,request,output,torch,np,route,kinds,eps):
+    rows=[]
+    fields=('psi','phi','mask','utilities','bias','angles','effect_angles','route_swap_alpha','route_swap_logits')
+    for row in design['inputs']:
+        if closed['artifacts'][row['path']]!=dict(sha256=row['sha256'],bytes=row['bytes']):raise ValueError('Sealed trace reference differs')
+        data=snapshot(args.run/row['path'],row['sha256'],1048576)
+        with np.load(io.BytesIO(data),allow_pickle=False) as arrays:
+            state={k:torch.as_tensor(arrays[k].copy(),device='cuda') for k in fields}
+        if any(not torch.isfinite(v).all() for v in state.values()):raise ValueError('Nonfinite sealed current input')
+        if list(state['psi'].shape)!=row['psi_shape'] or not state['mask'].all():raise ValueError('Frozen complete input differs')
+        rows.append(current_measurement(state,torch,eps,route,kinds,design))
+    summary=dict(units=len(rows),query_coordinates=40*len(rows),
+        maximum_circuit_conjugation_error=max(r['circuit_conjugation_error'] for r in rows),
+        maximum_route_replay_error=max(r['route_replay_error'] for r in rows),
+        maximum_conjugation_time_reversal_error=max(r['conjugation_time_reversal_error'] for r in rows),
+        maximum_native_conjugation_error=max(r['native_conjugation_error'] for r in rows),
+        maximum_current_reweighting_error=max(r['cubic_linear_current_reweighting_error'] for r in rows),
+        certified_odd_sign_coordinates=sum(r['routing']['cubic_coherent']['certified_odd_sign_coordinates'] for r in rows),
+        maximum_odd_certificate_violation=max(r['routing']['cubic_coherent']['odd_certificate_maximum_violation'] for r in rows),
+        routing={k:dict(mean_absolute_logit_slope=sum(r['routing'][k]['mean_absolute_logit_slope'] for r in rows)/len(rows),
+            maximum_derivative_error=max(r['routing'][k]['derivative_error'] for r in rows),
+            maximum_all_target_ce_derivative_error=max(r['routing'][k]['all_target_ce_derivative_error'] for r in rows),
+            all_target_nonzero_pairs=sum(r['routing'][k]['all_target_nonzero_pairs'] for r in rows),
+            all_target_local_finite_sign_agreements=sum(r['routing'][k]['all_target_local_finite_sign_agreements'] for r in rows)) for k in ('linear_coherent','cubic_coherent')})
+    record=dict(status='CURRENT_ORIENTATION_DIAGNOSTIC_COMPLETE',source_revision=request['revision'],source_sha256=source_identity(),
+        contract_sha256=p.identity(design),summary=summary,units=rows,formal_training=False,L5='NOT_ACCEPTED',
+        scope='Six sealed one-update technical-canary states; actual circuit-angle conjugation, fixed-tau reversal/current/odd-bound checks and every-possible-target CE arithmetic. No target or text reads, trained utility, novelty or L5 claim. Numerical derivative step is fixed verification, never inference selection.')
+    p.atomic_json(output/'compact-report.json',record)
+    p.atomic_json(output/'RUN_COMPLETE',dict(schema='q-rmea.current-orientation.closed.v1',files={'compact-report.json':p.digest(output/'compact-report.json')}))
+    print(json.dumps(dict(status=record['status'],summary=summary)),flush=True)
+
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--run',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True);args=parser.parse_args()
@@ -196,6 +322,8 @@ def main():
     from baselines.retacred.rmea import EPS
     from baselines.retacred.rmea_token_transport import route,KINDS
     torch.set_num_threads(1);torch.set_grad_enabled(False);torch.use_deterministic_algorithms(True)
+    if design.get('analysis')=='current_orientation_v1':
+        run_current(design,args,closed,request,output,torch,np,route,KINDS,EPS);return
     if design.get('analysis')=='nuisance_stability_v1':
         run_nuisance(design,args,closed,request,output,torch,np,route,KINDS,EPS);return
     device='cuda';rows=[];replay_error=0.;null_max=-1.;iterations=design['iterations'];tolerance=design['tolerance']

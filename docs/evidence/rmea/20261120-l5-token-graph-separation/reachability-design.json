@@ -68,14 +68,17 @@
   "schema": "q-rmea.full-vector-reachability.design.v1",
   "iterations": 512,
   "tolerance": 1e-08,
-  "selection": "Same six immutable cubic final technical-canary traces and40queries each; read psi,phi,roles,utilities,bias,mask and prior route probabilities only; no targets or text.",
+  "selection": "Same six immutable cubic technical-canary traces and40queries each; read only psi,phi,mask,utilities,bias,angles,effect_angles,route_swap_alpha,route_swap_logits. No targets/text/features/checkpoints.",
   "recovery": "Restart from pinned immutable inputs only; max_attempts1, replay_safeFalse; no COS or training-resume claim",
   "outputs": [
     "compact-report.json",
     "RUN_COMPLETE"
   ],
   "run_path": "/tmp/qattn-training-case-trace-20261119/attempts/54f71fe58f614c8798839d32a21359e5/scientific-work/20261120T183547Z_seed13/canary",
-  "analysis": "nuisance_stability_v1",
-  "nuisance_mask": "Retain entity-span flags roles[:,:,2:4] and original valid-token indices whose zero-based index modulo4 is not3; omit remaining tokens. One fixed mask, no data/label/outcome adaptation.",
-  "measurement": "Output/logit and all-target CE stability inequalities, nonvacuity, certified winner preservation and paired cubic/linear sensitivity. Fixed feature interface, one-update technical states; no semantic-invariance or trained utility claim."
+  "analysis": "current_orientation_v1",
+  "measurement": "Actual circuit-angle conjugation/native invariance and routed time reversal; current/Bargmann/reweighting identities; finite odd-logit trace-norm certificate; all-target CE derivatives and local-to-fixed-tau sign agreement. One-update technical states only.",
+  "finite_difference_step": 1e-05,
+  "derivative_tolerance": 1e-07,
+  "bound_tolerance": 1e-09,
+  "sign_tolerance": 1e-10
 }
