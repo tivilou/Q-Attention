@@ -1,0 +1,91 @@
+{
+  "schema": "qattn.attention-ceiling.next-test-design.v1",
+  "status": "PROSPECTIVE_NOT_IMPLEMENTED_OR_ADMITTED",
+  "purpose": "Test correspondence of the reviewed probability separation to exact source before testing real task utility",
+  "source_revision": "52370b2741f4ae8ac3d6b88e10b09ac87794cf45",
+  "execution": {
+    "target": "Existing authorized 2080Ti server through shared scheduler",
+    "device": "Prefer CUDA for hardware qualification only after a compatible existing environment is verified; no silent CPU or host fallback",
+    "dtype": "float64/complex128",
+    "max_tasks": 1,
+    "max_attempts": 1,
+    "replay_safe": false,
+    "optimizer_steps": 0,
+    "real_dataset_reads": 0,
+    "new_checkpoints": 0,
+    "COS_requests": 0,
+    "cloud_spend": 0,
+    "cpu": 1,
+    "ram_mb": 4096,
+    "gpus": 1,
+    "gpu_mb": 1024,
+    "disk_mb": 16,
+    "timeout_seconds": 240,
+    "outputs": [
+      "compact-report.json",
+      "RUN_COMPLETE"
+    ],
+    "max_report_bytes": 65536
+  },
+  "predictions": [
+    {
+      "id": "AC-1",
+      "comparison": "Same finite depth-two head state, three feature rows, roles zero, all tokens valid",
+      "prediction": "Coherent middle attention equals P and exceeds L; native top generalized eigenvalue equals L and initial-dephased top eigenvalue is <=L. Fixed midpoint readout gives class1 only for coherent.",
+      "measure": [
+        "dtype",
+        "key and query projector residuals",
+        "G,K,H,U",
+        "all40 attention sums and logits",
+        "P,L and decision margins",
+        "two generalized eigenvalue ceilings"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "comparison": "Balanced three-key cubic graph, same proof conventions",
+      "prediction": "Middle-coordinate excess vanishes; do not substitute a same-query equality assertion for complete attainable-region equality.",
+      "measure": [
+        "theoretical middle ceiling",
+        "coherent middle ceiling"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "comparison": "Linear-Gram generator with predeclared complex rank-deficient keys",
+      "prediction": "Entire coherent attention at phi equals native attention at W phi, with denominator preserved.",
+      "measure": [
+        "full attention-vector residual",
+        "query norms",
+        "denominator residual"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "comparison": "Original asymmetric keys at tau0, and dephased stress cases q=1/2 and q=3/4",
+      "prediction": "tau0 identity. At source epsilon the first stress point is below the exact dephased cutoff and the second above; expect a genuine ceiling violation above it.",
+      "measure": [
+        "dephased top generalized eigenvalue",
+        "analytic determinant sign",
+        "tau0 vector residual"
+      ]
+    }
+  ],
+  "numerical_gates": {
+    "max_absolute_residual": 1e-09,
+    "residual_less_than_decision_margin_fraction": 0.001,
+    "source_values_unchanged": true,
+    "finite_weights": true,
+    "all40_logits_finite": true,
+    "valid_attention_normalized": true
+  },
+  "kill_gates": [
+    "Any source/analytic mismatch stops correspondence acceptance; retain partials and no automatic retry",
+    "No new training under this design",
+    "Missing CUDA environment or exact-source lifecycle review is a readiness gap, not a mathematical failure"
+  ],
+  "retention": "Git code/configuration/compact proof and report; deterministic synthetic inputs rebuildable, no tensors or checkpoints need COS",
+  "independence": "Analytical theorem check/source correspondence only; not independent task utility confirmation",
+  "next_task_link": "After this check, freeze a matched bounded train/validation design with unchanged utilities and report CE/Macro plus paired current/ceiling traces. Existing scopedL4 belongs to original RMEA and does not transfer automatically.",
+  "L5": "NOT_ACCEPTED"
+}

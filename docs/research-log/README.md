@@ -4,13 +4,14 @@
 
 ## 当前研究总览
 
-限定L4保持，L5未接受。全train多查询前提已建立，但新读PURE/PL-Marker/ComplEx表明marker、多query和复数方向性都有经典先例；更新事实包的独立设计仍未产生合格新机制。下一步已固定32组、每组2个query的证据归属盲审设计，仅协议、尚未取样/标注或运行模型，先通过隐私/reader/共享调度门。
-最新：[第四十五轮](../audits/20261117-q-rmea-l5-round45.md)。
+限定L4保留，L5未接受。token图候选已有8项CPU前向检查；新的一族固定key注意力上界分离及线性Gram无扩展结论通过Astra6.2 medium解析复核，尚待新源码执行和真实任务收益验证。三篇相关原文已核对；已知图传播、frame和POVM工具不作为新颖性结论。
+最新：[20261120T-062635Z 注意力上界分离](20261120T-062635Z-q-rmea-token-graph-attention-ceiling.md)。下一步为2080Ti上的一次有界源码对应检查，正式全量仍由师弟运行。
 
 ## 时间线
 
 | 时间 | Idea | 结论 | 证据 |
 | --- | --- | --- | --- |
+| 2026-11-20T06:26:35.588192+00:00（理论检查点） | `token-graph-attention-ceiling` | 三token推广族和线性Gram对照通过解析复核；无新训练或L5晋级 | [entry](20261120T-062635Z-q-rmea-token-graph-attention-ceiling.md) |
 | 2026-11-15（理论审计） | `q-rmea-l5-round1` | 技能更新通过；理论候选未获 L5 接受，普通限定 L4 保留 | [entry](20261115T-083834Z-q-rmea-l5-round1.md) |
 | 2026-11-15 09:57:06 UTC（研究记录） | `q-rmea-l5-round2` | 可实现性与共享测量构造通过独立数学复核；已知工具不晋级L5，原L4保持 | [entry](20261115T-095706Z-q-rmea-l5-round2.md) |
 | 2026-11-15T13:39:30.587620+00:00（研究记录） | `q-rmea-l5-round3` | 匹配验证回放与完整trace完成，L5未接受，原L4保持 | [entry](20261115T-133930Z-q-rmea-l5-round3.md) |

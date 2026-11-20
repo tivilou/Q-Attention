@@ -1,0 +1,167 @@
+{
+  "schema": "qattn.original-reading-dossier.v1",
+  "purpose": "Nearest original methods for token-graph lead; bounded three-paper coverage",
+  "records": [
+    {
+      "authors": [
+        "Xitong Zhang",
+        "Nathan Brugnone",
+        "Michael Perlmutter",
+        "Matthew Hirn"
+      ],
+      "pages": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "scope": "Identity; Section2 magnetic Laplacian construction; Section3.1 complex spectral filtering",
+      "facts": [
+        {
+          "locator": "pp2-3,Section2,Eqs1-3",
+          "finding": "Directed edges enter phases of a complex Hermitian adjacency and magnetic Laplacian. The displayed construction uses nonnegative real Laplacian eigenvalues."
+        },
+        {
+          "locator": "p4,Section3.1,Eqs5-6",
+          "finding": "Complex graph convolution is a spectral filter; polynomial/Chebyshev realization avoids explicit diagonalization and learns filter coefficients."
+        }
+      ],
+      "interpretations": [
+        "Our exp(-i tau H) is a special analytic Hermitian spectral filter, so complex graph propagation alone is not a new primitive."
+      ],
+      "difference": "Our graph is built from per-example token-state overlaps and transports query amplitudes before Born readout. MagNet encodes input directed graph structure in a magnetic Laplacian and learns graph feature filters.",
+      "limits": [
+        "Appendix proofs and code not inspected",
+        "No reproduction of empirical comparisons",
+        "No claim that the mechanisms are equivalent or that this paper exhausts the neighborhood"
+      ],
+      "paper_id": "arxiv:2102.11391v1",
+      "title": "MagNet: A Magnetic Neural Network for Directed Graphs",
+      "pdf_sha256": "aa333d395383f3479a77306e994fbc13007632e1a0630ae241494a7141e3c646",
+      "receipt_sha256": "85e2628b18f5ae24bf8c99e21c02c39628699d7c85481142fc9c4d1737e563c5",
+      "parse_sha256": "a70526f1c961c7348839f20ef9c3b335cac8a12b565a2aa1cf506d10ae50ac09",
+      "page_count": 14,
+      "reading": "read_for_scope",
+      "actual_reading_limits_explicit": true,
+      "visual_inspection": {
+        "sha256": "deff86af26f9219bec96214cb8f919f69683a5a5e6f47925297218da3bc3a10f",
+        "scope": "Selected original method page rendered and inspected; private acquisition capsule retains image"
+      },
+      "identity": "verified",
+      "observed_arxiv_version": "2102.11391v1",
+      "source_url": "https://arxiv.org/abs/2102.11391v1"
+    },
+    {
+      "authors": [
+        "Stefan Dernbach",
+        "Arman Mohseni-Kabir",
+        "Don Towsley",
+        "Siddharth Pal"
+      ],
+      "pages": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "scope": "Identity; coined-walk definition; neural forward algorithm; stated learning relaxation and experiment setup",
+      "facts": [
+        {
+          "locator": "p2,Sections2-3",
+          "finding": "Coin and shift operators propagate walk amplitudes; the network learns initial superpositions and/or coins."
+        },
+        {
+          "locator": "p3,Algorithm1 and paragraph immediately below",
+          "finding": "The forward algorithm squares real amplitude entries and sums spin states to obtain a diffusion matrix, then applies it to input features. Learned coins relax unitarity and edge permutation symmetry."
+        },
+        {
+          "locator": "pp3-4,Section4",
+          "finding": "The reported task is daily temperature prediction on a 409-location nearest-neighbor graph. This is a source description, not a replicated result."
+        }
+      ],
+      "interpretations": [
+        "Amplitude propagation followed by squaring and feature diffusion is already present in a 2018 neural graph method."
+      ],
+      "difference": "Current proposal uses class-query-dependent initial amplitudes, a fixed continuous unitary of a cubic-Gram token graph and the existing utility readout. The paper uses coined steps and learned initial amplitudes/coins; its learned version is not constrained to unitary coins.",
+      "limits": [
+        "References page5 and code not inspected",
+        "Figures1-2 visible but curves not digitized or assessed",
+        "This is not an exact matched baseline certification"
+      ],
+      "paper_id": "arxiv:1801.05417v1",
+      "title": "Quantum Walk Inspired Neural Networks for Graph-Structured Data",
+      "pdf_sha256": "44cc9c2e622ace5f77d4980a27aa8588a5d60a65cda8d559e5cc3f36ad3b8fa0",
+      "receipt_sha256": "4e988efb3dbdec8ae8c992fabb7c6a1638e02a8efab57882ea91849ad0a79f96",
+      "parse_sha256": "fcba7f7a2071990afee2450dade1e87d1630375438cfb18d18dc28a9f8871ba9",
+      "page_count": 5,
+      "reading": "read_for_scope",
+      "actual_reading_limits_explicit": true,
+      "visual_inspection": {
+        "sha256": "70b5cd5cf664672629cfef6ba280e6a6584e95a7cff6239f98103f021ebcdbb5",
+        "scope": "Selected original method page rendered and inspected; private acquisition capsule retains image"
+      },
+      "identity": "verified",
+      "observed_arxiv_version": "1801.05417v1",
+      "source_url": "https://arxiv.org/abs/1801.05417v1"
+    },
+    {
+      "authors": [
+        "Emama Nahid",
+        "Tahmid Imtiaz Imu",
+        "Huayue Gu",
+        "Liran Ma",
+        "Zhipeng Cai",
+        "Honghui Xu"
+      ],
+      "pages": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "scope": "Identity; phase-aware attention equations and exact factorization; stated model/setup boundary",
+      "facts": [
+        {
+          "locator": "p4,Eq3",
+          "finding": "The compatibility score sums amplitude products multiplied by cosines of query/key phase differences, then uses the existing softmax attention pipeline."
+        },
+        {
+          "locator": "p4,Eqs4-5",
+          "finding": "An exact trigonometric factorization evaluates the score through two real matrix products, using amplitude-times-cosine and amplitude-times-sine features."
+        },
+        {
+          "locator": "p5,experimental setup",
+          "finding": "The paper describes a narrow attention substitution in a GPT-style controlled setting. We have not assessed its results or fairness."
+        }
+      ],
+      "interpretations": [
+        "Concatenating the cosine and sine feature maps gives an ordinary real dot-product representation in a doubled feature dimension; this follows directly from Eqs4-5."
+      ],
+      "difference": "The current proposal mixes amplitudes across token positions through U before squaring. Q-Interference changes pairwise compatibility through phase-aware feature maps and preserves softmax; these are structurally different operations.",
+      "limits": [
+        "Only selected main-method/setup pages read",
+        "Results, appendicesB2-B4 and source code not inspected",
+        "Phase-aware wording is not novelty clearance"
+      ],
+      "paper_id": "arxiv:2608.17288v1",
+      "title": "Q-Interference: Memory-Efficient Phase-Aware Quantum-Inspired Attention",
+      "pdf_sha256": "81fb79c4ead70309d501ba52ef0eb1bdad69374c3654f9537c001e56fa3f2c8d",
+      "receipt_sha256": "7497834d6b7fa440b4ba41b6e4fed621fb22cb9ea1199d88f7ff844956a78f99",
+      "parse_sha256": "2ba908b49940eceaefb2571299a95be1cce94d218057249576fa0c39b235b9ac",
+      "page_count": 25,
+      "reading": "read_for_scope",
+      "actual_reading_limits_explicit": true,
+      "visual_inspection": {
+        "sha256": "4d935a656419f82c3d1c0e7b7560728856cbcff4ff50aa0005e3c7963dced745",
+        "scope": "Selected original method page rendered and inspected; private acquisition capsule retains image"
+      },
+      "identity": "verified",
+      "observed_arxiv_version": "2608.17288v1",
+      "source_url": "https://arxiv.org/abs/2608.17288v1"
+    }
+  ],
+  "priority_claim": false,
+  "acquisition_helper_reading_field": "not_started by helper; researcher scope attestations are in this dossier",
+  "scientific_recomputation": false,
+  "private_materials_published": false
+}

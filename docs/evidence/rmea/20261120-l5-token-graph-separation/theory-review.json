@@ -1,0 +1,182 @@
+{
+  "schema": "qattn.attention-ceiling.theory-review.v1",
+  "status": "ANALYTICALLY_REVIEWED_CANDIDATE",
+  "review_scope": "mechanism-theory-only",
+  "model": "gpt-6.2-astra",
+  "reasoning_effort": "medium",
+  "final_theory_sha256": "04f3f67309c5713ef1c4cdc4ceaf9dba5405a598f414d8277ea20b718f603e6e",
+  "reviewed_source_revision": "52370b2741f4ae8ac3d6b88e10b09ac87794cf45",
+  "reviews": [
+    {
+      "response_id": "resp_0413487b0a082a00016affe5f2b19887d2be037cf169bdb5a5",
+      "freeze_sha256": "1d7bc79b2c9a13e5b7931ea03e4b40f1f01de02443368328fe5504bb65b4f724",
+      "proposal_sha256": "3b0c6e89a00e1397fb777cc41cd403a8343196c83ded0bfcb3a0dd5d9bb93413",
+      "verdict_sha256": "ce0cdfbe4bb0ab0172c7a532c83a00f54857319e3464c4329ad1667e76c6f851",
+      "verdict": {
+        "verdict": "PASS_WITH_RISK",
+        "must_fix": [
+          "Source realization, dtype: specify a float64 head and float64 features and roles, with all three tokens valid. Under the ordinary float32 default, circuit() returns complex64 and transport_attention() rejects the inputs. The exact realization is in real arithmetic; a double-precision forward is a tolerance check.",
+          "General contextual-key counterpart: qualify Psi U† as an exact effective analysis matrix, not necessarily a matrix of unit physical keys. Its column norms squared are diag(U G U†); individually renormalizing columns need not preserve the attention."
+        ],
+        "equation_checks": [
+          {
+            "claim": "Native, coherent and initial-token-dephased formulas",
+            "status": "PASS",
+            "reason": "The source row a contains the entries of Psi†phi, so a@U.T, not a@U.conj().T, implements the stated transport. Hermiticity of K gives unitary U, preserving the denominator; row stochasticity of |U|² preserves the additive epsilon in the dephased numerator. For K=0 the source sets H=0."
+          },
+          {
+            "claim": "Three-key generator and coherent middle effect",
+            "status": "PASS",
+            "reason": "The path edge squares sum to 28/64, giving norm sqrt(7)/4 and the stated r,s. H³=H, and the middle row of U is (-i r sin(tau), cos(tau), -i s sin(tau)); conjugation gives precisely w."
+          },
+          {
+            "claim": "Witness normalization, ell, beta and P",
+            "status": "PASS",
+            "reason": "|v†x|²=25/28. On the span, M⁻¹ has eigenvalues 1/2 and 1 along and perpendicular to v. This gives ell=1/2+3q/56 and beta=1/4+9q/112. At the normalized witness the squared amplitude is ell²/beta and the unsmoothed denominator is ell/beta. P is a witness value, not a claimed smoothed optimum."
+          },
+          {
+            "claim": "Native ceiling, including mixed states",
+            "status": "PASS",
+            "reason": "The three generalized eigenvalue ratios are as stated, with maximum L attained at v. A≤LB implies tr(A rho)≤L tr(B rho) without assuming rho commutes with either operator."
+          },
+          {
+            "claim": "Initial-dephased ceiling and interval",
+            "status": "PASS",
+            "reason": "Squaring the middle-row moduli gives F. The in-span slack has trace gamma and determinant (15/56)gamma q−(183/784)q², consistent with both displayed matrix entries up to the off-diagonal sign. Positive trace and nonnegative determinant suffice; the outside slack is epsilon/(2+3epsilon). Thus q≤70gamma/61 is the exact slack condition on the physical q interval, and 35/61 is uniformly sufficient. The Loewner proof also covers mixed queries."
+          },
+          {
+            "claim": "Strict excess at positive epsilon",
+            "status": "PASS",
+            "reason": "Substitution of beta=1/4+3delta/2 yields the claimed delta(1+2delta)+epsilon delta(1/2+3delta). Both denominators are positive. At tau=1/4, 0<q<1/16. At epsilon=0 the comparison excludes zero-denominator queries."
+          },
+          {
+            "claim": "General sample ceilings",
+            "status": "PASS",
+            "reason": "For epsilon>0, B is positive definite and the stated largest eigenvalues are exact over unrestricted normalized physical queries, hence upper bounds for circuit-restricted queries. At epsilon=0 the inverse would have to be restricted to the key span."
+          },
+          {
+            "claim": "Finite decision witness",
+            "status": "PASS",
+            "reason": "With value.bias also zero, the class-1 logit is exactly its middle-token weight, independent of other query rows. Class 0 has the constant midpoint logit and all remaining logits are −2, so the strict gap gives the claimed argmax switch."
+          }
+        ],
+        "source_realization": {
+          "status": "PASS",
+          "reason": "Analytically, flattened row 6 is the second-layer wire-0 RY. The final ring sends 100→110→111→011 and fixes 000. The three half-angle superpositions give exactly e,v,f. For the query, Im(conj(A)B)=−sqrt(3) cos(tau) sin(tau)/(4 sqrt(7) beta): the real basis change to (b0,b3) has determinant +1, det(M⁻¹) on the span is 1/2, and det(v,x)=−sqrt(3)/(2 sqrt(7)). At tau=1/4 this is strictly negative. Thus A and B are nonzero, 0<y<pi, and the wrapped relative phase is strictly between −pi and 0. Both inverse tanhs are finite; RY then RZ gives the required relative phase at effect[1,1,0,:]. No extra layer is needed. This is a source-text check, not an executed forward."
+        },
+        "contribution_assessment": {
+          "established": "A finite three-key example for the specified cubic-Gram transport has a coherent coordinate outside both original-key comparator regions, even allowing each comparator to optimize its own mixed query. A fixed linear readout can turn this coordinate gap into a decision gap.",
+          "not_established": [
+            "Separation from learned or contextual classical routing, or necessity of the cubic Gram construction.",
+            "Encoder reachability of the synthetic rows, held-out utility, training behavior or computational advantage.",
+            "Literature priority or an executed source-level numerical result."
+          ],
+          "known_tools": [
+            "Generalized Rayleigh extrema and equivalent Loewner inequalities.",
+            "Frame analysis and unitary mixing of analysis coefficients, preserving the frame operator.",
+            "Whitened effects B⁻¹/² A_t B⁻¹/² form a POVM; a coordinate ceiling is its effect's largest eigenvalue. Initial dephasing gives stochastic postprocessing instead of amplitude interference."
+          ],
+          "most_useful_next_test": "Run one deterministic float64, three-valid-token forward through the supplied heads with exactly the proposed parameters and fixed readout; require the coherent class switch and both comparator bounds on the same input."
+        },
+        "numerical_canary_recommendations": [
+          "In that forward, compare key projectors, the class-1 query projector, G, H and the coherent middle probability against the analytic targets; projector comparison avoids false failures from global phase.",
+          "Independently whiten the native and dephased middle effects; check the native top eigenvalue equals L and the dephased one is at most L. At tau=0 require all three distributions to agree; at tau=1/4 require residuals well below (P−L)/2.",
+          "Check normalization and all 40 logits, including the zero value bias and fixed class-0 threshold. Record dtype and margin, not just predicted labels."
+        ],
+        "training_eligible": false,
+        "L5": "NOT_ACCEPTED"
+      }
+    },
+    {
+      "response_id": "resp_048a0710f7bd5546016affe6e8f6d487d2a53ea020970f6c37",
+      "freeze_sha256": "b584ac664024a3335b1b0140eac94df78e41a689b8023c78a650a5a5e180084b",
+      "proposal_sha256": "edc20363ea3b642d5fa24c5307ae6d31e1ec5341a3a00ad8b3d6d8cd52880829",
+      "verdict_sha256": "c868414689aca1e175d236ca62a23b93273e1a8f5e7e6b6a6360ba20b64df2b4",
+      "verdict": {
+        "verdict": "PASS_WITH_RISK",
+        "must_fix": [
+          "Terminology in “Essential limitations”: Ψ̃=ΨU† is the effective synthesis (key-column) matrix; its adjoint UΨ† is the analysis matrix acting on the query. The contextual-key equivalence and the column-norm formula are correct."
+        ],
+        "equation_checks": [
+          {
+            "claim": "Transport convention and denominator",
+            "status": "PASS",
+            "reason": "The source row a stores (Ψ†φ)ᵀ, so a@U.T implements UΨ†φ without an extra conjugation. Unitarity preserves the squared norm; row sums of |U|² equal one, preserving the additive ε under token dephasing."
+          },
+          {
+            "claim": "Asymmetric coherent witness and smoothed excess",
+            "status": "PASS",
+            "reason": "The middle row of U is (−ir sin τ, cos τ, −is sin τ). Thus w is unit and its squared component perpendicular to v is (1−h²)q=2δ. The eigenvalues of M⁻¹ on v and its span-perpendicular direction give ℓ=1/2+δ and β=1/4+3δ/2. Substitution gives the stated positive cross-product, without requiring φ_star to optimize the smoothed quotient. Equality h=1 in the positive interior requires a=b."
+          },
+          {
+            "claim": "Native and initial-dephased ceilings",
+            "status": "PASS",
+            "reason": "The native maximum L is attained at v. For T=vv†−D, v†Tv=κ and det T=−(a²−r²)²−a²b²=−ξ. Hence det(γ|v_perp><v_perp|+qT)=q(γκ−qξ); its trace is γ>0. The outside-span slack is ε/(2+3ε). This is an exact PSD test, including mixed queries; clipping the threshold to q≤1 and replacing γ by 1/2 for a uniform sufficient bound are valid."
+          },
+          {
+            "claim": "Specialization and attempted boundary counterexamples",
+            "status": "PASS",
+            "reason": "The original path has edge norm √7/4, h²=25/28, κ=15/56 and ξ=183/784. These recover δ=3q/56 and the uniform cutoff 35/61. The q restriction matters: at q=1 and source ε the slack determinant is negative, so some dephased query exceeds L. Conversely, at balance K is proportional to G−I, so the entire coherent region is unchanged, not just the middle ceiling."
+          },
+          {
+            "claim": "All-N linear-Gram null",
+            "status": "PASS",
+            "reason": "Intertwining holds before exponentiation and requires neither full rank nor a simple spectrum. W preserves both query norm and φ†Mφ, and W† supplies the reverse inclusion. For c=0 the zero-generator convention is needed. More generally any token unitary commuting with G lifts to a physical unitary on the key span by SVD, extendible on its complement. Thus noncommutation is necessary for escape; merely choosing a nonlinear spectral function of G cannot suffice."
+          },
+          {
+            "claim": "Finite readout",
+            "status": "PASS",
+            "reason": "With value.bias zero, the class-1 logit is precisely its middle coordinate, while class 0 is constant at (P+L)/2 and the other logits are −2. Comparator query reoptimization cannot undo the strict decision margin."
+          }
+        ],
+        "source_realization": {
+          "status": "PASS",
+          "reason": "Source-text check only. A double head with float64 h and roles produces float64 angles and complex128 states; use a same-device all-valid boolean mask. Prepare row 6 is last-layer wire-0 RY, and the ring maps 100→110→111→011. The three specified angles give e,v,f. For the query, Im(conj(A)B)=cos(τ)sin(τ)(as−br)/(2β): the change to b0,b3 has determinant +1 and det(M⁻¹)=1/2 on the span. At the original a,b and τ=1/4 this is strictly negative. Both coefficients are nonzero, so 0<y<π and −π<ζ<0. The two inverse tanhs at effect[1,1,0,:] are finite, and RY followed by RZ gives the required relative phase. Equality is in real arithmetic, not a bitwise forward claim."
+        },
+        "contribution_assessment": {
+          "established": "An explicit asymmetric cubic-Gram family escapes both fixed-key coordinate ceilings on the stated interval. In fact ξ=κ−r²s²<κ, so every positive unequal member qualifies at the source τ=1/4. This does not give a uniform positive margin near balance or the endpoints.",
+          "not_established": [
+            "Escape from contextual or retrained classical keys, or sufficiency of noncommutation for escape.",
+            "Encoder reachability on text, task benefit, training behavior, speedup or literature priority.",
+            "An executed finite-precision result."
+          ],
+          "known_tools": [
+            "At ε=0 the native coordinate ceilings are leverage scores: the diagonal of the projector onto ran(Ψ†). Coherent transport rotates that projector by U. This identifies the unsmoothed witness as a frame fact rather than a new optimization principle.",
+            "For ε>0, whitening the token effects by B⁻¹/² gives a POVM because their sum is B before whitening. Its largest effect eigenvalue is the coordinate ceiling after the bijective normalized query change φ↦B¹/²φ/||B¹/²φ||. This is a POVM over tokens, not over the forty query rows.",
+            "Initial dephasing is stochastic postprocessing of those effects; unitary coefficient mixing instead preserves the frame operator while changing individual effects. The family-specific work is the strict coherent gap together with the dephased slack determinant."
+          ],
+          "most_useful_next_test": "Run one deterministic double-precision three-token decision witness through all three supplied heads with identical parameters and input. Require the coherent middle probability to match P and both comparator logits to remain below the fixed midpoint, with errors small relative to (P−L)/2."
+        },
+        "numerical_canary_recommendations": [
+          "Record angle and state dtypes, key and query projector residuals, attention sums, and all logits; compare against analytic values rather than checking labels alone.",
+          "Check the dephased generalized eigenvalue on both sides of q=γκ/ξ for the original keys. Above the cutoff expect a violation of L, not merely failure to certify it.",
+          "For the linear null, use complex rank-deficient keys and compare the entire coherent vector at φ against native at Wφ, not at φ. This can catch a transpose/conjugation error hidden by real keys."
+        ],
+        "training_eligible": false,
+        "L5": "NOT_ACCEPTED"
+      }
+    }
+  ],
+  "corrections": [
+    {
+      "review": "v001",
+      "issue": "dtype and mask",
+      "resolution": "Explicit double head, float64 features/roles, complex128 states, same-device all-valid boolean mask; rechecked in v002"
+    },
+    {
+      "review": "v001",
+      "issue": "contextual key norms",
+      "resolution": "Effective transformed key columns need not have unit norms; individual renormalization can alter attention; rechecked in v002"
+    },
+    {
+      "review": "v002",
+      "issue": "analysis versus synthesis terminology",
+      "resolution": "Psi U† is the effective synthesis/key-column matrix; its adjoint U Psi† is the analysis matrix. Terminology-only correction, equations unchanged."
+    }
+  ],
+  "unresolved_mathematical_must_fix": [],
+  "source_forward_executed": false,
+  "training_eligible": false,
+  "novelty_cleared": false,
+  "L5": "NOT_ACCEPTED"
+}
