@@ -1,0 +1,95 @@
+{
+  "schema": "qattn.attention-ceiling.review.v1",
+  "model": "gpt-6.2-astra",
+  "reasoning_effort": "medium",
+  "response_id": "resp_083068178fdddb06016afff229eb3087d2832969454da687b7",
+  "freeze": {
+    "schema": "qattn.attention-ceiling.cuda.review-freeze.v1",
+    "files": {
+      "execution-contract.json": "edd564499b6b9e4702fa123acc26c3d54a4c35da8b38f5c1ad14312f37c47506",
+      "source/docs/evidence/rmea/20261120-l5-attention-ceiling-cuda/check-design.json": "ad6508712a8f9ef0edd281a3931cb54cabe359e120cc3e63ecf8ad5ca2172107",
+      "source/experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+      "source/experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+      "source/experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e",
+      "source/experiments/rmea_utility_measurement/token_transport.py": "b07e79c7104f02646c654c2d4acf73dfd7ced7be632e55433e018498de65f3d5",
+      "source/experiments/rmea_utility_measurement/token_transport_separation.py": "289bf64d052cf657aa44f33dc31e43e308ae04314f700b7169c48aa643ab248a",
+      "source/experiments/rmea_utility_measurement/token_transport_separation_job.py": "ea6605ef019d3cfd552b57926a9914b4fa635346f46b0a2f28417f6c35049b43"
+    },
+    "source_parent": "5f9d170da31f999ac9fbd90039ee9e8d3bd7d105",
+    "review_scope": "both"
+  },
+  "freeze_sha256": "08896618f1f8b5b6e65b846eeaa50d65e9343fe091efd46f1b1c15678b0d9934",
+  "verdict": {
+    "verdict": "PASS_WITH_RISK",
+    "review_scope": "both",
+    "freeze_sha256": "08896618f1f8b5b6e65b846eeaa50d65e9343fe091efd46f1b1c15678b0d9934",
+    "must_fix": [],
+    "invariant_checks": [
+      {
+        "invariant": "AC-1: finite legacy-circuit reachability and readout",
+        "status": "PASS",
+        "reason": "Prepare row 6 drives last-layer wire-0 RY; the final ring sends |100> to |011>. The three half-angles therefore give e, ae+bf, f. For the witness query at tau=1/4, A and B are nonzero and their wrapped relative phase lies strictly between -pi and 0. The RY/RZ assignments are finite and match the query up to global phase, as the projector check requires. Only class 1 reads the middle utility; class 0 reads the midpoint bias."
+      },
+      {
+        "invariant": "AC-1: smoothed ceilings, tensor orientation and dtype",
+        "status": "PASS",
+        "reason": "The modules are doubled before witness assignment; float64 angles select complex128 states. For row-stored keys, psi.T@psi.conj() is physical M, while psi.conj()@psi.T is token G. Whitening uses M+3 EPS I, including the off-span subspace. The coherent effective ket uses the conjugated middle row of U (hence +i); the dephased effect uses its squared magnitudes. These correspond to P>L and the two comparator ceilings at the specified time. No mixed-dtype matrix multiply is apparent."
+      },
+      {
+        "invariant": "AC-2: balanced middle-coordinate null",
+        "status": "PASS",
+        "reason": "bp.T@U.mH[:,1] selects the correct synthesis column. For balanced keys x=v, so the effective ket differs from v only by phase. Both the full-space ceiling and the probability at v equal L; this is not an assertion about every coordinate."
+      },
+      {
+        "invariant": "AC-3: complex linear-Gram counterpart",
+        "status": "PASS",
+        "reason": "keys.conj() is the analysis matrix. The tested identity U@keys.conj() == keys.conj()@W requires row queries to transform by W.T, as written. W preserves the norm and the M denominator even for the off-span component. The linear generator is local to the control; the comparison uses functional native attention and does not presume circuit reachability of W phi."
+      },
+      {
+        "invariant": "AC-4: zero time and dephasing boundary",
+        "status": "PASS",
+        "reason": "At zero time all three functional probabilities equal legacy native attention despite the conjugate amplitude convention. The q values 0.5 and 0.75 bracket 70 gamma/61, and the measured quantity on each side is the generalized ceiling. The determinant and exact cutoff are analytic inputs, not independently estimated outputs."
+      },
+      {
+        "invariant": "Exact registered invocation and at-most-once science per attempt",
+        "status": "PASS",
+        "reason": "On the supplied worker path, recipe equality against the independent binding precedes launch. The digest literal, rendered argv, output directory, boot, revision and allocated UUID connect the job to the durable request. The parent claims exclusively; the child checks its actual parent and group leader and claims exclusively before importing science. Neither claim is removed after failure. This establishes at most one invocation through the admitted path, not a guarantee that science starts."
+      },
+      {
+        "invariant": "Synchronous closure, cancellation and publication",
+        "status": "PASS",
+        "reason": "The torch-free parent waits for the inherited-group child. Nonzero exit, inner timeout or invalid report does not reach marker creation. On outer termination the worker kills the job group and tests for quiescence, withholding a complete receipt when termination is unconfirmed. A marker written just before cancellation is not sufficient: publish only from a complete worker receipt with matching output hashes."
+      },
+      {
+        "invariant": "Strict final report-size limit",
+        "status": "PASS",
+        "reason": "The parent checks child stdout separately, then checks the final indented encoding including the newline and checks the installed file before writing RUN_COMPLETE. The final encoding matches common.save. No exact byte count was observed; exceeding the limit fails closed. These checks do not cap live log growth."
+      },
+      {
+        "invariant": "Installed backend and actual scheduler binding",
+        "status": "UNRESOLVED",
+        "reason": "Package metadata and a source review do not establish a working CUDA 12.1 build, driver, complex128 eigensolvers/matrix exponential, or sufficient device headroom. A distribution version of 2.4.1+cu121 would fail the literal 2.4.1 metadata comparison. Confirm the installed metadata and that the registered Python path renders as sys.executable before consuming the one attempt."
+      }
+    ],
+    "synthetic_cuda_check_eligible": true,
+    "training_eligible": false,
+    "formal_handoff": false,
+    "known_limitations": [
+      "Eligibility is a static source-review decision for one synthetic check, conditional on environment repair and independent admission of the exact binding. No tools were used, hashes recomputed, packages imported or CUDA results observed.",
+      "The claims rely on a trusted worker, repository and attempt directory; the importable run() function is not itself a scheduler security boundary. Runtime hashing covers the listed source files, not the separately referenced theory file.",
+      "Worker failure need not produce a terminal receipt: for example, Node.run creates the output directory before its supervised try block. A stale or unknown state is not proof of quiescence and must not authorize replay. Keep partials; recovery needs terminal proof and separate admission.",
+      "The check concerns one finite synthetic fixed-key witness and specific controls. It does not test the full asymmetric family by enumeration, establish task benefit, certify sample-trace.v2, or qualify training."
+    ],
+    "L5": "NOT_ACCEPTED"
+  },
+  "initial_block": {
+    "response_id": "resp_0f2516ed6ecff8c5016affee9567fc87d288a730020505dd32",
+    "status": "BLOCK",
+    "resolved_by": [
+      "durable parent/child claims before science",
+      "independently registered contract digest and exact attempt/output/command binding",
+      "strict final report byte count including newline"
+    ]
+  },
+  "science_executed": false
+}

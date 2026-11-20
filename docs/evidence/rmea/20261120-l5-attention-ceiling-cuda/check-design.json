@@ -1,0 +1,45 @@
+{
+  "schema": "qattn.attention-ceiling.cuda.design.v1",
+  "status": "EXACT_PROSPECTIVE_CHECK_REVIEW_PENDING",
+  "source_parent": "5f9d170da31f999ac9fbd90039ee9e8d3bd7d105",
+  "source_files": {
+    "experiments/rmea_utility_measurement/token_transport_separation.py": "289bf64d052cf657aa44f33dc31e43e308ae04314f700b7169c48aa643ab248a",
+    "experiments/rmea_utility_measurement/token_transport_separation_job.py": "ea6605ef019d3cfd552b57926a9914b4fa635346f46b0a2f28417f6c35049b43",
+    "experiments/rmea_utility_measurement/token_transport.py": "b07e79c7104f02646c654c2d4acf73dfd7ced7be632e55433e018498de65f3d5",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e"
+  },
+  "environment": {
+    "torch": "2.4.1",
+    "numpy": "1.24.3"
+  },
+  "budget": {
+    "cpu": 1,
+    "ram_mb": 4096,
+    "gpus": 1,
+    "gpu_mb": 1024,
+    "disk_mb": 16,
+    "timeout_seconds": 240,
+    "optimizer_steps": 0,
+    "new_checkpoints": 0,
+    "COS_requests": 0,
+    "cloud_writes": 0
+  },
+  "max_report_bytes": 65536,
+  "check_names": [
+    "AC-1-finite-native-source-separation",
+    "AC-2-balanced-ceiling-null",
+    "AC-3-complex-linear-Gram-region-null",
+    "AC-4-tau0-and-dephased-domain-boundary"
+  ],
+  "theory": {
+    "path": "docs/evidence/rmea/20261120-l5-token-graph-separation/theory.md",
+    "sha256": "04f3f67309c5713ef1c4cdc4ceaf9dba5405a598f414d8277ea20b718f603e6e"
+  },
+  "case_trace": "Synthetic full coordinate fixture; not sample-trace.v2 certification",
+  "training": false,
+  "independent_task_confirmation": false,
+  "formal_handoff": false,
+  "L5": "NOT_ACCEPTED"
+}
