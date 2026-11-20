@@ -20,6 +20,7 @@ def fixture_identity(archive):
 
 
 def load_fixture(archive, output):
+    import io
     import tarfile
     from .rmea_entity_study import fixture, FIXTURE_SHA
     value = fixture_identity(archive)
@@ -31,7 +32,11 @@ def load_fixture(archive, output):
     expected = {'canary/manifest.json', 'canary/cache/metadata.json'} | {
         f'canary/cache/{split}-{field}.npy' for split in ('train', 'valid', 'test')
         for field in ('encoder-0', 'encoder-1', 'h', 'roles', 'offsets', 'targets')}
-    with tarfile.open(archive, 'r:gz') as tar:
+    with Path(archive).open('rb') as src:
+        snapshot = src.read(3055802)
+    if len(snapshot) != 3055801 or hashlib.sha256(snapshot).hexdigest() != RECOVERED_FIXTURE_SHA:
+        raise ValueError('Recovered fixture snapshot differs')
+    with tarfile.open(fileobj=io.BytesIO(snapshot), mode='r:gz') as tar:
         members = tar.getmembers()
         if (len(members) != 20 or {v.name for v in members} != expected
                 or any(not v.isfile() or not 0 < v.size <= 2**21 for v in members)
@@ -47,8 +52,6 @@ def load_fixture(archive, output):
                 target.parent.mkdir(exist_ok=True)
                 with target.open('xb') as dst:
                     dst.write(tar.extractfile(member).read())
-    if p.digest(archive) != value:
-        raise ValueError('Fixture changed during extraction')
     return value
 
 
