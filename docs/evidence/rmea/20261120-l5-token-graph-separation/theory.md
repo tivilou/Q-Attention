@@ -150,3 +150,21 @@ Token phases are invisible to Born probabilities. Allowing a fixed diagonal toke
 Diagonal conjugation preserves the two diagonals, so a gap exceeding the declared numerical tolerance rules out every such D. Linear transport supplies the zero-residual control. A null result is inconclusive; even a positive result does not establish a coordinate probability-ceiling violation, coherent necessity, or utility.
 
 Prospective full-data measurement: use the first32 outcome-blind hash-ordered test units, float64/complex128, absolute witness tolerance1e-8, and report residuals for all four routes. For coherent coordinates exceeding both native and initially dephased ceilings by more than1e-8, report the token/class identity privately, unchanged value contribution, true-versus-rival margin and same-example CE under all fixed-state swaps. Report the total inspected coordinates and zero-witness denominator when appropriate. These diagnostics do not affect the predeclared positive39Macro+CE task gate. No additional measurement is asserted for the completed screen, whose final models were not retained.
+
+## A zero diagonal certificate can coexist with strict separation
+
+Status: independently reviewed PASS by gpt-6.2-astra, medium, response resp_0b66e9601a9c4a11016b008c977cd087d2967f638407fb36c1. The first CUDA task ran seven tests: six passed, including the finite depth-two circuit witness; the abstract witness test passed its probability-ceiling assertions and then failed an incorrect assertion that the sufficient row-norm certificate must be positive. Preserve that failed task. After the assertion correction and exact review, a separate scheduler task passed all seven tests on source dfa96489308ce0b60bde9c456ef1efab03365f3e. Those tests did not numerically measure the new overlap-gap formula below.
+
+For the real three-key family above, reorder the endpoints before the middle token. Write G=I+J, J=[[0,w],[w^T,0]], H=[[0,v],[v^T,0]], w=(a,b)^T, v=(r,s)^T, with both vectors real unit vectors. The two-by-two upper block refers to endpoints. With c=cos(tau) and t=sin(tau),
+
+    U = [[I+(c-1)vv^T, -itv], [-itv^T, c]].
+
+Direct block multiplication gives (UJU^dagger)_endpoints = it(wv^T-vw^T). Its diagonal is zero. The middle diagonal is also zero because the two imaginary conjugate contributions cancel. Consequently diag(UGU^dagger)=1 for every tau, including unequal cubic edges. The row-norm certificate is therefore exactly silent for this family, despite its proved probability-ceiling separation.
+
+A complementary sufficient certificate uses overlap magnitudes, which every diagonal token phase preserves:
+
+    overlap_gap = max_(i,j) abs(abs((UGU^dagger)_ij)-abs(G_ij)).
+
+The original endpoint-to-endpoint overlap is zero, while its transported value is i sin(tau)(a s-b r). Thus overlap_gap is at least abs(sin(tau))*abs(a s-b r). For the cubic generator this lower bound is abs(sin(tau))*a*b*abs(a^2-b^2)/sqrt(a^6+b^6), strictly positive for positive unequal a,b and sin(tau) nonzero. For the linear generator v=w, the bound vanishes and the established complete linear-null result applies.
+
+This excludes absorption by any one physical query unitary even after fixed token rephasing in the stated cubic family, while the diagonal test cannot detect it. It is a structural prediction, not a new theorem about task accuracy or a claim that overlap magnitudes characterize all probability regions. No current formal protocol, task gate, selected samples or reported screen measurements are changed; the new certificate has not been numerically measured by the frozen formal runner. Literature priority remains unresolved.

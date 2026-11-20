@@ -1,0 +1,49 @@
+{
+  "schema": "q-rmea.token-transport.bounded-acceptance.v1",
+  "status": "MECHANISM_UNITS_PASS",
+  "source_revision": "dfa96489308ce0b60bde9c456ef1efab03365f3e",
+  "source_sha256": "56e98ef566c434d8006c31966e87d96bb4bc0adc57f390102562d7aafffe02ad",
+  "task": "3f72639f69cb4f39aacbb6b697d1121a",
+  "attempt": "9840a85b12364e9e8868c74a68a04eb5",
+  "returncode": 0,
+  "quiescent": true,
+  "node": "qattn-2080ti-39684-v1",
+  "tests": 7,
+  "unit_test_seconds": 1.212,
+  "child_process_seconds": 3.876365991309285,
+  "checks": [
+    "canonical native parity and81028parameters",
+    "phase/permutation/padding invariance",
+    "two-token query absorption",
+    "asymmetric three-key smoothed coordinate ceiling",
+    "full-head finite gradients and finite difference",
+    "finite depth-two designated middle-coordinate realization",
+    "frozen budget/final-state contract"
+  ],
+  "previous_failed_task": {
+    "task": "9af2d6d81c384bd599d10813c079fb0f",
+    "attempt": "e207af9903e449ceb2f9103339bb8430",
+    "source_revision": "3ed02b325428084b5504a85747482b121afad04d",
+    "passed": 6,
+    "ran": 7,
+    "returncode": 1,
+    "quiescent": true,
+    "failure": "Test incorrectly required the sufficient row-norm certificate to be positive; no model/controls/task-gate changes"
+  },
+  "review": {
+    "original_both": "resp_0fc15780cf0635ed016b00873b140887d2abcae4470645b944",
+    "assertion_delta": "resp_03cc01bcd1211572016b008b506ca087d2887218dd6131a27b",
+    "bipartite_theory": "resp_0b66e9601a9c4a11016b008c977cd087d2967f638407fb36c1",
+    "model": "gpt-6.2-astra",
+    "reasoning_effort": "medium"
+  },
+  "limitations": [
+    "Unit evidence only; no independent held-out utility",
+    "Full parent canary, trace replay, injected export failure and immutable retry remain pending",
+    "Original pinned tiny fixture absent; COS metadata identifies archived cache but compatibility/recovery not yet established",
+    "New overlap-gap formula analytical only; frozen formal diagnostics/gate unchanged"
+  ],
+  "formal_training": false,
+  "release_ready": false,
+  "L5": "NOT_ACCEPTED"
+}
