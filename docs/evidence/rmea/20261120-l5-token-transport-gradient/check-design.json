@@ -1,0 +1,55 @@
+{
+  "schema": "qattn.token-transport.gradient.design.v1",
+  "status": "PROSPECTIVE_NOT_EXECUTED",
+  "source_parent": "e1eca9723c27bd44403bf793eb58894a650e3628",
+  "source_files": {
+    "experiments/rmea_utility_measurement/token_transport_trainable.py": "51bf4e8889b669d2c6660eb2166573818fda96e9820441e8aad0851676465663",
+    "experiments/rmea_utility_measurement/token_transport_gradient.py": "375b533658b1ba1a93e84bc842027c1010e0a4668b35586387220e4247cd37c6",
+    "experiments/rmea_utility_measurement/token_transport_gradient_job.py": "71479ed6fa908eb54e65a07ad3b15d657e5e01b7ca9a2c9eb1ba5f2971c8afd7",
+    "experiments/rmea_utility_measurement/token_transport.py": "b07e79c7104f02646c654c2d4acf73dfd7ced7be632e55433e018498de65f3d5",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e"
+  },
+  "environment": {
+    "torch": "2.4.1",
+    "numpy": "1.24.3"
+  },
+  "budget": {
+    "cpu": 1,
+    "ram_mb": 4096,
+    "gpus": 1,
+    "gpu_mb": 1024,
+    "disk_mb": 16,
+    "timeout_seconds": 240,
+    "optimizer_steps": 0,
+    "new_checkpoints": 0,
+    "COS_requests": 0,
+    "cloud_writes": 0
+  },
+  "max_report_bytes": 65536,
+  "check_names": [
+    "TG-1-frozen-forward-parity",
+    "TG-2-routing-directional-derivatives",
+    "TG-3-full-head-parameter-derivatives",
+    "TG-4-padding-permutation-and-input-domain",
+    "TG-5-two-token-tie-and-single-token-boundary"
+  ],
+  "conditions": [
+    "native",
+    "cubic_coherent",
+    "cubic_initial_dephased",
+    "linear_coherent"
+  ],
+  "fixture_seed": 20261120,
+  "parameter_count": 81028,
+  "numerical_precision": "float64/complex128",
+  "gradient_acceptance": "Every frozen directional error <=2e-9+2e-5*max(abs(AD),abs(FD),1e-6); report all; forward parity<1e-9.",
+  "domain": "Exact Hermitian operator norm, no detach or surrogate. Unique generic extrema qualify derivatives; nonzero ties use an autograd norm subgradient, without global differentiability claim. Test restricted two-token family separately. Reject zero graph N>1; N=1 identity.",
+  "training": false,
+  "independent_task_confirmation": false,
+  "formal_handoff": false,
+  "L5": "NOT_ACCEPTED",
+  "gradient_scope_check": "Generic routing fixtures explicitly assert/record a >1e-10 gap between top absolute eigenvalues before derivative qualification. The separate N=2 restricted-family check does not claim generic unique derivatives.",
+  "regression_fixture": "Exactly orthogonal one-token key/query: all four routes must match frozen replay and exactly equal one. Multi-token epsilon count and detached-U control explicitly cast counts to real overlap dtype. Full head rejects nonfinite features/roles, including padding."
+}

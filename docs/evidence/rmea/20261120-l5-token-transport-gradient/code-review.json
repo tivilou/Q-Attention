@@ -1,0 +1,59 @@
+{
+  "schema": "qattn.token-transport.gradient.code-review.v1",
+  "status": "REVIEW_ACCEPTED_GRADIENT_UNIT_CHECK_ONLY",
+  "model": "gpt-6.2-astra",
+  "reasoning_effort": "medium",
+  "response_id": "resp_0eba4a8015e141e0016b001e8502d087d2bce078505a504030",
+  "review_scope": "both",
+  "freeze_sha256": "2c4d519d1fcb7609a015d6fbc0512707af7b69dd9f813d7a4bc6e786f95936d8",
+  "execution_contract_sha256": "726a9a73e016a781dca0795b872d32b5f1e040921a0af40be9796aca1cc0a641",
+  "verdict": "PASS_WITH_RISK",
+  "must_fix": [],
+  "invariant_checks": [
+    {
+      "invariant": "Denominator precision and regression coverage",
+      "status": "PASS",
+      "reason": "Both route() and the TG-2 fixed-unitary control cast the valid count to the float64 overlap dtype before multiplying by EPS. TG-5 now exercises the decisive zero-overlap singleton: each route must match the replay reference and equal one exactly. No tolerance was relaxed."
+    },
+    {
+      "invariant": "Complex orientation and replay separation",
+      "status": "PASS",
+      "reason": "The adapter computes a_i=<key_i|query> and G_ij=<key_i|key_j>. Row-stored amplitudes therefore multiply U.T, not U.H; dephased probabilities multiply |U|².T. The trainable forward does not call no_grad replay."
+    },
+    {
+      "invariant": "Masking and input domains",
+      "status": "PASS",
+      "reason": "Invalid keys are zeroed before contractions. Padding adds a zero block to the graph and an identity block to U; the output mask removes padded epsilon mass. The full head separately rejects nonfinite features or roles before computing utilities, avoiding zero-times-NaN logits."
+    },
+    {
+      "invariant": "Exact norm, exponential and spectral domains",
+      "status": "PASS",
+      "reason": "eigvalsh, absolute maximum, normalization and matrix_exp remain connected to autograd. TG-2 gates the generic routing fixture on the top absolute-eigenvalue gap. For two tokens with nonzero off-diagonal z, the restricted norm is |z| despite the spectral tie. Non-native zero graphs with multiple valid tokens are rejected; a singleton gives identity transport."
+    },
+    {
+      "invariant": "Forward oracles and finite differences",
+      "status": "PASS",
+      "reason": "TG-1 compares the three shared routes against sliced frozen replay and linear routing against a valid-token reference. TG-2 perturbs normalized states via real raw coordinates at two step sizes; its detached-U comparison tests for a graph-path contribution. TG-3 uses out-of-place cross-entropy differences for all five parameter groups and checks state preservation."
+    },
+    {
+      "invariant": "One-attempt parent, child and report closure",
+      "status": "PASS",
+      "reason": "On the shown worker path, exclusive attempt-local claims precede science, and the torch-free parent waits for the child. A failed or timed-out child does not trigger a retry or a completion marker. The parent validates the report before writing the hash marker; publication still requires the worker's successful, quiescent terminal receipt, not merely the two files."
+    },
+    {
+      "invariant": "Independent scheduler admission and CUDA outcome",
+      "status": "UNRESOLVED",
+      "reason": "This static review identifies no remaining source blocker for the synthetic check. It does not establish admission of the exact binding or a numerical PASS on CUDA."
+    }
+  ],
+  "known_limitations": [
+    "Eligibility is for one synthetic attempt after independent admission. No execution, digest recomputation or runtime measurement was performed in this review.",
+    "Directional checks are fixture-specific, not coordinatewise certificates. TG-2 measures the spectral gap on its routing fixture, not on every full-head perturbation; TG-5 does not certify unrestricted derivatives at ties.",
+    "Linear routing has a sliced formula reference, not a frozen linear head. Its native singleton oracle is valid because all four singleton routes reduce to identity.",
+    "A partial report, timeout or unknown worker state is not success and does not authorize replay. No task benefit or training eligibility follows from this check."
+  ],
+  "synthetic_gradient_check_eligible": true,
+  "task_training_eligible": false,
+  "formal_handoff": false,
+  "L5": "NOT_ACCEPTED"
+}
