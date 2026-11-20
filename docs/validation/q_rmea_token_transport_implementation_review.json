@@ -1,62 +1,23 @@
 {
-  "review_mode": "inherited_review_plus_deterministic_R0_additive_test_delta",
+  "review_mode": "inherited_external_plus_deterministic_R0_additive_test_delta",
   "review_scope": "both",
   "verdict": "PASS",
   "must_fix": [],
-  "source_revision": "6938416776489f482da6c068b76a4a28eac2f446",
-  "source_sha256": "06b06abeb156c201a49712839572e95c5094cdfc6f6b865d1139eeb330679e33",
+  "source_revision": "04935a8b897adbbcf2d4eeb669543cf41b37f3d9",
+  "source_sha256": "73146608579f333a2a3e37bd1cc8cbc5d5ccbb2be993043fd33df2b78054b5f0",
   "contract_sha256": "f6ccc416cdd0e169d50823bfa96b82f3b66a13865c4bc449ccfe11133c0ec576",
+  "inherited_source_sha256": "06b06abeb156c201a49712839572e95c5094cdfc6f6b865d1139eeb330679e33",
+  "inherited_external_response_id": null,
   "response_id": null,
-  "inherited_review": {
-    "review_mode": "inherited_external_plus_deterministic_R0_test_delta",
-    "review_scope": "both",
-    "verdict": "PASS",
-    "must_fix": [],
-    "source_revision": "c9c85e63aebf562a5ca98fa6d84406c6063da1d5",
-    "source_sha256": "f74111d47f2de90c397619df2efda09191443345ae81c84d99fd28a236809324",
-    "contract_sha256": "f6ccc416cdd0e169d50823bfa96b82f3b66a13865c4bc449ccfe11133c0ec576",
-    "inherited_source_sha256": "87cf23331d95a1f3afacabcf2b1ea08b917e4aed9a57e0ad90a8236344ef6292",
-    "inherited_external_response_id": "resp_06dfb6c4c51a55c0016b0091d1ef5887d296eee355ecf7a5b0",
-    "inherited_review": {
-      "review_mode": "external",
-      "review_scope": "both",
-      "source_revision": "3ac0b52a8f58d2e7f5e7a876c1aca708701bfe72",
-      "source_sha256": "87cf23331d95a1f3afacabcf2b1ea08b917e4aed9a57e0ad90a8236344ef6292",
-      "contract_sha256": "f6ccc416cdd0e169d50823bfa96b82f3b66a13865c4bc449ccfe11133c0ec576",
-      "freeze_sha256": "fdcb3823d618726593f93a998c551469ef2bbb7b3173e7be9cea2cdb0a76c136",
-      "verdict": "PASS",
-      "must_fix": [],
-      "risks": [
-        "The prior block is resolved. The recovered branch reads at most 3,055,802 bytes, requires exactly 3,055,801, verifies the snapshot against RECOVERED_FIXTURE_SHA, and extracts from that same snapshot via BytesIO. The caller records the matching pin; later changes to the archive path cannot alter the extracted bytes.",
-        "The historical pin and loader are unchanged, and discovery still rejects fixture input. The prior BOTH PASS stands for unchanged code. The recovered cache attests to archived features, not live tokenization or full-data extraction.",
-        "The scheduler-assigned parent canary on this revision remains pending. This review is not a runtime receipt, release approval, or authorization for formal training."
-      ],
-      "L5": "NOT_ACCEPTED",
-      "response_id": "resp_06dfb6c4c51a55c0016b0091d1ef5887d296eee355ecf7a5b0",
-      "reviewer_model": "gpt-6.2-astra",
-      "reasoning_effort": "medium"
-    },
-    "response_id": null,
-    "changed_source_files": [
-      "tests/test_rmea_token_transport.py"
-    ],
-    "checks": {
-      "non_test_scientific_and_lifecycle_bytes_identical": true,
-      "contract_identical": true,
-      "test_ast_parses": true
-    },
-    "basis": "Only additive numerical test and theory/literature documents. No new external whole-code review; prior BOTH review covers identical scientific/lifecycle code.",
-    "L5": "NOT_ACCEPTED"
-  },
-  "inherited_source_sha256": "f74111d47f2de90c397619df2efda09191443345ae81c84d99fd28a236809324",
-  "math_review_response_id": "resp_0ccd13c50d7dbfb8016b00a191547487d2a8aa2b629edc81a4",
-  "basis": "Only additive actual-head fixture and math-review document; every model,diagnostic,runner,contract and non-test source byte unchanged. Mathematical construction separately reviewed, float64 bit-tensor correction deterministic. No new external whole-code review.",
+  "math_review_response_id": "resp_0a517162eb0d94b5016b00a84eaab487d28395355cac7645f7",
   "checks": {
+    "existing_test_AST_unchanged": true,
     "only_test_source_changed": [
       "tests/test_rmea_token_transport.py"
     ],
-    "contract_identical": true,
-    "ast_parses": true
+    "all_non_test_sources_identical": true,
+    "contract_identical": true
   },
+  "basis": "Only one additive test of already reviewed exact readout/CE bound and dark-token dephasing null. Model,diagnostic,protocol,runner,resources and output behavior unchanged; inherited implementation/lifecycle review, no new whole-code consultation.",
   "L5": "NOT_ACCEPTED"
 }
