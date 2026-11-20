@@ -60,6 +60,14 @@ Its probability exceeds epsilon/(1+a^2+3epsilon) by
 
 Replacing the last key by g orthogonal to e and f makes that token isolated and removes this excess. However, in this real three-key example, the initially dephased route has exactly the same last-token probability: the two amplitude contributions have a zero real cross term. Indirect activation of a low-score token therefore does not itself identify a benefit from coherence. This is a discriminating null, not a new-method superiority result.
 
+## Executed correspondence check
+
+The selected 2080 Ti scheduler task f07e278bd76f456c99206cf099ea39bc, attempt 7d7d625d09764068a3a4732f37646a81, completed with exit zero and a quiescent receipt. Ten existing/additive unit tests passed in 4.72624 seconds at registered revision 5af89f6350ca122b796cae11e37dc6148e98e7c7. No model, protocol, training budget or formal gate changed.
+
+The additive test uses the reviewed full-rank nine-key witness, middle-token utility for one synthetic class, constant rival logits and a midpoint decision threshold. It calls the implemented routing functions and compares the candidate's CE to exact generalized-eigenvalue bounds. Cubic CE was 1.6306877321, versus relaxed native minimum 1.6333255673 and relaxed dephased minimum 1.6394148548. The smaller separation was 0.00263783515. Explicit extreme-eigenvector queries attained the comparator optimum logits within 5.551115e-17, checking the bound's orientation and attainability. The chosen synthetic utility/target makes this a construction, not an observation of naturally learned useful routing.
+
+The three-key dark-token probability was 0.000956456752 for both coherent and initially dephased routes. Replacing the last key by an isolated orthogonal state reduced it to the smoothing floor 5.714275918e-7, as predicted. See task-aligned-numerical-check.json. This checks the exact null rather than attributing the activation to coherence.
+
 ## Next use
 
 First analyze the pending formal utility gate and its existing frozen swaps/readout bounds. Only if the result and available approved traces justify it, evaluate loss-aligned bounds as an explicitly separate post hoc diagnostic. Do not rerun the eight-example canary, alter the formal gate, or request another training budget to obtain this evidence.
