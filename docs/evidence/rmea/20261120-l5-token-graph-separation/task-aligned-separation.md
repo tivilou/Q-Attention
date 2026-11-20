@@ -101,7 +101,7 @@ The substantive research question is whether the learned graph preserves informa
 
 ## Finite grids for the whole local pooling family
 
-Focused mathematical/additive-test review PASS from gpt-6.2-astra at medium effort, response resp_0bba9c85ee830734016b00b316592087d1b24a1b4542f13aed; numerical execution is pending. See local-pooling-family-review.json. This changes neither model nor frozen collaborator protocol.
+Focused mathematical/additive-test review PASS from gpt-6.2-astra at medium effort, response resp_0bba9c85ee830734016b00b316592087d1b24a1b4542f13aed; the fixed numerical check passed once on selected2080. See local-pooling-family-review.json and local-pooling-family-numerical-check.json. This changes neither model nor frozen collaborator protocol.
 
 The implemented native class logit has the form z(x_1,...,x_N)=sum_i n_i(x_i)/sum_i d_i(x_i), with d_i>0. The class bias is absorbed by replacing each local numerator f_i u_i by f_i(u_i+b). Queries, preparation and local linear values may take any fixed parameters. Partition the tokens into two groups A,B. On a crossed input grid (A_i,B_j), every such logit must satisfy
 
@@ -128,9 +128,17 @@ Positive D has sum16, hence ||D||_2<=16. Therefore
 
     max_ij |Z_ij-Zhat_ij| >= r_min/16.
 
-This is a lower bound for approximating these sixteen pre-softmax logits, not a classification-error, loss or generalization guarantee. Numerical evaluation is conditional on the represented logit matrix and linear-algebra error; no exact certified arithmetic is claimed. The native route supplies an explicit positive-denominator null as an internal validity check.
+This is a lower bound for approximating these sixteen pre-softmax logits, not a classification-error, loss or generalization guarantee. Softmax probabilities are invariant to a shared input-dependent shift of all class logits, so this scalar-logit certificate does not separate decision/probability families. Numerical evaluation is conditional on the represented logit matrix and linear-algebra error; no exact certified arithmetic is claimed. The native route supplies an explicit positive-denominator null as an internal validity check.
 
-The fixed test uses seed20261121, one untrained actual head, four synthetic three-token blocks per side, their sixteen crossed six-token inputs, class0 only, float64/complex128 and the unchanged four routes. No label, optimization or search is involved. Its declared structural criterion is native relative minimum singular value below1e-10 and cubic above1e-8; a failed or inconclusive grid is retained without searching seeds or changing tolerances. Other graph routes are reported without a required direction: breaking local pooling separability would not by itself identify cubic nonlinearity or coherence as necessary. Reuse the existing GPU unit recipe once after focused mathematical review.
+The fixed test uses seed20261121, one untrained actual head, four synthetic three-token blocks per side, their sixteen crossed six-token inputs, class0 only, float64/complex128 and the unchanged four routes. No label, optimization or search is involved. Its declared structural criterion is native relative minimum singular value below1e-10 and cubic above1e-8; a failed or inconclusive grid is retained without searching seeds or changing tolerances. Other graph routes are reported without a required direction: breaking local pooling separability would not by itself identify cubic nonlinearity or coherence as necessary. The existing GPU unit recipe was used once after focused mathematical review.
+
+### Executed finite-grid result and interpretation
+
+Selected2080 task bab25695c98d47a48c1f8e62d277415c, attempt517ab8c1168e4686ba6096ecb16561c0, completed with exit zero and quiescence. Eleven tests passed in4.87711seconds at registered revision3a1a8e079aabb100817c0f97d2b82802a9fc03b4; all ten prior test bodies were unchanged. The sole added fixture used exactly its declared seed, class and grid. No optimization or labels were used.
+
+The native explicit positive-denominator null residual was9.68746e-16. Native's relative smallest singular value was1.74683e-17, while cubic coherent's was0.00987191 (smallest absolute singular value0.0274350). The constrained equation minimum was0.0720524, giving a conditional numerical uniform-logit approximation lower bound0.00450327 on this grid. This is numerical evidence for a whole-local-family distinction at the frozen-feature interface, with the exact real-arithmetic theorem above; it is not a certified bound for exact mathematical circuit outputs.
+
+Both other graph routes also violated the local-pooling constraint: initially dephased relative singular value0.000762621, linear coherent0.00690101. Thus the result supports cross-token graph interaction beyond separable local pooling; it does not show cubic nonlinearity or coherence is necessary. Linear-Gram's fixed-key query-absorption identity is consistent with this result: its absorbing physical query depends on the complete input key frame, whereas the ordinary native head uses one fixed learned query across the entire crossed grid. Neither a larger singular value nor a larger logit lower bound establishes greater task utility. See local-pooling-family-numerical-check.json for exact values and identities.
 
 ## Next use
 
