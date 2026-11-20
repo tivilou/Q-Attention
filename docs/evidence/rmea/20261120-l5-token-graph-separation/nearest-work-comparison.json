@@ -129,21 +129,80 @@
         "Listed method pages only; AppendixA proofs, empirical claims and source code uninspected.",
         "The acquired artifact is an arXiv preprint; conference status is not independently checked."
       ]
+    },
+    {
+      "paper_id": "arxiv:2503.19002v2",
+      "title": "Quantum Complex-Valued Self-Attention Model",
+      "source_url": "https://arxiv.org/abs/2503.19002v2",
+      "version": "2503.19002v2",
+      "identity": "verified",
+      "reading": "read_for_scope",
+      "pdf_sha256": "3705162c230cb275218813e0bc26e9399cf7cbf0eebfb90acb9dc7db5f0cc0cf",
+      "pdf_bytes": 963138,
+      "page_count": 14,
+      "parsed_sha256": "757201226ad3b37359d9a901fd8366d63bf3741622ced88b76feabd6639b6e6a",
+      "receipt_sha256": "381ada2fa3fbee3ca5979ac634b862ae9d11918c0dd77405b4a184461079f3bb",
+      "rendered_method_sha256": {
+        "page-6": "72ef80ff6fc467996d85e639c63c47cc02159cc72b8c15854a27c46b3aabad59",
+        "page-7": "dbc2f46e1ce6377179485da7345adefb77aa963d0f98c0ee297341027259b1b9"
+      },
+      "authors": [
+        "Fu Chen",
+        "Qinglin Zhao",
+        "Li Feng",
+        "Longfei Tang",
+        "Yangbin Lin",
+        "Haitao Huang"
+      ],
+      "pages": [
+        1,
+        4,
+        5,
+        6,
+        7
+      ],
+      "scope": "Identity and main complex similarity/CLCU value aggregation; equations20-28 visually inspected",
+      "facts": [
+        {
+          "locator": "p4 Eqs6,9; p5 Eq14",
+          "finding": "Complex inner-product query/key weights retain amplitude and phase and are used to aggregate value states."
+        },
+        {
+          "locator": "p6 Definition2 Eq20; p7 Eqs21-28",
+          "finding": "Complex LCU prepares half-phases, applies controlled value unitaries and transpose preparation, then postselects the normalized complex-weighted value sum."
+        },
+        {
+          "locator": "p7 Eqs28-29",
+          "finding": "The model combines similarity-weighted value states and additional trainable complex state weights."
+        }
+      ],
+      "difference": "The inspected attention is complex pairwise query/key weighting followed by coherent value-state aggregation. Our selected candidate instead builds an input-dependent cubic key-key Gram generator, transports token-index amplitudes and then forms probabilities for classical value pooling. This is an architectural distinction, not a theorem separating unrestricted learned families.",
+      "interpretations": [
+        "Complex weights, phase preservation and coherent aggregation are established neighboring components; none is a sufficient novelty claim here.",
+        "For unrestricted globally input-dependent orthonormal value states, the identity U s = sum_j s_j U e_j represents token transport as coherent value aggregation. Our fixed-key query-ceiling theorem alone therefore does not exclude such an enlarged value family. This algebraic observation does not show that the inspected finite local value circuits implement that global family."
+      ],
+      "limits": [
+        "Only listed identity/main-method pages inspected; experiments, appendices and source code not assessed.",
+        "No claim of disjoint function families or exhaustive novelty clearance.",
+        "No hardware, learning or task-utility inference imported."
+      ]
     }
   ],
   "prior_scoped_reading": "reading-receipts.json",
-  "coverage": "Three additional originals, selected method sections only. Targeted frame/walk searches remain metadata-only.",
+  "coverage": "Four additional originals, selected method sections only. Two newer metadata searches are abstract-only; QCSAM was selected from the targeted query for original-method inspection.",
   "synthesis": {
     "known_components": [
       "Quantum fidelity attention scores",
       "Unitary/spectral propagation and quantum graph diffusion",
-      "Flexible learned attention kernels and nonlinear feature maps"
+      "Flexible learned attention kernels and nonlinear feature maps",
+      "Complex inner-product attention and coherent value-state aggregation via complex LCU"
     ],
     "candidate_scope": "Fixed-key nonlinear amplitude transport: linear-Gram query-null, cubic separation, minimality in a restricted entrywise polynomial family, and a full-rank overcomplete stable witness.",
     "unresolved": [
       "No exhaustive novelty clearance, especially frame/POVM and nonlinear graph-walk theory.",
       "No held-out utility or necessity/mediation claim; formal report pending.",
-      "A new combination of familiar ingredients alone is not L5."
+      "A new combination of familiar ingredients alone is not L5.",
+      "Fixed-key query-region separation is not a full learned-family separation from globally conditioned coherent value aggregation; substantive novelty must respect this boundary."
     ]
   },
   "priority_claim": false,
