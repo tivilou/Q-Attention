@@ -1,21 +1,39 @@
 {
-  "review_mode": "external",
+  "review_mode": "inherited_external_plus_deterministic_R1_CUDA_compatibility_delta",
   "review_scope": "both",
-  "freeze_sha256": "53baca0c79a86c0c3f9bb13ab68603f0fef3fc6253db3bbac3b1e81a007d5d2a",
-  "source_revision": "e1fae09d206b99cee0319baeeb0424e7e60e8c18",
-  "source_sha256": "32cf7b6681106d16d8b18e9db51a6756b69378e09935a62aa764b92247b79b94",
-  "contract_sha256": "3ade4a53a82e5b388ab8ab9b9959649eef1a33646d386cb0a0f640957894ab1e",
   "verdict": "PASS_WITH_RISK",
   "must_fix": [],
-  "mathematics": "The EPS-smoothed effects and denominator match the route. For D=LL\u2020, the bijection \u03c1 \u21a6 L\u2020\u03c1L/tr(D\u03c1) yields the implemented Cholesky POVM. Its support in direction w is \u03bbmax(\u03a3\u1d62w\u1d62F\u1d62); for \u2016w\u2016\u2082\u22641 a positive excess lower-bounds Euclidean distance. The dephased effects use the correct |U\u1d62\u2c7c|\u00b2 orientation. The \u221a2 Hermitian coordinates, squared spectral Lipschitz constant, eigenvalue simplex projection and FISTA updates agree. Convergence is not required for the support test.",
-  "implementation": "All 40 queries on each of the six pinned traces are included. Only keys, queries, mask and recorded route probabilities are selected; no gold labels, token text or values are accessed. Native and dephased controls use their respective regions. The linear control is feasible because, for unit keys, its Gram-minus-identity generator induces a unitary query change preserving the denominator. The toy middle-token point mass exceeds the analytic ceiling (1+EPS)/(2+3EPS); the test requires a numerical margin of at least 0.1. Simultaneous counts require both comparisons to pass for the same query.",
-  "lifecycle": "The prior blocker is resolved: the reviewed design supplies run_path to the expected argv, and a differing --run is rejected before opening canary inputs. The script checks the recipe and expanded command, HEAD and command revision, boot ID, GPU assignment, resources, timeout, max_attempts=1, replay_safe=false and fresh assigned output. It requires a passing both-scope review matching source and design, verifies pinned input hashes, then writes the report and its hash receipt. Scheduler process ownership, cancellation and quiescence remain inherited rather than independently tested.",
-  "scope": "Static review only; no execution or witness counts asserted. Any separation concerns fixed keys on six one-update technical-canary samples. A missed witness is inconclusive. Neither outcome establishes efficacy, typicality or L5.",
-  "risks": [
-    "The eigenpair residual subtraction and 1e-8 threshold are numerical safeguards, not a rigorous error enclosure for whitening, effect construction and diagonalization. Positive margins are numerical witnesses only."
-  ],
-  "L5": "NOT_ACCEPTED",
-  "response_id": "resp_06c7d98ceafb143e016b009d3471b487d2893f57881d1abed7",
-  "reviewer_model": "gpt-6.2-astra",
-  "reasoning_effort": "medium"
+  "source_revision": "0c49e9520a77e47a590165fa83fb5085fa4c97b6",
+  "source_sha256": "7c933f615a163c5f8d264f542af53837d81a656c57e0cfd4b3bee236093cc4ed",
+  "contract_sha256": "3ade4a53a82e5b388ab8ab9b9959649eef1a33646d386cb0a0f640957894ab1e",
+  "response_id": null,
+  "inherited_external_response_id": "resp_06c7d98ceafb143e016b009d3471b487d2893f57881d1abed7",
+  "inherited_review": {
+    "review_mode": "external",
+    "review_scope": "both",
+    "freeze_sha256": "53baca0c79a86c0c3f9bb13ab68603f0fef3fc6253db3bbac3b1e81a007d5d2a",
+    "source_revision": "e1fae09d206b99cee0319baeeb0424e7e60e8c18",
+    "source_sha256": "32cf7b6681106d16d8b18e9db51a6756b69378e09935a62aa764b92247b79b94",
+    "contract_sha256": "3ade4a53a82e5b388ab8ab9b9959649eef1a33646d386cb0a0f640957894ab1e",
+    "verdict": "PASS_WITH_RISK",
+    "must_fix": [],
+    "mathematics": "The EPS-smoothed effects and denominator match the route. For D=LL\u2020, the bijection \u03c1 \u21a6 L\u2020\u03c1L/tr(D\u03c1) yields the implemented Cholesky POVM. Its support in direction w is \u03bbmax(\u03a3\u1d62w\u1d62F\u1d62); for \u2016w\u2016\u2082\u22641 a positive excess lower-bounds Euclidean distance. The dephased effects use the correct |U\u1d62\u2c7c|\u00b2 orientation. The \u221a2 Hermitian coordinates, squared spectral Lipschitz constant, eigenvalue simplex projection and FISTA updates agree. Convergence is not required for the support test.",
+    "implementation": "All 40 queries on each of the six pinned traces are included. Only keys, queries, mask and recorded route probabilities are selected; no gold labels, token text or values are accessed. Native and dephased controls use their respective regions. The linear control is feasible because, for unit keys, its Gram-minus-identity generator induces a unitary query change preserving the denominator. The toy middle-token point mass exceeds the analytic ceiling (1+EPS)/(2+3EPS); the test requires a numerical margin of at least 0.1. Simultaneous counts require both comparisons to pass for the same query.",
+    "lifecycle": "The prior blocker is resolved: the reviewed design supplies run_path to the expected argv, and a differing --run is rejected before opening canary inputs. The script checks the recipe and expanded command, HEAD and command revision, boot ID, GPU assignment, resources, timeout, max_attempts=1, replay_safe=false and fresh assigned output. It requires a passing both-scope review matching source and design, verifies pinned input hashes, then writes the report and its hash receipt. Scheduler process ownership, cancellation and quiescence remain inherited rather than independently tested.",
+    "scope": "Static review only; no execution or witness counts asserted. Any separation concerns fixed keys on six one-update technical-canary samples. A missed witness is inconclusive. Neither outcome establishes efficacy, typicality or L5.",
+    "risks": [
+      "The eigenpair residual subtraction and 1e-8 threshold are numerical safeguards, not a rigorous error enclosure for whitening, effect construction and diagonalization. Positive margins are numerical witnesses only."
+    ],
+    "L5": "NOT_ACCEPTED",
+    "response_id": "resp_06c7d98ceafb143e016b009d3471b487d2893f57881d1abed7",
+    "reviewer_model": "gpt-6.2-astra",
+    "reasoning_effort": "medium"
+  },
+  "basis": "Only replace unsupported deterministic CUDA cumsum on exactly8 elements with8 explicit ordered prefix additions; identical mathematical simplex projection, source/target/launch/output/recovery protocol and512iteration budget. No new external whole-code review.",
+  "checks": {
+    "ast_parses": true,
+    "only_fixed_prefix_sum_hunk_changed": true,
+    "contract_identical": true
+  },
+  "L5": "NOT_ACCEPTED"
 }
