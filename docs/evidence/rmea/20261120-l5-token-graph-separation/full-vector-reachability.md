@@ -72,3 +72,23 @@ In the IC regime native probabilities already identify the entire query density 
 Theorems about pure-region separation do not predict Macro-F1. Existing trained pilot evidence already shows fixed-head cubic CE improves by.00137203674 while positive39Macro falls by.00308293526. All39class contributions and formal task gates must be assessed separately. The final formal report is pending. No new fixture, seed/tau search, optimizer step, checkpoint download or frozen-contract change follows from this note.
 
 The underlying IC dual-frame reconstruction is established prior mathematics: Roy and Scott, quant-ph/0703025v2, Section5.2 pp16-17 Eqs5.9-5.12. This conditional criterion is an alternative to the unresolved generic-disjointness argument, not its proof. Independent bounded mathematics review: gpt-6.2-astra, medium, response resp_09299de6faf0f4a5016b00d215eef887d1909949ebd3d639c4; PASS/no must-fix for EPS mapping, distance, dephased control and reconstruction. Frozen proposition SHA256 aa14af78875548b5fffcbd0915e782600e9fd5678e28f23694ee2f1bf8ac1042; review verdict SHA256 0e52d05706fd25b1b5c85a500f49c13e9a4cf22cb4e4748f6316aa3fdc58f6ce. This review does not cover an implementation or the separate global-rigidity lead. The existing registered numerical diagnostic and frozen formal contract are unchanged.
+
+## Actual-circuit scope of the IC condition
+
+The implementation does not structurally forbid IC key effects merely because one key uses12angles. This is a direct architectural derivation, not an observation about the trained corpus or an independently reviewed theorem. Source: baselines/retacred/rmea.py lines14-33,55-57 (SHA2569f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0).
+
+Write one directed CNOT ring as the fixed unitaryW and one local layer asL. The actual circuit is W L2 W L1 |000>. Set every second-layer angle to0. It becomes W^2 applied to an arbitrary product of three one-qubit RZ(z)RY(y)|0> states. In each wire choose four first-layer (y,z) pairs
+
+    (0,0), (pi/2,0), (pi/2,pi/2), (-pi/2,0).
+
+Up to irrelevant phases these give |0>, |+>, |+i>, |->. Their projectors have unscaled Pauli coefficient rows (I,X,Y,Z)
+
+    (1,0,0,1), (1,1,0,0), (1,0,1,0), (1,-1,0,0),
+
+whose determinant is-2. Hence they span the four-dimensional one-qubit Hermitian space. The64three-wire tensor products span Herm(C^8). Conjugation by fixedW^2 is an invertible real-linear map on that space, so these64allowed circuit states have linearly independent projectors. All listed angles lie strictly inside(-pi,pi), as required by pi*tanh; no unattainable infinite preparation coefficient is used.
+
+Consequently, for64independently variable angle arrays in that open box, the projector determinant is a nonzero real-analytic function. Its zero set has measure0. Thus generic independently varying allowed angles yield IC; this is not a theorem that actual corpus keys are independent, continuous, diverse enough, or well conditioned. For more than64keys, one full-rank64subset suffices; fewer than64cannot be IC. Coincident/near-coincident prepared keys can still be rank-deficient/ill-conditioned regardless of circuit capacity.
+
+The learned shared preparation does not automatically make arbitrary angles available. A sufficient continuum-capacity condition is full row rank12of the12-by1024 feature block of prepare.weight with roles held fixed: affine preimages of every finite inverse-tanh angle array then exist in unrestricted real feature space. No such unrestricted-feature assumption is justified for the fixed RoBERTa corpus, and neither trained weight rank nor per-sentence projector rank is asserted here.
+
+Finally, full operator span is different from covering every pure query: the depth-two query circuit has12real parameters whereas CP^7has real dimension14. The IC distance theorem above intentionally uses all physical pure queries as an outer comparator. A positive controlled lower bound excludes the actual circuit family too; a zero bound only establishes all-physical membership and does not establish finite-circuit attainability. This capacity check closes a possible architectural obstruction. It adds no task gain, generic native/coherent disjointness, new fixture, source change or training request. Further empirical interpretation waits for the already frozen full-data report and its approved final-state traces.
