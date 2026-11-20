@@ -109,3 +109,30 @@ This comparator allows all physical queries and says nothing about simultaneous 
 Thus a nonlinear graph can be necessary for this particular fixed-key-region escape relative to the linear Gram route, but cubic is not uniquely necessary and necessity of all nonlinear constructions is not claimed.
 The prospective controls are: asymmetric cubic coherent separation; its initial-dephased ceiling; balanced cubic no middle excess; linear-Gram no region expansion.
 These are mathematical mechanism predictions. Their task relevance still requires actual fixed-example utility and held-out evidence.
+
+
+## Minimal nonlinear edge family: proposed refinement (2026-11-21)
+
+Status: new algebraic refinement, not independently reviewed. It does not change the fixed four-condition screen. Literature priority and task benefit remain unresolved.
+
+Let the off-diagonal generator be entrywise K_ij=F(G_ij), with zero diagonal. Restrict F to a scalar polynomial in z and conjugate(z), require Hermiticity F(conjugate(z))=conjugate(F(z)), and local-key phase covariance F(exp(i theta)z)=exp(i theta)F(z). This deliberately narrow class excludes multi-edge/contextual graph functions.
+
+**Polynomial classification.** Expand F(z)=sum_(p,q) c_pq z^p conjugate(z)^q. Covariance for every theta forces p-q=1. Hermiticity then forces the surviving coefficients to be real. Consequently F(z)=z h(|z|^2), where h is a real polynomial. Nonzero degrees are odd. Degree one gives only F(z)=a z; degree three is the first possible nonlinear member, a z+b z|z|^2. This is an elementary classification within the stated class, not a new general representation theorem.
+
+**Why the linear member is query-only null.** For normalized keys and real a, K=a(G-I_N). Write S=Psi Psi^dagger and s=tau a/||K||op for K nonzero. Then
+exp(-i s(G-I_N)) Psi^dagger = Psi^dagger exp(-i s(S-I_d)).
+The right-hand physical operator V is unitary and commutes with S. Thus both the amplitude vector and its EPS-normalized denominator agree with native attention evaluated at V phi. V is invertible on all unit queries, so the entire fixed-key attainable probability region is unchanged. This does not assert equality of a restricted circuit ansatz across all samples, nor equal training outcomes.
+
+**Two tokens are insufficient in this class.** For N=2 there is one off-diagonal magnitude, hence K=h(|G_12|^2)(G-I_2). It reduces to the linear-null case for each fixed key pair. N=1 is also null. More generally, if all nonzero off-diagonal overlaps have one common magnitude, the same reduction applies for any N. Zero generators require an explicit identity convention or rejection; the current normalized source rejects the multi-token zero case.
+
+The already established asymmetric three-key cubic witness separates the coherent probability ceiling at fixed tau=1/4 and EPS=1e-6. Taken together, the results establish minimal polynomial degree three and minimal token count three for the *possibility* of nonabsorption in this entrywise phase-covariant family. They do not say every cubic graph or every triple separates, and they do not establish global learned-family expressivity or utility.
+
+**The cubic kernel has a known feature decomposition.** Let chi(psi)=psi tensor psi tensor conjugate(psi), in Sym^2(C^d) tensor conjugate(C^d). Its Gram matrix is G^(3)=G elementwise |G|^2. On symmetric tensors define (CT)_a=sum_b T_abbar(b). Its adjoint is (C^dagger v)_abbar(c)=(v_a delta_bc+v_b delta_ac)/2, so C C^dagger=(d+1)I_d/2 and C chi(psi)=psi. Orthogonal projection onto range(C^dagger) therefore gives
+G^(3)=2G/(d+1)+H, with H positive semidefinite.
+H is the Gram matrix of the component in ker(C); its diagonal is (d-1)/(d+1). For d=8 the full symmetric cubic feature dimension is288 and the contraction-free dimension is280.
+
+After removing the diagonal,
+K_cubic=2(G-I_N)/(d+1)+H-(d-1)I_N/(d+1).
+This identifies an interpretable nonlinear component beyond the query-null linear member. The two summands need not commute, so one must not drop the linear term and claim identical dynamics; operator normalization also changes. Testing a contraction-free generator would be a distinct prospective hypothesis, not an allowed rescue of the current screen. The feature/projection identities themselves are standard algebraic tools and need near-neighbor attribution before any novelty claim.
+
+Empirical implication for the current screen: linear is a structural comparator, while coherent/dephased cubic isolates the role of complex amplitudes for this fixed generator. A positive four-condition task gate would justify formal collaborator validation of that conjunction. A geometric ceiling witness alone cannot do so.
