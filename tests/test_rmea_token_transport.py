@@ -64,7 +64,10 @@ class TransportTests(unittest.TestCase):
         alpha=route(psi[None],phi[None].expand(40,-1),torch.ones(1,3,dtype=torch.bool,device=self.device),kind='cubic_coherent')['alpha']
         self.assertGreater(float(alpha[0,0,1]),ceiling+1e-8)
         self.assertTrue(detail['simultaneous_ceiling_witnesses'])
-        self.assertTrue(detail['routing']['cubic_coherent']['phase_gauge_obstruction'])
+        # Both real three-node path generators are bipartite. Evolution leaves
+        # diag(U G U†)=1 here, so the sufficient row-norm certificate is silent
+        # even though the coordinate probability ceiling is strictly exceeded.
+        self.assertFalse(detail['routing']['cubic_coherent']['phase_gauge_obstruction'])
         self.assertFalse(detail['routing']['linear_coherent']['phase_gauge_obstruction'])
 
     def test_full_head_gradients_and_one_finite_difference(self):
