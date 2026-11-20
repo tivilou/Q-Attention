@@ -102,10 +102,12 @@ def nuisance_measurement(psi,phi,roles,utilities,bias,torch,eps,route,kinds):
         bound=width*term.clamp(max=1)
         z=(full[k]['alpha'][0]*u).sum(-1)+bias
         zr=(sub[k]['alpha'][0]*u[:,keep]).sum(-1)+bias
+        if not torch.isfinite(z).all() or not torch.isfinite(zr).all():raise ValueError('Nonfinite measured logits')
         difference=(z-zr).abs();residual=float((difference-bound).max())
         if not torch.isfinite(bound).all() or residual>1e-9:raise ValueError('Nuisance logit bound violated')
         ce_difference=((z.logsumexp(0)-zr.logsumexp(0))-(z-zr)).abs()
         ce_bounds=bound+bound.max()
+        if not torch.isfinite(ce_difference).all() or not torch.isfinite(ce_bounds).all():raise ValueError('Nonfinite CE measurement')
         if float((ce_difference-ce_bounds).max())>1e-9:raise ValueError('Gold-free every-target CE bound violated')
         winner=int(zr.argmax());rivals=zr.clone();rivals[winner]=-torch.inf
         margin=float(zr[winner]-rivals.max());other=bound.clone();other[winner]=-torch.inf
@@ -136,10 +138,11 @@ def run_nuisance(design,args,closed,request,output,torch,np,route,kinds,eps):
         data=snapshot(args.run/row['path'],row['sha256'],1048576)
         with np.load(io.BytesIO(data),allow_pickle=False) as arrays:
             state={k:torch.as_tensor(arrays[k].copy(),device='cuda') for k in ('psi','phi','mask','roles','utilities','bias','route_swap_alpha')}
+        if any(not torch.isfinite(v).all() for v in state.values()):raise ValueError('Nonfinite sealed diagnostic input')
         if list(state['psi'].shape)!=row['psi_shape'] or not state['mask'].all():raise ValueError('Frozen complete input differs')
         replay=torch.stack([route(state['psi'],state['phi'],state['mask'],kind=k)['alpha'] for k in kinds])
         error=float((replay-state['route_swap_alpha']).abs().max())
-        if error>1e-12:raise ValueError('Frozen four-route replay differs')
+        if not math.isfinite(error) or error>1e-12:raise ValueError('Frozen four-route replay differs')
         replay_error=max(replay_error,error)
         rows.append(nuisance_measurement(*(state[k] for k in ('psi','phi','roles','utilities','bias')),torch,eps,route,kinds))
     summary=dict(units=len(rows),query_coordinates=40*len(rows),maximum_route_replay_error=replay_error,
