@@ -140,6 +140,18 @@ The native explicit positive-denominator null residual was9.68746e-16. Native's 
 
 Both other graph routes also violated the local-pooling constraint: initially dephased relative singular value0.000762621, linear coherent0.00690101. Thus the result supports cross-token graph interaction beyond separable local pooling; it does not show cubic nonlinearity or coherence is necessary. Linear-Gram's fixed-key query-absorption identity is consistent with this result: its absorbing physical query depends on the complete input key frame, whereas the ordinary native head uses one fixed learned query across the entire crossed grid. Neither a larger singular value nor a larger logit lower bound establishes greater task utility. See local-pooling-family-numerical-check.json for exact values and identities.
 
+## Near-neighbor consequence for the local-family result
+
+The original Attention-based Deep Multiple Instance Learning paper (Ilse, Tomczak and Welling, ICML2018, pp2-3, Eqs3,7-8) already uses locally scored, normalized weighted pooling. Its final bag-level transformation may be a neural network. An affine final logit falls within our rational-additive comparator; an arbitrary nonlinear bag classifier does not. Thus the grid certificate distinguishes the actual native interface rather than all attention MIL or DeepSets models.
+
+Set Transformer (Lee et al., ICML2019, pp2-4, Eqs1,6-16) explicitly uses self-attention for pairwise/higher-order element interactions, inducing-point interaction blocks and attention pooling with learned seeds. This establishes a direct architectural neighbor for the generic interaction explanation. Our rank certificate is not a separation from its contextual encoder, multiple heads or nonlinear decoder. Its universality statement is not a same-budget efficiency comparison; its supplementary proof and code were not assessed here. Exact identities, page scopes and primary links are in nearest-work-comparison.json.
+
+The new reading therefore narrows the scientific use of the accepted numerical result: it explains an interface limitation of the local native head and verifies that the implemented graph routes escape it. It does not establish that cross-token interaction itself is a new contribution. All three graph routes escaped the same limitation, so that explanation does not single out cubic transport or coherence.
+
+The next discriminating task evidence is already frozen: the collaborator's complete-data four-route comparison must establish cubic coherent utility against native, linear coherent and initially dephased controls under its original Macro/CE gates. Those controls address specific mechanism differences; they do not exhaust classical contextual alternatives or clear nearest-neighbor novelty. A positive result would motivate a further mechanism-specific question using approved frozen traces; a negative result must retain its original outcome. Neither outcome licenses seed, epoch, tau or gate changes.
+
+No new geometry-only fixture, training run, code revision or deployment is needed for this literature update. Keep generic interaction as an explanatory result, and require a substantive transport-specific prediction plus task evidence before promoting a central L5 claim.
+
 ## Next use
 
 First analyze the pending formal utility gate and its existing frozen swaps/readout bounds. Only if the result and available approved traces justify it, evaluate loss-aligned bounds as an explicitly separate post hoc diagnostic. Do not rerun the eight-example canary, alter the formal gate, or request another training budget to obtain this evidence.

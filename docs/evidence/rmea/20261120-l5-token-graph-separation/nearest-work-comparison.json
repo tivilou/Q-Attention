@@ -232,24 +232,116 @@
         "method-page-2": "5e0f02b27435c6e36b92b1bb902aaacbba7f218d254d5890a6d27d1f8bd73d62",
         "method-page-3": "43202a3b27928435d27b0ff88f1828f1236ed8cac527193ee9cfd105872c5bc7"
       }
+    },
+    {
+      "paper_id": "pmlr:ilse18a",
+      "title": "Attention-based Deep Multiple Instance Learning",
+      "source_url": "https://proceedings.mlr.press/v80/ilse18a.html",
+      "version": "pmlr-v80-2018",
+      "identity": "verified",
+      "reading": "read_for_scope",
+      "pdf_sha256": "ec7645cd55e48d692817f0f6994648b4bd2c4e8b9a76b159cd06779541177e4a",
+      "pdf_bytes": 2328134,
+      "parsed_sha256": "1c494db6206a030667c5f611208972dd4e523d98edff72ea712b7608143222c4",
+      "authors": [
+        "Maximilian Ilse",
+        "Jakub Tomczak",
+        "Max Welling"
+      ],
+      "pages": [
+        1,
+        2,
+        3
+      ],
+      "scope": "Identity, three-stage MIL architecture and attention pooling; p3 Eqs7-8 visually inspected.",
+      "facts": [
+        {
+          "locator": "p2 Eq3; p3 Section2.2",
+          "finding": "The paper separates instance embedding, symmetric pooling and a final bag-level transformation, which may be a neural network."
+        },
+        {
+          "locator": "p3 Section2.4 Eqs7-8",
+          "finding": "Attention is a normalized exponential of a local tanh score; pooled embeddings are their weighted sum."
+        }
+      ],
+      "difference": "With an affine bag logit, this local normalized pooling obeys the same rational-additive condition as our native head. The paper also permits a nonlinear final bag classifier, which our finite-grid certificate does not cover.",
+      "limits": [
+        "Only the listed main-method pages were read; experiments, supplementary proofs and source code were not assessed.",
+        "No exhaustive novelty, decision-family separation, quantum necessity, learning or task-utility claim follows."
+      ],
+      "rendered_method_sha256": {
+        "mil-p3.png": "dbf2a693c739ec3f4cdec621992b58e2fc44439997ad1d27de47cf2c455be2d8"
+      }
+    },
+    {
+      "paper_id": "pmlr:lee19d",
+      "title": "Set Transformer: A Framework for Attention-based Permutation-Invariant Neural Networks",
+      "source_url": "https://proceedings.mlr.press/v97/lee19d.html",
+      "version": "pmlr-v97-2019",
+      "identity": "verified",
+      "reading": "read_for_scope",
+      "pdf_sha256": "965aee34a80935c775156bf96c059e74a226282cbcaee69eb6f9cf6f2603525d",
+      "pdf_bytes": 4877237,
+      "parsed_sha256": "8ed2f734a6e0f63d78db6b35730b31a94de4ed564dc1e7326988fda97501ea12",
+      "authors": [
+        "Juho Lee",
+        "Yoonho Lee",
+        "Jungtaek Kim",
+        "Adam Kosiorek",
+        "Seungjin Choi",
+        "Yee Whye Teh"
+      ],
+      "pages": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "scope": "Identity, local pooling comparison, MAB/SAB/ISAB/PMA definitions and stated invariance/universality; pp3-4 visually inspected.",
+      "facts": [
+        {
+          "locator": "pp1-2 Section2.1 Eq1",
+          "finding": "Set pooling includes nonlinear processing after aggregation; the paper motivates explicit interactions as an architectural and optimization choice."
+        },
+        {
+          "locator": "p3 Section3.1 Eqs6-10",
+          "finding": "SAB uses multihead self-attention among set elements; ISAB introduces learned inducing points for O(nm) interaction."
+        },
+        {
+          "locator": "p4 Sections3.2-3.4 Eqs11-16, Propositions1-2",
+          "finding": "PMA aggregates using learned seeds; the encoder/decoder includes interactions and feedforward transformations. The paper states permutation invariance and universality; the supplementary proof was not read."
+        }
+      ],
+      "difference": "Cross-element interaction beyond independent local affine pooling is an established design direction. The native-grid theorem neither separates the graph route from Set Transformer nor establishes novelty over interaction-capable set networks.",
+      "limits": [
+        "Only the listed main-method pages were read; experiments, supplementary proofs and source code were not assessed.",
+        "No exhaustive novelty, decision-family separation, quantum necessity, learning or task-utility claim follows."
+      ],
+      "rendered_method_sha256": {
+        "set-transformer-p3.png": "7b615c8ce029ca1e0f7a6aa18ca77437140af0a630617576f24c97c052e41cea",
+        "set-transformer-p4.png": "5571659eb4172b40461eda052c25df0e215cb73ada98a84be92978878be392b9"
+      }
     }
   ],
   "prior_scoped_reading": "reading-receipts.json",
-  "coverage": "Five additional originals, selected method sections only. Search entries not selected for original reading remain metadata/abstract-only.",
+  "coverage": "Seven additional originals, selected main-method sections only. Other discovered entries remain metadata/abstract-only.",
   "synthesis": {
     "known_components": [
       "Quantum fidelity attention scores",
       "Unitary/spectral propagation and quantum graph diffusion",
       "Flexible learned attention kernels and nonlinear feature maps",
       "Complex inner-product attention and coherent value-state aggregation via complex LCU",
-      "POVM post-processing, rank-one measurement robustness saturation and optimized state-discrimination games"
+      "POVM post-processing, rank-one measurement robustness saturation and optimized state-discrimination games",
+      "Locally scored normalized attention MIL pooling with a potentially nonlinear bag decoder",
+      "Explicit cross-element self-attention and inducing-point interaction in set networks"
     ],
-    "candidate_scope": "Fixed-key nonlinear amplitude transport: linear-Gram query-null, cubic separation, minimality in a restricted entrywise polynomial family, and a full-rank overcomplete stable witness.",
+    "candidate_scope": "Fixed-key nonlinear amplitude transport: linear-Gram query-null, cubic separation, minimality in a restricted entrywise polynomial family, and a full-rank overcomplete stable witness. The numerical local-family grid explains the native interface limitation; generic cross-token interaction alone is not a central novelty claim.",
     "unresolved": [
       "No exhaustive novelty clearance, especially frame/POVM and nonlinear graph-walk theory.",
       "No held-out utility or necessity/mediation claim; formal report pending.",
       "A new combination of familiar ingredients alone is not L5.",
-      "Fixed-key query-region separation is not a full learned-family separation from globally conditioned coherent value aggregation; substantive novelty must respect this boundary."
+      "Fixed-key query-region separation is not a full learned-family separation from globally conditioned coherent value aggregation; substantive novelty must respect this boundary.",
+      "Whole-local-affine-family logit separation does not distinguish interaction-capable Set Transformer or nonlinear bag decoders. Generic cross-token interaction is established prior art."
     ]
   },
   "priority_claim": false,
