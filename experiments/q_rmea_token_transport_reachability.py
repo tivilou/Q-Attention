@@ -70,8 +70,8 @@ def main():
     parser.add_argument('--output',type=Path,required=True);args=parser.parse_args()
     design=p.read(p.ROOT/DESIGN);output=args.output.absolute();attempt=output.parent
     request=p.read(attempt/'request.json');command=p.read(attempt/'command.json')
-    expected=['{python}','-B',SELF,'--run',str(args.run),'--output','{output}']
-    if (os.environ.get('RESEARCH_OUTPUT_DIR')!=str(output) or request['project']!='q-attention'
+    expected=['{python}','-B',SELF,'--run',design['run_path'],'--output','{output}']
+    if (str(args.run)!=design['run_path'] or os.environ.get('RESEARCH_OUTPUT_DIR')!=str(output) or request['project']!='q-attention'
             or request['attempt']!=attempt.name or request['recipe']['command']!=expected
             or request['recipe']['outputs']!=['compact-report.json','RUN_COMPLETE']
             or request['recipe']['timeout']!=1200 or request['recipe']['max_attempts']!=1
