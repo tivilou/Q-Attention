@@ -1,0 +1,73 @@
+{
+  "schema": "qattn.token-transport.profile.design.v1",
+  "status": "PROSPECTIVE_NOT_EXECUTED",
+  "source_parent": "66afde0ee15578dd17c9917d9c489d489fcef114",
+  "source_files": {
+    "experiments/rmea_utility_measurement/token_transport_screen.py": "308c748baef2008d2d862f9ce9688ff2dc9ee665e9b8de9d8cbfe615760b6ec9",
+    "experiments/rmea_utility_measurement/token_transport_profile_job.py": "c68c04d2f659255438ec43341467fe9c6ed9328965e7b3d4db4cd5023afb04c1",
+    "experiments/rmea_utility_measurement/token_transport_trainable.py": "51bf4e8889b669d2c6660eb2166573818fda96e9820441e8aad0851676465663",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_ecqp_screen/runner.py": "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+    "experiments/rmea_ecqp_screen/metrics.py": "9d039c538453dadc648e2fcdd9f7ade79acd24cb5997a07a8d6f1d69da4e7716",
+    "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e"
+  },
+  "environment": {
+    "torch": "2.4.1",
+    "numpy": "1.24.3"
+  },
+  "conditions": [
+    "native",
+    "cubic_coherent",
+    "cubic_initial_dephased",
+    "linear_coherent"
+  ],
+  "training": {
+    "seed": 20261118,
+    "epochs": 4,
+    "batch_size": 32,
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "clip_norm": 1.0
+  },
+  "data": {
+    "original_split": "train",
+    "cohort_sha256": "dbca6227d405b932bf1c463935383e87f6dd870d0ec0280139a8b460f89b1999",
+    "donors_sha256": "12abb735b1eb6358ecd306d01bb154739baa8afb2689928c23b85944eeb28538",
+    "prefix_receipt_sha256": "27cb566401bc60de8c8fae0611c78a97370b3b2f452838e9d84df90eebf4ad83",
+    "plan_sha256": "00f0c5eedb24ecb2ee146914cba4e72ff320881ad206a05e17a21a9d72159dc5",
+    "fit_examples": 3124,
+    "fit_groups": 2714,
+    "evaluation_examples": 972,
+    "evaluation_groups": 866,
+    "selection": "Reuse the immutable R72 fit/eval membership; no resampling, new cohort or official valid/test reads.",
+    "independence": "Development partition has repeatedly informed ideation. A positive result cannot independently confirm a newly selected claim."
+  },
+  "budget": {
+    "cpu": 1,
+    "ram_mb": 4096,
+    "disk_mb": 64,
+    "gpus": 1,
+    "gpu_mb": 8192,
+    "timeout_seconds": 600,
+    "optimizer_steps": 0,
+    "new_checkpoints": 0,
+    "COS_requests": 0,
+    "cloud_writes": 0
+  },
+  "max_report_bytes": 32768,
+  "profile_policy": "Every kind: first32 fit order warmup, same first32 timed, then longest32 fit units ordered by descending token count and ascending immutable source index.12 backward calls;0 updates;all state hashes unchanged. Never evaluate or report losses or model metrics. Full-prefix loader validates all labels in0..39 but no evaluation label enters a loss or selection.",
+  "resource_estimator": "ceil(392*sum(max(first_fit,longest_fit seconds) per kind)*2+300);planning estimate only,not automatic training admission or runtime guarantee.",
+  "task_training_admitted": false,
+  "private_checkpoint_bytes_max": 4194304,
+  "training_eligibility": "Dormant train/range code needs separate reviewed measured resource/recovery/launch contract plus range/reload fixture before use.",
+  "L5": "NOT_ACCEPTED",
+  "memory_policy": "8192MiB is a run-wide Torch-allocator acceptance threshold covering setup,warmups and transitions; no hard device cap or complete CUDA-context claim. Perbatch high-water fields are cumulative; warmups excluded only from timing extrapolation.",
+  "dormant_training_corrections": "Range diagnostics explicitly check finite direct quadratic coordinate/readout identities; selected-range fixture still pending. Checkpoint writes stage0600+fsync,exact reload before atomic final rename;all files/hash/byte cap checked before marker. Failure leaves private unclaimed partials,new attempt cannot adopt them."
+}

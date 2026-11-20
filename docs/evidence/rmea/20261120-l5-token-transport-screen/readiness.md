@@ -1,0 +1,11 @@
+# 四条件真实数据开发检查：仅资源profile就绪
+
+固定原生、非线性Gram相干、初始token退相干、线性Gram相干四条件；81028参数、同一初始状态、同一fit顺序、tau=.25和float64/complex128保持。复用原train前4096单位的不可变分组划分：fit3124/eval972。不是官方valid/test，反复探索过的eval不构成独立确认，旧L4不转移给新方法。
+
+本次只允许准备一次600秒、1GPU的零更新profile。每个条件先用固定首32fit单位warmup，再测同一批及按长度降序/源序号升序选出的最长32fit单位，共12次反向；不创建优化器、不保存checkpoint、不计算eval预测或指标。加载器仍完整校验prefix和标签域，不声明只读取fit文件。Torch allocator显存峰值覆盖setup、warmup和条件切换；8192MiB为事后验收阈值，并非硬件强制显存上限。耗时估算不自动授权训练。
+
+Astra6.2 medium首次审查BLOCK指出漏记warmup显存，以及休眠训练诊断/完成标记缺陷，已修复并保留记录。第二次BOTH审查仅对profile给出PASS_WITH_RISK；训练仍有两项明确待办：实测padding/无padding及当前logit一致性；冻结包含pending文件和报告staging的峰值磁盘与中断恢复协议。16个本机stdlib夹具检查实际admitted/claim函数的契约拒绝和独占声明，不代表真实POSIX进程或CUDA验收。
+
+训练入口保持休眠：固定4epoch、seed20261118、batch32、每条件392步、总1568步、最终第四epoch状态，不挑选epoch/seed。代码已接入同模型固定路由交换、前32eval单位的已知广义Rayleigh界诊断与checkpoint精确重载检查；这些路径尚未执行或取得训练准入。几何范围扩张不是任务效用定理。
+
+profile输入复用已恢复并有版本化COS来源的特征；无新COS请求和下载。本机仅保存小代码/审查/报告。父子同步、精确契约和输出白名单、最多一次尝试及非自动重跑保持。正式训练资源/最小恢复契约必须在profile后单独冻结审核，新全量实验仍交合作者。

@@ -1,0 +1,63 @@
+{
+  "schema": "qattn.token-transport.profile.review.v1",
+  "status": "PROFILE_ONLY_ACCEPTED_TRAINING_NOT_ADMITTED",
+  "verdict": "PASS_WITH_RISK",
+  "review_scope": "both",
+  "model": "gpt-6.2-astra",
+  "reasoning_effort": "medium",
+  "response_id": "resp_05a27b73e94ff227016b002e79523c87d2b4cfa6d1050c2a65",
+  "freeze_sha256": "95252570696eb2bb10ad6d438c2f83b5d275ef5e4c56bdc828abffc62ff051ae",
+  "profile_eligible": true,
+  "task_training_eligible": false,
+  "must_fix": [
+    "Dormant training only — range_diagnostics compares the quadratic quotients to a fresh, unpadded route, not to the selected coordinates of the actual padded final-head forward. Before interpreting the diagnostics, fixture-check masked versus unpadded routing for all four kinds and compare the coherent readout plus bias to d['logits'] on that same batch.",
+    "Dormant training only — train checks the aggregate private checkpoint byte limit after all four final files exist. This now protects the completion marker, but not a write-time disk ceiling. The separate training contract must distinguish acceptance size from peak disk use, budget pending files and report staging, and specify recovery for interruptions around rename and marker creation."
+  ],
+  "invariant_checks": [
+    {
+      "invariant": "Common conditions, initialization, partition and profile batches",
+      "status": "PASS",
+      "reason": "The four kinds strictly load the same fingerprinted 81,028-parameter state. Each uses the same seeded first 32 fit units twice and longest 32 once, with source-index tie breaking. The loader verifies cohort identity, split sizes and group disjointness. State equality after backward is checked per kind, not yet observed."
+    },
+    {
+      "invariant": "Fit loss only; zero optimizer updates, evaluation forwards and checkpoints",
+      "status": "PASS",
+      "reason": "The profile child calls profile, not train or evaluate. All 12 backwards use fit labels and check finite loss and every parameter gradient. The loader reads the entire original-training prefix, including evaluation target-domain validation and feature summaries; this is not fit-only I/O."
+    },
+    {
+      "invariant": "Run-wide GPU allocator acceptance",
+      "status": "PASS",
+      "reason": "Peak statistics reset once before setup. The parent checks the final cumulative reserved-byte peak against 8192 MiB, so warmups and transitions cannot be dropped. Only the timing estimate excludes warmups. This is post-run acceptance, not enforced total device memory."
+    },
+    {
+      "invariant": "Bound launch, one synchronous science attempt, no automatic replay or transfer",
+      "status": "PASS",
+      "reason": "On the supplied registered worker path, the recipe binds the contract digest, command, output, revision, GPU and budget. Both processes check admission; exclusive claims and the child PPID/process-group check precede science. The parent waits, duplicate start queries the same attempt, and the worker checks group quiescence before successful terminal receipt. No COS or download path is shown."
+    },
+    {
+      "invariant": "Complex orientation and epsilon-aware generalized-Rayleigh formulas",
+      "status": "PASS",
+      "reason": "For a_j = ψ_j†φ and output amplitude (Ua)_t, the effective ket uses conj(U_tj)ψ_j, as coded. Initial dephasing instead mixes projectors by |U_tj|². Adding EPS·I per token gives the common positive denominator operator B = Σ_j ψ_jψ_j† + n·EPS·I. Whitening the signed utility-weighted effect by B^(-1/2) bounds the bias-free readout. The code now checks finite direct coordinate and readout residuals before reporting separation."
+    },
+    {
+      "invariant": "Fixed-state swap is distinct from separately trained contrast",
+      "status": "PASS",
+      "reason": "The dormant loop specifies 392 AdamW updates per kind with common epoch orders. The swap instead uses the reloaded final cubic model's preparation, queries, utilities and bias for every route. Neither a swap difference nor a native-range exceedance explains the total separately trained metric difference."
+    },
+    {
+      "invariant": "Exact measured training budget, recovery and range/reload fixture",
+      "status": "UNRESOLVED",
+      "reason": "No profile row exercises optimizer state, full evaluation, frozen swaps, range eigensolves or checkpoint reload. Staged reload and pre-marker hash/size checks improve acceptance integrity but do not demonstrate crash recovery. Training remains ineligible."
+    }
+  ],
+  "known_limitations": [
+    "Eligibility is for one registered zero-update profile only. Static review did not recompute digests, execute CUDA or observe resource peaks, finite gradients or unchanged state. Mocked admission tests are not process or numerical certification.",
+    "A local RUN_COMPLETE is not publication authority. Require the matching successful terminal, quiescent receipt and output hashes; publication retry must not repeat science.",
+    "The timing extrapolation is a planning estimate. Finite gradients on selected batches do not establish a unique norm derivative at spectral ties; a zero multi-token graph is rejected.",
+    "The range fixture should include complex phases, padding, signed utilities and poorly conditioned B. A verified native-bound violation is sufficient, not necessary, for fixed-state separation. The explored development partition supplies no independent confirmation."
+  ],
+  "execution_contract_sha256": "d7ffd5d20cfec7eb17549a3376a2f0fe56b581f2a807067fe0b67f88baddcb96",
+  "prior_block_response": "resp_0a1c898adf7c9900016b002d03b7a887d1a2971195b586c303",
+  "prior_block_retained": true,
+  "L5": "NOT_ACCEPTED"
+}
