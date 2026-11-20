@@ -182,3 +182,55 @@ On the same six sealed one-update states /240class coordinates, saved-route repl
 For each frozen head state, the sign of the origin CE slope agrees with the actual tau=.25 CE change in233/240possible-target pairs for cubic and227/240for linear. All240pairs in each route exceed the frozen nonzero threshold. These are dependent possible-label calculations across six examples, with no true-target reads. They validate a local-to-finite predictive diagnostic on technical states; they measure neither trained task alignment nor accuracy, statistical significance or cubic utility. Mean absolute logit slopes are.009739004025709751 cubic and.013074062491092423 linear; smaller slope is not intrinsically better.
 
 The finite odd coherent-minus-dephased remainder inequality passes all coordinates, but its conservative sign certificate covers0/240. Therefore this worst-case bound is uninformative for certifying direction here; no tau/seed/mask/bound search or rerun is justified. Nonzero finite dephased odd logits also confirm why dephased must not be assumed even in time. The direction remains a prospective secondary mechanism probe for all approved frozen final traces after full-data evidence arrives. It is not a new gate, a rescue of stopped phase families or L5 acceptance.
+
+
+## Structural follow-up: second-moment nullity and its limits
+
+Status: a directly derived conditional proposition and prospective diagnostic, not an independently reviewed theorem release, implemented experiment, utility claim or L5 promotion. No formal protocol, code, task gate or source contract changes.
+
+For one sample use its N valid normalized keys psi_i in C^d, d=8. Let A have rows <psi_i|, G=AA^dagger, B3=G*|G|^2 entrywise, K3=B3-I, Lambda3=||K3||op>0, and U3=exp(-i*tau*K3/Lambda3). Retain the actual EPS=1e-6 and tau=1/4. Define
+
+    M2 = (1/N) sum_i (|psi_i><psi_i|)^tensor2,
+    M_Haar = (I+Swap)/(d(d+1)), Delta2=M2-M_Haar,
+    c=2N/(d(d+1)), kappa=c-1, R3=B3*A-c*A.
+
+The exact row identity, for every coordinate ket |k>, is
+
+    (R3)_ik = N <psi_i,psi_i|Delta2|psi_i,k>.
+
+Indeed the contraction of M2 is (B3*A)_ik/N; each of I and Swap contributes <psi_i|k> to the Haar contraction. Thus K3*A=kappa*A+R3. If the empirical keys form an unweighted complex projective 2-design, Delta2=0 and
+
+    U3*A=exp(-i*tau*kappa/Lambda3)*A.
+
+Every coherent cubic attention probability and logit then equals its native value for every physical query and every time, including EPS. This does not require the finite circuit to reach all those queries. It is conditional on the keys; attainability of such a design by the actual depth-two circuit is not established. The analogous linear pointwise null follows already from the weaker tight-frame condition sum_i |psi_i><psi_i|=(N/d)I. The previously proved general linear query-family absorption remains a separate, stronger-in-scope statement about reparameterizing a query rather than pointwise equality.
+
+For a normalized query phi, a=A*phi and D=||a||^2+N*EPS, Duhamel's formula gives, without varying tau,
+
+    ||U3*a-exp(-i*tau*kappa/Lambda3)*a||
+        <= |tau|*||R3*phi||/Lambda3,
+    ||alpha3-alpha_native||_1
+        <= min(2||a||^2/D,
+               2|tau|*||a||*||R3*phi||/(Lambda3*D)).
+
+Both compared amplitudes have the same norm; Cauchy-Schwarz gives the second line. A utility vector with range Delta_u has logit change at most Delta_u/2 times that L1 bound. The exact origin logit derivative is
+
+    dz_r/dtau at0 = 2 Im sum_i u_ir conj(a_i)(R3*phi)_i /(Lambda3*D).
+
+The scalar kappa term contributes no imaginary part. This expresses the already established current through a query-conditioned second-moment residual. It does not supply a task-alignment sign or a trained-learning theorem.
+
+The standard moment identity gives
+
+    ||Delta2||_F^2 = sum_ij |G_ij|^4/N^2 - 2/(d(d+1)),
+    ||R3*phi|| <= N sqrt(N) ||Delta2||op <= N sqrt(N)||Delta2||_F.
+
+The latter bound is generally loose and must retain Lambda3. Raw frame-potential proximity alone is not a scale-free routing prediction. For d=8, c=N/36 and the Haar frame potential is1/36. An exact 2-design needs N>=64; N<64 prevents that exact design, but does not imply useful transport.
+
+There is no converse. Repeating each vector of an orthonormal basis twice gives N=2d, a nonzero graph with Lambda3=1 and K3*A=A, hence pointwise null transport although the ensemble is not a 2-design. A nonzero R3 can also only change an individual query's overall phase. Therefore neither design departure nor nonzero residual is sufficient for a changed attention distribution, better CE, cubic advantage or L5. Initial dephasing is a different evolution and need not share the coherent null on a general 2-design.
+
+### Existing mathematics and next discriminating use
+
+Roy and Scott, arXiv:quant-ph/0703025v2, pp3-5 Definition2.1/Theorems2.2-2.3, supplies the established Haar moment, cardinality and frame-potential identities. Castellano et al., arXiv:2602.13099v3, pp1-3 and p16 AppendixC Theorem7, treats mixed Haar moments and their full spectra; its n=2,m=1 space directly neighbors our earlier cubic harmonic decomposition. That decomposition and these tools must not be presented as new general design or representation theory. The routing consequence is an exact-interface mapping; substantive nearest-neighbor novelty remains unresolved. See the two scoped reading records in nearest-work-comparison.json; unlisted proofs, experiments and code were not assessed.
+
+Use the approved final traces only after the frozen full-data result arrives. The prospective question is whether loss-aligned cubic routing survives where linear current is small and the query-conditioned second-moment residual is active. Compare all four frozen routes and the existing native readout; active residual alone is not a positive result. No additional one-update fixture, seed, tau, mask, regularizer or training search is justified. The residual can be evaluated from existing keys and queries; no dense moment tensor, checkpoint copy or new saved activation family is required.
+
+A single independent Astra6.2-medium consultation also proposed informationally complete POVM pure-region rigidity as a conditional tool: two full-rank effect lists would turn a trace-product mismatch into two-sided pure-region noncontainment. This is an unreviewed lead based on standard state-space automorphism/topological tools, not an accepted contribution. First test both 64-dimensional real Hermitian spans on any approved final trace; absent reliable rank, do not pursue that diagnostic. Even a valid region certificate would not establish observed task utility, exclude mixed simulation, or distinguish the depth-two learned family. Retain the consultation; do not launch a separate technical test or add it to the formal gate.
