@@ -1,0 +1,53 @@
+{
+  "review_scope": "mechanism mathematics",
+  "verdict": "PASS_WITH_RISK",
+  "response_id": "resp_01e3df82db352722016b00bba437e087d183a5bd360b1bd5a8",
+  "reviewer_model": "gpt-6.2-astra",
+  "reasoning_effort": "medium",
+  "claims": [
+    {
+      "claim": "finite-tau bound",
+      "status": "PASS",
+      "reason_summary": "Compression gives Λ≥λ>0, and |Λ−λ|≤e gives normalized-generator distance ≤2e/Λ≤2e/λ. Duhamel multiplies this by |τ|. For either state, output probability L1 change is ≤2‖U−U₀‖op, so utility change is ≤Δ‖U−U₀‖op. Under U₀ the utility excluding bias is exactly a mixture of the retained-only utility and the native nuisance mean with weights 1−δ and δ. This adds at most δΔ, yielding (1).",
+      "required_correction": null
+    },
+    {
+      "claim": "affinity bound",
+      "status": "PASS",
+      "reason_summary": "The Hermitian cross-block has norm ‖C‖op≤‖C‖F≤√(rm)η^q. The nuisance principal block has norm ≤(m−1)η^q by absolute row sums. The retained two-key compression has norm at least ρ^q. These give (2), including when m=1.",
+      "required_correction": null
+    },
+    {
+      "claim": "CE/margin bound",
+      "status": "PASS",
+      "reason_summary": "Both bias-free logits are convex averages in the same utility interval, so their difference is independently capped by Δ and the stated C_r is valid. Log-sum-exp is 1-Lipschitz in the infinity norm; subtracting the target logit adds at most C_y, giving (3). Each retained winner–competitor gap can shrink by at most C_k+C_r, so the strict margin condition preserves the unique winner.",
+      "required_correction": null
+    },
+    {
+      "claim": "source mapping",
+      "status": "PASS",
+      "reason_summary": "For the stated interface, εI is invariant under U, giving exactly the coherent post-evolution floor. In the dephased case, output i receives Σ_j |U_ij|²(|a_j|²+ε)/D, matching the row-vector transpose convention. Under U₀ the retained denominator divided by D equals 1−δ; coherent cross-block terms need not vanish as a matrix but do not enter the measured diagonal.",
+      "required_correction": null
+    },
+    {
+      "claim": "scientific interpretation",
+      "status": "PASS",
+      "reason_summary": "For η<ρ the cubic transport upper envelope is smaller than the linear envelope, not necessarily the actual perturbation or even the measured e_q/λ_q. The result singles out the affinity exponent, not coherence: the initially dephased route has the same guarantee. Neither task improvement nor novelty follows.",
+      "required_correction": null
+    }
+  ],
+  "must_fix": [],
+  "scope_limits": [
+    "Mapping is conditional on the supplied interface, not independent source verification. The comparison fixes features, queries, utilities and bias and assumes λ_q>0.",
+    "Graph separation does not bound query mass δ. For Δ_r>0 the logit certificate improves on the utility-range cap only if δ_r+2|τ|e_q/λ_q<1; even then it need not certify a prediction."
+  ],
+  "code_review": {
+    "verdict": "PASS",
+    "response_id": "resp_04d0f942bd312374016b00bd9123c487d181918b1c400baa91",
+    "source_revision": "579f0148db00606c1f6be392b8eba3aa992c97c8",
+    "source_sha256": "b3d13733ff5bc69fc32c15b95e11a180530501b6ce3b877e7a8a40419d633eb7",
+    "contract_sha256": "9557d2e157e97310228648d51f014c9a3557d2a655a426145fe14041d505a305",
+    "prior_block_response_id": "resp_08de84cb93ed0033016b00bd21007887d1b32e5a78d21ad444",
+    "correction": "Explicit finite checks before replay tolerance, measured logits, all-target CE comparisons and completion; prior mathematical/mask/lifecycle PASS checks reused."
+  }
+}

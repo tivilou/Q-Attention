@@ -152,6 +152,22 @@ The next discriminating task evidence is already frozen: the collaborator's comp
 
 No new geometry-only fixture, training run, code revision or deployment is needed for this literature update. Keep generic interaction as an explanatory result, and require a substantive transport-specific prediction plus task evidence before promoting a central L5 claim.
 
+## Executed nuisance-stability test on fixed real states
+
+A separate exact-interface perturbation calculation now bounds each route's frozen-feature head output after removing a fixed nuisance token subset. Let delta be its native omitted attention mass, e_q the operator norm of the full graph minus the retained graph embedded with zero nuisance coupling, lambda_q>0 the retained graph norm, and Delta_r the observed class-utility range. With the actual EPS floor, tau1/4 and own full/retained denominators,
+
+    |z_full,r-z_retained,r| <= Delta_r min(1,delta_r+2|tau|e_q/lambda_q).
+
+The same bound applies to coherent and initially dephased states. Coordinate bounds C_r imply every-target CE change <=C_y+max_r C_r, and certify retained winner preservation when its margin exceeds the corresponding two-coordinate bounds. Under cross/nuisance affinity eta and a retained anchor rho>eta, a sufficient graph envelope scales as [sqrt(rm)+(m-1)](eta/rho)^q for q1or3. Its smaller cubic envelope does not imply actual cubic stability ordering. The complete proof and exact scope are in nuisance-stability.md; focused math PASS_WITH_RISK and corrected code PASS are recorded in nuisance-stability-review.json and the exact validation record. No model/training/formal contract changed.
+
+The single scheduler task921061fcec5a44d0bd0404750e43e25a/attempted08625b542d41549f1f4868a327d630 completed0/quiescent on selected2080. It reused all six sealed one-update technical-canary states, with40class queries each. A single label-blind mask retained entity spans and tokens whose original index is not3mod4; queries, retained features, utilities and biases stayed fixed. No target/text/model or encoder recomputation was used. The old geometry solver was skipped. Four-route probability replay error was exactly0; every logit and every-target CE inequality passed, with240/240nonconstant coordinates having bounds below the trivial utility-range cap in each route.
+
+The discriminating observation is negative for this explanation: cubic mean absolute logit shift was0.0140725335, linear0.0140436724, native0.0140349093 and initially dephased0.0140293522. Cubic had a smaller mean shift in only2/6units and a smaller measured relative graph perturbation in only2/6. All routes preserved their predictions on6/6units; the conservative bound certified6native winners but only1for each graph route. These prediction-preservation facts do not establish correctness or utility. Affinity ratios eta/rho were near one, rather than a strongly separated nuisance regime. The sufficient power-affinity envelope was much looser than the directly measured perturbation.
+
+Thus retain the theorem and measurement as a useful scope/robustness tool, but do not use generic nuisance suppression as the candidate's central L5 mechanism. The six one-update examples do not settle trained robustness; they also give no basis for another mask/seed/tau search. Future mechanism work must address a different specific causal link. The already frozen complete-data four-route utility contract remains independent and unchanged. No rescue, promotion or L5 acceptance follows.
+
+Graph stability has a direct established neighbor: Gama, Ribeiro and Bruna, Diffusion Scattering Transforms on Graphs, arXiv1806.08829v2, pp4,6-7. It proves perturbation stability for diffusion scattering in a graph diffusion metric with spectral/depth factors. Our Born-mass/normalized-Hermitian output calculation is a scoped adaptation of standard stability tools, not priority clearance or a new general graph-stability theory. See the eighth scoped original record in nearest-work-comparison.json; appendix proofs/code/empirics were not assessed.
+
 ## Next use
 
 First analyze the pending formal utility gate and its existing frozen swaps/readout bounds. Only if the result and available approved traces justify it, evaluate loss-aligned bounds as an explicitly separate post hoc diagnostic. Do not rerun the eight-example canary, alter the formal gate, or request another training budget to obtain this evidence.

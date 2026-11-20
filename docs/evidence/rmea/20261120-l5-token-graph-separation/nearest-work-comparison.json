@@ -321,10 +321,51 @@
         "set-transformer-p3.png": "7b615c8ce029ca1e0f7a6aa18ca77437140af0a630617576f24c97c052e41cea",
         "set-transformer-p4.png": "5571659eb4172b40461eda052c25df0e215cb73ada98a84be92978878be392b9"
       }
+    },
+    {
+      "paper_id": "arxiv:1806.08829v2",
+      "title": "Diffusion Scattering Transforms on Graphs",
+      "version": "1806.08829v2",
+      "source_url": "https://arxiv.org/abs/1806.08829v2",
+      "identity": "verified",
+      "reading": "read_for_scope",
+      "authors": [
+        "Fernando Gama",
+        "Alejandro Ribeiro",
+        "Joan Bruna"
+      ],
+      "pages": [
+        1,
+        4,
+        6,
+        7
+      ],
+      "scope": "Identity, diffusion metric and scattering/stability statements; theorem5.3/corollary5.4 visually checked onp7. Proof appendix/code/empirics not assessed.",
+      "pdf_sha256": "e2b504ba6d1cfd8f0c868e54623e0e3bab82cd56d5126f2c8e646d667e8e0a25",
+      "pdf_bytes": 648229,
+      "parsed_sha256": "5fed6b96080b304fe93b29008db36565283c8d43052d81887dd5129c69b343b6",
+      "rendered_method_sha256": {
+        "stability-p7": "fd1341d69450d8a689808230fbec64b8e45d060e68f183a9c2b6b111788c04d2"
+      },
+      "facts": [
+        {
+          "locator": "p4 Eq3/Definition3.1 Eq4",
+          "finding": "Defines a lazy diffusion on degree-normalized real undirected graphs and a permutation-aligned graph diffusion metric."
+        },
+        {
+          "locator": "p6 Eq11 and Lemmas5.1-5.2; p7 Theorem5.3/Corollary5.4",
+          "finding": "Bounds changes of diffusion scattering representations in terms of graph perturbation distance and spectral-gap/depth factors."
+        }
+      ],
+      "difference": "Graph-propagation stability is established prior theory. Our finite-tau calculation instead compares a normalized Hermitian Born-routing head with a zero-coupled nuisance block, separates explicit Born/EPS query mass from graph perturbation, and propagates a power-affinity contrast into fixed-utility logit/CE/margin bounds. This scoped formulation is not a priority claim or a separation from the general graph-stability literature.",
+      "limits": [
+        "Appendix proofs, code and task experiments not inspected.",
+        "The reviewed bound is standard perturbation reasoning applied to this exact interface; no learned robustness, coherence necessity or L5 acceptance follows."
+      ]
     }
   ],
   "prior_scoped_reading": "reading-receipts.json",
-  "coverage": "Seven additional originals, selected main-method sections only. Other discovered entries remain metadata/abstract-only.",
+  "coverage": "Eight additional originals, selected main-method sections only; unselected discovery records remain metadata/abstract-only.",
   "synthesis": {
     "known_components": [
       "Quantum fidelity attention scores",
@@ -333,7 +374,8 @@
       "Complex inner-product attention and coherent value-state aggregation via complex LCU",
       "POVM post-processing, rank-one measurement robustness saturation and optimized state-discrimination games",
       "Locally scored normalized attention MIL pooling with a potentially nonlinear bag decoder",
-      "Explicit cross-element self-attention and inducing-point interaction in set networks"
+      "Explicit cross-element self-attention and inducing-point interaction in set networks",
+      "Graph diffusion/scattering stability under domain perturbations"
     ],
     "candidate_scope": "Fixed-key nonlinear amplitude transport: linear-Gram query-null, cubic separation, minimality in a restricted entrywise polynomial family, and a full-rank overcomplete stable witness. The numerical local-family grid explains the native interface limitation; generic cross-token interaction alone is not a central novelty claim.",
     "unresolved": [
@@ -341,7 +383,8 @@
       "No held-out utility or necessity/mediation claim; formal report pending.",
       "A new combination of familiar ingredients alone is not L5.",
       "Fixed-key query-region separation is not a full learned-family separation from globally conditioned coherent value aggregation; substantive novelty must respect this boundary.",
-      "Whole-local-affine-family logit separation does not distinguish interaction-capable Set Transformer or nonlinear bag decoders. Generic cross-token interaction is established prior art."
+      "Whole-local-affine-family logit separation does not distinguish interaction-capable Set Transformer or nonlinear bag decoders. Generic cross-token interaction is established prior art.",
+      "Nuisance-stability calculation is an exact-interface adaptation of standard tools. Fixed-mask real-state sensitivity does not support a cubic advantage; no central novelty or coherence necessity follows."
     ]
   },
   "priority_claim": false,
