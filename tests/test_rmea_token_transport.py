@@ -181,6 +181,58 @@ class TransportTests(unittest.TestCase):
             base_coordinate_gain=predicted-ceiling,minimum_coordinate_margin=smallest_margin,
             maximum_linear_query_absorption_error=largest_linear_error,task_utility=False)),flush=True)
 
+    @torch.no_grad()
+    def test_finite_actual_pqc_realizes_the_stable_full_rank_witness(self):
+        """Use one finite shared prepare layer and the actual source head."""
+        eye=torch.eye(8,dtype=torch.complex128,device=self.device)
+        v=math.sqrt(3)/2*eye[0]+.5*eye[1]
+        base=torch.cat((torch.stack((eye[0],v,eye[1])),eye[2:]),0)
+        delta=1e-5;eta=delta/2
+        angles=torch.zeros(9,2,3,2,dtype=torch.float64,device=self.device)
+        for j in range(8):
+            x,y,z=(j>>2)&1,(j>>1)&1,j&1
+            row=0 if j==0 else j+1
+            angles[row,0,:,0]=torch.tensor([x^y,z,x],dtype=angles.dtype,device=self.device)*(math.pi-eta)
+        angles[1,0,1,0]=math.pi/3
+        raw=torch.atanh(angles/math.pi).reshape(9,12)
+        head=TrainableTokenTransportHead('cubic_coherent').double().to(self.device)
+        head.prepare.weight.zero_();head.prepare.bias.zero_()
+        head.prepare.weight[:,:9].copy_(raw.T)
+        u=torch.stack((math.cos(.25)*math.sqrt(3)/4*eye[0]+1j*math.sin(.25)*math.sqrt(21)/8*eye[0],
+                       math.cos(.25)/4*eye[1]-1j*math.sin(.25)/(8*math.sqrt(7))*eye[1])).sum(0)
+        query=u/u.norm()
+        theta=2*math.atan2(float(query[1].abs()),float(query[0].abs()))
+        phase=float(torch.angle(query[1])-torch.angle(query[0]))
+        self.assertTrue(0<theta<math.pi and -math.pi<phase<0)
+        head.effect.zero_();head.effect[:,0,1,0]=math.atanh(theta/math.pi)
+        head.effect[:,0,1,1]=math.atanh(phase/math.pi)
+        h=torch.zeros(1,9,1024,dtype=torch.float64,device=self.device)
+        h[0,:,:9]=torch.eye(9,dtype=torch.float64,device=self.device)
+        roles=torch.zeros(1,9,4,dtype=h.dtype,device=self.device)
+        mask=torch.ones(1,9,dtype=torch.bool,device=self.device)
+        self.assertTrue(all(torch.isfinite(t).all() for t in head.parameters()))
+        detail=head(h,roles,mask,details=True);psi=detail['psi'][0];phi=detail['phi'][0]
+        key_error=float((psi-base).norm(dim=-1).max());self.assertLess(key_error,delta)
+        aligned=phi*torch.vdot(query,phi).conj()/torch.vdot(query,phi).abs()
+        query_error=float((aligned-query).norm());self.assertLess(query_error,1e-12)
+        frame=psi.T@psi.conj();minimum_eigenvalue=float(torch.linalg.eigvalsh(frame)[0])
+        self.assertGreater(minimum_eigenvalue,.9998)
+        projectors=psi[:,:,None]*psi.conj()[:,None,:];denominator=frame+9*EPS*eye
+        inverse=torch.linalg.inv(torch.linalg.cholesky(denominator))
+        weights=detail['transport']['unitary'][0,1].abs().square()
+        bounds=[]
+        for effect in (projectors[1]+EPS*eye,(weights[:,None,None]*projectors).sum(0)+EPS*eye):
+            normalized=inverse@effect@inverse.mH
+            bounds.append(float(torch.linalg.eigvalsh((normalized+normalized.mH)/2)[-1]))
+        actual=float(detail['alpha'][0,0,1]);margin=actual-max(bounds)
+        self.assertGreater(margin,.0009)
+        print(p.json.dumps(dict(status='FINITE_PQC_STABLE_WITNESS_PASS',keys=9,dimension=8,
+            maximum_key_error=key_error,query_phase_aligned_error=query_error,
+            minimum_frame_eigenvalue=minimum_eigenvalue,maximum_prepare_raw=float(raw.abs().max()),
+            native_ceiling=bounds[0],dephased_ceiling=bounds[1],coherent_probability=actual,
+            simultaneous_margin=margin,feature_scope='Synthetic nine independent feature rows; no data or training',
+            task_utility=False)),flush=True)
+
 
 if __name__=='__main__':
     unittest.main()

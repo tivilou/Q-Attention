@@ -1,0 +1,23 @@
+{
+  "review_mode": "external",
+  "review_scope": "mechanism",
+  "freeze_sha256": "a74c75c6f11799c25dd43ba79d6ce659401a851f385d8f4c0c7cea942a3ed3df",
+  "verdict": "PASS_WITH_RISK",
+  "must_fix": [],
+  "bit_mapping": "Each CNOT permutation is self-inverse, so the source's gather applies that gate to basis labels in the listed order. With wire 0 the MSB, the ring gives L(a,b,c)=(b\u2295c,a\u2295b,a\u2295b\u2295c), and L\u00b2(a,b,c)=(c,a\u2295c,b). The fixture's inverse assignment (x\u2295y,z,x) is correct; varying only wire 1 maps |000\u27e9 and |010\u27e9 to e0 and e1 without a sign.",
+  "finite_parameters": "RY(\u03c0/3) on wire 1 prepares v exactly in exact arithmetic. Replacing \u03c0 by \u03c0\u2212\u03b7 incurs operator-norm error 2 sin(\u03b7/4)\u2264\u03b7/2 per rotation. Telescoping over at most three rotations bounds each basis-key error by 3\u03b7/2=3\u03b4/4. All target angles lie strictly inside (\u2212\u03c0,\u03c0), so their inverse-tanh raw parameters are finite.",
+  "query": "Applying M\u207b\u00b9=I\u2212vv\u2020/2 to w gives the stated components, with imaginary coefficients +\u221a21/8 and \u22121/(8\u221a7). RZ after RY produces relative phase +z, so z=arg(u1)\u2212arg(u0) has the correct sign and lies in (\u2212\u03c0,0). The fixture removes the global phase using the conjugate phase of \u27e8query,phi\u27e9.",
+  "shared_prepare": "For the bias-augmented 9\u00d71029 matrix X, rank 9 implies XX\u207a=I\u2089, so X\u207aY gives shared affine coefficients for all twelve raw outputs. The fixture realizes this directly with nine identity feature columns, raw.T in the corresponding weight columns, and zero bias.",
+  "fixture_correspondence": "The new method calls the head on synthetic features with finite shared preparation weights and effect parameters; it does not inject states into route. It checks the maximum of all nine key errors, the phase-aligned query, and the realized frame's minimum eigenvalue. For each comparator it forms the smoothed middle effect from the realized keys, using the realized unitary's squared-modulus middle row for dephasing. Cholesky whitening against M\u2032+9 EPS I gives the maximum ratio over all density matrices. The asserted margin compares the head's actual middle coordinate with the larger of those ceilings. Static review only; no run or measured margin is claimed.",
+  "risks": [
+    "The integer bit tensor multiplied by the Python angle scalar can produce a default-float intermediate before assignment to float64. With float32 the rounding is within the \u03b4 slack, but the fixture need not use exactly \u03c0\u2212\u03b7.",
+    "Finite representability near tanh saturation does not imply good optimization conditioning. The synthetic identity rows do not establish rank or conditioning for real features.",
+    "The result concerns one coordinate with fixed keys, not task utility or separation of learned model families."
+  ],
+  "L5": "NOT_ACCEPTED",
+  "response_id": "resp_0ccd13c50d7dbfb8016b00a191547487d2a8aa2b629edc81a4",
+  "model": "gpt-6.2-astra",
+  "reasoning_effort": "medium",
+  "fixture_delta_resolution": "Set bit-tensor dtype explicitly to float64; deterministic precision-only correction to the flagged default-float intermediate.",
+  "current_fixture_sha256": "93bfa50dd98693b1b0ee07afd0c56eaa19a8ff5f6f86eeec7aab5203a634c888"
+}
