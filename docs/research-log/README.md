@@ -4,13 +4,14 @@
 
 ## 当前研究总览
 
-限定L4保留，L5未接受。token图候选已有8项CPU前向检查；新的一族固定key注意力上界分离及线性Gram无扩展结论通过Astra6.2 medium解析复核，尚待新源码执行和真实任务收益验证。三篇相关原文已核对；已知图传播、frame和POVM工具不作为新颖性结论。
-最新：[20261120T-062635Z 注意力上界分离](20261120T-062635Z-q-rmea-token-graph-attention-ceiling.md)。下一步为2080Ti上的一次有界源码对应检查，正式全量仍由师弟运行。
+限定L4保留，L5未接受。新token图理论已通过解析复核和2080 Ti上的四项合成CUDA源码检查；原生上界之外的有限构造及三个边界对照均通过。尚无梯度或真实任务收益证据，不能从旧L4继承结论。
+最新：[四项CUDA对应检查](20261120T-092538Z-q-rmea-attention-ceiling-cuda.md)。下一步先资格化可训练适配器，再按冻结预算做有界真实任务对照；正式全量仍由师弟运行。
 
 ## 时间线
 
 | 时间 | Idea | 结论 | 证据 |
 | --- | --- | --- | --- |
+| 2026-11-20T09:25:38.344805+00:00（结果整理） | `attention-ceiling-cuda` | 四项CUDA源码检查通过，梯度与任务收益待测；L5未接受 | [entry](20261120T-092538Z-q-rmea-attention-ceiling-cuda.md) |
 | 2026-11-20T06:26:35.588192+00:00（理论检查点） | `token-graph-attention-ceiling` | 三token推广族和线性Gram对照通过解析复核；无新训练或L5晋级 | [entry](20261120T-062635Z-q-rmea-token-graph-attention-ceiling.md) |
 | 2026-11-15（理论审计） | `q-rmea-l5-round1` | 技能更新通过；理论候选未获 L5 接受，普通限定 L4 保留 | [entry](20261115T-083834Z-q-rmea-l5-round1.md) |
 | 2026-11-15 09:57:06 UTC（研究记录） | `q-rmea-l5-round2` | 可实现性与共享测量构造通过独立数学复核；已知工具不晋级L5，原L4保持 | [entry](20261115T-095706Z-q-rmea-l5-round2.md) |
