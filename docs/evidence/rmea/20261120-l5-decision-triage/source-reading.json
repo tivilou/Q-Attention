@@ -1,0 +1,135 @@
+{
+  "schema": "qattn.decision-mechanism.source-reading.v1",
+  "readings": [
+    {
+      "title": "Classification with Quantum Measurements",
+      "url": "https://arxiv.org/abs/2004.01227v2",
+      "version": "2004.01227v2",
+      "pdf_sha256": "1635948d76f88ee669d097c05b91d79e684b4108ff5138045443781e1f3e1f2b",
+      "parse_sha256": "9ed0f113335821781d84b62257c7886efc20d0b4bc6cce4e30c65f47cad792a3",
+      "reading": "read_for_scope",
+      "pages": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "locators": "SectionII Eq4/6/7/8;Propositions1/2",
+      "facts": [
+        "Input-output density conditioning; mixed-state route yields a normalized overlap-kernel label mixture.",
+        "Known classifier, not a newly discovered quantum attention method."
+      ],
+      "limitations": [
+        "PDF title Classification; official landing title Supervised Learning retained as alias. Original mismatch receipt preserved.",
+        "Eq15 and Eq17 have different printed normalization conventions; normalized mixture derived from Eq4/7/8.",
+        "Remaining pages and source experiments not reproduced."
+      ]
+    },
+    {
+      "title": "Unambiguous discrimination between linearly independent quantum states",
+      "url": "https://arxiv.org/abs/quant-ph/9807022v1",
+      "version": "arxiv_preprint_version_to_verify",
+      "pdf_sha256": "a5fa310367b566714ff9321373fef78aa1fd60c2dcfce45e2505aa33543e9c49",
+      "parse_sha256": "dc00cb275d60e101ce05d3d83815cb76d0c318f605dec5eab6a535af0d490c24",
+      "reading": "read_for_scope",
+      "pages": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "locators": "SectionII Eq2.1-2.9",
+      "facts": [
+        "Unambiguous zero-error discrimination with positive success for every pure state requires linear independence."
+      ],
+      "limitations": [
+        "Forty d8 class states fail that assumption; this does not prohibit noisy POVMs with40 outcomes.",
+        "Semantic no-relation is not an inconclusive physical outcome; no general classifier no-go."
+      ]
+    },
+    {
+      "title": "Quantum Computation and Decision Trees",
+      "url": "https://arxiv.org/abs/quant-ph/9706062v2",
+      "version": "arxiv_preprint",
+      "pdf_sha256": "d7d82b586113a6115b772da0ae0b0e9451126b9e39f974dcaf4372eade32cc82",
+      "parse_sha256": "9f03822263c9547d12aadbf985a9891131b297be3604dd0423716373b657ced1",
+      "reading": "read_for_scope",
+      "pages": [
+        1,
+        2,
+        3,
+        5,
+        6,
+        7
+      ],
+      "locators": "SectionII PDFp5 Eq2.1 and p6 Eq2.8/2.12/2.13",
+      "facts": [
+        "Known quantum evolution exp(-iHt) and Born transition probabilities distinguish it from exp(-Ht) Markov evolution."
+      ],
+      "limitations": [
+        "Original graph is a real tree Laplacian, not the proposed cubic complex Gram graph.",
+        "No penetrability, speedup or semantic task theorem transferred; remainder not audited."
+      ]
+    },
+    {
+      "title": "Consistent Multiclass Algorithms for Complex Performance Measures",
+      "url": "https://proceedings.mlr.press/v37/narasimhanb15.html",
+      "version": "publisher_version",
+      "pdf_sha256": "dea1bb0d36d44f9f01e627d8c056462f40b758def7ee4e23118ef7cf8649f5e8",
+      "bytes": 602938,
+      "pages": 10,
+      "scope": [
+        "PDFp1 identity",
+        "PDFpp2-4;Definitions1-5,9;Table1;Proposition6;Theorems11/13",
+        "PDFp3 table visually checked"
+      ],
+      "facts": [
+        "General multiclass metrics can be written as functions of a confusion matrix; Table1 includes macro F1.",
+        "Under the explicit differentiability,monotonicity and distribution conditions, optimal classifiers relate to a loss matrix formed from the metric gradient at an optimal confusion matrix.",
+        "The stated efficient algorithm instantiations target concave or ratio-of-linear metrics; arbitrary macro F1 is not automatically certified by either shortcut."
+      ],
+      "transfer_limits": [
+        "Read scope only pp1-4; algorithm proofs/experiments/supplement/code unread.",
+        "Our fixed positive39 excludes class0 and includes absent classes with zeroF1; do not substitute the paper full-n average or micro F1.",
+        "Current short repeated development data do not certify consistency,calibration or an independent optimum."
+      ],
+      "reading": "read_for_scope",
+      "numerical_reproduction": false,
+      "reused_prior_reading": true
+    },
+    {
+      "paper_id": "arxiv:quant-ph/0004088v2",
+      "title": "Reversing quantum dynamics with near-optimal quantum and classical fidelity",
+      "source_url": "https://arxiv.org/abs/quant-ph/0004088v2",
+      "pdf_sha256": "99ef00741dfeff7b21f88016555a72c10990bf1e616a8035178dd884a5ab7214",
+      "reading_status": "read_for_scope",
+      "version": "quant-ph/0004088v2",
+      "pages": [
+        1,
+        10
+      ],
+      "authors": "Howard Barnum; Emanuel Knill",
+      "finding": "Section V Eq37 defines the known square-root/pretty-good measurement. Q-RMEA token-frame whitening gives exactly this measurement for a regularized uniform token ensemble.",
+      "limit": "State-discrimination average fidelity guarantees do not automatically imply downstream semantic attention or classifier utility for an arbitrary learned query.",
+      "reused_prior_reading": true
+    }
+  ],
+  "walk_search": [
+    {
+      "url": "https://api.openalex.org/works?search=quantum+walk+attention&per-page=5",
+      "body_sha256": "8b5c6b2558aa4a09a460237f01b3dd55dc1d3bb30a6f3b31a7b60445b712efcd",
+      "scope": "Top5 metadata, not full-text or exhaustive collision audit"
+    },
+    {
+      "url": "https://api.openalex.org/works?search=continuous+time+quantum+walks+Farhi+Gutmann&per-page=5",
+      "body_sha256": "502c36d07e24ab02d299c8890217310130aceb5dea018066a9e4de6b1c1ed422",
+      "scope": "Top5 metadata, not full-text or exhaustive collision audit"
+    }
+  ],
+  "coverage_gaps": [
+    "Broad metadata query mostly returned foundational walks; specialized quantum-walk attention priority remains unresolved.",
+    "Existing web search transport404 was not retried; public original HTTP acquisition worked."
+  ],
+  "reading_receipts_are_scope_limited": true,
+  "numerical_reproduction": false
+}

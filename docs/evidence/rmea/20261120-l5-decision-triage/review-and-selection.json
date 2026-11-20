@@ -1,0 +1,191 @@
+{
+  "schema": "qattn.decision-mechanism.primary-resolution.v1",
+  "status": "ONE_NEW_SPECULATIVE_LEAD_FOR_SOURCE_QUALIFICATION",
+  "reviews": {
+    "discovery": {
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "medium",
+      "response_id": "resp_00f4917d9c520004016affa66cf27887d286e0c8c1741b8271",
+      "packet_sha256": "be00ae436404944880b4ff7014e2413e4cc3e6d3384bbd3b9c0bebd9b75c36fc",
+      "answer_sha256": "188a680c4300311437f6ce4ea60f83d4f74e1dd9dc078590df1485e614ed675f",
+      "verdict_sha256": "4f19fe40911f4ae30c1e0621d9adbe1e30014b5280c97a4cc12ba2a71e878886",
+      "inference_requests": 1,
+      "automatic_retries": 0,
+      "result": {
+        "verdict": "CANDIDATES",
+        "candidates": [
+          {
+            "name": "Coherent token-graph transport before attention readout",
+            "abstract_source_field": "Continuous-time quantum walks and coherence-sensitive probability transport on a graph.",
+            "mechanism": {
+              "construction": [
+                "For an example with N valid tokens, form G_ts = psi_t^H psi_s. Define K_tt = 0 and K_ts = G_ts * |G_ts|^2 for t != s. This is Hermitian.",
+                "Set H = K / ||K||_op when K is nonzero, otherwise H = 0. Fix tau = 1/4 in advance, without a coefficient sweep, and set U = exp(-i * tau * H).",
+                "For class c, define a_ct = psi_t^H phi_c, D_c = sum_t |a_ct|^2 + N*epsilon, and the token-register density matrix rho_c = (a_c a_c^H + epsilon*I_N) / D_c.",
+                "Replace the attention by alpha'_ct = [U rho_c U^H]_tt. Keep z'_c = sum_t alpha'_ct * (decoder_c dot value_t) + bias_c."
+              ],
+              "properties": [
+                "At tau = 0 this exactly recovers the supplied attention, including epsilon.",
+                "Attention remains nonnegative and normalized. No classical-quantum residual is added.",
+                "The d=8 token states remain unchanged; the construction introduces an auxiliary N-dimensional token-index register and is classically simulable.",
+                "Independent rephasing of individual token states conjugates H and rho_c by the same diagonal unitary, leaving the resulting attention invariant."
+              ]
+            },
+            "exact_causal_link_changed": "The baseline maps each class-token overlap independently into a probability before normalization. This mechanism retains the complex overlap amplitudes until after graph transport, so other tokens can change token t's attention through phase-sensitive interference. Decoder utilities do not determine the transport.",
+            "why_not_an_excluded_family": "This is neither a square-root measurement nor a utility-driven query update. The off-diagonal cubic Gram kernel generally cannot be represented as a shared linear operator on the original eight-dimensional query alone. Its intended distinguishing ingredient is coherent transport on the token-index graph, not contraction toward or away from an anchor.",
+            "nearest_known_method_collision": "Continuous-time quantum-walk attention, complex graph propagation, and kernel graph diffusion are close neighbors. The assembled task mechanism's novelty is unresolved. If an incoherent graph-transport control performs equally well, the quantum-coherence interpretation is unnecessary.",
+            "concise_evidence_summary": "The construction algebraically preserves normalization and supplies interference terms absent from the baseline. Those facts establish a different redistribution mechanism, not improved semantic discrimination. No empirical benefit is claimed.",
+            "target_positive_class_prediction": {
+              "task_hypothesis": "On positive examples where coherent graph currents move correct-class attention toward high-utility evidence tokens more than they do for the strongest rival, correct-versus-rival margins should increase. The intended practical effect is fewer positive-to-null errors without a compensating increase in positive-to-positive confusion or null false positives.",
+              "local_quantitative_prediction": "Writing u_ct = decoder_c dot value_t, the derivative at tau=0 is dz'_c/dtau = (2/D_c) * sum_t u_ct * Im[a_ct^* * sum_s H_ts a_cs]. Thus the predicted first-order margin change against rival r is tau times the difference of these derivatives. Use the baseline strongest rival, fixed before applying transport.",
+              "macro_F1_claim": "Positive39 macro-F1 improvement is only a hypothesis. Favorable mean margins or cross entropy alone do not establish it."
+            },
+            "competing_explanation": "Any gain may come from ordinary contextual graph redistribution rather than interference, or from the effective regularization of spreading attention.",
+            "indispensable_assumptions": [
+              "The learned complex states contain useful relational phase information beyond their individual class-overlap magnitudes.",
+              "The token graph connects decision-relevant evidence rather than mainly punctuation, duplicated background, or padding-like content.",
+              "Correct-class probability currents align with useful decoder values more often than rival-class currents do.",
+              "An auxiliary token-index register and its classical simulation are admissible; the mechanism is not confined to operations within a single eight-dimensional register.",
+              "Frozen-representation evaluation is available before committing to training. Its failure would reject this low-cost deployment hypothesis, not prove that all jointly trained versions are impossible."
+            ],
+            "cheapest_discriminating_test": {
+              "procedure": [
+                "On one predeclared labeled validation slice, freeze all existing states, decoder parameters, biases, and decision rules. Evaluate the baseline and the single fixed transport rule above.",
+                "Using the same U, evaluate a dephased control: alpha_dephased,c = |U| elementwise-squared times alpha_c. This removes initial token coherence while retaining the same graph and unitary transition probabilities.",
+                "Report positive39 macro-F1, per-positive-class F1 changes, positive-to-null errors, null-to-positive errors, and positive-to-positive errors.",
+                "As a mechanism diagnostic, compare the predicted first-order margin changes with exact fixed-tau margin changes, including the strongest rival after transport."
+              ],
+              "discriminating_readout": "Coherent transport should improve actual positive-class decisions over both baseline and dephased transport. Agreement between predicted and actual margin changes would support the proposed causal account; improvement shared equally by the dephased control would instead support generic graph redistribution.",
+              "stop_condition": "Do not proceed to full training if this fixed rule produces neither a positive39 macro-F1 gain nor the predicted reduction of positive-to-null errors without offsetting errors. Stop specifically pursuing the coherence explanation if the dephased control matches or exceeds its decision benefit. Treat an underpowered slice as inconclusive, not as evidence of benefit."
+            }
+          }
+        ],
+        "key_reasons": [
+          "One candidate is offered because it changes the amplitude-to-attention causal pathway without relying on an excluded mechanism family.",
+          "It has an exact baseline limit and a matched coherence-removal control.",
+          "Its first-order effect on class-versus-rival margins is computable from frozen representations, enabling rejection before full training.",
+          "The mechanism's mathematical validity is separate from its unestablished semantic usefulness."
+        ],
+        "risks": [
+          "Existing training may not encode useful phase information; nearly real or phase-uninformative representations can yield weak transport effects.",
+          "A class-independent token graph can transport attention toward distractors and create new null false positives.",
+          "The auxiliary N-dimensional register increases computation relative to direct d=8 overlap attention; no quantum speedup is claimed.",
+          "The fixed transport time is an unvalidated design choice, not an optimized or guaranteed setting.",
+          "Frozen-model success could disappear under shared-representation training, while frozen-model failure need not rule out every trainable variant.",
+          "No samples, checkpoints, literature verification, or experiments were available; both task benefit and assembled-method novelty remain unresolved."
+        ],
+        "confidence": 0.45
+      }
+    },
+    "math-review": {
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "medium",
+      "response_id": "resp_03bcce8eeb986c75016affad2f349087d28d5f3301508fabd2",
+      "packet_sha256": "a653fea5508ba417bdf0309bd0d3f80e2937f4b8d91a8b28a439706bf4fb209f",
+      "answer_sha256": "b8bb0940a23f1466219759e33e4bfae12d4e64a402f3a6eb7563101596dc02a7",
+      "verdict_sha256": "a86b055cb1ed2abf0ca1b2764954e44ebca7b931970f7abc134401a1c55d370a",
+      "inference_requests": 1,
+      "automatic_retries": 0,
+      "result": {
+        "verdict": "PASS_WITH_RISK",
+        "checked": {
+          "tau_zero_EPS_and_normalization": {
+            "status": "PASS",
+            "reason": "At tau=0, alpha_ct=(|psi_t^dagger phi_c|^2+epsilon)/(sum_s |psi_s^dagger phi_c|^2+N epsilon), exactly matching the supplied quantum-mode source on valid tokens. Unitary conjugation preserves positivity, trace one, and the epsilon identity contribution. N=1 and K=0 give unchanged attention. Padding must remain outside the valid-token graph."
+          },
+          "gauge_covariance_and_difference_from_fixed_erasure": {
+            "status": "PASS_WITH_RISK",
+            "reason": "All stated conjugation laws are correct for Q=diag(exp(i theta_t)), including operator-norm normalization and the zero case. Coherent attention and the matched dephased control are invariant under token rephasing; query-global phase also cancels. This establishes the mathematical distinction from a projector held fixed under token-coordinate rephasing. The specific R85 implementation was not supplied, so that source-level comparison is conditional."
+          },
+          "current_identity_sign_and_Bargmann_product": {
+            "status": "PASS",
+            "reason": "For U=exp(-i tau H), differentiation gives the stated positive 2 Im[a_ct^*(H a_c)_t]/D_c sign. Hermiticity produces the stated (u_ct-u_cs) pairwise expression without an extra factor. Substituting H yields the displayed Bargmann product multiplied by |G_ts|^2/||K||op. The real-representative zero-first-derivative claim is correct."
+          },
+          "two_token_exact_finite_time_formula": {
+            "status": "PASS",
+            "reason": "The stated overlaps give H=sigma_x, D=1+2epsilon, and alpha_0=1/2+sin(2tau)/(2sqrt(2)D), with the opposite shift for alpha_1. Native and matched dephased attention stay uniform. The utility difference therefore gives the claimed class-1 logit, including the finite-epsilon denominator."
+          },
+          "finite_tanh_source_realizability_and_decision_inequality": {
+            "status": "PASS_WITH_RISK",
+            "reason": "The supplied circuit applies RY then RZ and the same final CNOT ring. With the first layer zero, the proposed settings produce the stated effective states under one shared unitary; the query carries precisely the stated irrelevant exp(-i pi/4) phase. Every pi/2 angle has finite raw value atanh(1/2). The elementary lower bound proves the strict decision inequality at epsilon=1e-6. Full value/decoder realizability remains conditional on the omitted FrozenFeatureHead implementation and suitable feature rows."
+          },
+          "no_universal_task_gain_or_novelty_claim": {
+            "status": "PASS",
+            "reason": "The document explicitly limits the witness to a decision difference, acknowledges harmful relabeling, and disclaims task gain, trained reachability, computational advantage, novelty clearance, and numerical execution. It does not require or assert a universal gain theorem."
+          }
+        },
+        "must_fix": [],
+        "risks": [
+          "FrozenFeatureHead is imported but not supplied. Its value, decoder, and bias definitions cannot be independently source-verified here. The circuit witness is verified algebraically; the complete head parameter construction is conditional.",
+          "Independent concatenated preparation-feature rows alone do not guarantee that value(h) can distinguish the two tokens: the h rows themselves must support the desired utilities. Suitable distinct h rows resolve this for an unrestricted affine value layer.",
+          "The supplied native 'dephased' mode dephases physical-register probabilities; it is not the proposed token-register matched control. The candidate correctly defines a separate control, and these must not be conflated.",
+          "Operator-norm normalization is mathematically sound for forward evaluation but can be nonsmooth at spectral degeneracies and discontinuous in direction at K=0. Training behavior is outside this review.",
+          "No numerical execution, checkpoint behavior, external-reference accuracy, or mechanism/lifecycle qualification is certified."
+        ],
+        "recommendation": "Accept the six analytical checks provisionally without mathematical revisions. Preserve the source-realizability qualification until FrozenFeatureHead and suitable feature assumptions are checked; keep the proposed matched incoherent control distinct from the native dephased mode."
+      }
+    },
+    "astra-reduction": {
+      "model": "gpt-6.2-astra",
+      "reasoning_effort": "medium",
+      "response_id": "resp_09ba06338d3e734c016affb60407c887d294b4dfee4e2f5fed",
+      "packet_sha256": "d6c7364903143f75ff9965d82eccea466b3c4da9fda8b94551cc23c8ebedf131",
+      "answer_sha256": "a34f470ed4bf8ca2187b45279b472be57ad7e9a639d47268cc04ecc3ee926d88",
+      "verdict_sha256": "6b5cf35f037b560047840fef326c9426eeb1e4b21c713b18c1ff5b714a8cb177",
+      "inference_requests": 1,
+      "automatic_retries": 0,
+      "result": {
+        "verdict": "ANALYTICAL_RESULT",
+        "checked": {
+          "1": "For fixed Ψ, set Ψ̃=ΨU†. Then Ψ̃†φ=Ua and ‖Ψ̃†φ‖=‖a‖, so classical squared inner-product scoring with these keys reproduces the entire ε-attention vector exactly. The keys can depend on the whole context and need not be unit columns. This is an exact re-encoding, not necessarily a token-local encoder, a physical unitary, or a method that avoids computing U.",
+          "2": "Yes. The Gram matrix of ΨU† is UGU†, so equality with G is necessary. Conversely, if the Grams agree, Ψc ↦ ΨU†c preserves inner products and is well-defined: any coefficient vector representing zero on the left also has zero image norm. This is an isometry between the column spans; extending it on their equal-dimensional orthogonal complements gives a unitary V on C^d. No full-rank assumption is needed.",
+          "3": "Write A=Ψ† and P=GG⁺, the orthogonal projector onto ran(G)=ran(A). At a single τ, AL=UA is solvable iff (I−P)UP=0: necessity follows by taking ranges, and sufficiency follows by choosing L=A⁺UA. Since U is unitary in finite dimension, this invariance is equivalent to [U,P]=0. For all τ, the criterion is [H,P]=0, by differentiation at zero and exponentiation. A single τ gives the generator criterion if distinct eigenvalues of H have distinct exponential phases, as at τ=1/4 since spec(H)⊂[−1,1]. Raw amplitude equality implies identical ε-attention on unnormalized Lφ, but L need not preserve query norm. Normalizing Lφ rescales all amplitudes, which at fixed ε>0 generally changes attention. Conversely, equality of attention alone does not require amplitude equality, since phases are discarded.",
+          "4": "The fixture works. For n=(−a,1,−b), Ψn=0 and rank(Ψ)=2, so ker(G)=span(n). Now Kn=(a³,−a⁴−b⁴,b³); proportionality to n would require the proportionality factor to equal both −a² and −b², impossible. Thus K does not preserve the null line. Its eigenvalues are 0 and ±√(a⁶+b⁶), so H has eigenvalues 0,±1. At τ=1/4 their phases are distinct; U and H have the same eigenspaces. The null line is therefore not U-invariant, nor is its orthogonal complement ran(G). No common linear L absorbs U on amplitudes.",
+          "5": "Yes, as scoped controls. At this nonresonant τ, [K,G] tests common physical-unitary absorption and [K,P] tests unrestricted linear-query absorption, without forming the exponential (K≠0; vanishing means absorption). The transformed-key construction is an exact positive control for the scores. A task-linked question remains: under a specified realizable encoder, query family, and resource-matched baseline, is there a target decision rule that the candidate implements but the allowed baseline cannot, even after accounting for score-level equivalences?"
+        },
+        "must_fix": [],
+        "risks": [
+          "The three-token witness concerns abstract unit states, not established source-circuit reachability.",
+          "Failure of amplitude absorption is not a separation from attention-only or decision-only baselines, nor evidence of task utility or theoretical novelty."
+        ],
+        "recommendation": "Use the commutators to classify exactly which absorption claim survives. Before claiming a task separation, specify what context dependence the baseline may use: unrestricted context-dependent transformed keys already match every score."
+      }
+    }
+  },
+  "primary_resolution": {
+    "selected_design_lead": "gauge_covariant_token_graph_transport",
+    "class_frame": "retained_lower_priority_speculative; already notedR99",
+    "other_routes": "known controls or exact premise rejected; not new tested ideas",
+    "native_value_source": {
+      "path": "experiments/rmea_context_geometry/legacy/frozen_feature_head.py",
+      "sha256": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+      "resolution": "Primary inspected nn.Linear(1024,64),decoder[40,64],bias[40]. Choose h0=e0,h1=e1; a value coordinate with weights(1,-1) and class1 decoder1 gives exact witness utilities. Reviewer omitted this file, so full-head resolution is primary-owned, not independently certified."
+    },
+    "r85_resolution": "Primary read actual fixed-erasure proposal; its unchanged erasure projector differs from covariantly transformed graph U. External reviewer did not receive R85 source.",
+    "astra_resolution": "Primary checked five linear-algebra arguments, projector dimensions, nonresonant phases and null-line witness. Classical re-encoding always holds; amplitude nonabsorption does not establish attention/decision separation or novelty.",
+    "native_dephased_control": "Existing physical-register dephased mode is different; use newly defined token-register dephasing only."
+  },
+  "iteration_accounting": {
+    "primary_source_routes": 4,
+    "additional_independent_families": 1,
+    "new_numerically_tested_families": 0,
+    "new_implementations": 0,
+    "math_checks": 6,
+    "astra_new_questions": 5
+  },
+  "consultation_preference": {
+    "owner_requested": "Mathematics/theory inspiration/review: prefer gpt-6.2-astra viaA6API",
+    "catalog_listed": true,
+    "actual_response_model": "gpt-6.2-astra",
+    "actual_reasoning_echo": "medium",
+    "no_model_shopping": true
+  },
+  "next_action": "Freeze source-legal cheap token-graph canary with native and matched token-dephased controls; obtain exact mechanism/lifecycle code review and scheduler admission before execution.",
+  "execution_eligible": false,
+  "formal_handoff": false,
+  "independent_confirmation": false,
+  "novelty_cleared": false,
+  "L5": "NOT_ACCEPTED",
+  "new_COS_requests": 0,
+  "new_training_attempts": 0
+}
