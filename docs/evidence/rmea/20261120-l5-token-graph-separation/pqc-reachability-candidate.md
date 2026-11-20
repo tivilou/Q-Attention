@@ -1,6 +1,6 @@
 # Candidate: realize the stable witness with the actual two-layer circuit
 
-Status: derived candidate, not independently reviewed or numerically tested. This is an implementation-reachability extension of the existing separation, not task-utility evidence or a novelty claim.
+Status: independently reviewed with risks and verified through the unchanged actual model head on the selected 2080 Ti. This is an implementation-reachability extension of the existing separation, not task-utility evidence or a novelty claim. See `pqc-reachability-review.json` and `pqc-reachability-numerical-check.json`.
 
 The source circuit applies RY then RZ on each of three wires, followed by CNOTs 0→1,1→2,2→0, twice. With wire0 the most significant bit, the CNOT ring maps
 
@@ -20,4 +20,6 @@ These equal M^(-1)w in the full-rank construction. Both components have positive
 
 A shared preparation layer can realize all nine key-angle targets under an explicit feature assumption. Let X contain the nine 1028-dimensional frozen feature/role rows augmented by a bias column. If rank(X)=9, the finite 9x12 raw-angle target Y admits the shared linear solution W^T=X^+Y. This is conditional on the supplied feature rows, not a measured property of our six samples or a claim about arbitrary encoder inputs.
 
-Required next check: use the unchanged source circuit, actual pi*tanh preparation/effect maps and finite raw parameters in a selected2080 unit fixture; verify all nine key errors, frame rank, query agreement up to phase and the native/dephased mixed-query ceiling margins. Review the derivation before accepting the extension. Near-saturated basis angles may have poor optimization conditioning; representability does not establish learnability, prevalence or generalization. Fixed-key comparator scope remains unchanged.
+Actual-head check: the nine-key fixture uses synthetic independent feature rows, one shared preparation layer, the implemented pi*tanh maps and the source circuit/forward path. All nine unit tests passed in 4.62647 seconds. Maximum key error was 4.330127e-6, phase-aligned query error 2.725007e-16, minimum frame eigenvalue 0.9999926400, and maximum preparation raw magnitude 7.02197446. Coherent probability 0.5032767384 exceeded native and dephased mixed-query ceilings 0.4999977087 and 0.4924363552, respectively; the simultaneous margin was 0.00327902967.
+
+The derivation received PASS_WITH_RISK from the selected Astra 6.2 medium route. Its integer-bit dtype concern was resolved explicitly before execution. The synthetic feature rows do not establish rank nine for real encoder features. Near-saturated basis angles may have poor optimization conditioning; representability does not establish learnability, prevalence or generalization. Fixed-key comparator scope remains unchanged. Task utility still awaits the separately frozen collaborator experiment; L5 remains unaccepted.
