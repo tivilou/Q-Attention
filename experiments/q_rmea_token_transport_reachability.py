@@ -25,7 +25,12 @@ def snapshot(path,expected,limit):
 def density_projection(matrix,torch):
     values,vectors=torch.linalg.eigh((matrix+matrix.mH)/2)
     descending=values.flip(-1);ranks=torch.arange(1,9,device=values.device,dtype=values.dtype)
-    offsets=(descending.cumsum(-1)-1)/ranks
+    # Torch2.4 CUDA cumsum rejects deterministic mode. Eight explicit ordered
+    # additions compute the same prefix sums without that unsupported kernel.
+    partial=torch.zeros_like(descending[...,0]);prefix=[]
+    for i in range(8):
+        partial=partial+descending[...,i];prefix.append(partial)
+    offsets=(torch.stack(prefix,-1)-1)/ranks
     count=(descending>offsets).sum(-1,keepdim=True)
     theta=offsets.gather(-1,count-1)
     return (vectors*(values-theta).clamp_min(0)[...,None,:])@vectors.mH
