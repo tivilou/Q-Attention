@@ -99,6 +99,39 @@ This elementary constructed pair does not establish a new general resource theor
 
 The substantive research question is whether the learned graph preserves information needed by the fixed task that the comparator's pooling loses. Generic coherence, maximal rank-one robustness and an optimally chosen constructed game are insufficient evidence. The pending formal utility and frozen swaps must answer their declared task question before further promotion.
 
+## Finite grids for the whole local pooling family
+
+Focused mathematical/additive-test review PASS from gpt-6.2-astra at medium effort, response resp_0bba9c85ee830734016b00b316592087d1b24a1b4542f13aed; numerical execution is pending. See local-pooling-family-review.json. This changes neither model nor frozen collaborator protocol.
+
+The implemented native class logit has the form z(x_1,...,x_N)=sum_i n_i(x_i)/sum_i d_i(x_i), with d_i>0. The class bias is absorbed by replacing each local numerator f_i u_i by f_i(u_i+b). Queries, preparation and local linear values may take any fixed parameters. Partition the tokens into two groups A,B. On a crossed input grid (A_i,B_j), every such logit must satisfy
+
+    Z_ij = (a_i+b_j)/(c_i+d_j), with c_i+d_j>0.
+
+This remains a necessary condition even when each group's numerator and denominator are arbitrary joint functions inside that group. It therefore covers every retrained native head at the same frozen-feature interface, rather than fixing its original keys, query or values. It does not cover cross-group contextual feature recomputation, global input-conditioned queries/values, another outer nonlinear decoder, or coherent value aggregation with unrestricted global value states.
+
+For a four-by-four grid, use the numerator gauge a_0=0 and denominator gauge c_0=0, subtracting those constants from all a,c and adding them to b,d. Let t contain a_1..a_3,b_0..b_3,c_1..c_3,d_0..d_3. Let I be the sixteen-by-seven row/column incidence matrix after those omissions. Define
+
+    A(Z) = [-I, diag(vec Z) I].
+
+The sixteen equations A(Z)t=0 encode rational-additive representation exactly; a physically valid representation has a nonzero t because its cell denominators are positive. Consequently full column rank14 excludes every such representation. A column-rank test is only a numerical witness at finite precision, not a proof of rank for the exact real-number implementation.
+
+A useful conservative approximation certificate also follows. Let k have seven numerator zeros and seven denominator entries1/4, so k^T t is the mean of the sixteen cell denominators. Normalize it to one. If A has full column rank, its thin SVD A=U S V^T gives the exact real-arithmetic minimum
+
+    r_min = min_{k^T t=1} ||A t||_2
+          = 1 / ||S^(-1) V^T k||_2 > 0.
+
+For any rational-additive comparator Zhat with positive cell denominators, normalize those denominators to mean one. Its parameters obey A(Zhat)t=0 and
+
+    A(Z)t = (vec Z - vec Zhat) elementwise-multiplied by vec D.
+
+Positive D has sum16, hence ||D||_2<=16. Therefore
+
+    max_ij |Z_ij-Zhat_ij| >= r_min/16.
+
+This is a lower bound for approximating these sixteen pre-softmax logits, not a classification-error, loss or generalization guarantee. Numerical evaluation is conditional on the represented logit matrix and linear-algebra error; no exact certified arithmetic is claimed. The native route supplies an explicit positive-denominator null as an internal validity check.
+
+The fixed test uses seed20261121, one untrained actual head, four synthetic three-token blocks per side, their sixteen crossed six-token inputs, class0 only, float64/complex128 and the unchanged four routes. No label, optimization or search is involved. Its declared structural criterion is native relative minimum singular value below1e-10 and cubic above1e-8; a failed or inconclusive grid is retained without searching seeds or changing tolerances. Other graph routes are reported without a required direction: breaking local pooling separability would not by itself identify cubic nonlinearity or coherence as necessary. Reuse the existing GPU unit recipe once after focused mathematical review.
+
 ## Next use
 
 First analyze the pending formal utility gate and its existing frozen swaps/readout bounds. Only if the result and available approved traces justify it, evaluate loss-aligned bounds as an explicitly separate post hoc diagnostic. Do not rerun the eight-example canary, alter the formal gate, or request another training budget to obtain this evidence.

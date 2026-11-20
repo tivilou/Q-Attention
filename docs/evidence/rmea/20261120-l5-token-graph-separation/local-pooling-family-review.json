@@ -1,0 +1,46 @@
+{
+  "schema": "q-rmea.local-pooling-family.focused-review.v1",
+  "status": "PASS",
+  "response_id": "resp_0bba9c85ee830734016b00b316592087d1b24a1b4542f13aed",
+  "model": "gpt-6.2-astra",
+  "reasoning_effort": "medium",
+  "verdict": {
+    "verdict": "PASS",
+    "claims": [
+      {
+        "claim": "Family condition",
+        "status": "PASS",
+        "reason_summary": "Absorbing the class bias into each local numerator preserves the logit. On crossed frozen inputs, summing within each group gives row-only and column-only contributions to both numerator and denominator, with positive cell denominators for any fixed native parameters.",
+        "required_correction": null
+      },
+      {
+        "claim": "Rank exclusion",
+        "status": "PASS",
+        "reason_summary": "Setting a_0=c_0=0 removes the two independent additive gauges, leaving 14 coefficients. The gauged nullity is 14 minus rank(A); positive denominators require a nonzero null vector, so rank 14 excludes the family. Rank deficiency alone does not establish a positive-denominator representation.",
+        "required_correction": null
+      },
+      {
+        "claim": "Approximation bound",
+        "status": "PASS",
+        "reason_summary": "Each retained denominator coefficient occurs in four of sixteen cells, so k computes the mean exactly. For full column rank, minimizing the residual subject to k^T t=1 gives 1/||S^(-1)V^T k||_2. Positive mean-one denominators satisfy ||D||_2 <= ||D||_1 = 16, yielding the stated r_min/16 uniform logit-error lower bound.",
+        "required_correction": null
+      },
+      {
+        "claim": "Additive test",
+        "status": "PASS",
+        "reason_summary": "The fixture crosses one fixed seeded pair of block sets without search. Grid and incidence rows use the same ordering. The code implements the stated matrix, SVD minimum and optimizer, checks the normalized native null and denominator positivity, and applies the declared directional thresholds only to native and cubic.",
+        "required_correction": null
+      }
+    ],
+    "must_fix": [],
+    "scope_limits": [
+      "Static review only: no threshold outcome or numerical bound was observed. Floating-point SVD and residual checks are not exact rank certificates.",
+      "Exclusion concerns the sixteen selected pre-softmax logits and local separable-ratio comparators at the frozen-feature interface. It does not establish a classification or generalization gap, or show that cubic nonlinearity or coherence is necessary."
+    ]
+  },
+  "reviewed_test_sha256": "b097a19bb0c87a5125418d9948d95f45d132071a82fcef5bc5df1d65c5a7278a",
+  "freeze_sha256": "64984b1f91f281e48fb87ef5151a0903fe83891bfcc5b94c3a9daf60a554e4fc",
+  "scope": "New finite-grid mathematical derivation and one additive fixture only; unchanged model/lifecycle reuses inherited review",
+  "task_utility": false,
+  "L5": "NOT_ACCEPTED"
+}

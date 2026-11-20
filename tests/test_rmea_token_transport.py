@@ -302,5 +302,65 @@ class TransportTests(unittest.TestCase):
             task_utility=False)),flush=True)
 
 
+
+    @torch.no_grad()
+    def test_finite_grid_distinguishes_local_pooling_family(self):
+        """One frozen grid tests the whole separable-ratio logit family."""
+        torch.manual_seed(20261121)
+        head=TrainableTokenTransportHead('cubic_coherent').double().to(self.device)
+        generator=torch.Generator(device=self.device);generator.manual_seed(20261121)
+        left=torch.randn(4,3,1024,dtype=torch.float64,device=self.device,generator=generator)
+        right=torch.randn(4,3,1024,dtype=torch.float64,device=self.device,generator=generator)
+        h=torch.cat((left[:,None].expand(-1,4,-1,-1),right[None].expand(4,-1,-1,-1)),2).reshape(16,6,1024)
+        roles=torch.zeros(16,6,4,dtype=h.dtype,device=self.device)
+        mask=torch.ones(16,6,dtype=torch.bool,device=self.device)
+        detail=head(h,roles,mask,details=True)
+        coordinates=torch.arange(4)
+        rows=torch.nn.functional.one_hot(coordinates,4).double()[:,1:]
+        columns=torch.nn.functional.one_hot(coordinates,4).double()
+        incidence=torch.cat((rows[:,None].expand(-1,4,-1),columns[None].expand(4,-1,-1)),2).reshape(16,7)
+        mean_denominator=torch.cat((torch.zeros(7,dtype=torch.float64),torch.full((7,),.25,dtype=torch.float64)))
+        matrices={};results={};routes={}
+        for kind in KINDS:
+            routed=route(detail['psi'],detail['phi'],mask,kind=kind)
+            routes[kind]=routed
+            logits=(routed['alpha']*detail['utilities']).sum(-1)+head.bias
+            grid=logits[:,0].reshape(4,4).cpu()
+            matrix=torch.cat((-incidence,grid.reshape(16,1)*incidence),1)
+            _,singular,vh=torch.linalg.svd(matrix,full_matrices=False)
+            ratio=float(singular[-1]/singular[0])
+            record=dict(minimum_singular_value=float(singular[-1]),maximum_singular_value=float(singular[0]),relative_minimum=ratio,logit_grid=grid.tolist())
+            if ratio>1e-8:
+                projection=vh@mean_denominator
+                squared_norm=((projection/singular).square()).sum()
+                minimum_residual=float(squared_norm.rsqrt())
+                optimum=vh.T@(projection/singular.square())/squared_norm
+                self.assertAlmostEqual(float(mean_denominator@optimum),1.,delta=1e-9)
+                self.assertAlmostEqual(float((matrix@optimum).norm()),minimum_residual,delta=1e-9)
+                record.update(normalized_minimum_equation_residual=minimum_residual,
+                              conditional_uniform_logit_error_lower_bound=minimum_residual/16)
+            matrices[kind]=matrix;results[kind]=record
+        self.assertLess(results['native']['relative_minimum'],1e-10)
+        self.assertGreater(results['cubic_coherent']['relative_minimum'],1e-8)
+        # Recover an explicit positive-denominator native null, not just an SVD.
+        scores=(torch.einsum('d,btd->bt',detail['phi'][0].conj(),detail['psi']).abs().square()+EPS).cpu()
+        utility=detail['utilities'][:,0].cpu()+float(head.bias[0])
+        numerator=(scores*utility).reshape(4,4,6)
+        denominator=scores.reshape(4,4,6)
+        na=numerator[:,:,:3].sum(-1)[:,0];nb=numerator[:,:,3:].sum(-1)[0]
+        da=denominator[:,:,:3].sum(-1)[:,0];db=denominator[:,:,3:].sum(-1)[0]
+        null=torch.cat((na[1:]-na[0],nb+na[0],da[1:]-da[0],db+da[0]))
+        null/=mean_denominator@null
+        residual=float((matrices['native']@null).norm())
+        self.assertLess(residual,1e-10)
+        self.assertGreater(float((da[:,None]+db[None]).min()),0)
+        torch.testing.assert_close(detail['logits'],(routes['cubic_coherent']['alpha']*detail['utilities']).sum(-1)+head.bias,atol=1e-12,rtol=1e-12)
+        print(p.json.dumps(dict(status='FINITE_LOCAL_POOLING_GRID_PASS',seed=20261121,
+            grid_shape=[4,4],tokens_per_group=3,selected_class=0,design_columns=14,
+            native_explicit_null_residual=residual,routes=results,
+            scope='One synthetic frozen-feature head grid; whole arbitrary local separable-ratio logit comparator; no training, real-text utility or quantum-specific attribution',
+            task_utility=False)),flush=True)
+
+
 if __name__=='__main__':
     unittest.main()
