@@ -1,0 +1,60 @@
+{
+  "schema": "q-rmea.full-rank-separation.numeric-check.v1",
+  "status": "PASS",
+  "task": "d137d871b3d84e8fbe2d27c2adbf43c7",
+  "attempt": "b87e36e079054726b9cd366d2a9385be",
+  "node": "qattn-2080ti-39684-v1",
+  "source_revision": "c2d6f8b57b4c0cb62c14faf1f5e422d1a666e369",
+  "source_sha256": "f74111d47f2de90c397619df2efda09191443345ae81c84d99fd28a236809324",
+  "contract_sha256": "f6ccc416cdd0e169d50823bfa96b82f3b66a13865c4bc449ccfe11133c0ec576",
+  "receipt": {
+    "attempt": "b87e36e079054726b9cd366d2a9385be",
+    "error_class": null,
+    "finished": 1795201462.4936266,
+    "node": "qattn-2080ti-39684-v1",
+    "outputs": {
+      "RUN_COMPLETE": {
+        "bytes": 197,
+        "sha256": "ba4aefaaedb89afc74cf3224e412b660174a0c99bb79c8a5e9a6b6ba011a0f13"
+      },
+      "compact-report.json": {
+        "bytes": 551,
+        "sha256": "93a46566153efa2bf506dd259e50ef521def6f92d29a2cf963a88cb5ebe0c293"
+      }
+    },
+    "quiescent": true,
+    "returncode": 0,
+    "revision": "c2d6f8b57b4c0cb62c14faf1f5e422d1a666e369",
+    "schema": "research.receipt.v1",
+    "state": "complete",
+    "task": "d137d871b3d84e8fbe2d27c2adbf43c7"
+  },
+  "tests": {
+    "exit_status": 0,
+    "seconds": 4.977216908708215,
+    "stdout_sha256": "e79773865319e6c2e05b6a0a9e4ee2d46f4fa38f68a6411c6453fc4190b6d017",
+    "stderr_sha256": "73e9bdd924735e8da017ff2c0d3440034a21a3ef36b51dd0859003ee13848ab2"
+  },
+  "tests_passed": 8,
+  "check": {
+    "status": "FULL_RANK_STABLE_SEPARATION_PASS",
+    "cases": 65,
+    "dimension": 8,
+    "tokens": 9,
+    "base_coordinate_gain": 0.003279000769397078,
+    "minimum_coordinate_margin": 0.0032779454918277495,
+    "maximum_linear_query_absorption_error": 8.326672684688674e-16,
+    "task_utility": false
+  },
+  "execution": {
+    "command": "python -B -m unittest discover -s tests -p test_rmea_token_transport.py -v",
+    "recipe": "rmea-token-transport-formal-units-v1",
+    "dtype": "complex128",
+    "gpu": "2080 Ti",
+    "key_perturbation_radius": 1e-05,
+    "perturbation_seed": 20261121
+  },
+  "scope": "Constructed forward-probability separation only; no new task training or task utility, typicality or novelty claim.",
+  "formal_training": false,
+  "L5": "NOT_ACCEPTED"
+}
