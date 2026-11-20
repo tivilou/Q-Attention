@@ -1,0 +1,90 @@
+{
+  "schema": "qattn.token-transport.training.design.v1",
+  "status": "PROSPECTIVE_NOT_EXECUTED",
+  "source_parent": "94e551cb0343c998aaef3bf71f0e777fe1d917c9",
+  "source_files": {
+    "experiments/rmea_utility_measurement/token_transport_screen.py": "6654aab081ecd209ef68ac2daf4dbc35414fb95a1646c5100b84f98ec8a5fdd8",
+    "experiments/rmea_utility_measurement/token_transport_trainable.py": "51bf4e8889b669d2c6660eb2166573818fda96e9820441e8aad0851676465663",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_ecqp_screen/runner.py": "6fc5aeb2226a6b8fbc9b403ebcab5f768bf1724d92802bc2041dbf978f08d24e",
+    "experiments/rmea_ecqp_screen/metrics.py": "9d039c538453dadc648e2fcdd9f7ade79acd24cb5997a07a8d6f1d69da4e7716",
+    "experiments/rmea_ecqp/head.py": "409c33ba9de1b3ba0060e04e7bd30a75a5faaf786ffc4aec0c990de22afe5241",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e",
+    "experiments/rmea_utility_measurement/token_transport_training_job.py": "318ab2d3d38f5fa5b3bd54855dd1c23aa864a5b9c7f11a48625bd810dba19f81",
+    "experiments/rmea_utility_measurement/token_transport_training_fixture.py": "5df51aff922c05ebeb562854d16fcfb2f45fd0abeeca1507845b922d84031d58",
+    "experiments/rmea_utility_measurement/token_transport_execution_scope.py": "8dd39c02504f028ad46448913c293f33859b76d530f1ebccd69bb210c5be321e",
+    "experiments/rmea_utility_measurement/token_transport_profile_job.py": "c68c04d2f659255438ec43341467fe9c6ed9328965e7b3d4db4cd5023afb04c1"
+  },
+  "environment": {
+    "torch": "2.4.1",
+    "numpy": "1.24.3"
+  },
+  "conditions": [
+    "native",
+    "cubic_coherent",
+    "cubic_initial_dephased",
+    "linear_coherent"
+  ],
+  "training": {
+    "seed": 20261118,
+    "epochs": 4,
+    "batch_size": 32,
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "clip_norm": 1.0
+  },
+  "data": {
+    "original_split": "train",
+    "cohort_sha256": "dbca6227d405b932bf1c463935383e87f6dd870d0ec0280139a8b460f89b1999",
+    "donors_sha256": "12abb735b1eb6358ecd306d01bb154739baa8afb2689928c23b85944eeb28538",
+    "prefix_receipt_sha256": "27cb566401bc60de8c8fae0611c78a97370b3b2f452838e9d84df90eebf4ad83",
+    "plan_sha256": "00f0c5eedb24ecb2ee146914cba4e72ff320881ad206a05e17a21a9d72159dc5",
+    "fit_examples": 3124,
+    "fit_groups": 2714,
+    "evaluation_examples": 972,
+    "evaluation_groups": 866,
+    "selection": "Reuse the immutable R72 fit/eval membership; no resampling, new cohort or official valid/test reads.",
+    "independence": "Development partition has repeatedly informed ideation. A positive result cannot independently confirm a newly selected claim."
+  },
+  "budget": {
+    "cpu": 1,
+    "ram_mb": 4096,
+    "disk_mb": 64,
+    "gpus": 1,
+    "gpu_mb": 8192,
+    "timeout_seconds": 1800,
+    "optimizer_steps": 1568,
+    "COS_requests": 0,
+    "cloud_writes": 0
+  },
+  "max_report_bytes": 524288,
+  "private_checkpoint_bytes_max": 0,
+  "task_training_admitted": true,
+  "training_qualification": "One immutable contract only after BOTH review and separate exact scheduler binding;this prospective flag alone grants nothing.",
+  "pre_update_fixture": "Same-process CUDA fixture:2synthetic unequal-length complex/signed samples and rank-one keys;16route/range cells,masked/unpadded/current logits correspondence and exact RAM state replay;0optimizer steps and0files before training.",
+  "success_gate": "cubic_coherent Macro strictly above native/dephased/linear and CE<=native. Fixed4epochs/final state,all conditions reported;normal short null INCONCLUSIVE_NO_PROMOTION,no optional seeds/epochs/tau.",
+  "metrics": "40class confusion;Macro excludes noneclass0 with fixed39positive-class denominator;CE/accuracy;fit-only epoch CE.",
+  "diagnostics": "All972 evaluation fixed-cubic-state route swaps plus first32immutable eval-unit coordinate/readout Rayleigh diagnostics. Source-linked numeric diagnostic only,not semantic mediation or sample-trace.v2.",
+  "profile_reference": {
+    "source_revision": "f2afaadb60eb482f6e8ceeb3c3e2d81089377629",
+    "acceptance_sha256": "09cc368b56f4ee0a43f2c6d5c0d9f1aabb37e66ec861bc13ec5b20670cba4347",
+    "seconds_estimate": 1013,
+    "peak_reserved_bytes": 549453824,
+    "scope": "12fit backwards only;not optimizer/full-evaluation/checkpoint timing. All existing profile/setup/fresh/batch functions unchanged;no repeated profile."
+  },
+  "disk_policy": "Compact report<512KiB,2small output files and16epoch log lines;0checkpoint/model/cache artifacts. Existing313MBimmutable inputs and existing CUDA environment reused.",
+  "interruption_policy": "New exclusive attempt only;any failed write/reload/marker leaves private partials and no successful output marker. No partial adoption,no in-place scientific retry,no epoch/seed selection. Worker must fence+quiesce before any separately admitted restart.",
+  "recovery_policy": "Cheap restart_from_inputs;all required inputs already have verified Git/COS identity. This task permits1attempt and no automatic replay,up to1800s lost work,0durable optimizer cursor. All declared post-training comparisons and ranges finish in RAM;no retained-model or Case Study consumer. Future formal follow-up trains its own model.",
+  "independent_confirmation": false,
+  "formal_handoff": false,
+  "L5": "NOT_ACCEPTED",
+  "checkpoint_policy": "none",
+  "retention": "Only source/config identities,compact numerical report and completion receipt;0COS writes and0model binaries. No owner-hold/READY protocol or generic scheduler migration.",
+  "lifecycle": "Existing reviewed scheduler supervises one Python process. Before Torch import the job checks exact admission/cancellation/current lease and arms parent-death SIGKILL plus a kernel absolute monotonic SIGKILL deadline,clamped by initial request file age. Wall clock stability at admission is an explicit assumption. Per-batch lease/cancel checks and no scientific subprocess;unknown attempts retain reservations. Normal fixed stable-key single task only;no claim of globally preventing manual alternative-key submissions."
+}

@@ -8,6 +8,7 @@ import hashlib
 import math
 import json
 import os
+import sys
 import time
 
 import numpy as np
@@ -153,6 +154,10 @@ def range_diagnostics(model, data):
     selected = data['splits']['eval'][:32]
     h, r, mask, _ = batch(data, selected, 'eval')
     d = model(h, r, mask, details=True)
+    padded_alpha = {k:route(d['psi'], d['phi'], mask, kind=k)['alpha'] for k in KINDS}
+    assert torch.allclose(padded_alpha['cubic_coherent'], d['alpha'], atol=1e-10, rtol=0)
+    padded_logits = (padded_alpha['cubic_coherent']*d['utilities']).sum(-1)+model.bias
+    assert torch.allclose(padded_logits, d['logits'], atol=1e-9, rtol=0)
     eye = torch.eye(8, dtype=torch.complex128, device='cuda')
     records = []
     for b, i in enumerate(selected):
@@ -178,7 +183,12 @@ def range_diagnostics(model, data):
         for kind in KINDS:
             routed = route(psi[None], d['phi'], m, kind=kind)
             alpha = routed['alpha'][0]
+            selected_alpha = padded_alpha[kind][b][:, mask[b]]
+            padding_residual = float((alpha-selected_alpha).abs().max())
+            assert math.isfinite(padding_residual) and padding_residual < 1e-9
             z = (alpha*utilities).sum(-1)
+            if kind == 'cubic_coherent':
+                assert torch.allclose(z+model.bias, d['logits'][b], atol=1e-8, rtol=0)
             if kind == 'native':
                 effects = native_effects
             elif kind == 'cubic_initial_dephased':
@@ -210,10 +220,51 @@ def range_diagnostics(model, data):
                 max_native_readout_lower_excess=float((native_readout[:, 0]-z).max()),
                 direct_quadratic_score_residual=score_residual,
                 direct_quadratic_readout_residual=readout_residual,
+                masked_unpadded_score_residual=padding_residual,
                 own_readout_range_residual=residual)
         records.append(dict(unit_sha256=data['metadata'][int(i)]['id_hash'],tokens=len(psi),routing=rows))
     return dict(selection='First32 immutable evaluation units, before outcomes',units=records,
         claim_ceiling='Fixed-current-state geometric diagnostics; no semantic causality, total-gain mediation or sample-trace.v2 certification.')
+
+
+class BoundedWriter:
+    """Enforce the selected checkpoint-file bound before each serialized write."""
+    def __init__(self, handle, maximum):
+        self.handle, self.maximum, self.written = handle, maximum, 0
+
+    def write(self, value):
+        if self.written+len(value) > self.maximum:
+            raise OSError('Declared checkpoint write bound exceeded')
+        size = self.handle.write(value)
+        assert size == len(value)
+        self.written += size
+        return size
+
+    def flush(self):
+        self.handle.flush()
+
+
+def stage_checkpoint(path, state, maximum=1024**2):
+    pending = path.with_suffix('.pt.pending')
+    assert not path.exists() and not pending.exists()
+    fd = os.open(pending, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+    with os.fdopen(fd, 'wb') as handle:
+        torch.save(state, BoundedWriter(handle, maximum))
+        handle.flush()
+        os.fsync(handle.fileno())
+    assert pending.stat().st_size <= maximum
+    return pending
+
+
+def seal_checkpoints(checkpoints, files, maximum):
+    marker = dict(schema='qattn.token-transport.screen.checkpoints.v1',
+        files={n:v['sha256'] for n,v in files.items()},selection='Fixed fourth-epoch final states; no evaluation selection.')
+    assert not (checkpoints/'RUN_COMPLETE').exists()
+    assert set(p.name for p in checkpoints.iterdir()) == set(files)
+    assert all(sha(checkpoints/n) == v['sha256'] and (checkpoints/n).stat().st_size == v['bytes'] for n,v in files.items())
+    marker_bytes = len((json.dumps(marker, indent=2, allow_nan=False)+'\n').encode())
+    assert sum(p.stat().st_size for p in checkpoints.iterdir())+marker_bytes <= maximum
+    save(checkpoints/'RUN_COMPLETE', marker)
 
 
 def train(a, design):
@@ -221,9 +272,12 @@ def train(a, design):
     assert design['task_training_admitted'] is True
     started = time.monotonic()
     data, initial, orders = setup(a, design)
-    checkpoints = a.output.parent/'scientific-work/checkpoints'
-    assert not checkpoints.exists()
-    checkpoints.mkdir(mode=0o700)
+    keep_checkpoints = design.get('checkpoint_policy','private_final') == 'private_final'
+    assert design.get('checkpoint_policy','private_final') in ('private_final','none')
+    checkpoints = a.output.parent/'scientific-work/checkpoints' if keep_checkpoints else None
+    if keep_checkpoints:
+        assert not checkpoints.exists()
+        checkpoints.mkdir(mode=0o700)
     initial_sha = runner.state_fingerprint(initial)
     order_sha = hashlib.sha256(b''.join(o.astype('<i8').tobytes() for o in orders)).hexdigest()
     results, files, diagnostics = {}, {}, None
@@ -236,6 +290,7 @@ def train(a, design):
             model.train()
             loss_sum = 0.
             for start in range(0, len(order), 32):
+                if hasattr(a,'check_launch'):a.check_launch()
                 ids = order[start:start+32]
                 h, r, mask, y = batch(data, ids, 'fit')
                 optimizer.zero_grad(set_to_none=True)
@@ -250,41 +305,34 @@ def train(a, design):
                 loss_sum += float(loss.detach())*len(ids)
                 steps += 1
             epochs.append(dict(epoch=epoch,fit_ce=loss_sum/len(order)))
+            print(json.dumps(dict(progress='EPOCH_COMPLETE',condition=kind,epoch=epoch,optimizer_steps=steps)),file=sys.stderr,flush=True)
         assert steps == 392
         measured, first = evaluate(model, data, data['splits']['eval'])
-        path = checkpoints/(kind+'-final.pt')
-        pending = path.with_suffix('.pt.pending')
-        assert not path.exists() and not pending.exists()
         state = {n:t.detach().cpu() for n,t in model.state_dict().items()}
         final_sha = runner.state_fingerprint(state)
-        fd = os.open(pending, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
-        with os.fdopen(fd, 'wb') as handle:
-            torch.save(state, handle)
-            handle.flush()
-            os.fsync(handle.fileno())
         restored = fresh(kind, initial)
-        restored.load_state_dict(torch.load(pending, map_location='cpu', weights_only=True))
+        if keep_checkpoints:
+            path = checkpoints/(kind+'-final.pt')
+            pending = stage_checkpoint(path, state)
+            restored.load_state_dict(torch.load(pending, map_location='cpu', weights_only=True))
+        else:restored.load_state_dict(state)
         assert runner.state_fingerprint(restored.state_dict()) == final_sha
         _, replay = evaluate(restored, data, data['splits']['eval'][:32])
         assert torch.equal(replay, first)
-        assert pending.stat().st_size <= design['private_checkpoint_bytes_max']
-        pending.replace(path)
-        files[path.name] = dict(sha256=sha(path),bytes=path.stat().st_size)
+        if keep_checkpoints:
+            assert pending.stat().st_size <= design['private_checkpoint_bytes_max']
+            pending.replace(path)
+            files[path.name] = dict(sha256=sha(path),bytes=path.stat().st_size)
         results[kind] = dict(metrics=measured,epochs=epochs,parameters=81028,optimizer_steps=steps,
             initial_state_sha256=initial_sha,final_state_sha256=final_sha,
-            checkpoint=files[path.name],checkpoint_reload_first_batch_exact=True)
+            checkpoint=files[path.name] if keep_checkpoints else None,
+            checkpoint_reload_first_batch_exact=keep_checkpoints,state_replay_first_batch_exact=True)
         if kind == 'cubic_coherent':
             frozen = {k:evaluate(restored, data, data['splits']['eval'], routing_kind=k)[0] for k in KINDS}
             assert frozen[kind] == measured
             diagnostics = dict(frozen_routing_metrics=frozen,ranges=range_diagnostics(restored,data))
         del optimizer, restored, model
-    marker = dict(schema='qattn.token-transport.screen.checkpoints.v1',
-        files={n:v['sha256'] for n,v in files.items()},selection='Fixed fourth-epoch final states; no evaluation selection.')
-    assert set(p.name for p in checkpoints.iterdir()) == set(files)
-    assert all(sha(checkpoints/n) == v['sha256'] for n,v in files.items())
-    marker_bytes = len((json.dumps(marker, indent=2, allow_nan=False)+'\n').encode())
-    assert sum(p.stat().st_size for p in checkpoints.iterdir())+marker_bytes <= design['private_checkpoint_bytes_max']
-    save(checkpoints/'RUN_COMPLETE', marker)
+    if keep_checkpoints:seal_checkpoints(checkpoints, files, design['private_checkpoint_bytes_max'])
     coherent = results['cubic_coherent']['metrics']
     gate = (all(coherent['macro_f1'] > results[k]['metrics']['macro_f1'] for k in KINDS if k != 'cubic_coherent')
             and coherent['ce'] <= results['native']['metrics']['ce'])
@@ -295,7 +343,8 @@ def train(a, design):
         decision='EXPLORATORY_GATE_PASS' if gate else 'INCONCLUSIVE_NO_PROMOTION',
         diagnostics=diagnostics,optimizer_steps=1568,common_epoch_order_sha256=order_sha,
         common_initial_state_sha256=initial_sha,fit_examples=3124,evaluation_examples=972,
-        private_checkpoints=files,checkpoint_marker_sha256=sha(checkpoints/'RUN_COMPLETE'),
+        private_checkpoints=files,checkpoint_marker_sha256=sha(checkpoints/'RUN_COMPLETE') if keep_checkpoints else None,
+        checkpoint_policy='private_final' if keep_checkpoints else 'none',
         task_training=True,full_formal_run=False,independent_confirmation=False,formal_handoff=False,
         COS_requests=0,cloud_writes=0,L5='NOT_ACCEPTED',elapsed_seconds=time.monotonic()-started,
         scope='Single common initialization, repeatedly explored original-training group partition; no independent confirmation or inherited L4.')
