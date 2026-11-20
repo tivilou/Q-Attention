@@ -1,0 +1,151 @@
+{
+  "schema": "qattn.original-reading-dossier.v1",
+  "purpose": "Bounded nearest-work comparison for the already selected cubic token-transport theory",
+  "records": [
+    {
+      "paper_id": "arxiv:2308.13422v2",
+      "title": "QKSAN: A Quantum Kernel Self-Attention Network",
+      "source_url": "https://arxiv.org/abs/2308.13422v2",
+      "version": "2308.13422v2",
+      "identity": "verified",
+      "reading": "read_for_scope",
+      "pdf_sha256": "6f40338f77bb84daf4c663fc59c2c233b610b8e21d7f622b68fdfa4126f28428",
+      "pdf_bytes": 5062755,
+      "page_count": 12,
+      "parsed_sha256": "f0366447d066bcd4f2528bc136a1d0b4ae60d9c032ad437f0d326548bd9c9022",
+      "rendered_method_sha256": "2f7caa935bf7bdcc91aa177cd6897e14d15b273c305d1a30e2ff7e848089d018",
+      "authors": [
+        "Ren-Xin Zhao",
+        "Jinjing Shi",
+        "Xuelong Li"
+      ],
+      "pages": [
+        1,
+        4,
+        5
+      ],
+      "scope": "Identity; Section3.1 quantum query/key score and Section3.2 conditional link",
+      "facts": [
+        {
+          "locator": "p4 Eq9,Definitions3.2-3.3; p5 Eq21",
+          "finding": "The score is a squared inner product of separately transformed query/key states."
+        },
+        {
+          "locator": "p5 Definition3.6 and Eqs22-24",
+          "finding": "The score measurement controls an operation on a second value register; deferred and intermediate measurement constructions are compared."
+        }
+      ],
+      "difference": "The examined score is pairwise query/key fidelity plus measurement-conditioned register operations. The current exact route instead builds a key-key cubic Gram graph, mixes all class-query token amplitudes by its unitary, then squares.",
+      "limits": [
+        "Only identity and listed score/link pages read; other architecture, results, appendices and code uninspected.",
+        "No claim that all quantum kernel attention variants are covered."
+      ]
+    },
+    {
+      "paper_id": "arxiv:2403.14753v2",
+      "title": "Learning with SASQuaTCh: a Novel Variational Quantum Transformer Architecture with Kernel-Based Self-Attention",
+      "source_url": "https://arxiv.org/abs/2403.14753v2",
+      "version": "2403.14753v2",
+      "identity": "verified",
+      "reading": "read_for_scope",
+      "pdf_sha256": "5dc615144c363e5d1f9f1d49f0112ea015a1efff1705621ec584a987c566abb7",
+      "pdf_bytes": 499040,
+      "page_count": 12,
+      "parsed_sha256": "fab3112fa9602db5896f0319b865042c0fc07a40062d2b405a1b165c9f0dcfc4",
+      "rendered_method_sha256": "9c4ad6920a6f204d00442bed288d00f8c693dd4f2928203fa5d11d2f1423ead3",
+      "authors": [
+        "Ethan N. Evans",
+        "Matthew Cook",
+        "Zachary P. Bradshaw",
+        "Margarite L. LaBorde"
+      ],
+      "pages": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "scope": "Identity; kernel convolution derivation and SASQuaTCh circuit",
+      "facts": [
+        {
+          "locator": "p3 Eqs5-7",
+          "finding": "Under a stationary-kernel assumption, the attention operation is represented as a convolution evaluated in Fourier space."
+        },
+        {
+          "locator": "p4 Eqs9-12 and architecture paragraphs",
+          "finding": "The sequence is embedded in quantum registers and processed by QFT, a trainable kernel unitary, inverse QFT and a task-specific readout."
+        }
+      ],
+      "difference": "This establishes a quantum Fourier-domain kernel architecture. The current generator is an input-dependent cubic token-state Gram graph, with fixed tau and class-query amplitude initialization; the fixed-key coordinate ceiling comparison is a different scoped question.",
+      "limits": [
+        "Listed main-method pages only; experiments, additional figures, appendices and code uninspected.",
+        "The paper discusses state-preparation and measurement costs; no speedup or hardware inference is imported."
+      ]
+    },
+    {
+      "paper_id": "arxiv:2610.30465v1",
+      "title": "Flow-based Spectral Kernel Learning for Nonstationary Attention",
+      "source_url": "https://arxiv.org/abs/2610.30465v1",
+      "version": "2610.30465v1",
+      "identity": "verified",
+      "reading": "read_for_scope",
+      "pdf_sha256": "2f7619b6548328afcf22e7de4f6199646b3c9fbf27f07672b0a263de00725e98",
+      "pdf_bytes": 1526707,
+      "page_count": 23,
+      "parsed_sha256": "27d9739649ae1986310c107514f0ffd5708e7320d5ab60f7697fbfae867dad69",
+      "rendered_method_sha256": "dd7f461fcefd4c35b65ffc7a084f8e132f4d39fbbd78384a8dc204eb9892049e",
+      "authors": [
+        "Zi Yang",
+        "Ying Li",
+        "Alejandro Lancho",
+        "Darío C. Larese",
+        "Pablo M. Olmos",
+        "Michael Minyi Zhang"
+      ],
+      "pages": [
+        1,
+        3,
+        4,
+        5,
+        6
+      ],
+      "scope": "Identity; nonstationary kernel/RFF/flow equations; projection absorption assumption",
+      "facts": [
+        {
+          "locator": "pp3-5 Eqs6-14",
+          "finding": "A bivariate spectral distribution and normalizing flow parameterize a nonstationary random-feature attention kernel, with a spectral regularizer."
+        },
+        {
+          "locator": "p4 Eq10 and following paragraph",
+          "finding": "ELU+1 makes the implemented features positive; the paper explicitly limits its unbiasedness theorem to the signed features before this transformation."
+        },
+        {
+          "locator": "p6 Theorem3.3 and following paragraph",
+          "finding": "Projection absorption assumes uniform density in continuous similarities and does not certify this assumption for the finite implementation."
+        }
+      ],
+      "difference": "Learning kernel spectra and absorbing query/key projections into an expressive function family differs from a fixed-key physical-query ceiling. Its conditional theorem is not evidence for or against the exact finite cubic mechanism.",
+      "limits": [
+        "Listed method pages only; AppendixA proofs, empirical claims and source code uninspected.",
+        "The acquired artifact is an arXiv preprint; conference status is not independently checked."
+      ]
+    }
+  ],
+  "prior_scoped_reading": "reading-receipts.json",
+  "coverage": "Three additional originals, selected method sections only. Targeted frame/walk searches remain metadata-only.",
+  "synthesis": {
+    "known_components": [
+      "Quantum fidelity attention scores",
+      "Unitary/spectral propagation and quantum graph diffusion",
+      "Flexible learned attention kernels and nonlinear feature maps"
+    ],
+    "candidate_scope": "Fixed-key nonlinear amplitude transport: linear-Gram query-null, cubic separation, minimality in a restricted entrywise polynomial family, and a full-rank overcomplete stable witness.",
+    "unresolved": [
+      "No exhaustive novelty clearance, especially frame/POVM and nonlinear graph-walk theory.",
+      "No held-out utility or necessity/mediation claim; formal report pending.",
+      "A new combination of familiar ingredients alone is not L5."
+    ]
+  },
+  "priority_claim": false,
+  "scientific_recomputation": false
+}

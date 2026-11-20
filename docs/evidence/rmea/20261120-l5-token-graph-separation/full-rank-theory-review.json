@@ -1,0 +1,31 @@
+{
+  "review_mode": "external",
+  "review_scope": "mechanism",
+  "freeze_sha256": "3fe9cee4f728dc3bd77d0796caf6336e36734c41fed68e900785071755b513a8",
+  "verdict": "PASS_WITH_RISK",
+  "must_fix": [
+    "At δ=0 the strict bounds <146δ, <36.5δ and <55δ read 0<0. Use ≤ in those three bounds, or handle δ=0 by the unperturbed result. The strict probability margin is unaffected."
+  ],
+  "full_rank_construction": "M=I+vv† has spectrum (2,1,…,1). The only nonzero cubic edges have weights 3√3/8 and 1/8, giving c₀=√7/4 and the stated r,s. The middle row of UΨ† is w†, with ||w||=1 and |v†x|²=25/28. Applying M⁻¹=I−vv†/2 gives the stated ℓ, β, normalized witness and P.",
+  "ceiling_and_gap": "L is the attained native maximum. The dephased slack has trace γ on the active plane, determinant q(210γ−183q)/784 there, and equals γI on its complement. The stated entries and γ≥1/2 verify positivity for q≤35/61. Both Loewner bounds therefore hold for every density matrix, not just the witness query. With β=1/4+3z/2 the cross-multiplied numerator is exactly the displayed expression. At τ=1/4 and ε=10⁻⁶ it exceeds z; the stated denominator bound gives P−L>0.003.",
+  "perturbation_bound": "The 3δ analysis-matrix bound and 48δ graph bound hold for complex unit keys. Normalization away from zero and Duhamel give u≤36.5δ without differentiating at the spectral tie. The frame and transported-row bounds give Cc<0.001186 and Cn<0.000106, using denominator >0.9999. Each squared-modulus row changes in ℓ¹ by at most 2u, so Cd<0.000836 uniformly. The pure-query comparator bounds also extend to mixtures by the corresponding Loewner inequalities. The residual margin exceeds 0.000978 and hence 0.0009.",
+  "source_equation_match": "For nine valid keys, the einsum computes Aφ and the ordinary transpose in the coherent branch implements UAφ, not U†Aφ. The code removes the graph diagonal, uses its Hermitian operator norm, retains the native denominator and applies |U|² to native probabilities in the initially dephased branch. This matches the derivation at the default τ and the stated imported EPS; the EPS definition is not in the excerpt. This is a forward-equation review, not an execution result.",
+  "substantive_gain_over_prior": "The witness now belongs to a spanning, overcomplete frame, and the same query certifies separation throughout the stated ball of normalized keys, including perturbations that remove the isolated vertices. The ball contains a relatively open neighborhood. Linear-Gram transport remains query-absorbed by the same push-through identity.",
+  "limitations": [
+    "The separation fixes keys and one readout coordinate; it does not establish encoder reachability, typicality, learned-family separation or task benefit.",
+    "The radius is sufficient, not sharp or measured. No new numerical test or novelty finding follows."
+  ],
+  "risks": [
+    "The mathematical guarantee is for exactly unit keys and queries in exact arithmetic. The source's norm tolerance and complex128 rounding are not a separate floating-point certification."
+  ],
+  "L5": "NOT_ACCEPTED",
+  "response_id": "resp_078a9a5a477ff31c016b0095d9aa4487d2a97599a896c760ec",
+  "model": "gpt-6.2-astra",
+  "reasoning_effort": "medium",
+  "correction_resolution": {
+    "status": "APPLIED_DETERMINISTICALLY",
+    "scope": "Three non-strict O(delta) inequalities now include delta=0; original verdict/must_fix preserved",
+    "corrected_document_sha256": "fc45e7de3c53235db1b9c513b59da8027af40bb382e9c5944dd1f9658e89ab4c",
+    "source_EPS_verified": "1e-6 in unchanged reviewed rmea.py"
+  }
+}

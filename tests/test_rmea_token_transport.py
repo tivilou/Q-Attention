@@ -126,6 +126,61 @@ class TransportTests(unittest.TestCase):
         self.assertEqual(cfg['trace_checkpoints'],['final'])
         self.assertEqual(cfg['conditions'],list(KINDS))
 
+    @torch.no_grad()
+    def test_full_rank_overcomplete_separation_survives_key_perturbations(self):
+        """Exact generalized-eigenvalue competitors, not sampled-query maxima."""
+        eye=torch.eye(8,dtype=torch.complex128,device=self.device)
+        v=math.sqrt(3)/2*eye[0]+.5*eye[1]
+        base=torch.cat((torch.stack((eye[0],v,eye[1])),eye[2:]),0)
+        mask=torch.ones(1,9,dtype=torch.bool,device=self.device)
+        frame=base.T@base.conj();gram=base.conj()@base.T
+        graph=gram*gram.abs().square();graph.fill_diagonal_(0)
+        unitary=torch.matrix_exp(-.25j*graph/torch.linalg.eigvalsh(graph).abs().max())
+        w=(unitary.conj()@base)[1];query=torch.linalg.solve(frame,w);query/=query.norm()
+        phi=query[None].expand(40,-1)
+        q=math.sin(.25)**2;ell=.5+3*q/56;beta=.25+9*q/112
+        predicted=(ell*ell+EPS*beta)/(ell+9*EPS*beta)
+        ceiling=(1+EPS)/(2+9*EPS)
+        self.assertGreater(predicted-ceiling,.003)
+
+        def bound(effect,denominator):
+            inverse=torch.linalg.inv(torch.linalg.cholesky(denominator))
+            whitened=inverse@effect@inverse.mH
+            return float(torch.linalg.eigvalsh((whitened+whitened.mH)/2)[-1])
+
+        generator=torch.Generator(device=self.device);generator.manual_seed(20261121)
+        angle=2*math.asin(9.99e-6/2);smallest_margin=1.;largest_linear_error=0.
+        for case in range(65):
+            psi=base
+            if case:
+                tangent=torch.randn(base.shape,dtype=base.dtype,device=self.device,generator=generator)
+                tangent-=base*(base.conj()*tangent).sum(-1,keepdim=True)
+                tangent/=tangent.norm(dim=-1,keepdim=True)
+                psi=math.cos(angle)*base+math.sin(angle)*tangent
+            self.assertLessEqual(float((psi-base).norm(dim=-1).max()),1e-5)
+            physical=psi.T@psi.conj()
+            self.assertGreater(float(torch.linalg.eigvalsh(physical)[0]),.9998)
+            result=route(psi[None],phi,mask,kind='cubic_coherent')
+            projectors=psi[:,:,None]*psi.conj()[:,None,:]
+            denominator=physical+9*EPS*eye
+            native=bound(projectors[1]+EPS*eye,denominator)
+            weights=result['unitary'][0,1].abs().square()
+            dephased=bound((weights[:,None,None]*projectors).sum(0)+EPS*eye,denominator)
+            actual=float(result['alpha'][0,0,1]);margin=actual-max(native,dephased)
+            self.assertGreater(margin,.0009);smallest_margin=min(smallest_margin,margin)
+            if not case:
+                self.assertAlmostEqual(actual,predicted,delta=1e-12)
+                self.assertAlmostEqual(native,ceiling,delta=1e-12)
+                self.assertLessEqual(dephased,ceiling+1e-12)
+            linear=route(psi[None],phi,mask,kind='linear_coherent')
+            rotation=torch.matrix_exp(-.25j*(physical-eye)/linear['spectral_scale'][0])
+            reference=route(psi[None],(rotation@phi.T).T,mask,kind='native')['alpha']
+            error=float((linear['alpha']-reference).abs().max())
+            self.assertLess(error,1e-11);largest_linear_error=max(largest_linear_error,error)
+        print(p.json.dumps(dict(status='FULL_RANK_STABLE_SEPARATION_PASS',cases=65,dimension=8,tokens=9,
+            base_coordinate_gain=predicted-ceiling,minimum_coordinate_margin=smallest_margin,
+            maximum_linear_query_absorption_error=largest_linear_error,task_utility=False)),flush=True)
+
 
 if __name__=='__main__':
     unittest.main()
