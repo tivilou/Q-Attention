@@ -33,9 +33,11 @@ def arm(directory,seconds):
     check_launch(directory)
     # request.json is written once at worker admission. Count delayed launch
     # against the same budget; wall clock must not move backwards at admission.
-    age=time.time()-(directory/'request.json').stat().st_mtime
+    base=time.monotonic();wall=time.time()
+    age=wall-(directory/'request.json').stat().st_mtime
     if not -5<=age<seconds:raise TimeoutError('Original admission deadline passed')
-    deadline=time.monotonic()+seconds-max(0,age)
+    deadline=base+seconds-max(0,age)
+    if time.monotonic()>=deadline:raise TimeoutError('Admission deadline elapsed before arming')
     rt=ctypes.CDLL('librt.so.1',use_errno=True);timer=ctypes.c_void_p();event=Sigevent();event.signo=9;event.notify=0
     assert ctypes.sizeof(event)==64
     rt.timer_create.argtypes=[ctypes.c_int,ctypes.POINTER(Sigevent),ctypes.POINTER(ctypes.c_void_p)]

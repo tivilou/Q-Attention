@@ -29,6 +29,7 @@ def main():
     for name,path in c['input_paths'].items():
         q=Path(path);assert q.is_absolute() and all(not x.is_symlink() for x in (q,*q.parents));setattr(a,name,q)
     a.check_launch=lambda:lifetime.check_launch(attempt)
+    a.check_launch()
     from experiments.rmea_utility_measurement.token_transport_training_fixture import run as fixture
     from experiments.rmea_utility_measurement.token_transport_screen import train
     import torch

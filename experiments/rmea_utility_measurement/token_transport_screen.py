@@ -119,12 +119,13 @@ def profile(a, design):
 
 
 @torch.no_grad()
-def evaluate(model, data, ids, *,routing_kind=None):
+def evaluate(model, data, ids, *,routing_kind=None,check_launch=None):
     model.eval()
     predictions = []
     ce = 0.
     first = None
     for start in range(0, len(ids), 32):
+        if check_launch:check_launch()
         h, r, mask, y = batch(data, ids[start:start+32], 'eval')
         if routing_kind is None:
             logits = model(h, r, mask)[0]
@@ -145,13 +146,14 @@ def evaluate(model, data, ids, *,routing_kind=None):
 
 
 @torch.no_grad()
-def range_diagnostics(model, data):
+def range_diagnostics(model, data, *,check_launch=None):
     """Known generalized-Rayleigh bounds on the first32 immutable eval units.
 
     A violated native coordinate bound suffices for region separation. It is
     not necessary, and is neither semantic attribution nor a utility theorem.
     """
     selected = data['splits']['eval'][:32]
+    if check_launch:check_launch()
     h, r, mask, _ = batch(data, selected, 'eval')
     d = model(h, r, mask, details=True)
     padded_alpha = {k:route(d['psi'], d['phi'], mask, kind=k)['alpha'] for k in KINDS}
@@ -161,6 +163,7 @@ def range_diagnostics(model, data):
     eye = torch.eye(8, dtype=torch.complex128, device='cuda')
     records = []
     for b, i in enumerate(selected):
+        if check_launch:check_launch()
         psi = d['psi'][b, mask[b]]
         utilities = d['utilities'][b, :, mask[b]]
         m = torch.ones((1, len(psi)), dtype=torch.bool, device='cuda')
@@ -307,7 +310,7 @@ def train(a, design):
             epochs.append(dict(epoch=epoch,fit_ce=loss_sum/len(order)))
             print(json.dumps(dict(progress='EPOCH_COMPLETE',condition=kind,epoch=epoch,optimizer_steps=steps)),file=sys.stderr,flush=True)
         assert steps == 392
-        measured, first = evaluate(model, data, data['splits']['eval'])
+        measured, first = evaluate(model, data, data['splits']['eval'],check_launch=getattr(a,'check_launch',None))
         state = {n:t.detach().cpu() for n,t in model.state_dict().items()}
         final_sha = runner.state_fingerprint(state)
         restored = fresh(kind, initial)
@@ -317,7 +320,7 @@ def train(a, design):
             restored.load_state_dict(torch.load(pending, map_location='cpu', weights_only=True))
         else:restored.load_state_dict(state)
         assert runner.state_fingerprint(restored.state_dict()) == final_sha
-        _, replay = evaluate(restored, data, data['splits']['eval'][:32])
+        _, replay = evaluate(restored, data, data['splits']['eval'][:32],check_launch=getattr(a,'check_launch',None))
         assert torch.equal(replay, first)
         if keep_checkpoints:
             assert pending.stat().st_size <= design['private_checkpoint_bytes_max']
@@ -328,9 +331,9 @@ def train(a, design):
             checkpoint=files[path.name] if keep_checkpoints else None,
             checkpoint_reload_first_batch_exact=keep_checkpoints,state_replay_first_batch_exact=True)
         if kind == 'cubic_coherent':
-            frozen = {k:evaluate(restored, data, data['splits']['eval'], routing_kind=k)[0] for k in KINDS}
+            frozen = {k:evaluate(restored, data, data['splits']['eval'], routing_kind=k,check_launch=getattr(a,'check_launch',None))[0] for k in KINDS}
             assert frozen[kind] == measured
-            diagnostics = dict(frozen_routing_metrics=frozen,ranges=range_diagnostics(restored,data))
+            diagnostics = dict(frozen_routing_metrics=frozen,ranges=range_diagnostics(restored,data,check_launch=getattr(a,'check_launch',None)))
         del optimizer, restored, model
     if keep_checkpoints:seal_checkpoints(checkpoints, files, design['private_checkpoint_bytes_max'])
     coherent = results['cubic_coherent']['metrics']
