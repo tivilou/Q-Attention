@@ -110,10 +110,13 @@ def aggregate(units):
     if not units:
         raise ValueError('Missing predeclared diagnostic units')
     return dict(units=len(units), coordinates=sum(u['coordinates'] for u in units),
+        readout_unit_relation_denominator=40*len(units),
         simultaneous_ceiling_witnesses=sum(len(u['simultaneous_ceiling_witnesses']) for u in units),
         tolerance=TOLERANCE,
         routing={k: dict(
             native_coordinate_exceedances=sum(u['routing'][k]['native_coordinate_exceedances'] for u in units),
+            native_readout_upper_exceedances=sum(u['routing'][k]['native_readout_upper_exceedances'] for u in units),
+            native_readout_lower_exceedances=sum(u['routing'][k]['native_readout_lower_exceedances'] for u in units),
             phase_gauge_obstruction_units=sum(u['routing'][k]['phase_gauge_obstruction'] for u in units),
             maximum_row_norm_gap=max(u['routing'][k]['row_norm_gap'] for u in units),
             maximum_quadratic_score_residual=max(u['routing'][k]['quadratic_score_residual'] for u in units))

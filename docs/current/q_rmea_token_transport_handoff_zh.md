@@ -16,7 +16,7 @@ git merge --no-edit origin/main
 bash scripts/run_q_rmea_token_transport_handoff.sh --gpu auto
 ```
 
-默认数据目录是 `data/relation/retacred`；固定 RoBERTa-large 目录是 `.external/assets/722cf37b1afa9454edce342e7895e588b6ff1d59/model`，均相对项目根目录。脚本不自动下载数据或安装环境。若环境中的默认 `python` 不正确，用 `PYTHON_BIN` 指向已有解释器；脚本依次选择 `PYTHON_BIN`、`python`、`python3`。
+默认数据目录是 `data/relation/retacred`；固定 RoBERTa-large 目录是 `.external/assets/722cf37b1afa9454edce342e7895e588b6ff1d59/model`，均相对项目根目录。模型目录仅允许资产锁中的五个文件，避免额外 safetensors 或分词配置被自动选中。脚本不自动下载数据或安装环境。若环境中的默认 `python` 不正确，用 `PYTHON_BIN` 指向已有解释器；脚本依次选择 `PYTHON_BIN`、`python`、`python3`。
 
 只检查环境、权限与 GPU 时可执行：
 

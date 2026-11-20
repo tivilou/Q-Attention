@@ -1,6 +1,7 @@
 """Portable collaborator entry and audited report-only Git delivery."""
 import argparse
 import datetime as dt
+import hashlib
 import os
 from pathlib import Path
 import re
@@ -75,7 +76,11 @@ def export(root,target,inject_failure=False):
     handoff=p.read(root/'handoff.json');phase='canary' if handoff['canary_only'] else 'discovery'
     # Audit both actual parent phases; export retry never imports Torch or trains.
     for name in ('canary',) if phase=='canary' else ('canary','discovery'):
-        p.audit(root/name)
+        audited,_=p.audit(root/name)
+        if audited['config']['profile']!=name or audited['git_revision']!=handoff['git_revision']:
+            raise ValueError('Audited phase/revision differs from parent')
+        if phase=='discovery' and audited['environment'].get('fixture_sha256'):
+            raise ValueError('Formal handoff requires a live nonfixture canary and discovery')
     manifest,summary=p.audit(root/phase)
     if p.read(root/'canary/manifest.json')['environment']!=manifest['environment']:raise ValueError('Canary and discovery environments differ')
     if manifest['git_revision']!=handoff['git_revision']:raise ValueError('Run revision differs')
@@ -89,7 +94,7 @@ def export(root,target,inject_failure=False):
         (temporary/'data.sha256').write_text(''.join(f'{v["source_sha256"]}  {s}.jsonl\n' for s,v in manifest['data'].items()),encoding='utf8')
         (temporary/'data_counts.txt').write_text(''.join(f'{s} source={v["source_count"]} selected={v["selected_count"]}\n' for s,v in manifest['data'].items()),encoding='utf8')
         p.atomic_json(temporary/'run_summary.json',dict(schema='q-rmea.handoff-report.v1',data=manifest['data'],source_sha256=manifest['source_sha256'],
-            git_revision=handoff['git_revision'],run_id=root.name,profile=phase,formal=phase=='discovery',
+            git_revision=manifest['git_revision'],run_id=root.name,profile=manifest['config']['profile'],formal=manifest['config']['profile']=='discovery',
             sha256={f.name:p.digest(f) for f in temporary.iterdir()}))
         validate_report(temporary)
         if target.exists():
@@ -123,18 +128,22 @@ def publish(root):
         if set(p.git('diff','--name-only',baseline,head).splitlines())!=expected or set(p.git('diff','--name-only','--diff-filter=A',baseline,head).splitlines())!=expected:raise ValueError('Commit must add exactly audited report files')
         for name,sha in hashes.items():
             raw=subprocess.check_output(['git','show',head+':'+name],cwd=p.ROOT)
-            if p.hashlib.sha256(raw).hexdigest()!=sha:raise ValueError('Committed bytes differ')
+            if hashlib.sha256(raw).hexdigest()!=sha:raise ValueError('Committed bytes differ')
         branch_gate();validate_report(target)
         if p.git('rev-parse','HEAD')!=head:raise ValueError('HEAD changed before push')
         p.git('push','origin',head+':refs/heads/1.1')
         print(p.json.dumps(dict(published_report=relative,commit=head,branch='1.1')),flush=True)
 
 def run(args):
-    selection=isolated_probe(args)
     root=Path(args.run_dir).resolve() if args.run_dir else p.ROOT.parent/'q-rmea-token-transport-private'/ (dt.datetime.now(dt.timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'_seed13')
+    if not args.development_canary and not re.fullmatch(r'\d{8}T\d{6}Z_seed13',root.name):
+        raise ValueError('Expected timestamp_seed13 run basename before training')
     if root.is_relative_to(p.ROOT) or root.exists():raise ValueError('Fresh private run required; interrupted training is not automatically resumed')
+    selection=isolated_probe(args)
     root.mkdir(parents=True)
-    p.atomic_json(root/'handoff.json',dict(git_revision=p.git('rev-parse','HEAD'),canary_only=args.canary_only,selection=selection))
+    handoff=dict(git_revision=p.git('rev-parse','HEAD'),canary_only=args.canary_only,selection=selection,
+                 parent_imported_torch_before_children='torch' in sys.modules)
+    p.atomic_json(root/'handoff.json',handoff)
     print('PRIVATE_RUN='+str(root),flush=True)
     env=dict(os.environ,CUDA_VISIBLE_DEVICES=selection['cuda_visible_devices'],OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',CUBLAS_WORKSPACE_CONFIG=':4096:8',PYTHONDONTWRITEBYTECODE='1')
     if not args.canary_only:env['QATTN_COLLABORATOR_FORMAL']='1'
@@ -142,6 +151,10 @@ def run(args):
         command=[sys.executable,'-B','-m','baselines.retacred.rmea_token_transport_study','--profile',profile,'--data-dir',args.data_dir,'--assets',args.assets,'--output',str(root/profile)]
         if args.development_cache:command+=['--fixture-cache',args.development_cache]
         subprocess.run(command,cwd=p.ROOT,env=env,check=True)
+    handoff['parent_imported_torch_after_children']='torch' in sys.modules
+    if handoff['parent_imported_torch_before_children'] or handoff['parent_imported_torch_after_children']:
+        raise ValueError('Handoff control parent retained Torch')
+    p.atomic_json(root/'handoff.json',handoff)
     if args.development_canary:
         target=root.parent/(root.name+'-safe-report');export(root,target,args.inject_export_failure)
         print(p.json.dumps(dict(development_canary=True,report=str(target))),flush=True)

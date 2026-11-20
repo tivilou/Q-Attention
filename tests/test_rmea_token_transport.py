@@ -82,6 +82,40 @@ class TransportTests(unittest.TestCase):
             head.prepare.weight[index]=initial
         self.assertAlmostEqual(actual,(values[0]-values[1])/(2*epsilon),delta=2e-7)
 
+    def test_finite_depth_two_head_realizes_designated_middle_witness(self):
+        head=TrainableTokenTransportHead('cubic_coherent').double().to(self.device)
+        h=torch.zeros(1,3,1024,dtype=torch.float64,device=self.device)
+        h[0,torch.arange(3),torch.arange(3)]=1
+        roles=torch.zeros(1,3,4,dtype=torch.float64,device=self.device)
+        mask=torch.ones(1,3,dtype=torch.bool,device=self.device)
+        b0=torch.zeros(8,dtype=torch.complex128,device=self.device);b0[0]=1
+        b3=torch.zeros_like(b0);b3[3]=1
+        e=(b0-b3)/math.sqrt(2);f=(b0+b3)/math.sqrt(2)
+        expected=torch.stack((e,math.sqrt(3)/2*e+.5*f,f))
+        gram=expected.conj()@expected.T;graph=gram*gram.abs().square();graph.fill_diagonal_(0)
+        unitary=torch.matrix_exp(-.25j*graph/torch.linalg.eigvalsh(graph).abs().max())
+        physical=expected.T@expected.conj();w=(unitary.conj()@expected)[1]
+        ix=torch.tensor([0,3],device=self.device)
+        solved=torch.linalg.solve(physical[ix][:,ix],w[ix]);solved/=solved.norm()
+        query=torch.zeros_like(b0);query[ix]=solved
+        y=2*math.atan2(float(solved[1].abs()),float(solved[0].abs()))
+        zeta=(float(solved[1].angle()-solved[0].angle())+math.pi)%(2*math.pi)-math.pi
+        self.assertLess(abs(y),math.pi);self.assertLess(abs(zeta),math.pi)
+        with torch.no_grad():
+            head.prepare.weight.zero_();head.prepare.bias.zero_();head.effect.zero_()
+            head.prepare.weight[6,0]=math.atanh(-.5)
+            head.prepare.weight[6,1]=math.atanh(-1/6)
+            head.prepare.weight[6,2]=math.atanh(.5)
+            head.effect[1,1,0,0]=math.atanh(y/math.pi)
+            head.effect[1,1,0,1]=math.atanh(zeta/math.pi)
+            d=head(h,roles,mask,details=True)
+        torch.testing.assert_close((d['psi'][0].conj()*expected).sum(-1).abs(),
+                                  torch.ones(3,dtype=torch.float64,device=self.device),atol=1e-12,rtol=0)
+        self.assertAlmostEqual(float((d['phi'][1].conj()*query).sum().abs()),1.,delta=1e-12)
+        measured=inspect_unit(d['psi'][0],d['phi'],d['utilities'][0],head.bias,1)
+        self.assertTrue(any(v['relation']==1 and v['token']==1 for v in measured['simultaneous_ceiling_witnesses']))
+        self.assertGreater(float(d['alpha'][0,1,1]),(1+EPS)/(2+3*EPS)+1e-8)
+
     def test_budget_and_final_state_contract(self):
         cfg=p.config('discovery')
         self.assertEqual(cfg['counts'],{'train':58465,'valid':19584,'test':13418})

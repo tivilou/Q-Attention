@@ -16,7 +16,7 @@ def state_identity(state):
     return h.hexdigest()
 
 
-def train(cfg, output, labels):
+def train(cfg, output, labels, *, data_dir=None, assets=None):
     import numpy as np
     import torch
     from torch.nn import functional as F
@@ -135,7 +135,7 @@ def train(cfg, output, labels):
             p.atomic_json(output / 'private-geometry.json', dict(selection='first32 hash-ordered testunits, before outcomes', units=units))
             diagnostics = dict(frozen_cubic_route_metrics=frozen, geometry=aggregate(units))
         del head, optimizer, final_state, loaded; gc.collect(); torch.cuda.empty_cache()
-    trace = close(output, samples, cfg, metadata)
+    trace = close(output, samples, cfg, metadata, data_dir=data_dir, assets=assets)
     cubic = results['cubic_coherent']['test']; native = results['native']['test']
     contrasts = {k: dict(positive39_macro_f1=cubic['positive39_macro_f1']-results[k]['test']['positive39_macro_f1'],
                         ce=cubic['ce']-results[k]['test']['ce']) for k in p.MODES if k != 'cubic_coherent'}
@@ -180,6 +180,7 @@ def run(args):
             labels = sorted(p.read(p.ROOT/'docs/contracts/q_rmea_entity_labels.json'))
         else:
             from .rmea_run import extract
+            p.verify_loader_directory(args.assets)
             labels, _ = extract(args, cfg, output)
         import importlib.metadata as md
         environment = dict(python=sys.version.split()[0], torch=torch.__version__, numpy=md.version('numpy'),
@@ -188,7 +189,9 @@ def run(args):
         manifest = dict(schema='q-rmea.token-transport.run.v1', config=cfg, source_sha256=p.identity(p.sources()),
             git_revision=p.git('rev-parse', 'HEAD'), environment=environment,
             data={s: dict(source_sha256=p.EXPECTED[s][1], source_count=p.EXPECTED[s][0], selected_count=n) for s, n in cfg['counts'].items()})
-        p.atomic_json(output / 'manifest.json', manifest); train(cfg, output, labels)
+        p.atomic_json(output / 'manifest.json', manifest)
+        train(cfg, output, labels, data_dir=None if args.fixture_cache else args.data_dir,
+              assets=None if args.fixture_cache else args.assets)
         if not args.fixture_cache:
             for split in cfg['counts']:
                 if p.digest(args.data_dir/(split+'.jsonl')) != p.EXPECTED[split][1]:

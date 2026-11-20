@@ -75,7 +75,7 @@ def capture(root, head, kind, split, batch, metadata):
                 value_capture=dict(status='complete',shape=list(a.shape),logical_element_count=int(a.size),stored_element_count=int(a.size),artifact_refs=[ref],
                     reader_projection=dict(status='available',kind='coordinate_inspector',coordinate_access='arbitrary',
                         reader_ref='scripts/view_rmea_token_transport_trace.py --sample '+sid+' --representation '+key,
-                        source_sha256=[p.digest(p.ROOT/'scripts/view_rmea_token_transport_trace.py')]))))
+                        source_sha256=[ref['sha256']]))))
         links=dict(tokenization=['source:tokens','source:entity_spans'],
             encoder=['input_ids','attention_mask','external:pinned_roberta_large'],
             word_input=['encoder_hidden','source:word_pieces','source:entity_spans'],
@@ -93,7 +93,8 @@ def capture(root, head, kind, split, batch, metadata):
             roles=dict(source_sample=dict(tokens=meta['tokens'],id_hash=meta['id_hash']),
                 sequence_or_features=dict(word_pieces=meta['word_pieces']),task_objects=dict(subject=meta['subject'],object=meta['object']),
                 target_or_gold=dict(value=int(y[0]),boundary='post_generation_only'),prediction=dict(value=int(arrays['logits'].argmax())),
-                provenance=dict(condition=kind,cache_index=i,checkpoint_file=cp.relative_to(root).as_posix(),checkpoint_sha256=p.digest(cp))),
+                provenance=dict(condition=kind,cache_index=i,checkpoint_file=cp.relative_to(root).as_posix(),checkpoint_sha256=p.digest(cp),
+                    value_reader_source_sha256=p.digest(p.ROOT/'scripts/view_rmea_token_transport_trace.py'))),
             stages=stages,representations=reps))
     return samples
 
@@ -116,7 +117,7 @@ def read_value(root, sample, representation, coords):
     return result
 
 
-def close(root, samples, cfg, metadata):
+def close(root, samples, cfg, metadata, *, data_dir=None, assets=None):
     root=Path(root); manifest=p.read(root/'manifest.json')
     required=['input_ids','attention_mask','encoder_hidden','h','roles','mask','features',
               'psi','phi','alpha','native_alpha','values','utilities','logits','route_swap_logits','target']
@@ -132,6 +133,31 @@ def close(root, samples, cfg, metadata):
         coverage={s:'observed' if s in ('data','preprocess','scoring','generation','diagnosis','evaluation') else 'not_applicable' for s in STAGES},samples=samples)
     errors,warnings=validate(payload,require_complete=True)
     if errors: raise ValueError(errors)
+    # Verify the six distinct source units independently of the producer's cache
+    # metadata. Batch padding may differ, the valid tokenization may not.
+    live_rows={}; tokenizer=None
+    if data_dir is not None and assets is not None:
+        import heapq
+        from transformers import RobertaTokenizerFast
+        from scripts.audit_rmea_tokenization import marked_words
+        p.verify_loader_directory(assets)
+        tokenizer=RobertaTokenizerFast.from_pretrained(assets,add_prefix_space=True,local_files_only=True)
+        for split in cfg['counts']:
+            with (Path(data_dir)/(split+'.jsonl')).open(encoding='utf-8') as f:
+                selected=heapq.nsmallest(2,(p.json.loads(line) for line in f),key=lambda row:hashlib.sha256(
+                    ('rmea-sample-v1:'+split+':'+str(row['metadata']['id'])).encode()).hexdigest())
+            for i,row in enumerate(selected):
+                meta=metadata[split][i]
+                if (row['tokens']!=meta['tokens'] or row['subject']!=meta['subject'] or row['object']!=meta['object']
+                        or hashlib.sha256(str(row['metadata']['id']).encode()).hexdigest()!=meta['id_hash']):
+                    raise ValueError('Source tokens/spans/hash selection differ from cache')
+                marked,mapping=marked_words(row)
+                encoded=tokenizer([marked],is_split_into_words=True,padding=False,truncation=False)
+                word_ids=encoded.word_ids(0)
+                pieces=[[k for k,w in enumerate(word_ids) if w is not None and mapping[w]==j] for j in range(len(row['tokens']))]
+                live_rows[split,i]=(encoded['input_ids'][0],encoded['attention_mask'][0],pieces)
+    elif not manifest['environment'].get('fixture_sha256'):
+        raise ValueError('Live replay requires the pinned tokenizer and source data')
     seen=set(); parity={}; checked=coordinates=elements=0
     for sample in samples:
         prov=sample['roles']['provenance']; kind=prov['condition']; i=prov['cache_index']; split=sample['split']
@@ -151,6 +177,13 @@ def close(root, samples, cfg, metadata):
             raise ValueError('Original sample lineage differs')
         np.testing.assert_array_equal(saved['input_ids'],meta['input_ids'])
         np.testing.assert_array_equal(saved['attention_mask'],meta['attention_mask'])
+        if tokenizer is not None:
+            ids,attention,expected_pieces=live_rows[split,i];length=len(ids)
+            np.testing.assert_array_equal(saved['input_ids'][:length],ids)
+            np.testing.assert_array_equal(saved['attention_mask'][:length],attention)
+            if (saved['attention_mask'][length:].any() or np.any(saved['input_ids'][length:]!=tokenizer.pad_token_id)
+                    or pieces!=expected_pieces):
+                raise ValueError('Pinned tokenizer/word-piece lineage replay differs')
         np.testing.assert_array_equal(saved['encoder_hidden'],np.load(root/'cache'/f'{split}-encoder-{i}.npy',allow_pickle=False))
         if len(pieces)!=n or len(saved['encoder_hidden'])!=len(saved['input_ids']) or not np.isin(saved['attention_mask'],[0,1]).all():
             raise ValueError('Subword coordinate coverage differs')
@@ -197,6 +230,8 @@ def close(root, samples, cfg, metadata):
     report=dict(schema='q-rmea.token-transport.trace-readiness.v2',structural='pass',semantic='pass',replay='pass',coordinate_reader='pass',
         samples=len(samples),complete_numeric_arrays_checked=checked,complete_numeric_elements_checked=elements,
         source_linked_coordinates_checked=coordinates,warnings=warnings,
+        tokenization_validation='live_pinned_source_replay' if tokenizer is not None else 'archived_pinned_cache_provenance_only',
+        distinct_source_units_retokenized=len(live_rows),
         boundary='Saved final subword encoder output to original words and final heads; no live encoder/internal layer/trajectory claim')
     p.atomic_json(root/'trace_validation.json',report)
     return report

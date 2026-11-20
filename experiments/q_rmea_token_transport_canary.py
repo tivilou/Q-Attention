@@ -16,10 +16,14 @@ from baselines.retacred import rmea_token_transport_protocol as p
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--fixture-cache',type=Path,required=True);parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--fixture-cache',type=Path);parser.add_argument('--unit-only',action='store_true')
+    parser.add_argument('--output',type=Path,required=True)
     a=parser.parse_args(); output=a.output.absolute();attempt=output.parent
+    if a.unit_only==bool(a.fixture_cache):
+        raise ValueError('Choose the pure mechanism units or the pinned full technical canary')
     request=p.read(attempt/'request.json');command=p.read(attempt/'command.json')
-    expected=['{python}','-B','experiments/q_rmea_token_transport_canary.py','--fixture-cache',str(a.fixture_cache),'--output','{output}']
+    expected=['{python}','-B','experiments/q_rmea_token_transport_canary.py']+(
+        ['--unit-only'] if a.unit_only else ['--fixture-cache',str(a.fixture_cache)])+['--output','{output}']
     if (os.environ.get('RESEARCH_OUTPUT_DIR')!=str(output) or request['project']!='q-attention'
             or request['attempt']!=attempt.name or request['recipe']['command']!=expected
             or request['recipe']['outputs']!=['compact-report.json','RUN_COMPLETE']
@@ -57,8 +61,9 @@ def main():
     p.review_gate();check()
     if output.name!='output' or not output.is_dir() or list(output.iterdir()):
         raise ValueError('Fresh assigned output required')
-    from baselines.retacred.rmea_entity_study import FIXTURE_SHA
-    if p.digest(a.fixture_cache)!=FIXTURE_SHA:raise ValueError('Pinned tiny historical fixture required')
+    if not a.unit_only:
+        from baselines.retacred.rmea_entity_study import FIXTURE_SHA
+        if p.digest(a.fixture_cache)!=FIXTURE_SHA:raise ValueError('Pinned tiny historical fixture required')
     work=attempt/'scientific-work';work.mkdir();env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',
         OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',CUBLAS_WORKSPACE_CONFIG=':4096:8')
 
@@ -77,6 +82,16 @@ def main():
                     stdout_sha256=p.digest(work/(name+'.stdout')),stderr_sha256=p.digest(work/(name+'.stderr')))
 
     tests=execute('unit',[sys.executable,'-B','-m','unittest','discover','-s','tests','-p','test_rmea_token_transport.py','-v'],0)
+    if a.unit_only:
+        check()
+        record=dict(status='MECHANISM_UNITS_PASS',source_revision=request['revision'],
+            source_sha256=p.identity(p.sources()),tests=tests,formal_training=False,
+            full_parent_canary=False,release_ready=False,L5='NOT_ACCEPTED')
+        p.atomic_json(output/'compact-report.json',record)
+        p.atomic_json(output/'RUN_COMPLETE',dict(schema='q-rmea.token-transport.units.closed.v1',
+            files={'compact-report.json':p.digest(output/'compact-report.json')},formal_training=False))
+        print(json.dumps(dict(status=record['status'],release_ready=False,L5='NOT_ACCEPTED')))
+        return
     root=work/(dt.datetime.now(dt.timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'_seed13')
     common=[sys.executable,'-B','experiments/q_rmea_token_transport_handoff.py']
     parent_run=execute('parent',common+['run','--development-canary','--canary-only','--gpu','auto',
@@ -92,14 +107,19 @@ def main():
     validate_report(target)
     if p.inventory(root/'canary')!=before or list(target.parent.glob('.'+target.name+'-*')):
         raise ValueError('Export retry mutated source or left partials')
+    delivery=execute('git-delivery',[sys.executable,'-B','experiments/check_rmea_token_transport_delivery.py','--run-dir',str(root)],0)
+    handoff=p.read(root/'handoff.json')
+    if handoff['parent_imported_torch_before_children'] or handoff['parent_imported_torch_after_children']:
+        raise ValueError('Actual handoff parent retained Torch')
     record=dict(status='TECHNICAL_CANARY_PASS',source_revision=request['revision'],source_sha256=manifest['source_sha256'],
-        source_run_complete_sha256=p.digest(root/'canary/RUN_COMPLETE'),tests=tests,parent=parent_run,export_retry=retry,
+        source_run_complete_sha256=p.digest(root/'canary/RUN_COMPLETE'),tests=tests,parent=parent_run,export_retry=retry,git_delivery=delivery,
         trace_validation=p.read(root/'canary/trace_validation.json'),
         conditions={k:dict(updates=v['updates'],parameters=v['parameters']) for k,v in summary['results'].items()},
         report_sha256={n:p.digest(target/n) for n in p.REPORT_FILES},
         injected_failure_cleanup=True,immutable_export_retry=True,retry_count=1,
-        parent_imported_torch='torch' in sys.modules,formal_training=False,L5='NOT_ACCEPTED')
-    if record['parent_imported_torch']:raise ValueError('Control parent retained Torch')
+        control_wrapper_imported_torch='torch' in sys.modules,
+        actual_handoff_parent_imported_torch=False,formal_training=False,L5='NOT_ACCEPTED')
+    if record['control_wrapper_imported_torch']:raise ValueError('Control wrapper retained Torch')
     check();p.atomic_json(output/'compact-report.json',record)
     p.atomic_json(output/'RUN_COMPLETE',dict(schema='q-rmea.token-transport.canary.closed.v1',
         files={'compact-report.json':p.digest(output/'compact-report.json')},formal_training=False))

@@ -24,6 +24,7 @@ FILES = (
     'scripts/validate_sample_trace_v2.py', 'docs/contracts/sample-trace.v2.schema.json',
     'experiments/q_rmea_token_transport_handoff.py',
     'experiments/q_rmea_token_transport_canary.py',
+    'experiments/check_rmea_token_transport_delivery.py',
     'scripts/run_q_rmea_token_transport_handoff.sh',
     'scripts/check_q_rmea_token_transport_handoff.sh',
     'scripts/export_q_rmea_token_transport_handoff.sh',
@@ -79,6 +80,18 @@ def review_gate(formal=False):
     return record
 
 
+def verify_loader_directory(assets):
+    """For this new study, Transformers may see only the five locked inputs."""
+    assets=Path(assets)
+    rows=read(ROOT/'baselines/retacred/assets.lock.json')['files']
+    if assets.is_symlink() or {x.name for x in assets.iterdir()}!={r['name'] for r in rows}:
+        raise ValueError('Loader directory must contain exactly the pinned asset files')
+    for row in rows:
+        path=assets/row['name']
+        if path.is_symlink() or not path.is_file() or path.stat().st_size!=row['size_bytes'] or digest(path)!=row['sha256']:
+            raise ValueError('Pinned loader input differs')
+
+
 def audit(root):
     root = Path(root)
     if root.is_symlink() or not (root / 'RUN_COMPLETE').is_file():
@@ -104,4 +117,6 @@ def audit(root):
             raise ValueError('Data contract differs')
     if cfg['profile'] == 'discovery' and m['environment'].get('fixture_sha256'):
         raise ValueError('Fixture cannot certify formal data')
+    if not m['environment'].get('fixture_sha256') and t.get('tokenization_validation')!='live_pinned_source_replay':
+        raise ValueError('Live tokenization readiness missing')
     return m, s
