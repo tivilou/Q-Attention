@@ -186,16 +186,63 @@
         "No claim of disjoint function families or exhaustive novelty clearance.",
         "No hardware, learning or task-utility inference imported."
       ]
+    },
+    {
+      "paper_id": "arxiv:1809.02570v1",
+      "title": "Robustness of Measurement, discrimination games and accessible information",
+      "source_url": "https://arxiv.org/abs/1809.02570v1",
+      "version": "1809.02570v1",
+      "identity": "verified",
+      "reading": "read_for_scope",
+      "pdf_sha256": "2efd7acc039335c2f7734e06faf89f43d9ee9d9db89d293b749b7b9199e5ffc1",
+      "pdf_bytes": 353162,
+      "page_count": 10,
+      "parsed_sha256": "34823cef44c0b7cd49ccf4ef553445e635a9ed862195a6990b11a9b5fce3db18",
+      "authors": [
+        "Paul Skrzypczyk",
+        "Noah Linden"
+      ],
+      "pages": [
+        1,
+        2,
+        3
+      ],
+      "scope": "Identity and main measurement robustness/post-processing/discrimination statements; equations on pp2-3 visually checked",
+      "facts": [
+        {
+          "locator": "p2 Eq4",
+          "finding": "Measurement post-processing uses a classical stochastic matrix on effects."
+        },
+        {
+          "locator": "p2 Eq7 and p3 first paragraph",
+          "finding": "Robustness equals sum of effect operator norms minus one; every rank-one POVM reaches dimension minus one."
+        },
+        {
+          "locator": "p3 Eq13",
+          "finding": "Its discrimination advantage is optimized over ensembles against guessing without measurement, not a candidate-versus-native trained task comparison."
+        }
+      ],
+      "difference": "Native and coherent fixed-key attention can be represented as POVMs. Full-rank unsmoothed effects are rank one for both, so this generic robustness saturates equally and cannot certify their task advantage. A constructed phase pair instead distinguishes particular outcome information, subject to its separate query-state comparator.",
+      "limits": [
+        "Only listed main pages inspected; appendix proofs, experiments and code uninspected.",
+        "Naimark representation, measurement resource monotones and constructed discrimination games are established tools, not L5 novelty.",
+        "No learned NLP utility, ordering over all ensembles or nearest-neighbor novelty clearance follows."
+      ],
+      "rendered_method_sha256": {
+        "method-page-2": "5e0f02b27435c6e36b92b1bb902aaacbba7f218d254d5890a6d27d1f8bd73d62",
+        "method-page-3": "43202a3b27928435d27b0ff88f1828f1236ed8cac527193ee9cfd105872c5bc7"
+      }
     }
   ],
   "prior_scoped_reading": "reading-receipts.json",
-  "coverage": "Four additional originals, selected method sections only. Two newer metadata searches are abstract-only; QCSAM was selected from the targeted query for original-method inspection.",
+  "coverage": "Five additional originals, selected method sections only. Search entries not selected for original reading remain metadata/abstract-only.",
   "synthesis": {
     "known_components": [
       "Quantum fidelity attention scores",
       "Unitary/spectral propagation and quantum graph diffusion",
       "Flexible learned attention kernels and nonlinear feature maps",
-      "Complex inner-product attention and coherent value-state aggregation via complex LCU"
+      "Complex inner-product attention and coherent value-state aggregation via complex LCU",
+      "POVM post-processing, rank-one measurement robustness saturation and optimized state-discrimination games"
     ],
     "candidate_scope": "Fixed-key nonlinear amplitude transport: linear-Gram query-null, cubic separation, minimality in a restricted entrywise polynomial family, and a full-rank overcomplete stable witness.",
     "unresolved": [

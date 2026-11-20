@@ -1,0 +1,55 @@
+{
+  "schema": "q-rmea.measurement-comparison.focused-math-review.v1",
+  "status": "PASS",
+  "model": "gpt-6.2-astra",
+  "reasoning_effort": "medium",
+  "response_id": "resp_0f79fad270701190016b00afe4fe3887d190a532127270a39a",
+  "scope": "New measurement comparison section: smoothed Naimark representation, robustness bounds and constructed phase-pair post-processing obstruction; no whole-code or lifecycle review",
+  "source_sha256": "11a10fca4205ad7343177a2175b8569612b541c2bd3c5669724cc1765ba4e254",
+  "reviewed_candidate_sha256": "da937bed9f6717e8bd5361a6f835b8a4b7784f7c287ee84821450aaddd0a5b39",
+  "published_document_sha256": "12c44adfb3ef46042b1fd6421cb2029e0419f7d22d98d6cf43ee4c2eb9355183",
+  "publication_delta": "Review status, explicit operator-norm normalization, and scope clarification only; reviewed equations unchanged",
+  "verdict": {
+    "verdict": "PASS",
+    "claims": [
+      {
+        "claim": "Naimark/dephasing",
+        "status": "PASS",
+        "reason_summary": "For D>0, the state map is bijective and V†V=I. Sector dephasing sends the signal probabilities through T. The noise contribution is identical across outcomes and is preserved by T because its rows sum to one. Thus p_dephased=T p_native, including smoothing.",
+        "required_correction": null
+      },
+      {
+        "claim": "robustness bounds",
+        "status": "PASS",
+        "reason_summary": "At ε=0 with an invertible frame, each effect has rank at most one, so its norm equals its trace and both routes have R=d−1. With smoothing, the stated interval follows from ||f_i||²≤||F_i||op≤tr(F_i). Its width bounds the absolute route difference by Nε tr(D⁻¹), at most Ndε/(m+Nε) when M≥mI.",
+        "required_correction": null
+      },
+      {
+        "claim": "phase-pair witness",
+        "status": "PASS",
+        "reason_summary": "The supplied implementation uses ||H||op=√7/4, giving normalized edges (r,s) with r²+s²=1 and hence θ=τ. The middle-outcome difference (plus minus minus) is 2(v₀s−v₁r)sin(τ)cos(τ)/(3/2+9ε)=−√(3/7)sin(τ)cos(τ)/(3/2+9ε). It is nonzero at τ=1/4 despite identical native distributions, ruling out fixed classical post-processing.",
+        "required_correction": null
+      }
+    ],
+    "must_fix": [],
+    "scope_limits": [
+      "Previous verdict: BLOCK on the phase-pair claim under erroneous Frobenius-normalization metadata. The metadata, not the implementation, changed. The candidate also now distinguishes the signal numerator ww† from the smoothed numerator ww†+εI.",
+      "This review covers the supplied mathematical claims and normalization excerpt only. The constructed pair does not establish a fixed-task advantage."
+    ]
+  },
+  "earlier_review": {
+    "response_id": "resp_02cec375542b8938016b00af910a6087d1a21ffab27bd2e2b2",
+    "verdict": "BLOCK",
+    "cause": "Owner packet incorrectly described actual operator-norm normalization as Frobenius normalization. This altered the review question; code was unchanged.",
+    "required_wording_fix": "Distinguished signal numerator ww† from smoothed numerator and whitened POVM effect.",
+    "record_preserved": true
+  },
+  "correction": {
+    "metadata_only": true,
+    "implementation_changed": false,
+    "automatic_retries": 0,
+    "explicit_corrective_requests": 1
+  },
+  "L5": "NOT_ACCEPTED",
+  "task_utility": false
+}

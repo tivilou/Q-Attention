@@ -68,6 +68,37 @@ The additive test uses the reviewed full-rank nine-key witness, middle-token uti
 
 The three-key dark-token probability was 0.000956456752 for both coherent and initially dephased routes. Replacing the last key by an isolated orthogonal state reduced it to the smoothing floor 5.714275918e-7, as predicted. See task-aligned-numerical-check.json. This checks the exact null rather than attributing the activation to coherence.
 
+## Measurement-theory comparison: candidate deductions
+
+The following deductions passed focused mathematical review by gpt-6.2-astra at medium effort (resp_0f79fad270701190016b00afe4fe3887d190a532127270a39a). See measurement-comparison-review.json for the corrected source metadata and original BLOCK. They are tools and limitations, not new L5 acceptance criteria.
+
+**Exact measurement representation, including smoothing.** Set E_i=psi_i psi_i†+epsilon I and D=sum_i E_i. Native attention is a POVM F_i=D^(-1/2)E_i D^(-1/2) on the reparameterized query state sigma=D^(1/2)rho D^(1/2)/tr(D rho). This transformation is bijective on density matrices because D>0. It is shared by all fixed-key routes.
+
+Define an isometry V from C^d to C^N direct-sum (C^N tensor C^d): its first block is Psi†D^(-1/2), and its second block consists of N identical row blocks sqrt(epsilon)D^(-1/2). Then V†V=I. For outcome i, measure the projector onto signal coordinate i together with noise block i. Applying W=U direct-sum I_(Nd) before these projectors gives exactly the implemented coherent attention, retaining epsilon. Dephasing the outcome-index sectors before W gives the initially dephased route; its probabilities equal T times native probabilities, with T_ij=|U_ij|^2. Thus it is a classical stochastic post-processing of native measurement at fixed keys.
+
+This is a Naimark-dilation representation, not a new dilation theorem or a claim that the current simulator implements a hardware measurement. The auxiliary dimension is only a convenient explicit construction, not an optimized resource bound.
+
+**A generic informativeness measure is not an advantage certificate here.** Skrzypczyk and Linden, arXiv:1809.02570v1, p2 Eq7, define robustness R(F)=sum_i ||F_i||op-1. On p3 they show every rank-one POVM reaches the dimension-dependent maximum d-1, and Eq13 relates this quantity to an optimally chosen discrimination game against guessing without measurement. The benchmark is not our trained native head or its NLP task.
+
+If the key frame M=Psi Psi† is full rank and epsilon=0, both native and coherent effects have rank at most one and sum to I. Hence both have R=d-1; in our d=8 construction both equal7. A change in probabilities, or an advantage on one state pair, need not improve this generic robustness.
+
+With epsilon>0, write either effect as f_i f_i†+epsilon D^(-1). Since the effects sum to I, their traces sum to d. Also ||f_i f_i†+epsilon D^(-1)||op >= ||f_i||^2. Therefore
+
+    d-1-N epsilon tr(D^(-1)) <= R <= d-1.
+
+This applies to both routes with the same D. Their robustness difference is at most N epsilon tr(D^(-1)); for a frame lower bound M>=m I it is at most Nd epsilon/(m+N epsilon). This upper bound can be loose and does not prove which route is larger. It is not useful when the bound is large. The rank-one equality requires an invertible M at epsilon=0; no singular-limit interchange is asserted.
+
+**Specific information can differ despite that equal generic maximum.** Use the same full-rank nine-key construction (e0, v, e1, e2,...,e7), v=sqrt(3)/2 e0+1/2 e1, and two physical queries phi_plus=(e0+i e1)/sqrt(2), phi_minus=(e0-i e1)/sqrt(2). Every original key is real, so these queries have identical native probabilities; applying T preserves that equality. The released generator uses the Hermitian operator norm sqrt(7)/4; its normalized path edges are r,s with r^2+s^2=1, so the rotation angle is tau. The middle coherent signal numerator is w w† (the smoothed numerator is w w†+epsilon I, and the POVM effect is its conjugation by D^(-1/2)), with w=cos(tau)v+i sin(tau)x and x=r e0+s e1 as above. Direct expansion gives
+
+    p_coherent(middle | phi_plus) - p_coherent(middle | phi_minus)
+      = -sqrt(3/7) sin(tau)cos(tau)/(3/2+9 epsilon),
+
+which is nonzero at tau=1/4. Consequently no fixed classical post-processing of the native outcome statistics reproduces the coherent measurement on both inputs. Even a nonlinear function of the identical exact native probability vectors cannot distinguish this pair. With equal priors the native measurement's optimal guessing probability is1/2, while coherent measurement permits1/2+||p_plus-p_minus||_1/4>1/2.
+
+This elementary constructed pair does not establish a new general resource theorem, superiority for every ensemble, or a task benefit from real inputs. Its varying query states are abstract measurement inputs; in the NLP head, class queries are learned global parameters. It therefore does not exhibit two NLP examples whose task information is lost by the implemented native head. It also does not rule out processing raw quantum states or raw features, changing the keys/queries/values, or applying an additional physical preprocessing unitary. The state-pair/post-processing comparator is different from the earlier arbitrary-query probability-region comparator; neither should be silently substituted for the other.
+
+The substantive research question is whether the learned graph preserves information needed by the fixed task that the comparator's pooling loses. Generic coherence, maximal rank-one robustness and an optimally chosen constructed game are insufficient evidence. The pending formal utility and frozen swaps must answer their declared task question before further promotion.
+
 ## Next use
 
 First analyze the pending formal utility gate and its existing frozen swaps/readout bounds. Only if the result and available approved traces justify it, evaluate loss-aligned bounds as an explicitly separate post hoc diagnostic. Do not rerun the eight-example canary, alter the formal gate, or request another training budget to obtain this evidence.
