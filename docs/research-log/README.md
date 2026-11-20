@@ -4,13 +4,14 @@
 
 ## 当前研究总览
 
-限定L4保留，L5未接受。新token图理论已通过解析复核和2080 Ti上的四项合成CUDA源码检查；原生上界之外的有限构造及三个边界对照均通过。尚无梯度或真实任务收益证据，不能从旧L4继承结论。
-最新：[四项CUDA对应检查](20261120T-092538Z-q-rmea-attention-ceiling-cuda.md)。下一步先资格化可训练适配器，再按冻结预算做有界真实任务对照；正式全量仍由师弟运行。
+限定L4保留，L5未接受。token图理论已有四项CUDA前向对应检查；可训练适配器又通过五项CUDA梯度检查，dtype边界缺陷已修复并回归。尚无该新路由的真实任务收益或独立确认证据。
+最新：[可训练token图梯度资格](20261120T-105033Z-q-rmea-token-transport-gradient.md)。下一步冻结/审查四条件有界训练契约，核对COS输入和最小恢复；正式全量仍由师弟运行。
 
 ## 时间线
 
 | 时间 | Idea | 结论 | 证据 |
 | --- | --- | --- | --- |
+| 2026-11-20T10:50:33.321091+00:00（结果整理） | `token-transport-gradient` | 2080 Ti五项梯度资格通过；真实训练待契约/持久化验收，L5未接受 | [entry](20261120T-105033Z-q-rmea-token-transport-gradient.md) |
 | 2026-11-20T09:25:38.344805+00:00（结果整理） | `attention-ceiling-cuda` | 四项CUDA源码检查通过，梯度与任务收益待测；L5未接受 | [entry](20261120T-092538Z-q-rmea-attention-ceiling-cuda.md) |
 | 2026-11-20T06:26:35.588192+00:00（理论检查点） | `token-graph-attention-ceiling` | 三token推广族和线性Gram对照通过解析复核；无新训练或L5晋级 | [entry](20261120T-062635Z-q-rmea-token-graph-attention-ceiling.md) |
 | 2026-11-15（理论审计） | `q-rmea-l5-round1` | 技能更新通过；理论候选未获 L5 接受，普通限定 L4 保留 | [entry](20261115T-083834Z-q-rmea-l5-round1.md) |

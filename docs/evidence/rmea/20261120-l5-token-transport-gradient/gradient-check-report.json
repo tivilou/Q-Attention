@@ -1,0 +1,551 @@
+{
+  "schema": "qattn.token-transport.gradient.public-report.v1",
+  "recorded_at": "2026-11-20T10:50:33.321091+00:00",
+  "time_semantics": "Result closeout, not task start",
+  "source_revision": "a64e7dae49daecec5722b68ccfb7c33ba48e9f3a",
+  "execution_contract_sha256": "726a9a73e016a781dca0795b872d32b5f1e040921a0af40be9796aca1cc0a641",
+  "immutable_original_outputs": {
+    "RUN_COMPLETE": {
+      "bytes": 192,
+      "sha256": "b287586f173504927200800dc72a05e746120c27c6d8a81de55313edc0e589c5"
+    },
+    "compact-report.json": {
+      "bytes": 19192,
+      "sha256": "7133db9a41e391eaee3941abea2f814a8a42e30a3213504d41aee3ac948500f4"
+    }
+  },
+  "status": "TOKEN_TRANSPORT_GRADIENT_CHECK_COMPLETE",
+  "checks": [
+    {
+      "name": "TG-1-frozen-forward-parity",
+      "status": "PASS",
+      "conditions": [
+        {
+          "kind": "native",
+          "residual": 1.1102230246251565e-16
+        },
+        {
+          "kind": "cubic_coherent",
+          "residual": 6.661338147750939e-16
+        },
+        {
+          "kind": "cubic_initial_dephased",
+          "residual": 5.551115123125783e-16
+        }
+      ],
+      "all40logits_checked": true,
+      "original_parameters": 81028
+    },
+    {
+      "name": "TG-2-routing-directional-derivatives",
+      "status": "PASS",
+      "conditions": [
+        {
+          "kind": "native",
+          "derivatives": [
+            {
+              "direction": 0,
+              "step": 1e-05,
+              "autograd": 0.2189042122587867,
+              "finite_difference": 0.21890421253445422,
+              "absolute_error": 2.756675165915823e-10,
+              "scaled_error": 6.293657857111164e-05
+            },
+            {
+              "direction": 0,
+              "step": 5e-06,
+              "autograd": 0.2189042122587867,
+              "finite_difference": 0.21890421262327206,
+              "absolute_error": 3.644853585615948e-10,
+              "scaled_error": 8.321423460209355e-05
+            },
+            {
+              "direction": 1,
+              "step": 1e-05,
+              "autograd": -0.2984278424063299,
+              "finite_difference": -0.29842784243783166,
+              "absolute_error": 3.150174565647035e-11,
+              "scaled_error": 5.276182181069187e-06
+            },
+            {
+              "direction": 1,
+              "step": 5e-06,
+              "autograd": -0.2984278424063299,
+              "finite_difference": -0.29842784243783166,
+              "absolute_error": 3.150174565647035e-11,
+              "scaled_error": 5.276182181069187e-06
+            }
+          ],
+          "key_gradient_norm": 6.369150000123864,
+          "query_gradient_norm": 5.562901000251964,
+          "nonzero_gradient_through_graph": null,
+          "minimum_absolute_spectral_gap": null
+        },
+        {
+          "kind": "cubic_coherent",
+          "derivatives": [
+            {
+              "direction": 0,
+              "step": 1e-05,
+              "autograd": -0.11405042718710867,
+              "finite_difference": -0.11405042732448577,
+              "absolute_error": 1.373770958101872e-10,
+              "scaled_error": 6.017371070354249e-05
+            },
+            {
+              "direction": 0,
+              "step": 5e-06,
+              "autograd": -0.11405042718710867,
+              "finite_difference": -0.11405042705803224,
+              "absolute_error": 1.2907643009985037e-10,
+              "scaled_error": 5.6537865551863355e-05
+            },
+            {
+              "direction": 1,
+              "step": 1e-05,
+              "autograd": -0.3589707601466081,
+              "finite_difference": -0.35897076031687897,
+              "absolute_error": 1.7027085297272038e-10,
+              "scaled_error": 2.3709930157283874e-05
+            },
+            {
+              "direction": 1,
+              "step": 5e-06,
+              "autograd": -0.3589707601466081,
+              "finite_difference": -0.35897076049451465,
+              "absolute_error": 3.479065369127454e-10,
+              "scaled_error": 4.8445400627108454e-05
+            }
+          ],
+          "key_gradient_norm": 6.284923353705915,
+          "query_gradient_norm": 5.420135137464802,
+          "nonzero_gradient_through_graph": 1.2934268983353092,
+          "minimum_absolute_spectral_gap": 0.008461221606731462
+        },
+        {
+          "kind": "cubic_initial_dephased",
+          "derivatives": [
+            {
+              "direction": 0,
+              "step": 1e-05,
+              "autograd": -0.20383945688120203,
+              "finite_difference": -0.20383945686930358,
+              "absolute_error": 1.1898454443937112e-11,
+              "scaled_error": 2.917153606736373e-06
+            },
+            {
+              "direction": 0,
+              "step": 5e-06,
+              "autograd": -0.20383945688120203,
+              "finite_difference": -0.20383945642521437,
+              "absolute_error": 4.5598766429399973e-10,
+              "scaled_error": 0.00011179486090316003
+            },
+            {
+              "direction": 1,
+              "step": 1e-05,
+              "autograd": -0.0975731603264694,
+              "finite_difference": -0.09757316039582518,
+              "absolute_error": 6.935578500399942e-11,
+              "scaled_error": 3.550401395989018e-05
+            },
+            {
+              "direction": 1,
+              "step": 5e-06,
+              "autograd": -0.0975731603264694,
+              "finite_difference": -0.09757316039582518,
+              "absolute_error": 6.935578500399942e-11,
+              "scaled_error": 3.550401395989018e-05
+            }
+          ],
+          "key_gradient_norm": 6.2312304282569055,
+          "query_gradient_norm": 5.368970024671674,
+          "nonzero_gradient_through_graph": 0.42957132454447,
+          "minimum_absolute_spectral_gap": 0.008461221606731462
+        },
+        {
+          "kind": "linear_coherent",
+          "derivatives": [
+            {
+              "direction": 0,
+              "step": 1e-05,
+              "autograd": 0.19116463046409815,
+              "finite_difference": 0.19116463079171805,
+              "absolute_error": 3.276199034285554e-10,
+              "scaled_error": 8.564571036276028e-05
+            },
+            {
+              "direction": 0,
+              "step": 5e-06,
+              "autograd": 0.19116463046409815,
+              "finite_difference": 0.191164630258811,
+              "absolute_error": 2.0528714839151974e-10,
+              "scaled_error": 5.3665737332981104e-05
+            },
+            {
+              "direction": 1,
+              "step": 1e-05,
+              "autograd": 0.2725568019822109,
+              "finite_difference": 0.27255680201676563,
+              "absolute_error": 3.4554747951887066e-11,
+              "scaled_error": 6.33667447433831e-06
+            },
+            {
+              "direction": 1,
+              "step": 5e-06,
+              "autograd": 0.2725568019822109,
+              "finite_difference": 0.2725568014838586,
+              "absolute_error": 4.983523038681881e-10,
+              "scaled_error": 9.138820308996039e-05
+            }
+          ],
+          "key_gradient_norm": 6.262296589596711,
+          "query_gradient_norm": 5.360547414944474,
+          "nonzero_gradient_through_graph": 0.9696826346471159,
+          "minimum_absolute_spectral_gap": 0.22245423496841854
+        }
+      ],
+      "unique_spectral_extremum_scope": true
+    },
+    {
+      "name": "TG-3-full-head-parameter-derivatives",
+      "status": "PASS",
+      "conditions": [
+        {
+          "kind": "native",
+          "cross_entropy": 3.711139119302006,
+          "groups": [
+            {
+              "group": "prepare",
+              "gradient_norm": 0.19998882543906174,
+              "autograd": 0.0035575202261511007,
+              "finite_difference": 0.003557520225072608,
+              "absolute_error": 1.0784927638451958e-12,
+              "scaled_error": 1.4743496920864882e-05
+            },
+            {
+              "group": "effect",
+              "gradient_norm": 0.019494019923245332,
+              "autograd": -0.0006030773388729313,
+              "finite_difference": -0.00060307733695808,
+              "absolute_error": 1.9148513070305073e-12,
+              "scaled_error": 0.00013617643473619212
+            },
+            {
+              "group": "value",
+              "gradient_norm": 1.4407991319574363,
+              "autograd": 0.015227393769279604,
+              "finite_difference": 0.015227393770356201,
+              "absolute_error": 1.0765971447668221e-12,
+              "scaled_error": 3.5120032828053406e-06
+            },
+            {
+              "group": "decoder",
+              "gradient_norm": 0.20008767303939026,
+              "autograd": -0.00281858188621752,
+              "finite_difference": -0.002818581887886751,
+              "absolute_error": 1.6692307258647787e-12,
+              "scaled_error": 2.859660598855792e-05
+            },
+            {
+              "group": "bias",
+              "gradient_norm": 0.689493773619714,
+              "autograd": 0.034730124305792906,
+              "finite_difference": 0.03473012430754707,
+              "absolute_error": 1.7541662566955551e-12,
+              "scaled_error": 2.518173982392963e-06
+            }
+          ],
+          "state_unchanged": true
+        },
+        {
+          "kind": "cubic_coherent",
+          "cross_entropy": 3.710787297402847,
+          "groups": [
+            {
+              "group": "prepare",
+              "gradient_norm": 0.19537368160001944,
+              "autograd": 0.0032650323371805645,
+              "finite_difference": 0.0032650323400496006,
+              "absolute_error": 2.8690361718319846e-12,
+              "scaled_error": 4.26301426242711e-05
+            },
+            {
+              "group": "effect",
+              "gradient_norm": 0.01908371557849687,
+              "autograd": -0.00045796270565277635,
+              "finite_difference": -0.0004579627077561099,
+              "absolute_error": 2.103333566344512e-12,
+              "scaled_error": 0.0001884833463873625
+            },
+            {
+              "group": "value",
+              "gradient_norm": 1.4386592022628606,
+              "autograd": 0.014997614058975412,
+              "finite_difference": 0.014997614057321584,
+              "absolute_error": 1.6538281161215806e-12,
+              "scaled_error": 5.477117475851732e-06
+            },
+            {
+              "group": "decoder",
+              "gradient_norm": 0.19973687911892762,
+              "autograd": -0.002759811568313716,
+              "finite_difference": -0.0027598115681648494,
+              "absolute_error": 1.4886659613355668e-13,
+              "scaled_error": 2.602734351154046e-06
+            },
+            {
+              "group": "bias",
+              "gradient_norm": 0.6894764099467651,
+              "autograd": 0.03473604621324342,
+              "finite_difference": 0.03473604621495596,
+              "absolute_error": 1.7125398321660157e-12,
+              "scaled_error": 2.457999713283737e-06
+            }
+          ],
+          "state_unchanged": true
+        },
+        {
+          "kind": "cubic_initial_dephased",
+          "cross_entropy": 3.7108792963809902,
+          "groups": [
+            {
+              "group": "prepare",
+              "gradient_norm": 0.1918540707577863,
+              "autograd": 0.0034028930371450255,
+              "finite_difference": 0.003402893038462196,
+              "absolute_error": 1.3171703311387617e-12,
+              "scaled_error": 1.880117829285778e-05
+            },
+            {
+              "group": "effect",
+              "gradient_norm": 0.018613281772834566,
+              "autograd": -0.0005721334373232577,
+              "finite_difference": -0.0005721334361830088,
+              "absolute_error": 1.14024891958997e-12,
+              "scaled_error": 8.482310626673789e-05
+            },
+            {
+              "group": "value",
+              "gradient_norm": 1.4400454311144677,
+              "autograd": 0.015196821600121231,
+              "finite_difference": 0.01519682160333602,
+              "absolute_error": 3.214787810956743e-12,
+              "scaled_error": 1.050802543927048e-05
+            },
+            {
+              "group": "decoder",
+              "gradient_norm": 0.20006037127638893,
+              "autograd": -0.0028324561987836945,
+              "finite_difference": -0.002832456198476052,
+              "absolute_error": 3.076423664427619e-13,
+              "scaled_error": 5.24547249112133e-06
+            },
+            {
+              "group": "bias",
+              "gradient_norm": 0.6894914565886991,
+              "autograd": 0.034729732777078005,
+              "finite_difference": 0.034729732778515654,
+              "absolute_error": 1.437648611268827e-12,
+              "scaled_error": 2.063823774375359e-06
+            }
+          ],
+          "state_unchanged": true
+        },
+        {
+          "kind": "linear_coherent",
+          "cross_entropy": 3.710739894955682,
+          "groups": [
+            {
+              "group": "prepare",
+              "gradient_norm": 0.19049217785578354,
+              "autograd": 0.003069242216782844,
+              "finite_difference": 0.0030692422159361854,
+              "absolute_error": 8.466586806643583e-13,
+              "scaled_error": 1.3357430936973586e-05
+            },
+            {
+              "group": "effect",
+              "gradient_norm": 0.019041316341077762,
+              "autograd": -0.0004626808175116635,
+              "finite_difference": -0.00046268081810296735,
+              "absolute_error": 5.913038613435118e-13,
+              "scaled_error": 5.254345290612933e-05
+            },
+            {
+              "group": "value",
+              "gradient_norm": 1.4386074735373862,
+              "autograd": 0.014993142964309814,
+              "finite_difference": 0.014993142967156814,
+              "absolute_error": 2.84700041319752e-12,
+              "scaled_error": 9.43143657816231e-06
+            },
+            {
+              "group": "decoder",
+              "gradient_norm": 0.19973341705984093,
+              "autograd": -0.0027661357367260134,
+              "finite_difference": -0.0027661357360209138,
+              "absolute_error": 7.05099607173354e-13,
+              "scaled_error": 1.2300527119814451e-05
+            },
+            {
+              "group": "bias",
+              "gradient_norm": 0.6894752373507411,
+              "autograd": 0.03473630686281492,
+              "finite_difference": 0.034736306866456346,
+              "absolute_error": 3.641427437361955e-12,
+              "scaled_error": 5.226483179346806e-06
+            }
+          ],
+          "state_unchanged": true
+        }
+      ],
+      "optimizer_steps": 0
+    },
+    {
+      "name": "TG-4-padding-permutation-and-input-domain",
+      "status": "PASS",
+      "masked_nonfinite_padding_ignored": true,
+      "permutation_equivariance": true,
+      "invalid_inputs_rejected": 5,
+      "zero_multitoken_graph_rejected": true,
+      "full_head_nonfinite_feature_padding_rejected": true
+    },
+    {
+      "name": "TG-5-two-token-tie-and-single-token-boundary",
+      "status": "PASS",
+      "two_token_cubic_linear_parity": true,
+      "restricted_two_token_derivatives": [
+        {
+          "kind": "cubic_coherent",
+          "autograd": 0.2535969348908363,
+          "finite_difference": 0.25359693485160756,
+          "absolute_error": 3.9228731374407744e-11,
+          "scaled_error": 7.731416107034865e-06
+        },
+        {
+          "kind": "cubic_initial_dephased",
+          "autograd": -0.528870856520716,
+          "finite_difference": -0.5288708566419941,
+          "absolute_error": 1.21278098674793e-10,
+          "scaled_error": 1.146358983221581e-05
+        },
+        {
+          "kind": "linear_coherent",
+          "autograd": -0.18949617913593741,
+          "finite_difference": -0.18949617939245653,
+          "absolute_error": 2.565191115078136e-10,
+          "scaled_error": 6.764880820114768e-05
+        }
+      ],
+      "single_token_identity": true,
+      "orthogonal_singleton_forward_oracle": [
+        {
+          "kind": "native",
+          "residual": 0.0
+        },
+        {
+          "kind": "cubic_coherent",
+          "residual": 0.0
+        },
+        {
+          "kind": "cubic_initial_dephased",
+          "residual": 0.0
+        },
+        {
+          "kind": "linear_coherent",
+          "residual": 0.0
+        }
+      ],
+      "arbitrary_nondifferentiable_ties_not_certified": true
+    }
+  ],
+  "check_count": 5,
+  "fixture": {
+    "seed": 20261120,
+    "initial_head_sha256": "6402acae73734f8d155a46ad993c10cb4366f5e065309a405f756adedb12b881",
+    "source_deterministic_algorithms": true,
+    "tensors": {
+      "raw_keys": {
+        "shape": [
+          2,
+          4,
+          8,
+          2
+        ],
+        "dtype": "torch.float64",
+        "sha256": "590bca5e5dd638807ef25a14c10e0c69ff3de53e3c98f2da14245623a4376ff8"
+      },
+      "raw_queries": {
+        "shape": [
+          40,
+          8,
+          2
+        ],
+        "dtype": "torch.float64",
+        "sha256": "4938869b1a6ffba5acffccf0fdc7dd9b583abc21b70920a503f4df9ae700b57a"
+      },
+      "features": {
+        "shape": [
+          2,
+          4,
+          1024
+        ],
+        "dtype": "torch.float64",
+        "sha256": "e51795e88a37d25ecc0a9a9fa2739bef0f85afab71b6335c9f96a673971de18e"
+      },
+      "roles": {
+        "shape": [
+          2,
+          4,
+          4
+        ],
+        "dtype": "torch.float64",
+        "sha256": "b733e84d0de14ceaa0ae5f1b5ea627abbbd76df77ef4ecd5cb4b4c515dd9f876"
+      },
+      "mask": {
+        "shape": [
+          2,
+          4
+        ],
+        "dtype": "torch.bool",
+        "sha256": "23e3afc91aba47e85a7f049b4a198554937d895760d796400f9182f859207c48"
+      },
+      "routing_weights": {
+        "shape": [
+          2,
+          40,
+          4
+        ],
+        "dtype": "torch.float64",
+        "sha256": "844d0be071cf7179fcaa4a931c6c7ce0f6063b2dc8b409e95c3336666d15f9e8"
+      }
+    },
+    "sample_trace_v2_certified": false
+  },
+  "max_absolute_residual": 8.881784197001252e-16,
+  "max_gradient_absolute_error": 4.983523038681881e-10,
+  "max_gradient_scaled_error": 0.0001884833463873625,
+  "device": {
+    "type": "cuda",
+    "name": "NVIDIA GeForce RTX 2080 Ti",
+    "torch": "2.4.1+cu121",
+    "cuda": "12.1"
+  },
+  "optimizer_steps": 0,
+  "real_dataset_reads": 0,
+  "new_checkpoints": 0,
+  "COS_requests": 0,
+  "cloud_writes": 0,
+  "task_training": false,
+  "independent_task_confirmation": false,
+  "formal_handoff": false,
+  "L5": "NOT_ACCEPTED",
+  "limitations": [
+    "Directional derivatives qualify frozen generic fixtures, not every input or global differentiability.",
+    "Nonzero spectral ties use an autograd subgradient; zero multi-token graph fails closed.",
+    "No task training or label-benefit evidence."
+  ],
+  "job_sha256": "71479ed6fa908eb54e65a07ad3b15d657e5e01b7ca9a2c9eb1ba5f2971c8afd7",
+  "design_sha256": "99809a04ae5527d22a7beb73f61c979e94e896e61c85dc3ac7e72758c983d9cc"
+}
