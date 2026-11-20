@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import io
+import math
 import json
 import os
 from pathlib import Path
@@ -14,7 +15,7 @@ THEORY='docs/evidence/rmea/20261120-l5-token-graph-separation/full-vector-reacha
 SELF='experiments/q_rmea_token_transport_reachability.py'
 
 def source_identity():
-    return p.identity(dict(p.sources(),**{n:p.digest(p.ROOT/n) for n in (SELF,DESIGN,THEORY)}))
+    return p.identity(dict(p.sources(),**{n:p.digest(p.ROOT/n) for n in (SELF,DESIGN,THEORY,'docs/evidence/rmea/20261120-l5-token-graph-separation/nuisance-stability.md')}))
 
 def snapshot(path,expected,limit):
     if path.is_symlink():raise ValueError('Symlinked input')
@@ -70,6 +71,95 @@ def normalized_effects(psi,unitary,torch,eps):
         if (effects.sum(0)-eye).abs().max()>1e-8:raise ValueError('POVM normalization differs')
     return native,dephased
 
+def nuisance_measurement(psi,phi,roles,utilities,bias,torch,eps,route,kinds):
+    """One fixed index/role mask; targets are never read."""
+    n=psi.shape[1];indices=torch.arange(n,device=psi.device)
+    keep=(indices.remainder(4)!=3)|(roles[0,:,2:].abs().sum(-1)>0)
+    r=int(keep.sum());m=n-r
+    if r<2 or m<1:raise ValueError('Frozen mask requires retained graph and omitted tokens')
+    valid=torch.ones(1,n,dtype=torch.bool,device=psi.device)
+    subvalid=torch.ones(1,r,dtype=torch.bool,device=psi.device)
+    full={k:route(psi,phi,valid,kind=k) for k in kinds}
+    sub={k:route(psi[:,keep],phi,subvalid,kind=k) for k in kinds}
+    delta=full['native']['alpha'][0,:,~keep].sum(-1)
+    u=utilities[0];width=u.max(-1).values-u.min(-1).values
+    gram=full['cubic_coherent']['gram'][0]
+    offdiag=~torch.eye(n,dtype=torch.bool,device=psi.device)
+    touches=(~keep[:,None]|~keep[None,:])&offdiag
+    eta=float(gram.abs()[touches].max())
+    rg=gram[keep][:,keep].abs();rg=rg-torch.diag_embed(rg.diagonal())
+    rho=float(rg.max());rows={};qmetrics={}
+    for k in kinds:
+        if k=='native':e=lam=relative=0.;term=delta
+        else:
+            graph=full[k]['graph'][0];small=sub[k]['graph'][0]
+            embedded=torch.zeros_like(graph);ix=keep.nonzero().flatten()
+            embedded[ix[:,None],ix[None,:]]=small
+            e=float(torch.linalg.eigvalsh(graph-embedded).abs().max())
+            lam=float(sub[k]['spectral_scale'][0])
+            if lam<=0:raise ValueError('Undefined retained normalized graph')
+            relative=e/lam;term=delta+2*.25*relative
+        bound=width*term.clamp(max=1)
+        z=(full[k]['alpha'][0]*u).sum(-1)+bias
+        zr=(sub[k]['alpha'][0]*u[:,keep]).sum(-1)+bias
+        difference=(z-zr).abs();residual=float((difference-bound).max())
+        if not torch.isfinite(bound).all() or residual>1e-9:raise ValueError('Nuisance logit bound violated')
+        ce_difference=((z.logsumexp(0)-zr.logsumexp(0))-(z-zr)).abs()
+        ce_bounds=bound+bound.max()
+        if float((ce_difference-ce_bounds).max())>1e-9:raise ValueError('Gold-free every-target CE bound violated')
+        winner=int(zr.argmax());rivals=zr.clone();rivals[winner]=-torch.inf
+        margin=float(zr[winner]-rivals.max());other=bound.clone();other[winner]=-torch.inf
+        certified=margin>float(bound[winner]+other.max())
+        if certified and int(z.argmax())!=winner:raise ValueError('Certified prediction changed')
+        nonconstant=width>1e-12
+        rows[k]=dict(coordinates=len(width),nonconstant_coordinates=int(nonconstant.sum()),
+            nonvacuous_coordinates=int(((term<1)&nonconstant).sum()),
+            mean_absolute_logit_shift=float(difference.mean()),maximum_absolute_logit_shift=float(difference.max()),
+            mean_bound=float(bound.mean()),maximum_bound=float(bound.max()),maximum_bound_violation=residual,
+            maximum_all_target_ce_shift=float(ce_difference.max()),maximum_ce_bound=float(ce_bounds.max()),
+            retained_winner_margin=margin,prediction_certified=certified,prediction_unchanged=int(z.argmax())==winner)
+        if k in ('linear_coherent','cubic_coherent'):
+            q=1 if k=='linear_coherent' else 3
+            qmetrics[str(q)]=dict(retained_graph_norm=lam,perturbation_norm=e,relative_perturbation=relative,
+                affinity_upper_envelope=(math.sqrt(r*m)+(m-1))*(eta/rho)**q)
+    return dict(tokens=n,retained=r,omitted=m,eta=eta,rho=rho,strict_affinity_contrast=eta<rho,
+        native_omitted_mass=dict(minimum=float(delta.min()),mean=float(delta.mean()),maximum=float(delta.max())),
+        graph=qmetrics,routing=rows,
+        cubic_lower_observed_mean_shift=rows['cubic_coherent']['mean_absolute_logit_shift']<rows['linear_coherent']['mean_absolute_logit_shift'],
+        cubic_lower_relative_graph_perturbation=qmetrics['3']['relative_perturbation']<qmetrics['1']['relative_perturbation'])
+
+
+def run_nuisance(design,args,closed,request,output,torch,np,route,kinds,eps):
+    rows=[];replay_error=0.
+    for row in design['inputs']:
+        if closed['artifacts'][row['path']]!=dict(sha256=row['sha256'],bytes=row['bytes']):raise ValueError('Sealed trace reference differs')
+        data=snapshot(args.run/row['path'],row['sha256'],1048576)
+        with np.load(io.BytesIO(data),allow_pickle=False) as arrays:
+            state={k:torch.as_tensor(arrays[k].copy(),device='cuda') for k in ('psi','phi','mask','roles','utilities','bias','route_swap_alpha')}
+        if list(state['psi'].shape)!=row['psi_shape'] or not state['mask'].all():raise ValueError('Frozen complete input differs')
+        replay=torch.stack([route(state['psi'],state['phi'],state['mask'],kind=k)['alpha'] for k in kinds])
+        error=float((replay-state['route_swap_alpha']).abs().max())
+        if error>1e-12:raise ValueError('Frozen four-route replay differs')
+        replay_error=max(replay_error,error)
+        rows.append(nuisance_measurement(*(state[k] for k in ('psi','phi','roles','utilities','bias')),torch,eps,route,kinds))
+    summary=dict(units=len(rows),query_coordinates=40*len(rows),maximum_route_replay_error=replay_error,
+        strict_affinity_contrast_units=sum(r['strict_affinity_contrast'] for r in rows),
+        cubic_lower_observed_mean_shift_units=sum(r['cubic_lower_observed_mean_shift'] for r in rows),
+        cubic_lower_relative_graph_perturbation_units=sum(r['cubic_lower_relative_graph_perturbation'] for r in rows),
+        routing={k:dict(nonconstant_coordinates=sum(r['routing'][k]['nonconstant_coordinates'] for r in rows),
+            nonvacuous_coordinates=sum(r['routing'][k]['nonvacuous_coordinates'] for r in rows),
+            certified_predictions=sum(r['routing'][k]['prediction_certified'] for r in rows),
+            unchanged_predictions=sum(r['routing'][k]['prediction_unchanged'] for r in rows),
+            maximum_bound_violation=max(r['routing'][k]['maximum_bound_violation'] for r in rows),
+            mean_absolute_logit_shift=sum(r['routing'][k]['mean_absolute_logit_shift'] for r in rows)/len(rows)) for k in kinds})
+    record=dict(status='NUISANCE_STABILITY_DIAGNOSTIC_COMPLETE',source_revision=request['revision'],source_sha256=source_identity(),
+        contract_sha256=p.identity(design),summary=summary,units=rows,formal_training=False,L5='NOT_ACCEPTED',
+        scope='Six immutable technical-canary examples after one update; fixed role/index head mask, frozen features and values, no target reads. Bounds/informativeness and paired sensitivities only, not semantic invariance, learned utility or coherence necessity.')
+    p.atomic_json(output/'compact-report.json',record)
+    p.atomic_json(output/'RUN_COMPLETE',dict(schema='q-rmea.nuisance-stability.closed.v1',files={'compact-report.json':p.digest(output/'compact-report.json')}))
+    print(json.dumps(dict(status=record['status'],summary=summary)),flush=True)
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--run',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True);args=parser.parse_args()
@@ -103,6 +193,8 @@ def main():
     from baselines.retacred.rmea import EPS
     from baselines.retacred.rmea_token_transport import route,KINDS
     torch.set_num_threads(1);torch.set_grad_enabled(False);torch.use_deterministic_algorithms(True)
+    if design.get('analysis')=='nuisance_stability_v1':
+        run_nuisance(design,args,closed,request,output,torch,np,route,KINDS,EPS);return
     device='cuda';rows=[];replay_error=0.;null_max=-1.;iterations=design['iterations'];tolerance=design['tolerance']
     # Independent analytic depth-two toy must yield a strict dual certificate.
     e=torch.eye(8,dtype=torch.complex128,device=device)
