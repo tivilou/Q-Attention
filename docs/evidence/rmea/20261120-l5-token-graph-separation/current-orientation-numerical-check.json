@@ -1,0 +1,332 @@
+{
+  "schema": "q-rmea.current-orientation.numeric-check.v1",
+  "status": "BOUNDED_CHECKS_PASS",
+  "task": "02fba3ae0f334da88a02a5953f5657d6",
+  "attempt": "e502caec7b054fe0800caadfe79d477a",
+  "node": "qattn-2080ti-39684-v1",
+  "source_revision": "d9b5907785394519ae0c8cb6240faf650c6a2b95",
+  "implementation_revision": "2725eab395993752247d023417e8c280892d51f3",
+  "source_sha256": "f6a591f75dafd2b27816d5d22848e0327f153e6cbd5491678a27338b69466555",
+  "contract_sha256": "1916f5437f76c759bf2fce2fbeb546682ec452040048ee07910d391bd5e7d81c",
+  "review": {
+    "verdict": "PASS_WITH_RISK",
+    "response_id": "resp_05bb75ec2345a213016b00c4f6fccc87d1864e2209a73d15f7",
+    "model": "gpt-6.2-astra",
+    "reasoning_effort": "medium",
+    "scope": "both; new mathematical diagnostic only, inherited unchanged lifecycle"
+  },
+  "execution": {
+    "command": [
+      "/hy-tmp/Q-Attention/attention-ceiling-cuda-20261120/env/bin/python",
+      "-B",
+      "experiments/q_rmea_token_transport_reachability.py",
+      "--run",
+      "/tmp/qattn-training-case-trace-20261119/attempts/54f71fe58f614c8798839d32a21359e5/scientific-work/20261120T183547Z_seed13/canary",
+      "--output",
+      "/tmp/qattn-training-case-trace-20261119/attempts/e502caec7b054fe0800caadfe79d477a/output"
+    ],
+    "returncode": 0,
+    "quiescent": true,
+    "outputs": {
+      "RUN_COMPLETE": {
+        "bytes": 167,
+        "sha256": "a7f4fef693c9cf41001b817a7904ab9f27946d65e06af5edb43767551d455c3f"
+      },
+      "compact-report.json": {
+        "bytes": 13994,
+        "sha256": "a9096c3a86e43c987b65bf555679fe4b5416cb5b430e3694c0cd6b60d7127826"
+      }
+    }
+  },
+  "summary": {
+    "units": 6,
+    "query_coordinates": 240,
+    "maximum_circuit_conjugation_error": 0.0,
+    "maximum_route_replay_error": 0.0,
+    "maximum_conjugation_time_reversal_error": 0.0,
+    "maximum_native_conjugation_error": 0.0,
+    "maximum_current_reweighting_error": 4.705437428587089e-17,
+    "certified_odd_sign_coordinates": 0,
+    "maximum_odd_certificate_violation": -0.006301075067815236,
+    "routing": {
+      "linear_coherent": {
+        "mean_absolute_logit_slope": 0.013074062491092423,
+        "maximum_derivative_error": 2.743852194064811e-11,
+        "maximum_all_target_ce_derivative_error": 3.206446566594856e-11,
+        "all_target_nonzero_pairs": 240,
+        "all_target_local_finite_sign_agreements": 227
+      },
+      "cubic_coherent": {
+        "mean_absolute_logit_slope": 0.009739004025709751,
+        "maximum_derivative_error": 1.640187942061888e-11,
+        "maximum_all_target_ce_derivative_error": 3.452674669605915e-11,
+        "all_target_nonzero_pairs": 240,
+        "all_target_local_finite_sign_agreements": 233
+      }
+    }
+  },
+  "units": [
+    {
+      "tokens": 21,
+      "query_coordinates": 40,
+      "circuit_conjugation_error": 0.0,
+      "route_replay_error": 0.0,
+      "conjugation_time_reversal_error": 0.0,
+      "native_conjugation_error": 0.0,
+      "cubic_linear_current_reweighting_error": 4.705437428587089e-17,
+      "routing": {
+        "linear_coherent": {
+          "current_identity_error": 5.0940707923341124e-17,
+          "bargmann_identity_error": 3.469446951953614e-18,
+          "derivative_error": 1.2755501516137357e-11,
+          "all_target_ce_derivative_error": 2.495209941444365e-11,
+          "mean_absolute_logit_slope": 0.009981833867524393,
+          "maximum_absolute_logit_slope": 0.03308127068160435,
+          "mean_absolute_native_logit_change": 0.0024924439840234187,
+          "all_target_nonzero_pairs": 40,
+          "all_target_local_finite_sign_agreements": 37,
+          "all_target_negative_ce_slopes": 17,
+          "all_target_negative_finite_ce_changes": 18
+        },
+        "cubic_coherent": {
+          "current_identity_error": 1.0963050217007287e-16,
+          "bargmann_identity_error": 3.469446951953614e-18,
+          "derivative_error": 1.1743269551223179e-11,
+          "all_target_ce_derivative_error": 3.452674669605915e-11,
+          "mean_absolute_logit_slope": 0.008363800143223117,
+          "maximum_absolute_logit_slope": 0.027176222620553997,
+          "mean_absolute_native_logit_change": 0.002083100985725552,
+          "all_target_nonzero_pairs": 40,
+          "all_target_local_finite_sign_agreements": 39,
+          "all_target_negative_ce_slopes": 20,
+          "all_target_negative_finite_ce_changes": 19,
+          "odd_certificate_maximum_violation": -0.006301075067815236,
+          "certified_odd_sign_coordinates": 0,
+          "mean_odd_certificate_bound": 0.010025017019101102,
+          "maximum_odd_linearization_error": 6.640499468520827e-05,
+          "dephased_zero_slope_error": 1.3877787807814455e-12,
+          "dephased_maximum_finite_odd_logit": 2.6507097350414455e-07
+        }
+      }
+    },
+    {
+      "tokens": 48,
+      "query_coordinates": 40,
+      "circuit_conjugation_error": 0.0,
+      "route_replay_error": 0.0,
+      "conjugation_time_reversal_error": 0.0,
+      "native_conjugation_error": 0.0,
+      "cubic_linear_current_reweighting_error": 2.6020852139652106e-17,
+      "routing": {
+        "linear_coherent": {
+          "current_identity_error": 5.095750210681871e-17,
+          "bargmann_identity_error": 8.673617379884035e-19,
+          "derivative_error": 9.033072900788142e-12,
+          "all_target_ce_derivative_error": 1.497635349068105e-11,
+          "mean_absolute_logit_slope": 0.01322014619840371,
+          "maximum_absolute_logit_slope": 0.03561350330382683,
+          "mean_absolute_native_logit_change": 0.003279378569067166,
+          "all_target_nonzero_pairs": 40,
+          "all_target_local_finite_sign_agreements": 38,
+          "all_target_negative_ce_slopes": 22,
+          "all_target_negative_finite_ce_changes": 22
+        },
+        "cubic_coherent": {
+          "current_identity_error": 1.2431052510194262e-16,
+          "bargmann_identity_error": 1.3010426069826053e-18,
+          "derivative_error": 8.74372102499521e-12,
+          "all_target_ce_derivative_error": 3.1714547654715375e-11,
+          "mean_absolute_logit_slope": 0.01173540651283713,
+          "maximum_absolute_logit_slope": 0.03293442018695891,
+          "mean_absolute_native_logit_change": 0.00291664733907393,
+          "all_target_nonzero_pairs": 40,
+          "all_target_local_finite_sign_agreements": 40,
+          "all_target_negative_ce_slopes": 21,
+          "all_target_negative_finite_ce_changes": 21,
+          "odd_certificate_maximum_violation": -0.008688752936100039,
+          "certified_odd_sign_coordinates": 0,
+          "mean_odd_certificate_bound": 0.013535214597935736,
+          "maximum_odd_linearization_error": 7.65060510072163e-05,
+          "dephased_zero_slope_error": 0.0,
+          "dephased_maximum_finite_odd_logit": 2.3473102263305012e-07
+        }
+      }
+    },
+    {
+      "tokens": 40,
+      "query_coordinates": 40,
+      "circuit_conjugation_error": 0.0,
+      "route_replay_error": 0.0,
+      "conjugation_time_reversal_error": 0.0,
+      "native_conjugation_error": 0.0,
+      "cubic_linear_current_reweighting_error": 2.2551405187698492e-17,
+      "routing": {
+        "linear_coherent": {
+          "current_identity_error": 4.787420436144242e-17,
+          "bargmann_identity_error": 1.3010426069826053e-18,
+          "derivative_error": 1.5170670275566067e-11,
+          "all_target_ce_derivative_error": 1.478110602665117e-11,
+          "mean_absolute_logit_slope": 0.016402385157118,
+          "maximum_absolute_logit_slope": 0.06061342748995927,
+          "mean_absolute_native_logit_change": 0.004098942406696771,
+          "all_target_nonzero_pairs": 40,
+          "all_target_local_finite_sign_agreements": 39,
+          "all_target_negative_ce_slopes": 21,
+          "all_target_negative_finite_ce_changes": 22
+        },
+        "cubic_coherent": {
+          "current_identity_error": 8.86417381689095e-17,
+          "bargmann_identity_error": 1.3010426069826053e-18,
+          "derivative_error": 1.496608739715022e-11,
+          "all_target_ce_derivative_error": 2.9453262745393616e-11,
+          "mean_absolute_logit_slope": 0.011861194066862172,
+          "maximum_absolute_logit_slope": 0.04782543789754792,
+          "mean_absolute_native_logit_change": 0.002970632915236436,
+          "all_target_nonzero_pairs": 40,
+          "all_target_local_finite_sign_agreements": 39,
+          "all_target_negative_ce_slopes": 24,
+          "all_target_negative_finite_ce_changes": 23,
+          "odd_certificate_maximum_violation": -0.007356497599395853,
+          "certified_odd_sign_coordinates": 0,
+          "mean_odd_certificate_bound": 0.012641502303881176,
+          "maximum_odd_linearization_error": 9.446041086703244e-05,
+          "dephased_zero_slope_error": 0.0,
+          "dephased_maximum_finite_odd_logit": 2.870630883972103e-07
+        }
+      }
+    },
+    {
+      "tokens": 50,
+      "query_coordinates": 40,
+      "circuit_conjugation_error": 0.0,
+      "route_replay_error": 0.0,
+      "conjugation_time_reversal_error": 0.0,
+      "native_conjugation_error": 0.0,
+      "cubic_linear_current_reweighting_error": 1.3877787807814457e-17,
+      "routing": {
+        "linear_coherent": {
+          "current_identity_error": 1.0321604682062002e-16,
+          "bargmann_identity_error": 8.673617379884035e-19,
+          "derivative_error": 2.3688630917950704e-11,
+          "all_target_ce_derivative_error": 3.206446566594856e-11,
+          "mean_absolute_logit_slope": 0.01339526218863032,
+          "maximum_absolute_logit_slope": 0.041254479450203566,
+          "mean_absolute_native_logit_change": 0.003587977010024125,
+          "all_target_nonzero_pairs": 40,
+          "all_target_local_finite_sign_agreements": 37,
+          "all_target_negative_ce_slopes": 21,
+          "all_target_negative_finite_ce_changes": 22
+        },
+        "cubic_coherent": {
+          "current_identity_error": 4.954794907260026e-17,
+          "bargmann_identity_error": 8.673617379884035e-19,
+          "derivative_error": 1.4502055806220326e-11,
+          "all_target_ce_derivative_error": 2.6775848899207588e-11,
+          "mean_absolute_logit_slope": 0.009069182684318708,
+          "maximum_absolute_logit_slope": 0.02475335759034864,
+          "mean_absolute_native_logit_change": 0.0024317160819639313,
+          "all_target_nonzero_pairs": 40,
+          "all_target_local_finite_sign_agreements": 38,
+          "all_target_negative_ce_slopes": 21,
+          "all_target_negative_finite_ce_changes": 21,
+          "odd_certificate_maximum_violation": -0.008000537894772244,
+          "certified_odd_sign_coordinates": 0,
+          "mean_odd_certificate_bound": 0.014157513882854045,
+          "maximum_odd_linearization_error": 5.572698481154208e-05,
+          "dephased_zero_slope_error": 0.0,
+          "dephased_maximum_finite_odd_logit": 1.2010304351051104e-07
+        }
+      }
+    },
+    {
+      "tokens": 26,
+      "query_coordinates": 40,
+      "circuit_conjugation_error": 0.0,
+      "route_replay_error": 0.0,
+      "conjugation_time_reversal_error": 0.0,
+      "native_conjugation_error": 0.0,
+      "cubic_linear_current_reweighting_error": 3.209238430557093e-17,
+      "routing": {
+        "linear_coherent": {
+          "current_identity_error": 4.444775388629532e-17,
+          "bargmann_identity_error": 2.6020852139652106e-18,
+          "derivative_error": 1.4232463081340074e-11,
+          "all_target_ce_derivative_error": 2.0398462433068865e-11,
+          "mean_absolute_logit_slope": 0.014864635928482126,
+          "maximum_absolute_logit_slope": 0.058587937810405194,
+          "mean_absolute_native_logit_change": 0.003698784887362118,
+          "all_target_nonzero_pairs": 40,
+          "all_target_local_finite_sign_agreements": 37,
+          "all_target_negative_ce_slopes": 22,
+          "all_target_negative_finite_ce_changes": 19
+        },
+        "cubic_coherent": {
+          "current_identity_error": 9.974921234795489e-17,
+          "bargmann_identity_error": 3.469446951953614e-18,
+          "derivative_error": 1.6381729740083673e-11,
+          "all_target_ce_derivative_error": 2.949029096008943e-11,
+          "mean_absolute_logit_slope": 0.010264921382028239,
+          "maximum_absolute_logit_slope": 0.031778003015768094,
+          "mean_absolute_native_logit_change": 0.0026010610080443274,
+          "all_target_nonzero_pairs": 40,
+          "all_target_local_finite_sign_agreements": 40,
+          "all_target_negative_ce_slopes": 18,
+          "all_target_negative_finite_ce_changes": 18,
+          "odd_certificate_maximum_violation": -0.007035355326108506,
+          "certified_odd_sign_coordinates": 0,
+          "mean_odd_certificate_bound": 0.010943978193123887,
+          "maximum_odd_linearization_error": 5.949502004080551e-05,
+          "dephased_zero_slope_error": 1.7347234759768068e-13,
+          "dephased_maximum_finite_odd_logit": 2.9691519701224856e-07
+        }
+      }
+    },
+    {
+      "tokens": 41,
+      "query_coordinates": 40,
+      "circuit_conjugation_error": 0.0,
+      "route_replay_error": 0.0,
+      "conjugation_time_reversal_error": 0.0,
+      "native_conjugation_error": 0.0,
+      "cubic_linear_current_reweighting_error": 1.734723475976807e-17,
+      "routing": {
+        "linear_coherent": {
+          "current_identity_error": 1.174236108168132e-16,
+          "bargmann_identity_error": 8.673617379884035e-19,
+          "derivative_error": 2.743852194064811e-11,
+          "all_target_ce_derivative_error": 2.7662521578930566e-11,
+          "mean_absolute_logit_slope": 0.010580111606395992,
+          "maximum_absolute_logit_slope": 0.029479730217532,
+          "mean_absolute_native_logit_change": 0.002768125117986568,
+          "all_target_nonzero_pairs": 40,
+          "all_target_local_finite_sign_agreements": 39,
+          "all_target_negative_ce_slopes": 21,
+          "all_target_negative_finite_ce_changes": 20
+        },
+        "cubic_coherent": {
+          "current_identity_error": 3.122502256758253e-17,
+          "bargmann_identity_error": 1.3010426069826053e-18,
+          "derivative_error": 1.640187942061888e-11,
+          "all_target_ce_derivative_error": 1.6530516538937334e-11,
+          "mean_absolute_logit_slope": 0.0071395193649891305,
+          "maximum_absolute_logit_slope": 0.021836105330074913,
+          "mean_absolute_native_logit_change": 0.0018219621008022852,
+          "all_target_nonzero_pairs": 40,
+          "all_target_local_finite_sign_agreements": 37,
+          "all_target_negative_ce_slopes": 19,
+          "all_target_negative_finite_ce_changes": 18,
+          "odd_certificate_maximum_violation": -0.007637498943944052,
+          "certified_odd_sign_coordinates": 0,
+          "mean_odd_certificate_bound": 0.012307943902207859,
+          "maximum_odd_linearization_error": 4.4764509390270504e-05,
+          "dephased_zero_slope_error": 1.1102230246251564e-11,
+          "dephased_maximum_finite_odd_logit": 1.848020554640062e-07
+        }
+      }
+    }
+  ],
+  "scope": "Six sealed one-update technical-canary states; actual circuit-angle conjugation, fixed-tau reversal/current/odd-bound checks and every-possible-target CE arithmetic. No target or text reads, trained utility, novelty or L5 claim. Numerical derivative step is fixed verification, never inference selection.",
+  "formal_training": false,
+  "task_utility": "NOT_MEASURED",
+  "L5": "NOT_ACCEPTED"
+}
