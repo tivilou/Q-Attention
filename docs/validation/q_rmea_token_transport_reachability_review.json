@@ -1,41 +1,43 @@
 {
   "review_scope": "both",
-  "verdict": "PASS",
-  "source_revision": "579f0148db00606c1f6be392b8eba3aa992c97c8",
-  "source_sha256": "b3d13733ff5bc69fc32c15b95e11a180530501b6ce3b877e7a8a40419d633eb7",
-  "contract_sha256": "9557d2e157e97310228648d51f014c9a3557d2a655a426145fe14041d505a305",
+  "verdict": "PASS_WITH_RISK",
+  "source_revision": "2725eab395993752247d023417e8c280892d51f3",
+  "source_sha256": "f6a591f75dafd2b27816d5d22848e0327f153e6cbd5491678a27338b69466555",
+  "contract_sha256": "1916f5437f76c759bf2fce2fbeb546682ec452040048ee07910d391bd5e7d81c",
   "must_fix": [],
   "claims": [
     {
-      "claim": "mapping",
+      "claim": "The conjugation probe tests the intended circuit and route identities.",
       "status": "PASS",
-      "reason_summary": "Prior finding retained: the full-route omitted mass, retained-route normalization and utility restriction are unchanged."
+      "reason_summary": "It negates only the RZ angle coordinate for both keys and queries, reconstructs the original states, and checks the transformed states against their complex conjugates. It compares all four conjugated positive-time probability arrays with the original negative-time arrays and checks native invariance separately."
     },
     {
-      "claim": "mask",
+      "claim": "The coherent current, commutator and Bargmann reweighting have consistent orientations.",
       "status": "PASS",
-      "reason_summary": "Prior finding retained: the fixed index-and-role mask is unchanged and shared across queries and routes."
+      "reason_summary": "The broadcast product at [r,i,j] is H_ij a_rj conj(a_ri). Row sums therefore give incoming probability derivatives, and the upper-triangle contraction uses u_ri−u_rj. Right multiplication of row-stored amplitudes by h.T implements H acting on a column, giving the stated i[H,V] sign. The cubic-minus-linear check uses the same oriented triangle with separately normalized edge weights. The native denominator retains Nε; the constant ε numerator has zero derivative."
     },
     {
-      "claim": "bounds",
+      "claim": "The finite-time certificate applies to the measured cubic odd contrast.",
       "status": "PASS",
-      "reason_summary": "Both logit vectors must be finite. A nonfinite logit bound raises; with finite bounds, overflow in an absolute logit difference produces a positive infinite residual and raises. Every-target CE differences and bounds must be finite before their tolerance check. Winner selection follows these checks."
+      "reason_summary": "The code subtracts the dephased logit at each time before taking the odd part. Absolute Hermitian eigenvalues summed per query give the trace norm of the normalized off-diagonal density. At τ=1/4 the remainder bound is width times trace norm divided by 96; the sign test requires |τj| to exceed that bound plus tolerance. It does not assume the dephased logit is even."
     },
     {
-      "claim": "input isolation",
+      "claim": "The numerical derivatives and all-target CE comparisons test the stated quantities.",
       "status": "PASS",
-      "reason_summary": "Every loaded sealed tensor, including bias and recorded alpha, is checked for finiteness before replay. A nonfinite replay error raises before the 1e-12 tolerance comparison or running-maximum update. No target read was added."
+      "reason_summary": "The fixed central difference checks coherent logit slopes and the zero dephased slope at the origin. For each possible target y, the CE derivative is the native-softmax mean slope minus slope[y], and the finite change is the log-partition change minus the target-logit change. Local-to-finite sign agreement is counted only for pairs above the stated thresholds, not treated as a certificate."
     },
     {
-      "claim": "unchanged lifecycle",
+      "claim": "The new dispatch stays within the bounded diagnostic contract.",
       "status": "PASS",
-      "reason_summary": "Admission, dispatch and output handling are unchanged. A failed check on any trace raises before either the report or RUN_COMPLETE is written."
+      "reason_summary": "The pinned analysis selector calls run_current and returns before either prior analysis. The branch materializes only the nine named arrays, checks finite inputs, replays the sealed probabilities and logits, and uses the inherited two-output path without training. The source identity includes the diagnostic script, design and current-orientation theory."
     }
   ],
   "scope_limits": [
-    "Static review of the supplied nuisance_stability_v1 correction only. No execution was performed; this verdict does not assert that the six traces pass at runtime."
+    "Static review against the supplied interfaces and identities, not an observed execution. The six-trace run must establish actual replay, shapes and numerical tolerance compliance on the assigned device.",
+    "The launch contract's focused_test prose describes nuisance-mode checks. For this selector the operative checks are those in current_measurement; completion would not attest nuisance CE bounds or winner certification.",
+    "The angle-level intervention checks the circuit consequence on six frozen states, not a parameter transformation on every input. All-target sign counts are descriptive, not labeled task utility, novelty or L5 evidence."
   ],
-  "response_id": "resp_04d0f942bd312374016b00bd9123c487d181918b1c400baa91",
+  "response_id": "resp_05bb75ec2345a213016b00c4f6fccc87d1864e2209a73d15f7",
   "reviewer_model": "gpt-6.2-astra",
   "reasoning_effort": "medium"
 }
