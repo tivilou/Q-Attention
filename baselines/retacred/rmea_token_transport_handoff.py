@@ -105,34 +105,46 @@ def export(root,target,inject_failure=False):
     finally:
         if temporary.exists():shutil.rmtree(temporary)
 
+def _commit_report_and_push(target):
+    """Shared delivery mechanics; the caller owns publication admission and lock."""
+    relative=target.relative_to(p.ROOT).as_posix()
+    if target.parent!=p.ROOT/'reports/q_rmea_token_transport' or not re.fullmatch(r'\d{8}T\d{6}Z_seed13',target.name):
+        raise ValueError('Unexpected report destination')
+    branch_gate(relative);record=validate_report(target)
+    baseline=record['git_revision'];head=p.git('rev-parse','HEAD');expected={relative+'/'+n for n in REPORT_FILES}
+    hashes={name:p.digest(p.ROOT/name) for name in expected}
+    if head==baseline:
+        p.git('add','--',*sorted(expected))
+        if set(p.git('diff','--cached','--name-only').splitlines())!=expected:raise ValueError('Unexpected staged changes')
+        p.git('diff','--cached','--check');p.git('commit','-m','reports: Q-RMEA '+record['profile']+' '+target.name);head=p.git('rev-parse','HEAD')
+    if p.git('rev-list','--parents','-n','1',head).split()!=[head,baseline]:raise ValueError('Only the single report commit may follow run revision')
+    if set(p.git('diff','--name-only',baseline,head).splitlines())!=expected or set(p.git('diff','--name-only','--diff-filter=A',baseline,head).splitlines())!=expected:raise ValueError('Commit must add exactly audited report files')
+    for name,sha in hashes.items():
+        raw=subprocess.check_output(['git','show',head+':'+name],cwd=p.ROOT)
+        if hashlib.sha256(raw).hexdigest()!=sha:raise ValueError('Committed bytes differ')
+    branch_gate();validate_report(target)
+    if p.git('rev-parse','HEAD')!=head:raise ValueError('HEAD changed before push')
+    p.git('push','origin',head+':refs/heads/1.1')
+    print(p.json.dumps(dict(published_report=relative,commit=head,branch='1.1')),flush=True)
+
 def publish(root):
     root=Path(root).resolve()
     if not re.fullmatch(r'\d{8}T\d{6}Z_seed13',root.name):raise ValueError('Expected timestamp_seed13 run basename')
     parent=p.ROOT/'reports/q_rmea_token_transport';target=parent/root.name;relative=target.relative_to(p.ROOT).as_posix()
     if any(x.is_symlink() for x in (p.ROOT/'reports',parent,target)):raise ValueError('Symlinked report directory')
-    p.review_gate(formal=not p.read(root/'handoff.json')['canary_only'])
+    p.review_gate(formal=True)
+    handoff=p.read(root/'handoff.json');canary,_=p.audit(root/'canary')
+    if canary['config']['profile']!='canary' or canary['git_revision']!=handoff['git_revision']:
+        raise ValueError('Audited canary differs from parent')
+    if canary['environment'].get('fixture_sha256'):
+        raise ValueError('Ordinary publication requires a live nonfixture canary')
     lock=Path(p.git('rev-parse','--git-path','q-rmea-publish.lock'))
     if not lock.is_absolute():lock=p.ROOT/lock
     with p.lock(lock):
         p.git('fetch','origin','+refs/heads/main:refs/remotes/origin/main','+refs/heads/1.1:refs/remotes/origin/1.1')
         branch_gate(relative)
-        phase='canary' if p.read(root/'handoff.json')['canary_only'] else 'discovery'
-        export(root,target);record=validate_report(target)
-        baseline=record['git_revision'];head=p.git('rev-parse','HEAD');expected={relative+'/'+n for n in REPORT_FILES}
-        hashes={name:p.digest(p.ROOT/name) for name in expected}
-        if head==baseline:
-            p.git('add','--',*sorted(expected))
-            if set(p.git('diff','--cached','--name-only').splitlines())!=expected:raise ValueError('Unexpected staged changes')
-            p.git('diff','--cached','--check');p.git('commit','-m','reports: Q-RMEA '+record['profile']+' '+root.name);head=p.git('rev-parse','HEAD')
-        if p.git('rev-list','--parents','-n','1',head).split()!=[head,baseline]:raise ValueError('Only the single report commit may follow run revision')
-        if set(p.git('diff','--name-only',baseline,head).splitlines())!=expected or set(p.git('diff','--name-only','--diff-filter=A',baseline,head).splitlines())!=expected:raise ValueError('Commit must add exactly audited report files')
-        for name,sha in hashes.items():
-            raw=subprocess.check_output(['git','show',head+':'+name],cwd=p.ROOT)
-            if hashlib.sha256(raw).hexdigest()!=sha:raise ValueError('Committed bytes differ')
-        branch_gate();validate_report(target)
-        if p.git('rev-parse','HEAD')!=head:raise ValueError('HEAD changed before push')
-        p.git('push','origin',head+':refs/heads/1.1')
-        print(p.json.dumps(dict(published_report=relative,commit=head,branch='1.1')),flush=True)
+        export(root,target)
+        _commit_report_and_push(target)
 
 def run(args):
     root=Path(args.run_dir).resolve() if args.run_dir else p.ROOT.parent/'q-rmea-token-transport-private'/ (dt.datetime.now(dt.timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'_seed13')
