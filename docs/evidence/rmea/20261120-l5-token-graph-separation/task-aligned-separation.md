@@ -251,3 +251,26 @@ This follows by expanding the two dark numerators EPS+t^2|u_j|^2 and EPS+t^2|v_j
 The orthogonal-block family is exceptional, so it does not disprove generic disjointness. A proof would still have to control the projection of all singular coincidence strata, or establish transversality after a justified projected-null exclusion. Neither has been established. Do not replace this gap by a theorem for independently sampled POVMs, an EPS=0 calculation, a numerical no-match, or a dimension count. Retain the open conjecture/obstruction as mathematical research evidence; no technical fixture, tau/seed search or formal gate is added.
 
 A newly inspected direct architectural neighbor, Faria etal arXiv2509.11390v1 pp4-6, instead weights classical neighbor inputs before unitary feature mapping and then uses quantum convolution/pooling/observable readout (p5 Eqs6-10). The inspected equations do not display the same entrywise-cubic key-Gram token-index transport. This scoped distinction leaves quantum graph attention and data-dependent quantum encoding as established components and is not a general learned-family separation or novelty clearance. The thirteenth scoped original record is in nearest-work-comparison.json.
+
+## Existing trained pilot: class-resolved routing boundary
+
+This is a post hoc arithmetic decomposition of the immutable trained pilot, not a new run or final-state replay. Its compact report was published at commit a447ce0dd28be21748a1440549246fa179bfdbf2, path docs/evidence/rmea/20261120-l5-token-transport-training/compact-report.json, SHA256 e4f01cd5f5fcd95de222d62f6850ea6d8e90c597e5fad2c1aad9012368316aca. The report is not copied into this evidence directory. The executed revision was8a5c2f8d7100e8cfece3ce07df081b0e3557202f. Its final weights were intentionally not retained; every originally declared diagnostic was completed in RAM. No retraining is justified solely to obtain a new post hoc diagnostic.
+
+The pilot used3124 fit/972 evaluation examples from the repeatedly used train-prefix development split, four epochs and392 updates/head. Evaluation has642 negative and330 positive examples. The reported primary macro_f1 is the fixed39-positive-class average, excluding class0, with absent classes retained as zero; it is not all40Macro. Six positive classes are absent. This split is exploratory, not independent confirmation.
+
+The already known trained-model gate remains PASS: cubic Macro.05510363057 exceeds native.05455256958, dephased.04703875126 and linear.05420956367; cubic CE1.18059698662 is below native1.24611913771. This aggregate gate is unchanged by the following decomposition.
+
+Within the fixed final cubic head, changing only routing from native to cubic gives CE1.18196902336 ->1.18059698662, but positive39Macro.05818656583 ->.05510363057 (minus.308293526 percentage points). Positive true positives77 ->74, negative true positives573 ->574 and positive predictions191 ->186. Thus a CE/current alignment argument cannot certify the primary Macro benefit.
+
+|Class ID|Support|Native TP -> cubic TP|Contribution to positive39Macro delta|
+|---|---:|---:|---:|
+|1|18|2 ->1|-.002043849870|
+|8|12|1 ->1|+.000281769513|
+|27|47|8 ->6|-.001447477254|
+|39|34|16 ->16|+.000126622349|
+
+These are all four positive classes whose confusion-derived aggregates change; the other35 of40 classes are unchanged. Class0 also changes but is excluded from the primary metric. Native and initially dephased confusion matrices coincide, which does not prove paired predictions coincide. Aggregate differences do not identify which examples flipped or their margins, phases or causal paths. Classes1/27 must not become a retroactive selected metric. Full arithmetic/provenance and all changed class counts are in pilot-class-routing-analysis.json.
+
+The complete IC-conditional pure-query distance criterion and actual-tau dephased-conditioning bound are now documented in full-vector-reachability.md. They distinguish geometry from information and from task utility: in the IC regime native/dephased outcomes already identify the query density, while a coherent probability vector may still fall outside either fixed comparator's pure-query range. No such trained numerical exclusion is claimed. This is a standard-tool conditional diagnostic, not a new tomography algorithm or L5 acceptance.
+
+Next empirical use stays the frozen full-data report and its all39-class gate, followed by fixed-head mechanisms on all24 approved final traces if justified. The historical exposed test/single seed is not new-population independent confirmation. No technical fixture, optional seeds/tau/epoch rescue, formal gate change, new source/model/data/checkpoint/COS copy or owner full training is introduced.

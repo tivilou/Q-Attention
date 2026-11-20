@@ -1,0 +1,161 @@
+{
+  "schema": "qattn.pilot-class-routing-analysis.v1",
+  "source": {
+    "executed_revision": "8a5c2f8d7100e8cfece3ce07df081b0e3557202f",
+    "published_revision": "a447ce0dd28be21748a1440549246fa179bfdbf2",
+    "report_path": "docs/evidence/rmea/20261120-l5-token-transport-training/compact-report.json",
+    "sha256": "e4f01cd5f5fcd95de222d62f6850ea6d8e90c597e5fad2c1aad9012368316aca",
+    "terminal_acceptance": "training-acceptance.json",
+    "task": "02ff9b60ab3a4eb79e083d7347f0fb9b",
+    "attempt": "4149bc795c9e426286ed06cc641d056b"
+  },
+  "scope": "Post hoc arithmetic over the existing972-example exploratory pilot aggregate. No final weights retained, no replay/retraining, no new experiment, no independent confirmation.",
+  "metric_definition": {
+    "primary": "mean per-class F1 over fixed39positive labels; class0 excluded",
+    "secondary": "all40macro is not the reported primary",
+    "examples": 972,
+    "negative_examples": 642,
+    "positive_examples": 330,
+    "missing_positive_class_ids": [
+      17,
+      23,
+      24,
+      32,
+      36,
+      37
+    ]
+  },
+  "trained_models": {
+    "native": {
+      "macro_f1": 0.05455256958362548,
+      "accuracy": 0.6697530864197531,
+      "ce": 1.2461191377098197
+    },
+    "cubic_coherent": {
+      "macro_f1": 0.055103630567633045,
+      "accuracy": 0.6666666666666666,
+      "ce": 1.1805969866172275
+    },
+    "cubic_initial_dephased": {
+      "macro_f1": 0.04703875126445366,
+      "accuracy": 0.6625514403292181,
+      "ce": 1.2394885893279657
+    },
+    "linear_coherent": {
+      "macro_f1": 0.05420956367021796,
+      "accuracy": 0.6800411522633745,
+      "ce": 1.1628436675428921
+    }
+  },
+  "same_cubic_final_head_routing": {
+    "native": {
+      "macro_f1": 0.05818656583011542,
+      "accuracy": 0.668724279835391,
+      "ce": 1.181969023358755
+    },
+    "cubic_coherent": {
+      "macro_f1": 0.055103630567633045,
+      "accuracy": 0.6666666666666666,
+      "ce": 1.1805969866172275
+    },
+    "cubic_initial_dephased": {
+      "macro_f1": 0.05818656583011542,
+      "accuracy": 0.668724279835391,
+      "ce": 1.1819169313298499
+    },
+    "linear_coherent": {
+      "macro_f1": 0.057089276997111096,
+      "accuracy": 0.6676954732510288,
+      "ce": 1.1794838573362088
+    }
+  },
+  "cubic_minus_fixed_native": {
+    "positive39_macro": -0.003082935262482378,
+    "CE": -0.001372036741527527,
+    "accuracy": -0.002057613168724326,
+    "positive_true_positive_count": -3,
+    "negative_true_positive_count": 1,
+    "positive_prediction_count": -5
+  },
+  "all_changed_class_aggregates": [
+    {
+      "class_id": 0,
+      "support": 642,
+      "native_TP": 573,
+      "cubic_TP": 574,
+      "delta_TP": 1,
+      "native_predicted": 781,
+      "cubic_predicted": 786,
+      "delta_predicted": 5,
+      "native_f1": 0.8053408292340126,
+      "cubic_f1": 0.803921568627451,
+      "delta_f1": -0.001419260606561612,
+      "positive39_macro_contribution": 0.0
+    },
+    {
+      "class_id": 1,
+      "support": 18,
+      "native_TP": 2,
+      "cubic_TP": 1,
+      "delta_TP": -1,
+      "native_predicted": 6,
+      "cubic_predicted": 5,
+      "delta_predicted": -1,
+      "native_f1": 0.16666666666666666,
+      "cubic_f1": 0.08695652173913043,
+      "delta_f1": -0.07971014492753623,
+      "positive39_macro_contribution": -0.0020438498699368265
+    },
+    {
+      "class_id": 8,
+      "support": 12,
+      "native_TP": 1,
+      "cubic_TP": 1,
+      "delta_TP": 0,
+      "native_predicted": 2,
+      "cubic_predicted": 1,
+      "delta_predicted": -1,
+      "native_f1": 0.14285714285714285,
+      "cubic_f1": 0.15384615384615385,
+      "delta_f1": 0.010989010989011005,
+      "positive39_macro_contribution": 0.0002817695125387437
+    },
+    {
+      "class_id": 27,
+      "support": 47,
+      "native_TP": 8,
+      "cubic_TP": 6,
+      "delta_TP": -2,
+      "native_predicted": 17,
+      "cubic_predicted": 15,
+      "delta_predicted": -2,
+      "native_f1": 0.25,
+      "cubic_f1": 0.1935483870967742,
+      "delta_f1": -0.05645161290322581,
+      "positive39_macro_contribution": -0.001447477253928867
+    },
+    {
+      "class_id": 39,
+      "support": 34,
+      "native_TP": 16,
+      "cubic_TP": 16,
+      "delta_TP": 0,
+      "native_predicted": 47,
+      "cubic_predicted": 46,
+      "delta_predicted": -1,
+      "native_f1": 0.3950617283950617,
+      "cubic_f1": 0.4,
+      "delta_f1": 0.004938271604938316,
+      "positive39_macro_contribution": 0.0001266223488445722
+    }
+  ],
+  "unchanged_class_count": 35,
+  "native_vs_dephased_confusions_identical": true,
+  "limits": [
+    "Aggregate confusion differences do not identify paired examples or their margin/phase changes.",
+    "CE ranking is not a Macro-F1 certificate; no calibrated current-to-decision claim follows.",
+    "No inference of trained coherence necessity, causal explanation of between-model gains, significance, full benchmark utility or L5.",
+    "No retroactive class selection or formal gate change. Existing real report and checkpoint-free retention remain unchanged."
+  ],
+  "recommended_next": "Use the already frozen full-data result and its original39positive-class gate. This exposed historical test cohort/single seed is not new-population independent confirmation. Assess fixed-head routing versus all controls separately; do not use CE-current alignment alone as utility attribution."
+}
