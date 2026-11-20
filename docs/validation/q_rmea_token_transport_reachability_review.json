@@ -1,25 +1,41 @@
 {
-  "review_mode": "inherited_external_plus_deterministic_R0_additive_test_delta",
   "review_scope": "both",
   "verdict": "PASS",
+  "source_revision": "579f0148db00606c1f6be392b8eba3aa992c97c8",
+  "source_sha256": "b3d13733ff5bc69fc32c15b95e11a180530501b6ce3b877e7a8a40419d633eb7",
+  "contract_sha256": "9557d2e157e97310228648d51f014c9a3557d2a655a426145fe14041d505a305",
   "must_fix": [],
-  "source_revision": "4d71387da875b814c9c0ec043bb29d080ac08f25",
-  "response_id": null,
-  "inherited_review_revision": "17988423f7fb3d8b736f917ae1a2c0538615b4ac",
-  "inherited_external_response_id": "resp_06c7d98ceafb143e016b009d3471b487d2893f57881d1abed7",
-  "math_review_response_id": "resp_0bba9c85ee830734016b00b316592087d1b24a1b4542f13aed",
-  "checks": {
-    "previous_ten_test_bodies_identical": true,
-    "only_test_source_changed": [
-      "tests/test_rmea_token_transport.py"
-    ],
-    "all_non_test_sources_identical": true,
-    "contract_identical": true
-  },
-  "basis": "Only one additive fixed-grid test and theory documents. Exact previous implementation/lifecycle review recoverable by immutable Git revision+hash; no recursive copied review history, no new whole-code review.",
-  "L5": "NOT_ACCEPTED",
-  "source_sha256": "682e260e1c4ef769408e47dabf2f098f812fd4be5f27c558d1ec74f79d63a661",
-  "contract_sha256": "3ade4a53a82e5b388ab8ab9b9959649eef1a33646d386cb0a0f640957894ab1e",
-  "inherited_source_sha256": "7eb9f22524f92be5470c9b233bf8de415c604e3682c20af4266e3e9e3f8a860d",
-  "inherited_review_sha256": "2537b14ba6caf536dfdcf9fbf79a37b79e629833ad6b241fa46c5b696890c815"
+  "claims": [
+    {
+      "claim": "mapping",
+      "status": "PASS",
+      "reason_summary": "Prior finding retained: the full-route omitted mass, retained-route normalization and utility restriction are unchanged."
+    },
+    {
+      "claim": "mask",
+      "status": "PASS",
+      "reason_summary": "Prior finding retained: the fixed index-and-role mask is unchanged and shared across queries and routes."
+    },
+    {
+      "claim": "bounds",
+      "status": "PASS",
+      "reason_summary": "Both logit vectors must be finite. A nonfinite logit bound raises; with finite bounds, overflow in an absolute logit difference produces a positive infinite residual and raises. Every-target CE differences and bounds must be finite before their tolerance check. Winner selection follows these checks."
+    },
+    {
+      "claim": "input isolation",
+      "status": "PASS",
+      "reason_summary": "Every loaded sealed tensor, including bias and recorded alpha, is checked for finiteness before replay. A nonfinite replay error raises before the 1e-12 tolerance comparison or running-maximum update. No target read was added."
+    },
+    {
+      "claim": "unchanged lifecycle",
+      "status": "PASS",
+      "reason_summary": "Admission, dispatch and output handling are unchanged. A failed check on any trace raises before either the report or RUN_COMPLETE is written."
+    }
+  ],
+  "scope_limits": [
+    "Static review of the supplied nuisance_stability_v1 correction only. No execution was performed; this verdict does not assert that the six traces pass at runtime."
+  ],
+  "response_id": "resp_04d0f942bd312374016b00bd9123c487d181918b1c400baa91",
+  "reviewer_model": "gpt-6.2-astra",
+  "reasoning_effort": "medium"
 }
