@@ -7,6 +7,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [当前方法概览](current/method_overview_zh.md) | Q-VRES 方法、控制组和证据边界 |
+| [Q-RMEA 三阶词图输运：完整数据单 seed（准备中）](current/q_rmea_token_transport_handoff_zh.md) | 四路匹配、固定最终模型、正类39 Macro门槛；待精确审查与2080 canary验收后发布 |
 | [Q-RMEA 有序实体条件测量：正式单种子](current/q_rmea_entity_handoff_zh.md) | 新实体条件分支、五路匹配输入、完整v2追踪；只自动回传七文件报告，大文件留执行服务器 |
 | [Q-RMEA 五个新种子独立确认](current/q_rmea_confirmation_handoff_zh.md) | 固定29/53/71/97/113；v2样本追踪；一键运行并自动提交、推送报告 |
 | [Q-RMEA 新 idea 单 seed 交付](current/q_rmea_single_seed_handoff_zh.md) | 已有 reference 复用；五路同接口新实验、机制置换、完整案例与自动报告回传；以验证记录为准 |

@@ -1,0 +1,142 @@
+{
+  "schema": "qattn.cubic-token-transport.formal-design.v1",
+  "status": "SCIENTIFIC_SCOPE_FROZEN_RUNTIME_PENDING",
+  "candidate": "cubic-coherent-token-transport-v1",
+  "owner_goal": "L5 same-core theory/empirical contribution;NOT_ACCEPTED",
+  "base_main": "6c9c594cc2747e9235990ce20585eb7dc88b66ee",
+  "screen_source": "8a5c2f8d7100e8cfece3ce07df081b0e3557202f",
+  "screen_report_sha256": "e4f01cd5f5fcd95de222d62f6850ea6d8e90c597e5fad2c1aad9012368316aca",
+  "qualification": {
+    "path": "docs/evidence/rmea/20261117-l5-round51/qualification.json",
+    "sha256": "691c2b271f911d1e146bf80645e986f7412a61f9c13e81762ce78d1dbdfd6429",
+    "status": "qualified_existing_cohort_only",
+    "headroom_path": "docs/evidence/rmea/20261117-l5-round51/headroom-assessment.json",
+    "new_primary_scope": "positive39 differs from historicalfull40;do not transfer L4 or numerical gap"
+  },
+  "data": {
+    "dataset": "Existing private Re-TACRED project source",
+    "splits": {
+      "train": {
+        "count": 58465,
+        "sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f"
+      },
+      "valid": {
+        "count": 19584,
+        "sha256": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55"
+      },
+      "test": {
+        "count": 13418,
+        "sha256": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40"
+      }
+    },
+    "labels": "40 train-derived labels;index0 no_relation;no newlabels",
+    "data_dir_default": "data/relation/retacred",
+    "assets_default": ".external/assets/722cf37b1afa9454edce342e7895e588b6ff1d59/model",
+    "encoder_lock": "baselines/retacred/assets.lock.json",
+    "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+    "extraction": "Reuse rmea_run.extract unchanged:marked RoBERTa-large FP16 outputs averaged to originalwords;hash-ordered samples;frozen encoder;one shared cache perrun",
+    "test_exposure": "Officialtest previously exposed across earlier ideas;fixedsplit overlap retained. This prospective single seed is not newpopulation or blanket independenttest confirmation."
+  },
+  "model": {
+    "conditions": [
+      "native",
+      "cubic_coherent",
+      "cubic_initial_dephased",
+      "linear_coherent"
+    ],
+    "parameters_per_condition": 81028,
+    "qubits": 3,
+    "physical_dimension": 8,
+    "circuit_depth": 2,
+    "tau": 0.25,
+    "born_eps": 1e-06,
+    "dtype": "float64/complex128",
+    "generator": "Hermitian off-diagonal G or G*abs(G)^2,normalized by exact operatornorm;no detach/surrogate/fittedscale",
+    "initialization": "One RMEAHead(quantum)float32initial seeded then castdouble;all4load exactsame state. Same trainpermutations;values/decoder/bias and allquantumparams matched."
+  },
+  "training": {
+    "seed": 13,
+    "epochs": 4,
+    "batch_size": 32,
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "clip_norm": 1.0,
+    "updates_per_condition": 7312,
+    "total_updates": 29248,
+    "order": "NumPy default_rng(seed).permutation(trainindices)onceper epoch;common allconditions",
+    "selection": "Fixed fourth-epoch final model;no validation-selected epoch,no earlystopping",
+    "valid": "Descriptive final-state evaluation only;no model/budget selection",
+    "test": "Evaluate only after fixedfinalstate;labels never passed into head/routing"
+  },
+  "gates": {
+    "primary": "cubiccoherent testpositive39Macro strictly above native,dephased,linear AND cubic testCE<=native. All4mandatory;do not replace Macro with Accuracy/CE on failure.",
+    "metrics": [
+      "positive39Macro fixeddenominator39",
+      "full40Macro secondary",
+      "CE",
+      "Accuracy",
+      "nonnullMicroF1"
+    ],
+    "mechanism": "Frozen finalcubic state,alltestunits native/dephased/linear swaps;unchangedpreparation/queries/values/bias. Report bothMacro/CE without claiming coherentnecessity fromtrainingcomparison.",
+    "numeric": "First32 outcome-blind hash-ordered testunits:all4 nativecoordinate/readout ceilings and row-norm diagonal-gauge certificate. Absolute witness tolerance1e-8 in float64/complex128; linear-null control. Where coherent coordinates exceed both ceilings, retain same-example token/class contribution, true-vs-rival margin and CE under all4 frozen swaps. Report denominator and zero witnesses. Diagnostic does not enter primary gate or establish causal mediation.",
+    "failure": "Nonpositive/policy/source/data/tracefailure stops automaticprogression;ordinary short/full single null not a universal impossibility. No optionalseed/epoch/tau/rescue.",
+    "replication": "No automatic replication. After owneraudit,freeze freshseed contract and appropriate statistical/attribution claims;do not mix discoveryseed13 into confirmation.",
+    "theory_review": {
+      "verdict": "PASS_WITH_RISK",
+      "response_id": "resp_0f41f0c0e176bc6f016b007683bbd887d291939f4319593c5a",
+      "path": "docs/evidence/rmea/20261120-l5-token-graph-separation/theory-refinement-review.json",
+      "L5": "NOT_ACCEPTED"
+    }
+  },
+  "execution": {
+    "full_formal_executor": "collaborator on1.1 only",
+    "owner_execution": "2080Ti scheduler-only unit/synthetic/bounded canary;neverfullformal",
+    "gpu": "One GPU,serial4conditions;fixed scientificbatch,no silent CPU fallback or budgetshrink",
+    "environment": "Existing Python3.10/Torch supported exactversion gate and currentGPU preflight stilltobeimplemented/reviewed;no silentinstall. Preserve tested64bit math.",
+    "reuse": "Do not rerun historical15baseline benchmark. Native is a new same-budget control for this mechanism,not a historicalbaseline reproduction."
+  },
+  "trace": {
+    "schema": "sample-trace.v2",
+    "mode": "post_training_replay",
+    "samples": "First2hash-ordered units in eachsplit,frozen beforeoutcomes;4conditions atfixedfinalonly. No initial/per-epoch CaseStudy capture.",
+    "states": [
+      "tokenization IDs/masks/wordpieces",
+      "cached encoder finalwordinputs",
+      "roles and masks",
+      "prepared token/query complexstates",
+      "Gram/generator/unitary forroutedconditions",
+      "values/utilities",
+      "native and routed weights",
+      "logits and frozenroute swaps"
+    ],
+    "requirements": "Complete detached numericvalues,producer input/outputlineage,private source-linkedreader,fullcoordinate coverage andsource-semantic replay. Existing historicaltrace remainsunmodified;materialization/readiness mustactuallypass beforehandoff.",
+    "checkpoint": "Bind4finalmodelsha aftertraining;no assertion of futurebytesbeforeproduced"
+  },
+  "retention": {
+    "private": "One existing/rebuildable encoder cache;four finalsmallcheckpoint states forposttrainingreplay;compact environment/input/config/source identities. No duplicateinitial/per-epochCaseStudy/wholemodelassets",
+    "large_upload": "No mandatoryfull-exchange upload and no storing6.9GBcache onownerPC. Collaborator rawrun staysprivate;on plannedhostrelease selectminimal irreplaceableCOSobjects through existingworkflow.",
+    "recovery": "No trainingrestart/automaticrescue inthiscontract. Any localepochresumeorCOSmilestone supportneeds exactseparateimplementation/review;no cloudprotectionclaim froma localcheckpoint.",
+    "public": "Sevenfile report-only summary,manifest,trace_validation,receipt,run_summary,data.sha256,data_counts.txt;no rawtext/predictions/tensors/models/full logs"
+  },
+  "release": {
+    "status": "NOT_IMPLEMENTED_NOT_RELEASED",
+    "required": [
+      "one portable command runner with realdefaultpaths",
+      "check/preflight",
+      "report-only exporter and idempotentGitcommit/push",
+      "Chinese doc and docsREADME entry",
+      "exact BOTH review",
+      "2080scheduler canary throughrealparentpath",
+      "injected exportfailure/cleanup/retry on same sealedrun",
+      "structural plus source-semantic tracev2 validation",
+      "clean latestmain release afterallgates"
+    ]
+  },
+  "L5": "NOT_ACCEPTED"
+}
