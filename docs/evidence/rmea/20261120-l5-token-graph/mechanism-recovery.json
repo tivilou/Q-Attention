@@ -1,0 +1,144 @@
+{
+  "schema_version": "experiment-grounded-ideation.mechanism-recovery.v2",
+  "evidence_packet": {
+    "path": "docs/evidence/rmea/20261120-l5-crossfold/training-result.json",
+    "sha256": "89c105f09739ebe8f5a793e81b7ffeab0e3353ff9c831bd3e19212353f7a1261",
+    "code_revision": "815cfb2ce88ba9473ca04e9cc83d3fa547b6f4ac",
+    "validity_status": "mixed"
+  },
+  "causal_trace": {
+    "intervention_execution": {
+      "claim": "Cross-fold screen complete once; token transport not executed.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261120-l5-crossfold/training-result.json",
+        "docs/evidence/rmea/20261120-l5-decision-triage/token-graph-candidate-v001.md",
+        "docs/evidence/rmea/20261120-l5-decision-triage/review-and-selection.json"
+      ]
+    },
+    "intended_intermediate": {
+      "claim": "Existing path squares token-query amplitudes before pooling; new graph transports amplitudes before squaring.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261120-l5-crossfold/training-result.json",
+        "docs/evidence/rmea/20261120-l5-decision-triage/token-graph-candidate-v001.md",
+        "docs/evidence/rmea/20261120-l5-decision-triage/review-and-selection.json"
+      ]
+    },
+    "observable_output": {
+      "claim": "Cross-fold CE/accuracy improved but Macro gate failed; nullcorrect+21/positivecorrect-12 against full.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261120-l5-crossfold/training-result.json",
+        "docs/evidence/rmea/20261120-l5-decision-triage/token-graph-candidate-v001.md",
+        "docs/evidence/rmea/20261120-l5-decision-triage/review-and-selection.json"
+      ]
+    },
+    "task_utility": {
+      "claim": "No new-method task utility established; retain original scopedL4 only in its original scope.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261120-l5-crossfold/training-result.json",
+        "docs/evidence/rmea/20261120-l5-decision-triage/token-graph-candidate-v001.md",
+        "docs/evidence/rmea/20261120-l5-decision-triage/review-and-selection.json"
+      ]
+    }
+  },
+  "trace_adequacy": {
+    "status": "partial",
+    "schema_version": "source-equations-and-aggregate-reports",
+    "artifact_refs": [
+      "docs/evidence/rmea/20261120-l5-crossfold/training-result.json",
+      "docs/evidence/rmea/20261120-l5-decision-triage/token-graph-candidate-v001.md",
+      "docs/evidence/rmea/20261120-l5-decision-triage/review-and-selection.json"
+    ],
+    "selection_rule": "All predeclared aggregate rows; one fixed synthetic source witness; no outcome-selected text cases.",
+    "covered_stages": [
+      "source_readout",
+      "aggregate_output"
+    ],
+    "missing_stages": [
+      "executed_token_transport",
+      "real_task_margin_currents"
+    ],
+    "target_boundary": "No labels or utilities enter token graph/routing; synthetic utilities affect only readout. No real dataset access."
+  },
+  "failure_analysis": {
+    "primary_explanation": {
+      "statement": "CE improvement does not identify improved positive-class decisions; a pre-Born amplitude path may alter competition differently. This is a hypothesis.",
+      "evidence_refs": [
+        "docs/evidence/rmea/20261120-l5-crossfold/training-result.json",
+        "docs/evidence/rmea/20261120-l5-decision-triage/token-graph-candidate-v001.md",
+        "docs/evidence/rmea/20261120-l5-decision-triage/review-and-selection.json"
+      ],
+      "confidence": "low"
+    },
+    "alternative_explanations": [
+      {
+        "statement": "Generic contextual graph encoding may explain any gain; exact classical transformed-key counterpart always exists.",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261120-l5-decision-triage/token-graph-candidate-v001.md",
+          "docs/evidence/rmea/20261120-l5-decision-triage/review-and-selection.json"
+        ],
+        "confidence": "high"
+      },
+      {
+        "statement": "Learned states may contain no useful geometric phase or may route toward distractors.",
+        "evidence_refs": [
+          "docs/evidence/rmea/20261120-l5-decision-triage/token-graph-candidate-v001.md",
+          "docs/evidence/rmea/20261120-l5-decision-triage/review-and-selection.json"
+        ],
+        "confidence": "low"
+      }
+    ],
+    "discriminating_measurement": {
+      "uncertainty": "Coherent token transport versus identical graph applied after token-register dephasing.",
+      "measurement": "Source-native finite decision witness, gauge/permutation invariance, pair-current derivative and exact transformed-key score equality.",
+      "primary_outcome": "Fixed coherent source witness flips class1 versus null while native/token-dephased remain unchanged; all8 exact-interface checks pass.",
+      "alternative_outcome": "Any failed source/mask/current/equivalence check blocks numerical qualification; no task inference from synthetic pass."
+    },
+    "closed_family": {
+      "id": "cross-fold-fixed-development-contract",
+      "rejected_variant_refs": [
+        "docs/evidence/rmea/20261120-l5-crossfold/training-result.json"
+      ],
+      "closure_evidence_refs": [
+        "docs/evidence/rmea/20261120-l5-crossfold/training-result.json"
+      ],
+      "forbidden_rescue_variants": [
+        "No optional folds/tau/seed/epoch/precision rescue of prior screen."
+      ]
+    }
+  },
+  "positive_carryovers": [
+    {
+      "id": "ordinary-native-alignment",
+      "mechanism": "Original trained positive attention pools signed decoder values; retain that interface and accepted scoped utility/alignment.",
+      "evidence_refs": [
+        "docs/audits/20261115-q-rmea-ordinary-l4-acceptance.md"
+      ],
+      "transport_constraint": "Changed mechanism inherits no ordinary utility tier or L5; source witness is not text evidence."
+    }
+  ],
+  "recovery_outcome": {
+    "disposition": "candidate",
+    "selected_candidate": {
+      "id": "gauge-covariant-token-graph-v1",
+      "title": "Coherent token-graph transport before Born readout",
+      "positive_carryover_ids": [
+        "ordinary-native-alignment"
+      ],
+      "recovery_mode": "new_causal_path",
+      "causal_difference": "Move from independent token overlaps to a covariantly constructed token-graph unitary before probability readout; retain utilities and biases.",
+      "changed_causal_links": [
+        "intended_intermediate",
+        "observable_output"
+      ],
+      "discriminating_measurement": "GraphH,U,amplitudes,alpha,utilities and logits; matched token-dephased control and source parameter witness.",
+      "success_gate": "Reviewed shared-scheduler forward canary passes exactly8checks; no task promotion.",
+      "kill_condition": "Implementation/identity/numerical failure stops exact canary qualification. Later short task null is inconclusive without rescue.",
+      "authorization_boundary": "Existing owner continuous bounded research; shared queue only; formal full-data runs collaborator-only."
+    }
+  },
+  "limitations": [
+    "Forward-only synthetic qualification,not eligible formal design.",
+    "Novelty/task-linked theory/independent task evidence unresolved.",
+    "Abstract3token absorption fixture has no asserted original-circuit realization."
+  ]
+}

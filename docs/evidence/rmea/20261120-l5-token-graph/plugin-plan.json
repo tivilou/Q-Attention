@@ -1,0 +1,253 @@
+{
+  "schema_version": "research-plugin-architecture.plugin-plan.v2",
+  "project": "Q-Attention",
+  "authorization": "approved",
+  "baseline": {
+    "entry_point": "experiments.rmea_context_geometry.legacy.rmea.RMEAHead",
+    "code_revision": "28694636b5f31cc8ac4103a4330d137fc22fe73f",
+    "equivalence_test": "Exact all40 native source parity; tau0 EPS and mask behavior; managed numerical qualification pending."
+  },
+  "core_invariants": [
+    "All historical source and runs unchanged.",
+    "Forward-only wrapper preserves81028 parameters,original utility/bias and40classes; no learned transport parameter.",
+    "No labels or utilities in routing; no dataset/optimizer/COS.",
+    "Scientific execution requires BOTH review and shared scheduler."
+  ],
+  "interfaces": [
+    {
+      "id": "token-graph-forward",
+      "type": "transformer",
+      "input_schema": "h[B,T,1024],roles[B,T,4],mask[B,T]; float64CPU; normalized complex128 state interface.",
+      "output_schema": "logits[B,40],alpha[B,40,T]; optional full synthetic G,K,H,U,a,D source values."
+    }
+  ],
+  "plugins": [
+    {
+      "id": "native",
+      "version": "1",
+      "role": "baseline",
+      "interface": "token-graph-forward",
+      "insertion_point": "Native states -> token graph/transport -> probabilities -> unchanged utility readout",
+      "hypothesis": "Coherent graph currents may improve target versus rival decisions beyond incoherent graph redistribution; untested.",
+      "input_schema": "h[B,T,1024],roles[B,T,4],mask[B,T]; float64CPU; normalized complex128 state interface.",
+      "output_schema": "logits[B,40],alpha[B,40,T]; optional full synthetic G,K,H,U,a,D source values.",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "Shared native81028parameters;N-by-N Hermitian graph and unitary per sample;forwardCPUonly.",
+      "failure_signatures": [
+        "Native/source identity failure",
+        "Mask/gauge/current mismatch",
+        "Nonfinite graph or probabilities",
+        "Conflated physical/token dephasing"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "stages": [
+          "native_preparation",
+          "token_graph",
+          "probability_readout",
+          "utility_readout"
+        ],
+        "input_fields": [
+          "psi",
+          "phi",
+          "mask"
+        ],
+        "output_fields": [
+          "alpha",
+          "logits"
+        ],
+        "emitted_fields": [
+          "G",
+          "K",
+          "H",
+          "U",
+          "a",
+          "D",
+          "alpha",
+          "utilities",
+          "logits"
+        ],
+        "shape_dtype_normalization": [
+          "Valid-token graph only,EPS1e-6,all40,positive normalized attention."
+        ],
+        "checks": [
+          "Synthetic full-value fixture only; formal sample-trace.v2 readiness not certified."
+        ],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "coherent",
+      "version": "1",
+      "role": "idea",
+      "interface": "token-graph-forward",
+      "insertion_point": "Native states -> token graph/transport -> probabilities -> unchanged utility readout",
+      "hypothesis": "Coherent graph currents may improve target versus rival decisions beyond incoherent graph redistribution; untested.",
+      "input_schema": "h[B,T,1024],roles[B,T,4],mask[B,T]; float64CPU; normalized complex128 state interface.",
+      "output_schema": "logits[B,40],alpha[B,40,T]; optional full synthetic G,K,H,U,a,D source values.",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "Shared native81028parameters;N-by-N Hermitian graph and unitary per sample;forwardCPUonly.",
+      "failure_signatures": [
+        "Native/source identity failure",
+        "Mask/gauge/current mismatch",
+        "Nonfinite graph or probabilities",
+        "Conflated physical/token dephasing"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "stages": [
+          "native_preparation",
+          "token_graph",
+          "probability_readout",
+          "utility_readout"
+        ],
+        "input_fields": [
+          "psi",
+          "phi",
+          "mask"
+        ],
+        "output_fields": [
+          "alpha",
+          "logits"
+        ],
+        "emitted_fields": [
+          "G",
+          "K",
+          "H",
+          "U",
+          "a",
+          "D",
+          "alpha",
+          "utilities",
+          "logits"
+        ],
+        "shape_dtype_normalization": [
+          "Valid-token graph only,EPS1e-6,all40,positive normalized attention."
+        ],
+        "checks": [
+          "Synthetic full-value fixture only; formal sample-trace.v2 readiness not certified."
+        ],
+        "deterministic_replay": true
+      }
+    },
+    {
+      "id": "token_dephased",
+      "version": "1",
+      "role": "adapter",
+      "interface": "token-graph-forward",
+      "insertion_point": "Native states -> token graph/transport -> probabilities -> unchanged utility readout",
+      "hypothesis": "Coherent graph currents may improve target versus rival decisions beyond incoherent graph redistribution; untested.",
+      "input_schema": "h[B,T,1024],roles[B,T,4],mask[B,T]; float64CPU; normalized complex128 state interface.",
+      "output_schema": "logits[B,40],alpha[B,40,T]; optional full synthetic G,K,H,U,a,D source values.",
+      "requires": [],
+      "conflicts": [],
+      "deterministic": true,
+      "resource_estimate": "Shared native81028parameters;N-by-N Hermitian graph and unitary per sample;forwardCPUonly.",
+      "failure_signatures": [
+        "Native/source identity failure",
+        "Mask/gauge/current mismatch",
+        "Nonfinite graph or probabilities",
+        "Conflated physical/token dephasing"
+      ],
+      "observability_contract": {
+        "trace_schema": "sample-trace.v2",
+        "stages": [
+          "native_preparation",
+          "token_graph",
+          "probability_readout",
+          "utility_readout"
+        ],
+        "input_fields": [
+          "psi",
+          "phi",
+          "mask"
+        ],
+        "output_fields": [
+          "alpha",
+          "logits"
+        ],
+        "emitted_fields": [
+          "G",
+          "K",
+          "H",
+          "U",
+          "a",
+          "D",
+          "alpha",
+          "utilities",
+          "logits"
+        ],
+        "shape_dtype_normalization": [
+          "Valid-token graph only,EPS1e-6,all40,positive normalized attention."
+        ],
+        "checks": [
+          "Synthetic full-value fixture only; formal sample-trace.v2 readiness not certified."
+        ],
+        "deterministic_replay": true
+      }
+    }
+  ],
+  "discovery": {
+    "mode": "explicit_allowlist",
+    "allowlist": [
+      "native",
+      "coherent",
+      "token_dephased"
+    ]
+  },
+  "composition": {
+    "mode": "single",
+    "order": [
+      "coherent"
+    ],
+    "merge_rule": "One frozen kind,tau1/4; no composition.",
+    "interaction_ablations": [
+      "native",
+      "token_dephased"
+    ]
+  },
+  "validation": {
+    "baseline_equivalence": "Pending reviewed numerical canary.",
+    "tests": [
+      "baseline_equivalence",
+      "plugin_isolation",
+      "deterministic_replay",
+      "interaction_ablation",
+      "native_tau0_mask_padding_and_normalization",
+      "invalid_interfaces_and_parameter_isolation",
+      "gauge_query_phase_and_token_permutation",
+      "single_zero_graph_and_degenerate_spectrum",
+      "finite_native_source_decision_and_harmful_relabel_witness",
+      "signed_pair_current_and_finite_difference",
+      "astra_absorption_and_exact_contextual_key_counterpart",
+      "deterministic_replay_and_complete_synthetic_fixture"
+    ]
+  },
+  "reproducibility": {
+    "config_path": "docs/evidence/rmea/20261120-l5-token-graph/canary-design.json",
+    "dataset_identity": "Synthetic only; no dataset reads.",
+    "environment": "NumPy1.24.3/Torch2.4.1+cpu,float64/complex128",
+    "seeds": [
+      20261120
+    ],
+    "output_manifest": "compact-report.json and RUN_COMPLETE"
+  },
+  "trace_contract": {
+    "enabled": false
+  },
+  "recovery_contract": {
+    "dossier_path": "docs/evidence/rmea/20261120-l5-token-graph/mechanism-recovery.json",
+    "dossier_sha256": "c8ce9fcd298a946a3a03fef3df6c7633106df51b69884d78f4dd29dcfe450372",
+    "candidate_id": "gauge-covariant-token-graph-v1",
+    "discriminating_intermediate_measurement": "GraphH,U,amplitudes,alpha,utilities and logits; matched token-dephased control and source parameter witness."
+  },
+  "limitations": [
+    "Approved bounded source qualification only; no formal-ready candidate or implemented architecture certification.",
+    "No training/gradient/task utility or novelty claim.",
+    "Exact BOTH review and queue admission precede scientific computation."
+  ]
+}

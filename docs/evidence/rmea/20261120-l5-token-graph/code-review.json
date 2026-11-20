@@ -1,0 +1,109 @@
+{
+  "schema": "qattn.token-graph.exact-code-review.v1",
+  "status": "STATIC_BOTH_PASS_WITH_RISK_NUMERICAL_PENDING",
+  "review": {
+    "model": "gpt-6.2-astra",
+    "reasoning_effort": "medium",
+    "response_id": "resp_008e110924992505016affc557683c87d1b250268e06b746a5",
+    "freeze_sha256": "8d36a1dc93be75645fd4a8908401c038b6fbc5bf7b45d535cb2443fb9cf1f55d",
+    "packet_sha256": "651921760e8fae035ce3995f20db79e75642254714ecb580e972e275e2d2c739",
+    "answer_sha256": "3f87286299ccaaefd91ef5fb2702924066eeb7b1dba230e0da370b198c2a4eba",
+    "verdict_sha256": "bdefdf5a016ec0588d5b2c88fa261bc3a7e9f895cae9d02e38ac77aee5500cfd",
+    "result": {
+      "review_mode": "external",
+      "reviewer_model": "gpt-6.2-astra",
+      "review_scope": "both",
+      "freeze_sha256": "8d36a1dc93be75645fd4a8908401c038b6fbc5bf7b45d535cb2443fb9cf1f55d",
+      "contract_sha256": "3e6d6dd97df7084c9f91a48401f13547934d49b6dfbf625eff5c8878029331ce",
+      "theory_mapping": [
+        {
+          "invariant": "a_t = ψ_t†φ; G_ts = ψ_t†ψ_s; transported amplitude = Ua",
+          "locations": [
+            "token_transport.py: transport_attention, from valid-index gather through a@U.T"
+          ],
+          "finding": "The stored query row is a transpose, not an adjoint, of the amplitude column. Thus a@U.T is correct. Token rephasing sends G, K, H and U to Q†(·)Q and a to Q†a; a query-global phase cancels on squaring."
+        },
+        {
+          "invariant": "D = Σ_valid |a_t|² + N·EPS; α_coh = (|Ua|² + EPS)/D; α_inc = |U|²α_native",
+          "locations": [
+            "token_transport.py: transport_attention",
+            "rmea.py: RMEAHead.forward",
+            "token_transport_canary.py: first and third checks"
+          ],
+          "finding": "Native source overlaps are conjugates of a and have the same squared moduli. Unitarity preserves D and the EPS identity contribution. Both controls use the same valid indices; the dephased branch applies the same walk's transition probabilities, not legacy physical-register dephasing. Scatter leaves invalid positions zero."
+        },
+        {
+          "invariant": "Finite witness: z₁(coherent) = sin(1/2)/(√2·(1+2·EPS)) > 1/4",
+          "locations": [
+            "token_transport_canary.py: witness construction",
+            "rmea.py: circuit and angle reshape",
+            "frozen_feature_head.py: value, decoder and bias"
+          ],
+          "finding": "Prepare row 6 is layer 1, wire 0, RY; only the second feature row activates it. Effect row 1 sets RY and RZ on that same layer and wire. The first ring fixes the all-zero basis state and the final ring is common, preserving overlaps. The actual value and decoder weights give class 1 utilities (+1,−1); the null has constant logit 1/4. Native and dephased tie the token weights, while coherent favors token 0. Relabeling the witness null makes that flip harmful."
+        },
+        {
+          "invariant": "z′(0) = (2/D) Σ_{i<j}(u_i−u_j) Im(a_i* H_ij a_j)",
+          "locations": [
+            "token_transport_canary.py: theory, fd and pairs"
+          ],
+          "finding": "The positive imaginary-part sign follows from U′(0)=−iH. Hermiticity gives opposite currents on the two endpoints. The central difference varies only time, and the explicit pair sum checks the utility contrast without differentiating the graph construction."
+        },
+        {
+          "invariant": "P projects onto range(G); contextual key columns SᵀU† reproduce the walk amplitudes",
+          "locations": [
+            "token_transport_canary.py: three-token residual and transformed"
+          ],
+          "finding": "For token rows S, the original amplitude columns lie in range(conj(S)). A nonzero (I−P)U conj(S) witnesses failure to stay in that space for all queries. It does not rule out contextual keys: conjugating SᵀU† gives exactly the matrix required by a@U.T. This is an amplitude statement on abstract states, not a decision separation."
+        }
+      ],
+      "correctness": "pass",
+      "fidelity_gaps": [
+        "The NaN-padding test qualifies the gathered state transport, not end-to-end handling of NaNs in padded raw features by the legacy head.",
+        "For non-native details, inherited probability and sensitivity describe the native calculation, not transported diagnostics. Neither is used as a transported quantity in the canary fixture."
+      ],
+      "control_fairness": "pass",
+      "gradient_and_numerics": "pass",
+      "lifecycle_correctness": "pass",
+      "artifact_and_recovery": "pass",
+      "must_fix": [],
+      "verdict": "PASS_WITH_RISK",
+      "risks": [
+        "Static review only: no tools, execution, digest recomputation or observed numerical passes. No deterministic shape, indexing or tolerance failure identified. Exact zero K gives identity evolution; repeated eigenvalues require no eigenvector choice. Normalizing a tiny nonzero K need not approximate the zero-graph branch.",
+        "The Torch-free parent launches one synchronous child with the same interpreter, -B, resolved job path, absolute contract/output paths, --child, cwd=ROOT and single-thread overrides. Both check source/job/design hashes, CPU package versions, empty CUDA visibility and fresh output. Package versions are not wheel hashes; exact contract identity, immutable checkout, outer resource limits and one-attempt admission belong to the scheduler.",
+        "The child has a 210-second timeout. The parent requires successful exit, the eight distinct designed PASS names and scope flags before writing the report, then the hash-bearing completion marker. Failure leaves partials without a valid completion; there is no scientific retry loop. Whitelist publication and export-only recovery are separate scheduler operations, not tested here.",
+        "Eligibility is for one fixed forward-only synthetic canary after separate admission. It establishes neither gradient behavior nor task benefit, novelty, trace certification or independent confirmation."
+      ],
+      "confidence": "high",
+      "synthetic_canary_eligible": true,
+      "training_eligible": false,
+      "formal_handoff": false,
+      "L5": "NOT_ACCEPTED"
+    },
+    "requests": 1,
+    "automatic_retries": 0
+  },
+  "primary_resolution": {
+    "accepted": "One forward synthetic canary after separate exact scheduler admission.",
+    "stale_inherited_details": "Non-native probability/normalizer/sensitivity retain their original native meaning. Canary consumes only alpha/logits/psi/phi/utilities and explicit transport; do not use inherited sensitivity as transport derivative.",
+    "padding_scope": "NaN mask qualification is for gathered state interface, not raw legacy features.",
+    "tiny_graph_boundary": "Scale normalization is discontinuous at K=0; no stability or gradient guarantee.",
+    "classical_equivalence": "Exact contextual-key counterpart retained; nonabsorption is amplitude-only and abstract fixture only."
+  },
+  "contract_sha256": "3e6d6dd97df7084c9f91a48401f13547934d49b6dfbf625eff5c8878029331ce",
+  "science_files": {
+    "experiments/rmea_utility_measurement/token_transport.py": "b07e79c7104f02646c654c2d4acf73dfd7ced7be632e55433e018498de65f3d5",
+    "experiments/rmea_utility_measurement/token_transport_canary.py": "c10c7ba1dbdb83c4af24695566f45a823301f10cca2983ae62ef626211ffcaba",
+    "experiments/rmea_utility_measurement/token_transport_job.py": "9f440ee90a791adf86b22a1cda3a90f849ebc9317faa759a9586bd153e8ed796",
+    "docs/evidence/rmea/20261120-l5-token-graph/canary-design.json": "e01ed3f198304759458ffc770fffc886e994e2052bdfe0f4ceff7a95e7506eef",
+    "docs/evidence/rmea/20261120-l5-token-graph/mechanism-recovery.json": "c8ce9fcd298a946a3a03fef3df6c7633106df51b69884d78f4dd29dcfe450372",
+    "docs/evidence/rmea/20261120-l5-token-graph/plugin-plan.json": "6505a34c3432598ce83cd1246ee9cec5f3c457d5afa9008b5fb6f46eea65bd10"
+  },
+  "current_state": {
+    "scientific_executions": 0,
+    "shared_admission": "pending; foreign project active, no config/pointer mutation",
+    "training_eligible": false,
+    "formal_handoff": false,
+    "independent_confirmation": false,
+    "L5": "NOT_ACCEPTED"
+  }
+}

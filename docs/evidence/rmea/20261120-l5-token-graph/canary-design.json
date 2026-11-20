@@ -1,0 +1,59 @@
+{
+  "schema": "qattn.token-graph.canary.design.v1",
+  "status": "SOURCE_WRITTEN_REVIEW_PENDING",
+  "purpose": "One eight-check forward-only qualification of gauge-covariant token-graph transport; no data or training.",
+  "environment": {
+    "numpy": "1.24.3",
+    "torch": "2.4.1+cpu"
+  },
+  "source_files": {
+    "experiments/rmea_utility_measurement/token_transport.py": "b07e79c7104f02646c654c2d4acf73dfd7ced7be632e55433e018498de65f3d5",
+    "experiments/rmea_utility_measurement/token_transport_canary.py": "c10c7ba1dbdb83c4af24695566f45a823301f10cca2983ae62ef626211ffcaba",
+    "experiments/rmea_utility_measurement/token_transport_job.py": "9f440ee90a791adf86b22a1cda3a90f849ebc9317faa759a9586bd153e8ed796",
+    "experiments/rmea_context_geometry/legacy/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "experiments/rmea_context_geometry/legacy/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/rmea_original_scores/common.py": "2adf743b40b7f27109344b0d42d97cd250b85db203e663d77486710e3265b79e",
+    "experiments/rmea_utility_measurement/class_centered_job.py": "3d75a37b95cc9f87dc6fbeab7bb3b92a37ae1d227c1b7a05b615c14d9cc21b4d"
+  },
+  "seed": 20261120,
+  "conditions": [
+    "native",
+    "coherent",
+    "token_dephased"
+  ],
+  "fixed_tau": 0.25,
+  "checks": 8,
+  "check_names": [
+    "native_tau0_mask_padding_and_normalization",
+    "invalid_interfaces_and_parameter_isolation",
+    "gauge_query_phase_and_token_permutation",
+    "single_zero_graph_and_degenerate_spectrum",
+    "finite_native_source_decision_and_harmful_relabel_witness",
+    "signed_pair_current_and_finite_difference",
+    "astra_absorption_and_exact_contextual_key_counterpart",
+    "deterministic_replay_and_complete_synthetic_fixture"
+  ],
+  "budget": {
+    "cpu": 1,
+    "ram_mb": 4096,
+    "gpus": 0,
+    "disk_mb": 16,
+    "timeout_seconds": 240,
+    "optimizer_steps": 0,
+    "new_checkpoints": 0,
+    "COS_requests": 0,
+    "cloud_writes": 0
+  },
+  "outputs": [
+    "compact-report.json",
+    "RUN_COMPLETE"
+  ],
+  "max_attempts": 1,
+  "replay_safe": false,
+  "discovery_gate": "All8 fixed qualification checks pass; no task-utility,training-gradient,CaseStudy or L5 promotion.",
+  "failure_policy": "Preserve failure and partials; no automatic retry or coefficient/seed/precision rescue.",
+  "formal_run": false,
+  "L5": "NOT_ACCEPTED",
+  "trace_readiness": "Full synthetic values only; no sample-trace.v2 or final-model readiness certification.",
+  "source_count": 7
+}
