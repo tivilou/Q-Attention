@@ -234,5 +234,73 @@ class TransportTests(unittest.TestCase):
             task_utility=False)),flush=True)
 
 
+    @torch.no_grad()
+    def test_task_aligned_loss_bound_and_dark_token_dephasing_null(self):
+        """Known readout tools must agree with the actual fixed route."""
+        eye=torch.eye(8,dtype=torch.complex128,device=self.device)
+        v=math.sqrt(3)/2*eye[0]+.5*eye[1]
+        psi=torch.cat((torch.stack((eye[0],v,eye[1])),eye[2:]),0)
+        mask=torch.ones(1,9,dtype=torch.bool,device=self.device)
+        initial=route(psi[None],eye[0,None].expand(40,-1),mask,kind='cubic_coherent')
+        frame=psi.T@psi.conj();w=(initial['unitary'][0].conj()@psi)[1]
+        query=torch.linalg.solve(frame,w);query/=query.norm()
+        phi=query[None].expand(40,-1).clone()
+        routes={k:route(psi[None],phi,mask,kind=k) for k in KINDS}
+        projectors=psi[:,:,None]*psi.conj()[:,None,:]
+        denominator=frame+9*EPS*eye;chol=torch.linalg.cholesky(denominator)
+        inverse=torch.linalg.inv(chol)
+        utilities=torch.zeros(40,9,dtype=torch.float64,device=self.device);utilities[1,1]=1
+        native_ceiling=(1+EPS)/(2+9*EPS)
+        coherent_probability=float(routes['cubic_coherent']['alpha'][0,1,1])
+        bias=torch.full((40,),-2.,dtype=torch.float64,device=self.device)
+        bias[0]=(coherent_probability+native_ceiling)/2;bias[1]=0
+        target=torch.tensor([1],device=self.device)
+        losses={};ceilings={};attainment_errors={}
+        for kind in ('native','cubic_initial_dephased'):
+            effects=projectors+EPS*eye
+            if kind=='cubic_initial_dephased':
+                weights=routes[kind]['unitary'][0].abs().square()
+                effects=torch.einsum('ij,jab->iab',weights.to(psi.dtype),effects)
+            readout=torch.einsum('rt,tab->rab',utilities.to(psi.dtype),effects)
+            normalized=inverse@readout@inverse.mH
+            values,vectors=torch.linalg.eigh((normalized+normalized.mH)/2)
+            lower=bias+values[:,0];upper=bias+values[:,-1]
+            best=lower.clone();best[1]=upper[1]
+            losses[kind]=float(torch.nn.functional.cross_entropy(best[None],target))
+            ceilings[kind]=float(upper[1])
+            # All rival utilities are zero; only the true-class extremizer matters.
+            optimum=torch.linalg.solve(chol.mH,vectors[1,:,-1]);optimum/=optimum.norm()
+            extremizers=phi.clone();extremizers[1]=optimum
+            attained=(route(psi[None],extremizers,mask,kind=kind)['alpha'][0]*utilities).sum(-1)+bias
+            attainment_errors[kind]=float((attained-best).abs().max())
+            self.assertLess(attainment_errors[kind],1e-12)
+        actual=(routes['cubic_coherent']['alpha'][0]*utilities).sum(-1)+bias
+        ce=float(torch.nn.functional.cross_entropy(actual[None],target))
+        self.assertGreater(min(losses.values())-ce,1e-4)
+        self.assertEqual(int(actual.argmax()),1)
+        self.assertLess(ceilings['native'],float(bias[0]))
+        self.assertLess(ceilings['cubic_initial_dephased'],float(bias[0]))
+
+        keys=psi[:3];m=torch.ones(1,3,dtype=torch.bool,device=self.device)
+        fixed=eye[0,None].expand(40,-1)
+        coherent=route(keys[None],fixed,m,kind='cubic_coherent')['alpha'][0,0,2]
+        dephased=route(keys[None],fixed,m,kind='cubic_initial_dephased')['alpha'][0,0,2]
+        r=3*math.sqrt(3)/(2*math.sqrt(7));s=1/(2*math.sqrt(7))
+        floor=EPS/(1.75+3*EPS)
+        excess=s*s*((1-math.cos(.25))**2*r*r+math.sin(.25)**2*.75)/(1.75+3*EPS)
+        self.assertAlmostEqual(float(coherent),floor+excess,delta=1e-12)
+        self.assertAlmostEqual(float(coherent),float(dephased),delta=1e-12)
+        isolated=keys.clone();isolated[2]=eye[2]
+        isolated_probability=float(route(isolated[None],fixed,m,kind='cubic_coherent')['alpha'][0,0,2])
+        self.assertAlmostEqual(isolated_probability,floor,delta=1e-12)
+        print(p.json.dumps(dict(status='TASK_ALIGNED_LIMITS_PASS',coherent_ce=ce,
+            query_relaxed_minimum_ce=losses,minimum_ce_separation=min(losses.values())-ce,
+            maximum_extremizer_attainment_error=max(attainment_errors.values()),
+            dark_token_coherent_probability=float(coherent),dark_token_dephased_probability=float(dephased),
+            isolated_token_probability=isolated_probability,dark_token_epsilon_floor=floor,
+            scope='Synthetic fixed keys/utilities; arbitrary physical-query relaxation; no text or training',
+            task_utility=False)),flush=True)
+
+
 if __name__=='__main__':
     unittest.main()
