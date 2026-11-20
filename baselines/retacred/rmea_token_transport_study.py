@@ -7,6 +7,50 @@ from pathlib import Path
 import sys
 from . import rmea_token_transport_protocol as p
 
+RECOVERED_FIXTURE_SHA = '176cfe2369436d340ca618e1a6e43f4743755a2cded1dcfe60221b2e85588d83'
+
+
+def fixture_identity(archive):
+    """Keep the historical pin; separately identify the verified COS cache repack."""
+    from .rmea_entity_study import FIXTURE_SHA
+    value = p.digest(archive)
+    if value not in (FIXTURE_SHA, RECOVERED_FIXTURE_SHA):
+        raise ValueError('Pinned tiny fixture required')
+    return value
+
+
+def load_fixture(archive, output):
+    import tarfile
+    from .rmea_entity_study import fixture, FIXTURE_SHA
+    value = fixture_identity(archive)
+    if value == FIXTURE_SHA:
+        fixture(archive, output)
+        return value
+    # Same archived feature bytes, not a reconstruction of the old tar identity.
+    # This new pin is technical-canary-only; the discovery path cannot use it.
+    expected = {'canary/manifest.json', 'canary/cache/metadata.json'} | {
+        f'canary/cache/{split}-{field}.npy' for split in ('train', 'valid', 'test')
+        for field in ('encoder-0', 'encoder-1', 'h', 'roles', 'offsets', 'targets')}
+    with tarfile.open(archive, 'r:gz') as tar:
+        members = tar.getmembers()
+        if (len(members) != 20 or {v.name for v in members} != expected
+                or any(not v.isfile() or not 0 < v.size <= 2**21 for v in members)
+                or sum(v.size for v in members) != 4118454):
+            raise ValueError('Recovered fixture inventory differs')
+        manifest = p.json.load(tar.extractfile('canary/manifest.json'))
+        if (manifest['config']['counts'] != {'train': 16, 'valid': 8, 'test': 8}
+                or manifest['config']['encoder_revision'] != p.config('canary')['encoder_revision']):
+            raise ValueError('Recovered tiny cache contract differs')
+        for member in members:
+            if member.name.startswith('canary/cache/'):
+                target = output / Path(member.name).relative_to('canary')
+                target.parent.mkdir(exist_ok=True)
+                with target.open('xb') as dst:
+                    dst.write(tar.extractfile(member).read())
+    if p.digest(archive) != value:
+        raise ValueError('Fixture changed during extraction')
+    return value
+
 
 def state_identity(state):
     h = hashlib.sha256()
@@ -175,8 +219,7 @@ def run(args):
     output.mkdir(parents=True)
     with p.lock(output / '.run.lock'):
         if args.fixture_cache:
-            from .rmea_entity_study import fixture, FIXTURE_SHA
-            fixture(args.fixture_cache, output)
+            fixture_sha = load_fixture(args.fixture_cache, output)
             labels = sorted(p.read(p.ROOT/'docs/contracts/q_rmea_entity_labels.json'))
         else:
             from .rmea_run import extract
@@ -184,7 +227,7 @@ def run(args):
             labels, _ = extract(args, cfg, output)
         import importlib.metadata as md
         environment = dict(python=sys.version.split()[0], torch=torch.__version__, numpy=md.version('numpy'),
-            gpu=torch.cuda.get_device_name(0), fixture_sha256=FIXTURE_SHA if args.fixture_cache else None,
+            gpu=torch.cuda.get_device_name(0), fixture_sha256=fixture_sha if args.fixture_cache else None,
             transformers=md.version('transformers') if not args.fixture_cache else 'not used; pinned cached canary')
         manifest = dict(schema='q-rmea.token-transport.run.v1', config=cfg, source_sha256=p.identity(p.sources()),
             git_revision=p.git('rev-parse', 'HEAD'), environment=environment,

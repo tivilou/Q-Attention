@@ -62,8 +62,8 @@ def main():
     if output.name!='output' or not output.is_dir() or list(output.iterdir()):
         raise ValueError('Fresh assigned output required')
     if not a.unit_only:
-        from baselines.retacred.rmea_entity_study import FIXTURE_SHA
-        if p.digest(a.fixture_cache)!=FIXTURE_SHA:raise ValueError('Pinned tiny historical fixture required')
+        from baselines.retacred.rmea_token_transport_study import fixture_identity
+        fixture_identity(a.fixture_cache)
     work=attempt/'scientific-work';work.mkdir();env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',
         OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',CUBLAS_WORKSPACE_CONFIG=':4096:8')
 
