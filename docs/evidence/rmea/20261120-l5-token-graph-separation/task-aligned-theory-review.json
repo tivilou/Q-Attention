@@ -1,0 +1,52 @@
+{
+  "schema": "qattn.task-aligned-separation.review.v1",
+  "model": "gpt-6.2-astra",
+  "reasoning_effort": "medium",
+  "response_id": "resp_0a517162eb0d94b5016b00a84eaab487d28395355cac7645f7",
+  "verdict": "PASS",
+  "review_scope": "mechanism",
+  "claims": [
+    {
+      "claim": "Exact native logit box",
+      "status": "PASS",
+      "reason": "On valid tokens, the implemented denominator for a unit query is φ†Dφ, including nε, and the bias-free readout is φ†A_rφ/(φ†Dφ). Whitening gives the full closed eigenvalue interval, including its endpoints, with pure queries. Independent class queries make the product of the bias-shifted intervals attainable on one example."
+    },
+    {
+      "claim": "Initially dephased box",
+      "status": "PASS",
+      "reason": "The implemented orientation is E_i^dep = Σ_j |U_ij|² E_j. Row sums of |U|² preserve the εI term in each effect; column sums preserve D. Since U is fixed by the keys, the same interval and box argument applies."
+    },
+    {
+      "claim": "Exact CE extrema and strict top-1 feasibility",
+      "status": "PASS",
+      "reason": "CE is minimized at z_y = U_y and z_r = L_r for every rival, giving log(1 + Σ_{r≠y} exp(L_r − U_y)); reversing the endpoints gives the maximum. The best attainable true-minus-best-rival margin is U_y − max_{r≠y} L_r. A positive margin gives strict top-1; zero requires the tie policy."
+    },
+    {
+      "claim": "Three-key dark-token coherence null",
+      "status": "PASS",
+      "reason": "The cubic path has edge weights a³ and b³; dividing by √(a⁶+b⁶) gives the stated r and s. From input amplitudes (1,a,0), the last-token contributions are (cos τ − 1)sr and −i sin(τ)sa. Their real cross term vanishes, so the stated probability excess is exact, positive at the implemented τ = 0.25, and identical after initial dephasing. Replacing f by the isolated g leaves only the ε floor there."
+    },
+    {
+      "claim": "QCSAM fixed-interface comparison",
+      "status": "PASS",
+      "reason": "In the cited value sum, a query-orthogonal key has zero coefficient. Adding such a key, or replacing one orthogonal key with another, leaves a defined normalized output unchanged when all other terms are fixed."
+    }
+  ],
+  "must_fix": [],
+  "limitations": [
+    "The box is exact for arbitrary independent physical queries on one fixed example, not for the finite circuit family or a single query set shared across examples.",
+    "The supplied diagnostic compares bias-free readouts with bias-free bounds and reports actual route CE, not the relaxed CE extrema. Zero exceedances at tolerance 1e-8 do not certify exact membership. The 138/240 support count and the 0/320 readout counts are different tests on different cohorts.",
+    "CE strictly below both minima would separate the fixed readouts in loss, not establish causal mediation, trained-model superiority, or novelty. Dark-token activation in this example does not distinguish coherent from initially dephased transport."
+  ],
+  "next_scientific_action": "Interpret the pending formal utility result under its frozen gate, using its existing swaps and readout bounds without treating the relaxed CE optimum as a success criterion.",
+  "reviewed_source_sha256": {
+    "docs/evidence/rmea/20261120-l5-token-graph-separation/task-aligned-separation.md": "2dbb2166e579747ef83dc66be359ffb73529b0e72369edfdbd50e70ff4d0ff8b",
+    "baselines/retacred/rmea_token_transport.py": "11a10fca4205ad7343177a2175b8569612b541c2bd3c5669724cc1765ba4e254",
+    "baselines/retacred/rmea_token_transport_diagnostics.py": "aaa02486364feec74157880876736884f7a4578b004b08bc79be0c84abea7821"
+  },
+  "published_derivation_sha256": "31ed1bb4d615e788ff427655f35c616b76a14470fba844479606f20b6279676f",
+  "publication_delta": "Status line updated to cite completed PASS; mathematical content unchanged",
+  "formal_protocol_changed": false,
+  "new_scientific_runs": 0,
+  "L5": "NOT_ACCEPTED"
+}
