@@ -530,10 +530,54 @@
         "Unlisted sections, proofs, experiments and source code not assessed.",
         "No exhaustive priority clearance or task-utility claim."
       ]
+    },
+    {
+      "paper_id": "arxiv:2509.11390v1",
+      "title": "Quantum Graph Attention Networks: Trainable Quantum Encoders for Inductive Graph Learning",
+      "source_url": "https://arxiv.org/abs/2509.11390v1",
+      "version": "2509.11390v1",
+      "identity": "verified",
+      "reading": "read_for_scope",
+      "authors": [
+        "Arthur M. Faria",
+        "Mehdi Djellabi",
+        "Igor O. Sokolov",
+        "Savvas Varsamopoulos"
+      ],
+      "pages": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "scope": "Identity, GAT baseline and complete listed main quantum feature-map/convolution/pooling/readout definitions. p5 Eqs6-10 visually checked.",
+      "pdf_sha256": "0639a99062d2196d58e6b72310712e71d4d489f0a00df803d7ebc078ec14cecd",
+      "pdf_bytes": 782053,
+      "page_count": 12,
+      "parsed_sha256": "3b966d0ed02219a3d34f5b4263f78320d60f21f2eb90afe8da9e0f9326d1ef43",
+      "rendered_method_sha256": {
+        "method-page-5": "5eceb9500114c3f27d8ce20c0aec335ebec70f8a763eaf8589189c0521b856c5"
+      },
+      "facts": [
+        {
+          "locator": "p5 Section4.1 Eqs6-8",
+          "finding": "Trainable neighbor coefficients multiply classical node inputs before unitary feature mapping; neighbor states are tensorized."
+        },
+        {
+          "locator": "p5 Eq9-10; p6 Eqs11-16",
+          "finding": "A quantum convolution/pooling channel processes the encoded states and observable expectations give classical embeddings."
+        }
+      ],
+      "difference": "The inspected mechanism weights input features before quantum encoding and uses convolution/pooling/readout. It does not display our input-dependent entrywise-cubic key-Gram Hamiltonian acting on class-query token-index amplitudes followed by Born probabilities for value pooling. This is a scoped construction distinction, not a separation from arbitrary globally conditioned quantum encoders.",
+      "limits": [
+        "Unlisted sections, empirical comparisons, implementation and code not assessed.",
+        "Quantum graph attention, data-dependent unitaries and adaptive neighborhood aggregation are established neighboring components.",
+        "No exhaustive priority clearance, task superiority, implementation equivalence or new L5 acceptance."
+      ]
     }
   ],
   "prior_scoped_reading": "reading-receipts.json",
-  "coverage": "Twelve additional originals, listed main-method or mathematical sections only; unselected discovery records remain metadata/abstract-only.",
+  "coverage": "Thirteen additional originals, listed main-method or mathematical sections only; unselected discovery records remain metadata/abstract-only.",
   "synthesis": {
     "known_components": [
       "Quantum fidelity attention scores",
@@ -547,7 +591,8 @@
       "Bargmann cyclic products and ray geometric phases",
       "Complex Hermitian chiral transport, gauge invariance and time reversal",
       "Projective designs, Haar moments and frame-potential deviations",
-      "Mixed-tensor Haar spectra including the cubic lift space"
+      "Mixed-tensor Haar spectra including the cubic lift space",
+      "Learnable neighbor-input weighting before quantum feature mapping and convolution/pooling"
     ],
     "candidate_scope": "Fixed-key nonlinear amplitude transport: linear-Gram query-null, cubic separation, minimality in a restricted entrywise polynomial family, and a full-rank overcomplete stable witness. The numerical local-family grid explains the native interface limitation; generic cross-token interaction alone is not a central novelty claim.",
     "unresolved": [
@@ -558,7 +603,8 @@
       "Whole-local-affine-family logit separation does not distinguish interaction-capable Set Transformer or nonlinear bag decoders. Generic cross-token interaction is established prior art.",
       "Nuisance-stability calculation is an exact-interface adaptation of standard tools. Fixed-mask real-state sensitivity does not support a cubic advantage; no central novelty or coherence necessity follows.",
       "Born-invisible finite-circuit conjugation and value-weighted current yield a prospective diagnostic, not novelty or task utility. See current-orientation.md; all four frozen final-trace routes remain necessary controls.",
-      "Second-moment nullity is an exact-interface consequence of established design mathematics, with no converse or utility guarantee. The independent informationally complete pure-region lead remains unreviewed and rank-conditional. Neither is L5 clearance; formal report remains pending."
+      "Second-moment nullity is an exact-interface consequence of established design mathematics, with no converse or utility guarantee. The independent informationally complete pure-region lead remains unreviewed and rank-conditional. Neither is L5 clearance; formal report remains pending.",
+      "Generic native/cubic pure-region disjointness is unproved: a full-column-rank simple-norm family has a rank-zero coincidence differential. Dimension counting alone is insufficient. No actual-circuit genericity or utility result follows."
     ]
   },
   "priority_claim": false,
