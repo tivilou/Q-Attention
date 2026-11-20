@@ -1,0 +1,33 @@
+{
+  "review_mode": "external",
+  "reviewer_model": "gpt-6.2-astra (packet designation; not independently verified)",
+  "review_scope": "both",
+  "freeze_sha256": "efd7b4646d4c3767cd8775388eaf7864e8737b2e3e5da4518f196f719bd7c596",
+  "source_revision": "23b5da8525f5d1a12c730b771d36cae0a367e37b",
+  "source_sha256": "8e60eed05d61903d0ac95851bd9ed300f18882c70e679ee45fbb74bebfcf0a7d",
+  "contract_sha256": "f6ccc416cdd0e169d50823bfa96b82f3b66a13865c4bc449ccfe11133c0ec576",
+  "theory_mapping": "route() stores Ψ†φ as a row: a @ U.transpose(-2,-1) applies U, not U†. The off-diagonal cubic and linear graphs, Hermitian operator norm, τ=1/4, valid-token Nε smoothing and initially dephased |U_ts|² map match the equations. Padding contributes an identity block without changing valid probabilities. inspect_unit() uses U.conj() @ psi for coherent effective keys and the smoothed denominator for generalized-Rayleigh bounds. The row-norm gap tests a distinct amplitude-level obstruction, not probability excess or utility.",
+  "correctness": "pass",
+  "fidelity_gaps": [],
+  "control_fairness": "pass",
+  "gradient_and_numerics": "pass",
+  "lifecycle_correctness": "pass",
+  "artifact_and_recovery": "pass",
+  "must_fix": [],
+  "risks": [
+    "Both previous blockers are resolved in the supplied source. publish() requires formal review and audits the canary profile, revision and nonfixture status before export or Git mutation. The disposable regression checks that fixture rejection leaves HEAD, index and report tree unchanged; it exercises commit, blob verification, push and same-commit retry separately on a local origin.",
+    "The two formal-export rejection tests now distinguish their causes. The real fixture reaches the nonfixture rejection. The audit double supplies matching revisions, reaches both named phase audits and fails on the second profile; removing the profile comparison would no longer leave that test green. The double is not evidence of live discovery readiness.",
+    "Training uses the common seed-13 initialization cast from float32 to double, identical NumPy epoch orders, 81,028 parameters and 7,312 discovery updates per condition. Metrics and traces follow final-checkpoint reload. Targets do not enter routing. The fixed-denominator positive39 Macro comparisons and CE condition need no change.",
+    "The norm scale remains in autograd; a unique derivative is not claimed at nonzero ties, and a zero multi-token graph is rejected. The finite-head fixture checks the designated relation-1 middle coordinate against both ceilings. CUDA backward, finite differences and CPU/GPU replay agreement remain unexecuted.",
+    "Trace projections reference the numeric artifact digest. Live closure retokenizes six source units and checks word-piece assignments; fixture closure claims archived provenance only. Paired contributions, margins and CE stay private, while coordinate and readout exceedance counts retain their denominators. Neither a geometric witness nor a task-gate pass establishes mediation.",
+    "The intended fault is inside export after phase audit; cleanup targets the new temporary directory, and retry calls export without training. Successful injection, cleanup, immutable retry, scheduler admission and live collaborator delivery are not observed results. This PASS applies to the supplied revision only; it neither revises the earlier BLOCK records nor releases formal training."
+  ],
+  "runtime_readiness": "pending_not_executed",
+  "verdict": "PASS",
+  "confidence": "high",
+  "L5": "NOT_ACCEPTED",
+  "response_id": "resp_0fc15780cf0635ed016b00873b140887d2abcae4470645b944",
+  "transport_verified_model": "gpt-6.2-astra",
+  "reasoning_effort": "medium",
+  "source_review_only": true
+}
