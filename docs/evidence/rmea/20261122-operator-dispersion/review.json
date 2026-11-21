@@ -1,0 +1,18 @@
+{
+  "verdict": "PASS",
+  "review_scope": "both",
+  "must_fix": [],
+  "mechanism": "Both numerical repairs satisfy the frozen design. The frame count is cast to the working real dtype before multiplication by epsilon. On every batch, each reconstructed token probability and each bias-inclusive relation logit is checked directly against the frozen interface at absolute tolerance 1e-9. For the unit transported query, the conjugations and Hermitian solve implement the stated operator variance. The three bounded training fits, shared validation resamples, and requirement that all three upper bounds be negative and gamma_Q be positive match the prespecified diagnostic.",
+  "lifecycle": "Both lifecycle repairs close the prior findings. The worker entry point calls reviewed() before checkpoint loading or output creation, then verifies the exact bytes it loads. The worker seal covers the probe and its metadata, and the parent verifies shard0/first2.npz against the recorded digest before writing RUN_COMPLETE. The three shard ranges partition both cohorts, and the parent checks seals and full-cohort shapes before calibration. The stated single-attempt launch and restart from protected inputs remain within scope. This verdict covers static review of the supplied source using the stated dependency identities. No unit or diagnostic tests were run.",
+  "hashes": {
+    "experiments/q_rmea_query_alignment.py": "9e1fb11c6ffc13fb497a4c6b57feecb06838d9ac5c191fe94d22e5a1667bb33a",
+    "baselines/retacred/rmea_token_transport.py": "11a10fca4205ad7343177a2175b8569612b541c2bd3c5669724cc1765ba4e254",
+    "experiments/q_rmea_operator_dispersion.py": "f239883d8449c65c3336a94567968e62c86591d8128ab5e352c0bd47bcf8e09c"
+  },
+  "core_sha256": "059b7cab6533fa47a43fccdbb0564c183e3714036eaa22080ca656f0940ad6b8",
+  "design_sha256": "55a3c8b7c161dd78c2d533cd706fc93f13423a95db49cbc43457ea9549d4b025",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "selection_basis": "owner_preference",
+  "response_id": "resp_0467dfcfa992b53a016b01d2e7bd7c87d2bcc1212414c97449"
+}
