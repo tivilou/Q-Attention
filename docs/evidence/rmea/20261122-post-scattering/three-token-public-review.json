@@ -1,0 +1,47 @@
+{
+  "schema": "q-rmea.mechanism-review-summary.v1",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "selection_basis": "owner_preference",
+  "packet_sha256": "487080b208ef2c7d80eb97cc197e79e3f6efe63e314373d558cbf0226da40481",
+  "scope": "mechanism",
+  "reviewed_files": {
+    "three-token-math-draft.md": "9f9475e31529c9f363f9591415db688efe5a8293a2922480d7b5dff1a28a4e33",
+    "three-token-fixture.py": "b5306d36fa4a1dac63cc604367696268fa22b7c6d611f5442cf79ddd9af7752e"
+  },
+  "response": {
+    "verdict": "PASS_WITH_SCOPE",
+    "scope": "mechanism",
+    "theory_findings": [
+      "For a Hermitian unit-diagonal Gram matrix, expanding the 3-by-3 determinant gives det(K_T) = B_T + C_T with the stated cycle orientation and factor 1/4. The bounds B_T >= 1/4 and det(K_T) >= 1/2 both hold.",
+      "The negative-ratio proof is valid. For a negative real cycle contribution, det(G_T) >= 0 gives |Re(cycle)| <= (1-s)/2, while AM-GM gives |Re(cycle)| <= (s/3)^(3/2). After division by 4-s, the increasing and decreasing branches meet at s = 3/4 with value 1/26. For rho <= 1/2, the direct bound |C_T/B_T| <= rho^3/(4-3rho^2) is at least as tight, with equality between the two bounds at rho = 1/2.",
+      "The TV bound is uniform in n >= 3 and in the positive qualities shared by the two laws. Writing m = E_B[R], the endpoint bound on E_B[|R-m|]/(2m) is maximized at m = sqrt(A B), giving the displayed expression. At rho = 0 the laws coincide directly. Multiplication by the observable range 2U gives the stated score bound U*rho^3/4 + O(rho^5) for fixed U.",
+      "The joint-query witness exists for 0 < rho < 1/2. More precisely, the draft's upper bound of 1/2 applies to c^2 1* G_4^(-1) 1. The Schur complement itself is 1 minus that quantity and is at least 1/2. Thus the joint Gram is positive definite and admits the stated embedding.",
+      "The constant vector on the circulant block is an eigenvector of the transport generator. Transport gives the first three overlaps a common phase and fixes the fourth, preserving uniform qualities. The full-score difference z_F(pi) - z_F(0) has the displayed positive magnitude and leading term rho^3/32. The pair score is identical at the two phases.",
+      "The effective utility coefficient is alpha_i = P_F(i in T)/3 <= 1/3. At n = 3 each coefficient is exactly 1/3 for every admissible Gram matrix and quality vector. The cap applies to alpha_i. An input quality q_i can still be near 1."
+    ],
+    "code_findings": [
+      "Static inspection confirms the complex orientation. The columns of f realize the joint Gram, states.conj() @ states.T reconstructs g, and phi @ states.conj().T computes <psi_i,phi>. The transpose in a @ unitary.T applies the specified column-vector transport to overlaps stored as a row.",
+      "EPS = 1e-6 is applied once per token in each numerator and four times in the witness denominator. Unitarity preserves the denominator's unsmoothed squared norm. Both quality vectors are checked against 1/4, and the enumerated full score is checked against the closed form.",
+      "The polynomial marginal is correct. The diagonal of L^3 - e1 L^2 + e2 L divided by e3 gives the size-three inclusion probabilities. Dividing by three gives the coefficients checked against enumeration. The trace formula for e3 and the polynomial numerator can lose relative precision for skewed qualities, so the 2e-10 absolute tolerance is an empirical floating-point check. The tighter witness tolerances are reasonable for the supplied small matrices. No tolerance outcome has been verified by execution.",
+      "The all-minus-one-half triple analytically attains C_T/B_T = -1/26. The fixture checks the ratio inequality and the degenerate n = 3 score, but the emitted negative_ratio_endpoint is a literal. It does not independently test endpoint equality.",
+      "Review covered the supplied source text only. The fixture was not executed, no result file was produced, and the supplied hashes were not independently verified."
+    ],
+    "required_changes": [],
+    "claim_limits": [
+      "Status remains exploratory_only and L5 remains NOT_ACCEPTED.",
+      "The full law is a complex Hermitian 3-DPP. The established fixed-cardinality DPP law and the cited diversity-attention work preclude a novelty claim based on determinant weighting alone. Bibliographic identity, version dates, and publication priority were not independently checked.",
+      "The witness establishes cubic-order phase sensitivity for free states and free utilities. Fixed-ansatz reachability, shared-head reachability, task utility, complex or quantum exclusivity, and hardware advantage remain unestablished.",
+      "Admission covers only the supplied local synthetic NumPy fixture and its listed output. PASS_WITH_SCOPE records static review for that run. It grants no repository, model-training, GPU, formal-experiment, or L5 authority."
+    ],
+    "admission": "local_synthetic_fixture_only"
+  },
+  "executed_after_review": true,
+  "verification": {
+    "exit_status": 0,
+    "literal_stdout": "{\"schema\": \"q-rmea.three-token-math-fixture.v1\", \"status\": \"pass\", \"scope\": \"mechanism_algebra_only\", \"random_cases\": 160, \"negative_ratio_endpoint\": -0.038461538461538464, \"maximum_observed_tv\": 0.014613905291241056, \"no_model_training\": true, \"no_task_utility_claim\": true, \"source_sha256\": \"b5306d36fa4a1dac63cc604367696268fa22b7c6d611f5442cf79ddd9af7752e\"}\n",
+    "literal_stderr": "",
+    "output_sha256": "15e4df017f3a229644e1549156b160e654ce5a02f83b8c7a4e947b6290e3e655"
+  },
+  "limits": "Static external review plus executed synthetic math fixtures; no model or training or novel-method certification"
+}

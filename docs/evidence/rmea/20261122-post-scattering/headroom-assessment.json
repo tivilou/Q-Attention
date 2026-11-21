@@ -1,0 +1,58 @@
+{
+  "schema": "q-rmea.exploratory-headroom.v1",
+  "scope": {
+    "task": "Re-TACRED fixed frozen token representations",
+    "metric": "positive39_macro_f1",
+    "direction": "higher",
+    "units": "fraction",
+    "denominator": 39,
+    "permitted_inputs": "unchanged frozen token features and entity role tags; no evaluation labels in model inputs",
+    "exposure": "validation and official test already exposed; discovery only, not independent confirmation",
+    "source_audit": "docs/evidence/rmea/20261122-entity-scattering/formal-audit.json",
+    "source_audit_sha256": "1852c0da9ddd7c0a78128f29d5c181a4333005331b0af3cb25f7a2b81e69250f"
+  },
+  "comparator": {
+    "id": "reused linear_coherent fullseed13",
+    "cohort": "exact completed four routing variants plus three terminal-scattering variants",
+    "strength": "strongest measured within this exact cohort; strongest across all historical common-protocol baselines not certified here",
+    "baseline_retrained": false
+  },
+  "splits": {
+    "valid": {
+      "items": 19584,
+      "positive_labels_with_support": 39,
+      "baseline": 0.521847806428938,
+      "label_aware_upper_bound": 1.0,
+      "bound_kind": "label-aware empirical oracle with zero F1 for absent class; not model/input attainable",
+      "attainable_optimum_interval": [
+        0.521847806428938,
+        1.0
+      ],
+      "headroom_interval": [
+        0,
+        0.478152193571062
+      ]
+    },
+    "test": {
+      "items": 13418,
+      "positive_labels_with_support": 38,
+      "baseline": 0.4628824677790358,
+      "label_aware_upper_bound": 0.9743589743589743,
+      "bound_kind": "label-aware empirical oracle with zero F1 for absent class; not model/input attainable",
+      "attainable_optimum_interval": [
+        0.4628824677790358,
+        0.9743589743589743
+      ],
+      "headroom_interval": [
+        0,
+        0.5114765065799385
+      ]
+    }
+  },
+  "status": "bounded",
+  "input_constrained_optimum": "unresolved",
+  "mechanism_addressable_gap": "unresolved; a label oracle upper bound is not task-specific attainable gain",
+  "formal_readiness": "exploratory_only: linked qualified dataset and completed full common-protocol baseline cohort records still need location, not a request to rerun baselines",
+  "decision": "Enough nonzero upper room for bounded source/math investigation only. No repeated expensive optimization justified by this interval alone; current unmodified3DPP not promoted.",
+  "reassess_when": "metric/labels/population/permitted inputs change, or stronger exact-protocol comparator is identified"
+}
