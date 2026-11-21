@@ -1,0 +1,110 @@
+{
+  "schema": "qattn.operator-dispersion.audit.v1",
+  "source": "30e29d57459926d529669487515da7a957c18aad",
+  "source_hashes": {
+    "experiments/q_rmea_operator_dispersion.py": "f239883d8449c65c3336a94567968e62c86591d8128ab5e352c0bd47bcf8e09c",
+    "experiments/q_rmea_query_alignment.py": "9e1fb11c6ffc13fb497a4c6b57feecb06838d9ac5c191fe94d22e5a1667bb33a",
+    "baselines/retacred/rmea_token_transport.py": "11a10fca4205ad7343177a2175b8569612b541c2bd3c5669724cc1765ba4e254"
+  },
+  "design_sha256": "55a3c8b7c161dd78c2d533cd706fc93f13423a95db49cbc43457ea9549d4b025",
+  "tasks": {
+    "unit": {
+      "task": "ab4cb6354ab34a77b25eba8ef9913a23",
+      "attempt": "dfaa828ce9714d789d966d40e2e68e5f",
+      "node": "qattn-3060x3-53328-v1",
+      "receipt": {
+        "state": "complete",
+        "returncode": 0,
+        "quiescent": true,
+        "revision": "30e29d57459926d529669487515da7a957c18aad",
+        "outputs": {
+          "RUN_COMPLETE": {
+            "bytes": 120,
+            "sha256": "2664f847e7d31f71888ffa3a90375fd5770a8d2812af74fdd823d34641eb6c27"
+          },
+          "unit-validation.json": {
+            "bytes": 166,
+            "sha256": "d1ac039d54dd1c77c658afe53799c28e5b2c21387bd48e016d9b71e7a9d4a139"
+          }
+        },
+        "finished": 1795282429.629323,
+        "error_class": null
+      }
+    },
+    "run": {
+      "task": "6e85d489268544a2a5e747e0dc81c366",
+      "attempt": "6037bed4e66549a7b2497b021f2b3809",
+      "node": "qattn-3060x3-53328-v1",
+      "receipt": {
+        "state": "complete",
+        "returncode": 0,
+        "quiescent": true,
+        "revision": "30e29d57459926d529669487515da7a957c18aad",
+        "outputs": {
+          "RUN_COMPLETE": {
+            "bytes": 473,
+            "sha256": "5132a7ce50366e980f6ff8af608d0335270602590a2bb7ac779b38f212c71e71"
+          },
+          "calibration.json": {
+            "bytes": 624,
+            "sha256": "bdb6d4fd4b067df326eb2e1b04ecd6eec02e43eaf030e5185c874c27e05dd494"
+          },
+          "design.json": {
+            "bytes": 2198,
+            "sha256": "fc92fd55b0251d82d9cfc5211c3f4210ae181a3ad65278c6070f60262d1a7b0d"
+          },
+          "inputs.json": {
+            "bytes": 1449,
+            "sha256": "f7b5be724a72b74e8c81bd804320bc3b3b2c3d3ad205fe7db9dd0c1ff203c50c"
+          },
+          "summary.json": {
+            "bytes": 6105,
+            "sha256": "3c1a2d13a799fd85d31f37ce48623d31f2014c94d4e6b4cfd9de033e9e86fac9"
+          },
+          "trace-metadata.json": {
+            "bytes": 1101,
+            "sha256": "c40a0f5676c5ca992db814117066f0d850080c200a4271f50ee44184a7bb937d"
+          }
+        },
+        "finished": 1795282606.3729777,
+        "error_class": null
+      }
+    }
+  },
+  "output_hashes_verified": true,
+  "RUN_COMPLETE_verified": true,
+  "three_distinct_GPUs": true,
+  "shard_counts": [
+    26016,
+    26016,
+    26017
+  ],
+  "monitor": {
+    "status": "completed",
+    "shared_stale": false
+  },
+  "fitted_before_valid_targets": true,
+  "original_checkpoint_untouched": true,
+  "test_evaluations": 0,
+  "scope": "Frozen scalar readout diagnostic, NOT finite-eta routing or independent evidence/L5",
+  "review": {
+    "model": "gpt-6.2-astra",
+    "effort": "high",
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "initial_BLOCK_retained": true,
+    "mathematics_review_had_two_must_fix": "Both addressed by frozen design, direct per-point replay and exact implementation review"
+  },
+  "trace": {
+    "status": "partial numeric probe, NOT sample-trace.v2",
+    "private_attempt": "6037bed4e66549a7b2497b021f2b3809",
+    "path": "output/shard0/first2.npz",
+    "sha256": "53b6aecc0e670250ceb44fe2849dc95d615264a70f8754420f20797afd5e6e4a",
+    "public_payload": false,
+    "retention": "Ephemeral GPU replay cache; no durable Case Study claim"
+  },
+  "retention": "Git code and compact reports only; no new COS/checkpoint copies/model or dataset downloads to Windows",
+  "gate": false,
+  "claim_ceiling": "Negative frozen scalar diagnostic on reused validation; not whole-family rejection or new L4/L5 evidence"
+}
