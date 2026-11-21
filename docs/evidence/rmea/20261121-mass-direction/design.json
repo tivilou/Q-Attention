@@ -1,0 +1,28 @@
+{
+  "schema": "q-rmea.mass-direction.design.v1",
+  "split": "valid",
+  "count": 19584,
+  "seed": 20261121,
+  "bootstrap": 1000,
+  "heads": [
+    "native",
+    "cubic_coherent",
+    "linear_coherent"
+  ],
+  "arms": [
+    "native",
+    "mass_only",
+    "direction_only",
+    "full"
+  ],
+  "primary_head": "cubic_coherent",
+  "primary_metric": "positive39_macro_f1",
+  "success": "direction_only exceeds full and native; paired95% bootstrap lower bounds both >0; CE no worse than native",
+  "secondary": "Other heads are descriptive adaptation checks; no promotion by selecting a different head",
+  "pairing": "Same19584 validation units, same1000 bootstrap resamples across heads and arms",
+  "smoothing": "Add same Born epsilon after each raw score; normalize over valid tokens for each arm",
+  "trace": "First2 immutable cache-order valid units per head; bounded numeric mechanism trace, not full sample-trace.v2",
+  "zero_mass": "At z<=1e-12 stop; no guessed direction or clipping",
+  "exclusions": "No test access, training, seed/tau changes, new COS objects or model/data downloads",
+  "scope": "Exploratory frozen-checkpoint diagnostic, not independent confirmation or L5 novelty"
+}
