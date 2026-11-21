@@ -12,6 +12,9 @@ FILES = (
     'baselines/retacred/rmea_token_transport_diagnostics.py',
     'baselines/retacred/rmea_token_transport_protocol.py',
     'baselines/retacred/rmea_token_transport_study.py',
+    'baselines/retacred/rmea_token_transport_recovery.py',
+    'scripts/rmea_cos_supervisor.py',
+    'tests/test_rmea_token_transport_recovery.py',
     'baselines/retacred/rmea_token_transport_trace.py',
     'baselines/retacred/rmea_token_transport_handoff.py',
     'baselines/retacred/rmea.py', 'baselines/retacred/frozen_feature_head.py',
@@ -62,9 +65,9 @@ def config(profile):
 
 def contract():
     return dict(profiles={s: config(s) for s in ('canary', 'discovery')},
-        launch='Portable parent; isolated probe; tiny canary then collaborator-only full discovery; one GPU; serial heads',
+        launch='Portable isolated probe; live canary then full discovery; one GPU serial heads; explicit scheduler-managed owner exception or collaborator branch1.1',
         output='Private cache, four final checkpoints, complete final sample-trace.v2; exact seven-file report only',
-        recovery='Export-only retry from sealed immutable run; no automatic retrain or partial training resume; no COS claim',
+        recovery='Atomic local complete latest each completed update; validation-only best retention; explicit resume with exact source/config/cache/AdamW/RNG/cursor; owner-managed COS preparation once and ten global 10-percent sealed generations, blocking until pinned readback and private-index acknowledgement; no automatic science retry',
         diagnostic='First32 hash-ordered testunits; fixed cubic state and four swaps; reviewed coordinate and phase-gauge bounds; separate task gate')
 
 

@@ -24,6 +24,7 @@ def branch_gate(allowed=None):
 
 def probe(args):
     p.review_gate(formal=not args.development_canary)
+    if args.owner_managed and args.development_canary: raise ValueError('Owner-managed full run and development canary are distinct')
     if args.development_canary:
         if not args.canary_only:raise ValueError('Development mode is canary-only')
         if p.git('status','--porcelain'):raise ValueError('Clean development worktree required')
@@ -150,24 +151,36 @@ def run(args):
     root=Path(args.run_dir).resolve() if args.run_dir else p.ROOT.parent/'q-rmea-token-transport-private'/ (dt.datetime.now(dt.timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'_seed13')
     if not args.development_canary and not re.fullmatch(r'\d{8}T\d{6}Z_seed13',root.name):
         raise ValueError('Expected timestamp_seed13 run basename before training')
-    if root.is_relative_to(p.ROOT) or root.exists():raise ValueError('Fresh private run required; interrupted training is not automatically resumed')
+    if root.is_relative_to(p.ROOT) or (root.exists() and not args.resume):raise ValueError('Fresh private run or explicit resume required')
+    if args.resume and ((not args.owner_managed and not args.development_canary) or not root.exists()):raise ValueError('Explicit owner-managed existing full-state resume required')
     selection=isolated_probe(args)
-    root.mkdir(parents=True)
+    root.mkdir(parents=True,exist_ok=args.resume)
+    previous=p.read(root/'handoff.json') if args.resume else None
     handoff=dict(git_revision=p.git('rev-parse','HEAD'),canary_only=args.canary_only,selection=selection,
                  parent_imported_torch_before_children='torch' in sys.modules)
+    if previous:
+        if previous['git_revision']!=handoff['git_revision'] or previous['canary_only']!=args.canary_only:
+            raise ValueError('Resume parent/source differs')
+        handoff=previous
     p.atomic_json(root/'handoff.json',handoff)
     print('PRIVATE_RUN='+str(root),flush=True)
     env=dict(os.environ,CUDA_VISIBLE_DEVICES=selection['cuda_visible_devices'],OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',CUBLAS_WORKSPACE_CONFIG=':4096:8',PYTHONDONTWRITEBYTECODE='1')
-    if not args.canary_only:env['QATTN_COLLABORATOR_FORMAL']='1'
+    env['QATTN_PROGRESS_PATH']=str(root.parent/'progress.json')
+    if not args.canary_only:env['QATTN_OWNER_MANAGED' if args.owner_managed else 'QATTN_COLLABORATOR_FORMAL']='1'
     for profile in ('canary',) if args.canary_only else ('canary','discovery'):
+        if args.resume and profile=='canary' and (root/profile/'RUN_COMPLETE').exists():
+            p.audit(root/profile);continue
         command=[sys.executable,'-B','-m','baselines.retacred.rmea_token_transport_study','--profile',profile,'--data-dir',args.data_dir,'--assets',args.assets,'--output',str(root/profile)]
         if args.development_cache:command+=['--fixture-cache',args.development_cache]
+        if args.owner_managed and profile=='discovery':command+=['--cos']
+        if args.resume and (root/profile/'manifest.json').exists():command+=['--resume']
+        if args.pause_after and not args.resume:command+=['--pause-after',str(args.pause_after)]
         subprocess.run(command,cwd=p.ROOT,env=env,check=True)
     handoff['parent_imported_torch_after_children']='torch' in sys.modules
     if handoff['parent_imported_torch_before_children'] or handoff['parent_imported_torch_after_children']:
         raise ValueError('Handoff control parent retained Torch')
     p.atomic_json(root/'handoff.json',handoff)
-    if args.development_canary:
+    if args.development_canary or args.owner_managed:
         target=root.parent/(root.name+'-safe-report');export(root,target,args.inject_export_failure)
         print(p.json.dumps(dict(development_canary=True,report=str(target))),flush=True)
     else:publish(root)
@@ -177,7 +190,10 @@ def main(argv=None):
     parser.add_argument('action',choices=('check','run','export'))
     parser.add_argument('--data-dir',default='data/relation/retacred');parser.add_argument('--assets',default='.external/assets/722cf37b1afa9454edce342e7895e588b6ff1d59/model');parser.add_argument('--development-cache');parser.add_argument('--gpu',default='auto')
     parser.add_argument('--run-dir');parser.add_argument('--canary-only',action='store_true');parser.add_argument('--development-canary',action='store_true')
-    parser.add_argument('--inject-export-failure',action='store_true');args=parser.parse_args(argv)
+    parser.add_argument('--inject-export-failure',action='store_true')
+    parser.add_argument('--owner-managed',action='store_true',help='Explicit owner seed13 exception; requires COS supervisor')
+    parser.add_argument('--resume',action='store_true');parser.add_argument('--pause-after',type=int,default=0);args=parser.parse_args(argv)
+    if args.pause_after and not args.canary_only:parser.error('Fault injection is canary-only')
     if args.action in ('check','run') and not all((args.data_dir,args.assets)):parser.error('--data-dir and --assets required')
     if args.action=='check':print(p.json.dumps(isolated_probe(args)))
     elif args.action=='run':run(args)

@@ -63,7 +63,7 @@ def state_identity(state):
     return h.hexdigest()
 
 
-def train(cfg, output, labels, *, data_dir=None, assets=None):
+def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None):
     import numpy as np
     import torch
     from torch.nn import functional as F
@@ -125,38 +125,75 @@ def train(cfg, output, labels, *, data_dir=None, assets=None):
     rng = np.random.default_rng(cfg['seed'])
     orders = [rng.permutation(cfg['counts']['train']) for _ in range(cfg['epochs'])]
     order_sha = hashlib.sha256(b''.join(o.astype('<i8').tobytes() for o in orders)).hexdigest()
-    checkpoints = output / 'checkpoints'; checkpoints.mkdir()
+    from .rmea_token_transport_recovery import atomic_torch, cpu_tree, restore_rng
+    checkpoints = output / 'checkpoints'; checkpoints.mkdir(exist_ok=True)
+    resumed = recovery.state if recovery is not None else None
+    if resumed and (resumed['initial_sha'] != initial_sha or resumed['order_sha'] != order_sha):
+        raise ValueError('Resume initialization/order differs')
+    completed = dict(resumed['completed']) if resumed else {}
+    best = dict(resumed['best']) if resumed else {}
+    if recovery is not None: atomic_torch(recovery.best, best)
     results = {}; samples = []; diagnostics = None
-    for kind in p.MODES:
+    for mode_index, kind in enumerate(p.MODES):
         head = TrainableTokenTransportHead(kind).double(); head.load_state_dict(initial)
         if state_identity(head.state_dict()) != initial_sha or sum(v.numel() for v in head.parameters()) != 81028:
             raise ValueError('Initialization or parameter matching differs')
         head.to('cuda'); optimizer = torch.optim.AdamW(head.parameters(), lr=cfg['lr'],
             weight_decay=cfg['weight_decay'], betas=tuple(cfg['betas']), eps=cfg['optimizer_eps'])
-        history = []; steps = 0
-        for epoch, order in enumerate(orders, 1):
-            head.train(); loss_sum = 0.
-            for start in range(0, len(order), 32):
+        history = []; steps = 0; first_epoch = 0; first_start = 0; saved_loss = 0.
+        if kind in completed:
+            row = completed[kind]; head.load_state_dict(row['state'])
+            history = row['history']; steps = row['steps']; first_epoch = cfg['epochs']
+        elif resumed and mode_index == resumed['cursor']['mode']:
+            cursor = resumed['cursor']; first_epoch = cursor['epoch']; first_start = cursor['next_start']
+            history = list(cursor['history']); saved_loss = cursor['loss_sum']
+            steps = first_epoch*((len(orders[0])+31)//32)+(first_start+31)//32
+            if resumed['active'] is None or resumed['optimizer'] is None:
+                raise ValueError('Active model/optimizer missing')
+            head.load_state_dict(resumed['active']); optimizer.load_state_dict(resumed['optimizer'])
+            restore_rng(resumed['rng'])
+        def save(epoch_index, next_start, loss_sum, *, finished=False):
+            if recovery is not None:
+                recovery.save(mode=mode_index+int(finished), epoch=0 if finished else epoch_index,
+                    next_start=0 if finished else next_start, history=[] if finished else history,
+                    loss_sum=0. if finished else loss_sum,
+                    head=None if finished else head, optimizer=None if finished else optimizer,
+                    completed=completed, best=best, initial_sha=initial_sha, order_sha=order_sha)
+        for epoch_index in range(first_epoch, cfg['epochs']):
+            epoch = epoch_index+1; order = orders[epoch_index]
+            head.train(); loss_sum = saved_loss if epoch_index == first_epoch else 0.
+            start_at = first_start if epoch_index == first_epoch else 0
+            for start in range(start_at, len(order), 32):
                 ids = order[start:start+32]; inputs, y = batch('train', ids)
                 optimizer.zero_grad(set_to_none=True); loss = F.cross_entropy(head(*inputs)[0], y)
-                if not torch.isfinite(loss):
-                    raise ValueError('Nonfinite training loss')
+                if not torch.isfinite(loss): raise ValueError('Nonfinite training loss')
                 loss.backward()
                 if not all(v.grad is not None and torch.isfinite(v.grad).all() for v in head.parameters()):
                     raise ValueError('Missing or nonfinite gradient')
                 torch.nn.utils.clip_grad_norm_(head.parameters(), cfg['clip_norm'], error_if_nonfinite=True)
                 optimizer.step(); steps += 1; loss_sum += float(loss.detach()) * len(ids)
+                next_start = min(start+32,len(order)); save(epoch_index,next_start,loss_sum)
+                if recovery is not None and next_start < len(order): recovery.milestone()
             if not all(torch.isfinite(v).all() for v in head.parameters()):
                 raise ValueError('Nonfinite final parameters')
             history.append(dict(epoch=epoch, train_ce=loss_sum / len(order)))
+            # Retention only: reported test still uses the frozen final epoch.
+            validation = evaluate(head,'valid')['positive39_macro_f1']
+            if kind not in best or validation > best[kind]['validation_positive39_macro_f1']:
+                best[kind] = dict(state=cpu_tree(head.state_dict()), epoch=epoch,
+                    validation_positive39_macro_f1=validation, selection='validation positive39 Macro; strict improvement; first tie')
+                if recovery is not None: atomic_torch(recovery.best,best)
+            save(epoch_index+1,0,0.)
+            if recovery is not None: recovery.milestone()
             print(p.json.dumps(dict(stage='train', condition=kind, epoch=epoch, updates=steps)), flush=True)
-        head.eval(); final_state = {k: v.detach().cpu() for k, v in head.state_dict().items()}
-        cp = checkpoints / (kind + '-final.pt'); temporary = cp.with_suffix('.pending')
-        with temporary.open('xb') as f:
-            torch.save(final_state, f); f.flush(); os.fsync(f.fileno())
-        if temporary.stat().st_size > 1024**2:
-            raise ValueError('Tiny final checkpoint bound exceeded')
-        temporary.rename(cp)
+        head.eval(); final_state = cpu_tree(head.state_dict())
+        cp = checkpoints / (kind + '-final.pt')
+        atomic_torch(cp, final_state)
+        if cp.stat().st_size > 1024**2: raise ValueError('Tiny final checkpoint bound exceeded')
+        if kind not in completed:
+            completed[kind] = dict(state=final_state,history=history,steps=steps)
+            save(0,0,0.,finished=True)
+            if recovery is not None: recovery.milestone(final=mode_index==len(p.MODES)-1)
         loaded = torch.load(cp, map_location='cpu', weights_only=True)
         if state_identity(loaded) != state_identity(final_state):
             raise ValueError('Final checkpoint serialization differs')
@@ -182,6 +219,7 @@ def train(cfg, output, labels, *, data_dir=None, assets=None):
             p.atomic_json(output / 'private-geometry.json', dict(selection='first32 hash-ordered testunits, before outcomes', units=units))
             diagnostics = dict(frozen_cubic_route_metrics=frozen, geometry=aggregate(units))
         del head, optimizer, final_state, loaded; gc.collect(); torch.cuda.empty_cache()
+    if recovery is not None: recovery.milestone(final=True)
     trace = close(output, samples, cfg, metadata, data_dir=data_dir, assets=assets)
     cubic = results['cubic_coherent']['test']; native = results['native']['test']
     contrasts = {k: dict(positive39_macro_f1=cubic['positive39_macro_f1']-results[k]['test']['positive39_macro_f1'],
@@ -209,19 +247,24 @@ def run(args):
     cfg = p.config(args.profile); p.review_gate(formal=args.profile=='discovery')
     if p.git('status', '--porcelain'):
         raise ValueError('Clean reviewed source required')
-    if args.profile=='discovery' and (os.environ.get('QATTN_COLLABORATOR_FORMAL') != '1'
-                                    or p.git('branch', '--show-current') != '1.1'):
-        raise ValueError('Full formal run is collaborator-only via parent')
+    if args.profile=='discovery' and (not any(os.environ.get(k)=='1' for k in
+            ('QATTN_COLLABORATOR_FORMAL','QATTN_OWNER_MANAGED')) or p.git('branch','--show-current')!='1.1'):
+        raise ValueError('Full formal run requires the reviewed parent and branch1.1')
     if args.fixture_cache and args.profile != 'canary':
         raise ValueError('Historical fixture is bounded canary only')
     if not os.environ.get('CUDA_VISIBLE_DEVICES') or torch.cuda.device_count() != 1:
         raise ValueError('Exactly one assigned GPU required')
     output = args.output.resolve()
-    if output.is_relative_to(p.ROOT) or output.exists():
-        raise ValueError('Fresh private output outside checkout required; no automatic training restart')
-    output.mkdir(parents=True)
+    if output.is_relative_to(p.ROOT) or (output.exists() and not args.resume):
+        raise ValueError('Fresh private output or explicit full-state resume required')
+    if args.resume and (not output.exists() or (output/'RUN_COMPLETE').exists()):
+        raise ValueError('Resume requires an interrupted, unsealed existing run')
+    output.mkdir(parents=True,exist_ok=args.resume)
     with p.lock(output / '.run.lock'):
-        if args.fixture_cache:
+        if args.resume:
+            if args.fixture_cache: raise ValueError('Fixture resume uses its restored live cache, not a new extraction')
+            labels = p.read(output.parent/'recovery-inputs/labels.json')
+        elif args.fixture_cache:
             fixture_sha = load_fixture(args.fixture_cache, output)
             labels = sorted(p.read(p.ROOT/'docs/contracts/q_rmea_entity_labels.json'))
         else:
@@ -235,9 +278,23 @@ def run(args):
         manifest = dict(schema='q-rmea.token-transport.run.v1', config=cfg, source_sha256=p.identity(p.sources()),
             git_revision=p.git('rev-parse', 'HEAD'), environment=environment,
             data={s: dict(source_sha256=p.EXPECTED[s][1], source_count=p.EXPECTED[s][0], selected_count=n) for s, n in cfg['counts'].items()})
-        p.atomic_json(output / 'manifest.json', manifest)
+        if args.resume:
+            previous=p.read(output/'manifest.json')
+            if any(previous[k]!=manifest[k] for k in ('config','source_sha256','git_revision','data')):
+                raise ValueError('Resume run provenance differs')
+            if any(previous['environment'][k]!=environment[k] for k in ('python','torch','numpy','transformers')):
+                raise ValueError('Resume software differs')
+            p.atomic_json(output/'resume-environment.json',environment)
+        else: p.atomic_json(output/'manifest.json',manifest)
+        (output.parent/'recovery-inputs').mkdir(exist_ok=True)
+        p.atomic_json(output.parent/'recovery-inputs/labels.json',labels)
+        from .rmea_token_transport_recovery import Recovery
+        recovery=Recovery(output,cfg,enabled=args.cos and args.profile=='discovery',resume=args.resume,
+            pause_after=args.pause_after)
+        if args.profile=='discovery': recovery.prepare(labels,args.data_dir)
         train(cfg, output, labels, data_dir=None if args.fixture_cache else args.data_dir,
-              assets=None if args.fixture_cache else args.assets)
+              assets=None if args.fixture_cache else args.assets,recovery=recovery)
+        (output/'RUN_PAUSED').unlink(missing_ok=True)
         if not args.fixture_cache:
             for split in cfg['counts']:
                 if p.digest(args.data_dir/(split+'.jsonl')) != p.EXPECTED[split][1]:
@@ -250,7 +307,11 @@ def main():
     parser.add_argument('--profile',choices=('canary','discovery'),required=True)
     parser.add_argument('--data-dir',type=Path,required=True); parser.add_argument('--assets',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True); parser.add_argument('--fixture-cache',type=Path)
-    run(parser.parse_args())
+    parser.add_argument('--resume',action='store_true');parser.add_argument('--cos',action='store_true')
+    parser.add_argument('--pause-after',type=int,default=0,help='Bounded canary only')
+    args=parser.parse_args()
+    if args.pause_after and args.profile!='canary': parser.error('Fault injection is canary-only')
+    run(args)
 
 
 if __name__=='__main__':
