@@ -1,0 +1,27 @@
+{
+  "schema": "q-rmea.entity-scattering.readiness.v1",
+  "constants": {
+    "hopping": 1.0,
+    "energy": 0.0,
+    "damping": 0.1,
+    "terminal_lead": 1.0,
+    "epsilon": 1e-12,
+    "tau": 0.25
+  },
+  "onsite": "tanh(original relation-token utility), with all upstream gradients retained",
+  "anchors": "First valid word with role[2]==1 and role[3]==1 respectively; nonempty disjoint binary entity flags required",
+  "arms": [
+    "complex",
+    "real_magnitude",
+    "linear_reference"
+  ],
+  "control": "Real-magnitude final hopping |G| with identical q/e/anchors/constants; upstream q still phase-sensitive",
+  "score": "log(gamma^2 |R_subject,object|^2+epsilon)+original bias; not attention-weighted utility pooling",
+  "inputs": "Protected manifest dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49 and linear_coherent-final checkpoint; train units0:32 only, microbatch1",
+  "computation": "One forward/backward per training unit, clear gradients each unit, no optimizer/update/fitting",
+  "gates": "Independent NumPy/direct-vs-8D amplitude; gradient parity; fixed-input signed triangle law; real reciprocity; gauge; padding/anchors; finite full-head gradients",
+  "novelty": "Known Green/chiral/Woodbury tools; theoretical PASS is not task utility or L5",
+  "exclusion": "No validation/test data or targets, model selection, hyperparameter/grid/rescue, formal training, new model/cache/COS",
+  "recovery": "Cheap restart from pinned Git/checkpoint/cache, no automatic retry, preserve failed outputs",
+  "interpretation": "Implementation readiness only. Reusing trained linear weights does not test coadapted scattering task utility"
+}

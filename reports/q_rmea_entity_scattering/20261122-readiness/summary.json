@@ -1,0 +1,77 @@
+{
+  "schema": "q-rmea.entity-scattering.readiness.result.v1",
+  "gate": true,
+  "arms": [
+    {
+      "arm": "complex",
+      "count": 32,
+      "checkpoint_sha256": "23691c168f8900001f94a2eba44aa4dde217b703fa4b06a4af228293dc4ab6c8",
+      "parameters": 81028,
+      "mean_train_fixture_ce": 4.035740402011923,
+      "gradient_norm_max": {
+        "decoder": 50.7234574554611,
+        "bias": 1.1008962373653992,
+        "effect": 51.2141346098127,
+        "value.weight": 217.96103139135033,
+        "value.bias": 6.960574480957003,
+        "prepare.weight": 1452.718227519859,
+        "prepare.bias": 45.94564246749516
+      },
+      "seconds": 3.3352534864097834,
+      "physical_gpu": "GPU-223ab86b-7247-baca-9a77-e087d6b6bbdd",
+      "optimizer_steps": 0,
+      "scope": "Finite forward/backward readiness, not training or utility evidence"
+    },
+    {
+      "arm": "real_magnitude",
+      "count": 32,
+      "checkpoint_sha256": "23691c168f8900001f94a2eba44aa4dde217b703fa4b06a4af228293dc4ab6c8",
+      "parameters": 81028,
+      "mean_train_fixture_ce": 4.573690712632509,
+      "gradient_norm_max": {
+        "decoder": 31.7978386965508,
+        "bias": 1.0815839469809985,
+        "effect": 51.041873767386356,
+        "value.weight": 126.84580520715133,
+        "value.bias": 4.053266553877345,
+        "prepare.weight": 3258.422796355438,
+        "prepare.bias": 101.14266661850615
+      },
+      "seconds": 3.4473858810961246,
+      "physical_gpu": "GPU-4507ce27-e541-22c1-6666-c6042d5c3b6a",
+      "optimizer_steps": 0,
+      "scope": "Finite forward/backward readiness, not training or utility evidence"
+    },
+    {
+      "arm": "linear_reference",
+      "count": 32,
+      "checkpoint_sha256": "23691c168f8900001f94a2eba44aa4dde217b703fa4b06a4af228293dc4ab6c8",
+      "parameters": 81028,
+      "mean_train_fixture_ce": 0.03322616050420672,
+      "gradient_norm_max": {
+        "decoder": 6.30193580700223,
+        "bias": 0.4855688284761063,
+        "effect": 5.158495270636195,
+        "value.weight": 20.21737347140082,
+        "value.bias": 0.6499011033905966,
+        "prepare.weight": 31.81762875637357,
+        "prepare.bias": 1.0217838329043172
+      },
+      "seconds": 2.971264634281397,
+      "physical_gpu": "GPU-5437acb9-31d3-3e71-004c-dffa8cb7001b",
+      "optimizer_steps": 0,
+      "scope": "Finite forward/backward readiness, not training or utility evidence"
+    }
+  ],
+  "seconds": 7.025173945352435,
+  "source": "06f42b28c342a4e93f28a2f66f8dd2381bf1aa7b",
+  "source_hashes": {
+    "baselines/retacred/rmea_entity_scattering.py": "72c1fabae0bfa816df92d54f14ff761f13288e99b3cb99cab523b2687bc8f077",
+    "experiments/q_rmea_entity_scattering.py": "572a6743588e0c8ba5807ea2f5b5f7c68ef2cc799fc08cea2bf7f7a9ffd00476",
+    "experiments/q_rmea_query_alignment.py": "9e1fb11c6ffc13fb497a4c6b57feecb06838d9ac5c191fe94d22e5a1667bb33a",
+    "baselines/retacred/rmea_token_transport.py": "11a10fca4205ad7343177a2175b8569612b541c2bd3c5669724cc1765ba4e254"
+  },
+  "design_sha256": "6e3c6a16d0ef14180f666c39b4f9835efd93b20e8c2ea5b3b28ac6e242c8e598",
+  "core_sha256": "059b7cab6533fa47a43fccdbb0564c183e3714036eaa22080ca656f0940ad6b8",
+  "scope": "Implementation readiness only; no task-utility, independent-confirmation or L5 claim"
+}

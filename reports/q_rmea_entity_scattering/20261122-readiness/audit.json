@@ -1,0 +1,106 @@
+{
+  "schema": "qattn.entity-scattering.readiness.audit.v1",
+  "source": "06f42b28c342a4e93f28a2f66f8dd2381bf1aa7b",
+  "source_hashes": {
+    "baselines/retacred/rmea_entity_scattering.py": "72c1fabae0bfa816df92d54f14ff761f13288e99b3cb99cab523b2687bc8f077",
+    "experiments/q_rmea_entity_scattering.py": "572a6743588e0c8ba5807ea2f5b5f7c68ef2cc799fc08cea2bf7f7a9ffd00476",
+    "experiments/q_rmea_query_alignment.py": "9e1fb11c6ffc13fb497a4c6b57feecb06838d9ac5c191fe94d22e5a1667bb33a",
+    "baselines/retacred/rmea_token_transport.py": "11a10fca4205ad7343177a2175b8569612b541c2bd3c5669724cc1765ba4e254"
+  },
+  "design_sha256": "6e3c6a16d0ef14180f666c39b4f9835efd93b20e8c2ea5b3b28ac6e242c8e598",
+  "core_sha256": "059b7cab6533fa47a43fccdbb0564c183e3714036eaa22080ca656f0940ad6b8",
+  "tasks": {
+    "unit": {
+      "task": "21a99b44636840afb9ff9fd1c315b21d",
+      "attempt": "e09175c818a4403e8250308488b73c4f",
+      "node": "qattn-3060x3-53328-v1",
+      "receipt": {
+        "state": "complete",
+        "returncode": 0,
+        "quiescent": true,
+        "revision": "06f42b28c342a4e93f28a2f66f8dd2381bf1aa7b",
+        "outputs": {
+          "RUN_COMPLETE": {
+            "bytes": 120,
+            "sha256": "bd11f2fce24edb6f5df7dcc11742dabcf7c0203fb24276d00ddd3089c81a2ad3"
+          },
+          "unit-validation.json": {
+            "bytes": 1049,
+            "sha256": "8eafe5687847ccd05228aff404f39920429f0fd94447d9d120dc4193c5d1d0ad"
+          }
+        },
+        "finished": 1795286527.6443565,
+        "error_class": null
+      }
+    },
+    "run": {
+      "task": "74af2d9b0c134c189bf17c4ba19d9924",
+      "attempt": "213a8296f7284cbeb33cb2d5410703bd",
+      "node": "qattn-3060x3-53328-v1",
+      "receipt": {
+        "state": "complete",
+        "returncode": 0,
+        "quiescent": true,
+        "revision": "06f42b28c342a4e93f28a2f66f8dd2381bf1aa7b",
+        "outputs": {
+          "RUN_COMPLETE": {
+            "bytes": 286,
+            "sha256": "0247e461f4a4446a19eeef23cd384f1544c8761c3098abaa341e3c11c64423bd"
+          },
+          "design.json": {
+            "bytes": 1657,
+            "sha256": "71aa87569fc5c219705a189aadf15a48d17f237a18345ff814d3755bc43e5e32"
+          },
+          "inputs.json": {
+            "bytes": 935,
+            "sha256": "9eaae7939702df81e160518e5ed187f467cc28b2083d35fc96eb09b9726752fc"
+          },
+          "summary.json": {
+            "bytes": 3256,
+            "sha256": "bd147fa2d69571a342f521d1d8d8f42c5c22b15a92baaaa151100dfc26de2942"
+          }
+        },
+        "finished": 1795286580.1578643,
+        "error_class": null
+      }
+    }
+  },
+  "output_hashes_verified": true,
+  "worker_summary_seals_verified": true,
+  "three_distinct_GPUs": true,
+  "unit_prerequisite_enforced": true,
+  "protected_manifest_pinned": true,
+  "protected_checkpoint_unchanged": true,
+  "review": {
+    "model": "gpt-6.2-astra",
+    "effort": "high",
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "prior_BLOCK_records_retained": true
+  },
+  "monitor": {
+    "shared_stale": false,
+    "matches": [
+      {
+        "id": "shared:74af2d9b0c134c189bf17c4ba19d9924",
+        "attempt_id": "213a8296f7284cbeb33cb2d5410703bd",
+        "status": "completed",
+        "batch_id": "rmea-entity-scattering-run-20261122-v1"
+      },
+      {
+        "attempt": "213a8296f7284cbeb33cb2d5410703bd",
+        "current": 96,
+        "completed": 96,
+        "total": 96,
+        "batch_id": "rmea-entity-scattering-readiness-20261122"
+      }
+    ]
+  },
+  "optimizer_steps": 0,
+  "validation_test_reads": 0,
+  "new_checkpoints": 0,
+  "new_COS_writes": 0,
+  "claim_ceiling": "Implemented exploratory mechanism and bounded readiness only; no utility/L4/L5/novelty claim",
+  "retention": "Git code and compact reports only; no raw/cache/model/arrays downloaded to Windows"
+}
