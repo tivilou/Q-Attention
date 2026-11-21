@@ -135,6 +135,12 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None):
     if recovery is not None: atomic_torch(recovery.best, best)
     results = {}; samples = []; diagnostics = None
     for mode_index, kind in enumerate(p.MODES):
+        boundary=(resumed is not None and mode_index==resumed['cursor']['mode'] and resumed['active'] is None)
+        if boundary:
+            cursor=resumed['cursor']
+            if cursor['epoch'] or cursor['next_start'] or cursor['history'] or cursor['loss_sum'] or resumed['optimizer'] is not None:
+                raise ValueError('Fresh-head boundary state differs')
+            restore_rng(resumed['rng'])
         head = TrainableTokenTransportHead(kind).double(); head.load_state_dict(initial)
         if state_identity(head.state_dict()) != initial_sha or sum(v.numel() for v in head.parameters()) != 81028:
             raise ValueError('Initialization or parameter matching differs')
@@ -144,7 +150,7 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None):
         if kind in completed:
             row = completed[kind]; head.load_state_dict(row['state'])
             history = row['history']; steps = row['steps']; first_epoch = cfg['epochs']
-        elif resumed and mode_index == resumed['cursor']['mode']:
+        elif resumed and mode_index == resumed['cursor']['mode'] and not boundary:
             cursor = resumed['cursor']; first_epoch = cursor['epoch']; first_start = cursor['next_start']
             history = list(cursor['history']); saved_loss = cursor['loss_sum']
             steps = first_epoch*((len(orders[0])+31)//32)+(first_start+31)//32
@@ -260,7 +266,8 @@ def run(args):
     if args.resume and (not output.exists() or (output/'RUN_COMPLETE').exists()):
         raise ValueError('Resume requires an interrupted, unsealed existing run')
     output.mkdir(parents=True,exist_ok=args.resume)
-    with p.lock(output / '.run.lock'):
+    from .rmea_token_transport_recovery import run_lock
+    with run_lock(output / '.run.lock'):
         if args.resume:
             if args.fixture_cache: raise ValueError('Fixture resume uses its restored live cache, not a new extraction')
             labels = p.read(output.parent/'recovery-inputs/labels.json')
@@ -292,6 +299,7 @@ def run(args):
         recovery=Recovery(output,cfg,enabled=args.cos and args.profile=='discovery',resume=args.resume,
             pause_after=args.pause_after)
         if args.profile=='discovery': recovery.prepare(labels,args.data_dir)
+        recovery.drain_pending()
         train(cfg, output, labels, data_dir=None if args.fixture_cache else args.data_dir,
               assets=None if args.fixture_cache else args.assets,recovery=recovery)
         (output/'RUN_PAUSED').unlink(missing_ok=True)

@@ -3,6 +3,8 @@
 No cloud credentials live here. A separately supervised owner publisher verifies
 version-pinned objects and the private index before acknowledging a generation.
 """
+from contextlib import contextmanager
+import fcntl
 import hashlib
 import json
 import math
@@ -14,6 +16,17 @@ import tarfile
 import time
 
 from . import rmea_token_transport_protocol as p
+
+
+@contextmanager
+def run_lock(path):
+    """Kernel ownership survives neither SIGKILL nor a host reboot."""
+    path=Path(path)
+    if path.is_symlink():raise ValueError('Symlinked run lock')
+    with path.open('a+b') as handle:
+        fcntl.flock(handle,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        try:yield
+        finally:fcntl.flock(handle,fcntl.LOCK_UN)
 
 
 def atomic_torch(path, value):
@@ -130,7 +143,7 @@ class Recovery:
         self._validate_cursor(state)
         atomic_torch(self.latest, state); self.state = state
         self.progress('training')
-        if self.pause_after and state['done'] == self.pause_after:
+        if self.pause_after and ((self.pause_after>0 and state['done']==self.pause_after) or (self.pause_after<0 and state['cursor']['mode']==-self.pause_after and state['active'] is None)):
             p.atomic_json(self.output/'RUN_PAUSED', dict(reason='bounded recovery canary fault', done=state['done']))
             raise SystemExit(75)
         return state
@@ -154,7 +167,10 @@ class Recovery:
         request = dict(schema='q-rmea.cos-request.v1', run_id=self.parent.name, generation=name,
             identity=self.identity, done=done, total=self.total,
             files={str(f.relative_to(self.parent).as_posix()):dict(bytes=f.stat().st_size,sha256=p.digest(f)) for f in files})
-        p.atomic_json(directory/'request.json', request)
+        request_path=directory/'request.json'
+        if request_path.exists():
+            if p.read(request_path)!=request:raise ValueError('Sealed COS request changed')
+        else:p.atomic_json(request_path,request)
         # The owner may retry these same immutable files; training never retries.
         ack = directory/'ack.json'; deadline = time.monotonic()+1800
         while not ack.exists():
@@ -173,6 +189,22 @@ class Recovery:
         p.atomic_json(self.channel/'cloud-latest.json', dict(generation=name, done=done,
             index_commit=receipt['index_commit'], request_sha256=receipt['request_sha256']))
         self.progress('training')
+
+    def drain_pending(self):
+        if not self.enabled:return
+        import torch
+        for directory in sorted(self.channel.glob('*')):
+            if not directory.is_dir() or (directory/'ack.json').exists():continue
+            request=directory/'request.json'
+            if request.exists():
+                sealed=p.read(request)
+                self._publish(directory.name,[self.parent/rel for rel in sealed['files']],sealed['done'])
+            elif (directory/'latest.pt').exists():
+                # Crash after hardlinking but before the request commit.
+                sealed=torch.load(directory/'latest.pt',map_location='cpu',weights_only=True)
+                self._validate_cursor(sealed)
+                if not (directory/'best.pt').exists():atomic_torch(directory/'best.pt',sealed['best'])
+                self._publish(directory.name,[directory/'latest.pt',directory/'best.pt'],sealed['done'])
 
     def prepare(self, labels, data_dir):
         if not self.enabled: return

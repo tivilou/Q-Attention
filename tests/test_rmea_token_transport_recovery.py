@@ -82,6 +82,24 @@ def local_fixture(root,cloud=False):
         cos_pinned_restore_optimizer_bitwise=cloud,fixture_total_updates=recovery.total)
 
 
+def lock_fixture(root):
+    import signal,time
+    from baselines.retacred.rmea_token_transport_recovery import run_lock
+    root.mkdir(parents=True);lock=root/'.run.lock';ready=root/'ready'
+    code='from pathlib import Path;from baselines.retacred.rmea_token_transport_recovery import run_lock;import sys,time;\nwith run_lock(Path(sys.argv[1])):Path(sys.argv[2]).write_text("ready");time.sleep(60)'
+    child=subprocess.Popen([sys.executable,'-B','-c',code,str(lock),str(ready)],cwd=p.ROOT)
+    try:
+        deadline=time.monotonic()+15
+        while not ready.exists():
+            if child.poll() is not None or time.monotonic()>deadline:raise AssertionError('Lock fixture startup failed')
+            time.sleep(.05)
+        child.kill();child.wait(timeout=10)
+        with run_lock(lock):pass
+    finally:
+        if child.poll() is None:child.kill();child.wait()
+    return dict(sigkill_lock_released=True)
+
+
 def cadence_fixture(root):
     cfg=p.config('discovery');r=Recovery(root/'discovery',cfg)
     assert r.total==29248
@@ -95,6 +113,14 @@ def cadence_fixture(root):
     r.milestone(final=True)
     assert [row[1] for row in calls]==[2925,5850,8775,11700,14624,17549,20474,23399,26324,29248],calls
     assert len(calls)==10
+    # Orphaned sealed generation must be drained at its saved cursor before any update.
+    orphan=root/'orphan';(orphan/'cache').mkdir(parents=True)
+    a=Recovery(orphan,cfg,enabled=True);a.state={'done':2925}
+    g=a.channel/'010-progress';g.mkdir(parents=True)
+    atomic_torch(g/'latest.pt',dict(schema='fixture',done=2925,best={},cursor=dict(mode=0,epoch=1,next_start=35104,history=[{}]),completed={},total=29248))
+    drained=[]
+    a._publish=lambda name,files,done:drained.append(done)
+    a.drain_pending();assert drained==[2925]
     return dict(total=29248,cloud_generations=10,thresholds=[row[1] for row in calls])
 
 
@@ -128,7 +154,16 @@ def parent_fixture(root,args):
     for kind in p.MODES:
         for key in ('valid','test','history','updates','final_state_sha256'):
             assert a['results'][kind][key]==b['results'][kind][key],(kind,key)
-    return dict(real_parent_four_heads_bitwise=True,budget_not_repeated=True,export_failure_cleanup=True,export_only_retry_immutable=True)
+    boundary=root/'boundary'
+    run(common+['--run-dir',str(boundary),'--pause-after','-1'],ok=False)
+    saved=torch.load(boundary/'canary/checkpoints/latest.pt',map_location='cpu',weights_only=True)
+    assert saved['done']==1 and saved['cursor']['mode']==1 and saved['active'] is None
+    run(common+['--run-dir',str(boundary),'--resume'])
+    for kind in p.MODES:
+        first=torch.load(base/'canary/checkpoints'/(kind+'-final.pt'),map_location='cpu',weights_only=True)
+        second=torch.load(boundary/'canary/checkpoints'/(kind+'-final.pt'),map_location='cpu',weights_only=True)
+        assert state_identity(first)==state_identity(second)
+    return dict(fresh_head_boundary_bitwise=True,real_parent_four_heads_bitwise=True,budget_not_repeated=True,export_failure_cleanup=True,export_only_retry_immutable=True)
 
 
 def restore_fixture(checkpoint,output):
@@ -153,7 +188,7 @@ def main():
     args=parser.parse_args()
     if args.restore_fixture:restore_fixture(args.restore_fixture,args.output);return
     args.output.mkdir(parents=True,exist_ok=True)
-    result={'local':local_fixture(args.output/'state',args.cloud),'cadence':cadence_fixture(args.output/'cadence')}
+    result={'local':local_fixture(args.output/('recovery-'+args.output.parent.name),args.cloud),'cadence':cadence_fixture(args.output/'cadence'),'lock':lock_fixture(args.output/'lock')}
     if args.data_dir:result['parent']=parent_fixture(args.output/'parent',args)
     p.atomic_json(args.output/'recovery-validation.json',result)
     (args.output/'RUN_COMPLETE').write_text('focused recovery checks passed\n')

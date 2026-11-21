@@ -198,9 +198,9 @@ def main(argv=None):
     if args.action=='check':print(p.json.dumps(isolated_probe(args)))
     elif args.action=='run':run(args)
     elif not args.run_dir:parser.error('export requires --run-dir')
-    elif args.development_canary:
+    elif args.development_canary or args.owner_managed:
         root=Path(args.run_dir).resolve()
-        if not p.read(root/'handoff.json')['canary_only']:raise ValueError('Development export requires canary source')
+        if args.development_canary and not p.read(root/'handoff.json')['canary_only']:raise ValueError('Development export requires canary source')
         export(root,root.parent/(root.name+'-safe-report'),args.inject_export_failure)
     else:publish(args.run_dir)
 

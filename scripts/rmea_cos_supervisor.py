@@ -133,7 +133,7 @@ finally:c.close()""",dict(path=str(self.root/rel),url=url,headers=headers,**row)
         def git(*args):
             return subprocess.check_output(['git',*args],cwd=self.index,text=True,stderr=subprocess.DEVNULL).strip()
         # This run has a separate clean linked worktree in the one shared index.
-        status=git('status','--porcelain')
+        status=git('status','--porcelain','--untracked-files=all')
         if status and any(line[3:]!=relative.as_posix() for line in status.splitlines()):
             raise ValueError('Private index has unrelated changes')
         if path.exists():
@@ -201,7 +201,10 @@ os.replace(tmp,out);print(json.dumps({'acknowledged':True}))""",dict(root=str(se
 +from baselines.retacred import rmea_token_transport_handoff as h
 +assert p.ROOT.resolve()==r.resolve();p.review_gate(formal=True)
 +target=r/'reports/q_rmea_token_transport'/x['run_id'];relative=target.relative_to(r).as_posix()
-+with p.lock(r/'.git-rmea-owner-publish.lock'):
++from baselines.retacred.rmea_token_transport_recovery import run_lock
++lock=pathlib.Path(p.git('rev-parse','--git-path','q-rmea-owner-publish.lock'))
++if not lock.is_absolute():lock=r/lock
++with run_lock(lock):
 + h.branch_gate(relative)
 + target.mkdir(parents=True,exist_ok=True)
 + for name,text in x['files'].items():
