@@ -1,0 +1,55 @@
+{
+  "reviews": {
+    "angle-review-result.json": {
+      "model": "gpt-6.2-astra",
+      "effort": "high",
+      "packet_sha256": "ea0d764bc80f08177b40634c71df23557b2d6e4d2fb01569faa839503a702c6f",
+      "response": {
+        "verdict": "PASS_WITH_SCOPE",
+        "must_fix": [
+          "State the terminal damping assumption explicitly. For real E and e_i, η+γ/2>0 makes the proof of invertibility of M go through. Under the listed assumptions η>0 and q_i>0 alone, the unconditional claim is false. Take γ=−2η, m=0, e_s=e_o=E, q_s=q_o=1/2 and orthogonal terminal states in dimension two. Then f_s=q_s and f_o=q_o are nonzero, yet M=0. If transmission carries a separate multiplicative factor involving γ, its nonvanishing is also required for the zero-transmission equivalence."
+        ],
+        "proof_assessment": {
+          "determinant_and_conjugation": "Taking the displayed R_so factorization as the starting identity, let U=[ψ_s,ψ_o], D=diag(q_s/f_s,q_o/f_o) and G=UᴴC⁻¹U. The determinant lemma gives det(M)/det(C)=det(I−GD), and UᴴM⁻¹U=(I−GD)⁻¹G. In the s,o entry, the two terms involving D_oo G_so G_oo cancel, leaving G_so/det(I−GD). This proves the claimed factor in the stated direction without assuming G is Hermitian or invertible. The imaginary-part proof for C is valid, and it applies to M under the terminal damping condition above.",
+          "sharpness_and_range": "For fixed v, the largest overlap of Cv/‖Cv‖ with a unit vector orthogonal to v is its perpendicular projection norm. In the proposed construction u_iᴴv=√t_i, so the perpendicular part of a_i u_i u_iᴴv is exactly |a_i|√(t_i(1−t_i))w. The negative phase in u_i is correct. Thus Cv=αv−βw, and ψ_s=w gives both cancellation and overlap magnitude β/√(|α|²+β²). Since α never vanishes on the compact box, the maximum exists and is strictly below one. Along t=τt_star the overlap is continuous with endpoint values zero and c_star. The intermediate value theorem gives the full interval without requiring monotonicity.",
+          "cone_and_minimax": "For fixed r≥0 the disk constraint on (2t_i−1,2u_i) with u_i≥0 is equivalent to 0≤t_i≤1 and 0≤u_i≤√(t_i(1−t_i)). Choosing each upper endpoint proves exactness of the feasibility test, including equality. For the dual, the term −Re(conj(z)α) expands to −Re(z)+Σ_i b_i(z)t_i with the stated sign and conjugation. The objective is continuous, concave in t and affine in z on compact convex domains, so Sion's exchange applies. Substitution x=2t−1 gives the stated scalar maximum (b+√(b²+|a_i|²))/2. Hence F is the pointwise maximum of affine functions of z and is convex.",
+          "closest_point_and_zero_boundary": "Let H(r)=max_t[β−r|α|]=min_{|z|≤r}F(z). Since min_t|α|>0 and β/|α| attains its maximum, H(r)>0 for 0≤r<r_star, H(r_star)=0, and H(r)<0 for r>r_star. The disk minimum is attained by continuity. The disk of radius r_star therefore contains a point with F=0, and every smaller disk misses {F≤0}. This proves the proposed minimum-norm formula with attainment.",
+          "edge_cases": "For m=1 the squared turning sine simplifies to |a|²t(1−t)/[1+(d0²−1)t], where d0=|1−a|>0. Its derivative has the sign of [1−(1+d0)t][1+(d0−1)t], giving t_star=1/(1+d0) and c_star=|a|/(1+d0), including d0=1. For m=0, α=1, β=0 and F(z)=−Re(z). The closest feasible point is z=0, so r_star=c_star=0."
+        },
+        "conditioning_or_robustness_limits": "At fixed coefficients with positive damping and nonzero transmission prefactors, a strict overlap margin c≥c_star+δ on a nonempty set gives a positive minimum transmission by compactness and continuity. The proof supplies no numerical size for that minimum relative to ε. The determinant ratio and endpoint prefactors matter for that comparison. At or below c_star the witness establishes attainability only with freely chosen state directions. Above c_star the impossibility transfers to every restricted family with the same coefficients.",
+        "originality_limits": "The packet establishes the fixed-coefficient joint maximization, its common-plane attainment and its two-real-variable convex dual as mathematical consequences of the stated model. The fixed-C turning-angle formulation and single-projector calculation do not establish literature novelty. Metadata for the two identified papers cannot settle whether prior work already contains the joint result. No trained-architecture witness follows.",
+        "one_next_discriminating_check": "For an already-frozen case with a certified positive overlap margin, bound the minimum transmission at that margin using the full endpoint prefactors and determinant ratio, then compare the bound with the existing ε in the reported logit. This tests whether exclusion of an exact zero yields a resolvable effect under the frozen head."
+      }
+    },
+    "mass-review-result.json": {
+      "model": "gpt-6.2-astra",
+      "effort": "high",
+      "packet_sha256": "185de0f9fbeba017a40586885ec71fbbc001e38d41257685cd4c82856e863147",
+      "response": {
+        "verdict": "PASS_WITH_SCOPE",
+        "must_fix": [],
+        "universal_cap": {
+          "finding": "The sharp inequality c_star ≤ ρ/√(ρ²+4η²) holds for every allowed partition of the context mass and every choice of real onsite values. Equality is attainable when the onsite values and state directions are free.",
+          "weighted_inequalities": "Write s_i = u_i²+η². Then y/η = Σ q_i t_i/s_i. For β, apply Cauchy–Schwarz to the factors √(q_i(1−t_i)) and √(q_i t_i/s_i), giving β² ≤ (ρ−p)y/η. For 1−α, apply complex Cauchy–Schwarz to Σ q_i t_i/(u_i+iη), giving |1−α|² ≤ p y/η. Adding and using the stated completed square gives β² ≤ (ρ/(2η))²|α|².",
+          "sharpness": "For ρ>0, take every u_i=ρ/2, every t_i=1/2 and all context states equal to the stated common-plane vector. The aggregate coefficient is a=ρ/(ρ/2+iη), independent of the mass partition. Since |1−a|=1, C preserves norms. For the constructed v and w, |wᴴCv|=|a|/2 equals the cap, while wᴴC⁻¹(Cv)=0 gives exact cancellation.",
+          "onsite_range_and_edges": "At E=0, each attaining onsite value satisfies −ρ/2 < e_i=q_i−ρ/2 ≤ ρ/2. A single context token reaches the upper endpoint. Positive terminal masses imply ρ<1, so the entire interval lies strictly inside (−1,1). For ρ=0 the cap is zero. The rearranged mass requirement applies for 0<c<1. At c=1, exact cancellation is impossible for every finite ρ and η>0."
+        },
+        "finite_bound": {
+          "finding": "The proposed lower bound holds with the stated fourth power.",
+          "angle_and_projection": "The substitution v ↦ Cv/‖Cv‖ is a bijection on unit vectors and exchanges the two directions in the projective angle for C and C⁻¹. The optional bound Σ|a_i| also holds because the distance from unit v to span(Cv) is at most ‖v−Cv‖. For ŷ=C⁻¹ψ_o/‖C⁻¹ψ_o‖, decompose ψ_s and ŷ along ψ_o and its orthogonal complement. The reverse triangle inequality gives |ψ_sᴴŷ| ≥ max(0,c√(1−b²)−√(1−c²)b), including for complex states.",
+          "norms": "‖C‖ ≤ K0 gives ‖C⁻¹ψ_o‖ ≥ 1/K0. With X having context columns √q_i ψ_i and A=diag(u_i+iη)−XᴴX, Woodbury gives C⁻¹=I+XA⁻¹Xᴴ. Since Im(vᴴAv)=η‖v‖², ‖A⁻¹‖ ≤ 1/η. Together with ‖X‖² ≤ ρ this proves K1.",
+          "determinant_and_edges": "For U=[ψ_s,ψ_o], the Gram matrix gives ‖U‖²=1+c, including c=1. Put L=1+(1+c)K1 dmax. Each singular value of the two-by-two terminal correction matrix is at most L, so |D| ≤ L². Its determinant is nonzero by invertibility of C and M. Squaring the amplitude gives L⁴ in the transmission denominator. With empty context, C=I and K0=K1=1. For c≤b the lower bound is zero."
+        },
+        "fixture_readiness": {
+          "status": "READY_TO_RUN",
+          "dense_reference": "At E=0, states.conj() @ states.T has entries ψ_iᴴψ_j. The fixture constructs the token Hamiltonian with those entries, adds terminal damping and obtains transmission by a dense linear solve. That calculation is independent of the low-rank bound. The outer product used to generate the sharp witness has the matching column-state orientation.",
+          "coverage": "The sharp fixture checks both endpoint overlap and near-zero dense transmission. The separate near-parallel fixture requires a lower bound above 1e−12. The 48 seeded cases compare dense transmission with the lower bound and sample the angular inequality at 768 box points. The additive 1e−13 comparison tolerance can mask violations of that size. The analytic proof covers empty context and exactly parallel endpoints, which the script does not exercise directly.",
+          "execution_scope": "Review was by source inspection. The script uses synthetic inputs, NumPy and the Python standard library, reads its own source for hashing and writes a sibling result JSON. No execution result, input-hash verification or independent a6api consultant response was obtained in this review."
+        },
+        "originality_and_task_limits": "Fixed-operator total-antieigenvalue theory is prior work. This review establishes no priority claim for the prescribed-coefficient optimization or the mass/damping cap. The impossibility bound transfers to a frozen head satisfying the assumptions. Attainment in the relaxation, even with onsite values inside the tanh range, leaves joint circuit, feature and Born-mass realizability open. Practical score separation and task utility require separate evidence.",
+        "recommended_next_action": "Run the supplied fixture unchanged with Python assertions enabled and retain its result JSON. If owner-selected consultant verification is required, obtain the specified a6api review before recording that verification as complete."
+      }
+    }
+  },
+  "scope": "Conditional mathematical correctness only; no literature-priority, circuit attainability or task utility established."
+}

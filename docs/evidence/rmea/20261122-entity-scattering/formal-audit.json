@@ -1,0 +1,148 @@
+{
+  "schema": "q-rmea.entity-scattering.formal-audit.v1",
+  "verdict": "VALID_NEGATIVE",
+  "source_sha256": "bf3e086677aa71b28a9fb60f7ef0344f0f0ffff715c5fd9a6b4b442b7b7ebcc7",
+  "executed_revision": "8b5eca869517b873c89e12369a6389355d3845d8",
+  "config_sha256": "a3000139e14526e303a020f056f21d6c28da692d0b1a205a38cb8f535aabed8a",
+  "task": "9267466b83d14bca9dbd40bccbd0745e",
+  "attempt": "92ba0e8a618c4439a91d6bb763551067",
+  "scheduler": {
+    "returncode": 0,
+    "quiescent": true
+  },
+  "report_files": {
+    "analysis-readiness.json": {
+      "sha256": "5ffba48ec879dd1dc9129888fecd8e462b4a680a04c1fcd09e5e126e0024e168",
+      "bytes": 1666
+    },
+    "data.sha256": {
+      "sha256": "011f9a348b9dc44e45ae998a680e16d9e68a90e998f555ed22f1874b40327a32",
+      "bytes": 233
+    },
+    "data_counts.txt": {
+      "sha256": "0eea5f2e8ad45c89cee45ffa2e9094c21822e4947166ef1877e0e8ad7bec4592",
+      "bytes": 35
+    },
+    "manifest.json": {
+      "sha256": "2073daf70811e72bb26151e0b24d3f47856eebf207bf3519a564b769603033dd",
+      "bytes": 79895
+    },
+    "receipt.json": {
+      "sha256": "d82fd488af8a98941bf080944a430c3f7ac398d0fc0c5a9feceb91789bd752f5",
+      "bytes": 978
+    },
+    "run_summary.json": {
+      "sha256": "fa8ef5bf07cef1eccfdbc96019075ebc9f851ad896abb9d872bef9abcf821ce4",
+      "bytes": 272428
+    },
+    "summary.json": {
+      "sha256": "3047a831b7b72c45fb5a4dd224dc8e65595e74d20a45216dccb9c702a6ce509c",
+      "bytes": 267890
+    }
+  },
+  "seed": 13,
+  "counts": {
+    "train": 58465,
+    "valid": 19584,
+    "test": 13418
+  },
+  "full_data_training": true,
+  "selected_epoch": 4,
+  "parameter_count": 81028,
+  "updates_per_condition": 7312,
+  "baseline_retrained": false,
+  "shared_initialization_and_order_verified": true,
+  "macro_recomputed_from_all_confusion_matrices": true,
+  "table": {
+    "complex": {
+      "valid": {
+        "positive39_macro_f1": 0.10873845938504943,
+        "micro_f1": 0.48486297004461437,
+        "ce": 1.102322356025971,
+        "items": 19584,
+        "macro_recomputed_from_confusion_matrix": 0.10873845938504942
+      },
+      "test": {
+        "positive39_macro_f1": 0.11180160666768106,
+        "micro_f1": 0.5421714285714286,
+        "ce": 1.0106693094289012,
+        "items": 13418,
+        "macro_recomputed_from_confusion_matrix": 0.11180160666768106
+      }
+    },
+    "real_magnitude": {
+      "valid": {
+        "positive39_macro_f1": 0.12134125403511394,
+        "micro_f1": 0.5031564180500351,
+        "ce": 1.0893260508686082,
+        "items": 19584,
+        "macro_recomputed_from_confusion_matrix": 0.12134125403511394
+      },
+      "test": {
+        "positive39_macro_f1": 0.11882611671257563,
+        "micro_f1": 0.5723056682381318,
+        "ce": 0.9898145995014768,
+        "items": 13418,
+        "macro_recomputed_from_confusion_matrix": 0.11882611671257563
+      }
+    },
+    "constant_onsite": {
+      "valid": {
+        "positive39_macro_f1": 0.16770367251825408,
+        "micro_f1": 0.5277318502931009,
+        "ce": 1.0130985128721757,
+        "items": 19584,
+        "macro_recomputed_from_confusion_matrix": 0.16770367251825408
+      },
+      "test": {
+        "positive39_macro_f1": 0.15302491405255514,
+        "micro_f1": 0.5863402061855669,
+        "ce": 0.942552643980889,
+        "items": 13418,
+        "macro_recomputed_from_confusion_matrix": 0.15302491405255514
+      }
+    },
+    "linear_reference": {
+      "valid": {
+        "positive39_macro_f1": 0.521847806428938,
+        "micro_f1": 0.7103425774877651,
+        "ce": 0.588837012155602,
+        "items": 19584,
+        "macro_recomputed_from_confusion_matrix": 0.521847806428938
+      },
+      "test": {
+        "positive39_macro_f1": 0.4628824677790358,
+        "micro_f1": 0.7207668944570995,
+        "ce": 0.5869701188089069,
+        "items": 13418,
+        "macro_recomputed_from_confusion_matrix": 0.4628824677790357
+      }
+    }
+  },
+  "contrasts": {
+    "linear_reference": {
+      "absolute_macro_delta": -0.3510808611113547,
+      "relative_macro_delta": -0.7584665342713923,
+      "ce_delta": 0.4236991906199943
+    },
+    "real_magnitude": {
+      "absolute_macro_delta": -0.007024510044894572,
+      "relative_macro_delta": -0.05911587653651861,
+      "ce_delta": 0.020854709927424442
+    },
+    "constant_onsite": {
+      "absolute_macro_delta": -0.04122330738487408,
+      "relative_macro_delta": -0.26938951503489345,
+      "ce_delta": 0.0681166654480122
+    }
+  },
+  "promotion_gate": false,
+  "conclusion": "Close promotion of this exact frozen entity-terminal scattering configuration; no rescue or follow-up frozen diagnostic admitted.",
+  "limitations": [
+    "One seed and repeatedly exposed cohort; no independent confirmation.",
+    "real_magnitude retains phase-dependent upstream q and changes Gram rank/spectrum; not phase-only attribution.",
+    "This negative result does not reject all quantum/transport/feedback architectures.",
+    "Nine final-checkpoint replay anchors are not sample-trace.v2 or materialized Case Study.",
+    "Historical scoped L4 is unchanged. New L1 utility and L5 are not established."
+  ]
+}

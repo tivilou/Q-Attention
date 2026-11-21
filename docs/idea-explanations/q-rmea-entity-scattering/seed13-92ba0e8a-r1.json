@@ -1,0 +1,96 @@
+{
+  "schema_version": "idea-explanation.v1",
+  "idea_id": "q-rmea-entity-scattering",
+  "family_id": "family-q-rmea-entity-scattering-seed13",
+  "revision": "seed13-92ba0e8a-r1",
+  "title": "实体端点散射：全量seed13负结果",
+  "dataset_id": "retacred",
+  "checkpoint": "seed13 attempt92ba0e8a; fixed final epoch4",
+  "experiment_status": "complete",
+  "completeness": "partial",
+  "limitations": [
+    "未物化sample-trace.v2或Case Study；停止探索配置，无后续模型分析消费者。",
+    "只有一个反复使用的官方split和seed，非独立确认。"
+  ],
+  "source_path": "docs/idea-explanations/q-rmea-entity-scattering/seed13-92ba0e8a-r1.md",
+  "evidence": {
+    "code": {
+      "identity": "8b5eca869517b873c89e12369a6389355d3845d8 source bf3e086677aa71b28a9fb60f7ef0344f0f0ffff715c5fd9a6b4b442b7b7ebcc7",
+      "status": "verified",
+      "reason": "执行收据、源码40文件复合哈希与报告绑定。",
+      "refs": [
+        {
+          "path": "docs/evidence/rmea/20261122-entity-scattering/formal-audit.json",
+          "sha256": "1852c0da9ddd7c0a78128f29d5c181a4333005331b0af3cb25f7a2b81e69250f"
+        }
+      ]
+    },
+    "config": {
+      "identity": "a3000139e14526e303a020f056f21d6c28da692d0b1a205a38cb8f535aabed8a",
+      "status": "verified",
+      "reason": "按冻结配置核验计数、条件、seed、epoch与选择规则。",
+      "refs": [
+        {
+          "path": "reports/q_rmea_entity_scattering/20261122-seed13-92ba0e8a/manifest.json",
+          "sha256": "2073daf70811e72bb26151e0b24d3f47856eebf207bf3519a564b769603033dd"
+        }
+      ]
+    },
+    "report": {
+      "identity": "3047a831b7b72c45fb5a4dd224dc8e65595e74d20a45216dccb9c702a6ce509c",
+      "status": "verified",
+      "reason": "七文件及RUN_COMPLETE哈希核验、八个混淆矩阵独立重算。",
+      "refs": [
+        {
+          "path": "reports/q_rmea_entity_scattering/20261122-seed13-92ba0e8a/summary.json",
+          "sha256": "3047a831b7b72c45fb5a4dd224dc8e65595e74d20a45216dccb9c702a6ce509c"
+        }
+      ]
+    },
+    "trace": {
+      "identity": "not_materialized; closed_exploratory_run",
+      "status": "unavailable",
+      "reason": "九个回放锚点不是完整trace；本负向配置停止后不要求Case Study。",
+      "refs": [
+        {
+          "path": "reports/q_rmea_entity_scattering/20261122-seed13-92ba0e8a/analysis-readiness.json",
+          "sha256": "5ffba48ec879dd1dc9129888fecd8e462b4a680a04c1fcd09e5e126e0024e168"
+        }
+      ]
+    }
+  },
+  "result_refs": [
+    {
+      "kind": "idea",
+      "id": "q-rmea-entity-scattering-seed13-complex"
+    },
+    {
+      "kind": "idea",
+      "id": "q-rmea-entity-scattering-seed13-real_magnitude"
+    },
+    {
+      "kind": "idea",
+      "id": "q-rmea-entity-scattering-seed13-constant_onsite"
+    },
+    {
+      "kind": "baseline",
+      "id": "retacred-linear-coherent-seed13-20261121"
+    }
+  ],
+  "links": {
+    "results": "/apps/experiment-results/?family=family-q-rmea-entity-scattering-seed13",
+    "log": "/apps/research-log/?id=q-rmea-entity-scattering-seed13",
+    "case_study": "/apps/experiment-results/?case=q-rmea-entity-scattering-seed13#case-study-title"
+  },
+  "content_review": {
+    "reviewer": "primary source-grounded closeout audit",
+    "checks": [
+      "workflow",
+      "parameters",
+      "results",
+      "causal_bounds",
+      "target_boundary",
+      "examples"
+    ]
+  }
+}

@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-最新检查点：[实体端点散射实现](20261121T-184300Z-entity-scattering-implementation.md)。三卡各32条真实train前后向通过；数学fixture/梯度/直接求逆一致。仅实现就绪，尚无任务效果或L5结论。
+最新检查点：[实体端点散射完整负结果](20261121T-231433Z-entity-scattering-full-seed13.md)。三路全量seed13完成；complex测试positive39 Macro11.18%，原linear46.29%，冻结门槛失败，停止这版配方。历史限定L4保持，L5未接受。
 
 ## 时间线
+
+- [2026-11-22｜实体端点散射三卡完整seed13负结果](20261121T-231433Z-entity-scattering-full-seed13.md)：21,936更新/三路全量评估完成；七文件和独立重算通过，无新任务收益，停止晋级。
 
 - [2026-11-22｜实体端点散射实现与三卡检查](20261121T-184300Z-entity-scattering-implementation.md)：固定读出、匹配实数对照；CPU数值与96次真实前后向通过，无优化器更新。
 
