@@ -96,7 +96,7 @@ def interval_scores(effect,frames,rows,columns,epsilon):
     for phi in effects:
         row=[]
         for psi in states:
-            a=sum((f.conjugate()*s for f,s in zip(phi,psi)),iv.mpc(0,0))
+            a=sum((iv.mpc(f.real,-f.imag)*s for f,s in zip(phi,psi)),iv.mpc(0,0))
             row.append(a.real*a.real+a.imag*a.imag+iv_float(epsilon,iv))
         result.append(row)
     return result
@@ -201,9 +201,13 @@ def unit(args):
     angles=[[[.2,-.3],[.4,.1],[-.2,.6]],[[.5,-.1],[.1,.8],[-.7,.9]]]
     exact=interval_circuit([[[iv_float(v,iv) for v in w] for w in l] for l in angles],iv)
     actual=circuit(torch.tensor(angles,dtype=torch.float64)).numpy()
+    frames=list(itertools.product(range(4),repeat=3))
+    scores=interval_scores(np.zeros((40,2,3,2)),frames,[0],[0,16],0.)
+    assert float(scores[0][0].a)<=1<=float(scores[0][0].b)
+    assert float(scores[0][1].a)<=.5<=float(scores[0][1].b)
     assert max(abs(complex((float(v.real.a)+float(v.real.b))/2,(float(v.imag.a)+float(v.imag.b))/2)-a) for v,a in zip(exact,actual))<1e-14
     event(out,'unit',4)
-    p.atomic_json(out/'unit-validation.json',dict(status='PASS',modular_rank=True,interval_positive_and_singular_rejection=True,interval_actual_circuit_parity=True,scope='Focused certifier/circuit checks; actualcheckpoint untouched'))
+    p.atomic_json(out/'unit-validation.json',dict(status='PASS',modular_rank=True,interval_positive_and_singular_rejection=True,interval_actual_circuit_parity=True,interval_born_score_regression=True,scope='Focused certifier/circuit checks; actualcheckpoint untouched'))
     p.atomic_json(out/'RUN_COMPLETE',dict(sha256=p.digest(out/'unit-validation.json')))
 
 def main():
