@@ -1,0 +1,580 @@
+{
+  "schema": "q-rmea.mass-direction.report.v1",
+  "source_revision": "f71d27f16bb11393c46f0d15ba88ecef065b6c3b",
+  "original_run": "20261121T034306Z_seed13",
+  "heads": {
+    "cubic_coherent": {
+      "schema": "q-rmea.mass-direction.result.v1",
+      "head": "cubic_coherent",
+      "split": "valid",
+      "count": 19584,
+      "contrasts": {
+        "full": {
+          "delta": 1.9520999459565758e-05,
+          "paired95_percentile": [
+            -0.00022770561079976797,
+            0.00023037045231086013
+          ]
+        },
+        "native": {
+          "delta": 0.0014768516561691758,
+          "paired95_percentile": [
+            -6.035825447250815e-06,
+            0.003206668261396768
+          ]
+        }
+      },
+      "gate": false,
+      "primary_gate": false,
+      "max_row_mass_gap": 0.023721880011959406,
+      "source": "f71d27f16bb11393c46f0d15ba88ecef065b6c3b",
+      "script_sha256": "161f96ecc595174080a03051b5b085adc8f8570941779f7678b234e00b33e1d5",
+      "original_source": "d9837319bb368e6b43939596802a40e05d1f276cbe5e26c27f34947ceb6f3ee7",
+      "checkpoint_sha256": "5658e14ef3144c5dae4b639086b732973151b3b669790ccdd701306763bd3aae",
+      "design_sha256": "eb55225513b4dfdfe77cf57ac50de3fe9c2afd3a642227e018bd7724845c043f",
+      "seconds": 114.61924338340759,
+      "physical_gpu": "GPU-223ab86b-7247-baca-9a77-e087d6b6bbdd",
+      "limitations": [
+        "Frozen-head exploratory validation diagnostic, not independent seed confirmation",
+        "No novel-theory/L5 claim",
+        "Other heads cannot rescue failed primary",
+        "1000 paired example bootstraps condition on this fixed cohort, not seed variability"
+      ],
+      "results": {
+        "native": {
+          "positive39_macro_f1": 0.487889280271598,
+          "ce": 0.6484927193628331
+        },
+        "mass_only": {
+          "positive39_macro_f1": 0.4879365743081965,
+          "ce": 0.6484914542930423
+        },
+        "direction_only": {
+          "positive39_macro_f1": 0.4893661319277672,
+          "ce": 0.6490760366777423
+        },
+        "full": {
+          "positive39_macro_f1": 0.4893466109283076,
+          "ce": 0.6490743855048438
+        }
+      },
+      "task": "71ff8f4f50544c2fb81edef935f6cdd0",
+      "attempt": "99bf12b8cbb7424dbc4d16cd8fc667e4",
+      "sealed_outputs": {
+        "summary_sha256": "08f84cc3177eb3974e77053d0393c538452b5f23e1ddb5a4a2b9fe404aa03bb5",
+        "design_sha256": "fbf4d93622443392c79031d7aee987f8918e3a833602497888b2df69549174ad",
+        "trace_sha256": "743aae759c3e0858ec4953cdeeb2bb62d06c724381f266ffef7242a6c29264d6"
+      },
+      "trace_metadata": {
+        "artifacts": [
+          {
+            "path": "fixed-valid-first2.npz",
+            "sha256": "b63c004a5b152ad14974373cac73f960ee85286c46d7272387d9e8c5669a7ba7",
+            "arrays": {
+              "z": {
+                "shape": [
+                  2,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "native_raw": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "routed_raw": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "direction_raw": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "first_mass_derivative": {
+                "shape": [
+                  2,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "psi": {
+                "shape": [
+                  2,
+                  63,
+                  8
+                ],
+                "dtype": "complex128"
+              },
+              "phi": {
+                "shape": [
+                  40,
+                  8
+                ],
+                "dtype": "complex128"
+              },
+              "mask": {
+                "shape": [
+                  2,
+                  63
+                ],
+                "dtype": "bool"
+              },
+              "utilities": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "bias": {
+                "shape": [
+                  40
+                ],
+                "dtype": "float64"
+              },
+              "target": {
+                "shape": [
+                  2
+                ],
+                "dtype": "int64"
+              },
+              "alpha_native": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "alpha_mass_only": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "alpha_direction_only": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "alpha_full": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              }
+            },
+            "sample_rule": "immutable hash-ordered valid cache indices0,1; chosen before diagnostic",
+            "coverage": "bounded mechanism values; no full encoder/training trajectory claim"
+          }
+        ],
+        "trace_status": "partial bounded probe; not full sample-trace.v2"
+      }
+    },
+    "linear_coherent": {
+      "schema": "q-rmea.mass-direction.result.v1",
+      "head": "linear_coherent",
+      "split": "valid",
+      "count": 19584,
+      "contrasts": {
+        "full": {
+          "delta": 6.974779816593113e-06,
+          "paired95_percentile": [
+            -0.00012620243603823355,
+            0.00016878039289531244
+          ]
+        },
+        "native": {
+          "delta": 0.0027163748333037807,
+          "paired95_percentile": [
+            0.0006382461575727001,
+            0.005426631824599692
+          ]
+        }
+      },
+      "gate": false,
+      "primary_gate": null,
+      "max_row_mass_gap": 0.024231194597297723,
+      "source": "f71d27f16bb11393c46f0d15ba88ecef065b6c3b",
+      "script_sha256": "161f96ecc595174080a03051b5b085adc8f8570941779f7678b234e00b33e1d5",
+      "original_source": "d9837319bb368e6b43939596802a40e05d1f276cbe5e26c27f34947ceb6f3ee7",
+      "checkpoint_sha256": "23691c168f8900001f94a2eba44aa4dde217b703fa4b06a4af228293dc4ab6c8",
+      "design_sha256": "eb55225513b4dfdfe77cf57ac50de3fe9c2afd3a642227e018bd7724845c043f",
+      "seconds": 114.25076842308044,
+      "physical_gpu": "GPU-223ab86b-7247-baca-9a77-e087d6b6bbdd",
+      "limitations": [
+        "Frozen-head exploratory validation diagnostic, not independent seed confirmation",
+        "No novel-theory/L5 claim",
+        "Other heads cannot rescue failed primary",
+        "1000 paired example bootstraps condition on this fixed cohort, not seed variability"
+      ],
+      "results": {
+        "native": {
+          "positive39_macro_f1": 0.5195881551209026,
+          "ce": 0.5896470142705093
+        },
+        "mass_only": {
+          "positive39_macro_f1": 0.5195728154133349,
+          "ce": 0.5896956624979718
+        },
+        "direction_only": {
+          "positive39_macro_f1": 0.5223045299542064,
+          "ce": 0.5892830477239394
+        },
+        "full": {
+          "positive39_macro_f1": 0.5222975551743898,
+          "ce": 0.5893295712291574
+        }
+      },
+      "task": "a6f01d41953545a4bde8f354e33ee769",
+      "attempt": "f5a96f17a5cc4bc1a2bd7f1c7240f988",
+      "sealed_outputs": {
+        "summary_sha256": "7f2dcbb8ab44253698f2a95f2f6d0f2f4d761e7b197d1d81a391a6c6c634de0c",
+        "design_sha256": "fbf4d93622443392c79031d7aee987f8918e3a833602497888b2df69549174ad",
+        "trace_sha256": "a88b957b90b4ec7e33edb59fac7abdf6b9543abeca4a1507796c2b434f4989dd"
+      },
+      "trace_metadata": {
+        "artifacts": [
+          {
+            "path": "fixed-valid-first2.npz",
+            "sha256": "07220b8bcbf266b6b43f673df78e12f9102e78193937803a393a6c89e0bcd0c3",
+            "arrays": {
+              "z": {
+                "shape": [
+                  2,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "native_raw": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "routed_raw": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "direction_raw": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "first_mass_derivative": {
+                "shape": [
+                  2,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "psi": {
+                "shape": [
+                  2,
+                  63,
+                  8
+                ],
+                "dtype": "complex128"
+              },
+              "phi": {
+                "shape": [
+                  40,
+                  8
+                ],
+                "dtype": "complex128"
+              },
+              "mask": {
+                "shape": [
+                  2,
+                  63
+                ],
+                "dtype": "bool"
+              },
+              "utilities": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "bias": {
+                "shape": [
+                  40
+                ],
+                "dtype": "float64"
+              },
+              "target": {
+                "shape": [
+                  2
+                ],
+                "dtype": "int64"
+              },
+              "alpha_native": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "alpha_mass_only": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "alpha_direction_only": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "alpha_full": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              }
+            },
+            "sample_rule": "immutable hash-ordered valid cache indices0,1; chosen before diagnostic",
+            "coverage": "bounded mechanism values; no full encoder/training trajectory claim"
+          }
+        ],
+        "trace_status": "partial bounded probe; not full sample-trace.v2"
+      }
+    },
+    "native": {
+      "schema": "q-rmea.mass-direction.result.v1",
+      "head": "native",
+      "split": "valid",
+      "count": 19584,
+      "contrasts": {
+        "full": {
+          "delta": 0.00022716106361819755,
+          "paired95_percentile": [
+            -0.0002610888378989845,
+            0.0008551651822418596
+          ]
+        },
+        "native": {
+          "delta": 0.00021544322308686414,
+          "paired95_percentile": [
+            -0.0008769238315493727,
+            0.0013890835774212373
+          ]
+        }
+      },
+      "gate": false,
+      "primary_gate": null,
+      "max_row_mass_gap": 0.028202107402434118,
+      "source": "f71d27f16bb11393c46f0d15ba88ecef065b6c3b",
+      "script_sha256": "161f96ecc595174080a03051b5b085adc8f8570941779f7678b234e00b33e1d5",
+      "original_source": "d9837319bb368e6b43939596802a40e05d1f276cbe5e26c27f34947ceb6f3ee7",
+      "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+      "design_sha256": "eb55225513b4dfdfe77cf57ac50de3fe9c2afd3a642227e018bd7724845c043f",
+      "seconds": 115.80086970329285,
+      "physical_gpu": "GPU-223ab86b-7247-baca-9a77-e087d6b6bbdd",
+      "limitations": [
+        "Frozen-head exploratory validation diagnostic, not independent seed confirmation",
+        "No novel-theory/L5 claim",
+        "Other heads cannot rescue failed primary",
+        "1000 paired example bootstraps condition on this fixed cohort, not seed variability"
+      ],
+      "results": {
+        "native": {
+          "positive39_macro_f1": 0.5164743763828692,
+          "ce": 0.6298576331800944
+        },
+        "mass_only": {
+          "positive39_macro_f1": 0.5161130736952745,
+          "ce": 0.629943562147604
+        },
+        "direction_only": {
+          "positive39_macro_f1": 0.5166898196059561,
+          "ce": 0.6298048934611474
+        },
+        "full": {
+          "positive39_macro_f1": 0.5164626585423379,
+          "ce": 0.6298905190214922
+        }
+      },
+      "task": "aa90b24799224379ad887f48f3b8f2c6",
+      "attempt": "592cf0e42591403cb3cb1b6fd5e1a515",
+      "sealed_outputs": {
+        "summary_sha256": "4d9dea5a3a85dd9a69a5ab7a13e184eacff31ddc7f4d68e45751fd66f3704a12",
+        "design_sha256": "fbf4d93622443392c79031d7aee987f8918e3a833602497888b2df69549174ad",
+        "trace_sha256": "fe12c76877876a3860372a9e93c28abae97b0b9a3ee2999045c87e43496b12b1"
+      },
+      "trace_metadata": {
+        "artifacts": [
+          {
+            "path": "fixed-valid-first2.npz",
+            "sha256": "75bd93a15a0f1fe341ff835bc11dc2c657799f28ec5f2cffbbdf1d583c42fee6",
+            "arrays": {
+              "z": {
+                "shape": [
+                  2,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "native_raw": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "routed_raw": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "direction_raw": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "first_mass_derivative": {
+                "shape": [
+                  2,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "psi": {
+                "shape": [
+                  2,
+                  63,
+                  8
+                ],
+                "dtype": "complex128"
+              },
+              "phi": {
+                "shape": [
+                  40,
+                  8
+                ],
+                "dtype": "complex128"
+              },
+              "mask": {
+                "shape": [
+                  2,
+                  63
+                ],
+                "dtype": "bool"
+              },
+              "utilities": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "bias": {
+                "shape": [
+                  40
+                ],
+                "dtype": "float64"
+              },
+              "target": {
+                "shape": [
+                  2
+                ],
+                "dtype": "int64"
+              },
+              "alpha_native": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "alpha_mass_only": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "alpha_direction_only": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              },
+              "alpha_full": {
+                "shape": [
+                  2,
+                  40,
+                  63
+                ],
+                "dtype": "float64"
+              }
+            },
+            "sample_rule": "immutable hash-ordered valid cache indices0,1; chosen before diagnostic",
+            "coverage": "bounded mechanism values; no full encoder/training trajectory claim"
+          }
+        ],
+        "trace_status": "partial bounded probe; not full sample-trace.v2"
+      }
+    }
+  },
+  "acceptance": "STOP_MASS_COMPENSATION_NO_PROMOTION",
+  "claims": [
+    "Exploratory frozen-checkpoint validation diagnostic only",
+    "No additional L2/L3/L4/L5 claim; previous scoped L4 unchanged"
+  ],
+  "runtime": "Three separate submissions were serialized by the one-active-task-per-project queue; no three-GPU execution or speedup claim for this diagnostic",
+  "recovery": "No training; restartable from original immutable COS-protected inputs; no new COS objects",
+  "initial_failure": "Missing deterministic CuBLAS workspace caused all v1 attempts to fail before valid results; repaired v2 completed",
+  "future_execution": "Independent conditions must use one multi-GPU allocation with the already-validated auto runner; do not submit parallel conditions as three project tasks"
+}
