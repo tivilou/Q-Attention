@@ -314,6 +314,20 @@ def execute(jobs, out, phase):
         raise InterruptedError('Batch interrupted during cleanup')
 
 
+def fresh_output(out):
+    names = {x.name for x in out.iterdir()}
+    if not names:
+        return
+    if names == {'progress.json'}:
+        row = p.read(out/'progress.json')
+        expected = Path(os.environ['RESEARCH_OUTPUT_DIR']).parent.name
+        if (row.get('schema') == 'research.progress.v1' and row.get('attempt') == expected
+                and row.get('phase') == 'experiment' and type(row.get('current')) is int
+                and row.get('current') == 0):
+            return
+    raise ValueError('Preserve existing attempt output')
+
+
 def run(args):
     import numpy as np
     from baselines.retacred.orchestrate import gpu_ids
@@ -333,8 +347,7 @@ def run(args):
     if (args.output.is_relative_to(ROOT) or args.output.is_relative_to(args.run)
             or args.run.is_relative_to(args.output)):
         raise ValueError('Independent diagnostic output required')
-    if list(args.output.iterdir()):
-        raise ValueError('Preserve existing attempt output')
+    fresh_output(args.output)
     p.atomic_json(args.output/'design.json', design())
     started = time.time()
     inputs = validate_inputs(args.run)

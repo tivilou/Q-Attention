@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import torch
-from experiments.q_rmea_query_alignment import generator, distribution, derangement, command, execute
+from experiments.q_rmea_query_alignment import generator, distribution, derangement, command, execute, fresh_output
 from baselines.retacred.rmea_token_transport import route
 from baselines.retacred.rmea_token_transport_protocol import atomic_json
 
@@ -47,6 +47,37 @@ def main():
         previous = os.environ.get('RESEARCH_OUTPUT_DIR')
         os.environ['RESEARCH_OUTPUT_DIR'] = str(out)
         try:
+            fresh_output(out)
+            atomic_json(out/'progress.json',dict(schema='research.progress.v1',
+                attempt=out.parent.name, phase='experiment', current=0))
+            fresh_output(out)
+            row=json.loads((out/'progress.json').read_text())
+            row['current']=False
+            atomic_json(out/'progress.json',row)
+            try:
+                fresh_output(out)
+                raise AssertionError('Boolean progress accepted')
+            except ValueError:
+                pass
+            row['current']=0
+            atomic_json(out/'progress.json',row)
+            fresh_output(out)
+            atomic_json(out/'summary.json',dict(preserve=True))
+            try:
+                fresh_output(out)
+                raise AssertionError('Existing result accepted')
+            except ValueError:
+                pass
+            (out/'summary.json').unlink()
+            row=json.loads((out/'progress.json').read_text())
+            row['attempt']='foreign-attempt'
+            atomic_json(out/'progress.json',row)
+            try:
+                fresh_output(out)
+                raise AssertionError('Foreign progress accepted')
+            except ValueError:
+                pass
+            (out/'progress.json').unlink()
             args = SimpleNamespace(run=out/'unused', output=out)
             jobs = [(a, command(args, 'worker', a)+['--help'], 'cpu-launch-fixture-'+str(i))
                     for i,a in enumerate(('aligned','deranged','training_mean'))]
