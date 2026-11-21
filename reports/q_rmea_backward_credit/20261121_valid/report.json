@@ -1,0 +1,165 @@
+{
+  "schema": "q-rmea.backward-credit.report.v1",
+  "result": {
+    "schema": "q-rmea.backward-credit.result.v1",
+    "results": {
+      "full": {
+        "positive39_macro_f1": 0.3392695792329416,
+        "ce": 0.8047070256186027,
+        "count": 19584,
+        "condition": "full",
+        "steps": 256,
+        "initial": {
+          "positive39_macro_f1": 0.34047712338154046,
+          "ce": 0.7681809158777699,
+          "count": 19584
+        },
+        "first_loss": 0.20875427558216,
+        "last_loss": 0.7331816292214952,
+        "mean_train_ce": 0.5546911835488935,
+        "physical_gpu": "allocated-GPU-0",
+        "model_sha256": "1855754e93bc29947bf05dcaf627ba4f24374733adfe08d3029adc4dfe11c5a4",
+        "latest_sha256": "faed6fddca30d919d5bac7b2c7198af0c9a83f09392abd367e1e6a61f2801c7e",
+        "prediction_sha256": "6565bc1850881cdcb8f796d8d63e8afb670b7ffa32a53c610421b10ae7a4b482"
+      },
+      "detach_feature": {
+        "positive39_macro_f1": 0.3350852562480697,
+        "ce": 0.8271100762180673,
+        "count": 19584,
+        "condition": "detach_feature",
+        "steps": 256,
+        "initial": {
+          "positive39_macro_f1": 0.34047712338154046,
+          "ce": 0.7681809158777699,
+          "count": 19584
+        },
+        "first_loss": 0.20875427558216,
+        "last_loss": 0.7435892369801469,
+        "mean_train_ce": 0.5566031627753283,
+        "physical_gpu": "allocated-GPU-1",
+        "model_sha256": "fcd9513eda976af8a24a850eaf5c04b31ef0b896f51544d856ce19faa6e426f4",
+        "latest_sha256": "a4c36518e7e1919440f8b46de41f62bd6a1cdee0a6b43bfaf44c970d9abd0eb3",
+        "prediction_sha256": "2a98fe58265717d0e67aea5d920eee69c94b073443a39941d8f36b6965721df8"
+      },
+      "detach_token": {
+        "positive39_macro_f1": 0.34898125224456655,
+        "ce": 0.7881373335187383,
+        "count": 19584,
+        "condition": "detach_token",
+        "steps": 256,
+        "initial": {
+          "positive39_macro_f1": 0.34047712338154046,
+          "ce": 0.7681809158777699,
+          "count": 19584
+        },
+        "first_loss": 0.2087542755821603,
+        "last_loss": 0.6801953959416475,
+        "mean_train_ce": 0.5552857949172483,
+        "physical_gpu": "allocated-GPU-2",
+        "model_sha256": "8cf975a41f9238e9b67f23ba3bab8cb87094d4fea1ceefe765eb882122544e6e",
+        "latest_sha256": "058b4dfeeb32e63b67177a835092ebb5f68a2d3c1f9e8d7047c22386288e82d2",
+        "prediction_sha256": "9e5efa59b47a68e54661b049f8b3dfcb5f69423562f524afdb846f6967b3261c"
+      }
+    },
+    "contrasts": {
+      "detach_feature": {
+        "delta": 0.004184322984871924,
+        "paired95_percentile": [
+          -0.0058446565090312375,
+          0.014406702731179465
+        ]
+      },
+      "detach_token": {
+        "delta": -0.009711673011624955,
+        "paired95_percentile": [
+          -0.020809773643479308,
+          0.0006460798046193461
+        ]
+      }
+    },
+    "gate": false,
+    "probe": {
+      "full_gradient_max_abs": 4.107825191113079e-15,
+      "forward_max_abs": 5.329070518200751e-15,
+      "prepare": {
+        "full": {
+          "norm": 5.584155108554079,
+          "difference_from_full": 0.0,
+          "cosine_to_full": 0.9999999999999998
+        },
+        "detach_feature": {
+          "norm": 5.049315664935114,
+          "difference_from_full": 0.7917319018959074,
+          "cosine_to_full": 0.9939568694551386
+        },
+        "detach_token": {
+          "norm": 5.774342343052522,
+          "difference_from_full": 0.5069396757109617,
+          "cosine_to_full": 0.9965759364125852
+        }
+      },
+      "detach_difference": 0.905116558835398,
+      "status": "partial numeric gradient probe; not sample-trace.v2",
+      "private_probe_sha256": "4a2e124a180e1d61b25dbc2b17519d6ae8bb4ca66b96ddf639bb433ee8a832e4"
+    },
+    "seconds": 276.2132866382599,
+    "source": "f4b730e71f310e9034470ac4bc1f81050ebb36f6",
+    "script_sha256": "348eec973ae811e2bb590be19a02e03cf0029eec30b1c8aadbe8a7759c636c12",
+    "design_sha256": "6993fe8d72349b272bc02f6d4466699f02848cc169fdbbd04101440fd81465e1",
+    "core_sha256": "059b7cab6533fa47a43fccdbb0564c183e3714036eaa22080ca656f0940ad6b8",
+    "physical_gpus": [
+      "allocated-GPU-0",
+      "allocated-GPU-1",
+      "allocated-GPU-2"
+    ],
+    "scope": "Exploratory short256update train-dependent diagnostic; no independent replication or L5; null does not close family"
+  },
+  "terminal": {
+    "returncode": 0,
+    "quiescent": true,
+    "state": "complete",
+    "finished": 1795262058.9968069,
+    "revision": "f4b730e71f310e9034470ac4bc1f81050ebb36f6",
+    "outputs": {
+      "RUN_COMPLETE": {
+        "bytes": 286,
+        "sha256": "2cd3bef039dd288c939003a0b72f1c4b4a7673a0c48b7650d177cea247173ca8"
+      },
+      "design.json": {
+        "bytes": 3561,
+        "sha256": "efc5c77e186442d5a5cded2ade235a25f587221cf1dbe6390bcb24174dc079d1"
+      },
+      "inputs.json": {
+        "bytes": 1778,
+        "sha256": "2479bcc0c4c1198826fe2f0f20705180973e5be2ef67072c67bcb0a4a31cac97"
+      },
+      "summary.json": {
+        "bytes": 4256,
+        "sha256": "859f849d0203a8296d39a6b3ea9155c8bf020e248d2f5586ab0c809c41838160"
+      }
+    }
+  },
+  "checkpoint": {
+    "sha256": "d2620148df8c1879b6bf0679ef4386ee265991c1b1d15825b1b9290ad7bc3832",
+    "start": 46816,
+    "end": 55008,
+    "initial_AdamW_step": 1463,
+    "final_AdamW_step": 1719,
+    "updates_each": 256,
+    "examples_each": 8192
+  },
+  "execution": {
+    "task": "514dd4b8a85043028195569bd8cfe5af",
+    "attempt": "b818a0afcc634da0a022004089fb5c5f",
+    "allocation_gpus": 3,
+    "actual_overlap": "Shared monitor recorded all3 distinct assigned GPU workers at training cursors50/65/60, each PID and progress fresh",
+    "measured_speedup": null
+  },
+  "trace_status": "First2 checkpoint-owned next training units: partial numeric gradient probe, not complete sample-trace.v2",
+  "limitations": [
+    "One checkpoint and seed13;8192train examples;short256updates;no test or independent replication",
+    "Static validation rotation held at initial training-input mean;results do not measure full aligned-trained method utility",
+    "Joint gate failed;short null is insufficient to close whole learning family",
+    "No new COS objects or local Windows model/data/checkpoint downloads"
+  ]
+}

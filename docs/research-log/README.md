@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-最新检查点：[查询/上下文匹配三卡诊断](20261121T-date-only-query-alignment.md)。完整validation强输入匹配门槛未过；不证明旋转等价或完全无效。保留原linear单seed线索，下一步明确计算图后做训练梯度分叉。三卡真实重叠完成、原限定L4不变、L5未达标。
+最新检查点：[同前向训练梯度三卡回放](20261121T-date-only-backward-credit.md)。三路各256更新、完整validation联合门槛未过；冻结词图条件数值较高但区间跨零，不能据此选新方法。保留原L4，L5未达标。下一步冻结cotangent配对局部方向诊断。
 
 ## 时间线
+
+- [2026-11-21：同前向训练梯度三卡回放](20261121T-date-only-backward-credit.md)（短256更新；三卡实际同时训练；不支持联合归因门槛）。
 
 - [2026-11-21：查询/上下文匹配三卡诊断](20261121T-date-only-query-alignment.md)（三卡真实重叠；全量validation门槛未过，partial trace）。
 
