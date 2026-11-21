@@ -137,7 +137,9 @@ class Recovery:
 
     def progress(self, stage):
         state = self.state
-        p.atomic_json(Path(os.environ.get('QATTN_PROGRESS_PATH',str(self.parent/'progress.json'))), dict(schema='research.runner-progress.v1',
+        progress_path=Path(os.environ.get('QATTN_PROGRESS_PATH',str(self.parent/'progress.json')))
+        attempt=Path(os.environ['RESEARCH_OUTPUT_DIR']).parent.name if os.environ.get('RESEARCH_OUTPUT_DIR') else 'standalone'
+        p.atomic_json(progress_path, dict(schema='research.progress.v1',attempt=attempt,observed_at=time.time(),
             stage=stage, completed=state['done'] if state else 0, total=self.total,
             percent=100*state['done']/self.total if state else 0,
             local_latest_updates=state['done'] if state else 0,
