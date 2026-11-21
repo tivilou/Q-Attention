@@ -1,0 +1,160 @@
+{
+  "schema": "q-rmea.token-transport.bounded-acceptance.v1",
+  "status": "TECHNICAL_CANARY_PASS",
+  "source_revision": "20425759c89a3b86ea23eb040d7b10b8b0f3362c",
+  "source_sha256": "87cf23331d95a1f3afacabcf2b1ea08b917e4aed9a57e0ad90a8236344ef6292",
+  "task": "f8f48bef75a04170b30745cfe54aa4d5",
+  "attempt": "54f71fe58f614c8798839d32a21359e5",
+  "node": "qattn-2080ti-39684-v1",
+  "returncode": 0,
+  "quiescent": true,
+  "prior_mechanism_units": {
+    "schema": "q-rmea.token-transport.bounded-acceptance.v1",
+    "status": "MECHANISM_UNITS_PASS",
+    "source_revision": "dfa96489308ce0b60bde9c456ef1efab03365f3e",
+    "source_sha256": "56e98ef566c434d8006c31966e87d96bb4bc0adc57f390102562d7aafffe02ad",
+    "task": "3f72639f69cb4f39aacbb6b697d1121a",
+    "attempt": "9840a85b12364e9e8868c74a68a04eb5",
+    "returncode": 0,
+    "quiescent": true,
+    "node": "qattn-2080ti-39684-v1",
+    "tests": 7,
+    "unit_test_seconds": 1.212,
+    "child_process_seconds": 3.876365991309285,
+    "checks": [
+      "canonical native parity and81028parameters",
+      "phase/permutation/padding invariance",
+      "two-token query absorption",
+      "asymmetric three-key smoothed coordinate ceiling",
+      "full-head finite gradients and finite difference",
+      "finite depth-two designated middle-coordinate realization",
+      "frozen budget/final-state contract"
+    ],
+    "previous_failed_task": {
+      "task": "9af2d6d81c384bd599d10813c079fb0f",
+      "attempt": "e207af9903e449ceb2f9103339bb8430",
+      "source_revision": "3ed02b325428084b5504a85747482b121afad04d",
+      "passed": 6,
+      "ran": 7,
+      "returncode": 1,
+      "quiescent": true,
+      "failure": "Test incorrectly required the sufficient row-norm certificate to be positive; no model/controls/task-gate changes"
+    },
+    "review": {
+      "original_both": "resp_0fc15780cf0635ed016b00873b140887d2abcae4470645b944",
+      "assertion_delta": "resp_03cc01bcd1211572016b008b506ca087d2887218dd6131a27b",
+      "bipartite_theory": "resp_0b66e9601a9c4a11016b008c977cd087d2967f638407fb36c1",
+      "model": "gpt-6.2-astra",
+      "reasoning_effort": "medium"
+    },
+    "limitations": [
+      "Unit evidence only; no independent held-out utility",
+      "Full parent canary, trace replay, injected export failure and immutable retry remain pending",
+      "Original pinned tiny fixture absent; COS metadata identifies archived cache but compatibility/recovery not yet established",
+      "New overlap-gap formula analytical only; frozen formal diagnostics/gate unchanged"
+    ],
+    "formal_training": false,
+    "release_ready": false,
+    "L5": "NOT_ACCEPTED"
+  },
+  "actual_parent_canary": {
+    "status": "TECHNICAL_CANARY_PASS",
+    "source_revision": "20425759c89a3b86ea23eb040d7b10b8b0f3362c",
+    "source_sha256": "87cf23331d95a1f3afacabcf2b1ea08b917e4aed9a57e0ad90a8236344ef6292",
+    "source_run_complete_sha256": "6c05bfe83c48a0023cf8af53f7da484b1e7caf928f6a6cb4198f7a934ee3cd22",
+    "tests": {
+      "exit_status": 0,
+      "seconds": 3.8758456371724606,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "1b54055a288ee16949a8aa6c0d592969bbd3f5cb912481aa354efbdc17ce0534"
+    },
+    "parent": {
+      "exit_status": 1,
+      "seconds": 15.760814469307661,
+      "stdout_sha256": "56bd8a7d488f6d561b6372f9803f1037612111ae8b00aafa86758617e7c4b116",
+      "stderr_sha256": "64768f7999a553582ac6a430b7d1c37efb631c89903a6ba6aecf9d432f504aeb"
+    },
+    "export_retry": {
+      "exit_status": 0,
+      "seconds": 0.16535834036767483,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "git_delivery": {
+      "exit_status": 0,
+      "seconds": 1.9713179487735033,
+      "stdout_sha256": "64e6c7a2c9049e1e62bde185ddbd05f2a870f83847928b37531d272e0556eecb",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "trace_validation": {
+      "schema": "q-rmea.token-transport.trace-readiness.v2",
+      "structural": "pass",
+      "semantic": "pass",
+      "replay": "pass",
+      "coordinate_reader": "pass",
+      "samples": 24,
+      "complete_numeric_arrays_checked": 702,
+      "complete_numeric_elements_checked": 4069968,
+      "source_linked_coordinates_checked": 2022,
+      "warnings": [],
+      "tokenization_validation": "archived_pinned_cache_provenance_only",
+      "distinct_source_units_retokenized": 0,
+      "boundary": "Saved final subword encoder output to original words and final heads; no live encoder/internal layer/trajectory claim"
+    },
+    "conditions": {
+      "native": {
+        "updates": 1,
+        "parameters": 81028
+      },
+      "cubic_coherent": {
+        "updates": 1,
+        "parameters": 81028
+      },
+      "cubic_initial_dephased": {
+        "updates": 1,
+        "parameters": 81028
+      },
+      "linear_coherent": {
+        "updates": 1,
+        "parameters": 81028
+      }
+    },
+    "report_sha256": {
+      "summary.json": "d6c9137c662de9d298577ca1102c6be48a4169d1dae00b64f818fd8290a648b4",
+      "data.sha256": "011f9a348b9dc44e45ae998a680e16d9e68a90e998f555ed22f1874b40327a32",
+      "trace_validation.json": "cc89a158b8a8f47daa0a141d83fc1b71f0502d7427c77f69df485ca833d63158",
+      "data_counts.txt": "68ab1d0f6551e318499f4a5d4fb0efc20784b7ffa7e216162798245b7cc6f4e2",
+      "receipt.json": "439a54a8c28c78fefec33db168d7b3838d10ff21710e967b6dfe79981a2af240",
+      "run_summary.json": "855d5b0ac2a1556fe58d35b690d8bd1e0fed4b1ba31d8d1c6149845a45d5efb2",
+      "manifest.json": "d4c63b023fc192e852792dadb5752bcf141f05ba890991f83aaf784248d50764"
+    },
+    "injected_failure_cleanup": true,
+    "immutable_export_retry": true,
+    "retry_count": 1,
+    "control_wrapper_imported_torch": false,
+    "actual_handoff_parent_imported_torch": false,
+    "formal_training": false,
+    "L5": "NOT_ACCEPTED"
+  },
+  "fixture": {
+    "kind": "explicitly_versioned_repack_of_trusted_COS_cache",
+    "archive_sha256": "176cfe2369436d340ca618e1a6e43f4743755a2cded1dcfe60221b2e85588d83",
+    "archive_bytes": 3055801,
+    "selected_bytes": 4118454,
+    "live_retokenization": false,
+    "old_archive_pin_preserved": true
+  },
+  "review": {
+    "model": "gpt-6.2-astra",
+    "reasoning_effort": "medium",
+    "fixture_delta": "resp_06dfb6c4c51a55c0016b0091d1ef5887d296eee355ecf7a5b0"
+  },
+  "limitations": [
+    "Technical cached-input canary only; collaborator must pass the live canary before full discovery.",
+    "No independent held-out utility, coherence-necessity, mediation, novelty or L5 claim.",
+    "No automatic COS backup or partial training resume."
+  ],
+  "formal_training": false,
+  "release_ready": true,
+  "L5": "NOT_ACCEPTED"
+}
