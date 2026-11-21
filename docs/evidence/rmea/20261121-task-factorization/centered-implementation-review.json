@@ -1,0 +1,19 @@
+{
+  "verdict": "PASS",
+  "review_scope": "both",
+  "must_fix": [],
+  "review_method": "Static review of the repaired centered implementation before tests or execution. The prior output-matching review and the accepted qa.execute lifecycle were reused.",
+  "mechanism": "The centered matrix uses exact differences of the stored binary64 inputs. A normalized primal witness certifies a match at an exact upper bound of 1e-7 or less. A dual witness certifies separation only when its exact lower bound is strictly above 1e-7. The gate pairs that separation with an inherited raw K8 match on the same case. The threshold measures anchored logit-difference error.",
+  "lifecycle": "Both prior blockers are resolved. Parent validation requires exactly the four artifacts sealed by the accepted producer and verifies every digest. The unit entry point checks the review, clean worktree, CPU mask, and output freshness before writing. Workers hash the same private input bytes they load, and the parent verifies shard coverage and witness hashes before sealing the result.",
+  "hashes": {
+    "experiments/q_rmea_centered_output.py": "bb4bd3113b341a30be1f73690363176c20c70b0f97844ea99e7ed0190ebb909e",
+    "experiments/q_rmea_output_matching.py": "056f368cc24b01dc6e0b15e2f30233bfabc5ca8fa63c3f7991008a50b7ff0625",
+    "experiments/q_rmea_query_alignment.py": "9e1fb11c6ffc13fb497a4c6b57feecb06838d9ac5c191fe94d22e5a1667bb33a"
+  },
+  "core_sha256": "059b7cab6533fa47a43fccdbb0564c183e3714036eaa22080ca656f0940ad6b8",
+  "design_sha256": "9abafc3838f4d1f06153b8efc92be70183d836ed7f73bcedd087e81c1e125201",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "selection_basis": "owner_preference",
+  "response_id": "resp_0c40345e14b0db23016b01bcb262dc87d1ac1fe34c83d7c311"
+}
