@@ -1,0 +1,131 @@
+{
+  "profiles": {
+    "canary": {
+      "schema": "q-rmea.entity-scattering.training.v1",
+      "profile": "canary",
+      "seed": 13,
+      "conditions": [
+        "complex",
+        "real_magnitude",
+        "constant_onsite"
+      ],
+      "counts": {
+        "train": 16,
+        "valid": 8,
+        "test": 8
+      },
+      "epochs": 3,
+      "batch_size": 32,
+      "optimizer": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.01,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "optimizer_eps": 1e-08,
+      "clip_norm": 1.0,
+      "dtype": "float64/complex128",
+      "parameters": 81028,
+      "tau": 0.25,
+      "born_eps": 1e-06,
+      "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+      "order": "NumPy default_rng(seed); one permutation per epoch; identical all four conditions",
+      "selection": "Fixed final epoch only; valid descriptive; no early stopping or epoch selection",
+      "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending, no label access",
+      "primary": "Complex test positive39Macro minus pinned linear reference, signed absolute/relative deltas; CE reported",
+      "trace_checkpoints": [],
+      "trace_samples_per_split": 0,
+      "diagnostic_samples": 32,
+      "diagnostic_tolerance": 1e-08,
+      "replication": "No automatic replication or rescue seeds/epochs/tau",
+      "claim_scope": "Single seed on repeatedly exposed official cohort; no inherited L4/L5, fresh-cohort or quantum-exclusive claim",
+      "micro_batch_size": 4,
+      "mechanism": {
+        "hopping": 1.0,
+        "energy": 0.0,
+        "damping": 0.1,
+        "terminal_lead": 1.0,
+        "epsilon": 1e-12
+      },
+      "control": "constant_onsite uses the unweighted mean of tanh utility over valid words at every word; all parameters remain trainable",
+      "reference": {
+        "manifest": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+        "summary": "053b8aef68dfec5ecb6c3d5706365f898814243137fa826af2bd3c3b4e77633a",
+        "initial": "037232c406d5cb1b23cea0ee289b7ab2d82366a2febfcedfdeb6fc69ec8da369",
+        "method": "linear_coherent",
+        "selection": "fixed epoch4",
+        "retrain": false,
+        "comparison": "Same seed13/initialization/cache/order/AdamW/batch32/4epochs/parametercount; new fits use microbatch4 accumulation, not bitwise-identical kernels"
+      },
+      "promotion": "Complex Macro exceeds linear, real_magnitude and constant_onsite, and complex CE<=linear; no automatic replication",
+      "analysis": "Freeze final-epoch replay interface and first2 immutable units/split; compact private replay anchors, NOT sample-trace.v2 or materialized Case Study"
+    },
+    "discovery": {
+      "schema": "q-rmea.entity-scattering.training.v1",
+      "profile": "discovery",
+      "seed": 13,
+      "conditions": [
+        "complex",
+        "real_magnitude",
+        "constant_onsite"
+      ],
+      "counts": {
+        "train": 58465,
+        "valid": 19584,
+        "test": 13418
+      },
+      "epochs": 4,
+      "batch_size": 32,
+      "optimizer": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0.01,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "optimizer_eps": 1e-08,
+      "clip_norm": 1.0,
+      "dtype": "float64/complex128",
+      "parameters": 81028,
+      "tau": 0.25,
+      "born_eps": 1e-06,
+      "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+      "order": "NumPy default_rng(seed); one permutation per epoch; identical all four conditions",
+      "selection": "Fixed final epoch only; valid descriptive; no early stopping or epoch selection",
+      "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending, no label access",
+      "primary": "Complex test positive39Macro minus pinned linear reference, signed absolute/relative deltas; CE reported",
+      "trace_checkpoints": [],
+      "trace_samples_per_split": 0,
+      "diagnostic_samples": 32,
+      "diagnostic_tolerance": 1e-08,
+      "replication": "No automatic replication or rescue seeds/epochs/tau",
+      "claim_scope": "Single seed on repeatedly exposed official cohort; no inherited L4/L5, fresh-cohort or quantum-exclusive claim",
+      "micro_batch_size": 4,
+      "mechanism": {
+        "hopping": 1.0,
+        "energy": 0.0,
+        "damping": 0.1,
+        "terminal_lead": 1.0,
+        "epsilon": 1e-12
+      },
+      "control": "constant_onsite uses the unweighted mean of tanh utility over valid words at every word; all parameters remain trainable",
+      "reference": {
+        "manifest": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+        "summary": "053b8aef68dfec5ecb6c3d5706365f898814243137fa826af2bd3c3b4e77633a",
+        "initial": "037232c406d5cb1b23cea0ee289b7ab2d82366a2febfcedfdeb6fc69ec8da369",
+        "method": "linear_coherent",
+        "selection": "fixed epoch4",
+        "retrain": false,
+        "comparison": "Same seed13/initialization/cache/order/AdamW/batch32/4epochs/parametercount; new fits use microbatch4 accumulation, not bitwise-identical kernels"
+      },
+      "promotion": "Complex Macro exceeds linear, real_magnitude and constant_onsite, and complex CE<=linear; no automatic replication",
+      "analysis": "Freeze final-epoch replay interface and first2 immutable units/split; compact private replay anchors, NOT sample-trace.v2 or materialized Case Study"
+    }
+  },
+  "launch": "One shared scheduler3GPUgroup, independent conditions via existing guarded runner; explicit runtime callbacks, no monkeypatch; seed13 only",
+  "output": "Three local full-state latest and validation-best states; final-epoch evaluation weights and compact replay anchors; exact seven compact public files",
+  "recovery": "Existing atomic full-state and quiescent10-percent global barriers; exact protocol source/config/cache/AdamW/RNG/cursor; minimal preparation refers to already verified original COS inputs instead of duplicating cache. No automatic retry/migration.",
+  "input": "Pinned original discovery manifest/summary/initialization and cache; existing version-pinned preparation dependency; newcanary uses protected16/8/8 fixture3epochs",
+  "review": "Exact both-scope review required before tests; real parent/child pause-resume, pinned live COS restore and immutable export failure/retry before formal admission"
+}

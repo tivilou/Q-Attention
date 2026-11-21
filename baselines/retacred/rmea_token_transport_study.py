@@ -63,7 +63,7 @@ def state_identity(state):
     return h.hexdigest()
 
 
-def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, modes=None, finalize=True):
+def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, modes=None, finalize=True, runtime=None):
     import numpy as np
     import torch
     from torch.nn import functional as F
@@ -72,6 +72,7 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
     from .rmea_token_transport import TrainableTokenTransportHead, route
     from .rmea_token_transport_diagnostics import inspect_unit, aggregate
     from .rmea_token_transport_trace import capture, close
+    p = runtime.protocol if runtime is not None else globals()['p']
     if len(labels) != 40 or labels[0] != 'no_relation':
         raise ValueError('Fixed train-derived label mapping differs')
     torch.set_num_threads(1); torch.use_deterministic_algorithms(True)
@@ -104,7 +105,7 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
         for start in range(0, cfg['counts'][split], 32):
             inputs, y = batch(split, list(range(start, min(start+32, cfg['counts'][split]))))
             if routing_kind is None:
-                logits = head(*inputs)[0]
+                logits = runtime.score_batch(head, inputs) if runtime is not None else head(*inputs)[0]
             else:
                 d = head(*inputs, details=True)
                 alpha = route(d['psi'], d['phi'], inputs[2], kind=routing_kind)['alpha']
@@ -137,7 +138,9 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
         if recovery.state is None:
             recovery.save(mode=0,epoch=0,next_start=0,history=[],loss_sum=0.,head=None,optimizer=None,
                 completed=completed,best=best,initial_sha=initial_sha,order_sha=order_sha)
-        if cfg['profile']=='discovery':recovery.prepare(labels,data_dir)
+        if cfg['profile']=='discovery':
+            if runtime is None: recovery.prepare(labels,data_dir)
+            else: runtime.prepare(recovery,labels,data_dir)
         recovery.drain_pending()
     results = {}; samples = []; diagnostics = None
     for mode_index, kind in enumerate(tuple(modes or p.MODES)):
@@ -147,7 +150,7 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
             if cursor['epoch'] or cursor['next_start'] or cursor['history'] or cursor['loss_sum'] or resumed['optimizer'] is not None:
                 raise ValueError('Fresh-head boundary state differs')
             restore_rng(resumed['rng'])
-        head = TrainableTokenTransportHead(kind).double(); head.load_state_dict(initial)
+        head = (runtime.make_head(kind) if runtime is not None else TrainableTokenTransportHead(kind)).double(); head.load_state_dict(initial)
         if state_identity(head.state_dict()) != initial_sha or sum(v.numel() for v in head.parameters()) != 81028:
             raise ValueError('Initialization or parameter matching differs')
         head.to('cuda'); optimizer = torch.optim.AdamW(head.parameters(), lr=cfg['lr'],
@@ -178,9 +181,14 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
             for start in range(start_at, len(order), 32):
                 if recovery is not None and hasattr(recovery,'before_update'): recovery.before_update()
                 ids = order[start:start+32]; inputs, y = batch('train', ids)
-                optimizer.zero_grad(set_to_none=True); loss = F.cross_entropy(head(*inputs)[0], y)
-                if not torch.isfinite(loss): raise ValueError('Nonfinite training loss')
-                loss.backward()
+                optimizer.zero_grad(set_to_none=True)
+                if runtime is None:
+                    loss = F.cross_entropy(head(*inputs)[0], y)
+                    if not torch.isfinite(loss): raise ValueError('Nonfinite training loss')
+                    loss.backward()
+                else:
+                    loss = runtime.backward(head,inputs,y)
+                    if not torch.isfinite(loss): raise ValueError('Nonfinite training loss')
                 if not all(v.grad is not None and torch.isfinite(v.grad).all() for v in head.parameters()):
                     raise ValueError('Missing or nonfinite gradient')
                 torch.nn.utils.clip_grad_norm_(head.parameters(), cfg['clip_norm'], error_if_nonfinite=True)
@@ -217,7 +225,8 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
             valid=evaluate(head, 'valid'), test=evaluate(head, 'test'))
         results[kind] = result
         for split in cfg['counts']:
-            samples += capture(output, head, kind, split, batch, metadata)
+            samples += (runtime.capture(output,head,kind,split,batch,metadata) if runtime is not None
+                        else capture(output,head,kind,split,batch,metadata))
         if kind == 'cubic_coherent':
             frozen = {k: evaluate(head, 'test', k) for k in p.MODES}
             if frozen[kind] != result['test']:
@@ -236,7 +245,8 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
     part = dict(results=results, samples=samples, diagnostics=diagnostics,
                 initial_sha=initial_sha, order_sha=order_sha)
     if finalize:
-        finish(cfg, output, [part], data_dir=data_dir, assets=assets)
+        if runtime is None: finish(cfg, output, [part], data_dir=data_dir, assets=assets)
+        else: runtime.finish(cfg,output,[part],data_dir=data_dir,assets=assets)
     return part
 
 

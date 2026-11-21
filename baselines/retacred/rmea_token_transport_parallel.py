@@ -70,6 +70,43 @@ def pin_receipts(pin, *, run_id, identity, total, sha256, latest_bytes, best_sha
     return rows
 
 
+def install_pinned_workers(output,cfg,protocol):
+    """Validate the selected aggregate and durably install all workers before admission."""
+    import torch
+    from .rmea_token_transport_recovery import Recovery,atomic_torch,cache_inventory,sync_directory
+    p=protocol;output=Path(output);work=output/'.workers';work.mkdir(exist_ok=True)
+    latest=output/'checkpoints/latest.pt';best=output/'checkpoints/best.pt';pin=p.read(output.parent/'restore-pin.json')
+    recovery=Recovery(output,cfg,protocol=p)
+    pin_receipts(pin,run_id=output.parent.name,identity=recovery.identity,total=recovery.total,
+        sha256=p.digest(latest),latest_bytes=latest.stat().st_size,best_sha256=p.digest(best),best_bytes=best.stat().st_size)
+    state=torch.load(latest,map_location='cpu',weights_only=True)
+    if (state.get('schema')!='q-rmea.parallel-resume.v1' or state['identity']!=recovery.identity
+            or state['cache']!=cache_inventory(output/'cache') or state['total']!=recovery.total
+            or state['done']!=pin['done'] or set(state['workers'])!=set(p.MODES)):
+        raise ValueError('Pinned aggregate scope/cursor differs')
+    done=0
+    installed=work/'restore-pin.json'
+    if installed.exists() and p.read(installed)!=pin:raise ValueError('Different interrupted worker installation')
+    if not installed.exists():
+        if any(work.glob('*/latest.pt')):raise ValueError('Fresh pinned worker destination required')
+        p.atomic_json(installed,pin);sync_directory(work)
+    for kind,row in state['workers'].items():
+        target=work/kind/'latest.pt'
+        if row is None:
+            if target.exists():raise ValueError('Worker outside selected pin')
+            continue
+        validator=object.__new__(Recovery);validator.cfg=cfg;validator.modes=(kind,);validator.total=cfg['epochs']*math.ceil(cfg['counts']['train']/32)
+        if row['identity']!=dict(recovery.identity,condition=kind) or row['cache']!=state['cache']:
+            raise ValueError('Pinned condition identity differs')
+        validator._validate_cursor(row);done+=row['done']
+        if target.exists() and not equal_state(torch.load(target,map_location='cpu',weights_only=True),row):
+            raise ValueError('Existing worker differs from selected pin')
+        if not target.exists():atomic_torch(target,row)
+        sync_directory(target.parent)
+    if done!=pin['done']:raise ValueError('Pinned worker cursor sum differs')
+    sync_directory(work);sync_directory(output)
+
+
 def devices(requested, visible, free):
     """Return only eligible devices inside the caller's CUDA allocation."""
     if not visible or len(set(visible)) != len(visible):
@@ -97,6 +134,55 @@ def launch_spec(output, kind, device, *, resume):
                 revision=p.git('rev-parse', 'HEAD'))
 
 
+def condition_recovery(output, cfg, condition, *, protocol=None, resume=False):
+    import torch
+    from .rmea_token_transport_recovery import Recovery, atomic_torch,sync_directory
+    p = protocol if protocol is not None else globals()['p']
+    folder = output/'.workers'/condition; folder.mkdir(parents=True,exist_ok=True)
+    if not resume and (folder/'latest.pt').exists():raise ValueError('Fresh worker must not overwrite committed state')
+    class ConditionRecovery(Recovery):
+        def __init__(self):
+            super().__init__(output, cfg, modes=(condition,), protocol=p)
+            self.latest, self.best = folder/'latest.pt', folder/'best.pt'
+            self.stop = False
+            self.start_marker=output/'training-started'/(condition+'.json')
+            self.started=self.start_marker.exists()
+            if resume and self.latest.exists():
+                self.state = torch.load(self.latest, map_location='cpu', weights_only=True)
+                if self.state['identity'] != self.identity or self.state['cache'] != self.cache:
+                    raise ValueError('Condition resume identity differs')
+                self._validate_cursor(self.state)
+                atomic_torch(self.best, self.state['best'])
+        def save(self, **kwargs):
+            result = super().save(**kwargs)
+            import fcntl
+            with (output/'.workers/commit.lock').open('a+b') as lock:
+                fcntl.flock(lock,fcntl.LOCK_EX)
+                control=p.read(output/'.workers/control.json')
+                control['committed'][condition]=result['done']
+                if sum(control['committed'].values())>=control['threshold']:
+                    (output/'.workers/pause').touch()
+                p.atomic_json(output/'.workers/control.json',control)
+            if self.stop or (output/'.workers/pause').exists():
+                p.atomic_json(folder/'RUN_PAUSED', dict(done=result['done']))
+                raise SystemExit(75)
+            return result
+        def before_update(self):
+            if self.stop or (output/'.workers/pause').exists():
+                p.atomic_json(folder/'RUN_PAUSED',dict(done=self.state['done']))
+                raise SystemExit(75)
+            if protocol is not None and not self.started:
+                self.start_marker.parent.mkdir(exist_ok=True)
+                p.atomic_json(self.start_marker,dict(run_id=output.parent.name,identity=self.identity))
+                sync_directory(self.start_marker.parent);sync_directory(output)
+                self.started=True
+        def progress(self, stage):
+            p.atomic_json(folder/'progress.json',dict(condition=condition,stage=stage,
+                completed=self.state['done'] if self.state else 0,total=self.total,
+                observed_at=time.time(),physical_gpu=os.environ['CUDA_VISIBLE_DEVICES']))
+    return ConditionRecovery()
+
+
 def worker(args):
     # Set before importing Torch; a killed parent cannot strand a GPU worker.
     import ctypes
@@ -110,44 +196,11 @@ def worker(args):
         raise ValueError('Worker needs exactly one allocated GPU')
     output = args.output.resolve(); cfg = p.read(output/'manifest.json')['config']
     folder = output/'.workers'/args.condition; folder.mkdir(parents=True, exist_ok=True)
-    class ConditionRecovery(Recovery):
-        def __init__(self):
-            super().__init__(output, cfg, modes=(args.condition,))
-            self.latest, self.best = folder/'latest.pt', folder/'best.pt'
-            self.stop = False
-            if args.resume and self.latest.exists():
-                self.state = torch.load(self.latest, map_location='cpu', weights_only=True)
-                if self.state['identity'] != self.identity or self.state['cache'] != self.cache:
-                    raise ValueError('Condition resume identity differs')
-                self._validate_cursor(self.state)
-                atomic_torch(self.best, self.state['best'])
-        def save(self, **kwargs):
-            result = super().save(**kwargs)
-            import fcntl
-            with (output/'.workers/commit.lock').open('a+b') as lock:
-                fcntl.flock(lock,fcntl.LOCK_EX)
-                control=p.read(output/'.workers/control.json')
-                control['committed'][args.condition]=result['done']
-                if sum(control['committed'].values())>=control['threshold']:
-                    (output/'.workers/pause').touch()
-                p.atomic_json(output/'.workers/control.json',control)
-            if self.stop or (output/'.workers/pause').exists():
-                p.atomic_json(folder/'RUN_PAUSED', dict(done=result['done']))
-                raise SystemExit(75)
-            return result
-        def before_update(self):
-            if self.stop or (output/'.workers/pause').exists():
-                p.atomic_json(folder/'RUN_PAUSED',dict(done=self.state['done']))
-                raise SystemExit(75)
-        def progress(self, stage):
-            p.atomic_json(folder/'progress.json',dict(condition=args.condition,stage=stage,
-                completed=self.state['done'] if self.state else 0,total=self.total,
-                observed_at=time.time(),physical_gpu=os.environ['CUDA_VISIBLE_DEVICES']))
-    recovery = ConditionRecovery()
-    def pause(*_): recovery.stop = True
-    for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP): signal.signal(sig, pause)
     from .rmea_token_transport_recovery import run_lock
     with run_lock(folder/'.lock'):
+        recovery = condition_recovery(output,cfg,args.condition,resume=args.resume)
+        def pause(*_): recovery.stop = True
+        for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP): signal.signal(sig, pause)
         labels = p.read(output.parent/'recovery-inputs/labels.json')
         result = train(cfg, output, labels, recovery=recovery, modes=(args.condition,), finalize=False)
         p.atomic_json(folder/'result.json', result)
@@ -159,11 +212,15 @@ def worker(args):
             geometry_sha256=p.digest(output/'private-geometry.json') if args.condition=='cubic_coherent' else None))
 
 
-def parallel_train(cfg, output, labels, allocated, *, data_dir=None, assets=None, cos=False, resume=False, pause_after=0, restore_pin=False):
+def parallel_train(cfg, output, labels, allocated, *, data_dir=None, assets=None, cos=False, resume=False, pause_after=0, restore_pin=False, runtime=None):
     import torch
     from .rmea_token_transport_recovery import Recovery, atomic_torch
     from .rmea_token_transport_study import finish
+    p = runtime.protocol if runtime is not None else globals()['p']
+    finish = runtime.finish if runtime is not None else finish
     output = Path(output); work = output/'.workers'; work.mkdir(exist_ok=True)
+    from .rmea_token_transport_recovery import sync_directory
+    sync_directory(work);sync_directory(output)
     per_head = cfg['epochs']*math.ceil(cfg['counts']['train']/32)
     if not allocated or len(set(allocated)) != len(allocated): raise ValueError('Invalid resolved allocation')
     pause_file = work/'pause'; pause_file.unlink(missing_ok=True)
@@ -181,7 +238,12 @@ def parallel_train(cfg, output, labels, allocated, *, data_dir=None, assets=None
                 validator = object.__new__(Recovery);validator.cfg=cfg;validator.modes=(kind,);validator.total=per_head
                 validator._validate_cursor(row);done += row['done']
             if done != state['done']: raise ValueError('Parallel cursor sum differs')
-    recovery = BatchRecovery(output, cfg, enabled=cos)
+    recovery = BatchRecovery(output, cfg, enabled=cos, protocol=p)
+    # Inspect original worker presence before any aggregate-to-worker repair.
+    if resume and runtime is not None and not restore_pin:
+        for kind in p.MODES:
+            if (output/'training-started'/(kind+'.json')).exists() and not (work/kind/'latest.pt').is_file():
+                raise ValueError('Started original worker checkpoint missing; explicit verified restore required')
     if restore_pin and (not resume or not recovery.latest.is_file()):
         raise ValueError('Verified aggregate pin required')
     if restore_pin:
@@ -257,8 +319,25 @@ def parallel_train(cfg, output, labels, allocated, *, data_dir=None, assets=None
                 raise ValueError('Missing terminal state behind completion receipt')
     if resume and recovery.cloud_cursor()>sum(torch.load(work/k/'latest.pt',map_location='cpu',weights_only=True)['done'] if (work/k/'latest.pt').exists() else 0 for k in p.MODES):
         raise ValueError('Available local states precede verified COS cursor')
+    if resume and runtime is not None:
+        available=sum(torch.load(work/k/'latest.pt',map_location='cpu',weights_only=True)['done'] if (work/k/'latest.pt').exists() else 0 for k in p.MODES)
+        for kind in p.MODES:
+            marker=output/'training-started'/(kind+'.json')
+            if marker.exists():
+                if p.read(marker)!=dict(run_id=output.parent.name,identity=dict(recovery.identity,condition=kind)):
+                    raise ValueError('Training-start evidence identity differs')
+                if not (work/kind/'latest.pt').is_file():raise ValueError('Started worker state missing; verified restore required')
+        observed=Path(os.environ.get('QATTN_PROGRESS_PATH',str(output.parent/'progress.json')))
+        if observed.is_file():
+            row=p.read(observed)
+            if row.get('run_id')==output.parent.name and row.get('identity')==recovery.identity and row.get('completed',0)>available:
+                raise ValueError('Run-bound scheduler progress exceeds available states; verified restore required')
+    # Reconcile sealed payloads while the original aggregate is still available.
+    recovery.drain_pending()
     snapshot()
-    if cfg['profile']=='discovery': recovery.prepare(labels,data_dir)
+    if cfg['profile']=='discovery' or runtime is not None and cos:
+        if runtime is None: recovery.prepare(labels,data_dir)
+        else: runtime.prepare(recovery,labels,data_dir)
     recovery.drain_pending()
     recovery.verify_cloud_history()
     if recovery.cloud_cursor()>recovery.state['done']:raise ValueError('Available local states precede verified COS cursor')
@@ -289,19 +368,22 @@ def parallel_train(cfg, output, labels, allocated, *, data_dir=None, assets=None
         if (metric['history']!=state['completed'][kind]['history'] or metric['updates']!=state['completed'][kind]['steps']
                 or row['initial_sha']!=state['initial_sha'] or row['order_sha']!=state['order_sha']
                 or metric['initial_state_sha256']!=state['initial_sha']):raise ValueError('Result history/order differs')
-        if kind=='cubic_coherent' and rec.get('geometry_sha256')!=p.digest(output/'private-geometry.json'):
-            raise ValueError('Cubic geometry changed')
-        if {s['sample_id'] for s in row['samples']}!={f'{kind}:final:{split}:{i}' for split in cfg['counts'] for i in range(2)}:
-            raise ValueError('Condition sample ownership differs')
-        for sample in row['samples']:
-            provenance=sample['roles']['provenance']
-            if provenance['checkpoint_file']!='checkpoints/'+kind+'-final.pt' or provenance['checkpoint_sha256']!=p.digest(cp):
-                raise ValueError('Sample checkpoint ownership differs')
-            for rep in sample['representations']:
-                for ref in rep['artifact_refs']:
-                    path=output/ref['path']
-                    if not path.resolve().is_relative_to(output.resolve()) or p.digest(path)!=ref['sha256']:
-                        raise ValueError('Completed trace changed')
+        if runtime is not None:
+            runtime.validate_completed(output,kind,row,rec)
+        else:
+            if kind=='cubic_coherent' and rec.get('geometry_sha256')!=p.digest(output/'private-geometry.json'):
+                raise ValueError('Cubic geometry changed')
+            if {s['sample_id'] for s in row['samples']}!={f'{kind}:final:{split}:{i}' for split in cfg['counts'] for i in range(2)}:
+                raise ValueError('Condition sample ownership differs')
+            for sample in row['samples']:
+                provenance=sample['roles']['provenance']
+                if provenance['checkpoint_file']!='checkpoints/'+kind+'-final.pt' or provenance['checkpoint_sha256']!=p.digest(cp):
+                    raise ValueError('Sample checkpoint ownership differs')
+                for rep in sample['representations']:
+                    for ref in rep['artifact_refs']:
+                        path=output/ref['path']
+                        if not path.resolve().is_relative_to(output.resolve()) or p.digest(path)!=ref['sha256']:
+                            raise ValueError('Completed trace changed')
         return row
     for kind in p.MODES:
         result=valid_complete(kind) if resume else None
@@ -316,7 +398,7 @@ def parallel_train(cfg, output, labels, allocated, *, data_dir=None, assets=None
     last_progress=0.;barrier=False;last_done=recovery.state['done'];jobs={}
     def control():
         committed={k:r['done'] if r else 0 for k,r in recovery.state['workers'].items()}
-        target=min(threshold,pause_after or recovery.total+1) if cos or pause_after else recovery.total+1
+        target=min(threshold if cos else recovery.total+1,pause_after or recovery.total+1)
         if sum(committed.values())==recovery.total and not pause_after:target=recovery.total+1
         p.atomic_json(work/'control.json',dict(threshold=target,committed=committed))
         if sum(p.read(work/'control.json')['committed'].values())>=p.read(work/'control.json')['threshold']:pause_file.touch()
@@ -332,7 +414,7 @@ def parallel_train(cfg, output, labels, allocated, *, data_dir=None, assets=None
         last_done=sum(committed.values())
         attempt=Path(os.environ['RESEARCH_OUTPUT_DIR']).parent.name if os.environ.get('RESEARCH_OUTPUT_DIR') else 'standalone'
         p.atomic_json(Path(os.environ.get('QATTN_PROGRESS_PATH',str(output.parent/'progress.json'))),dict(
-            schema='research.progress.v1',attempt=attempt,stage=stage,observed_at=time.time(),
+            schema='research.progress.v1',attempt=attempt,stage=stage,observed_at=time.time(),run_id=output.parent.name,identity=recovery.identity,
             completed=last_done,total=recovery.total,jobs=jobs,cloud_verified_updates=recovery.cloud_cursor()))
     try:
         while pending or active:
@@ -361,7 +443,9 @@ def parallel_train(cfg, output, labels, allocated, *, data_dir=None, assets=None
                 for device in allocated:
                     if device in busy or not pending:continue
                     kind=pending.pop(0);folder=work/kind;folder.mkdir(exist_ok=True)
-                    spec=launch_spec(output,kind,device,resume=(folder/'latest.pt').exists())
+                    sync_directory(folder);sync_directory(work)
+                    launcher = runtime.launch_spec if runtime is not None else launch_spec
+                    spec=launcher(output,kind,device,resume=(folder/'latest.pt').exists())
                     env=dict(os.environ,CUDA_VISIBLE_DEVICES=device,OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',
                              CUBLAS_WORKSPACE_CONFIG=':4096:8',PYTHONDONTWRITEBYTECODE='1')
                     log=(folder/'worker.log').open('ab')

@@ -1,0 +1,25 @@
+{
+  "verdict": "PASS",
+  "review_scope": "both",
+  "must_fix": [],
+  "mechanism": "The parent mechanism review carries forward. The two corrections leave the 81,028-parameter head, seed-13 initialization and sample order, and one AdamW update per logical batch of 32 intact. The real-magnitude control retains phase-sensitive upstream routing, and the constant-onsite control uses the differentiable mean over valid words. Discovery still compares fixed final-epoch results with the pinned linear reference on the previously exposed cohort.",
+  "lifecycle": "Ordinary resume now rejects a missing started-worker checkpoint before aggregate repair can fill it. The explicit pinned restore caller verifies and installs the selected worker states before entering the runner. Admission retry reuses the worker's installed dependency bytes when present. The installer verifies and durably installs those bytes before publishing the admission that binds their digest. This static verdict covers the supplied changes and immediate callers, with the parent review carried forward using the supplied identities for unchanged artifacts. The existing formal admission gates still apply.",
+  "source_sha256": "bf3e086677aa71b28a9fb60f7ef0344f0f0ffff715c5fd9a6b4b442b7b7ebcc7",
+  "contract_sha256": "dc221216c1a6614cfdc9348b135e4946da4d577c91f50808d6d18280aac2f443",
+  "owner_hashes": {
+    "register.py": "aa20dc66d839acbcb07fa4204676fe3b312375f90ee71d4971ae43e2ae84ead3",
+    "protect.py": "d0131e65bc37b40fe3e68087e911f2f3f9c95419e492d0593d9786f1ae000b28",
+    "admit.py": "63b2b28ea06647b2e3c67d72cc5cecd2169f452588823d99ca50bdda515ecba4",
+    "deploy.py": "9eeb9191c6270225b68b641ae10fc0b10291cd554fcbdc0e65f0547c17ba2a94",
+    "owner_lifecycle.py": "56d54c1739a63bcdd6be328ff9f511e0a24783f0e6a309166436294241668e2a",
+    "publisher-transport": "e2b611543836d288daed2bebb95a0c8e68c6b795df7173ef1e3359740aa9e971",
+    "helper-ops": "77578e8788749a98eeea5237d4fb8ab45efa240b8ab1349dc497865573c98df9",
+    "helper-relay": "1b8abffc52206ecc851852f8c2331e5c6948543ed693975dbbf963ee88cee823",
+    "helper-owner_ops": "4ebda07f874b8c3b82696faebd3911f2ac32bc6d78bb7135a64ba6160b541d58"
+  },
+  "owner_lifecycle_sha256": "fb8bad78eafb8ef442a9fa0d92d748d95dcc109b64d6f322707978a72b2ac03e",
+  "model": "gpt-6.2-sol",
+  "effort": "high",
+  "selection_basis": "owner_preference",
+  "response_id": "resp_013860b5330fc44b016b02075374a487d2a881d1a64f87b1ff"
+}

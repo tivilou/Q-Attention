@@ -44,6 +44,12 @@ def atomic_torch(path, value):
         temporary.unlink(missing_ok=True)
 
 
+def sync_directory(directory):
+    fd=os.open(directory,os.O_RDONLY|os.O_DIRECTORY)
+    try:os.fsync(fd)
+    finally:os.close(fd)
+
+
 def cpu_tree(value):
     import torch
     if torch.is_tensor(value): return value.detach().cpu().clone()
@@ -95,7 +101,8 @@ class _Parts:
 
 
 class Recovery:
-    def __init__(self, output, cfg, *, enabled=False, resume=False, pause_after=0, modes=None):
+    def __init__(self, output, cfg, *, enabled=False, resume=False, pause_after=0, modes=None, protocol=None):
+        p = protocol if protocol is not None else globals()['p']
         self.output = Path(output); self.cfg = cfg; self.enabled = enabled
         self.modes = tuple(p.MODES if modes is None else modes)
         if self.modes != p.MODES and (len(self.modes) != 1 or self.modes[0] not in p.MODES):
@@ -243,6 +250,7 @@ class Recovery:
         progress_path=Path(os.environ.get('QATTN_PROGRESS_PATH',str(self.parent/'progress.json')))
         attempt=Path(os.environ['RESEARCH_OUTPUT_DIR']).parent.name if os.environ.get('RESEARCH_OUTPUT_DIR') else 'standalone'
         p.atomic_json(progress_path, dict(schema='research.progress.v1',attempt=attempt,observed_at=time.time(),
+            run_id=self.parent.name,identity=self.identity,
             stage=stage, completed=state['done'] if state else 0, total=self.total,
             percent=100*state['done']/self.total if state else 0,
             local_latest_updates=state['done'] if state else 0,
@@ -277,6 +285,7 @@ class Recovery:
 
     def _publish(self, name, files, done):
         directory = self.channel/name; directory.mkdir(parents=True, exist_ok=True)
+        sync_directory(self.channel);sync_directory(self.parent)
         request_path=directory/'request.json'
         ack = directory/'ack.json'
         if request_path.exists() and ack.exists():
@@ -292,7 +301,9 @@ class Recovery:
                 files={str(f.relative_to(self.parent).as_posix()):dict(bytes=f.stat().st_size,sha256=p.digest(f)) for f in files})
             if request_path.exists():
                 if p.read(request_path)!=request:raise ValueError('Sealed COS request changed')
-            else:p.atomic_json(request_path,request)
+            else:
+                p.atomic_json(request_path,request)
+                sync_directory(directory);sync_directory(directory.parent)
         # The owner may retry these same immutable files; training never retries.
         deadline = time.monotonic()+1800
         while not ack.exists():
@@ -308,9 +319,12 @@ class Recovery:
             if (not row.get('version_id') or row.get('sha256') != request['files'][key]['sha256']
                     or row.get('bytes') != request['files'][key]['bytes']):
                 raise ValueError('COS pinned object identity differs')
+        with ack.open('rb') as handle:os.fsync(handle.fileno())
+        sync_directory(directory);sync_directory(self.channel);sync_directory(self.parent)
         if done < self.cloud_cursor(): return
         p.atomic_json(self.channel/'cloud-latest.json', dict(generation=name, done=done,
             index_commit=receipt['index_commit'], request_sha256=receipt['request_sha256']))
+        sync_directory(self.channel);sync_directory(self.parent)
         self.progress('training')
 
     def drain_pending(self):
@@ -321,6 +335,17 @@ class Recovery:
             request=directory/'request.json'
             if request.exists():
                 sealed=p.read(request)
+                if not (directory/'ack.json').exists():
+                    for rel,item in sealed['files'].items():
+                        target=self.parent/rel
+                        if not target.exists():
+                            candidate=self.output/'checkpoints'/target.name
+                            if (not candidate.is_file() or candidate.stat().st_size!=item['bytes']
+                                    or p.digest(candidate)!=item['sha256']):
+                                raise ValueError('Missing sealed payload has no identical durable source')
+                            os.link(candidate,target);sync_directory(directory)
+                        if target.stat().st_size!=item['bytes'] or p.digest(target)!=item['sha256']:
+                            raise ValueError('Unacknowledged sealed payload differs')
                 self._publish(directory.name,[self.parent/rel for rel in sealed['files']],sealed['done'])
             elif (directory/'latest.pt').exists():
                 # Crash after hardlinking but before the request commit.
@@ -380,6 +405,7 @@ class Recovery:
             for src in (self.latest, self.best):
                 dst = directory/src.name
                 if not dst.exists(): os.link(src, dst)
+            sync_directory(directory);sync_directory(directory.parent)
             self._publish(name, [directory/'latest.pt', directory/'best.pt'], done)
 
 

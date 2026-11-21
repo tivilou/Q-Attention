@@ -14,7 +14,10 @@ os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG', ':4096:8')
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from baselines.retacred import rmea_token_transport_protocol as p
-from experiments.q_rmea_mass_direction import macro
+def macro(*args,**kwargs):
+    # Unrelated analysis code need not load when only fresh_output is reused.
+    from experiments.q_rmea_mass_direction import macro as implementation
+    return implementation(*args,**kwargs)
 
 ARMS = ('aligned', 'deranged', 'training_mean')
 N = 19584
