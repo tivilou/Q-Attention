@@ -104,7 +104,7 @@ class Recovery:
         self.latest = self.output / 'checkpoints/latest.pt'
         self.best = self.output / 'checkpoints/best.pt'
         self.state = None
-        if resume:
+        if resume and self.latest.exists():
             import torch
             self.state = torch.load(self.latest, map_location='cpu', weights_only=True)
             if self.state.get('schema') != 'q-rmea.resume.v1' or self.state['identity'] != self.identity:
@@ -113,7 +113,22 @@ class Recovery:
                 raise ValueError('Resume cache differs')
             self._validate_cursor(self.state)
             atomic_torch(self.best, self.state['best'])
-        self.cache = cache_inventory(self.output/'cache') if self.state is None else self.state['cache']
+        manifest_path=self.output/'manifest.json'
+        manifest=p.read(manifest_path) if manifest_path.exists() else {}
+        if self.state is None:
+            self.cache=cache_inventory(self.output/'cache') if resume or not manifest else manifest['cache']
+            if resume:
+                if (manifest.get('cache')!=self.cache or manifest.get('source_sha256')!=self.identity['source']
+                        or manifest.get('config')!=self.cfg):raise ValueError('Zero-update preparation identity differs')
+                import torch
+                progress=Path(os.environ.get('QATTN_PROGRESS_PATH',str(self.parent/'progress.json')))
+                observed=p.read(progress) if progress.exists() else {}
+                if (list((self.output/'checkpoints').glob('*-final.pt')) or (self.output/'summary.json').exists()
+                        or list(self.channel.glob('*-progress/request.json'))
+                        or (self.best.exists() and torch.load(self.best,map_location='cpu',weights_only=True))
+                        or (observed.get('total')==self.total and observed.get('completed',0)>0)):
+                    raise ValueError('Missing latest contradicts committed progress; restore a verified generation')
+        else:self.cache=self.state['cache']
 
     def _validate_cursor(self, state):
         cursor = state['cursor']; per_epoch = math.ceil(self.cfg['counts']['train']/32)

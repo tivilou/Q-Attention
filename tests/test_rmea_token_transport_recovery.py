@@ -82,6 +82,20 @@ def local_fixture(root,cloud=False):
         cos_pinned_restore_optimizer_bitwise=cloud,fixture_total_updates=recovery.total)
 
 
+def preparation_fixture(root):
+    from baselines.retacred.rmea_token_transport_recovery import cache_inventory
+    output=root/'discovery';(output/'cache').mkdir(parents=True)
+    (output/'cache/fixture').write_bytes(b'closed preparation')
+    cfg=p.config('canary')
+    p.atomic_json(output/'manifest.json',dict(cache=cache_inventory(output/'cache'),config=cfg,source_sha256=p.identity(p.sources())))
+    recovered=Recovery(output,cfg,resume=True);assert recovered.state is None
+    atomic_torch(recovered.best,{'contradictory':'completed validation'})
+    try:Recovery(output,cfg,resume=True)
+    except ValueError:pass
+    else:raise AssertionError('Missing checkpoint with contradictory progress accepted')
+    return dict(zero_update_preparation_retry=True,missing_latest_with_progress_rejected=True)
+
+
 def lock_fixture(root):
     import signal,time
     from baselines.retacred.rmea_token_transport_recovery import run_lock
@@ -114,7 +128,7 @@ def cadence_fixture(root):
     assert [row[1] for row in calls]==[2925,5850,8775,11700,14624,17549,20474,23399,26324,29248],calls
     assert len(calls)==10
     # Orphaned sealed generation must be drained at its saved cursor before any update.
-    orphan=root/'orphan';(orphan/'cache').mkdir(parents=True)
+    orphan=root/'orphan-run'/'discovery';(orphan/'cache').mkdir(parents=True)
     a=Recovery(orphan,cfg,enabled=True);a.state={'done':2925}
     g=a.channel/'010-progress';g.mkdir(parents=True)
     atomic_torch(g/'latest.pt',dict(schema='fixture',done=2925,best={},cursor=dict(mode=0,epoch=1,next_start=35104,history=[{}]),completed={},total=29248))
@@ -188,7 +202,7 @@ def main():
     args=parser.parse_args()
     if args.restore_fixture:restore_fixture(args.restore_fixture,args.output);return
     args.output.mkdir(parents=True,exist_ok=True)
-    result={'local':local_fixture(args.output/('recovery-'+args.output.parent.name),args.cloud),'cadence':cadence_fixture(args.output/'cadence'),'lock':lock_fixture(args.output/'lock')}
+    result={'local':local_fixture(args.output/('recovery-'+args.output.parent.name),args.cloud),'cadence':cadence_fixture(args.output/'cadence'),'lock':lock_fixture(args.output/'lock'),'preparation':preparation_fixture(args.output/'preparation')}
     if args.data_dir:result['parent']=parent_fixture(args.output/'parent',args)
     p.atomic_json(args.output/'recovery-validation.json',result)
     (args.output/'RUN_COMPLETE').write_text('focused recovery checks passed\n')

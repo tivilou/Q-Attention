@@ -133,6 +133,12 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None):
     completed = dict(resumed['completed']) if resumed else {}
     best = dict(resumed['best']) if resumed else {}
     if recovery is not None: atomic_torch(recovery.best, best)
+    if recovery is not None:
+        if recovery.state is None:
+            recovery.save(mode=0,epoch=0,next_start=0,history=[],loss_sum=0.,head=None,optimizer=None,
+                completed=completed,best=best,initial_sha=initial_sha,order_sha=order_sha)
+        if cfg['profile']=='discovery':recovery.prepare(labels,data_dir)
+        recovery.drain_pending()
     results = {}; samples = []; diagnostics = None
     for mode_index, kind in enumerate(p.MODES):
         boundary=(resumed is not None and mode_index==resumed['cursor']['mode'] and resumed['active'] is None)
@@ -270,7 +276,9 @@ def run(args):
     with run_lock(output / '.run.lock'):
         if args.resume:
             if args.fixture_cache: raise ValueError('Fixture resume uses its restored live cache, not a new extraction')
-            labels = p.read(output.parent/'recovery-inputs/labels.json')
+            labels = sorted(p.read(p.ROOT/'docs/contracts/q_rmea_entity_labels.json'))
+            recorded=output.parent/'recovery-inputs/labels.json'
+            if recorded.exists() and p.read(recorded)!=labels:raise ValueError('Resume label identity differs')
         elif args.fixture_cache:
             fixture_sha = load_fixture(args.fixture_cache, output)
             labels = sorted(p.read(p.ROOT/'docs/contracts/q_rmea_entity_labels.json'))
@@ -292,14 +300,15 @@ def run(args):
             if any(previous['environment'][k]!=environment[k] for k in ('python','torch','numpy','transformers')):
                 raise ValueError('Resume software differs')
             p.atomic_json(output/'resume-environment.json',environment)
-        else: p.atomic_json(output/'manifest.json',manifest)
+        else:
+            from .rmea_token_transport_recovery import cache_inventory
+            manifest['cache']=cache_inventory(output/'cache')
+            p.atomic_json(output/'manifest.json',manifest)
         (output.parent/'recovery-inputs').mkdir(exist_ok=True)
         p.atomic_json(output.parent/'recovery-inputs/labels.json',labels)
         from .rmea_token_transport_recovery import Recovery
         recovery=Recovery(output,cfg,enabled=args.cos and args.profile=='discovery',resume=args.resume,
             pause_after=args.pause_after)
-        if args.profile=='discovery': recovery.prepare(labels,args.data_dir)
-        recovery.drain_pending()
         train(cfg, output, labels, data_dir=None if args.fixture_cache else args.data_dir,
               assets=None if args.fixture_cache else args.assets,recovery=recovery)
         (output/'RUN_PAUSED').unlink(missing_ok=True)
