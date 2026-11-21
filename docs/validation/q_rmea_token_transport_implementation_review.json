@@ -12,7 +12,7 @@
     "PASS permits the bounded canary only. Runtime readiness remains pending: no tests or numerical experiments were executed by this reviewer. Full discovery must wait for actual fresh-process RNG/AdamW/cursor parity, active and next-head parent resume, SIGKILL lock release, zero-update admission/rejection, immutable pending/orphan COS retry, pinned readback/index acknowledgement, same-source export-only retry, and fenced seven-file owner return acceptance. The unchanged final-epoch selection and fixed scientific budget are not relaxed."
   ],
   "confidence": "high",
-  "runtime_readiness": "pending fresh-process COS and real parent canary; source approval only",
+  "runtime_readiness": "PASS: exact reviewed recovery canary complete, exit0, quiescent on owner3060",
   "transport_attempts": [
     {
       "model": "claude-opus-5-5",
@@ -35,5 +35,49 @@
     "change": "CUDA deterministic fixture environment before imports",
     "provider": "a6api",
     "runtime_acceptance": "pending"
+  },
+  "runtime_acceptance": {
+    "task": "cde701326fdc484e9e460525996f8a0a",
+    "attempt": "6759c03e31d5439eb711dd3c0e6510ff",
+    "revision": "0f303a255763ba9a806b7cdcb7da2e509af744ca",
+    "validation_sha256": "b673d441e24e6564fd44e0d2822031fd56baecd7a850a6893afbdc27e1b15119",
+    "checks": {
+      "local": {
+        "local_optimizer_bitwise": true,
+        "python_numpy_torch_cuda_rng_equal": true,
+        "cos_pinned_restore_optimizer_bitwise": true,
+        "fixture_total_updates": 12
+      },
+      "cadence": {
+        "total": 29248,
+        "cloud_generations": 10,
+        "thresholds": [
+          2925,
+          5850,
+          8775,
+          11700,
+          14624,
+          17549,
+          20474,
+          23399,
+          26324,
+          29248
+        ]
+      },
+      "lock": {
+        "sigkill_lock_released": true
+      },
+      "preparation": {
+        "zero_update_preparation_retry": true,
+        "missing_latest_with_progress_rejected": true
+      },
+      "parent": {
+        "fresh_head_boundary_bitwise": true,
+        "real_parent_four_heads_bitwise": true,
+        "budget_not_repeated": true,
+        "export_failure_cleanup": true,
+        "export_only_retry_immutable": true
+      }
+    }
   }
 }
