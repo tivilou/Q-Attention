@@ -60,6 +60,14 @@ def local_fixture(root,cloud=False):
         checkpoint=torch.load(target,map_location='cpu',weights_only=True)
     else:
         checkpoint=Recovery(output,cfg,resume=True).state
+    if cloud:
+        out=root/'fresh-process-restored.pt'
+        subprocess.run([sys.executable,'-B',__file__,'--restore-fixture',str(target),'--output',str(out)],check=True,cwd=p.ROOT)
+        restored_result=torch.load(out,map_location='cpu',weights_only=True)
+        equal(tuple(v.cpu() if torch.is_tensor(v) else v for v in expected_random),restored_result['random'])
+        equal({k:v.cpu() for k,v in expected_head.items()},restored_result['head'])
+        from baselines.retacred.rmea_token_transport_recovery import cpu_tree
+        equal(cpu_tree(expected_optimizer),restored_result['optimizer'])
     restored=torch.nn.Linear(3,2).double().cuda();restored.load_state_dict(checkpoint['active'])
     opt=torch.optim.AdamW(restored.parameters(),lr=.001);opt.load_state_dict(checkpoint['optimizer'])
     restore_rng(checkpoint['rng'])
@@ -123,10 +131,28 @@ def parent_fixture(root,args):
     return dict(real_parent_four_heads_bitwise=True,budget_not_repeated=True,export_failure_cleanup=True,export_only_retry_immutable=True)
 
 
+def restore_fixture(checkpoint,output):
+    import torch
+    import numpy as np
+    from baselines.retacred.rmea_token_transport_recovery import cpu_tree
+    torch.set_num_threads(1);torch.use_deterministic_algorithms(True)
+    value=torch.load(checkpoint,map_location='cpu',weights_only=True)
+    head=torch.nn.Linear(3,2).double().cuda();head.load_state_dict(value['active'])
+    optimizer=torch.optim.AdamW(head.parameters(),lr=.001);optimizer.load_state_dict(value['optimizer'])
+    restore_rng(value['rng'])
+    randoms=(random.random(),np.random.rand(),torch.rand(1),torch.rand(1,device='cuda').cpu())
+    x=torch.tensor([[.1,.2,.3],[.7,.4,.9]],device='cuda',dtype=torch.float64)
+    optimizer.zero_grad(set_to_none=True);loss=(head(x)**2).sum();loss.backward();optimizer.step()
+    atomic_torch(output,dict(random=randoms,head=cpu_tree(head.state_dict()),optimizer=cpu_tree(optimizer.state_dict())))
+
+
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--restore-fixture',type=Path)
     parser.add_argument('--data-dir');parser.add_argument('--assets');parser.add_argument('--cloud',action='store_true')
-    args=parser.parse_args();args.output.mkdir(parents=True,exist_ok=True)
+    args=parser.parse_args()
+    if args.restore_fixture:restore_fixture(args.restore_fixture,args.output);return
+    args.output.mkdir(parents=True,exist_ok=True)
     result={'local':local_fixture(args.output/'state',args.cloud),'cadence':cadence_fixture(args.output/'cadence')}
     if args.data_dir:result['parent']=parent_fixture(args.output/'parent',args)
     p.atomic_json(args.output/'recovery-validation.json',result)
