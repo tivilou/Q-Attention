@@ -9,6 +9,9 @@ import random
 import subprocess
 import sys
 import tempfile
+
+# Set before importing Torch/CUDA, including the fresh-process restore fixture.
+os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
 import urllib.request
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
