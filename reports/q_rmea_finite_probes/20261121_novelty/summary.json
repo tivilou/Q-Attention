@@ -1,0 +1,31 @@
+{
+  "schema": "qattn.finite-probe-novelty.summary.v1",
+  "created_at": "2026-11-21T16:52:42.081489+00:00",
+  "base_publication": "5cfed6ec78bb5d271acbf4cb946d349807314d30",
+  "result": "TOOL_ONLY_NO_INDEPENDENT_L5_NOMINATION",
+  "L5": "NOT_ACCEPTED",
+  "positive_carryover": "Exact checkpoint port rank76, decoder two-direction observability, rank9 score certificate and17synthetic probes remain valid; no retraction of accepted historical scoped L4",
+  "new_math": {
+    "minimum_nonbaseline_probes": "ceil(R*(T-1)/(R-1))",
+    "conditions": [
+      "R>=2,T>=2",
+      "known decoder with full row rank R",
+      "independently controllable token values",
+      "routing fixed throughout interventions",
+      "one shared R-class softmax",
+      "same fixed bias; distinct unknown biases add one baseline"
+    ],
+    "R40_T9": 9,
+    "actual_checkpoint_full_decoder_rank_audited": false,
+    "new_probe_count_executed": false
+  },
+  "review": {
+    "model": "gpt-6.2-astra",
+    "effort": "high",
+    "verdict": "PASS_WITH_SCOPE",
+    "must_fix": []
+  },
+  "literature": "Four exact-version originals scoped; one new2026arXivpreprint. Bounded comparison only, not priority clearance; no claim papers contain exact new formula",
+  "execution": "No training, GPU allocation, source/runtime change, model/data/checkpoint transfer or COS writes. One read-only post-reboot check saw3RTX3060 and no nonterminal Q tasks.",
+  "next": "Select a materially distinct task-relevant mechanism and discriminating prediction from existing evidence. Do not extend rank/probe certification as the main L5 path."
+}
