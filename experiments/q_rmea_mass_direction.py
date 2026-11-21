@@ -8,6 +8,8 @@ from pathlib import Path
 import sys
 import time
 
+os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG', ':4096:8')
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from baselines.retacred import rmea_token_transport_protocol as p
@@ -118,7 +120,7 @@ def run(args):
     attempt=Path(os.environ['RESEARCH_OUTPUT_DIR']).parent.name
     def progress(stage,done,total,unit):
         p.atomic_json(out/'progress.json',dict(schema='research.progress.v1',attempt=attempt,
-            stage=stage,unit=unit,completed=done,total=total,observed_at=time.time(),
+            stage=stage,phase=stage,unit=unit,completed=done,current=done,total=total,observed_at=time.time(),
             batch_id='rmea-mass-direction-valid-20261121',head=args.head))
     head=TrainableTokenTransportHead('cubic_coherent').double()
     head.load_state_dict(torch.load(checkpoint,map_location='cpu',weights_only=True))
