@@ -1,0 +1,27 @@
+{
+  "schema": "q-rmea.query-alignment.design.v1",
+  "checkpoint": "linear_coherent-final",
+  "counts": {
+    "train_inputs": 58465,
+    "valid": 19584
+  },
+  "arms": [
+    "aligned",
+    "deranged",
+    "training_mean"
+  ],
+  "tau": 0.25,
+  "static": "Arithmetic mean over all training sentences of C_i/c_i; no training targets read",
+  "permutation": "One deterministic label-blind hash-order cycle, no fixed point; valid contexts reused bijectively",
+  "primary": "Aligned positive39Macro exceeds both controls with both paired95% bootstrap lower bounds>0; CE no worse than either control",
+  "bootstrap": {
+    "draws": 1000,
+    "seed": 20261121,
+    "unit": "validation example, fixed cohort"
+  },
+  "exclusions": "No fitting, test access, seed/tau tuning, cloud writes or L5/novelty claim",
+  "interpretation": "Fixed-checkpoint context-to-query-rotation alignment only; not total training-gain mediation",
+  "trace": "First2 immutable valid cache units per arm; partial numeric probe, not sample-trace.v2",
+  "execution": "Prepare once then three independent workers within one scheduler GPU-group allocation",
+  "recovery": "Restart bounded inference from original pinned inputs; no new checkpoint generation"
+}
