@@ -1,0 +1,76 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "response_id": "resp_073ef411563d35ef016b01ae775d9087d183818090d420f716",
+  "theory_sha256": "fb13096273b7549cf0d6773e0ac5fd99b08b95789faa2431215c26a2f90862d7",
+  "seconds": 51.106496810913086,
+  "response": "{\n  \"verdict\": \"PASS_WITH_SCOPE\",\n  \"must_fix\": [],\n  \"checked_claims\": {\n    \"normalized_readout_lp_iff\": \"Verified for fixed positive A and arbitrary nonzero B \u2265 0. Set x = vec(B)/sum(B) and compute D_r using x. Then D_r is a convex combination of entries in row r of A, and (Mx)_r = D_r(f_r \u2212 z_r). Since every D_r > 0, Mx = 0 is equivalent to exact logit matching in both directions. Separate passages may use separate x with the same A. A feasible x establishes existence in the relaxed family.\",\n    \"strict_dual_error_bound\": \"Verified. The finite column hull is compact, so exclusion of the origin gives a strict separator with \u03b4 = min_j y\u1d40M_j > 0. For every simplex x, \u03b4 \u2264 y\u1d40Mx \u2264 \u2016f \u2212 z\u2016\u221e \u03a3_r |y_r| max_k A_rk. The denominator is positive. The rowwise upper bound on D_r uses the normalized x, which preserves f.\",\n    \"approximate_ce_and_margin_bridge\": \"Verified. The exact coordinate error is |(Mx)_r|/D_r, giving the stated coarse bound \u03c1/min_rk A_rk. With unchanged bias and error at most \u03b7, each pairwise logit gap changes by at most 2\u03b7, so a top-two margin strictly above 2\u03b7 preserves the winner. For multiclass cross-entropy, logsumexp and the gold logit each change by at most \u03b7. A roundoff enclosure that merely contains zero certifies only an approximate primal match. Exact feasibility requires a proof that an exact simplex solution exists.\",\n    \"reachable_states_and_rank\": \"Verified under the supplied gate order. The first ring fixes |000\u27e9. The eight real product projectors before the final ring are independent tensor products of the independent pair \u03c1\u2080 and \u03c1\u208a. The ninth state has relative phase i on wire 0, so its projector has a nonzero imaginary entry outside their real span. Common unitary conjugation preserves independence. Their Hilbert\u2013Schmidt Gram matrix is therefore positive definite. Adding \u03b511\u1d40 preserves positive definiteness, row normalization preserves rank, and duplicating query rows leaves rank exactly nine. An eight-component factorization has ordinary rank at most eight.\",\n    \"uniform_logit_match\": \"Verified. For each relation, span{1, \u03b1_r \u2212 1/9} uses at most two dimensions in token space, where 1/9 denotes the uniform vector. Any nonzero v_r orthogonal to this span has zero mean and \u03b1_r\u00b7v_r = 0. Thus u_r = c_r1 + v_r is nonconstant and both routings return c_r before bias. Uniform routing is attainable even with one positive component by taking its token weights equal.\",\n    \"finite_tanh_and_value_interpolation\": \"Verified as a finite-input existence construction under the supplied source contract. The required angles 0 and \u03c0/2 have finite preactivations 0 and atanh(1/2). Nine independent 1024-dimensional input rows retain row rank nine after the four preparation features are appended, so the preparation map can interpolate all twelve preactivations per token. The separate value map can send the nine inputs to nine coordinate vectors in 64 dimensions. Decoder row r can then store the nine entries of u_r on those coordinates. The effect parameters can realize the same query angles directly.\",\n    \"exact_dual_fixture\": \"Verified in rational arithmetic. Both column products with y = (\u22121, \u22121) equal 4/5. The denominator is 2, giving a lower bound of 2/5. Equal token weights return (1/2, 1/2), at infinity distance exactly 2/5 from (9/10, 9/10).\"\n  },\n  \"novelty_ceiling\": \"The supported contribution is a fixed-frame logit-matching diagnostic and a circuit-compatible counterexample to inferring task complexity from attention rank. The LP equivalence uses standard convex separation. A strict witness excludes one fixed A at the specified target logits. Exclusion across all shared eight-component frames, a task-loss penalty, and L5 remain unestablished.\",\n  \"next_minimal_discriminating_action\": \"For a future diagnostic, freeze one label-blind passage, its native utilities and logits, and one common eight-component frame. Compare the one-component LP with the fixed-frame eight-component LP. A strict one-component dual paired with an exact eight-component primal would distinguish their matching ability on that passage. Report a numerical primal by its verified logit-error bound unless exact feasibility is certified.\"\n}",
+  "usage": {
+    "input_tokens": 7309,
+    "input_tokens_details": {
+      "cached_tokens": 5248,
+      "cache_write_tokens": 0,
+      "cache_write_tokens_details": {
+        "ttl_30m_tokens": 0,
+        "ttl_12h_tokens": 0
+      }
+    },
+    "output_tokens": 1300,
+    "output_tokens_details": {
+      "reasoning_tokens": 307
+    },
+    "total_tokens": 8609,
+    "attribution": {
+      "items": {
+        "msg_073ef411563d35ef016b01ae775ea087d1b7ed374b5f73c68d": {
+          "input_tokens": 5363,
+          "cached_tokens": 5248,
+          "cache_write_tokens": 0,
+          "output_tokens": 0,
+          "content": [
+            {
+              "input_tokens": 5363,
+              "cached_tokens": 5248,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          ]
+        },
+        "msg_073ef411563d35ef016b01ae775ea087d1b8e6f6c3d46dd307": {
+          "input_tokens": 1944,
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "output_tokens": 0,
+          "content": [
+            {
+              "input_tokens": 1944,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          ]
+        },
+        "msg_073ef411563d35ef016b01ae89ccd487d1830972c388de00b4": {
+          "input_tokens": 0,
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "output_tokens": 993,
+          "content": [
+            {
+              "input_tokens": 0,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 993
+            }
+          ]
+        },
+        "rs_073ef411563d35ef016b01ae894d7087d1b150ef17764ff031": {
+          "input_tokens": 2,
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "output_tokens": 307
+        }
+      }
+    }
+  }
+}

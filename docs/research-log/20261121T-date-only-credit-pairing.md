@@ -54,3 +54,14 @@ Re-TACRED 文本先经过固定 RoBERTa-large 缓存，Q-RMEA 将词表示制备
 源码487d44cd52fe088c9db00041a6fbe0175a3cf93b，A6API gpt-6.2-astra high 审核通过后执行聚焦检查。一项调度任务预约三张物理卡，记录三路独立 PID、GPU 与6528条完成标记，退出0且 quiescent；科学运行总时长49.58479380607605秒。运行期间未采样到实时利用率，不宣称测得三倍加速。此前排队由用户重启节点引起，节点恢复后同一任务自动启动，未重复提交。
 
 原输入已持久化，本轮为便宜可重建诊断，不新传 COS/checkpoint，也未向Windows下载模型或数据。公开内容仅源码、设计、输入哈希、审核及紧凑结果；见[审计记录](../../reports/q_rmea_credit_pairing/20261121_valid/audit.json)、[单元检查](../../reports/q_rmea_credit_pairing/20261121_valid/unit-validation.json)与[冻结设计](../evidence/rmea/20261121-credit-pairing/design.json)。
+
+
+## 后续理论补充：共享非负成分的输出匹配
+
+[已测事实／数学核查] 已得到一个与现有三量子比特电路兼容的存在性反例：注意力矩阵秩为9，但适当的非恒定value/readout使均匀秩1路由精确复现全部分类logit。这是数学构造，并非从benchmark挑选的案例，说明分数或注意力的秩差不能直接证明任务所需复杂度。
+
+[机制解释] 固定实际utilities、目标logit和一个正的共享关系成分矩阵A后，非负token成分能否复现输出，可等价写成有限列凸包是否包含零的线性可行性问题。对偶给出该固定A下的logit误差下界；单独的输出误差并不保证CE变差。数学推导和电路可实现性经A6API gpt-6.2-astra high独立核查，PASS_WITH_SCOPE，无must-fix；标准凸分离与PSD/非负分解属于已知数学，未据此宣称L5新颖性。
+
+[尚未证明] 没有选出合格L5新方法。已冻结96条按哈希选出的开发validation索引、native checkpoint及K1/K8固定对照问题，拟通过一次三卡预约分成32/32/32条。实现、数值证书和执行审核尚未完成，本次没有新GPU实验或完整训练。该native来自较新的4epoch seed13，同结构并不自动继承原fresh5限定L4。
+
+详见[推导与反例](../evidence/rmea/20261121-task-factorization/theory.md)、[独立核查](../evidence/rmea/20261121-task-factorization/review.json)、[候选筛选](../evidence/rmea/20261121-task-factorization/frontier.json)与[拟诊断设计](../evidence/rmea/20261121-task-factorization/proposed-design.json)。近邻原文已读Fawzi等《Positive semidefinite rank》1407.4095v1第1–6页；另一篇contextuality原文下载超时，仅保留摘要级线索，未作相关理论主张。新增本机文件含2.23MB论文PDF及解析文本，没有模型、数据或checkpoint下载。
