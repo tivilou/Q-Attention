@@ -1,6 +1,6 @@
 # Q-RMEA 三阶相干词图输运：完整数据单 seed 验证
 
-状态：已通过精确版本审查及 2080 Ti 小规模真实启动验收，可交付完整数据单 seed 验证。已有技术验收使用固定历史特征缓存；师弟的脚本仍先以真实数据和固定编码器完成 live canary，再启动 discovery。
+状态：该完整数据单 seed 已完成并返回报告，预设晋级门槛未通过，停止扩跑。本文保留原运行协议及后续通用 auto 入口说明；新一轮完整实验需要独立授权。已有技术验收使用固定历史特征缓存；师弟的脚本仍先以真实数据和固定编码器完成 live canary，再启动 discovery。
 
 这次检验三阶词图输运的弱正向初筛能否在完整 Re-TACRED 上成立。已有初筛的正类 Macro 增益只有 0.000551；固定模型换回 native 或 dephased 后 Macro 还更高。因此本实验不预设相干性必要，也不继承历史 Q-RMEA 的限定 L4，更不代表达到 L5。
 
@@ -29,7 +29,7 @@ bash scripts/check_q_rmea_token_transport_handoff.sh --gpu auto
 - 官方 train/valid/test 为 58465/19584/13418，检查既有固定数据哈希和 train-derived40标签，`no_relation` 是索引0。历史测试集已暴露，单 seed 不构成新总体独立确认。
 - seed13；四路分别为 native、cubic coherent、cubic initial-dephased、linear coherent，各81028参数，共同初始化、样本顺序和优化器。只改路由。
 - 每路4轮、batch32、AdamW，学习率0.001、weight decay0.01、betas0.9/0.999、eps1e-8、clip1。每路7312步，共29248步；float64/complex128；tau0.25，Born eps1e-6。
-- 统一使用第4轮最终模型。valid 仅描述，不挑选 epoch；完成训练后才评估 test。不能换成旧 Q-RMEA 的20轮/batch128或按 valid 选模型。
+- 统一使用第4轮最终模型。valid 用于保留 best，但报告仍固定第4轮 final；完成训练后才评估 test。不能换成旧 Q-RMEA 的20轮/batch128或按 valid 选模型。
 - 主指标为排除 `no_relation`、固定分母39的 Macro F1。cubic 必须严格高于另外三路，且 CE 不高于 native。完整40类 Macro、准确率和非空 Micro 为辅助指标。
 - 在最终 cubic 模型上，对完整 test 执行四路冻结状态交换；对 hash 顺序前32条执行坐标上界、读出上界和行范数结构诊断。诊断不进入任务通过门槛，也不直接证明机制带来收益。
 
@@ -37,11 +37,11 @@ bash scripts/check_q_rmea_token_transport_handoff.sh --gpu auto
 
 Python3.10；已明确支持的 Torch/NumPy 组合为2.4.1/1.24.3、2.5.1/1.26.4、2.7.1/1.26.4；真实特征抽取需要 Transformers4.44.2。不同组合的训练轨迹不保证逐字节一致，实际环境记录入报告，并先运行同一环境的小规模四路 canary。版本不符时停止，报告问题。
 
-仅使用一张至少8GiB空闲显存的可见 GPU，四路串行；固定 batch 不变。主进程的预检在独立子进程完成，释放 Torch/显存后进入实验。容器内存至少4GiB，私有输出磁盘可用空间至少12GiB。OOM、非有限梯度、数据或来源不符均停止，不悄悄缩小数据或改科学参数。
+默认 `--execution auto --gpu auto`，在调度器通过 `CUDA_VISIBLE_DEVICES` 分配的 GPU 内，自动使用所有至少8GiB空闲显存的卡，一卡一个独立条件；空闲卡继续领取下一个条件。四路共享一次特征抽取，共同初始化和样本顺序，固定 batch 不变。`--execution serial` 保留单卡串行对照。auto 不占用调度器分配之外的卡。主进程的预检在独立子进程完成，释放 Torch/显存后进入实验。容器内存至少4GiB，私有输出磁盘可用空间至少12GiB。OOM、非有限梯度、数据或来源不符均停止，不悄悄缩小数据或改科学参数。
 
 ## 保存与返回
 
-启动时输出唯一 `PRIVATE_RUN=...`，默认 `../q-rmea-token-transport-private/<UTC时间>_seed13`，私有目录位于 Git checkout 外。保留一份特征缓存、四个小型最终 checkpoint、固定各 split 前2条的最终状态完整 v2 回放及私有几何诊断。不保留初始/逐轮模型或训练全轨迹；不自动上传完整缓存，也不把原始样本、逐样本预测、权重或张量提交 GitHub。本脚本没有自动 COS 备份或中断续训能力；实例释放前应另走既有最小恢复对象归档流程。
+启动时输出唯一 `PRIVATE_RUN=...`，默认 `../q-rmea-token-transport-private/<UTC时间>_seed13`，私有目录位于 Git checkout 外。保留一份特征缓存、四个小型最终 checkpoint、固定各 split 前2条的最终状态完整 v2 回放及私有几何诊断。不保留初始/逐轮模型或训练全轨迹；不自动上传完整缓存，也不把原始样本、逐样本预测、权重或张量提交 GitHub。本地每次优化更新原子记录 latest，valid 严格改进时记录 best；可通过同一 run-dir 加 `--resume` 接续，保留源码、配置及软件身份。owner-managed 模式依赖独立 COS 发布器：准备对象一次、全局每10%进度一个固定版本恢复点，上传确认前暂停；GPU 内不存 COS 长期密钥。普通执行不自动获得此云端授权，必须按调度侧恢复契约登记。历史串行运行保持原版本，不迁移成并行运行。
 
 训练、回放和私有清单验收成功后，脚本自动导出 `reports/q_rmea_token_transport/<UTC时间>_seed13/` 的七文件报告，验证工作区状态及暂存差异，只提交这些新增报告，自动普通推送至 `1.1`。不要手动提交原始运行目录，不必另执行 Git 提交命令。
 

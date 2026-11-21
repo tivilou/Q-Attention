@@ -3,16 +3,16 @@
   "review_scope": "both",
   "must_fix": [],
   "source_revision": "7f46fba65171dff9a5234491613957a09cfa9cea",
-  "source_sha256": "d9837319bb368e6b43939596802a40e05d1f276cbe5e26c27f34947ceb6f3ee7",
-  "contract_sha256": "72d253c30e0f9f433dcccadefacbe92676c8954ef3786fb06ac75fad97e3ef4e",
-  "review_mode": "external_delta_plus_unchanged_review",
-  "reviewer_model": "gpt-6.2-astra",
+  "source_sha256": "059b7cab6533fa47a43fccdbb0564c183e3714036eaa22080ca656f0940ad6b8",
+  "contract_sha256": "e72e1284ef7c02f16d98d820859aee5551522e6fdc321051ede4d989364013b0",
+  "review_mode": "unchanged_mechanism_plus_external_lifecycle_delta",
+  "reviewer_model": "claude-fable-5-2",
   "risks": [
     "Exact-file static delta review of the two v002 residual findings only, retaining prior review results for unchanged paths. R8 is resolved: manifest pins cache identity, absent-latest admission validates zero committed state and rejects contradictory progress, labels have a pinned fallback, and an atomic initial cursor is saved before preparation. R9 is resolved: the orphan fixture has a distinct run parent and channel. No residual reachable must-fix was found within these two repairs.",
     "PASS permits the bounded canary only. Runtime readiness remains pending: no tests or numerical experiments were executed by this reviewer. Full discovery must wait for actual fresh-process RNG/AdamW/cursor parity, active and next-head parent resume, SIGKILL lock release, zero-update admission/rejection, immutable pending/orphan COS retry, pinned readback/index acknowledgement, same-source export-only retry, and fenced seven-file owner return acceptance. The unchanged final-epoch selection and fixed scientific budget are not relaxed."
   ],
   "confidence": "high",
-  "runtime_readiness": "PASS: exact reviewed recovery canary complete, exit0, quiescent on owner3060",
+  "runtime_readiness": "bounded canary admission only; new formal release not approved",
   "transport_attempts": [
     {
       "model": "claude-opus-5-5",
@@ -79,5 +79,21 @@
         "export_only_retry_immutable": true
       }
     }
+  },
+  "parallel_review": {
+    "model": "claude-fable-5-2",
+    "effort": "high",
+    "response": "Looking at the seven must-fix items from the prior review against the submitted source code:\n\n## Verification Summary\n\n**Item 1: pin_receipts validation**\n- ✓ `pin_receipts` now validates exact file inventory: `set(request['files'])!={'cos-channel/'+name+'/'+f for f in ('latest.pt','best.pt')}`\n- ✓ Binds byte counts and digests for selected generation: validates `latest_bytes`, `best_bytes`, `best_sha256` at selected name\n- ✓ Called before receipt installation in `parallel_train` with actual staged file hashes\n\n**Item 2: Pinned worker materialization**\n- ✓ Fresh pin requires empty workers: `if not installed.exists() and any(work.glob('*/latest.pt')):raise ValueError('Fresh pin destination required')`\n- ✓ Null pin row rejects existing worker: `if row is None: if restore_pin and (work/kind).exists() and any((work/kind).iterdir()): raise ValueError`\n- ✓ Validates materialized aggregate before snapshot: `if not equal_state(installed_states,recovery.state['workers']):raise ValueError('Installed aggregate differs from pin')`\n\n**Item 3: _validate_cursor completeness**\n- ✓ Loss accumulator validated: `if not math.isfinite(cursor['loss_sum']) or cursor['loss_sum']<0 ... raise ValueError`\n- ✓ AdamW flags checked: `if any(group.get(k,False) not in (False,None) for k in ('maximize','amsgrad',...))`\n- ✓ Best coverage validated: `if set(state['best'])!=reached:raise ValueError('Validation-best coverage differs')`\n- ✓ Private best.pt reconstructed in `valid_complete`: `atomic_torch(folder/'best.pt',state['best'])`\n\n**Item 4: Complete COS prefix**\n- ✓ New `verify_cloud_history()` validates contiguous prefix through pointer generation\n- ✓ Called on resume in `parallel_train` before worker launch\n- ✓ Derives cursor from verified history: `if latest['done']!=previous ... raise ValueError`\n\n**Item 5: Canary revision check**\n- ✓ Sealed canary branch now validates: `if canary.get('git_revision')!=handoff['git_revision']: raise ValueError('Canary execution/revision differs')`\n\n**Item 6: Trace reader validation**\n- ✓ Exact ID/key match required: `if len(ids)!=len(set(ids)) or set(ids)!=set(arrays.files):raise ValueError`\n- ✓ Reader command/digest validated: `if (reader['reader_ref']!='scripts/view_rmea_token_transport_trace.py --sample '+expected+' --representation '+rep['id'] or reader['source_sha256']!=[canonical['sha256']]):raise ValueError`\n- ✓ Test mapping comparison includes reader fields: `r['value_capture']['reader_projection']['reader_ref']`\n\n**Item 7: AdamW terminal comparison**\n- ✓ Terminal optimizer states compared across all four runs: `if not equal_state(serial_state['completed'][kind]['optimizer'],state['workers'][kind]['completed'][kind]['optimizer'])`\n- ✓ Existing two-step active continuation test invoked: calls `local_fixture` from `test_rmea_token_transport_recovery.py`\n\nContract tests pass (11/11). All seven static correctness issues addressed with actual verification in code and tests.\n\n```json\n{\n  \"verdict\": \"PASS\",\n  \"review_scope\": \"lifecycle\",\n  \"must_fix\": [],\n  \"summary\": \"All seven prior must-fix items resolved. Pin validation binds complete prefix and exact bytes/hashes before receipt install. Worker materialization reconciles absent rows and validates staged aggregate equality. Cursor validation covers AdamW moments/flags, RNG, finite loss_sum and best metadata; private best reconstructed before reuse. Complete COS acknowledgement prefix verified on resume. Canary git_revision enforced. Trace requires exact representation/NPZ inventory and validates reader command/sample/digest bindings. Terminal AdamW states compared across serial/one/three/resume runs; existing active next-update fixture invoked. Bounded acceptance for 16/8/8 GPU canary admission only.\",\n  \"limitations\": \"Synthetic receipts only; no live COS transfer coverage. Pending: actual three-GPU fleet execution, owner-managed COS supervisor integration, formal discovery handoff.\"\n}\n```",
+    "source_hashes": {
+      "baselines/retacred/rmea_token_transport_trace.py": "3fa14bd756adca9f4a9b0d70e16cbb430686de2be7d231541b49f5a9702fc5d6",
+      "baselines/retacred/rmea_token_transport_parallel.py": "e74d5e3a0c97988e562e8f1b6075d9b348916df1c1680371ec1bef949555b683",
+      "baselines/retacred/rmea_token_transport_study.py": "a51d15905ae2fda23b903a9cc6269dd94473a6df79e5d3be0b648b25bb4db645",
+      "baselines/retacred/rmea_token_transport_recovery.py": "76c06cc157c37867393dc44681f93512b6009756a1b119342de6c1298ed2a8c5",
+      "baselines/retacred/rmea_token_transport_handoff.py": "630333e7c08430914fcee3fd8f6d06e63f1b8615d270c0fd6495baf26ced7313",
+      "baselines/retacred/rmea_token_transport_protocol.py": "a6dc3c42a2c85fc9de0d85774a3dc5af7d535af97ac4e3135ddabd1bb8554dbe",
+      "tests/test_rmea_token_transport_parallel.py": "1de7906b221d2935c137df945c9aff60bd267eea6b7c74e4b8b9ca6064f8d204"
+    },
+    "fallback_reason": "primary review HTTP504",
+    "preflight": "READY"
   }
 }

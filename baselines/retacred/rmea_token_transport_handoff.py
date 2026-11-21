@@ -38,7 +38,7 @@ def probe(args):
         raise ValueError('Requires Python3.10 and an explicit Torch/NumPy pair:2.4.1/1.24.3,2.5.1/1.26.4,2.7.1/1.26.4; no silent install')
     if args.development_cache:
         if not (args.development_canary and args.canary_only):raise ValueError('Pinned fixture is bounded development canary only')
-    elif md.version('transformers')!='4.44.2':raise ValueError('Requires Transformers4.44.2')
+    elif not (args.resume and args.run_dir and (Path(args.run_dir)/'canary/manifest.json').exists() and p.read(Path(args.run_dir)/'canary/manifest.json')['environment'].get('fixture_sha256')) and md.version('transformers')!='4.44.2':raise ValueError('Requires Transformers4.44.2')
     memory=Path('/sys/fs/cgroup/memory.max')
     budget=4*1024**3 if not args.canary_only else 2*1024**3
     if memory.is_file() and memory.read_text().strip()!='max' and int(memory.read_text())<budget:
@@ -48,13 +48,23 @@ def probe(args):
     if shutil.disk_usage(space).free < (12*1024**3 if not args.canary_only else 1024**3):
         raise ValueError('Insufficient private run disk space')
     if not torch.cuda.is_available():raise ValueError('CUDA unavailable')
-    indices=range(torch.cuda.device_count()) if args.gpu=='auto' else [int(args.gpu)]
-    minimum=8*1024**3
-    candidates=[(torch.cuda.mem_get_info(i)[0],i) for i in indices if torch.cuda.mem_get_info(i)[0]>=minimum]
-    if not candidates:raise ValueError('No eligible free GPU; wait, do not alter scientific budget')
-    free,index=max(candidates);visible=os.environ.get('CUDA_VISIBLE_DEVICES')
-    mask=visible.split(',')[index].strip() if visible is not None else str(index)
-    return dict(cuda_visible_devices=mask,gpu_name=torch.cuda.get_device_name(index),free_bytes_at_selection=free,execution_profile='low_memory_serial')
+    from .rmea_token_transport_parallel import devices
+    visible=os.environ.get('CUDA_VISIBLE_DEVICES')
+    if args.execution=='auto' and not visible:raise ValueError('Managed execution requires explicit scheduler GPU allocation')
+    allocation=visible.split(',') if visible is not None else [str(i) for i in range(torch.cuda.device_count())]
+    if len(allocation)!=torch.cuda.device_count():raise ValueError('CUDA allocation mapping differs')
+    free=[torch.cuda.mem_get_info(i)[0] for i in range(len(allocation))]
+    selected=devices(args.gpu,allocation,free)
+    if args.execution=='serial':
+        if args.gpu!='auto' and len(selected)!=1:raise ValueError('Serial mode requires one selected device')
+        selected=[max(selected,key=lambda value:free[allocation.index(value)])]
+    if memory.is_file() and memory.read_text().strip()!='max' and int(memory.read_text())<max(budget,len(selected)*2*1024**3):
+        raise ValueError('Container budget does not admit all condition workers')
+    return dict(cuda_visible_devices=','.join(selected),physical_gpus=selected,
+                gpu_names=[torch.cuda.get_device_name(allocation.index(v)) for v in selected],
+                free_bytes_at_selection=min(free[allocation.index(v)] for v in selected),
+                execution_profile='independent_conditions' if args.execution=='auto' else 'low_memory_serial')
+
 
 def isolated_probe(args):
     code='import argparse,json;from baselines.retacred.rmea_token_transport_handoff import probe;print(json.dumps(probe(argparse.Namespace(**json.loads(__import__("sys").argv[1])))))'
@@ -156,10 +166,10 @@ def run(args):
     selection=isolated_probe(args)
     root.mkdir(parents=True,exist_ok=args.resume)
     previous=p.read(root/'handoff.json') if args.resume else None
-    handoff=dict(git_revision=p.git('rev-parse','HEAD'),canary_only=args.canary_only,selection=selection,
+    handoff=dict(git_revision=p.git('rev-parse','HEAD'),canary_only=args.canary_only,execution=args.execution,selection=selection,
                  parent_imported_torch_before_children='torch' in sys.modules)
     if previous:
-        if previous['git_revision']!=handoff['git_revision'] or previous['canary_only']!=args.canary_only:
+        if previous['git_revision']!=handoff['git_revision'] or previous['canary_only']!=args.canary_only or previous.get('execution')!=args.execution:
             raise ValueError('Resume parent/source differs')
         handoff=previous
     p.atomic_json(root/'handoff.json',handoff)
@@ -169,13 +179,24 @@ def run(args):
     if not args.canary_only:env['QATTN_OWNER_MANAGED' if args.owner_managed else 'QATTN_COLLABORATOR_FORMAL']='1'
     for profile in ('canary',) if args.canary_only else ('canary','discovery'):
         if args.resume and profile=='canary' and (root/profile/'RUN_COMPLETE').exists():
-            p.audit(root/profile);continue
-        command=[sys.executable,'-B','-m','baselines.retacred.rmea_token_transport_study','--profile',profile,'--data-dir',args.data_dir,'--assets',args.assets,'--output',str(root/profile)]
+            canary,_=p.audit(root/profile)
+            if canary.get('execution')!=args.execution or canary.get('git_revision')!=handoff['git_revision']:
+                raise ValueError('Canary execution/revision differs')
+            if not args.canary_only and canary['environment'].get('fixture_sha256'):raise ValueError('Full run requires a live canary before discovery')
+            continue
+        command=[sys.executable,'-B','-m','baselines.retacred.rmea_token_transport_study','--profile',profile,'--data-dir',args.data_dir,'--assets',args.assets,'--output',str(root/profile),'--execution',args.execution,'--parent-pid',str(os.getpid())]
         if args.development_cache:command+=['--fixture-cache',args.development_cache]
         if args.owner_managed and profile=='discovery':command+=['--cos']
-        if args.resume and (root/profile/'manifest.json').exists():command+=['--resume']
+        if args.resume and (root/profile).exists():command+=['--resume']
+        if args.restore_pin:command+=['--restore-pin']
         if args.pause_after and not args.resume:command+=['--pause-after',str(args.pause_after)]
-        subprocess.run(command,cwd=p.ROOT,env=env,check=True)
+        result=subprocess.run(command,cwd=p.ROOT,env=env)
+        if result.returncode==75:raise SystemExit(75)
+        result.check_returncode()
+        if profile=='canary':
+            canary,_=p.audit(root/profile)
+            if canary.get('execution')!=args.execution or canary.get('git_revision')!=handoff['git_revision'] or not args.canary_only and canary['environment'].get('fixture_sha256'):
+                raise ValueError('Actual canary must match intended execution and live-data contract')
     handoff['parent_imported_torch_after_children']='torch' in sys.modules
     if handoff['parent_imported_torch_before_children'] or handoff['parent_imported_torch_after_children']:
         raise ValueError('Handoff control parent retained Torch')
@@ -189,10 +210,10 @@ def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action',choices=('check','run','export'))
     parser.add_argument('--data-dir',default='data/relation/retacred');parser.add_argument('--assets',default='.external/assets/722cf37b1afa9454edce342e7895e588b6ff1d59/model');parser.add_argument('--development-cache');parser.add_argument('--gpu',default='auto')
-    parser.add_argument('--run-dir');parser.add_argument('--canary-only',action='store_true');parser.add_argument('--development-canary',action='store_true')
+    parser.add_argument('--execution',choices=('auto','serial'),default='auto');parser.add_argument('--run-dir');parser.add_argument('--canary-only',action='store_true');parser.add_argument('--development-canary',action='store_true')
     parser.add_argument('--inject-export-failure',action='store_true')
     parser.add_argument('--owner-managed',action='store_true',help='Explicit owner seed13 exception; requires COS supervisor')
-    parser.add_argument('--resume',action='store_true');parser.add_argument('--pause-after',type=int,default=0);args=parser.parse_args(argv)
+    parser.add_argument('--restore-pin',action='store_true');parser.add_argument('--resume',action='store_true');parser.add_argument('--pause-after',type=int,default=0);args=parser.parse_args(argv)
     if args.pause_after and not args.canary_only:parser.error('Fault injection is canary-only')
     if args.action in ('check','run') and not all((args.data_dir,args.assets)):parser.error('--data-dir and --assets required')
     if args.action=='check':print(p.json.dumps(isolated_probe(args)))

@@ -95,12 +95,16 @@ class _Parts:
 
 
 class Recovery:
-    def __init__(self, output, cfg, *, enabled=False, resume=False, pause_after=0):
+    def __init__(self, output, cfg, *, enabled=False, resume=False, pause_after=0, modes=None):
         self.output = Path(output); self.cfg = cfg; self.enabled = enabled
+        self.modes = tuple(p.MODES if modes is None else modes)
+        if self.modes != p.MODES and (len(self.modes) != 1 or self.modes[0] not in p.MODES):
+            raise ValueError("Recovery scope must be all conditions or one declared condition")
         self.parent = self.output.parent; self.channel = self.parent / 'cos-channel'
-        self.total = len(p.MODES) * cfg['epochs'] * math.ceil(cfg['counts']['train']/32)
+        self.total = len(self.modes) * cfg['epochs'] * math.ceil(cfg['counts']['train']/32)
         self.pause_after = pause_after
         self.identity = dict(config=p.identity(cfg), source=p.identity(p.sources()))
+        if self.modes != p.MODES: self.identity['condition'] = self.modes[0]
         self.latest = self.output / 'checkpoints/latest.pt'
         self.best = self.output / 'checkpoints/best.pt'
         self.state = None
@@ -130,21 +134,92 @@ class Recovery:
                     raise ValueError('Missing latest contradicts committed progress; restore a verified generation')
         else:self.cache=self.state['cache']
 
-    def _validate_cursor(self, state):
+    def _validate_cursor(self, state, *, payload=True):
         cursor = state['cursor']; per_epoch = math.ceil(self.cfg['counts']['train']/32)
         per_mode = self.cfg['epochs'] * per_epoch
         mode = cursor['mode']; epoch = cursor['epoch']; start = cursor['next_start']
-        if (type(mode) is not int or not 0 <= mode <= len(p.MODES)
+        if (type(mode) is not int or not 0 <= mode <= len(self.modes)
                 or type(epoch) is not int or not 0 <= epoch <= self.cfg['epochs']
                 or type(start) is not int or not 0 <= start <= self.cfg['counts']['train']
                 or (start != self.cfg['counts']['train'] and start % 32)):
             raise ValueError('Invalid committed training cursor')
         expected = mode*per_mode + epoch*per_epoch + math.ceil(start/32)
         if (state.get('total') != self.total or state['done'] != expected or not 0 <= expected <= self.total
-                or set(state['completed']) != set(p.MODES[:mode])
+                or set(state['completed']) != set(self.modes[:mode])
                 or len(cursor['history']) != epoch
-                or (mode == len(p.MODES) and (epoch or start or state['active'] is not None))):
+                or (mode == len(self.modes) and (epoch or start or state['active'] is not None))):
             raise ValueError('Resume update/history/head coverage differs')
+        if set(state.get('rng',{}))!={'python','numpy','torch','cuda'}:
+            raise ValueError('Missing full RNG state')
+        if state['done']>mode*per_mode and (not isinstance(state.get('active'),dict) or not isinstance(state.get('optimizer'),dict)):
+            raise ValueError('Active commit lacks model/AdamW state')
+        for kind,row in state['completed'].items():
+            if not isinstance(row.get('state'),dict) or not isinstance(row.get('optimizer'),dict):
+                raise ValueError('Terminal commit lacks model/AdamW state')
+        if not payload:return
+        import numpy as np
+        import torch
+        rng=state['rng']
+        random.Random().setstate(rng['python'])
+        n=rng['numpy'];np.random.RandomState().set_state((n[0],np.asarray(n[1],dtype=np.uint32),n[2],n[3],n[4]))
+        torch.Generator().set_state(rng['torch'])
+        if (not isinstance(rng['cuda'],list) or len(rng['cuda'])!=1
+                or any(not torch.is_tensor(v) or v.dtype!=torch.uint8 or v.ndim!=1 or v.numel()<16 for v in rng['cuda'])):
+            raise ValueError('Invalid one-worker CUDA RNG payload')
+        template=None
+        if len(self.modes)==1:
+            from .rmea import RMEAHead
+            with torch.random.fork_rng(devices=[]):template=RMEAHead('quantum').double().state_dict()
+        def history(rows,length):
+            if len(rows)!=length or any(r.get('epoch')!=i+1 or not math.isfinite(r.get('train_ce',float('nan'))) for i,r in enumerate(rows)):
+                raise ValueError('Committed epoch history differs')
+        def model_optimizer(model,opt,steps):
+            if not model or (template is not None and set(model)!=set(template)):
+                raise ValueError('Model parameter inventory differs')
+            for key,tensor in model.items():
+                if (not torch.is_tensor(tensor) or tensor.dtype!=torch.float64 or not torch.isfinite(tensor).all()
+                        or template is not None and tensor.shape!=template[key].shape):
+                    raise ValueError('Invalid committed model tensor')
+            groups=opt.get('param_groups',[])
+            if len(groups)!=1:raise ValueError('Missing AdamW parameter group')
+            group=groups[0];ids=group['params']
+            if len(ids)!=len(model) or len(set(ids))!=len(ids):raise ValueError('AdamW parameter coverage differs')
+            for key,expected in [('lr',self.cfg['lr']),('weight_decay',self.cfg['weight_decay']),('eps',self.cfg['optimizer_eps'])]:
+                if group.get(key)!=expected:raise ValueError('AdamW configuration differs')
+            if tuple(group.get('betas',[]))!=tuple(self.cfg['betas']):raise ValueError('AdamW betas differ')
+            if any(group.get(k,False) not in (False,None) for k in ('maximize','amsgrad','capturable','differentiable','fused')):
+                raise ValueError('AdamW execution flags differ')
+            states=opt.get('state',{})
+            if set(states)!=(set(ids) if steps else set()):raise ValueError('AdamW state coverage differs')
+            for identifier,tensor in zip(ids,model.values()):
+                if not steps:continue
+                item=states[identifier]
+                if (not torch.is_tensor(item.get('step')) or item['step'].numel()!=1 or item['step'].item()!=steps
+                        or any(not torch.is_tensor(item.get(k)) or item[k].shape!=tensor.shape
+                               or item[k].dtype!=tensor.dtype or not torch.isfinite(item[k]).all() for k in ('exp_avg','exp_avg_sq'))):
+                    raise ValueError('AdamW moments/step differ')
+        history(cursor['history'],epoch)
+        if not math.isfinite(cursor['loss_sum']) or cursor['loss_sum']<0 or not start and cursor['loss_sum']!=0:
+            raise ValueError('Committed loss accumulator differs')
+        if state['active'] is not None:model_optimizer(state['active'],state['optimizer'],epoch*per_epoch+math.ceil(start/32))
+        elif state.get('optimizer') is not None:raise ValueError('Boundary has an active optimizer')
+        for row in state['completed'].values():
+            history(row['history'],self.cfg['epochs'])
+            if row['steps']!=per_mode:raise ValueError('Completed optimizer budget differs')
+            model_optimizer(row['state'],row['optimizer'],per_mode)
+        if len(self.modes)!=1:return  # Legacy serial fixture contracts retain their own model inventory.
+        reached=set(state['completed'])|({self.modes[mode]} if mode<len(self.modes) and epoch else set())
+        if set(state['best'])!=reached:raise ValueError('Validation-best coverage differs')
+        for kind,row in state['best'].items():
+            limit=self.cfg['epochs'] if kind in state['completed'] else epoch
+            if (not 1<=row['epoch']<=limit or not 0<=row['validation_positive39_macro_f1']<=1
+                    or row.get('selection')!='validation positive39 Macro; strict improvement; first tie'
+                    or template is not None and set(row['state'])!=set(template)):
+                raise ValueError('Validation-best selection differs')
+            if any(not torch.is_tensor(t) or not torch.isfinite(t).all() or
+                   template is not None and (t.shape!=template[k].shape or t.dtype!=template[k].dtype)
+                   for k,t in row['state'].items()):raise ValueError('Validation-best model differs')
+
 
     def save(self, *, mode, epoch, next_start, history, loss_sum, head, optimizer,
              completed, best, initial_sha, order_sha):
@@ -155,7 +230,7 @@ class Recovery:
             active=cpu_tree(head.state_dict()) if head is not None else None,
             optimizer=cpu_tree(optimizer.state_dict()) if optimizer is not None else None,
             completed=completed, best=best, rng=rng_state(), initial_sha=initial_sha, order_sha=order_sha)
-        self._validate_cursor(state)
+        self._validate_cursor(state,payload=False)
         atomic_torch(self.latest, state); self.state = state
         self.progress('training')
         if self.pause_after and ((self.pause_after>0 and state['done']==self.pause_after) or (self.pause_after<0 and state['cursor']['mode']==-self.pause_after and state['active'] is None)):
@@ -177,17 +252,49 @@ class Recovery:
         path = self.channel/'cloud-latest.json'
         return p.read(path).get('done', 0) if self.enabled and path.exists() else 0
 
+    def verify_cloud_history(self):
+        """Resume admission requires a contiguous acknowledged milestone prefix."""
+        if not self.enabled:return
+        pointer=self.channel/'cloud-latest.json'
+        if not pointer.exists():return
+        latest=p.read(pointer);names=['000-preparation']+['%03d-progress'%x for x in range(10,101,10)]
+        if latest.get('generation') not in names:raise ValueError('Unknown cloud pointer')
+        previous=0
+        for name in names[:names.index(latest['generation'])+1]:
+            directory=self.channel/name;req=p.read(directory/'request.json');ack=p.read(directory/'ack.json')
+            if (req.get('generation')!=name or req.get('identity')!=self.identity or req.get('run_id')!=self.parent.name
+                    or req.get('total')!=self.total or not previous<=req['done']<=self.total
+                    or ack.get('request_sha256')!=p.digest(directory/'request.json') or ack.get('done')!=req['done']
+                    or not ack.get('index_commit') or set(ack.get('objects',{}))!=set(req['files'])):
+                raise ValueError('Incomplete cloud acknowledgement prefix')
+            for key,row in req['files'].items():
+                obj=ack['objects'][key]
+                if not obj.get('version_id') or any(obj.get(k)!=row.get(k) for k in ('bytes','sha256')):
+                    raise ValueError('Cloud object identity differs')
+            previous=req['done']
+        if latest['done']!=previous or latest['request_sha256']!=p.digest(directory/'request.json'):
+            raise ValueError('Cloud pointer differs from verified history')
+
     def _publish(self, name, files, done):
         directory = self.channel/name; directory.mkdir(parents=True, exist_ok=True)
-        request = dict(schema='q-rmea.cos-request.v1', run_id=self.parent.name, generation=name,
-            identity=self.identity, done=done, total=self.total,
-            files={str(f.relative_to(self.parent).as_posix()):dict(bytes=f.stat().st_size,sha256=p.digest(f)) for f in files})
         request_path=directory/'request.json'
-        if request_path.exists():
-            if p.read(request_path)!=request:raise ValueError('Sealed COS request changed')
-        else:p.atomic_json(request_path,request)
+        ack = directory/'ack.json'
+        if request_path.exists() and ack.exists():
+            request=p.read(request_path)
+            if (request.get('schema')!='q-rmea.cos-request.v1' or request.get('run_id')!=self.parent.name
+                    or request.get('generation')!=name or request.get('identity')!=self.identity
+                    or request.get('done')!=done or request.get('total')!=self.total
+                    or set(request.get('files',{}))!={f.relative_to(self.parent).as_posix() for f in files}):
+                raise ValueError('Sealed COS request scope changed')
+        else:
+            request = dict(schema='q-rmea.cos-request.v1', run_id=self.parent.name, generation=name,
+                identity=self.identity, done=done, total=self.total,
+                files={str(f.relative_to(self.parent).as_posix()):dict(bytes=f.stat().st_size,sha256=p.digest(f)) for f in files})
+            if request_path.exists():
+                if p.read(request_path)!=request:raise ValueError('Sealed COS request changed')
+            else:p.atomic_json(request_path,request)
         # The owner may retry these same immutable files; training never retries.
-        ack = directory/'ack.json'; deadline = time.monotonic()+1800
+        deadline = time.monotonic()+1800
         while not ack.exists():
             self.progress('awaiting_cos_'+name)
             if time.monotonic() > deadline: raise TimeoutError('COS protection pending; preserved local state, no retraining')
@@ -201,6 +308,7 @@ class Recovery:
             if (not row.get('version_id') or row.get('sha256') != request['files'][key]['sha256']
                     or row.get('bytes') != request['files'][key]['bytes']):
                 raise ValueError('COS pinned object identity differs')
+        if done < self.cloud_cursor(): return
         p.atomic_json(self.channel/'cloud-latest.json', dict(generation=name, done=done,
             index_commit=receipt['index_commit'], request_sha256=receipt['request_sha256']))
         self.progress('training')
@@ -209,7 +317,7 @@ class Recovery:
         if not self.enabled:return
         import torch
         for directory in sorted(self.channel.glob('*')):
-            if not directory.is_dir() or (directory/'ack.json').exists():continue
+            if not directory.is_dir():continue
             request=directory/'request.json'
             if request.exists():
                 sealed=p.read(request)
@@ -218,13 +326,14 @@ class Recovery:
                 # Crash after hardlinking but before the request commit.
                 sealed=torch.load(directory/'latest.pt',map_location='cpu',weights_only=True)
                 self._validate_cursor(sealed)
-                if not (directory/'best.pt').exists():atomic_torch(directory/'best.pt',sealed['best'])
+                if not (directory/'best.pt').exists():atomic_torch(directory/'best.pt',sealed.get('best',{k:r['best'][k] for k,r in sealed.get('workers',{}).items() if r and k in r['best']}))
                 self._publish(directory.name,[directory/'latest.pt',directory/'best.pt'],sealed['done'])
 
     def prepare(self, labels, data_dir):
         if not self.enabled: return
         directory = self.channel/'000-preparation'; directory.mkdir(parents=True, exist_ok=True)
-        if (directory/'ack.json').exists(): return
+        if (directory/'ack.json').exists():
+            request=p.read(directory/'request.json');self._publish(directory.name,[self.parent/rel for rel in request['files']],request['done']);return
         if not (directory/'request.json').exists():
             # A process may have died while packaging, before publishing a request.
             for orphan in directory.glob('preparation.*.tarpart'): orphan.unlink()
@@ -236,7 +345,12 @@ class Recovery:
                 src = Path(data_dir)/(split+'.jsonl')
                 if p.digest(src) != sha: raise ValueError('Raw recovery source differs')
                 target = raw/src.name
-                if not target.exists(): shutil.copyfile(src, target)
+                if not target.exists() or p.digest(target)!=sha:
+                    temporary=target.with_suffix('.pending')
+                    shutil.copyfile(src,temporary)
+                    if p.digest(temporary)!=sha:raise ValueError('Raw staging digest differs')
+                    os.replace(temporary,target)
+                if p.digest(target)!=sha:raise ValueError('Raw recovery input differs')
                 files.append(target)
             p.atomic_json(raw/'labels.json', labels); files.append(raw/'labels.json')
             if any(f.is_symlink() or not f.resolve().is_relative_to(self.parent) for f in files):
@@ -260,7 +374,8 @@ class Recovery:
             threshold = math.ceil(self.total*percent/100)
             if done < threshold or (percent==100 and not final): continue
             name = '%03d-progress' % percent; directory = self.channel/name
-            if (directory/'ack.json').exists(): continue
+            if (directory/'ack.json').exists():
+                sealed=p.read(directory/'request.json');self._publish(name,[self.parent/rel for rel in sealed['files']],sealed['done']);continue
             directory.mkdir(parents=True, exist_ok=True)
             for src in (self.latest, self.best):
                 dst = directory/src.name

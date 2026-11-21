@@ -143,7 +143,7 @@ def cadence_fixture(root):
 
 def parent_fixture(root,args):
     base=root/'uninterrupted';interrupted=root/'interrupted'
-    common=[sys.executable,'-B','experiments/q_rmea_token_transport_handoff.py','run','--development-canary','--canary-only',
+    common=[sys.executable,'-B','experiments/q_rmea_token_transport_handoff.py','run','--development-canary','--canary-only','--execution','serial',
         '--gpu','auto','--data-dir',args.data_dir,'--assets',args.assets]
     def run(argv,ok=True):
         result=subprocess.run(argv,cwd=p.ROOT,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
