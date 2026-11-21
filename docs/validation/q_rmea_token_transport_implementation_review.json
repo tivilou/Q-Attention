@@ -2,11 +2,11 @@
   "verdict": "PASS",
   "review_scope": "both",
   "must_fix": [],
-  "source_revision": "dac476ab1dfe3ce0ae40864e371381f5ada4cd52",
-  "source_sha256": "64f659b7cee428c607588b490277a27a535ebd11b6b51ffcc18bcc160799e80a",
+  "source_revision": "7f46fba65171dff9a5234491613957a09cfa9cea",
+  "source_sha256": "d9837319bb368e6b43939596802a40e05d1f276cbe5e26c27f34947ceb6f3ee7",
   "contract_sha256": "72d253c30e0f9f433dcccadefacbe92676c8954ef3786fb06ac75fad97e3ef4e",
-  "review_mode": "subagent_fallback",
-  "reviewer_model": "Codex independent bounded subagent",
+  "review_mode": "external_delta_plus_unchanged_review",
+  "reviewer_model": "gpt-6.2-astra",
   "risks": [
     "Exact-file static delta review of the two v002 residual findings only, retaining prior review results for unchanged paths. R8 is resolved: manifest pins cache identity, absent-latest admission validates zero committed state and rejects contradictory progress, labels have a pinned fallback, and an atomic initial cursor is saved before preparation. R9 is resolved: the orphan fixture has a distinct run parent and channel. No residual reachable must-fix was found within these two repairs.",
     "PASS permits the bounded canary only. Runtime readiness remains pending: no tests or numerical experiments were executed by this reviewer. Full discovery must wait for actual fresh-process RNG/AdamW/cursor parity, active and next-head parent resume, SIGKILL lock release, zero-update admission/rejection, immutable pending/orphan COS retry, pinned readback/index acknowledgement, same-source export-only retry, and fenced seven-file owner return acceptance. The unchanged final-epoch selection and fixed scientific budget are not relaxed."
@@ -25,5 +25,15 @@
       "result": "preflight identity/parse assertion failure"
     }
   ],
-  "resolved_review_findings": 9
+  "resolved_review_findings": 9,
+  "reasoning_effort": "high",
+  "delta_review": {
+    "scope": "lifecycle",
+    "verdict": "PASS",
+    "must_fix": [],
+    "prior_source_sha256": "64f659b7cee428c607588b490277a27a535ebd11b6b51ffcc18bcc160799e80a",
+    "change": "CUDA deterministic fixture environment before imports",
+    "provider": "a6api",
+    "runtime_acceptance": "pending"
+  }
 }
