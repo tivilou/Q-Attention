@@ -250,7 +250,7 @@ def command(args, action, condition=None):
     return argv
 
 
-def execute(jobs, out, phase):
+def execute(jobs, out, phase, *, report=None):
     """Own only these no-grandchild processes; the scheduler owns their process group."""
     active = []
     stopping = False
@@ -290,7 +290,10 @@ def execute(jobs, out, phase):
                     current=row.get('current',0), total=row.get('total'), status='running' if proc.poll() is None else 'complete'))
             total = TRAIN+N if phase == 'prepare' else N*len(jobs)
             current = sum(x['current'] for x in states)
-            event(out, phase, current, total, jobs=states)
+            if report is None:
+                event(out, phase, current, total, jobs=states)
+            else:
+                report(out, phase, states)
             time.sleep(1)
         if stopping:
             raise InterruptedError('Batch interrupted')
