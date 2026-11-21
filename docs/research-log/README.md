@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-最新检查点：[词质量/方向诊断](20261121T-date-only-mass-direction.md)。完整validation主检验失败，停止质量补偿；线性输入依赖测量仍为单seed线索，L5未达标。下一步先冻结上下文/旋转匹配诊断；独立条件用三卡auto runner一次申请资源后批内并行。历史限定L4与原全量失败结论不变。
+最新检查点：[查询/上下文匹配三卡诊断](20261121T-date-only-query-alignment.md)。完整validation强输入匹配门槛未过；不证明旋转等价或完全无效。保留原linear单seed线索，下一步明确计算图后做训练梯度分叉。三卡真实重叠完成、原限定L4不变、L5未达标。
 
 ## 时间线
+
+- [2026-11-21：查询/上下文匹配三卡诊断](20261121T-date-only-query-alignment.md)（三卡真实重叠；全量validation门槛未过，partial trace）。
 
 - [2026-11-21：词质量/方向配对诊断，停止质量补偿](20261121T-date-only-mass-direction.md)（仅日期命名；三项短诊断完成，partial trace 边界明确）。
 
