@@ -1,19 +1,29 @@
 {
-  "review_mode": "external",
-  "review_scope": "both",
-  "source_revision": "3ac0b52a8f58d2e7f5e7a876c1aca708701bfe72",
-  "source_sha256": "87cf23331d95a1f3afacabcf2b1ea08b917e4aed9a57e0ad90a8236344ef6292",
-  "contract_sha256": "f6ccc416cdd0e169d50823bfa96b82f3b66a13865c4bc449ccfe11133c0ec576",
-  "freeze_sha256": "fdcb3823d618726593f93a998c551469ef2bbb7b3173e7be9cea2cdb0a76c136",
   "verdict": "PASS",
+  "review_scope": "both",
   "must_fix": [],
+  "source_revision": "dac476ab1dfe3ce0ae40864e371381f5ada4cd52",
+  "source_sha256": "64f659b7cee428c607588b490277a27a535ebd11b6b51ffcc18bcc160799e80a",
+  "contract_sha256": "72d253c30e0f9f433dcccadefacbe92676c8954ef3786fb06ac75fad97e3ef4e",
+  "review_mode": "subagent_fallback",
+  "reviewer_model": "Codex independent bounded subagent",
   "risks": [
-    "The prior block is resolved. The recovered branch reads at most 3,055,802 bytes, requires exactly 3,055,801, verifies the snapshot against RECOVERED_FIXTURE_SHA, and extracts from that same snapshot via BytesIO. The caller records the matching pin; later changes to the archive path cannot alter the extracted bytes.",
-    "The historical pin and loader are unchanged, and discovery still rejects fixture input. The prior BOTH PASS stands for unchanged code. The recovered cache attests to archived features, not live tokenization or full-data extraction.",
-    "The scheduler-assigned parent canary on this revision remains pending. This review is not a runtime receipt, release approval, or authorization for formal training."
+    "Exact-file static delta review of the two v002 residual findings only, retaining prior review results for unchanged paths. R8 is resolved: manifest pins cache identity, absent-latest admission validates zero committed state and rejects contradictory progress, labels have a pinned fallback, and an atomic initial cursor is saved before preparation. R9 is resolved: the orphan fixture has a distinct run parent and channel. No residual reachable must-fix was found within these two repairs.",
+    "PASS permits the bounded canary only. Runtime readiness remains pending: no tests or numerical experiments were executed by this reviewer. Full discovery must wait for actual fresh-process RNG/AdamW/cursor parity, active and next-head parent resume, SIGKILL lock release, zero-update admission/rejection, immutable pending/orphan COS retry, pinned readback/index acknowledgement, same-source export-only retry, and fenced seven-file owner return acceptance. The unchanged final-epoch selection and fixed scientific budget are not relaxed."
   ],
-  "L5": "NOT_ACCEPTED",
-  "response_id": "resp_06dfb6c4c51a55c0016b0091d1ef5887d296eee355ecf7a5b0",
-  "reviewer_model": "gpt-6.2-astra",
-  "reasoning_effort": "medium"
+  "confidence": "high",
+  "runtime_readiness": "pending fresh-process COS and real parent canary; source approval only",
+  "transport_attempts": [
+    {
+      "model": "claude-opus-5-5",
+      "profile": "native Messages max",
+      "result": "preflight READY; review HTTP502"
+    },
+    {
+      "model": "claude-fable-5",
+      "profile": "native Messages max",
+      "result": "preflight identity/parse assertion failure"
+    }
+  ],
+  "resolved_review_findings": 9
 }
