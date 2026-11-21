@@ -1,0 +1,152 @@
+{
+  "schema": "q-rmea.token-transport.run.v1",
+  "config": {
+    "schema": "q-rmea.token-transport.protocol.v1",
+    "profile": "discovery",
+    "seed": 13,
+    "conditions": [
+      "native",
+      "cubic_coherent",
+      "cubic_initial_dephased",
+      "linear_coherent"
+    ],
+    "counts": {
+      "train": 58465,
+      "valid": 19584,
+      "test": 13418
+    },
+    "epochs": 4,
+    "batch_size": 32,
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "optimizer_eps": 1e-08,
+    "clip_norm": 1.0,
+    "dtype": "float64/complex128",
+    "parameters": 81028,
+    "tau": 0.25,
+    "born_eps": 1e-06,
+    "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+    "order": "NumPy default_rng(seed); one permutation per epoch; identical all four conditions",
+    "selection": "Fixed final epoch only; valid descriptive; no early stopping or epoch selection",
+    "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending, no label access",
+    "primary": "positive39Macro fixed denominator39; cubic>each control and CE<=native",
+    "trace_checkpoints": [
+      "final"
+    ],
+    "trace_samples_per_split": 2,
+    "diagnostic_samples": 32,
+    "diagnostic_tolerance": 1e-08,
+    "replication": "No automatic replication or rescue seeds/epochs/tau",
+    "claim_scope": "Single seed on previously exposed official splits; no inherited L4/L5/novelty or mediation"
+  },
+  "source_sha256": "d9837319bb368e6b43939596802a40e05d1f276cbe5e26c27f34947ceb6f3ee7",
+  "git_revision": "4044c8b166b4ae63b66f57b5bcfd7163df281956",
+  "environment": {
+    "python": "3.10.10",
+    "torch": "2.4.1+cu121",
+    "numpy": "1.24.3",
+    "gpu": "NVIDIA GeForce RTX 3060",
+    "fixture_sha256": null,
+    "transformers": "4.44.2"
+  },
+  "data": {
+    "train": {
+      "source_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+      "source_count": 58465,
+      "selected_count": 58465
+    },
+    "valid": {
+      "source_sha256": "9d6965f984d7485e2e81d380a0b0de2922d3da1e2685393ea3e46869805c2b55",
+      "source_count": 19584,
+      "selected_count": 19584
+    },
+    "test": {
+      "source_sha256": "2c1cfac1f3c0d18ed8a1c9f9d49808dacc3a0f03519978b58242a7e79d4cdf40",
+      "source_count": 13418,
+      "selected_count": 13418
+    }
+  },
+  "cache": {
+    "metadata.json": {
+      "bytes": 10632131,
+      "sha256": "9e6eac9ad582a4ef4e1a8a12190bfef3b8f0a18c5efbd9072f91f31563656c0e"
+    },
+    "test-encoder-0.npy": {
+      "bytes": 237696,
+      "sha256": "3e5a72ba0e1a3d11ab7452e146e0b7c57f948f8f742e849098b31c3ca6aa7b7e"
+    },
+    "test-encoder-1.npy": {
+      "bytes": 237696,
+      "sha256": "98e6915da08e57d2d149dac35ca8d133fb17f5770dc0285dd9339c19efe0411b"
+    },
+    "test-h.npy": {
+      "bytes": 951187584,
+      "sha256": "7a5edffd6be5e08135b1971ab861f6519ab4a678ea1fb456300aeafec85561be"
+    },
+    "test-offsets.npy": {
+      "bytes": 107480,
+      "sha256": "20dc5450ceb68c049fa56b329e0bbbf99719dd533a031398fc34d32afa8d2eeb"
+    },
+    "test-roles.npy": {
+      "bytes": 7431280,
+      "sha256": "9245dfb2e5322590481a3a2d0ed0f0438734fabd0924505934108ce6816d92e8"
+    },
+    "test-targets.npy": {
+      "bytes": 107472,
+      "sha256": "a646bad36ca5c69d1e747d646a135c40be309c7d7f5f5943cd7f5332e71c1bbd"
+    },
+    "train-encoder-0.npy": {
+      "bytes": 266368,
+      "sha256": "0591eb44676f77d175a59d6fbad12b4130508fe5ecd9f34145ca41493f70697d"
+    },
+    "train-encoder-1.npy": {
+      "bytes": 266368,
+      "sha256": "fdeee6823447d5023ece9b460103691e8fa330c96e4a22239afc90a82c8b1e63"
+    },
+    "train-h.npy": {
+      "bytes": 4432355456,
+      "sha256": "b69b1bfb97f20932b26dcea8b13a788a12ec98ec43a68de1801960ad5c526635"
+    },
+    "train-offsets.npy": {
+      "bytes": 467856,
+      "sha256": "a1ef178eae3b9c16b4cfa20dc66af15a1dd0238bb9fc2fffd55b7a6328c25601"
+    },
+    "train-roles.npy": {
+      "bytes": 34627904,
+      "sha256": "b62e4e23836c8b5b9b930e5b9d993f0890a729bfdadbcee02b08c23cae0c3d73"
+    },
+    "train-targets.npy": {
+      "bytes": 467848,
+      "sha256": "6ce409b586a421995f7d70906f062a7e91fe9d35a04be5359a2f58a3485ee604"
+    },
+    "valid-encoder-0.npy": {
+      "bytes": 311424,
+      "sha256": "185694b92e6da2ce07531235b8869860bd320d3e8a73e0347dc7ce6424d9c294"
+    },
+    "valid-encoder-1.npy": {
+      "bytes": 311424,
+      "sha256": "3b9e440dd3e0b7c09576da22a3bb3b21c6e71d6f7a6cc9ed46342ea322f2d099"
+    },
+    "valid-h.npy": {
+      "bytes": 1416849536,
+      "sha256": "a45b2b43bbacbe41b3d7c327b10bc5708b258e13e5c0eff79fea52c4d83ed9f6"
+    },
+    "valid-offsets.npy": {
+      "bytes": 156808,
+      "sha256": "1b68a943c03e9c80e455da1600cb65a0c463f7ea4815465744001bb0b4c1c13f"
+    },
+    "valid-roles.npy": {
+      "bytes": 11069264,
+      "sha256": "0af5324a5ba0e741b27f85f798277706eb7b0faeb8348657a8319c2b56f772a7"
+    },
+    "valid-targets.npy": {
+      "bytes": 156800,
+      "sha256": "87f63eef29f0b267dd4be85f6265b7632542ce0b71f7212a2ff240ed6f88a71b"
+    }
+  }
+}
