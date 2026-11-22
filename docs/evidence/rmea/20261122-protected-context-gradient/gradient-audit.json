@@ -1,0 +1,60 @@
+{
+  "schema": "q-rmea.protected-context.gradient-audit.v1",
+  "status": "VALID_BOUNDED_SOURCE_UNIT",
+  "executed_revision": "633dac31e5dc2f86d3961a61ba80d008230d6b9f",
+  "task": "44ee015d887d409ba74680ace9d651c7",
+  "attempt": "a47734e3b15f4999a8bffb319e0087bc",
+  "returncode": 0,
+  "quiescent": true,
+  "projector_rank_manifold_checks": {
+    "rank2_factor_manifold": true,
+    "rank4_factor_manifold": true,
+    "rank8_factor_manifold": true,
+    "repeated_column_rank3": true,
+    "finite_truncated_derivative_only": true,
+    "truncated_rank": 3
+  },
+  "max_micro_gradient_absolute_error": 1.4210854715202004e-13,
+  "max_source_directional_absolute_error": 1.406043281804159e-09,
+  "native": "bitwise fixture parity passed at original threads1/deterministic context",
+  "protected_context": "numerical parity to immutable frozen constrained-filter fixture passed; P and R gradients active",
+  "all_modes_finite_81028_parameter_gradients": true,
+  "private_fresh_state_replay": "bitwise_pass",
+  "prior_failures": [
+    {
+      "task": "0d256da4c26145a1a12f6d4f30379aa4",
+      "source": "3772ea89",
+      "cause": "scheduler-owned progress sideband rejected before math",
+      "exit": 1,
+      "quiescent": true
+    },
+    {
+      "task": "1c028d0bc4054fef88909f5dc13f5479",
+      "source": "7a851897",
+      "cause": "native bitwise mismatch with different CPU thread context; same producer context restored, gate unchanged",
+      "exit": 1,
+      "quiescent": true
+    }
+  ],
+  "input_fixture_sha256": "a241fb5d7e3e63e54210f045f72297d9dcbbbeb43771fe9932f1486a5264c1d8",
+  "output_fixture_sha256": "bac71835c0399346120d7ed2f8849765665d58f32efa799a58d4ba56872747dd",
+  "output_fixture_bytes": 1576078,
+  "enrollment_rollback": {
+    "action": "rollback",
+    "verified": true,
+    "revision": "8b5eca869517b873c89e12369a6389355d3845d8",
+    "recipe": "rmea-protected-context-gradient-v1",
+    "other_projects_preserved": true,
+    "task_history_preserved": true,
+    "quiescence": "point-in-time checks under existing writer contract; no continuous reservation claimed"
+  },
+  "training_admission": false,
+  "sample_trace_v2": false,
+  "L5": "NOT_ACCEPTED",
+  "limits": [
+    "Known first-order spectral calculus, fixed-rank only; no novelty/utility or global conditioning claim",
+    "Two selected exposed validation fixtures, not independent task evidence",
+    "DFT control prospective; not equivalent to earlier frozen donor intervention",
+    "No optimizer, new baseline, COS write or Windows model/data download"
+  ]
+}
