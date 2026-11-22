@@ -1,0 +1,33 @@
+{
+  "schema": "q-rmea.protected-context.gradient-review.v1",
+  "model": "gpt-6.2-astra",
+  "requested_effort": "high",
+  "echoed_effort": "high",
+  "profile_echo_verified": true,
+  "packet_sha256": "02ad7235486cc20978b0b01ba1d9fe7ed1569d13ea6e145f5387aa3b5469266c",
+  "reviewed_files": {
+    "baselines/retacred/rmea_protected_context.py": "723485a1863bab5bd02ac1de30219237d726cf6126757525265cfc7811458ffd",
+    "experiments/q_rmea_protected_context_unit.py": "112320f27badf1d32f2f59be7a5c6bc1c03026c768dc878e11e2fd876adbe62e",
+    "register-gradient.py": "b077c2078a4e51b2aa59b19d5f651fab598a8b753ab826f5ab18f08cf105d086",
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "verdict": "PASS_WITH_SCOPE",
+    "review_scope": "both",
+    "must_fix": [],
+    "findings": [
+      "The projector backward has the correct divided-difference sign and factor of two for a real loss with complex inputs. It takes the Hermitian part of the incoming gradient and replaces within-cluster denominators before division, so repeated singular values within either cluster do not produce 0/0.",
+      "The covariance forms the mean of context-column outer products. The solve uses effect columns on the right-hand side, and the amplitude conjugates the corrected effects. Both the covariance and the protected projector retain their gradient paths to the preparation parameters. The fixed DFT acts within each example and adds no trainable parameter or checkpoint key.",
+      "The unit exercises rank-preserving projector perturbations and compares analytical derivatives of the actual loss against central differences for prepare.weight and effect in each nonnative condition. It checks every parameter gradient for finiteness and compares the two-case mean-loss gradient with two correctly scaled single-case backward passes. The nonzero discarded-singular-value example checks gradient finiteness only.",
+      "Native mode delegates to the original forward method. Runtime gates require strict checkpoint loading, the original key list, 81,028 parameters, bitwise native fixture outputs, numerical protected-filter parity, padding and batch parity, and bitwise replay from a fresh head.",
+      "The registrar binds enrollment to the reviewed packet and contract, checks the deployed revision and contracted source hashes, and persists both project projections before the first node mutation. An interrupted install or rollback can reconcile against those recorded projections. Quiescence is checked at points in time."
+    ],
+    "claim_limits": [
+      "Admission is conditional on the calling host verifying gpt-6.2-astra and high reasoning effort from this response's raw transport metadata, followed by the registrar's enrollment checks. This static review used no tools and supplies no runtime pass or independent byte-hash measurement.",
+      "The derivative claim covers first order while the retained cluster stays fixed and separated from the discarded cluster. The directional checks sample one direction per named parameter tensor on the two preserved cases.",
+      "Admission covers one scheduler CPU unit attempt with zero optimizer steps. The DFT control is prospective. Fitting, efficacy, donor equivalence, sample-trace.v2, and L5 acceptance remain outside scope."
+    ],
+    "admission": "scheduler_cpu_gradient_unit_only"
+  },
+  "prior_review": "Round1 claimed SHA had51 chars; exact original packet reread showed64/equal recomputed; same-model re-review with mechanical proof. Both preserved privately."
+}

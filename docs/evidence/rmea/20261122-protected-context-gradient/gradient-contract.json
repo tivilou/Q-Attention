@@ -1,0 +1,55 @@
+{
+  "schema": "q-rmea.protected-context.gradient-contract.v1",
+  "recipe_id": "rmea-protected-context-gradient-v1",
+  "recipe": {
+    "command": [
+      "{python}",
+      "-B",
+      "experiments/q_rmea_protected_context_unit.py",
+      "--fixture",
+      "/hy-tmp/Q-Attention/worker/attempts/102818b8681f4417a2a64bde19e77e80/output/private-fixture.pt",
+      "--output",
+      "{output}"
+    ],
+    "kind": "unit",
+    "max_attempts": 1,
+    "replay_safe": false,
+    "resources": {
+      "cpu": 2,
+      "disk_mb": 256,
+      "gpu_mb": 0,
+      "gpus": 0,
+      "ram_mb": 8192
+    },
+    "timeout": 300,
+    "outputs": [
+      "gradient-summary.json",
+      "private-replay.pt",
+      "RUN_COMPLETE"
+    ]
+  },
+  "source_hashes": {
+    "baselines/retacred/rmea_protected_context.py": "723485a1863bab5bd02ac1de30219237d726cf6126757525265cfc7811458ffd",
+    "experiments/q_rmea_protected_context_unit.py": "112320f27badf1d32f2f59be7a5c6bc1c03026c768dc878e11e2fd876adbe62e",
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "fixture_sha256": "a241fb5d7e3e63e54210f045f72297d9dcbbbeb43771fe9932f1486a5264c1d8",
+  "population": "preserved2case fixture selected before old probe: first negative and first positive by predeclared rule",
+  "parameters": {
+    "ridge": 0.125,
+    "svd_relative_cutoff": 1e-10,
+    "source_floor": 1e-06,
+    "numeric_policy": "Source circuit/value dtype unchanged; differentiable complex128 projector/covariance/solve; normalized alpha cast back to source h dtype"
+  },
+  "primary": "Exact first derivative on constant-rank strata; repeated within-cluster singular values allowed; actual prepare/effect directional finite differences; all81028 gradients finite; fullbatch2 versusmicro1 parity; native bitwise and oldfilter numerical parity.",
+  "control": "Future prospective DFT8 R DFT8^H using same-example covariance; spectrum/trace/parameters unchanged. Different from frozen donor intervention. Not admitted for fitting.",
+  "recovery": "One CPU scheduler attempt; no optimizer/COS/autoretry. Preserve partial evidence on failure; rollback exact enrollment while quiescent. Saved private fixture reload into fresh head must replay bitwise.",
+  "limits": [
+    "First derivative only; rank crossings/closing cross-cluster gaps and arbitrary rank-increasing perturbations are outside certificate",
+    "No fullfit/utility/L5 or sample-trace.v2 certificate",
+    "No labels in inference, derivative targets only [0,1] loss probes; no outcome selection",
+    "Source canonical constrained filtering known; preserve mixed frozen96 result"
+  ],
+  "L5": "NOT_ACCEPTED"
+}
