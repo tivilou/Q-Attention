@@ -1,0 +1,117 @@
+{
+  "status": "PASS",
+  "comparison_scope": "Prior raw-intensity circuit31/32 versus separate stronger normalized-mass prototype, not a favorable task-utility comparison. Original source/outputs preserved; no historical rerun.",
+  "commands_and_literal_outputs": {
+    "baseline": {
+      "stdout.log": "{\"status\": \"complete\", \"selected_count\": 32, \"evaluated_count\": 31, \"positive_count\": 31, \"existence_gate\": true, \"L5\": \"NOT_ACCEPTED\"}\n",
+      "stderr.log": "",
+      "command": {
+        "argv": [
+          "/hy-tmp/Q-Attention/env/bin/python",
+          "-B",
+          "-c",
+          "import hashlib,pathlib,runpy,sys,subprocess;r=pathlib.Path('/hy-tmp/Q-Attention/control/born-intensity-circuit-train32-20261122');h={'circuit_probe.py': '2121c299c67ee6bb08e135b3fa3cc0ee3e96a811ee337b28fe47db668ee53a7d', 'circuit-design.json': '282d1eee49c1beeeda18b60b1d15b2270d2481e048659b949a28d73b4aa7bc2c', 'training-cache-pins.json': 'cf7b184fdc32c097c2e42748c82f8163e59d1583538aa14695039a3ef119d025', 'prior-population.json': 'fb558bfe08bacd94001172d42201ed70912dd4da592b2390b913777a0f01cfa3'};assert all(hashlib.sha256((r/n).read_bytes()).hexdigest()==v for n,v in h.items());assert subprocess.check_output(['git','-C','/hy-tmp/Q-Attention/source-protected-context-discovery-20261122','rev-parse','HEAD'],text=True).strip()=='1c2f39e032d81768a38be3d45f6de8221c338f52';sys.argv=[str(r/'circuit_probe.py'),'--output',sys.argv[1],'--source-root','/hy-tmp/Q-Attention/source-protected-context-discovery-20261122','--design',str(r/'circuit-design.json'),'--baseline-run','/hy-tmp/Q-Attention/worker/attempts/6a2bf35b8d9d4ac4a6b4fe2acb6bc116/output/20261121T034306Z_seed13/discovery','--pins',str(r/'training-cache-pins.json'),'--population',str(r/'prior-population.json')];runpy.run_path(str(r/'circuit_probe.py'),run_name='__main__')",
+          "/hy-tmp/Q-Attention/worker/attempts/c5c6e8d068914c00835a80aa25ec985b/output"
+        ],
+        "cwd": "/hy-tmp/Q-Attention/source-protected-context-discovery-20261122"
+      },
+      "exit_status": 0
+    },
+    "modified": {
+      "argv": [
+        "/hy-tmp/Q-Attention/env/bin/python",
+        "-B",
+        "/hy-tmp/Q-Attention/control/normalized-mass-20261122/probe.py",
+        "--source",
+        "/hy-tmp/Q-Attention/source",
+        "--inputs",
+        "/hy-tmp/Q-Attention/inputs/native-baseline",
+        "--checkpoint",
+        "/hy-tmp/Q-Attention/inputs/native-checkpoint/native-final.pt",
+        "--design",
+        "/hy-tmp/Q-Attention/control/normalized-mass-20261122/design.json",
+        "--population",
+        "/hy-tmp/Q-Attention/control/normalized-mass-20261122/prior-population.json",
+        "--output",
+        "/hy-tmp/Q-Attention/control/normalized-mass-20261122/output",
+        "--progress",
+        "/hy-tmp/Q-Attention/control/normalized-mass-20261122/progress.json",
+        "--attempt",
+        "aa4bd569163c42cebb1e56e72303779d"
+      ],
+      "cwd": "/hy-tmp/Q-Attention/source",
+      "inputs": {
+        "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+        "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+        "population_sha256": "fb558bfe08bacd94001172d42201ed70912dd4da592b2390b913777a0f01cfa3"
+      },
+      "stdout": "{\"status\": \"complete\", \"positive_count\": 1, \"batch\": {\"examples\": 8, \"relations\": 40, \"forward_backward_seconds\": 1.7214826392009854, \"peak_cuda_bytes\": 75436032, \"admitted_queries\": 280, \"total_queries\": 320}, \"gates\": {\"native_identity\": true, \"nonzero_geometry\": true, \"finite_gradients\": true, \"nonzero_gradient\": true, \"finite_difference\": true, \"bounded_cost\": true}, \"local_gate\": true, \"L5\": \"NOT_ACCEPTED\"}\n",
+      "stderr": "",
+      "exit_code": 0,
+      "started_at": 1795342173.7254148,
+      "finished_at": 1795342183.1699054,
+      "runner_attempt_id": "aa4bd569163c42cebb1e56e72303779d",
+      "file_hashes": {
+        "normalized_mass.py": "f3434aec98df5aab547e6ba3f3ef03970fa8a091296890b4364d5fc7c8c0f20c",
+        "probe.py": "ab71d2766e3ca273da62a9eda07f16e39161dc3f9540ba26497ee080d62edd8e",
+        "design.json": "677bbc654ca0a324cf00343333fa291648316636b5f025a3f486aa6650b69f90",
+        "prior-population.json": "fb558bfe08bacd94001172d42201ed70912dd4da592b2390b913777a0f01cfa3",
+        "host_run.py": "f84cfc70c803e59a68f9f220a74915aa6d622641603f78125125005d4ce75bd7"
+      }
+    }
+  },
+  "result": {
+    "status": "PASS",
+    "returncode": 0,
+    "quiescent": true,
+    "all_cases_retained": true,
+    "source_hashes": {
+      "normalized_mass.py": "f3434aec98df5aab547e6ba3f3ef03970fa8a091296890b4364d5fc7c8c0f20c",
+      "probe.py": "ab71d2766e3ca273da62a9eda07f16e39161dc3f9540ba26497ee080d62edd8e",
+      "design.json": "677bbc654ca0a324cf00343333fa291648316636b5f025a3f486aa6650b69f90",
+      "prior-population.json": "fb558bfe08bacd94001172d42201ed70912dd4da592b2390b913777a0f01cfa3",
+      "host_run.py": "f84cfc70c803e59a68f9f220a74915aa6d622641603f78125125005d4ce75bd7"
+    },
+    "summary_remote_sha256": "8357c1075882d69d313834877b128eaf6d0b94cabae15aa9ea84c7c9de6c00cf",
+    "all_gates_recomputed": true,
+    "all_receipt_hashes": {
+      "execution.json": "98f01d9b943f051d0025351739800490ba7b95636f1677e6d105475cbed0151e",
+      "output/summary.json": "8357c1075882d69d313834877b128eaf6d0b94cabae15aa9ea84c7c9de6c00cf",
+      "output/RUN_COMPLETE": "0ad28ee58539e6af79392490dadd4de7f179d3dcb403a70de6e5a71c82c4fa54",
+      "resource-return.json": "722f7af47757f3d29e12477e07820b271e1e36e1c1536afc416dcc041ca15565"
+    }
+  },
+  "rollback": {
+    "argv": [
+      "D:\\Software\\Dev\\Language\\Anaconda3\\envs\\QT2\\python.exe",
+      "-B",
+      "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\normalized-mass-20261122\\rollback_source.py",
+      "--root",
+      "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\normalized-mass-20261122\\rollback-fixture"
+    ],
+    "stdout": "{\"removed\": 2, \"core_and_data_untouched\": true}\n",
+    "stderr": "",
+    "exit_code": 0,
+    "original_circuit_preserved": true,
+    "live_rollback": false
+  },
+  "patch": {
+    "argv": [
+      "git",
+      "-c",
+      "core.autocrlf=false",
+      "-c",
+      "core.eol=lf",
+      "-C",
+      "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\normalized-mass-20261122\\patch-fixture",
+      "apply",
+      "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\normalized-mass-20261122\\source.patch"
+    ],
+    "stdout": "",
+    "stderr": "",
+    "exit_code": 0,
+    "applied_in_isolated_directory": true,
+    "code_hashes_verified": true,
+    "no_git_repository_created": true
+  }
+}
