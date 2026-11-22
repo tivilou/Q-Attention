@@ -1,0 +1,55 @@
+{
+  "schema": "q-rmea.protected-context.trace-execution.v1",
+  "task": "8f5fb5e9516b49aebfafbdc701ac0631",
+  "attempt": "3d506075b9b848368f5813fca9565435",
+  "state": "complete",
+  "revision": "d9c1421b3c6884bb3a9c93f267107d8589f754e3",
+  "recipe": {
+    "command": [
+      "{python}",
+      "-B",
+      "experiments/q_rmea_protected_context_trace_preflight.py",
+      "--baseline-run",
+      "/hy-tmp/Q-Attention/worker/attempts/6a2bf35b8d9d4ac4a6b4fe2acb6bc116/output/20261121T034306Z_seed13/discovery",
+      "--output",
+      "{output}"
+    ],
+    "kind": "unit",
+    "max_attempts": 1,
+    "outputs": [
+      "trace-preflight.json",
+      "RUN_COMPLETE"
+    ],
+    "replay_safe": false,
+    "resources": {
+      "cpu": 2,
+      "disk_mb": 256,
+      "gpu_mb": 0,
+      "gpus": 0,
+      "ram_mb": 8192
+    },
+    "timeout": 300
+  },
+  "receipt": {
+    "returncode": 0,
+    "quiescent": true,
+    "finished": 1795314132.5048783,
+    "revision": "d9c1421b3c6884bb3a9c93f267107d8589f754e3",
+    "outputs": {
+      "RUN_COMPLETE": {
+        "bytes": 399,
+        "sha256": "2eb7619203320ffe6dcd91943ece27de7f2ec3021362a56f583f979ed8004f15"
+      },
+      "trace-preflight.json": {
+        "bytes": 6260,
+        "sha256": "87c1f3a5603dcf346266df482d0881c511fe4d432e5374b440a39463d688a637"
+      }
+    }
+  },
+  "summary_sha256": "87c1f3a5603dcf346266df482d0881c511fe4d432e5374b440a39463d688a637",
+  "seal_sha256": "2eb7619203320ffe6dcd91943ece27de7f2ec3021362a56f583f979ed8004f15",
+  "only_compact_receipts_downloaded": true,
+  "private_values_stay_remote": true,
+  "formal_training_admission": false,
+  "L5": "NOT_ACCEPTED"
+}

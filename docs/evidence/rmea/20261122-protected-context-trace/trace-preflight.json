@@ -1,0 +1,164 @@
+{
+  "schema": "q-rmea.protected-context.trace-preflight.v1",
+  "status": "complete",
+  "scope": "Existing frozen model on tiny source cache, no optimizer",
+  "checks": {
+    "structural": "pass",
+    "semantic": "pass",
+    "replay": "pass",
+    "coordinate_reader": "pass",
+    "samples": 24,
+    "complete_numeric_arrays_checked": 726,
+    "complete_numeric_elements_checked": 2274118,
+    "source_linked_coordinates_checked": 2130,
+    "warnings": [],
+    "boundary": "Pinned frozen word features to final head; no encoder/internal-layer/training-trajectory claim"
+  },
+  "negative_checks": {
+    "incomplete_values": "rejected",
+    "source_index": "rejected",
+    "label_in_routing": "rejected",
+    "legacy_native_lineage": "rejected",
+    "producer_dtype": "rejected",
+    "extra_target_element": "rejected"
+  },
+  "abrupt_negative_checks": {
+    "producer_dtype": {
+      "returncode": 73,
+      "validated_archive_unchanged": true,
+      "separate_inode": true
+    },
+    "extra_target_element": {
+      "returncode": 73,
+      "validated_archive_unchanged": true,
+      "separate_inode": true
+    }
+  },
+  "actual_reader_cli": {
+    "command": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/source-protected-context-gradient-20261122/scripts/view_q_rmea_protected_context_trace.py",
+      "--run-dir",
+      "/hy-tmp/Q-Attention/worker/attempts/3d506075b9b848368f5813fca9565435/output",
+      "--sample",
+      "native:final:train:0",
+      "--representation",
+      "alpha",
+      "--coordinates",
+      "[[0, 0, 0], [0, 39, 20]]"
+    ],
+    "returncode": 0,
+    "stdout_sha256": "6eea5ad73b39848afa3b99d31d56ead1bfecec01cca0e1a477ac2de873c6ecfd",
+    "source_sha256": "18a222abef98629746dd0a9436c8aa4069504cf34f4aa562175f1c2d9e2cb515"
+  },
+  "input_manifest_sha256": "d1e17dfd0f8f75d2d90ab1b9c5365b7a752b7e44a70c950c3c2b94ad28d207ea",
+  "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "sample_trace_sha256": "b0e1b6e50337cdba55e6e61f0a369a3530ce820d56846e9632b6522a82590aaf",
+  "private_arrays": {
+    "trace/context_scrambled-final-test-0.npz": {
+      "bytes": 269961,
+      "sha256": "a448e6a45f881ce893bcaf3b75382551dc60315e629435adfd7fb95c18aac648"
+    },
+    "trace/context_scrambled-final-test-1.npz": {
+      "bytes": 391774,
+      "sha256": "650eb5794d237393a9c60cbc18f8c93374b1ea16613cbc89ebfbfc397550ce59"
+    },
+    "trace/context_scrambled-final-train-0.npz": {
+      "bytes": 229786,
+      "sha256": "e5a3d8b25088b51223fb7bf1c893fd4df13a5ca1984d23ba2f6b6a3429605956"
+    },
+    "trace/context_scrambled-final-train-1.npz": {
+      "bytes": 448195,
+      "sha256": "580f74fd2ed68697dd9af1f007b53528f398cb6be4e1209ad2fab60466eb43eb"
+    },
+    "trace/context_scrambled-final-valid-0.npz": {
+      "bytes": 383881,
+      "sha256": "306ab3e0336386ccb116b58bac12fee721bd016203e578709d6dd44846992e48"
+    },
+    "trace/context_scrambled-final-valid-1.npz": {
+      "bytes": 464285,
+      "sha256": "429fb86d726d40cc261c49410ac990543b23a54a15142c4a735599556a00e51a"
+    },
+    "trace/native-final-test-0.npz": {
+      "bytes": 233498,
+      "sha256": "4be8238beb2f61c574f11e99ef68a3373485197aa049454598234677f60d8591"
+    },
+    "trace/native-final-test-1.npz": {
+      "bytes": 346169,
+      "sha256": "6de13ed69598f43fd19977a70fd15978da9ccc83e850288f6f05bbba4739e5bd"
+    },
+    "trace/native-final-train-0.npz": {
+      "bytes": 196437,
+      "sha256": "fc0466da67b5f90b8813150006510f38f1c3f70515003520acbc581421def65c"
+    },
+    "trace/native-final-train-1.npz": {
+      "bytes": 398388,
+      "sha256": "ca83b7bb9f0ba6b0ee5d127c45ecd95f4cd4e9d3b0b66c4a1f32151eade2551a"
+    },
+    "trace/native-final-valid-0.npz": {
+      "bytes": 338792,
+      "sha256": "530e9b3b332bb5e7a86ebcec8516040e901d6b1bfe22fd39f9f1d1b934ddc77d"
+    },
+    "trace/native-final-valid-1.npz": {
+      "bytes": 413183,
+      "sha256": "6af76b93c5b0fabe06f93793f01c92d7d8131f1228dd934ee02e11816d9f04fd"
+    },
+    "trace/protected_context-final-test-0.npz": {
+      "bytes": 269926,
+      "sha256": "83ead4405887d593e92cebd9e6e0fa1fbd9afb1ce6346894ee816a47aef1b88d"
+    },
+    "trace/protected_context-final-test-1.npz": {
+      "bytes": 391804,
+      "sha256": "63f2e12cf4e1bf42c08a6ef4f58b6049192aacb1c3510e27ad0100344bc6b248"
+    },
+    "trace/protected_context-final-train-0.npz": {
+      "bytes": 229737,
+      "sha256": "4fdf1c6009a2f75a8f1f6df5782d88e026a23b818a5aa49ab6b13711f3fcebf7"
+    },
+    "trace/protected_context-final-train-1.npz": {
+      "bytes": 448223,
+      "sha256": "64ffc85463cd3395c349f96381950cd4b5f66a3a9e69babd8c944574e59712d4"
+    },
+    "trace/protected_context-final-valid-0.npz": {
+      "bytes": 383803,
+      "sha256": "7470167dfb709e59f57f623163c297a088ceb1d69ff9b9327dd8e5918bfc2c05"
+    },
+    "trace/protected_context-final-valid-1.npz": {
+      "bytes": 464261,
+      "sha256": "091e260e3f50b8589a62daba263224055792885a359981e09027e34f148fb559"
+    },
+    "trace/unprotected_context-final-test-0.npz": {
+      "bytes": 269212,
+      "sha256": "402d9ee045ff9f13605e6410409d6b285ba076a3b8dfb6a4c8e7ab6bb7845bf3"
+    },
+    "trace/unprotected_context-final-test-1.npz": {
+      "bytes": 391097,
+      "sha256": "6cf636c61f4335f42a6fd60504c9ed7561ace114440f08997cfc69b34a936efc"
+    },
+    "trace/unprotected_context-final-train-0.npz": {
+      "bytes": 229069,
+      "sha256": "3712f9f2171f8294237c79a84a6fb4e6a1e677c4f3ee5eb5f61e63def3d9b720"
+    },
+    "trace/unprotected_context-final-train-1.npz": {
+      "bytes": 447619,
+      "sha256": "932cc2a82880845578896d8e0825cf42eaa511ae6c8026b69e7dcea82119d9ed"
+    },
+    "trace/unprotected_context-final-valid-0.npz": {
+      "bytes": 383117,
+      "sha256": "a9d27ef3312bbf25c8d1679304aa089efbcb57736c7e96f472339c11378f5429"
+    },
+    "trace/unprotected_context-final-valid-1.npz": {
+      "bytes": 463601,
+      "sha256": "57a908086eedfc249b431f598a891c49fb73322e42bdde1e66bf66965cd6b1a9"
+    }
+  },
+  "private_array_bytes": 8485818,
+  "same_sample_condition_inputs": "verified",
+  "paired_native": "same checkpoint, unchanged native routing",
+  "optimizer_steps": 0,
+  "COS_written_bytes": 0,
+  "source_trace_readiness": true,
+  "formal_training_admission": false,
+  "L5": "NOT_ACCEPTED"
+}
