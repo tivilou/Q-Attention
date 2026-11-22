@@ -1,5 +1,6 @@
 """Four matched final-state heads; full-data execution is collaborator-only."""
 import json
+import random
 import argparse
 import gc
 import hashlib
@@ -121,6 +122,8 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
         row['ce'] = row['loss']
         return row
 
+    random.seed(cfg['seed'])
+    np.random.seed(cfg['seed'])
     torch.manual_seed(cfg['seed'])
     initial = {k: v.clone() for k, v in RMEAHead('quantum').double().state_dict().items()}
     initial_sha = state_identity(initial)
