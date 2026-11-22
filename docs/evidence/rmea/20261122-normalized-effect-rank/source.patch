@@ -1,0 +1,142 @@
+--- /dev/null
++++ b/experiments/diagnostics/normalized_effect_rank/verify_witness.py
+@@ -0,0 +1,139 @@
++"""Finite state-port witness; no fit, data access, optimizer or cloud writes."""
++import argparse
++import hashlib
++import json
++import math
++import sys
++import time
++from pathlib import Path
++import numpy as np
++import torch
++
++SOURCE_SHA = '9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0'
++
++def digest(p):
++    return hashlib.sha256(p.read_bytes()).hexdigest()
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    for name in ('source', 'output', 'progress'):
++        parser.add_argument('--' + name, type=Path, required=True)
++    parser.add_argument('--attempt', required=True)
++    args = parser.parse_args()
++    assert not (args.output / 'RUN_COMPLETE').exists()
++    assert digest(args.source / 'baselines/retacred/rmea.py') == SOURCE_SHA
++    sys.path.insert(0, str(args.source))
++    from baselines.retacred.rmea import circuit, EPS
++    torch.set_num_threads(1)
++    args.output.mkdir(parents=True, exist_ok=True)
++    def save(path, value):
++        temp = path.with_suffix('.pending')
++        temp.write_text(json.dumps(value, indent=2))
++        temp.replace(path)
++    def progress(phase, current):
++        save(args.progress, dict(schema='research.progress.v1', attempt=args.attempt,
++            phase=phase, current=current, total=1, unit='fixture',
++            observed_at=time.time(), heartbeat_at=time.time()))
++    progress('finite_witness', 0)
++    eye = np.eye(8, dtype=np.complex128)
++    spinors = np.array([[1, 1], [1, 1j], [math.sqrt(2), 0]], dtype=np.complex128) / math.sqrt(2)
++    mentions = np.zeros((3, 8), dtype=np.complex128)
++    mentions[:, [0, 3]] = math.sqrt(2 / 3) * spinors
++    mentions[:, 2] = math.sqrt(1 / 3)
++    frames = []
++    for v in mentions:
++        basis = [v.copy()]
++        for standard in eye:
++            w = standard.copy()
++            for b in basis:
++                w -= b * np.vdot(b, w)
++            if np.linalg.norm(w) > 1e-10:
++                basis.append(w / np.linalg.norm(w))
++        assert len(basis) == 8
++        frames.append(np.stack(basis))
++    psi = np.concatenate([*frames, eye])
++    mention_index = [0, 8, 16]
++    utility = np.zeros(32)
++    utility[[24, 27]] = 1
++    rho0 = np.outer(eye[2], eye[2].conj())
++    components = np.stack([(eye[0] + eye[3]) / math.sqrt(2),
++                           (eye[0] - eye[3]) / math.sqrt(2)])
++    densities = np.einsum('ki,kj->kij', components, components.conj())
++    rho_star = densities.mean(0)
++    p_q = np.outer(eye[0], eye[0].conj()) + np.outer(eye[3], eye[3].conj())
++    def attention(states, rho):
++        score = np.einsum('ti,ij,tj->t', states.conj(), rho, states).real + EPS * np.trace(rho).real
++        return score / score.sum(), float(score.sum())
++    a0, z0 = attention(psi, rho0)
++    am, zm = attention(psi, rho_star)
++    b = psi.T @ psi.conj() + len(psi) * EPS * eye
++    c = sum(utility[i] * (np.outer(v, v.conj()) + EPS * eye) for i, v in enumerate(psi))
++    mixed_value = float(utility @ am)
++    lam = (3 + math.sqrt(3)) / 2
++    pure_q_bound = 8 * lam / (1 + 8 * lam)
++    pure_logit_bound = (pure_q_bound + 2 * EPS) / (4 + 32 * EPS)
++    certified_gap = 1 / ((1 + 8 * lam) * (4 + 32 * EPS))
++    dual_lambda0 = (1 + 2 * EPS) / (4 + 32 * EPS)
++    dual_slack = dual_lambda0 * b - c
++    # Original source circuit, not a separately reimplemented gate simulator.
++    theta = torch.zeros(3, 2, 3, 2, dtype=torch.float64)
++    theta[0, 1, 0, 0] = math.pi / 2
++    theta[1, 1, 0, 0] = -math.pi / 2
++    theta[2, 0, :, 0] = math.pi / 2
++    theta[2, 1, :, 0] = torch.tensor([-math.pi / 2, math.pi / 2, math.pi / 2], dtype=torch.float64)
++    actual = circuit(theta).detach().numpy()
++    target = np.concatenate([components, eye[2:3]])
++    circuit_density_error = max(float(np.max(np.abs(np.outer(x, x.conj()) - np.outer(y, y.conj()))))
++                                for x, y in zip(actual, target))
++    raw = torch.atanh(theta / math.pi)
++    raw_inverse_error = float((math.pi * torch.tanh(raw) - theta).abs().max())
++    # Exact Y correspondence and explicit attained dual certificate for this witness.
++    y = rho_star / zm
++    y_back = y / np.trace(y).real
++    normalization_error = max(abs(np.trace(b @ y).real - 1), float(np.max(np.abs(y_back - rho_star))))
++    # A separate non-tight token frame tests score mixing BEFORE normalization.
++    other = np.stack([eye[0], (eye[0] + eye[3]) / math.sqrt(2), eye[3], eye[2]])
++    weights = np.array([.3, .7])
++    mixed_other = np.einsum('k,kij->ij', weights, densities)
++    a_other, _ = attention(other, mixed_other)
++    individual = [attention(other, x) for x in densities]
++    denominators = np.array([x[1] for x in individual])
++    effective_weights = weights * denominators / (weights @ denominators)
++    expected = effective_weights @ np.stack([x[0] for x in individual])
++    naive = weights @ np.stack([x[0] for x in individual])
++    checks = dict(
++        unit_tokens=float(np.max(np.abs(np.linalg.norm(psi, axis=1) - 1))),
++        tight_frame=float(np.max(np.abs(psi.T @ psi.conj() - 4 * eye))),
++        protected_mention=float(np.max(np.abs(a0[mention_index] - am[mention_index]))),
++        protected_context_mass=abs((1 - a0[mention_index].sum()) - (1 - am[mention_index].sum())),
++        mixed_formula=abs(mixed_value - dual_lambda0),
++        dual_identity=float(np.max(np.abs(dual_slack - (eye - p_q)))),
++        dual_min_eigenvalue=float(np.linalg.eigvalsh(dual_slack).min()),
++        normalization_error=normalization_error,
++        circuit_density_error=circuit_density_error,
++        raw_inverse_error=raw_inverse_error,
++        mixture_identity_error=float(np.max(np.abs(a_other - expected))),
++        naive_average_error=float(np.max(np.abs(a_other - naive))),
++        strict_gap_identity=abs((mixed_value - pure_logit_bound) - certified_gap))
++    error_names = set(checks) - {'dual_min_eigenvalue', 'naive_average_error'}
++    assert all(checks[n] < 1e-12 for n in error_names), checks
++    assert checks['dual_min_eigenvalue'] > -1e-12
++    assert checks['naive_average_error'] > .01
++    assert certified_gap > .01 and mixed_value > pure_logit_bound
++    assert np.linalg.matrix_rank(rho_star, tol=1e-12) == 2
++    summary = dict(status='complete', profile='normalized-effect-rank-finite-witness-v1',
++        source_sha256=SOURCE_SHA, probe_sha256=digest(Path(__file__)), checks=checks,
++        dimensions=dict(state=8, tokens=32, mention_constraints=3, mixed_rank=2),
++        native_logit=float(utility @ a0), mixed_optimum=mixed_value,
++        analytic_all_pure_upper_bound=pure_logit_bound, certified_gap_lower_bound=certified_gap,
++        pure_bound_is_tight=False, dual_certificate=dict(lambda0=dual_lambda0, mention_multipliers=[0,0,0]),
++        theory='Analytic all-pure bound is justified by the accompanying proof, not sampled optimization.',
++        scope='Synthetic state-port existence and original effect-circuit reachability only; token circuit reachability and real-input utility unproved.',
++        labels_used=False, dataset_reads=0, optimizer_updates=0, cos_writes=0, L5='NOT_ACCEPTED')
++    save(args.output / 'summary.json', summary)
++    save(args.output / 'RUN_COMPLETE', dict(artifacts={'summary.json':digest(args.output / 'summary.json')}))
++    progress('complete', 1)
++    print(json.dumps(summary), flush=True)
++
++if __name__ == '__main__':
++    main()
