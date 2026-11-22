@@ -1,0 +1,26 @@
+{
+  "model": "gpt-6.2-astra",
+  "requested_effort": "high",
+  "echoed_effort": "high",
+  "profile_echo_verified": true,
+  "selection_basis": "owner_preference",
+  "response_id": "resp_04c48e14f9b66dbe016b025f54288087d19a8c701dbe197b30",
+  "packet_sha256": "359715eeda7ac0e40831b1127456f443d6f59f82460a4efedd01ede0cb518c11",
+  "seconds": 15.360986471176147,
+  "response": {
+    "verdict": "PASS",
+    "review_scope": "both",
+    "must_fix": [],
+    "findings": [
+      "The publisher restart fix resolves the outstanding blocker. While holding the attempt-specific publisher.lock, serve-canary.py rechecks the active attempt and compares the entire saved configuration with the proposed configuration. A changed bucket, prefix, or other configuration value raises before publisher construction. A matching restart reuses the saved file without rewriting it.",
+      "The publisher binds dispatch to the active task, attempt, recipe, and revision. It checks the canary manifest and handoff, restricts publication to 000-preparation and 010-progress, and authenticates both acknowledgements against the Git index, verification ledger, and version-specific COS metadata before recording completion.",
+      "The registrar checks the reviewed source bytes and hashes, exact recipe contract, and review receipt before installation. Its retained intent and before-or-after projection checks support an explicit retry after a partial installation.",
+      "The recipe pins the accepted CPU unit artifact before invoking the scientific CLI. After primary canary success, it compares persisted Python, NumPy, Torch, and CUDA RNG state across the serial, local-resume, and COS-restore lanes for each fitted condition. The separate acceptance record binds that comparison to the primary validation and seal."
+    ],
+    "claim_limits": [
+      "This static review admits one scheduler attempt on three GPUs using the fixed 16/8/8 fixture. Runtime acceptance requires the sealed canary validation, matching canary-acceptance.json, and attempt-specific publisher completion.",
+      "The restore drill covers a fresh directory on the same managed node. Discovery training requires separate owner admission and verification of the 13 pinned input objects. Benchmark utility, cross-provider recovery, and L5 remain outside this admission."
+    ],
+    "admission": "scheduler_three_gpu_canary_only"
+  }
+}
