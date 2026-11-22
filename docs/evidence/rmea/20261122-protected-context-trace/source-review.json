@@ -1,0 +1,34 @@
+{
+  "schema": "q-rmea.protected-context.trace-review.v1",
+  "model": "gpt-6.2-astra",
+  "requested_effort": "high",
+  "echoed_effort": "high",
+  "profile_echo_verified": true,
+  "packet_sha256": "c1f5e9ea0bab1098db65dd20b5055a9b0d2b6dc1e97f927a33e813d3749eb49e",
+  "reviewed_files": {
+    "baselines/retacred/rmea_protected_context.py": "d659fc4a4499ae9c2c18af6ce12174871278dab1e1b530bb4875b14ab772d462",
+    "baselines/retacred/rmea_protected_context_trace.py": "660b8063eab503968dadec16219dc407ae6c16732fbb7d468088146a79a647a5",
+    "experiments/q_rmea_protected_context_trace_preflight.py": "54c25b85b140a4073149b14d2f37c37c57ac3f67885c17bf190f95b082df0108",
+    "scripts/view_q_rmea_protected_context_trace.py": "18a222abef98629746dd0a9436c8aa4069504cf34f4aa562175f1c2d9e2cb515",
+    "register-trace.py": "49af7dfff9c74725d07fbc03087d036987c862461d5a6cfc5ba2a064cd92c020",
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "verdict": "PASS_WITH_SCOPE",
+    "review_scope": "both",
+    "must_fix": [],
+    "findings": [
+      "The preflight fixes six source units before inference and replays each under all four conditions. Validation reconstructs h, roles and mask from the pinned cache, checks entity-role channels against the recorded spans, and requires an exact singleton int64 target. It checks dtype and shape before comparing every archived producer array with replay.",
+      "The paired-native lineage matches the explicit RMEAHead.forward call on the same checkpoint. It starts from h, roles and mask and uses the checkpoint parameters for preparation, effects, values, decoding and bias. The head receives no target argument. The evaluation stage names the split-specific target source, and negative cases cover both target insertion into prediction and the obsolete paired-native lineage.",
+      "The coordinate check covers every archived representation, including complex values. It compares selected reader results directly with NPZ scalars. A separate CLI check exercises argument parsing and sample lookup for one alpha representation. Each negative NPZ mutation targets a separate inode, and the parent checks the published archive digest after the child exits.",
+      "The registrar specifies the six required review paths independently of the packet and compares each embedded UTF-8 body and digest with local bytes before changing either project configuration. The retained intent records both controller and node projections for install and rollback. Quiescence is checked at specific points under the stated writer contract."
+    ],
+    "claim_limits": [
+      "This is a static admission decision. Runtime replay, negative-case rejection, the tampered-body gate, transport-profile verification and rollback remain to be observed by the host.",
+      "Completeness applies to the declared final-head representations from frozen word features. The capture helper explicitly excludes the auxiliary native sensitivity tensor. Numeric replay uses absolute and relative tolerances of 1e-8 after exact dtype and shape checks.",
+      "The fixture uses one existing native checkpoint for all four conditions. Its results establish neither training readiness nor efficacy, derivative validity, novelty or L5 acceptance."
+    ],
+    "admission": "scheduler_cpu_trace_preflight_only"
+  },
+  "prior_review": "Two prior static BLOCKs fixed: independent dtype/shape/target replay and isolated interruption-safe negative fixtures; prior reviews retained privately."
+}

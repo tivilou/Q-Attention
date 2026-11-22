@@ -123,4 +123,5 @@ class ProtectedContextHead(RMEAHead):
                     mention=mention, covariance=covariance, used_covariance=used_covariance,
                     projector=projector, singular_values=singular, perp=perp,
                     correction=correction, corrected=corrected, raw=raw,
+                    system=system, rhs=rhs, amplitude=amplitude,
                     probability=probability, normalizer=normalizer)
