@@ -1,4 +1,5 @@
 """Four matched final-state heads; full-data execution is collaborator-only."""
+import json
 import argparse
 import gc
 import hashlib
@@ -42,7 +43,7 @@ def load_fixture(archive, output):
                 or any(not v.isfile() or not 0 < v.size <= 2**21 for v in members)
                 or sum(v.size for v in members) != 4118454):
             raise ValueError('Recovered fixture inventory differs')
-        manifest = p.json.load(tar.extractfile('canary/manifest.json'))
+        manifest = json.load(tar.extractfile('canary/manifest.json'))
         if (manifest['config']['counts'] != {'train': 16, 'valid': 8, 'test': 8}
                 or manifest['config']['encoder_revision'] != p.config('canary')['encoder_revision']):
             raise ValueError('Recovered tiny cache contract differs')
@@ -206,7 +207,7 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
                 if recovery is not None: atomic_torch(recovery.best,best)
             save(epoch_index+1,0,0.)
             if recovery is not None: recovery.milestone()
-            print(p.json.dumps(dict(stage='train', condition=kind, epoch=epoch, updates=steps)), flush=True)
+            print(json.dumps(dict(stage='train', condition=kind, epoch=epoch, updates=steps)), flush=True)
         head.eval(); final_state = cpu_tree(head.state_dict())
         cp = checkpoints / (kind + '-final.pt')
         atomic_torch(cp, final_state)

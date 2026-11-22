@@ -511,7 +511,7 @@ class FrozenFeatureTraining:
             parallel_train(self.p.config('discovery'), output, self.p.read(root / 'recovery-inputs/labels.json'), devices, cos=True, resume=args.resume, restore_pin=False, runtime=self.runtime)
             self.deliver(args)
 
-    def main(self):
+    def main(self, argv=None):
         a = argparse.ArgumentParser(description=__doc__)
         a.add_argument('action', choices=('unit', 'canary', 'run', 'worker', 'replay', 'export'))
         a.add_argument('--output', type=Path, required=True)
@@ -526,7 +526,7 @@ class FrozenFeatureTraining:
         a.add_argument('--assignment-token')
         a.add_argument('--resume', action='store_true')
         a.add_argument('--restore-pin', action='store_true')
-        args = a.parse_args()
+        args = a.parse_args(argv)
         require(not args.restore_pin or (args.action == 'run' and args.resume), '--restore-pin requires run --resume')
         self.p.review_gate(action=args.action)
         if args.action == 'worker':

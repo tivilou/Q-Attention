@@ -25,6 +25,8 @@ EXTRA = ('baselines/retacred/rmea_frozen_training.py','baselines/retacred/rmea_e
          'experiments/q_rmea_entity_scattering.py',
          'experiments/q_rmea_query_alignment.py',
          'baselines/retacred/orchestrate.py')
+EXTRA = (*EXTRA, 'baselines/retacred/rmea_task_runtime.py',
+         'baselines/retacred/rmea_experiments.py', 'experiments/q_rmea_train.py')
 REPORT_FILES = {'summary.json','manifest.json','analysis-readiness.json','receipt.json',
                 'run_summary.json','data.sha256','data_counts.txt'}
 

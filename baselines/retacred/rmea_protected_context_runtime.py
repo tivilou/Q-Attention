@@ -7,7 +7,8 @@ from pathlib import Path
 import sys
 
 from . import rmea_protected_context_protocol as protocol
-from .rmea_entity_scattering_runtime import chunks, backward, score_batch
+from . import rmea_task_runtime as task
+from .rmea_task_runtime import chunks, backward, score_batch
 from .rmea_protected_context_trace import require
 
 
@@ -23,24 +24,12 @@ def make_head(kind):
 
 
 def launch_spec(output, kind, device, *, resume):
-    import uuid
-    require(kind in protocol.MODES and str(device).strip(), 'Invalid worker assignment')
-    token = uuid.uuid4().hex
-    protocol.atomic_json(Path(output)/'.workers'/kind/'assignment.json',
-        dict(token=token, parent_pid=os.getpid(), condition=kind, device=str(device),
-             source=protocol.identity(protocol.sources())))
-    argv = [sys.executable, '-B', str(protocol.ROOT/'experiments/q_rmea_protected_context_train.py'),
-            'worker', '--output', str(Path(output).resolve()), '--condition', kind,
-            '--parent-pid', str(os.getpid()), '--assignment-token', token]
-    if resume:
-        argv.append('--resume')
-    return dict(argv=argv, cwd=str(protocol.ROOT), physical_gpu=str(device),
-                condition=kind, revision=protocol.git('rev-parse', 'HEAD'))
+    return task.launch_spec(protocol, 'experiments/q_rmea_protected_context_train.py',
+                            output, kind, device, resume=resume)
 
 
 def prepare(recovery, labels, data_dir):
-    from .rmea_entity_scattering_runtime import prepare as shared_prepare
-    return shared_prepare(recovery, labels, data_dir, protocol_override=protocol)
+    return task.prepare(protocol, recovery, labels, data_dir)
 
 
 def capture(output, head, kind, split, batch, metadata):
@@ -249,9 +238,7 @@ def replay_all(output):
 
 
 def export(output, target, *, inject_failure=False):
-    from .rmea_entity_scattering_runtime import export as shared_export
-    return shared_export(output, target, inject_failure=inject_failure,
-                         protocol_override=protocol, closed_analysis_override=closed_analysis)
+    return task.export(protocol, closed_analysis, output, target, inject_failure=inject_failure)
 
 
 def unit(out):

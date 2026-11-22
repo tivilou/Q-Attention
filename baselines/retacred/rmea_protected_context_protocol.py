@@ -28,6 +28,8 @@ EXTRA = ('baselines/retacred/rmea_frozen_training.py',
          'scripts/view_q_rmea_protected_context_trace.py',
          'experiments/q_rmea_query_alignment.py',
          'baselines/retacred/orchestrate.py')
+EXTRA = (*EXTRA, 'baselines/retacred/rmea_task_runtime.py',
+         'baselines/retacred/rmea_experiments.py', 'experiments/q_rmea_train.py')
 
 
 def sources():
