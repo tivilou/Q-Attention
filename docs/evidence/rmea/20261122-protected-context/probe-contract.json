@@ -1,0 +1,64 @@
+{
+  "schema": "q-rmea.protected-context.probe-contract.v1",
+  "recipe_id": "rmea-protected-context-probe-v1",
+  "recipe": {
+    "command": [
+      "{python}",
+      "-B",
+      "experiments/q_rmea_protected_context_probe.py",
+      "--baseline-run",
+      "/hy-tmp/Q-Attention/worker/attempts/6a2bf35b8d9d4ac4a6b4fe2acb6bc116/output/20261121T034306Z_seed13/discovery",
+      "--identities",
+      "docs/evidence/rmea/20261122-protected-context/cache-identities.json",
+      "--output",
+      "{output}"
+    ],
+    "kind": "diagnostic",
+    "max_attempts": 1,
+    "replay_safe": false,
+    "resources": {
+      "cpu": 1,
+      "disk_mb": 256,
+      "gpu_mb": 0,
+      "gpus": 0,
+      "ram_mb": 8192
+    },
+    "timeout": 300,
+    "outputs": [
+      "probe-summary.json",
+      "RUN_COMPLETE",
+      "private-fixture.pt"
+    ]
+  },
+  "source_hashes": {
+    "experiments/q_rmea_protected_context_probe.py": "03a463d6faaca626ece1cf720378b433c48d78b73e6371a8cf9917e675739dd8",
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "docs/evidence/rmea/20261122-protected-context/cache-identities.json": "5dc89003494f6b782663759ce12b6292041904548e6ce80dd5651144603e87bc"
+  },
+  "checkpoint": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "population": "existing exposed validation19584; first18label0 and first2eachlabel1..39 by stable id_hash;96total",
+  "donor": "recipient-context-count bins floor(ncontext/8), cyclic idhash derangement; singleton nearest other context-count then id_hash",
+  "primary": "positive cases with context: difference of mentions-higher versus context-higher contrasts in matched-minus-donor fixed-native-competitor margin change; report each stratum n and component changes; descriptive no p threshold or confirmation",
+  "sanity": [
+    "protected amplitude numerical bound including discarded singular directions",
+    "matched original context power nonincrease",
+    "exact utility decomposition tolerance1e-7",
+    "native bitwise parity",
+    "fixed private fixture safe reload/replay"
+  ],
+  "parameters": {
+    "ridge": 0.125,
+    "svd_relative_cutoff": 1e-10,
+    "source_floor": 1e-06
+  },
+  "capture": "full detached numeric tensors for firstselected no_relation and firstselected positive case only",
+  "recovery": "One CPU attempt, no automatic retry or checkpoint/COS publication; failure preserves outputs. Only replay same immutable completed fixture; scheduler project enrollment temporary restored after quiescence.",
+  "limits": [
+    "Frozen source head, no optimizer, gradients, new test split or task-level fit",
+    "sample-trace.v2/CaseStudy/formal readiness pending",
+    "Known constrained-filter transfer; source DOI metadata only, no literature-priority claim",
+    "Exact span theorem conditional on no discarded singular directions; residual audit covers actual mention states"
+  ],
+  "L5": "NOT_ACCEPTED"
+}

@@ -1,0 +1,34 @@
+{
+  "schema": "q-rmea.protected-context.review.v1",
+  "model": "gpt-6.2-astra",
+  "requested_effort": "high",
+  "echoed_effort": "high",
+  "profile_echo_verified": true,
+  "packet_sha256": "c84de4071533df6e441c1ee74bf7048dcc8237691577bfee49cbd8757be290c6",
+  "reviewed_files": {
+    "experiments/q_rmea_protected_context_probe.py": "03a463d6faaca626ece1cf720378b433c48d78b73e6371a8cf9917e675739dd8",
+    "register-probe.py": "43ca4f35675d2949b6997ed2fd696878fd5c3df1455b342e88f729657f641133",
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "verdict": "PASS_WITH_SCOPE",
+    "review_scope": "both",
+    "must_fix": [],
+    "findings": [
+      "The complex orientation is consistent. For token states stored as rows, z.T @ z.conj() forms the context covariance, the left singular vectors of psi[mention].T span the retained mention directions, and the projected ridge solve gives the stated correction. The largest discarded singular value times the correction norm bounds the amplitude change on each mention token, up to the explicit roundoff allowance.",
+      "The probe checks matched context-power nonincrease for every relation on every selected case. It applies the native 1e-6 floor before token normalization and requires bitwise equality between the native detail and ordinary forward paths. The synthetic checks cover a nonzero correction and the full protected-span limit.",
+      "The two utility terms account for the logit change exactly when the conditional mention utility is preserved. With truncation, the omitted term equals the new mention mass times the change in conditional mention utility. The probe checks the resulting residual against 1e-7 for every relation under both interventions.",
+      "The code selects all 96 cases by label quota and stable ID before computing head outputs. Donor selection excludes the recipient and uses context count and ID. Each case keeps its highest-scoring native non-target competitor across all three margin calculations. The primary contrast uses positive cases with context and is null if either sign stratum is empty.",
+      "The two private fixtures use detached inference tensors and a weights-only reload. Replay reconstructs the head and requires bitwise equality for native attention and logits, both transformed attention arrays, and all three logit vectors.",
+      "The recipe specifies one CPU, zero GPUs, 8192 MiB RAM, 300 seconds and one attempt. Enrollment verifies the node revision and contracted source hashes before installation. The controller and node writers compare the project projections against retained before and after states, and rollback restores the recorded project settings."
+    ],
+    "claim_limits": [
+      "This is a static review of the supplied source and contract. Runtime hash matches, numerical checks, fixture replay and rollback remain unverified here.",
+      "Enrollment checks quiescence at discrete points. The controller and node writes occur separately, so interruption can leave a partial enrollment that requires explicit reconciliation using the retained intent.",
+      "The primary contrast is descriptive for the fixed, label-stratified sample from exposed validation data. Donors can be reused, and a target utility gap alone does not determine the margin change because the fixed competitor's logit can also move.",
+      "Admission covers frozen-head inference only. Training efficacy, literature priority, sample-trace.v2, CaseStudy and formal readiness remain unestablished. L5 remains NOT_ACCEPTED."
+    ],
+    "admission": "scheduler_cpu_frozen_probe_only"
+  },
+  "earlier_reviews": "Three BLOCK rounds retained privately; primary statistic/saved-state replay/input pin/durable fenced enrollment/detached bias corrected before execution."
+}
