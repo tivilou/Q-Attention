@@ -1,0 +1,53 @@
+{
+  "schema": "q-rmea.protected-context.integration-execution.v1",
+  "task": "9af81e0afc4e49d38e1b519eb3c7a2cf",
+  "attempt": "d67ef0b3c5ca45a7ad79606110c4fcb9",
+  "state": "complete",
+  "revision": "e89b9293afa9ad6f589ba05903685b1a2c77af8e",
+  "recipe": {
+    "command": [
+      "{python}",
+      "-B",
+      "experiments/q_rmea_protected_context_train.py",
+      "unit",
+      "--output",
+      "{output}"
+    ],
+    "kind": "unit",
+    "max_attempts": 1,
+    "outputs": [
+      "unit-validation.json",
+      "RUN_COMPLETE"
+    ],
+    "replay_safe": false,
+    "resources": {
+      "cpu": 2,
+      "disk_mb": 256,
+      "gpu_mb": 0,
+      "gpus": 0,
+      "ram_mb": 8192
+    },
+    "timeout": 300
+  },
+  "receipt": {
+    "returncode": 0,
+    "quiescent": true,
+    "revision": "e89b9293afa9ad6f589ba05903685b1a2c77af8e",
+    "outputs": {
+      "RUN_COMPLETE": {
+        "bytes": 120,
+        "sha256": "2fb7ddf02211f74e1d3bab252868618f4bd80f5182f7aa3a37d00e27ff8f3b40"
+      },
+      "unit-validation.json": {
+        "bytes": 1190,
+        "sha256": "a251c7003e5e40d746e70c069adbd2f0430c32e90dc6a0220f17ad98daa69a0f"
+      }
+    }
+  },
+  "only_compact_receipts_downloaded": true,
+  "COS_write_bytes": 0,
+  "GPU_count": 0,
+  "optimizer_steps": 3,
+  "formal_training_admission": false,
+  "L5": "NOT_ACCEPTED"
+}
