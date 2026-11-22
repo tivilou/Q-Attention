@@ -1,13 +1,13 @@
 {
   "schema": "q-rmea.protected-context.canary-contract.v1",
-  "recipe_id": "rmea-protected-context-training-canary-v1",
+  "recipe_id": "rmea-protected-context-training-canary-v2",
   "recipe": {
     "kind": "diagnostic",
     "command": [
       "{python}",
       "-B",
       "-c",
-      "import hashlib,json,pathlib,runpy,sys\nif not __debug__:raise RuntimeError('Canary admission requires unoptimized Python')\nunit=pathlib.Path(sys.argv[2]);out=pathlib.Path(sys.argv[1])\nexpected='a251c7003e5e40d746e70c069adbd2f0430c32e90dc6a0220f17ad98daa69a0f'\nsha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()\nif sha(unit/'unit-validation.json')!=expected:raise ValueError('Pinned unit artifact differs')\nsys.argv=['experiments/q_rmea_protected_context_train.py','canary','--output',str(out),'--unit-output',str(unit)]\nrunpy.run_path(sys.argv[0],run_name='__main__')\nimport torch\nfrom baselines.retacred import rmea_protected_context_protocol as p\nfrom baselines.retacred.rmea_token_transport_parallel import equal_state\nseal=p.read(out/'RUN_COMPLETE');validation=out/'canary-validation.json'\nif seal['artifacts']['canary-validation.json']!=sha(validation) or p.read(validation).get('gate') is not True:raise ValueError('Primary canary seal differs')\nsuffix=out.parent.name\nroots=[out/('serial-'+suffix)/'discovery',out/('canary-'+suffix)/'discovery',out/'restored'/('canary-'+suffix)/'discovery']\nchecks={}\nfor kind in p.MODES:\n states=[torch.load(root/'.workers'/kind/'latest.pt',map_location='cpu',weights_only=True) for root in roots]\n if any(set(s.get('rng',{}))!={'python','numpy','torch','cuda'} for s in states):raise ValueError('Incomplete persisted RNG')\n if not all(equal_state(states[0]['rng'],s['rng']) for s in states[1:]):raise ValueError('Serial/local/COS RNG continuation differs: '+kind)\n checks[kind]=dict(python=True,numpy=True,torch=True,cuda=True,lanes=3)\np.atomic_json(out/'canary-acceptance.json',dict(schema='q-rmea.protected-context.canary-acceptance.v1',gate=True,unit_sha256=expected,primary_validation_sha256=sha(validation),primary_seal_sha256=sha(out/'RUN_COMPLETE'),rng=checks,source_sha256=p.identity(p.sources()),contract_sha256=p.identity(p.contract()),scope='Owner wrapper verifies exact accepted unit before official CLI, then all persisted RNG across3 completed lanes. No mutation of primary seal or scientific source; no full training admission.'))\nprint(json.dumps(dict(canary_acceptance=True,rng_conditions=len(checks),unit_pin=True)))\n",
+      "import hashlib,json,pathlib,runpy,sys\nif not __debug__:raise RuntimeError('Canary admission requires unoptimized Python')\nprior_unit=pathlib.Path(sys.argv[2]);out=pathlib.Path(sys.argv[1]);unit=out.parent/'protected-context-unit'\nexpected='a251c7003e5e40d746e70c069adbd2f0430c32e90dc6a0220f17ad98daa69a0f'\nsha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()\nif sha(prior_unit/'unit-validation.json')!=expected:raise ValueError('Pinned unit artifact differs')\nunit.mkdir()\nsys.argv=['experiments/q_rmea_protected_context_train.py','unit','--output',str(unit)]\nrunpy.run_path(sys.argv[0],run_name='__main__')\nprior=json.loads((prior_unit/'unit-validation.json').read_bytes());current=json.loads((unit/'unit-validation.json').read_bytes())\nfrom baselines.retacred import rmea_protected_context_protocol as p\nprior['source_sha256']=p.identity(p.sources())\nif current!=prior:raise ValueError('Single-import repair changed accepted CPU adapter unit result')\nsys.argv=['experiments/q_rmea_protected_context_train.py','canary','--output',str(out),'--unit-output',str(unit)]\nrunpy.run_path(sys.argv[0],run_name='__main__')\nimport torch\nfrom baselines.retacred import rmea_protected_context_protocol as p\nfrom baselines.retacred.rmea_token_transport_parallel import equal_state\nseal=p.read(out/'RUN_COMPLETE');validation=out/'canary-validation.json'\nif seal['artifacts']['canary-validation.json']!=sha(validation) or p.read(validation).get('gate') is not True:raise ValueError('Primary canary seal differs')\nsuffix=out.parent.name\nroots=[out/('serial-'+suffix)/'discovery',out/('canary-'+suffix)/'discovery',out/'restored'/('canary-'+suffix)/'discovery']\nchecks={}\nfor kind in p.MODES:\n states=[torch.load(root/'.workers'/kind/'latest.pt',map_location='cpu',weights_only=True) for root in roots]\n if any(set(s.get('rng',{}))!={'python','numpy','torch','cuda'} for s in states):raise ValueError('Incomplete persisted RNG')\n if not all(equal_state(states[0]['rng'],s['rng']) for s in states[1:]):raise ValueError('Serial/local/COS RNG continuation differs: '+kind)\n checks[kind]=dict(python=True,numpy=True,torch=True,cuda=True,lanes=3)\np.atomic_json(out/'canary-acceptance.json',dict(schema='q-rmea.protected-context.canary-acceptance.v1',gate=True,prior_unit_sha256=expected,unit_sha256=sha(unit/'unit-validation.json'),unit_validation=current,primary_validation_sha256=sha(validation),primary_seal_sha256=sha(out/'RUN_COMPLETE'),rng=checks,source_sha256=p.identity(p.sources()),contract_sha256=p.identity(p.contract()),scope='Owner wrapper pins prior unit, then executes exact-source CPU adapter unit once before official canary CLI, then all persisted RNG across3 completed lanes. No mutation of primary seal or scientific source; no full training admission.'))\nprint(json.dumps(dict(canary_acceptance=True,rng_conditions=len(checks),unit_pin=True)))\n",
       "{output}",
       "/hy-tmp/Q-Attention/worker/attempts/d67ef0b3c5ca45a7ad79606110c4fcb9/output"
     ],
@@ -32,12 +32,12 @@
     "baselines/retacred/rmea_entity_scattering_protocol.py": "1c3b166a2cf25598d62b6f66879bb914cdae9c76ce5bc40fa4c8f24faa431ea2",
     "baselines/retacred/rmea_entity_scattering_runtime.py": "7ab3dcda9d49ee21c85ddc96cb15ee2ccb143cb84fff8340bbd256eef5ade313",
     "experiments/q_rmea_entity_scattering_train.py": "df53882d5de6ceabab4fd28dfc1ebdab8a8ba790ba9f07bd9b496612d9f04385",
-    "baselines/retacred/rmea_protected_context_protocol.py": "5c10f9c9f2ce928f407c8e3c56089665f669b19641cc320427dc753a12a39623",
+    "baselines/retacred/rmea_protected_context_protocol.py": "3c04e15e2c9702ce8fb1a48966429ec266f75d8b6bc2c2d32ba6366bc405599b",
     "baselines/retacred/rmea_protected_context_runtime.py": "eaec6f34e9752ba924a4c35b09a15b7e1cf988b0c59dad520884179428f45b3c",
     "experiments/q_rmea_protected_context_train.py": "973bb74fc2ed39d6834e8f9278c6820b027ba99977dcf3e44ba1340fe7405a92",
     "baselines/retacred/rmea_protected_context_trace.py": "66779486a803a78b88a0485fe2482eb60a7539f6f59e1bf7e871a47b17d30c42"
   },
-  "scientific_source_sha256": "7a9101811a93a909cc7d96ae0a92886c119c6d4da8056f0e98edc90f57dd4e8d",
+  "scientific_source_sha256": "f31f6410b8b6c91476a761ce1bd837ec1f72f1be169c082ad7931c846e54cc5f",
   "scientific_contract_sha256": "2cf1fab0ee6a04fe2f40f2c9031bc7f732cd5a81d61e50872ea9f28d252f8536",
   "profile": {
     "schema": "q-rmea.protected-context.training.v1",
@@ -125,5 +125,15 @@
   "recovery": "Only fresh exact scheduler attempt,000preparation<=8MiB and010progress latest+best<=16MiB; unchanged streaming verified VersionId/index Publisher. Payload never stored on Windows. Native model included in minimal prep. Publisher stops after010 ack; canary downloads/restores pinned bytes on GPU host and continues locally. No parent/source adoption or migration.",
   "runtime_admission": "Host writes current exact source/scientific-contract both-scope PASS record with canary-only admission from this review. CPU unit accepted/source unchanged. Formal run still requires sealed canary success + independently pinned original13input VersionId admission; this does not grant a formal recipe.",
   "L5": "NOT_ACCEPTED",
-  "admission_extra": "Exact recipe inline wrapper verifies fixed unit SHA before invoking unchanged official CLI; after it returns, compares all Python/NumPy/Torch/CUDA persisted RNG across serial/local-resume/COS-restore lanes. Separate canary-acceptance.json binds unchanged primary seal; full admission must verify both. No scientific source or accepted CPU test changes."
+  "admission_extra": "Pin prior accepted unit artifact, execute exact repaired-source five-example CPU unit once inside same managed attempt, require its result to match prior except source hash, then unchanged official canary. Compare all persisted RNG across3 lanes after primary success; separate acceptance binds new unit, primary seal and RNG. Formal admission still separate.",
+  "runtime_repair": {
+    "failed_task": "5f1d490a5d12428291e40e271cddd168",
+    "failed_attempt": "4db25d1a3bc0492faf80faf3b578a109",
+    "returncode": 1,
+    "quiescent": true,
+    "error": "Protocol missing json required by unchanged train log output",
+    "delta": "Expose standard-library json; no math/config/budget change",
+    "cos_publication_started": false
+  },
+  "identity_correction": "Scientific identity is exact protocol.sources() only. Enrollment additionally pins the old CLI compatibility file; it is not appended to the scientific source map."
 }

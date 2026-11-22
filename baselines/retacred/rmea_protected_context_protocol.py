@@ -1,4 +1,5 @@
 """Fixed three-fit discovery contract; historical native is not retrained."""
+import json
 from . import rmea_token_transport_protocol as base
 from .rmea_entity_scattering_protocol import (
     BASE_MANIFEST, BASE_SUMMARY, BASE_INITIAL, CANARY_MANIFEST, LABELS_SHA,
