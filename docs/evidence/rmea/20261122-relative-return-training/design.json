@@ -1,0 +1,54 @@
+{
+  "profile": "relative-return-gpu-batch-feasibility-v1",
+  "source_revision": "08b7d43a0d6a5c24519696d502bb916912cee110",
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "experiments/diagnostics/rmea_relative_return/relative_return.py": "8d55b9047081a22754be6ea34ec06d77c04b868670cd25cb3ada3e124c6782dc",
+    "baselines/retacred/rmea_task_runtime.py": "df50e9e14b5fae4b6211c55fd17bcfd2acc368127953e23768dcece24e9d5931",
+    "baselines/retacred/rmea_token_transport_study.py": "14d796f4970fddd7f218ef637b9a41a6e0a871dac978025b30f13713b18b6e7b"
+  },
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "cache_hashes": {
+    "train-h.npy": {
+      "bytes": 4432355456,
+      "sha256": "b69b1bfb97f20932b26dcea8b13a788a12ec98ec43a68de1801960ad5c526635"
+    },
+    "train-roles.npy": {
+      "bytes": 34627904,
+      "sha256": "b62e4e23836c8b5b9b930e5b9d993f0890a729bfdadbcee02b08c23cae0c3d73"
+    },
+    "train-offsets.npy": {
+      "bytes": 467856,
+      "sha256": "a1ef178eae3b9c16b4cfa20dc66af15a1dd0238bb9fc2fffd55b7a6328c25601"
+    },
+    "train-targets.npy": {
+      "bytes": 467848,
+      "sha256": "6ce409b586a421995f7d70906f062a7e91fe9d35a04be5359a2f58a3485ee604"
+    }
+  },
+  "code_hashes": {
+    "gpu_probe.py": "3e24ce7caf330ef5e8cfb9057afa8524fade856d04e2df9d4094ed8c40d22304",
+    "rmea_relative_return.py": "39728d236fef33b6f682eff0f722bef3c72939b0e198e375f5e1aa7a2089abfc"
+  },
+  "timeout_seconds": 300,
+  "resources": {
+    "cpu": 2,
+    "ram_mb": 8192,
+    "gpus": 2,
+    "gpu_mb": 4096,
+    "disk_mb": 64
+  },
+  "hypothesis": "All three readouts fit actual task microbatch4 on allocated GPUs and have finite loss/gradients and one optimizer update per actual batch32.",
+  "control": "Same native initialization and batch/order; scalar native probability squared rules out pure scalar sharpening.",
+  "stop": "Any interface, schema, initialization, probability, gradient, memory or timeout error stops promotion. No task utility inference from this feasibility test.",
+  "novelty": "Unverified. State-access and nonPSD-kernel distinctions do not imply quantum necessity or exclude classical indefinite/asymmetric kernels.",
+  "modes": [
+    "return_coherent",
+    "return_dephased",
+    "native_square"
+  ],
+  "initialization": "Fresh native seed13, flat state keys, same as fixed historical native initial hash",
+  "sampling": "First32 indices of NumPy default_rng(13).permutation(full train count), plus fixed four longest train examples for a no-update memory/gradient check.",
+  "training": "Exactly one AdamW update per condition in RAM, plus one no-update backward on fixed longest4. No heldout evaluation, checkpoint/COS or extra seed."
+}

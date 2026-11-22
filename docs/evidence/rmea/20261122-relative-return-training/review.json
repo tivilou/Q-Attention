@@ -1,0 +1,19 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "packet_sha256": "d95d2258b4bae85b82572396dac95844ac3794eaeeb2ffc75ebd696e3647d278",
+  "seconds": 38.385334491729736,
+  "response": {
+    "verdict": "PASS",
+    "scope": "plugin_delta",
+    "must_fix": [],
+    "limitations": [
+      "The adapter adds no parameters or state_dict prefix. Both return modes use the reviewed score, mask, EPS, utilities and bias. The scalar control squares native probability before adding EPS. At execution, each arm must strictly load the same historical seed-13 state and pass the 81,028-parameter check. Return-mode logit parity is sampled on two examples with a maximum absolute error below 1e-10.",
+      "Each arm uses the same seeded train batch of 32. The runtime accumulates summed cross-entropy over microbatches of four, divides by 32 and takes one AdamW step. The four longest train examples receive one backward pass after that step. Both passes check finite gradient elements and a positive norm for every parameter tensor.",
+      "Concurrent constructors consume CPU RNG, but strict loading overwrites their sampled parameters before use. The workers use disjoint CUDA devices, and the supplied forward paths contain no stochastic operations.",
+      "Actual GPU fit, timing, parity and gradient results remain pending execution under the accepted launcher with Python assertions enabled. The probe uses train data only and saves no checkpoint. The prior source-math PASS stands. Novelty, trained utility, independent evidence and L5 remain open."
+    ],
+    "admission": "two_gpu_three_readout_feasibility_only"
+  }
+}
