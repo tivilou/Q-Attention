@@ -1,0 +1,19 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "packet_sha256": "5cec689a78706f034e6119bee5b58257c5f802fbfecf769fed9bcfd90ac81d72",
+  "seconds": 33.807186126708984,
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "The prior precision block is resolved. The probe checks the sealed manifest hash and its float64/complex128 declaration before loading the head. The executed training source confirms float64 inputs and a double-precision head. The probe reproduces that path for the native baseline and the candidate readout.",
+      "The real-coordinate Jacobian uses the gradient 2ψ(ψᴴφ) for each mention intensity. On the admitted full-row-rank branch, the SVD gives the Moore–Penrose right inverse B, and I−BJ projects onto the tangent space. The signed combination of the two resolved projected gradients gives first-order energy descent and a nonzero class-0 logit derivative.",
+      "The step uses ‖B‖₂ = 1/σ_min(J), giving a contraction bound of at most 1/2. After 48 iterations, the positive gate checks the measured norm and mention-intensity residual, finite energy decrease, and absolute logit change. The readout includes native EPS, renormalizes across all valid tokens, and uses the frozen utilities and bias. Moving only class 0 makes its logit delta equal the change in its margin against each other class.",
+      "Selection uses TRAIN role inputs to identify cases with 8–13 mention tokens before any model forward. The first 32 by (id_hash, index) stay in the denominator, including rank and conditioning failures. The real-data gate remains untested. A positive would establish finite, task-visible motion at the frozen state interface for one selected case. Zero positives would close only this construction on this cohort at the frozen thresholds. Task utility and shallow-circuit realizability remain open."
+    ],
+    "admission": "one_frozen_train32_cpu_probe"
+  }
+}
