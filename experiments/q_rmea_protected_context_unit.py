@@ -87,8 +87,9 @@ def run(args):
     original = torch.load(args.fixture, map_location='cpu', weights_only=True)
     cases, state = original['cases'], original['state']
     require(len(cases) == 2, 'Expected frozen first negative and first positive')
-    require(not any(args.output.glob('*')) if args.output.exists() else True,
-            'Output must be new/empty')
+    existing = {p.name for p in args.output.iterdir()} if args.output.exists() else set()
+    require(existing <= {'progress.json'},
+            'Only the scheduler-owned progress sideband may preexist')
     checks = projector_checks()
     inputs = batch(cases)
     # Targets only define a derivative loss, not utility screening or selection.
