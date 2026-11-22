@@ -1,0 +1,39 @@
+{
+  "profile": "native-direct-triangle-phase-readout-v1",
+  "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9"
+  },
+  "code_sha256": "b2d63a08bc595167c97f33c0a11e3c9467cb64cd091c8d9da0fb4e1a4670a8f9",
+  "train_items": 8192,
+  "valid_items": 19584,
+  "penalty": 0.001,
+  "max_iterations": 300,
+  "gradient_inf": 1e-06,
+  "ce_gain": 0.005,
+  "macro_gain": 0.003,
+  "features": {
+    "candidate": "a,b,abs(c),c",
+    "control": "a,b,abs(c),sign(a-b)*abs(c)",
+    "definition": "P_r=|phi_r><phi_r|; S/O=mean marked-valid token pure projectors; a=tr(P_r S), b=tr(P_r O), c=Im tr(P_r S O)",
+    "empty_span": "allfourfeatureszero",
+    "scale": "TRAIN RMS perclass/feature; zero columns divisor1; no centering"
+  },
+  "optimizer": "float64 convex meanCE+.001 sum(theta squared); zero160parameters each; no intercept; L-BFGS-B max300 iterations; gradient inf <=1e-6 required",
+  "selection": "First8192TRAIN storedorder/all19584VALID; no outcome selection; all40classes; no TEST or metadata.json access",
+  "public_whitelist": [
+    "collection.json",
+    "summary.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": [
+    "features.private.npz",
+    "readout.private.npz"
+  ],
+  "stop": "Any failed inequality closes this exacttest, nonconvergence unresolved/stop; no alternate cohort/orientation/threshold/seed",
+  "persistence": "Code and compact reports through Git. Cheap reconstructible intermediates stay GPU cache, no COS/checkpoint or Windowspayload.",
+  "launch": "Existing generation-bound allocation and unchanged host_run.py; one GPU fixednative feature extraction, then isolated existing scipy CPU environment for two160parameter fits. No stable core/lifecycle changes."
+}
