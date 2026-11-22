@@ -1,0 +1,20 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "packet_sha256": "580bd8d90e0c4bb6f1a895224f0d0ed2f139f457b57dac438c6903d947a08616",
+  "seconds": 38.891714096069336,
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "The source axes and conjugations agree for batch 0 and relation 0. The T·EPS·I term makes B positive definite, and whitening gives token observables whose sum is I. Scaling each mention observable and its native normalized target by the same row norm preserves the equality.",
+      "The real Hermitian Frobenius Gram matrix gives the affine repair. The least-squares cutoff can leave residuals on dependent or poorly conditioned rows, so acceptance correctly uses the measured residual. The blend formula gives a positive minimum-eigenvalue margin in exact arithmetic given the two input eigenvalue bounds. The probe also checks the reconstructed trace-normalized density and recomputes mention weights and context mass from the source score formula.",
+      "For CVXPY equalities written as moment == target, the signed maximization dual slack is sum(lambda_j F_j) minus sign·C. Adding shift·I to that slack costs exactly shift in the dual objective because Tr(Z) = 1, including with the scaled identity row. The accepted signed gap is numerical and may be as low as −1e−8. The reported width uses the two reconstructed primal logits, and native containment has a separate 1e−8 tolerance.",
+      "A case can have bounded support even when the solver fails or the strict-centre gate rejects it. The finite count therefore measures cases with two accepted numerical endpoints. A pass supports only per-case unrestricted PSD feasibility for relation 0 on the fixed exposed TRAIN32 cohort. Shared implementation, circuit reachability, mixed-over-pure advantage, task utility, novelty and L5 remain unestablished. This review covers the supplied code semantics only."
+    ],
+    "admission": "one_frozen_real_train32_support_probe",
+    "optional_next_mechanism": "If the gate passes, a shared trainable head could propose an 8×8 Hermitian matrix and project it in Frobenius norm onto each input’s trace-one PSD slice with the native normalized mention equalities. The native state guarantees mathematical feasibility. Deployment cost and task utility would require measurement."
+  }
+}

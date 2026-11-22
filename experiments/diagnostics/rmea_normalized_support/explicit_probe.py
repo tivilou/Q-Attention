@@ -1,0 +1,169 @@
+"""Finite normalized-effect support on fixed exposed TRAIN inputs; no fitting."""
+import argparse
+import hashlib
+import json
+import os
+import signal
+import sys
+import time
+from pathlib import Path
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    for n in ('source', 'inputs', 'checkpoint', 'population', 'math_target', 'design', 'output', 'progress'):
+        p.add_argument('--' + n.replace('_', '-'), type=Path, required=True)
+    p.add_argument('--attempt', required=True)
+    a = p.parse_args()
+    cfg = json.loads(a.design.read_bytes())
+    signal.alarm(cfg['timeout_seconds'])
+    sys.path.insert(0, str(a.math_target))
+    import numpy as np
+    import torch
+    import cvxpy as cp
+    import scipy, clarabel, scs, osqp
+    versions = dict(numpy=np.__version__, torch=torch.__version__, cvxpy=cp.__version__,
+                    scipy=scipy.__version__, clarabel=clarabel.__version__, scs=scs.__version__, osqp=osqp.__version__)
+    for name, expected in cfg['math_versions'].items():
+        assert versions[name] == expected, (name, versions[name])
+    for n, expected in cfg['source_hashes'].items():
+        assert sha(a.source / n) == expected
+    assert sha(a.checkpoint) == cfg['checkpoint_sha256']
+    assert sha(a.population) == cfg['population_sha256']
+    assert sha(a.inputs / 'discovery/manifest.json') == cfg['native_manifest_sha256']
+    assert sha(Path(__file__)) == cfg['probe_sha256']
+    assert sha(Path(__file__).with_name('moment_slice.py')) == cfg['module_sha256']
+    import importlib.util
+    module_path=Path(__file__).with_name('moment_slice.py')
+    spec=importlib.util.spec_from_file_location('qattn_explicit_moment_slice',module_path)
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    construct=module.construct
+    population = json.loads(a.population.read_bytes())
+    assert population['selected_count'] == 32 and population['train_total'] == 58465
+    assert not (a.output / 'RUN_COMPLETE').exists()
+    a.output.mkdir(parents=True, exist_ok=True)
+    def save(path, value):
+        pending = path.with_suffix('.pending')
+        pending.write_text(json.dumps(value, indent=2))
+        pending.replace(path)
+    def progress(phase, current):
+        save(a.progress, dict(schema='research.progress.v1', attempt=a.attempt, phase=phase,
+            current=current, total=32, unit='case', observed_at=time.time(), heartbeat_at=time.time()))
+    sys.path.insert(0, str(a.source))
+    from baselines.retacred.rmea import RMEAHead, EPS
+    torch.set_num_threads(1)
+    torch.use_deterministic_algorithms(True)
+    head = RMEAHead('quantum').double().eval()
+    head.load_state_dict(torch.load(a.checkpoint, map_location='cpu', weights_only=True))
+    cache = a.inputs / 'discovery/cache'
+    meta = json.loads((cache / 'metadata.json').read_bytes())['train']
+    data = {n:np.load(cache / ('train-' + n + '.npy'), mmap_mode='r', allow_pickle=False)
+            for n in ('h', 'roles', 'offsets')}
+    eye = np.eye(8, dtype=np.complex128)
+    options = dict(solver='CLARABEL', max_iter=cfg['solver_max_iter'], tol_gap_abs=1e-10,
+                   tol_gap_rel=1e-10, tol_feas=1e-10, verbose=False)
+    zz=cp.Variable((8,8),hermitian=True);tt=cp.Variable()
+    known=cp.Problem(cp.Maximize(tt),[zz-tt*eye>>0,cp.real(cp.trace(zz))==1])
+    library_fixture=dict(problem='max t subject to Z>=tI,Tr Z=1; analytic t=1/8',diagnostic_only=True)
+    try:
+        known.solve(**options)
+        library_fixture['status']=known.status
+        if known.value is not None:
+            library_fixture.update(value=float(known.value),value_error=abs(float(known.value)-.125))
+        if zz.value is not None:
+            library_fixture.update(minimum_eigenvalue=float(np.linalg.eigvalsh(zz.value).min()),trace_error=abs(float(np.trace(zz.value).real)-1))
+    except cp.error.SolverError as exc:
+        library_fixture.update(status='solver_error',error=str(exc)[:200])
+    rows = []
+    progress('normalized_support', 0)
+    for number, case in enumerate(population['cases']):
+        started = time.perf_counter()
+        i = case['index']
+        assert meta[i]['id_hash'] == case['id_hash']
+        lo, hi = map(int, data['offsets'][i:i+2])
+        h = torch.from_numpy(np.array(data['h'][lo:hi], dtype=np.float64, copy=True))[None]
+        roles = torch.from_numpy(np.array(data['roles'][lo:hi], dtype=np.float64, copy=True))[None]
+        mask = torch.ones(1, hi-lo, dtype=torch.bool)
+        with torch.no_grad():
+            detail = head(h, roles, mask, details=True)
+        psi = detail['psi'][0].numpy()
+        phi = detail['phi'][0].numpy()
+        u = detail['utilities'][0, 0].numpy()
+        native_alpha = detail['alpha'][0, 0].numpy()
+        mention = ((roles[0, :, 2] != 0) | (roles[0, :, 3] != 0)).numpy()
+        assert int(mention.sum()) == case['mention_tokens']
+        b = psi.T @ psi.conj() + len(psi) * EPS * eye
+        eig, basis = np.linalg.eigh(b)
+        assert eig.min() > 0
+        invhalf = (basis * (1 / np.sqrt(eig))) @ basis.conj().T
+        half = (basis * np.sqrt(eig)) @ basis.conj().T
+        mapped = np.einsum('ij,tj->ti', invhalf, psi)
+        ds = np.einsum('ti,tj->tij', mapped, mapped.conj()) + EPS * (invhalf @ invhalf)[None]
+        native_rho = np.outer(phi, phi.conj())
+        native_z = half @ native_rho @ half / np.trace(b @ native_rho).real
+        c = np.einsum('t,tij->ij', u, ds)
+        c = (c + c.conj().T) / 2
+        fs = np.concatenate([eye[None] / np.sqrt(8), ds[mention]])
+        norms = np.linalg.norm(fs, axis=(1,2))
+        fs = fs / norms[:,None,None]
+        rhs = np.concatenate([[1 / np.sqrt(8)], native_alpha[mention]]) / norms
+        gram = np.einsum('aij,bij->ab', fs.conj(), fs).real
+        gram = (gram + gram.T) / 2
+        sv = np.linalg.svd(gram, compute_uv=False)
+        row = dict(index=i, id_hash=case['id_hash'], mention_tokens=case['mention_tokens'],
+                   finite=False, eigenvalue_b_min=float(eig.min()), constraint_singular_ratio=float(sv[-1]/sv[0]))
+        def moments(z):
+            return np.einsum('aij,ij->a', fs.conj(), z).real
+        native_error = float(np.max(np.abs(moments(native_z) - rhs)))
+        row['native_equality_error'] = native_error
+        unprotected=np.linalg.eigvalsh(c)
+        row['unprotected_psd_interval']=[float(unprotected[0]),float(unprotected[-1])]
+        construction_started=time.perf_counter()
+        result=construct(fs,rhs,c,floor=cfg['psd_floor'],iterations=cfg['projection_iterations'])
+        row.update({k:v for k,v in result.items() if k not in ('centre','plus','minus')})
+        row['constructor_seconds']=time.perf_counter()-construction_started
+        row['finite']=False
+        if result['admitted']:
+            endpoints=[]
+            for key in ('minus','plus'):
+                density=invhalf@result[key]@invhalf
+                density=(density+density.conj().T)/2;density/=np.trace(density).real
+                raw=np.einsum('ti,ij,tj->t',psi.conj(),density,psi).real+EPS
+                alpha=raw/raw.sum()
+                endpoints.append(dict(logit=float(u@alpha),
+                    mention_error=float(np.max(np.abs(alpha[mention]-native_alpha[mention]))),
+                    context_mass_error=abs(float(alpha[~mention].sum()-native_alpha[~mention].sum())),
+                    density_min_eigenvalue=float(np.linalg.eigvalsh(density).min())))
+            native=float(u@native_alpha);delta=endpoints[1]['logit']-endpoints[0]['logit']
+            row['endpoints']=endpoints
+            row['finite']=bool(result['equality_error']<=1e-12 and result['psd_min_eigenvalue']>=cfg['psd_floor']/4
+                and all(v['mention_error']<=1e-9 and v['context_mass_error']<=1e-9 and v['density_min_eigenvalue']>=-1e-12 for v in endpoints)
+                and abs(delta-result['predicted_pair_delta'])<=1e-9)
+            values=[v['logit'] for v in endpoints]+[native]
+            row.update(native_logit_without_bias=native,constructed_pair_delta=delta,
+                prediction_error=abs(delta-result['predicted_pair_delta']),
+                attainable_width_lower_bound=max(values)-min(values),
+                nonzero=max(values)-min(values)>=cfg['width_min'])
+        row['seconds']=time.perf_counter()-started
+        rows.append(row)
+        progress('explicit_moment_slice',number+1)
+    finite=[q for q in rows if q['finite']]
+    positive=[q for q in finite if q['nonzero']]
+    gates=dict(all_cases_retained=len(rows)==32,finite_nonzero_coverage=len(positive)>=cfg['positive_required'],
+        all_native_feasible=all(q['native_equality_error']<=1e-10 for q in rows))
+    summary=dict(status='complete',profile=cfg['profile'],design_sha256=sha(a.design),
+        probe_sha256=sha(Path(__file__)),module_sha256=sha(Path(__file__).with_name('moment_slice.py')),
+        versions=versions,library_fixture=library_fixture,rows=rows,selected_count=32,finite_count=len(finite),
+        positive_count=len(positive),gates=gates,local_gate=all(gates.values()),
+        width_lower_bound_range=[min(q['attainable_width_lower_bound'] for q in finite),max(q['attainable_width_lower_bound'] for q in finite)] if finite else None,
+        scope='Fixed64 projections; actual numerical PSD and equality checks. Attainable interval LOWER bound from native plus2constructed states, NOT optimum. Same exposed TRAIN32/class0, no mixed-pure advantage/shared learned utility/novelty/L5.',
+        labels_used=False,optimizer_updates=0,cos_writes=0,L5='NOT_ACCEPTED')
+    save(a.output/'summary.json',summary)
+    save(a.output/'RUN_COMPLETE',dict(artifacts={'summary.json':sha(a.output/'summary.json')}))
+    progress('complete',32)
+    print(json.dumps({k:summary[k] for k in ('status','library_fixture','selected_count','finite_count','positive_count','width_lower_bound_range','gates','local_gate','L5')}),flush=True)
+
+if __name__=='__main__':
+    main()
