@@ -1,0 +1,21 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "packet_sha256": "5de47a221bd47d765f9007edb06c2d0b1d4e51065e710e4cceaa822005b3bd34",
+  "seconds": 39.97851872444153,
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "The column construction is phase-exact for this source. RY(y+π)|0⟩ = RY(y)|1⟩, and the following RZ acts on both sides identically. The bit shifts [2,1,0] match wire 0 as MSB. After the transpose, the contractions give a_j = W_j0 and b_j = W_0j for W = V†U. Summing a_j b_j before taking the squared modulus gives the coherent return. Summing |a_j b_j|² gives the return after complete, nonselective computational-basis dephasing between passes.",
+      "The gauge fixture has the stated values. The ordered CNOTs send 110 → 100 → 100 → 100, so F⁻¹|100⟩ = |110⟩. On the ordered span {|000⟩,|110⟩}, W_z acts as RY(π/2)RZ(z). Its two return-path amplitudes are e^(−iz)/2 and −1/2. Thus p1 = pD = 1/2 and p2 = sin²(z/2). The first-layer RZ changes the prepared vacuum column only by a global phase. Both tested settings lie strictly inside the native angle range.",
+      "The three-circuit Gram fixture also checks analytically. After removing the common F², each circuit acts on that span as RZ(φ)RY(y)RZ(−φ). For the relative rotations AC and BC, the quaternion scalar s is respectively 3/4 and 1/4, and the squared z component is 3/16 in both cases. The squared return is (2s²−1)² + 4s²(3/16), giving 7/16 and 13/16. AB gives 1. The resulting Gram determinant is −(13/16−7/16)² = −9/64.",
+      "The dense fixture builds the gates independently of the π-shift construction. The explicit W² and dephased sums check the path contractions, and the central difference checks one second-layer token RZ coordinate for the coherent score. Each real arm reloads the same checkpoint, uses the same first two training examples and all 81,028 native parameters, and takes one fresh AdamW step in RAM. The finite-gradient and maximum-update checks establish aggregate update viability only. AdamW weight decay can contribute to parameter movement.",
+      "This is a static review. The probe checks the pinned source files, four cache arrays, manifest and checkpoint at execution. Hash matches, numerical tolerances, resource fit and successful updates remain unobserved.",
+      "The negative determinant excludes a PSD common-feature representation of this exact raw similarity. Asymmetric encoders, normalized attention, classical simulation and larger linear representations of a reuploading model remain compatible with the result. The fixture establishes a distinction in access to the encoding unitary. Task utility, hardware advantage and L5 novelty remain open."
+    ],
+    "admission": "one_source_math_and_two_real_updates"
+  }
+}

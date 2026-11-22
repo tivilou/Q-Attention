@@ -1,0 +1,222 @@
+{
+  "status": "SOURCE_MATH_AND_ONE_UPDATE_PER_ARM_PASS",
+  "execution": {
+    "argv": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/relative-return-20261122/probe.py",
+      "--source",
+      "/hy-tmp/Q-Attention/source",
+      "--inputs",
+      "/hy-tmp/Q-Attention/inputs/native-baseline",
+      "--checkpoint",
+      "/hy-tmp/Q-Attention/inputs/native-checkpoint/native-final.pt",
+      "--design",
+      "/hy-tmp/Q-Attention/control/relative-return-20261122/design.json",
+      "--output",
+      "/hy-tmp/Q-Attention/control/relative-return-20261122/output",
+      "--progress",
+      "/hy-tmp/Q-Attention/control/relative-return-20261122/progress.json",
+      "--attempt",
+      "d3c7a91a46c74b67b7304661b6a8e9f8"
+    ],
+    "cwd": "/hy-tmp/Q-Attention/source",
+    "inputs": {
+      "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+      "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+      "cache_hashes": {
+        "train-h.npy": {
+          "bytes": 4432355456,
+          "sha256": "b69b1bfb97f20932b26dcea8b13a788a12ec98ec43a68de1801960ad5c526635"
+        },
+        "train-roles.npy": {
+          "bytes": 34627904,
+          "sha256": "b62e4e23836c8b5b9b930e5b9d993f0890a729bfdadbcee02b08c23cae0c3d73"
+        },
+        "train-offsets.npy": {
+          "bytes": 467856,
+          "sha256": "a1ef178eae3b9c16b4cfa20dc66af15a1dd0238bb9fc2fffd55b7a6328c25601"
+        },
+        "train-targets.npy": {
+          "bytes": 467848,
+          "sha256": "6ce409b586a421995f7d70906f062a7e91fe9d35a04be5359a2f58a3485ee604"
+        }
+      }
+    },
+    "stdout": "{\"status\": \"complete\", \"profile\": \"relative-return-source-real-update-v1\", \"design_sha256\": \"49bfd5987484aecea326f3f3b6da0d11f13f25b2428896f0402fe07f81053868\", \"math\": {\"checks\": {\"dense_source_error\": 3.4021815010030383e-16, \"unitarity_error\": 6.661338147750939e-16, \"vacuum_column_error\": 0.0, \"two_pass_path_error\": 3.3306690738754696e-16, \"gauge_density_error\": 0.0, \"gauge_prediction_error\": 1.1102230246251565e-16, \"non_psd_gram_error\": 2.220446049250313e-16, \"gradient_error\": 2.823149700126315e-13}, \"prepared_state_counterexample\": {\"native\": [0.5000000000000001, 0.5000000000000001], \"coherent\": [4.930380657631324e-32, 0.4999999999999999], \"dephased\": [0.5, 0.5]}, \"gram\": [[1.0, 1.0, 0.43750000000000006], [1.0, 1.0, 0.8124999999999999], [0.43750000000000006, 0.8124999999999998, 1.0]], \"gram_determinant\": -0.14062499999999983, \"gram_eigenvalues\": [-0.09704940195700677, 0.5743971645391877, 2.5226522374178195], \"raw_angle_mapping_error\": 0.0}, \"real_updates\": {\"coherent\": {\"parameter_count\": 81028, \"loss_before\": 3.919178620138843, \"loss_after\": 2.2163510839818077, \"native_score_error\": 0.0, \"gradient_norms\": {\"native.decoder\": 5.282398730490927, \"native.bias\": 0.6543711603753417, \"native.effect\": 2.593971042253365, \"native.value.weight\": 32.435841428101206, \"native.value.bias\": 1.0603369488862946, \"native.prepare.weight\": 44.50089797304984, \"native.prepare.bias\": 1.4028468373009702}, \"parameter_max_update\": 0.0010087087724809374, \"optimizer_updates\": 1, \"checkpoint_saved\": false}, \"dephased\": {\"parameter_count\": 81028, \"loss_before\": 4.018561776244397, \"loss_after\": 2.598328431911486, \"native_score_error\": 0.0, \"gradient_norms\": {\"native.decoder\": 5.330289962639216, \"native.bias\": 0.6563235201698456, \"native.effect\": 1.5181514580523674, \"native.value.weight\": 32.4339619761156, \"native.value.bias\": 1.0606444216231499, \"native.prepare.weight\": 34.676207943493, \"native.prepare.bias\": 1.118083614674319}, \"parameter_max_update\": 0.001007456837014531, \"optimizer_updates\": 1, \"checkpoint_saved\": false}}, \"L5\": \"NOT_ACCEPTED\", \"scope\": \"Analytic source fixtures and one memory-only update per arm; no task utility/novelty/independent evidence or full-run admission.\", \"seconds\": 5.242236852645874}\n",
+    "stderr": "",
+    "exit_code": 0,
+    "started_at": 1795357370.8667943,
+    "finished_at": 1795357378.6101336,
+    "runner_attempt_id": "d3c7a91a46c74b67b7304661b6a8e9f8",
+    "file_hashes": {
+      "probe.py": "5d047f7cf34fcff6b7b7d53bcd4942a06aab8d3e2a001a4edc098dcd1ab0cd2f",
+      "relative_return.py": "8d55b9047081a22754be6ea34ec06d77c04b868670cd25cb3ada3e124c6782dc",
+      "design.json": "49bfd5987484aecea326f3f3b6da0d11f13f25b2428896f0402fe07f81053868",
+      "host_run.py": "272f42924d1c0f525b30e4ca57666db96a8dd34da2bc8c575f4d08de021e0688"
+    }
+  },
+  "source_roles": {
+    "modified_artifacts": {
+      "experiments/diagnostics/rmea_relative_return/relative_return.py": "8d55b9047081a22754be6ea34ec06d77c04b868670cd25cb3ada3e124c6782dc",
+      "experiments/diagnostics/rmea_relative_return/probe.py": "5d047f7cf34fcff6b7b7d53bcd4942a06aab8d3e2a001a4edc098dcd1ab0cd2f"
+    },
+    "patch": "source.patch",
+    "verification": "verification.json",
+    "rollback": "rollback_source.py"
+  },
+  "baseline": {
+    "command": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/relative-return-20261122/probe.py",
+      "--source",
+      "/hy-tmp/Q-Attention/source",
+      "--inputs",
+      "/hy-tmp/Q-Attention/inputs/native-baseline",
+      "--checkpoint",
+      "/hy-tmp/Q-Attention/inputs/native-checkpoint/native-final.pt",
+      "--design",
+      "/hy-tmp/Q-Attention/control/relative-return-20261122/design.json",
+      "--output",
+      "/hy-tmp/Q-Attention/control/relative-return-20261122/output",
+      "--progress",
+      "/hy-tmp/Q-Attention/control/relative-return-20261122/progress.json",
+      "--attempt",
+      "d3c7a91a46c74b67b7304661b6a8e9f8"
+    ],
+    "selector": "math.prepared_state_counterexample.native",
+    "literal_values": [
+      0.5000000000000001,
+      0.5000000000000001
+    ],
+    "behavior": "Same prepared-state density, both original scores.5"
+  },
+  "modified": {
+    "command": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/relative-return-20261122/probe.py",
+      "--source",
+      "/hy-tmp/Q-Attention/source",
+      "--inputs",
+      "/hy-tmp/Q-Attention/inputs/native-baseline",
+      "--checkpoint",
+      "/hy-tmp/Q-Attention/inputs/native-checkpoint/native-final.pt",
+      "--design",
+      "/hy-tmp/Q-Attention/control/relative-return-20261122/design.json",
+      "--output",
+      "/hy-tmp/Q-Attention/control/relative-return-20261122/output",
+      "--progress",
+      "/hy-tmp/Q-Attention/control/relative-return-20261122/progress.json",
+      "--attempt",
+      "d3c7a91a46c74b67b7304661b6a8e9f8"
+    ],
+    "selector": "math.prepared_state_counterexample.coherent",
+    "literal_values": [
+      4.930380657631324e-32,
+      0.4999999999999999
+    ],
+    "behavior": "Two-return scores0/.5 while source native scores remain.5/.5"
+  },
+  "math": {
+    "checks": {
+      "dense_source_error": 3.4021815010030383e-16,
+      "unitarity_error": 6.661338147750939e-16,
+      "vacuum_column_error": 0.0,
+      "two_pass_path_error": 3.3306690738754696e-16,
+      "gauge_density_error": 0.0,
+      "gauge_prediction_error": 1.1102230246251565e-16,
+      "non_psd_gram_error": 2.220446049250313e-16,
+      "gradient_error": 2.823149700126315e-13
+    },
+    "prepared_state_counterexample": {
+      "native": [
+        0.5000000000000001,
+        0.5000000000000001
+      ],
+      "coherent": [
+        4.930380657631324e-32,
+        0.4999999999999999
+      ],
+      "dephased": [
+        0.5,
+        0.5
+      ]
+    },
+    "gram": [
+      [
+        1.0,
+        1.0,
+        0.43750000000000006
+      ],
+      [
+        1.0,
+        1.0,
+        0.8124999999999999
+      ],
+      [
+        0.43750000000000006,
+        0.8124999999999998,
+        1.0
+      ]
+    ],
+    "gram_determinant": -0.14062499999999983,
+    "gram_eigenvalues": [
+      -0.09704940195700677,
+      0.5743971645391877,
+      2.5226522374178195
+    ],
+    "raw_angle_mapping_error": 0.0
+  },
+  "real_updates": {
+    "coherent": {
+      "parameter_count": 81028,
+      "loss_before": 3.919178620138843,
+      "loss_after": 2.2163510839818077,
+      "native_score_error": 0.0,
+      "gradient_norms": {
+        "native.decoder": 5.282398730490927,
+        "native.bias": 0.6543711603753417,
+        "native.effect": 2.593971042253365,
+        "native.value.weight": 32.435841428101206,
+        "native.value.bias": 1.0603369488862946,
+        "native.prepare.weight": 44.50089797304984,
+        "native.prepare.bias": 1.4028468373009702
+      },
+      "parameter_max_update": 0.0010087087724809374,
+      "optimizer_updates": 1,
+      "checkpoint_saved": false
+    },
+    "dephased": {
+      "parameter_count": 81028,
+      "loss_before": 4.018561776244397,
+      "loss_after": 2.598328431911486,
+      "native_score_error": 0.0,
+      "gradient_norms": {
+        "native.decoder": 5.330289962639216,
+        "native.bias": 0.6563235201698456,
+        "native.effect": 1.5181514580523674,
+        "native.value.weight": 32.4339619761156,
+        "native.value.bias": 1.0606444216231499,
+        "native.prepare.weight": 34.676207943493,
+        "native.prepare.bias": 1.118083614674319
+      },
+      "parameter_max_update": 0.001007456837014531,
+      "optimizer_updates": 1,
+      "checkpoint_saved": false
+    }
+  },
+  "source_revision": "7d2e9669ef22c82fbf651b47dd48d479459b82bf",
+  "allocation": {
+    "id": "86149f7d8c824b358f8b458db6f1f4e9",
+    "generation": 6,
+    "state": "released"
+  },
+  "task_utility": "NOT_ESTABLISHED",
+  "novelty": "OPEN",
+  "L5": "NOT_ACCEPTED",
+  "no_saved_checkpoints": true,
+  "no_new_COS": true,
+  "admission": "Prototype source math and update feasibility only; GPU cost, fair-budget study adapter, actual trained utility and novelty assessment remain."
+}
