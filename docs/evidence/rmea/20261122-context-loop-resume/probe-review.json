@@ -1,0 +1,17 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "packet_sha256": "fd12990576735444091da52b34e7fa46cd20b6782c02c9759abe6687db4f5394",
+  "seconds": 34.441256523132324,
+  "response": {
+    "verdict": "PASS",
+    "review_scope": "both",
+    "must_fix": [],
+    "limitations": [
+      "For each class, `held` starts as a clone of native attention and only context entries are overwritten. Every mention weight is preserved exactly. The EPS-inclusive context scores are normalized within context and scaled to that class’s native context mass, up to floating-point rounding. With no context, the entire native attention vector is retained. All three heads load the same checkpoint strictly, and the diagnostic checks utility equality against native on every selected case.",
+      "Selection is reproducible from the pinned inputs. Sorting each label by `(id_hash, index)` resolves ties before model outputs are computed. The quotas and count checks give 18 no-relation and 78 positive cases. Every selected case contributes a row, including full-rank and empty-context cases. Each case uses the same highest-scoring native non-gold competitor across all margin comparisons.",
+      "The primary gate uses the 78 positive cases and requires both mean held-margin contrasts to exceed 1e-6. The actual matched-margin delta is reported separately. A pass supports a directional intra-context redistribution effect on this frozen checkpoint and selected training cohort. Significance, held-out utility, independent confirmation, and L5 acceptance remain outside that inference.",
+      "Cache hashing streams 8 MiB chunks, feature arrays are memory-mapped read-only, and inference copies one selected example at a time. The JSON artifacts contain hash IDs, indices, labels, scalar diagnostics, and provenance. This static review did not exercise the imported native detail API or measure peak memory and runtime under the 4 GiB and 300-second limits. Source revision and pins-file identity rely on the managed launch contract."
+    ]
+  }
+}
