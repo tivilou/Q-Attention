@@ -1,0 +1,62 @@
+{
+  "schema": "q-rmea.protected-context.execution.v1",
+  "task": "7a0d85ac8f5d498cb591f4c5641141c8",
+  "attempt": "102818b8681f4417a2a64bde19e77e80",
+  "state": "complete",
+  "revision": "38017bcd46c2c84b8df2231f97a83409da6ea44c",
+  "recipe": {
+    "command": [
+      "{python}",
+      "-B",
+      "experiments/q_rmea_protected_context_probe.py",
+      "--baseline-run",
+      "/hy-tmp/Q-Attention/worker/attempts/6a2bf35b8d9d4ac4a6b4fe2acb6bc116/output/20261121T034306Z_seed13/discovery",
+      "--identities",
+      "docs/evidence/rmea/20261122-protected-context/cache-identities.json",
+      "--output",
+      "{output}"
+    ],
+    "kind": "diagnostic",
+    "max_attempts": 1,
+    "outputs": [
+      "probe-summary.json",
+      "RUN_COMPLETE",
+      "private-fixture.pt"
+    ],
+    "replay_safe": false,
+    "resources": {
+      "cpu": 1,
+      "disk_mb": 256,
+      "gpu_mb": 0,
+      "gpus": 0,
+      "ram_mb": 8192
+    },
+    "timeout": 300
+  },
+  "receipt": {
+    "returncode": 0,
+    "quiescent": true,
+    "finished": 1795309057.127657,
+    "revision": "38017bcd46c2c84b8df2231f97a83409da6ea44c",
+    "outputs": {
+      "RUN_COMPLETE": {
+        "bytes": 65,
+        "sha256": "bfee32aed55c93edd8f70dee4cfcd9736e58ed3c98b14e03d4535928342168e8"
+      },
+      "private-fixture.pt": {
+        "bytes": 1475337,
+        "sha256": "a241fb5d7e3e63e54210f045f72297d9dcbbbeb43771fe9932f1486a5264c1d8"
+      },
+      "probe-summary.json": {
+        "bytes": 104930,
+        "sha256": "5214b1df4a280c8fb3763d07adbaf128f7e195821aa1aeebe3d366010a518baa"
+      }
+    }
+  },
+  "summary_sha256": "5214b1df4a280c8fb3763d07adbaf128f7e195821aa1aeebe3d366010a518baa",
+  "fixture_sha256": "a241fb5d7e3e63e54210f045f72297d9dcbbbeb43771fe9932f1486a5264c1d8",
+  "fixture_bytes": 1475337,
+  "only_safe_json_downloaded": true,
+  "sample_trace_v2": false,
+  "L5": "NOT_ACCEPTED"
+}
