@@ -1,0 +1,15 @@
+# Operational entanglement is established; a fixed NLP task is a different quantifier
+
+Piani and Watrous, *All entangled states are useful for channel discrimination*, arXiv:0901.2118v2 (2009-07-16), DOI10.1103/PhysRevLett.102.250501. Scoped original reading: introduction, SectionsI–II, Theorem1/proof and Corollary1 inIII. Intermediate Lemma1/2 proofs and SectionIV examples are not claimed fully audited.
+
+Theorem1 fixes an arbitrary bipartite entangled probe–ancilla state and constructs a pair of channels for which it outperforms every separable probe. In its proof the trace-distance gain is2c times a positive-map-detected negativity. The measurement, channel pair and output space belong to that constructed discrimination problem. Generic statements that entanglement can have operational value are therefore established theory.
+
+The quantifiers differ from the present hypothesis. The source proves `for every entangled state, there exists a useful discrimination problem`. Here the native NLP representation, label relation, decoder, rival logits and natural VALID order are already fixed; the question is whether their actual decision operators admit a witness against every biseparable replacement. Entanglement of phi alone cannot supply that witness. No channel-or-dataset construction after seeing the effect is an acceptable substitute for the frozen natural-task test.
+
+This is a limitation and a theory-prior comparison, not evidence that the new NLP construction is novel. The source varies a bipartite probe state for channel discrimination; our proposed replacement is one tripartite relation effect inside a normalized classical readout. State/effect duality and linear witnesses remain known tools. The potentially useful contribution would require a material actual-decoder bound plus substantive nearest-model distinction and appropriate independent evidence. The current float64 certificate is exploratory numerical evidence only; L5 remains NOT_ACCEPTED.
+
+## Exact original-circuit counterexample (deduction, not a natural-data result)
+
+The insufficiency of parameter entanglement is realizable inside the actual head. Set the shared token preparation Linear weights/bias to zero: both layers have zero angles, so every token is |000>. In the relation effect set every angle zero except second-layer RY on wire1 to π/2 (raw parameter atanh(1/2), an interior native angle). After that rotation the two components are000 and010. The original ordered CNOT01,12,20 sends010→010→011→111, leaving000 fixed. Thus the effect is the genuinely tripartite GHZ projector.
+
+Its diagonal mixture E_sep=(|000><000|+|111><111|)/2 is fully separable, trace one, and gives exactly the same token probability1/2 for every token. With the same EPS, mask, values, bias and rivals, both effects therefore produce identical normalized attention and classifier logits on every example in this constructed encoding. No natural-text reachability or learned-parameter prevalence is asserted. A single entangled relation vector alone is insufficient even in the original architecture; task-visible decision constraints are the object that must be tested.
