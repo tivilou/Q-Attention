@@ -40,3 +40,8 @@
 
 
 证据目录：[固定配置](../evidence/rmea/20261123-native-triangle-readout/design.json)、[紧凑结果](../evidence/rmea/20261123-native-triangle-readout/completed/summary.json)、[验证记录](../evidence/rmea/20261123-native-triangle-readout/result-verification.json)、[后继事前决策](../evidence/rmea/20261123-native-triangle-readout/primary-next-decision.md)。时间来自实际资源返回记录的关闭 UTC。
+
+
+## 后继输入核对追加
+
+后继方案尚未运行。源码显示前两个角色坐标是裁剪的连续距离，缓存仅给每个split前两例保存完整原词。先找回精确TRAIN/VALID原词元数据、校验ID与offset对应并检查冻结支持范围；保留完整四坐标key及门槛，不补造词信息，不重建词表示或重训。任意相同四坐标存在于1598条VALID，这只是词／支持条件前的上界。见[追加记录](../evidence/rmea/20261123-native-triangle-readout/source-audit-addendum.md)。

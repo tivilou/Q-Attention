@@ -74,3 +74,32 @@ the specified lexical/salience reference. It would neither explain the whole
 old Q-versus-uniform gain nor inherit five-fresh-seed L4. Nearest-method
 novelty, a substantive theory contribution and appropriate independent evidence
 would remain open. Current L5 NOT_ACCEPTED.
+
+## Preimplementation source audit addendum
+
+After publication of the prospective decision, direct inspection of pinned
+`baselines/retacred/rmea_run.py` identified two important input facts. The first
+two role coordinates are clipped continuous distances to the entity centers,
+not binary role indicators; only coordinates2/3 are membership flags. Preserve
+the exact four stored coordinate values in the frozen key. Do not silently
+switch to only the membership flags. Identical four-coordinate pairs occur
+only where both distance coordinates have clipped to the same values.
+
+A read-only cache structure audit (zero model calls/label reads) found938 of
+8192TRAIN and1598 of19584VALID sentences with ANY duplicate four-role vector,
+before lexical equality and TRAINsupport. These are only upper bounds, not
+actual supported lexical-pair coverage or a pass/fail outcome. The frozen1000
+eligible and250positive floors remain unchanged.
+
+The recovered native cache's metadata stores original words for only the first
+two examples per split. All other rows contain only id_hash/wordcount. Therefore
+the frozen lexical grouping is not executable from these cache files alone.
+First recover the exact TRAIN/VALID raw word metadata from existing authorized
+owner/COS sources, verify their manifest source hashes and original-order ID /
+offset alignment, and check the frozen support floors before any model pass.
+Do not rerun a backbone, change the key or reinterpret missing metadata as a
+negative empirical result. No owner input or new paid resource is needed yet.
+
+See occurrence-source-feasibility.json for actual structural counts and source
+hash. The new experiment remains NOT IMPLEMENTED/NOT RUN; the completed phase
+screen and its negative metrics are unaffected.
