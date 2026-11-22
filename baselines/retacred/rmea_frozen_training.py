@@ -444,6 +444,9 @@ class FrozenFeatureTraining:
         """Keep only the compact already-verified gates needed for replacement-node CLI."""
         sources = {'unit/unit-validation.json': args.unit_output / 'unit-validation.json', 'unit/RUN_COMPLETE': args.unit_output / 'RUN_COMPLETE'}
         sources.update({'canary/' + n: args.admission.parent / n for n in ('admission.json', 'dependency-verification.json', 'canary-validation.json', 'RUN_COMPLETE')})
+        if self.p.read(args.admission).get('schema') == 'q-rmea.plugin-training-admission.v3':
+            sources['unit/design.json'] = args.unit_output / 'design.json'
+            sources['canary/focused-integration.json'] = args.admission.parent / 'focused-integration.json'
         for (name, source) in sources.items():
             target = root / 'recovery-inputs/admission' / name
             data = source.read_bytes()
@@ -464,11 +467,16 @@ class FrozenFeatureTraining:
         from baselines.retacred.orchestrate import gpu_ids
         from baselines.retacred.rmea_token_transport_parallel import parallel_train
         from baselines.retacred.rmea_token_transport_recovery import run_lock
-        from experiments.q_rmea_query_alignment import fresh_output
         require(args.admission is not None, 'Explicit training admission required')
         require(args.unit_output is not None, 'Explicit unit evidence required')
         from .rmea_scoped_admission import SCHEMA, verify
-        if self.p.read(args.admission).get('schema') == SCHEMA:
+        submitted_schema = self.p.read(args.admission).get('schema')
+        if getattr(self.p, 'SCOPED_ADMISSION_SCHEMA', None) == 'q-rmea.plugin-training-admission.v3':
+            require(submitted_schema == 'q-rmea.plugin-training-admission.v3', 'Protocol requires v3 admission')
+        if submitted_schema == 'q-rmea.plugin-training-admission.v3':
+            from .rmea_plugin_admission import verify as verify_plugin
+            verify_plugin(self.p, args, self.execution_environment())
+        elif self.p.read(args.admission).get('schema') == SCHEMA:
             verify(self.p, args, self.execution_environment())
         else:
             self.require_unit(args.unit_output)
@@ -485,7 +493,8 @@ class FrozenFeatureTraining:
             require(a.get('dependency_verification_sha256') == self.p.digest(depfile) and dep.get('verified') is True and (dep.get('request_sha256') == self.p.INPUT_REQUEST_SHA) and (dep.get('acknowledgement_sha256') == self.p.INPUT_ACK_ID) and (dep.get('objects') == 13) and (dep.get('total_pinned_bytes') == 6947440640) and (dep.get('payload_bytes_read') == 0), 'Input dependency acceptance record differs')
         require(bool(os.environ.get('CUDA_VISIBLE_DEVICES', '').strip()), 'Explicit scheduler GPU allocation required')
         devices = gpu_ids('auto')
-        require(len(devices) == 3, 'Three allocated GPUs required')
+        expected_gpus = self.p.config('discovery').get('allocated_gpus', 3)
+        require(len(devices) == expected_gpus, 'Allocated GPU count differs from declared configuration')
         output = self.run_location(args)
         root = output.parent
         identity = args.output / 'run-identity.json'

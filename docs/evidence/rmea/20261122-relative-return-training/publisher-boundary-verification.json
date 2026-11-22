@@ -1,0 +1,271 @@
+{
+  "status": "PASS",
+  "source_sha256": "56c567973d095d8587a899f4109fd031a797f83b2539cd32b815c8a72a61ed80",
+  "cases": [
+    {
+      "case": "generation_locked_across_actual_ack",
+      "pass_": true
+    },
+    {
+      "case": "stale_generation_rejected_before_rpc",
+      "pass_": true
+    },
+    {
+      "case": "delayed_remote_ack_retains_host_and_attempt_closeout_fences_after_timeout",
+      "pass_": true
+    },
+    {
+      "case": "second_delayed_ack_writer_preserves_first_installed_commit_and_pointer",
+      "pass_": true
+    },
+    {
+      "case": "exact_terminal",
+      "exit_code": 0,
+      "stdout": "{\"complete\": true, \"request\": {\"schema\": \"q-rmea.cos-request.v1\", \"run_id\": \"fixture-run\", \"generation\": \"100-progress\", \"identity\": {\"source\": \"fixture-source\", \"config\": \"fixture-config\"}, \"done\": 21936, \"total\": 21936, \"files\": {\"cos-channel/100-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}, \"cos-channel/100-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"}}}, \"ack\": {\"done\": 21936, \"request_sha256\": \"2dea804001f892c0f970c73bf1e16da33895a9338ca56f9a4d1b82d76c68c98e\", \"index_commit\": \"FIXTURE_NOT_REAL\", \"objects\": {\"cos-channel/100-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/100-progress/latest.pt\", \"version_id\": \"FIXTURE_VERSION\"}, \"cos-channel/100-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/100-progress/best.pt\", \"version_id\": \"FIXTURE_VERSION\"}}}, \"history\": [{\"request\": {\"schema\": \"q-rmea.cos-request.v1\", \"run_id\": \"fixture-run\", \"generation\": \"000-preparation\", \"identity\": {\"source\": \"fixture-source\", \"config\": \"fixture-config\"}, \"done\": 0, \"total\": 21936, \"files\": {\"cos-channel/000-preparation/preparation.000.tarpart\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}}, \"ack\": {\"done\": 0, \"request_sha256\": \"edbf51e3dd1bcf197bbc63977f35133b4be8adc3756601770bf3a4afedd1bd43\", \"index_commit\": \"FIXTURE_NOT_REAL\", \"objects\": {\"cos-channel/000-preparation/preparation.000.tarpart\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/000-preparation/preparation.000.tarpart\", \"version_id\": \"FIXTURE_VERSION\"}}}}, {\"request\": {\"schema\": \"q-rmea.cos-request.v1\", \"run_id\": \"fixture-run\", \"generation\": \"010-progress\", \"identity\": {\"source\": \"fixture-source\", \"config\": \"fixture-config\"}, \"done\": 2194, \"total\": 21936, \"files\": {\"cos-channel/010-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}, \"cos-channel/010-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}}, \"ack\": {\"done\": 2194, \"request_sha256\": \"6c945c43bccc5df4b1f5f0a5eb59e636e3dbe0f7b2011a1c310832d56d45e770\", \"index_commit\": \"FIXTURE_NOT_REAL\", \"objects\": {\"cos-channel/010-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/010-progress/latest.pt\", \"version_id\": \"FIXTURE_VERSION\"}, \"cos-channel/010-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/010-progress/best.pt\", \"version_id\": \"FIXTURE_VERSION\"}}}}, {\"request\": {\"schema\": \"q-rmea.cos-request.v1\", \"run_id\": \"fixture-run\", \"generation\": \"020-progress\", \"identity\": {\"source\": \"fixture-source\", \"config\": \"fixture-config\"}, \"done\": 4388, \"total\": 21936, \"files\": {\"cos-channel/020-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}, \"cos-channel/020-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}}, \"ack\": {\"done\": 4388, \"request_sha256\": \"f080fb703b11916d12c9ca7d6afc3be4e7c5a6016d82776668e3f80c5a277bde\", \"index_commit\": \"FIXTURE_NOT_REAL\", \"objects\": {\"cos-channel/020-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/020-progress/latest.pt\", \"version_id\": \"FIXTURE_VERSION\"}, \"cos-channel/020-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/020-progress/best.pt\", \"version_id\": \"FIXTURE_VERSION\"}}}}, {\"request\": {\"schema\": \"q-rmea.cos-request.v1\", \"run_id\": \"fixture-run\", \"generation\": \"030-progress\", \"identity\": {\"source\": \"fixture-source\", \"config\": \"fixture-config\"}, \"done\": 6581, \"total\": 21936, \"files\": {\"cos-channel/030-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}, \"cos-channel/030-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}}, \"ack\": {\"done\": 6581, \"request_sha256\": \"1f47db05ab3840e4379578538a28a948345de4383e43832dd520caae396ece1d\", \"index_commit\": \"FIXTURE_NOT_REAL\", \"objects\": {\"cos-channel/030-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/030-progress/latest.pt\", \"version_id\": \"FIXTURE_VERSION\"}, \"cos-channel/030-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/030-progress/best.pt\", \"version_id\": \"FIXTURE_VERSION\"}}}}, {\"request\": {\"schema\": \"q-rmea.cos-request.v1\", \"run_id\": \"fixture-run\", \"generation\": \"040-progress\", \"identity\": {\"source\": \"fixture-source\", \"config\": \"fixture-config\"}, \"done\": 8775, \"total\": 21936, \"files\": {\"cos-channel/040-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}, \"cos-channel/040-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}}, \"ack\": {\"done\": 8775, \"request_sha256\": \"d3ffdfa8846dc504282a7ea546db78279ec2f5fddec48a982437cd1e20665617\", \"index_commit\": \"FIXTURE_NOT_REAL\", \"objects\": {\"cos-channel/040-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/040-progress/latest.pt\", \"version_id\": \"FIXTURE_VERSION\"}, \"cos-channel/040-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/040-progress/best.pt\", \"version_id\": \"FIXTURE_VERSION\"}}}}, {\"request\": {\"schema\": \"q-rmea.cos-request.v1\", \"run_id\": \"fixture-run\", \"generation\": \"050-progress\", \"identity\": {\"source\": \"fixture-source\", \"config\": \"fixture-config\"}, \"done\": 10968, \"total\": 21936, \"files\": {\"cos-channel/050-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}, \"cos-channel/050-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}}, \"ack\": {\"done\": 10968, \"request_sha256\": \"ccec4ab22e93074c879e3ebbffdb214b721ef80a3ae7b04c1d4e10d727b5b2e4\", \"index_commit\": \"FIXTURE_NOT_REAL\", \"objects\": {\"cos-channel/050-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/050-progress/latest.pt\", \"version_id\": \"FIXTURE_VERSION\"}, \"cos-channel/050-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/050-progress/best.pt\", \"version_id\": \"FIXTURE_VERSION\"}}}}, {\"request\": {\"schema\": \"q-rmea.cos-request.v1\", \"run_id\": \"fixture-run\", \"generation\": \"060-progress\", \"identity\": {\"source\": \"fixture-source\", \"config\": \"fixture-config\"}, \"done\": 13162, \"total\": 21936, \"files\": {\"cos-channel/060-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}, \"cos-channel/060-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}}, \"ack\": {\"done\": 13162, \"request_sha256\": \"0edf23d4ebd2354571f4347dd4fd3ce6175c7b8d10112f428f1a6259c260b8ec\", \"index_commit\": \"FIXTURE_NOT_REAL\", \"objects\": {\"cos-channel/060-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/060-progress/latest.pt\", \"version_id\": \"FIXTURE_VERSION\"}, \"cos-channel/060-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/060-progress/best.pt\", \"version_id\": \"FIXTURE_VERSION\"}}}}, {\"request\": {\"schema\": \"q-rmea.cos-request.v1\", \"run_id\": \"fixture-run\", \"generation\": \"070-progress\", \"identity\": {\"source\": \"fixture-source\", \"config\": \"fixture-config\"}, \"done\": 15356, \"total\": 21936, \"files\": {\"cos-channel/070-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}, \"cos-channel/070-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}}, \"ack\": {\"done\": 15356, \"request_sha256\": \"4d11af411e3ff8d4568b4461ec938748da30f5c513af6f7a30ba3410ffadf160\", \"index_commit\": \"FIXTURE_NOT_REAL\", \"objects\": {\"cos-channel/070-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/070-progress/latest.pt\", \"version_id\": \"FIXTURE_VERSION\"}, \"cos-channel/070-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/070-progress/best.pt\", \"version_id\": \"FIXTURE_VERSION\"}}}}, {\"request\": {\"schema\": \"q-rmea.cos-request.v1\", \"run_id\": \"fixture-run\", \"generation\": \"080-progress\", \"identity\": {\"source\": \"fixture-source\", \"config\": \"fixture-config\"}, \"done\": 17549, \"total\": 21936, \"files\": {\"cos-channel/080-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}, \"cos-channel/080-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}}, \"ack\": {\"done\": 17549, \"request_sha256\": \"b3244033398c0c15bdc8f3381f9bf2f6d1e16473699f26fc628e883aeb6839ae\", \"index_commit\": \"FIXTURE_NOT_REAL\", \"objects\": {\"cos-channel/080-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/080-progress/latest.pt\", \"version_id\": \"FIXTURE_VERSION\"}, \"cos-channel/080-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/080-progress/best.pt\", \"version_id\": \"FIXTURE_VERSION\"}}}}, {\"request\": {\"schema\": \"q-rmea.cos-request.v1\", \"run_id\": \"fixture-run\", \"generation\": \"090-progress\", \"identity\": {\"source\": \"fixture-source\", \"config\": \"fixture-config\"}, \"done\": 19743, \"total\": 21936, \"files\": {\"cos-channel/090-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}, \"cos-channel/090-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}}, \"ack\": {\"done\": 19743, \"request_sha256\": \"506a34742b1ba76b14ccd94040a314d95c962fcba88b37bba2e4bc0fd816c56d\", \"index_commit\": \"FIXTURE_NOT_REAL\", \"objects\": {\"cos-channel/090-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/090-progress/latest.pt\", \"version_id\": \"FIXTURE_VERSION\"}, \"cos-channel/090-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/090-progress/best.pt\", \"version_id\": \"FIXTURE_VERSION\"}}}}, {\"request\": {\"schema\": \"q-rmea.cos-request.v1\", \"run_id\": \"fixture-run\", \"generation\": \"100-progress\", \"identity\": {\"source\": \"fixture-source\", \"config\": \"fixture-config\"}, \"done\": 21936, \"total\": 21936, \"files\": {\"cos-channel/100-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}, \"cos-channel/100-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"}}}, \"ack\": {\"done\": 21936, \"request_sha256\": \"2dea804001f892c0f970c73bf1e16da33895a9338ca56f9a4d1b82d76c68c98e\", \"index_commit\": \"FIXTURE_NOT_REAL\", \"objects\": {\"cos-channel/100-progress/latest.pt\": {\"bytes\": 4, \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/100-progress/latest.pt\", \"version_id\": \"FIXTURE_VERSION\"}, \"cos-channel/100-progress/best.pt\": {\"bytes\": 4, \"sha256\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"bucket\": \"FIXTURE_BUCKET\", \"region\": \"FIXTURE_REGION\", \"key\": \"projects/q-attention/formal-runs/fixture-run/cos-channel/100-progress/best.pt\", \"version_id\": \"FIXTURE_VERSION\"}}}}]}\n",
+      "stderr": "",
+      "pass_": true
+    },
+    {
+      "case": "stale_terminal",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 8, in <module>\nValueError: Terminal belongs to another allocation\n",
+      "pass_": true
+    },
+    {
+      "case": "missing_final_ack",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 15, in <module>\nValueError: Final acknowledged generation missing\n",
+      "pass_": true
+    },
+    {
+      "case": "missing_report_member",
+      "rejected": true,
+      "pass_": true
+    },
+    {
+      "case": "changed_report_member",
+      "rejected": true,
+      "pass_": true
+    },
+    {
+      "case": "missing_local_preparation_prefix_blocks_completion",
+      "pass_": true
+    },
+    {
+      "case": "missing_final_checkpoint",
+      "rejected": true,
+      "pass_": true
+    },
+    {
+      "case": "changed_final_checkpoint",
+      "rejected": true,
+      "pass_": true
+    },
+    {
+      "case": "ack_after_attempt_closure_rejected_no_file",
+      "pass_": true
+    },
+    {
+      "case": "exact_failure_precedes_outstanding_upload_actual_poll",
+      "pass_": true,
+      "request_calls": 0,
+      "publisher_exit_code": 1
+    },
+    {
+      "case": "expired_private_draft_deadline_does_not_stop_preparation_service",
+      "pass_": true
+    },
+    {
+      "case": "exact_owner_index_unrelated_later",
+      "rejected": false,
+      "pass_": true
+    },
+    {
+      "case": "missing_owner_index",
+      "rejected": true,
+      "pass_": true
+    },
+    {
+      "case": "different_owner_index",
+      "rejected": true,
+      "pass_": true
+    },
+    {
+      "case": "valid_ack_later_changed_receipt",
+      "rejected": true,
+      "pass_": true
+    },
+    {
+      "case": "valid_ack_later_deleted_receipt",
+      "rejected": true,
+      "pass_": true
+    },
+    {
+      "case": "actual_owner_ack_retry_reconciles_older_commit_after_unrelated_main_advance",
+      "pass_": true
+    },
+    {
+      "case": "duplicate_normalized_checkpoint_role_rejected_before_writes",
+      "pass_": true
+    },
+    {
+      "case": "noncanonical_preparation_payload_rejected_before_writes",
+      "pass_": true
+    },
+    {
+      "case": "missing_predecessor_rejected_before_writes",
+      "pass_": true
+    },
+    {
+      "case": "regressed_cursor_rejected_before_writes_equal_cursor_allowed",
+      "pass_": true
+    },
+    {
+      "case": "misplaced_request_rejected_before_objects_or_index",
+      "pass_": true
+    },
+    {
+      "case": "premature_final_rejected_before_objects_or_index",
+      "pass_": true
+    },
+    {
+      "case": "nonzero_preparation_rejected_before_objects_or_index",
+      "pass_": true
+    },
+    {
+      "case": "existing_preparation_receipt_wrong_bucket_rejected_before_ack",
+      "pass_": true
+    },
+    {
+      "case": "existing_preparation_receipt_wrong_region_rejected_before_ack",
+      "pass_": true
+    },
+    {
+      "case": "stale_checkout_conflict_preserves_remote_receipt",
+      "pass_": true
+    },
+    {
+      "case": "stale_checkout_identical_remote_receipt_reused",
+      "pass_": true
+    },
+    {
+      "case": "new_receipt_only_commit_has_fetched_main_parent",
+      "pass_": true
+    },
+    {
+      "case": "clean_unrelated_local_commit_leaves_remote_untouched",
+      "pass_": true
+    },
+    {
+      "case": "single_exact_owned_pending_commit_retry_supported",
+      "pass_": true
+    },
+    {
+      "case": "next_generation_after_owned_pending_retry_succeeds",
+      "pass_": true
+    },
+    {
+      "case": "concurrent_remote_conflict_rechecked_after_nonfastforward_push",
+      "pass_": true
+    },
+    {
+      "case": "stale_checkout_uses_indexed_version_despite_newer_same_byte_version",
+      "pass_": true
+    },
+    {
+      "case": "reused_null_version_matching_HEAD_metadata_rejected_before_ACK",
+      "pass_": true
+    },
+    {
+      "case": "local_only_receipt_empty_readback_ledger_leaves_main_and_ack_untouched",
+      "pass_": true
+    },
+    {
+      "case": "local_only_receipt_mismatching_readback_ledger_leaves_main_and_ack_untouched",
+      "pass_": true
+    },
+    {
+      "case": "push_followTags_cannot_publish_another_ref",
+      "pass_": true
+    },
+    {
+      "case": "remote_backward_move_rejects_stale_CAS_push_without_restoring_history",
+      "pass_": true
+    },
+    {
+      "case": "excluded_main_fetch_mapping_cannot_accept_stale_tracking_history",
+      "pass_": true
+    },
+    {
+      "case": "all_eleven_prefix_receipts_verified_at_one_tip_with_unrelated_later_commit",
+      "pass_": true
+    },
+    {
+      "case": "missing_preparation_cos_version_blocks_exact_completion_with_intact_index",
+      "pass_": true,
+      "payload_downloads": 0
+    },
+    {
+      "case": "progress_retry_with_intact_prefix_and_unrelated_later_commit",
+      "pass_": true
+    },
+    {
+      "case": "missing_preparation_cos_version_blocks_progress_before_index_or_ACK",
+      "pass_": true,
+      "payload_downloads": 0
+    },
+    {
+      "case": "changed_preparation_index_blocks_completion",
+      "pass_": true
+    },
+    {
+      "case": "changed_preparation_index_blocks_progress_before_COS_index_and_ACK",
+      "pass_": true
+    },
+    {
+      "case": "missing_preparation_index_blocks_completion",
+      "pass_": true
+    },
+    {
+      "case": "deleted_preparation_index_blocks_progress_without_remote_change",
+      "pass_": true
+    },
+    {
+      "case": "prefix_rechecked_on_refetch_after_receipt_push_conflict",
+      "pass_": true
+    },
+    {
+      "case": "original_input_inventory_authenticated_against_request_and_ACK_pins",
+      "pass_": true
+    },
+    {
+      "case": "missing_original_input_version_blocks_progress_before_index_or_ACK",
+      "pass_": true
+    },
+    {
+      "case": "missing_original_input_version_blocks_reattached_completion",
+      "pass_": true
+    },
+    {
+      "case": "successful_push_readback_changed_preparation",
+      "pass_": true
+    },
+    {
+      "case": "successful_push_readback_unrelated",
+      "pass_": true
+    },
+    {
+      "case": "resident_delayed_payload_read_before_reusable_return",
+      "pass_": true
+    },
+    {
+      "case": "resident_changed_checkpoint_before_reusable_return",
+      "pass_": true
+    }
+  ],
+  "cloud_operations": 0,
+  "scientific_updates": 0,
+  "scope": "Actual extracted ACK/terminal implementations with explicit local fixtures; not a COS acceptance or training result"
+}

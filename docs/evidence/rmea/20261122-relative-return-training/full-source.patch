@@ -1,0 +1,331 @@
+diff --git a/baselines/retacred/rmea_experiments.py b/baselines/retacred/rmea_experiments.py
+--- a/baselines/retacred/rmea_experiments.py
++++ b/baselines/retacred/rmea_experiments.py
+@@ -17,6 +17,7 @@
+ EXPERIMENTS = MappingProxyType({
+     'entity-scattering': Experiment('rmea_entity_scattering_protocol', 'rmea_entity_scattering_runtime'),
+     'protected-context': Experiment('rmea_protected_context_protocol', 'rmea_protected_context_runtime'),
++    'relative-return': Experiment('rmea_relative_return_protocol', 'rmea_relative_return_runtime'),
+ })
+ 
+ 
+diff --git a/baselines/retacred/rmea_frozen_training.py b/baselines/retacred/rmea_frozen_training.py
+--- a/baselines/retacred/rmea_frozen_training.py
++++ b/baselines/retacred/rmea_frozen_training.py
+@@ -444,6 +444,9 @@
+         """Keep only the compact already-verified gates needed for replacement-node CLI."""
+         sources = {'unit/unit-validation.json': args.unit_output / 'unit-validation.json', 'unit/RUN_COMPLETE': args.unit_output / 'RUN_COMPLETE'}
+         sources.update({'canary/' + n: args.admission.parent / n for n in ('admission.json', 'dependency-verification.json', 'canary-validation.json', 'RUN_COMPLETE')})
++        if self.p.read(args.admission).get('schema') == 'q-rmea.plugin-training-admission.v3':
++            sources['unit/design.json'] = args.unit_output / 'design.json'
++            sources['canary/focused-integration.json'] = args.admission.parent / 'focused-integration.json'
+         for (name, source) in sources.items():
+             target = root / 'recovery-inputs/admission' / name
+             data = source.read_bytes()
+@@ -464,11 +467,16 @@
+         from baselines.retacred.orchestrate import gpu_ids
+         from baselines.retacred.rmea_token_transport_parallel import parallel_train
+         from baselines.retacred.rmea_token_transport_recovery import run_lock
+-        from experiments.q_rmea_query_alignment import fresh_output
+         require(args.admission is not None, 'Explicit training admission required')
+         require(args.unit_output is not None, 'Explicit unit evidence required')
+         from .rmea_scoped_admission import SCHEMA, verify
+-        if self.p.read(args.admission).get('schema') == SCHEMA:
++        submitted_schema = self.p.read(args.admission).get('schema')
++        if getattr(self.p, 'SCOPED_ADMISSION_SCHEMA', None) == 'q-rmea.plugin-training-admission.v3':
++            require(submitted_schema == 'q-rmea.plugin-training-admission.v3', 'Protocol requires v3 admission')
++        if submitted_schema == 'q-rmea.plugin-training-admission.v3':
++            from .rmea_plugin_admission import verify as verify_plugin
++            verify_plugin(self.p, args, self.execution_environment())
++        elif self.p.read(args.admission).get('schema') == SCHEMA:
+             verify(self.p, args, self.execution_environment())
+         else:
+             self.require_unit(args.unit_output)
+@@ -485,7 +493,8 @@
+             require(a.get('dependency_verification_sha256') == self.p.digest(depfile) and dep.get('verified') is True and (dep.get('request_sha256') == self.p.INPUT_REQUEST_SHA) and (dep.get('acknowledgement_sha256') == self.p.INPUT_ACK_ID) and (dep.get('objects') == 13) and (dep.get('total_pinned_bytes') == 6947440640) and (dep.get('payload_bytes_read') == 0), 'Input dependency acceptance record differs')
+         require(bool(os.environ.get('CUDA_VISIBLE_DEVICES', '').strip()), 'Explicit scheduler GPU allocation required')
+         devices = gpu_ids('auto')
+-        require(len(devices) == 3, 'Three allocated GPUs required')
++        expected_gpus = self.p.config('discovery').get('allocated_gpus', 3)
++        require(len(devices) == expected_gpus, 'Allocated GPU count differs from declared configuration')
+         output = self.run_location(args)
+         root = output.parent
+         identity = args.output / 'run-identity.json'
+diff --git a/baselines/retacred/rmea_plugin_admission.py b/baselines/retacred/rmea_plugin_admission.py
+new file mode 100644
+--- /dev/null
++++ b/baselines/retacred/rmea_plugin_admission.py
+@@ -0,0 +1,79 @@
++"""Prospective plugin acceptance: new science unit plus reused unchanged core."""
++import math
++from pathlib import Path
++
++SCHEMA='q-rmea.plugin-training-admission.v3'
++PRIOR='docs/evidence/rmea/20261122-scoped-training-admission/scoped-admission.json'
++PRIOR_SHA='79d32ab799c041d30952caf8169eeda47a0c76c9eccc6f2d8d90ccda61174916'
++CORE=('rmea_token_transport_study','rmea_token_transport_parallel',
++      'rmea_token_transport_recovery','rmea_task_runtime','rmea_scoped_admission')
++
++def verify(p,args,environment):
++    def require(ok,message):
++        if not ok:raise ValueError(message)
++    def regular(path):
++        f=Path(path)
++        require(f.is_file() and not f.is_symlink() and f.stat().st_size<2*1024**2,'Compact regular admission required')
++        return f
++    a=p.read(regular(args.admission));cfg=p.config('discovery');source=p.sources()
++    require(getattr(p,'SCOPED_ADMISSION_SCHEMA',None)==SCHEMA and a.get('schema')==SCHEMA
++            and a.get('gate') is True and p.digest(args.admission)==args.admission_sha256,'Plugin admission differs')
++    require(a['source_hashes']==source and a['source_sha256']==p.identity(source)
++            and a['contract_sha256']==p.identity(p.contract())
++            and a['config_sha256']==p.identity(cfg) and a['environment']==environment,'Current provenance/environment differs')
++    require(a['execution']==dict(gpus=cfg['allocated_gpus'],seed=13,conditions=list(p.MODES),
++            epochs=4,batch_size=32,baseline_retrained=False),'Execution assumptions differ')
++    prior_file=regular(p.ROOT/PRIOR)
++    require(p.digest(prior_file)==PRIOR_SHA,'Accepted capability record differs')
++    prior=p.read(prior_file)
++    require(prior['gate'] is True and prior['historical_complete_acceptance'] is False
++            and prior['historical_canary_status']=='PARTIAL_RUNTIME_PASS_RNG_ACCEPTANCE_FAILED','Historical scope changed')
++    require(a['prior_admission_sha256']==PRIOR_SHA,'Prior capability reference differs')
++    for name in CORE:
++        key='baselines/retacred/'+name+'.py'
++        require(source[key]==prior['source_hashes'][key],'Core capability changed: '+name)
++    folder=Path(args.admission).parent
++    for name,field in (('canary-validation.json','prior_canary_validation_sha256'),
++                       ('RUN_COMPLETE','prior_canary_seal_sha256'),
++                       ('dependency-verification.json','dependency_verification_sha256')):
++        require(p.digest(regular(folder/name))==prior[field],'Historical evidence bytes differ')
++    canary=p.read(folder/'canary-validation.json')
++    require(canary['gate'] is True and all(canary.get(n) is True
++        for n in ('serial_parallel_resume_equal','export_retry','cos_live_pinned_restore')),'Required capability missing')
++    unit_file=regular(Path(args.unit_output)/'unit-validation.json');u=p.read(unit_file)
++    require(p.digest(unit_file)==a['unit_sha256']
++        and p.read(regular(unit_file.parent/'RUN_COMPLETE'))['summary_sha256']==p.digest(unit_file)
++        and u['status']=='PASS' and u['initial_sha256']==p.BASE_INITIAL
++        and set(u['results'])==set(p.MODES),'Current plugin feasibility differs')
++    design_file=regular(unit_file.parent/'design.json');design=p.read(design_file)
++    required={'baselines/retacred/rmea.py','baselines/retacred/frozen_feature_head.py',
++              'experiments/diagnostics/rmea_relative_return/relative_return.py',
++              'baselines/retacred/rmea_task_runtime.py','baselines/retacred/rmea_token_transport_study.py'}
++    require(required <= set(design['source_hashes']), 'Scientific unit dependency coverage missing')
++    require(p.digest(design_file)==u['design_sha256']==a['unit_design_sha256']
++        and design['code_hashes']['rmea_relative_return.py']==source['baselines/retacred/rmea_relative_return.py']
++        and all(source[name]==pin for name,pin in design['source_hashes'].items()),
++        'Scientific unit dependency changed')
++    for row in u['results'].values():
++        require(row['parameters']==81028 and row['flat_initial_state_sha256']==p.BASE_INITIAL
++            and row['optimizer_updates']==1 and row['worst4_optimizer_updates']==0
++            and row['checkpoint_saved'] is False and row['parity_error']<1e-10,
++            'Plugin unit coverage differs')
++        for field in ('gradient_norms','worst4_gradient_norms'):
++            require(len(row[field])==7 and all(math.isfinite(x) and x>0 for x in row[field].values()),
++                    'Plugin finite gradient coverage differs')
++    focused_file=regular(folder/'focused-integration.json')
++    focused=p.read(focused_file)
++    require(p.digest(focused_file)==a['focused_integration_sha256']
++        and focused['status']=='PASS' and focused['gate'] is True
++        and focused['source_hashes']==source and focused['source_sha256']==p.identity(source)
++        and focused['contract_sha256']==p.identity(p.contract())
++        and focused['config_sha256']==p.identity(cfg)
++        and focused['unchanged_checkpoint_semantics'] is True
++        and focused['actual_allocated_gpus']==cfg['allocated_gpus']
++        and focused['before_core_sha256']==prior['source_hashes']['baselines/retacred/rmea_frozen_training.py']
++        and focused['cli']['exit_code']==0
++        and len(focused['synthetic_report_cases'])==2
++        and all(x['report_members']==7 and x['retry_identical'] is True for x in focused['synthetic_report_cases']),
++        'Completed focused integration evidence missing')
++    return a
+diff --git a/baselines/retacred/rmea_relative_return_protocol.py b/baselines/retacred/rmea_relative_return_protocol.py
+new file mode 100644
+--- /dev/null
++++ b/baselines/retacred/rmea_relative_return_protocol.py
+@@ -0,0 +1,76 @@
++"""Prospective fair-budget three-readout study; completed native is reused."""
++from . import rmea_token_transport_protocol as base
++from .rmea_entity_scattering_protocol import (BASE_MANIFEST, BASE_SUMMARY, BASE_INITIAL,
++    CANARY_MANIFEST, LABELS_SHA, INPUT_REQUEST_SHA, INPUT_ACK_ID, REPORT_FILES)
++from .rmea_protocol import ROOT, EXPECTED, identity, read, git
++from .common import atomic_json, digest
++from .rmea_relative_return import MODES
++
++EXPERIMENT = 'relative-return'
++SCHEMA_PREFIX = 'q-rmea.relative-return'
++REFERENCE_METHOD = 'native'
++REFERENCE_DESCRIPTION = 'Pinned full-data seed13 native, identical fresh initial state/order/budget; not retrained'
++ANALYSIS_DIRECTORY = 'analysis'
++SCOPED_ADMISSION_SCHEMA = 'q-rmea.plugin-training-admission.v3'
++OWNER_HASHES = {'allocation_publisher.py': '56c567973d095d8587a899f4109fd031a797f83b2539cd32b815c8a72a61ed80', 'full_host_run.py': 'a577c5f84dd749f19aab437d63f9f0be454ad2c0a593fe6f154498e5798e478b', 'launch_full.py': 'b6aa516374ed1dcf58defd265754aad2b7a2dcecf90cc0c6550132188d17b647', 'accepted_publisher_backend.py': 'e2b611543836d288daed2bebb95a0c8e68c6b795df7173ef1e3359740aa9e971'}
++EXTRA_RECOVERY_INPUTS = ('recovery-inputs/admission/unit/design.json',
++                         'recovery-inputs/admission/canary/focused-integration.json')
++EXTRA = (
++    'baselines/retacred/rmea_relative_return.py',
++    'baselines/retacred/rmea_relative_return_protocol.py',
++    'baselines/retacred/rmea_relative_return_runtime.py',
++    'baselines/retacred/rmea_frozen_training.py',
++    'baselines/retacred/rmea_plugin_admission.py',
++    'baselines/retacred/rmea_scoped_admission.py',
++    'baselines/retacred/rmea_task_runtime.py',
++    'baselines/retacred/rmea_experiments.py',
++    'baselines/retacred/rmea_entity_scattering_protocol.py',
++    'experiments/q_rmea_train.py',
++    'experiments/q_rmea_relative_return_train.py',
++    'experiments/diagnostics/rmea_relative_return/relative_return.py',
++    'baselines/retacred/orchestrate.py',
++    'docs/evidence/rmea/20261122-scoped-training-admission/scoped-admission.json',
++)
++
++def sources():
++    result = base.sources()
++    for name in EXTRA:
++        path = ROOT/name
++        if path.is_symlink() or not path.is_file():
++            raise ValueError('Missing or symlinked source: '+name)
++        result[name] = digest(path)
++    return result
++
++def config(profile):
++    cfg = base.config(profile)
++    cfg.update(schema=SCHEMA_PREFIX+'.training.v1',conditions=list(MODES),
++        allocated_gpus=2,micro_batch_size=4,diagnostic_samples=0,
++        trace_samples_per_split=0,
++        mechanism='W=V^dagger U; coherent |(W^2)00|^2 versus computational-basis intermediate dephasing',
++        control='Native p^2 before the same EPS/normalizer; same81028 parameters/features/value/decoder',
++        reference=dict(manifest=BASE_MANIFEST,summary=BASE_SUMMARY,initial=BASE_INITIAL,
++                       method='native',selection='fixed epoch4',retrain=False),
++        primary='Full test positive39Macro of return_coherent minus completed native',
++        ordinary_utility_gate='Strictly positive candidate-minus-native Macro',
++        attribution_gate='Separately coherent Macro strictly exceeds dephased and scalar-native-square',
++        selection='Fixed final epoch only; valid retention descriptive; no early stopping or epoch selection',
++        promotion='Utility and matched controls reported separately; stop exact recipe on failed conjunction, no rescue seed/epoch/readout',
++        analysis='Final flat-state checkpoints retained; ordinary case study may be rebuilt; no materialized trace claim',
++        claim_scope='One seed on repeatedly exposed official cohort; encoding-unitary access, not state-only; no inherited L4/L5, independent confirmation or quantum exclusivity')
++    return cfg
++
++def contract():
++    return dict(profiles={x:config(x) for x in ('canary','discovery')},
++        launch='One atomic allocation of2GPU; unchanged internal ready queue executes3independent conditions, one per card',
++        recovery='Unchanged full-state local latest every update, validation-best, quiescent10percent COS and explicit resume; immutable original input versions reused',
++        output='Three final checkpoints, checkpoint-replayable analysis inventory and exact seven compact report files',
++        validation='Actual new-plugin GPU shape/gradient/update/parity; accepted unchanged core reuse, focused allocated-card count delta; historical complete canary failure retained')
++
++def review_gate(*,action):
++    row=read(ROOT/'docs/evidence/rmea/20261122-relative-return-training/formal-review.json')
++    if (row.get('verdict')!='PASS' or row.get('review_scope')!='both' or row.get('must_fix')
++            or row.get('source_sha256')!=identity(sources())
++            or row.get('contract_sha256')!=identity(contract())
++            or row.get('owner_hashes')!=OWNER_HASHES):
++        raise ValueError('Current plugin/adapter/admission review required')
++    return row
+diff --git a/baselines/retacred/rmea_relative_return_runtime.py b/baselines/retacred/rmea_relative_return_runtime.py
+new file mode 100644
+--- /dev/null
++++ b/baselines/retacred/rmea_relative_return_runtime.py
+@@ -0,0 +1,97 @@
++"""Scientific callbacks; the accepted training/worker/COS core stays shared."""
++from pathlib import Path
++from . import rmea_relative_return_protocol as protocol
++from . import rmea_task_runtime as task
++from .rmea_task_runtime import backward, score_batch
++
++def require(ok,message):
++    if not ok:raise ValueError(message)
++
++def make_head(kind):
++    from .rmea_relative_return import RelativeReturnHead
++    return RelativeReturnHead(kind)
++
++def launch_spec(output,kind,device,*,resume):
++    return task.launch_spec(protocol,'experiments/q_rmea_relative_return_train.py',
++                            output,kind,device,resume=resume)
++
++def prepare(recovery,labels,data_dir):
++    return task.prepare(protocol,recovery,labels,data_dir)
++
++def capture(output,head,kind,split,batch,metadata):
++    # Rebuild ordinary case studies from final checkpoint + pinned features.
++    # No duplicate intermediate tensors and no materialized trace claim.
++    (Path(output)/protocol.ANALYSIS_DIRECTORY).mkdir(exist_ok=True)
++    return []
++
++def worker_receipt(output,condition):
++    return dict(analysis='final_checkpoint_replayable',trace_materialized=False)
++
++def validate_completed(output,kind,row,receipt):
++    require(row['samples']==[] and row.get('diagnostics') is None
++        and receipt.get('analysis')=='final_checkpoint_replayable'
++        and receipt.get('trace_materialized') is False,'Wrong scientific completion scope')
++
++def validate_training_cache(output,cache):
++    for name,pin in cache.items():
++        f=Path(output)/'cache'/name
++        require(f.is_file() and not f.is_symlink() and f.stat().st_size==pin['bytes']
++                and protocol.digest(f)==pin['sha256'],'Training input bytes differ: '+name)
++
++def finish(cfg,output,parts,*,data_dir=None,assets=None):
++    from .rmea_token_transport_recovery import sync_directory
++    p=protocol;output=Path(output);results={};initials=set();orders=set()
++    for row in parts:
++        require(not set(results)&set(row['results']) and row['samples']==[]
++                and row.get('diagnostics') is None,'Duplicate or unexpected result')
++        results.update(row['results']);initials.add(row['initial_sha']);orders.add(row['order_sha'])
++    require(set(results)==set(p.MODES) and initials=={p.BASE_INITIAL} and len(orders)==1,
++            'Condition/init/order coverage mismatch')
++    m=p.read(output/'manifest.json')
++    require(cfg==m['config']==p.config(cfg['profile']),'Frozen config differs')
++    if cfg['profile']=='discovery':
++        require(next(iter(orders))==m['reference']['order_sha256'],'Historical order mismatch')
++    reference=m['reference']['result'];contrasts={}
++    candidate=results['return_coherent']['test']
++    for name,other in [('native_reference',reference['test'])]+[(k,results[k]['test']) for k in p.MODES[1:]]:
++        delta=candidate['positive39_macro_f1']-other['positive39_macro_f1'];base=abs(other['positive39_macro_f1'])
++        contrasts[name]=dict(absolute_macro_delta=delta,relative_macro_delta=delta/base if base else None,
++                             ce_delta=candidate['ce']-other['ce'])
++    full=cfg['profile']=='discovery'
++    utility=contrasts['native_reference']['absolute_macro_delta']>0 if full else None
++    attribution=all(contrasts[k]['absolute_macro_delta']>0 for k in p.MODES[1:]) if full else None
++    summary=dict(schema=p.SCHEMA_PREFIX+'.result.v1',results=results,reference=reference,contrasts=contrasts,
++        ordinary_utility_gate=utility,matched_control_gate=attribution,promotion_gate=bool(utility and attribution) if full else None,
++        seed=cfg['seed'],full_data_training=cfg['profile']=='discovery',common_initial_state_sha256=p.BASE_INITIAL,
++        common_epoch_order_sha256=next(iter(orders)),source_sha256=p.identity(p.sources()),
++        config_sha256=p.identity(cfg),selection=cfg['selection'],L5='NOT_ACCEPTED',
++        limitations='Exposed-cohort single-seed discovery only; utility and attribution do not establish novelty or independent confirmation')
++    p.atomic_json(output/'summary.json',summary)
++    readiness=dict(schema=p.SCHEMA_PREFIX+'.analysis-readiness.v1',trace_materialized=False,
++        status='Final checkpoints retained; case study rebuildable, not materialized',
++        checkpoints={k:dict(path='checkpoints/'+k+'-final.pt',sha256=results[k]['checkpoint_sha256']) for k in p.MODES})
++    for row in readiness['checkpoints'].values():
++        require(p.digest(output/row['path'])==row['sha256'],'Final checkpoint differs')
++    p.atomic_json(output/'analysis-readiness.json',readiness)
++    sync_directory(output)
++    p.atomic_json(output/'RUN_COMPLETE',dict(artifacts={n:dict(sha256=p.digest(output/n),bytes=(output/n).stat().st_size)
++        for n in ('manifest.json','summary.json','analysis-readiness.json')}))
++    sync_directory(output)
++
++def closed_analysis(output):
++    p=protocol;output=Path(output);m=p.read(output/'manifest.json');ready=p.read(output/'analysis-readiness.json')
++    require(m['source_hashes']==p.sources() and m['config']==p.config(m['config']['profile']),'Completed provenance differs')
++    require(ready.get('trace_materialized') is False and set(ready['checkpoints'])==set(p.MODES),'Analysis coverage differs')
++    for kind,row in ready['checkpoints'].items():
++        require(row['path']=='checkpoints/'+kind+'-final.pt' and p.digest(output/row['path'])==row['sha256'],
++                'Final checkpoint differs')
++    return ready
++
++def export(output,target,*,inject_failure=False):
++    return task.export(protocol,closed_analysis,output,target,inject_failure=inject_failure)
++
++def replay(output,condition,split):
++    raise ValueError('Use final flat-state head with pinned features; sample-trace capture is not materialized')
++
++def unit(out):
++    raise ValueError('Use the already executed GPU feasibility record; no lifecycle matrix per plugin')
+diff --git a/experiments/q_rmea_relative_return_train.py b/experiments/q_rmea_relative_return_train.py
+new file mode 100644
+--- /dev/null
++++ b/experiments/q_rmea_relative_return_train.py
+@@ -0,0 +1,6 @@
++"""Compatibility worker entry for the registered relative-return study."""
++import sys
++from pathlib import Path
++sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
++from baselines.retacred.rmea_experiments import build
++if __name__=="__main__":build("relative-return").main()

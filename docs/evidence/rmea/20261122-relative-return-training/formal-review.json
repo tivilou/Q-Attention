@@ -1,0 +1,25 @@
+{
+  "verdict": "PASS",
+  "review_scope": "both",
+  "must_fix": [],
+  "limitations": [
+    "The round-25 fix authenticates the stored request and ACK before filling in missing bucket and region on copies of the 13 legacy object records. Any recorded destination must match the pinned destination. Current-run receipts still require explicit bucket and region.",
+    "The supplied fixture used the exact original metadata and production digest pins. All 13 version-specific HEAD checks passed with stubbed responses. A missing version blocked preparation before any payload, index or ACK write and also blocked completion. Live COS availability remains a point-in-time launch check.",
+    "The study fixes 7,312 updates per condition and uses epoch 4 for all three comparisons. The GPU unit supports feasibility, while the synthetic reports exercise gate and export behavior. Utility and matched-control attribution remain open until the full study reports. A positive result remains single-seed evidence on the previously exposed cohort, with no L5 acceptance.",
+    "This review used only the supplied packet and execution records. The historical complete-canary failure remains recorded."
+  ],
+  "admission": "prospective_full_three_condition_study",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "packet_sha256": "2d25db8e3a8bcd923ee7d7daec1ed03c1e6e9ab1b57d8e479d75334191c15de6",
+  "seconds": 14.780539512634277,
+  "source_sha256": "f966c012dde22b5d7d54f9e0d59553353b309a623b52f024b227850535de2370",
+  "contract_sha256": "d99caf553abb4ec730146c8fc81a7942e5734dda38a8bb98e021fab009b8b87a",
+  "owner_hashes": {
+    "allocation_publisher.py": "56c567973d095d8587a899f4109fd031a797f83b2539cd32b815c8a72a61ed80",
+    "full_host_run.py": "a577c5f84dd749f19aab437d63f9f0be454ad2c0a593fe6f154498e5798e478b",
+    "launch_full.py": "b6aa516374ed1dcf58defd265754aad2b7a2dcecf90cc0c6550132188d17b647",
+    "accepted_publisher_backend.py": "e2b611543836d288daed2bebb95a0c8e68c6b795df7173ef1e3359740aa9e971"
+  }
+}
