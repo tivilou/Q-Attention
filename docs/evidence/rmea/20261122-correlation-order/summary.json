@@ -1,0 +1,103 @@
+{
+  "status": "complete",
+  "profile": "correlation-order-frozen4096-v1",
+  "design_sha256": "0730a674ae5c75f18a0b325d4a6875b92b4cc3d2f589a9886df60c14c0b0f65c",
+  "unit": {
+    "dense_channel_error": 8.881784197001252e-16,
+    "purity_match_error": 1.4432899320127035e-15,
+    "zero_error": 6.661338147750939e-16,
+    "derivative_error": 1.9125789973983842e-06,
+    "gradients": {
+      "local": {
+        "finite": true,
+        "gradient_error": 1.6495388388548804e-11,
+        "gradient_norm": 0.1864187798159981
+      },
+      "isotropic": {
+        "finite": true,
+        "gradient_error": 1.5490969618170425e-11,
+        "gradient_norm": 0.196395819070024
+      }
+    }
+  },
+  "results": {
+    "train": {
+      "split": "train",
+      "count": 4096,
+      "metrics": {
+        "native": {
+          "ce": 0.34714194779864926,
+          "positive39_macro_f1": 0.671940428518948,
+          "macro40": 0.6780330363492666,
+          "examples": 4096
+        },
+        "local": {
+          "ce": 0.39948377863720197,
+          "positive39_macro_f1": 0.6225909560279005,
+          "macro40": 0.6295599308291759,
+          "examples": 4096
+        },
+        "isotropic": {
+          "ce": 0.4017967117672021,
+          "positive39_macro_f1": 0.6306829870028338,
+          "macro40": 0.6374703540837254,
+          "examples": 4096
+        }
+      },
+      "native_parity_error": 0.0,
+      "pauli_reconstruction_error": 1.1102230246251565e-16,
+      "purity_match_error": 2.220446049250313e-16,
+      "probability_min": 1.8333535405160664e-10,
+      "ce_direction_at_zero": {
+        "local": -1.222025455388265,
+        "isotropic": -1.1301058667217514
+      },
+      "paired_local_minus_isotropic_ce": -0.002312933129999932,
+      "paired_ce_standard_error": 0.001548020540008575,
+      "peak_torch_bytes": 118681600,
+      "physical_visible_device": 0,
+      "seconds": 20.08720064163208
+    },
+    "valid": {
+      "split": "valid",
+      "count": 4096,
+      "metrics": {
+        "native": {
+          "ce": 0.6185474973761469,
+          "positive39_macro_f1": 0.5200639765031337,
+          "macro40": 0.5285995906375033,
+          "examples": 4096
+        },
+        "local": {
+          "ce": 0.6979909600619109,
+          "positive39_macro_f1": 0.41609552283563606,
+          "macro40": 0.42664123294724476,
+          "examples": 4096
+        },
+        "isotropic": {
+          "ce": 0.699318691343404,
+          "positive39_macro_f1": 0.4107642454020055,
+          "macro40": 0.4213688352431104,
+          "examples": 4096
+        }
+      },
+      "native_parity_error": 0.0,
+      "pauli_reconstruction_error": 1.1102230246251565e-16,
+      "purity_match_error": 2.220446049250313e-16,
+      "probability_min": 1.1990967790554072e-09,
+      "ce_direction_at_zero": {
+        "local": -0.4226232921781967,
+        "isotropic": -0.5207167838902367
+      },
+      "paired_local_minus_isotropic_ce": -0.0013277312814945492,
+      "paired_ce_standard_error": 0.0019706959824798424,
+      "peak_torch_bytes": 49683456,
+      "physical_visible_device": 1,
+      "seconds": 17.334238529205322
+    }
+  },
+  "screen_gate": false,
+  "L5": "NOT_ACCEPTED",
+  "scope": "Frozen-model exposed TRAIN/valid diagnostic; no fit, independent confirmation, novelty, whole-family failure or automatic full-run admission.",
+  "seconds": 20.11978530883789
+}
