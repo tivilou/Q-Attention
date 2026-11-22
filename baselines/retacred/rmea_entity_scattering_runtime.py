@@ -1,5 +1,6 @@
 """Scientific adapter for the existing training/parallel/full-state machinery."""
 import math
+import hashlib
 import os
 from pathlib import Path
 import sys
@@ -68,17 +69,18 @@ def launch_spec(output,kind,device,*,resume):
     return dict(argv=argv,cwd=str(protocol.ROOT),physical_gpu=str(device),condition=kind,revision=protocol.git('rev-parse','HEAD'))
 
 
-def prepare(recovery,labels,data_dir):
+def prepare(recovery,labels,data_dir,*,protocol_override=None):
     """Small metadata delta; full fits reference the existing pinned COS inputs."""
     if not recovery.enabled:return
     import tarfile
     from .rmea_token_transport_recovery import _Parts
-    p=protocol;directory=recovery.channel/'000-preparation';directory.mkdir(parents=True,exist_ok=True)
+    p=protocol_override or protocol;directory=recovery.channel/'000-preparation';directory.mkdir(parents=True,exist_ok=True)
     if not (directory/'request.json').exists():
         for f in directory.glob('preparation.*.tarpart'):f.unlink()
         files=[recovery.parent/'handoff.json',recovery.output/'manifest.json',
                recovery.parent/'recovery-inputs/labels.json',recovery.parent/'recovery-inputs/input-recovery.json',
                recovery.parent/'recovery-inputs/source-manifest.json',recovery.parent/'recovery-inputs/original-manifest.json']
+        files += [recovery.parent/n for n in getattr(p, 'EXTRA_RECOVERY_INPUTS', ())]
         if recovery.cfg['profile']=='canary':
             files += [recovery.output/'cache'/n for n in recovery.cache]
         else:
@@ -191,15 +193,15 @@ def finish(cfg,output,parts,*,data_dir=None,assets=None):
     sync_directory(output)
 
 
-def export(output,target,*,inject_failure=False):
+def export(output,target,*,inject_failure=False,protocol_override=None,closed_analysis_override=None):
     import json,shutil,tempfile
-    p=protocol;output=Path(output);target=Path(target)
+    p=protocol_override or protocol;output=Path(output);target=Path(target)
     if not target.parent.exists():target.parent.mkdir(parents=True)
     manifest=p.read(output/'manifest.json');summary=p.read(output/'summary.json');seal=p.read(output/'RUN_COMPLETE')
     if set(seal.get('artifacts',{}))!={'manifest.json','summary.json','analysis-readiness.json'}:raise ValueError('Completed run artifact set differs')
     for n,r in seal['artifacts'].items():
         if p.digest(output/n)!=r['sha256'] or (output/n).stat().st_size!=r['bytes']:raise ValueError('Immutable run seal differs')
-    ready=closed_analysis(output)
+    ready=(closed_analysis_override or closed_analysis)(output)
     stage=Path(tempfile.mkdtemp(prefix='.'+target.name+'-',dir=target.parent))
     try:
         for i,n in enumerate(('summary.json','manifest.json','analysis-readiness.json')):
@@ -214,7 +216,7 @@ def export(output,target,*,inject_failure=False):
             config=manifest['config'],results=summary['results'],reference=summary['reference'],L5='NOT_ACCEPTED'))
         p.atomic_json(stage/'receipt.json',dict(source_sha256=manifest['source_sha256'],git_revision=manifest['git_revision'],
             profile=manifest['config']['profile'],completed=True,files={f.name:p.digest(f) for f in sorted(stage.iterdir())},
-            experiment='entity-scattering',whitelist=sorted(p.REPORT_FILES)))
+            experiment=p.EXPERIMENT,whitelist=sorted(p.REPORT_FILES)))
         if {f.name for f in stage.iterdir()}!=p.REPORT_FILES:raise ValueError('Report whitelist differs')
         if any(f.is_symlink() or f.stat().st_size>2*1024**2 for f in stage.iterdir()):raise ValueError('Unsafe report member')
         for n,h in p.read(stage/'receipt.json')['files'].items():
@@ -245,3 +247,76 @@ def closed_analysis(output):
         for s in ('train','valid','test'):
             if p.digest(output/'analysis'/(k+'-'+s+'.json'))!=ready['anchors'][k+'/'+s]:raise ValueError('Sealed replay anchor differs')
     return ready
+
+
+def require(ok,message):
+    if not ok:raise ValueError(message)
+
+def unit(out):
+    import torch
+    p=protocol;ROOT=p.ROOT;runtime=sys.modules[__name__]
+    from experiments import q_rmea_entity_scattering as old
+    from baselines.retacred.rmea_token_transport_study import state_identity
+    require(not os.environ.get('CUDA_VISIBLE_DEVICES'),'CPU unit recipe required')
+    from experiments.q_rmea_query_alignment import fresh_output
+    fresh_output(out)
+    import subprocess
+    regression=subprocess.run([sys.executable,'-B','-m','unittest','tests.test_rmea_token_transport_parallel','tests.test_rmea_token_transport_recovery'],cwd=ROOT,capture_output=True,text=True)
+    (out/'default-regression.txt').write_text(regression.stdout+regression.stderr)
+    require(regression.returncode==0,'Default runner regression failed')
+    checks=out/'identities';checks.mkdir();old.unit(checks)
+    torch.set_num_threads(1);torch.manual_seed(20261122)
+    h=torch.randn(8,5,1024,dtype=torch.float64)*.1
+    roles=torch.zeros(8,5,4,dtype=torch.float64);roles[:,0,2]=1;roles[:,2,3]=1
+    mask=torch.ones(8,5,dtype=torch.bool);mask[-3:,3:]=False;y=torch.arange(8)%40
+    errors={}
+    for kind in p.MODES:
+        torch.manual_seed(13);a=runtime.make_head(kind).double();b=runtime.make_head(kind).double();b.load_state_dict(a.state_dict())
+        require(sum(x.numel() for x in a.parameters())==81028,'Parameter budget differs')
+        full=torch.nn.functional.cross_entropy(a(h,roles,mask),y);full.backward()
+        chunk=runtime.backward(b,(h,roles,mask),y)
+        error=max(float((x.grad-z.grad).abs().max()) for x,z in zip(a.parameters(),b.parameters()))
+        require(error<1e-9 and abs(float(full.detach()-chunk))<1e-10,'Microbatch/full objective or gradient differs')
+        errors[kind]=error
+        if kind=='constant_onsite':
+            d=a(h,roles,mask,details=True)
+            expected=((d['utilities'].tanh()*mask[:,None,:]).sum(-1,keepdim=True)/mask.sum(-1)[:,None,None]).expand_as(d['onsite'])
+            require(torch.equal(d['onsite'],expected),'Constant onsite control differs')
+    torch.manual_seed(13)
+    from baselines.retacred.rmea import RMEAHead
+    require(state_identity(RMEAHead('quantum').double().state_dict())==p.BASE_INITIAL,'Initialization differs from reused baseline')
+    p.atomic_json(out/'unit-validation.json',dict(gate=True,source_sha256=p.identity(p.sources()),contract_sha256=p.identity(p.contract()),
+        gradient_errors=errors,numeric_fixture_sha256=p.digest(checks/'unit-validation.json'),baseline_initial=p.BASE_INITIAL))
+    p.atomic_json(out/'RUN_COMPLETE',dict(artifacts={'unit-validation.json':p.digest(out/'unit-validation.json')}))
+
+def replay(output,condition,split):
+    import io
+    import numpy as np
+    import torch
+    from baselines.retacred.rmea_token_transport_study import state_identity
+    p=protocol;runtime=sys.modules[__name__];ready=closed_analysis(output);af=output/'analysis'/(condition+'-'+split+'.json');a=p.read(af)
+    receipt=p.read(output/'.workers'/condition/'WORKER_COMPLETE');cp=output/'checkpoints'/(condition+'-final.pt')
+    metadata=p.read(output/'cache/metadata.json')
+    authenticated,values=runtime.unit_inputs(output,split,[0,1],buffers=True)
+    require(cp.stat().st_size<16*1024**2,'Bounded replay checkpoint required')
+    checkpoint=cp.read_bytes();checkpoint_sha=hashlib.sha256(checkpoint).hexdigest()
+    require(receipt['anchors'][split]==p.digest(af) and a['tolerance']==1e-8 and a['indices']==[0,1]
+        and a['condition']==condition and a['split']==split and a['checkpoint']=='checkpoints/'+condition+'-final.pt'
+        and a['sample_hashes']==[metadata[split][i]['id_hash'] for i in (0,1)]
+        and a['inputs']==authenticated
+        and checkpoint_sha==a['checkpoint_sha256']==receipt['checkpoint_sha256'],'Replay model/anchor identity differs')
+    head=runtime.make_head(condition).double();head.load_state_dict(torch.load(io.BytesIO(checkpoint),map_location='cpu',weights_only=True));head=head.to('cuda').eval()
+    result=[]
+    with torch.no_grad():
+        for h,roles in values:
+            inputs=tuple(torch.from_numpy(np.array(x,dtype=np.float64,copy=True))[None].to('cuda') for x in (h,roles))
+            result.append(head(*inputs,torch.ones(1,len(h),dtype=torch.bool,device='cuda')).cpu())
+    error=float((torch.cat(result)-torch.tensor(a['logits'],dtype=torch.float64)).abs().max())
+    require(error<=a['tolerance'],'Replay numerical tolerance failed')
+    return dict(condition=condition,split=split,error=error,checkpoint_sha256=a['checkpoint_sha256'])
+
+def worker_receipt(output,condition):
+    return dict(anchors={s:protocol.digest(output/'analysis'/(condition+'-'+s+'.json')) for s in ('train','valid','test')})
+
+def replay_all(output):
+    return [replay(output,k,s) for k in protocol.MODES for s in ('train','valid','test')]

@@ -4,6 +4,12 @@ from . import rmea_token_transport_protocol as base
 from .rmea_protocol import ROOT, EXPECTED, identity, read, git, inventory, seal
 from .common import atomic_json, digest
 
+EXPERIMENT='entity-scattering'
+SCHEMA_PREFIX='q-rmea.scattering'
+REFERENCE_METHOD='linear_coherent'
+REFERENCE_DESCRIPTION='Pinned completed full-data linear baseline; not retrained'
+ANALYSIS_DIRECTORY='analysis'
+
 MODES = ('complex','real_magnitude','constant_onsite')
 BASE_MANIFEST = 'dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49'
 BASE_SUMMARY = '053b8aef68dfec5ecb6c3d5706365f898814243137fa826af2bd3c3b4e77633a'
@@ -12,7 +18,7 @@ CANARY_MANIFEST = 'd1e17dfd0f8f75d2d90ab1b9c5365b7a752b7e44a70c950c3c2b94ad28d20
 LABELS_SHA = '6e822509a07c5c865130ebe315122a9d83e97b1b11496b9e86c6b2a600f8a429'
 INPUT_REQUEST_SHA = 'a2903267be99693d2a5e248eff4fed899d31d0c3615fd09a0cd7bc1911b996cf'
 INPUT_ACK_ID = 'e6c468164fb9358b0f262c9a60aeed370f60a182f6e3a8cdbaa1a8465fd0e4e0'
-EXTRA = ('baselines/retacred/rmea_entity_scattering.py',
+EXTRA = ('baselines/retacred/rmea_frozen_training.py','baselines/retacred/rmea_entity_scattering.py',
          'baselines/retacred/rmea_entity_scattering_protocol.py',
          'baselines/retacred/rmea_entity_scattering_runtime.py',
          'experiments/q_rmea_entity_scattering_train.py',
@@ -58,7 +64,7 @@ def contract():
         review='Exact both-scope review required before tests; real parent/child pause-resume, pinned live COS restore and immutable export failure/retry before formal admission')
 
 
-def review_gate():
+def review_gate(*, action=None):
     r = read(ROOT/'docs/evidence/rmea/20261122-entity-scattering/training-review.json')
     if (r.get('verdict')!='PASS' or r.get('review_scope')!='both' or r.get('must_fix')!=[]
             or r.get('source_sha256')!=identity(sources()) or r.get('contract_sha256')!=identity(contract())):

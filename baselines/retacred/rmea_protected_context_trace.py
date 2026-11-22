@@ -1,6 +1,7 @@
 """Full-value final-head replay from pinned frozen features; no encoder claim."""
 import hashlib
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -97,7 +98,7 @@ def details(head, h, roles, mask):
     return {k: v.detach().cpu().numpy().copy() for k, v in arrays.items()}
 
 
-def capture(root, head, kind, split, batch, metadata):
+def capture(root, head, kind, split, batch, metadata, *, reuse_identical=False):
     """First two cache units per split, frozen final model only; private values."""
     root = Path(root)
     require(kind in KINDS and head.kind == kind, 'Head condition mismatch')
@@ -111,8 +112,25 @@ def capture(root, head, kind, split, batch, metadata):
         arrays['target'] = np.asarray([int(target[0])], dtype=np.int64)
         path = root/'trace'/f'{kind}-final-{split}-{index}.npz'
         path.parent.mkdir(exist_ok=True)
-        require(not path.exists(), 'Preserve existing private trace')
-        np.savez_compressed(path, **arrays)
+        if path.exists():
+            require(reuse_identical and not path.is_symlink() and path.is_file(), 'Preserve existing private trace')
+            with np.load(path, allow_pickle=False) as prior:
+                require(set(prior.files) == set(arrays), 'Existing trace inventory mismatch')
+                for name, array in arrays.items():
+                    old = prior[name]
+                    require(old.dtype == array.dtype and old.shape == array.shape
+                            and np.array_equal(old, array), 'Existing trace producer values differ: '+name)
+        else:
+            pending = path.with_name('.'+path.name+'.pending')
+            with pending.open('wb') as handle:
+                np.savez_compressed(handle, **arrays)
+                handle.flush(); os.fsync(handle.fileno())
+            os.replace(pending, path)
+            fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+            try:
+                os.fsync(fd)
+            finally:
+                os.close(fd)
         ref = dict(path=path.relative_to(root).as_posix(), sha256=digest(path),
                    bytes=path.stat().st_size, visibility='private')
         sid = f'{kind}:final:{split}:{index}'
@@ -156,11 +174,14 @@ def validate_trace(root, payload, *, cfg, metadata, cache_manifest, checkpoint_h
     manifest = json.loads((root/'manifest.json').read_bytes())
     require(manifest['config'] == cfg and manifest['cache'] == cache_manifest
             and payload['experiment']['code_revision'] == manifest['git_revision']
-            and payload['experiment']['config_sha256'] == manifest['config_sha256'], 'Source/config/cache contract mismatch')
+            and payload['experiment']['config_sha256'] == manifest.get('config_sha256',
+                hashlib.sha256(json.dumps(cfg, sort_keys=True, separators=(',', ':')).encode()).hexdigest()),
+            'Source/config/cache contract mismatch')
     require(metadata == json.loads((root/'cache/metadata.json').read_bytes()), 'Pinned metadata mismatch')
     errors, warnings = validate(payload, require_complete=True)
     require(not errors, str(errors))
-    expected = {(kind, split, index) for kind in cfg['conditions'] for split in cfg['counts'] for index in (0, 1)}
+    expected = {(kind, split, index) for kind in cfg.get('trace_conditions', cfg['conditions'])
+                for split in cfg['counts'] for index in (0, 1)}
     seen, parity = set(), {}
     checked = elements = coordinates = 0
     for sample in payload['samples']:

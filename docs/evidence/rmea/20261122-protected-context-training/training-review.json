@@ -1,0 +1,28 @@
+{
+  "verdict": "PASS_WITH_SCOPE",
+  "review_scope": "both",
+  "admission": "scheduler_cpu_training_adapter_unit_only",
+  "must_fix": [],
+  "findings": [
+    "The CPU unit exercises all three fitted conditions on the same five pinned examples. The logits adapter selects the underlying head's logits directly, preserving autograd. The 4+1 microbatch path divides each summed cross-entropy by five, giving the full-batch mean objective.",
+    "For each condition, the unit checks every named gradient in both models before computing the maximum error. It then injects a NaN into the last microbatch parameter's gradient, requires rejection, restores the gradient, and applies clipping and AdamW to that same model. It checks every updated parameter for finiteness.",
+    "Both training CLIs bind an explicit protocol and runtime to FrozenFeatureTraining. The protected-context launcher admits exactly three fitted modes. Historical native appears in final-checkpoint replay and is supplied through a digest-pinned preparation dependency. The summary computes utility against historical native separately from attribution against the two fitted controls.",
+    "The protected-context review gate accepts this scoped verdict only for the unit action. The registrar checks the fixed file inventory, embedded source bytes and digests, and recipe contract before writing enrollment state. The reviewed recipe requests two CPUs, zero GPUs, one attempt, and 300 seconds."
+  ],
+  "claim_limits": [
+    "This is static admission to execute the bounded CPU unit. A passing unit result requires the scheduler-produced unit-validation.json and matching RUN_COMPLETE seal.",
+    "The two CLI help checks exercise imports and argument parsing. Parent/child execution, serial versus grouped continuation, pinned COS restore, final trace closure, and exporter failure/retry still require changed-profile canary evidence and owner publisher acceptance.",
+    "Discovery training, benchmark utility, matched-control attribution, and L5 remain outside this admission."
+  ],
+  "source_sha256": "7a9101811a93a909cc7d96ae0a92886c119c6d4da8056f0e98edc90f57dd4e8d",
+  "contract_sha256": "2cf1fab0ee6a04fe2f40f2c9031bc7f732cd5a81d61e50872ea9f28d252f8536",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "packet_sha256": "bbc3c710f977e51be39c4a9e9f9a0d05087a8f2af8495fe23445ce830407a882",
+  "owner_hashes": {
+    "register-integration.py": "66eb489f6f3a6677bd963a829269396293ff1cdb35d9cb7ea783804a93f4a47a"
+  },
+  "owner_lifecycle_sha256": "a53229008a3cd4e2a237c8e86d8dcb10c5a0fedc27f366cc302dcfc1c94c11c2",
+  "scope": "CPU training-adapter unit only; canary and full run reject this scoped admission"
+}
