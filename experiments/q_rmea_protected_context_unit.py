@@ -81,7 +81,9 @@ def gradients(head, inputs, targets, micro):
 
 
 def run(args):
-    torch.set_num_threads(2)
+    # Match the preserved fixture producer's numerical execution context.
+    torch.set_num_threads(1)
+    torch.use_deterministic_algorithms(True)
     require(hashlib.sha256(args.fixture.read_bytes()).hexdigest() == FIXTURE_SHA,
             'Immutable source fixture mismatch')
     original = torch.load(args.fixture, map_location='cpu', weights_only=True)
@@ -91,6 +93,7 @@ def run(args):
     require(existing <= {'progress.json'},
             'Only the scheduler-owned progress sideband may preexist')
     checks = projector_checks()
+    print(json.dumps(dict(stage='projector_gradcheck', checks=checks)), flush=True)
     inputs = batch(cases)
     # Targets only define a derivative loss, not utility screening or selection.
     targets = torch.tensor([0, 1])
@@ -163,6 +166,7 @@ def run(args):
                 directional[name] = dict(analytic=analytic, numeric=numeric, residual=residual)
         modes[kind] = dict(parameters=81028, micro_gradient_max_error=error,
                            finite_gradients=True, rows=rows, directional=directional)
+        print(json.dumps(dict(stage='head_gradient', kind=kind, checks=modes[kind])), flush=True)
     args.output.mkdir(parents=True, exist_ok=True)
     saved = args.output/'private-replay.pt'
     torch.save(dict(state=state, cases=cases, outputs=replay), saved)
@@ -179,7 +183,8 @@ def run(args):
                    projector_checks=checks, modes=modes, fixture_sha256=FIXTURE_SHA,
                    private_replay_sha256=hashlib.sha256(saved.read_bytes()).hexdigest(),
                    private_replay_bytes=saved.stat().st_size, replay='bitwise_pass',
-                   optimizer_steps=0, device='cpu', derivative_scope='first_order_constant_rank_only',
+                   optimizer_steps=0, device='cpu', threads=1, deterministic_algorithms=True,
+                   derivative_scope='first_order_constant_rank_only',
                    sample_trace_v2=False, formal_ready=False, L5='NOT_ACCEPTED')
     data = (json.dumps(summary, indent=2, allow_nan=False)+'\n').encode()
     (args.output/'gradient-summary.json').write_bytes(data)

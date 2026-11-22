@@ -4,10 +4,10 @@
   "requested_effort": "high",
   "echoed_effort": "high",
   "profile_echo_verified": true,
-  "packet_sha256": "47d1062a4c53cd154519106c518a6f7ffa2d30bf74e8779a245dc6f4b3dc7a29",
+  "packet_sha256": "265f23c2384a4274b303e6c36639a5042e69b840f12407cdb01c3f2faff50d3a",
   "reviewed_files": {
     "baselines/retacred/rmea_protected_context.py": "723485a1863bab5bd02ac1de30219237d726cf6126757525265cfc7811458ffd",
-    "experiments/q_rmea_protected_context_unit.py": "3d9f1e75f204d80aa92e8e9c788ec00bd747988e558448a8b44d586c8321528b",
+    "experiments/q_rmea_protected_context_unit.py": "fa808c46ab6896291a713a1f4a7b7225436aa6fba10055fbd88562ced829184a",
     "register-gradient.py": "b077c2078a4e51b2aa59b19d5f651fab598a8b753ab826f5ab18f08cf105d086",
     "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
   },
@@ -16,17 +16,17 @@
     "review_scope": "both",
     "must_fix": [],
     "findings": [
-      "The revised output check admits an empty directory or one whose sole entry is progress.json. Any preexisting scientific output or unknown entry still stops the unit before projector checks or output writes. This resolves the reported scheduler failure under the stated ownership of progress.json.",
-      "The complex projector backward has the correct divided-difference sign, Hermitian projection of the incoming gradient, and factor of two for ZZ\u1d34. Masking the denominator before division handles repeated singular values within either cluster. Gradients flow through both the protected projector and the same-example covariance into the constrained solve.",
-      "The unit checks rank-preserving complex perturbations, including repeated retained singular values. For each non-native condition it also compares prepare.weight and effect directional derivatives against central differences of the actual loss. The example with a nonzero discarded singular value checks gradient finiteness only.",
-      "The native path delegates to the original forward method. The fixed DFT is a nonpersistent buffer. The unit requires strict checkpoint loading, all 81,028 parameter gradients to be finite, full-batch versus microbatch gradient parity, padding parity, native bitwise parity, frozen-filter numerical parity, and bitwise replay in a fresh head.",
-      "The supplied unit and head digests agree across the packet and deployment contract. The registrar checks the reviewed packet digest and local source hashes, then verifies the deployed Git revision and contracted file hashes before node enrollment. Retained before-and-after project records support retry or rollback under the stated writer locks and point-in-time quiescence checks."
+      "The projector backward has the correct sign, complex orientation and factor of two for a real loss. It takes the Hermitian part of the incoming gradient and replaces within-cluster denominators before division, so repeated singular values within either cluster do not create a 0/0.",
+      "The protected solve uses context covariance formed from the current example and preserves gradient paths through both the covariance and the retained-span projector. The DFT control applies unitary conjugation to that same covariance. Its nonpersistent buffer adds no trainable parameters or checkpoint keys.",
+      "The unit checks rank-preserving complex perturbations and compares actual loss derivatives along one prepare.weight direction and one effect direction per non-native mode. It also checks every parameter gradient for finiteness, compares full-batch and accumulated microbatch gradients, and checks padding parity.",
+      "Using one CPU thread and deterministic algorithms matches the stated fixture-production settings. The native branch still delegates to the original forward method, and the one-case native logits and attention must still match bitwise. The earlier two-thread failure gives no evidence that the revised run has passed.",
+      "The registrar binds installation to the reviewed packet and contract, checks the deployed revision and source hashes, and retains the before and after project states for interrupted install or explicit rollback. Quiescence is checked at points in time. The recipe permits one CPU attempt with zero optimizer steps."
     ],
     "claim_limits": [
-      "Admission is conditional on the calling host verifying gpt-6.2-astra and high effort from the current raw response, followed by the registrar's packet, source, intent, and quiescence checks.",
-      "This static review admits one CPU scheduler attempt with zero optimizer steps. Numerical parity, gradient tolerances, and replay remain runtime acceptance criteria.",
-      "The derivative claim covers first order on a fixed-rank stratum with a positive retained/discarded spectral gap. Rank crossings, closing gaps, and second derivatives are outside scope.",
-      "The two-case fixture and prospective DFT control support no fitting, efficacy, donor-equivalence, sample-trace.v2, or L5 claim."
+      "Admission is conditional on the calling host verifying the current response model and high reasoning effort from the raw response, followed by the registrar's packet, source, intent and state checks.",
+      "This is a static review. Unit success requires the revised run to pass its gradient, parity and fresh-head bitwise replay gates. The private fixture and runtime results were not independently inspected.",
+      "The derivative claim covers first order with a locally unchanged retained set and a positive cross-cluster gap. The nonzero discarded singular value case checks gradient finiteness only. Rank crossings, closing gaps and second derivatives remain outside scope.",
+      "Admission covers the bounded two-case unit only. It establishes no fitting, efficacy, originality, sample-trace.v2 or L5 result."
     ],
     "admission": "scheduler_cpu_gradient_unit_only"
   },
