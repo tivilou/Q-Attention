@@ -1,0 +1,146 @@
+--- a/baselines/retacred/rmea_frozen_training.py
++++ b/baselines/retacred/rmea_frozen_training.py
+@@ -468,13 +468,18 @@
+-        self.require_unit(args.unit_output)
+-        require(args.admission is not None, 'Exact canary/COS admission required')
+-        require(args.admission_sha256 == self.p.digest(args.admission), 'Owner-approved admission digest differs')
+-        a = self.p.read(args.admission)
+-        validation = args.admission.parent / 'canary-validation.json'
+-        seal = args.admission.parent / 'RUN_COMPLETE'
+-        require(self.p.read(seal) == dict(artifacts={'canary-validation.json': self.p.digest(validation)}) and a.get('canary_validation_sha256') == self.p.digest(validation) and (a.get('canary_seal_sha256') == self.p.digest(seal)), 'Completed canary admission seal differs')
+-        c = self.p.read(validation)
+-        require(all((a.get(k) == c.get(k) for k in ('source_sha256', 'contract_sha256', 'serial_parallel_resume_equal', 'export_retry', 'cos_live_pinned_restore'))), 'Canary gate differs from admission')
+-        require(a.get('source_sha256') == self.p.identity(self.p.sources()) and a.get('contract_sha256') == self.p.identity(self.p.contract()) and (a.get('serial_parallel_resume_equal') is True) and (a.get('export_retry') is True) and (a.get('cos_live_pinned_restore') is True) and (a.get('input_dependency_versions_verified') is True) and (a.get('input_request_sha256') == self.p.INPUT_REQUEST_SHA) and (a.get('input_acknowledgement_sha256') == self.p.INPUT_ACK_ID), 'Formal training admission incomplete')
+-        depfile = args.admission.parent / 'dependency-verification.json'
+-        dep = self.p.read(depfile)
+-        require(a.get('dependency_verification_sha256') == self.p.digest(depfile) and dep.get('verified') is True and (dep.get('request_sha256') == self.p.INPUT_REQUEST_SHA) and (dep.get('acknowledgement_sha256') == self.p.INPUT_ACK_ID) and (dep.get('objects') == 13) and (dep.get('total_pinned_bytes') == 6947440640) and (dep.get('payload_bytes_read') == 0), 'Input dependency acceptance record differs')
++        require(args.admission is not None, 'Explicit training admission required')
++        require(args.unit_output is not None, 'Explicit unit evidence required')
++        from .rmea_scoped_admission import SCHEMA, verify
++        if self.p.read(args.admission).get('schema') == SCHEMA:
++            verify(self.p, args, self.execution_environment())
++        else:
++            self.require_unit(args.unit_output)
++            require(args.admission_sha256 == self.p.digest(args.admission), 'Owner-approved admission digest differs')
++            a = self.p.read(args.admission)
++            validation = args.admission.parent / 'canary-validation.json'
++            seal = args.admission.parent / 'RUN_COMPLETE'
++            require(self.p.read(seal) == dict(artifacts={'canary-validation.json': self.p.digest(validation)}) and a.get('canary_validation_sha256') == self.p.digest(validation) and (a.get('canary_seal_sha256') == self.p.digest(seal)), 'Completed canary admission seal differs')
++            c = self.p.read(validation)
++            require(all((a.get(k) == c.get(k) for k in ('source_sha256', 'contract_sha256', 'serial_parallel_resume_equal', 'export_retry', 'cos_live_pinned_restore'))), 'Canary gate differs from admission')
++            require(a.get('source_sha256') == self.p.identity(self.p.sources()) and a.get('contract_sha256') == self.p.identity(self.p.contract()) and (a.get('serial_parallel_resume_equal') is True) and (a.get('export_retry') is True) and (a.get('cos_live_pinned_restore') is True) and (a.get('input_dependency_versions_verified') is True) and (a.get('input_request_sha256') == self.p.INPUT_REQUEST_SHA) and (a.get('input_acknowledgement_sha256') == self.p.INPUT_ACK_ID), 'Formal training admission incomplete')
++            depfile = args.admission.parent / 'dependency-verification.json'
++            dep = self.p.read(depfile)
++            require(a.get('dependency_verification_sha256') == self.p.digest(depfile) and dep.get('verified') is True and (dep.get('request_sha256') == self.p.INPUT_REQUEST_SHA) and (dep.get('acknowledgement_sha256') == self.p.INPUT_ACK_ID) and (dep.get('objects') == 13) and (dep.get('total_pinned_bytes') == 6947440640) and (dep.get('payload_bytes_read') == 0), 'Input dependency acceptance record differs')
+--- a/baselines/retacred/rmea_protected_context_protocol.py
++++ b/baselines/retacred/rmea_protected_context_protocol.py
+@@ -10,0 +11 @@
++SCOPED_ADMISSION_SCHEMA = 'q-rmea.scoped-training-admission.v2'
+@@ -32 +33,2 @@
+-         'baselines/retacred/rmea_experiments.py', 'experiments/q_rmea_train.py')
++         'baselines/retacred/rmea_experiments.py', 'experiments/q_rmea_train.py',
++         'baselines/retacred/rmea_scoped_admission.py')
+@@ -70 +72 @@
+-        review='Exact mechanism/lifecycle review before unit/canary; changed parent-child integration, replay, resume and exporter-failure/retry acceptance before full launch')
++        review='Exact current both-scope review; prospective scoped v2 admission may reuse exercised primary capabilities with bound source equivalence and focused RNG repair; historical failed full seal remains unchanged')
+--- a/baselines/retacred/rmea_scoped_admission.py
++++ b/baselines/retacred/rmea_scoped_admission.py
+@@ -0,0 +1,98 @@
++"""Prospective acceptance reuse; historical seals retain their original meaning.
++
++The caller still checks the exact current both-scope review. This receipt binds
++complete current provenance to previously exercised capabilities and a focused
++fresh-RNG repair, without claiming that the old failed complete canary passed.
++"""
++from pathlib import Path
++
++SCHEMA = 'q-rmea.scoped-training-admission.v2'
++
++
++def verify(protocol, args, environment):
++    p = protocol
++    def require(ok, message):
++        if not ok:
++            raise ValueError(message)
++    require(getattr(p, 'SCOPED_ADMISSION_SCHEMA', None) == SCHEMA,
++            'Protocol has not declared this scoped admission capability')
++    def regular(path):
++        path = Path(path)
++        require(not path.is_symlink() and path.is_file() and path.stat().st_size < 2*1024**2,
++                'Regular compact acceptance artifact required')
++        return path
++
++    a = p.read(regular(args.admission))
++    require(a.get('schema') == SCHEMA and a.get('gate') is True,
++            'Scoped admission schema or gate differs')
++    require(args.admission_sha256 == p.digest(args.admission), 'Admission digest differs')
++    require(a['source_hashes'] == p.sources()
++            and a['source_sha256'] == p.identity(p.sources())
++            and a['contract_sha256'] == p.identity(p.contract())
++            and a['config_sha256'] == p.identity(p.config('discovery')),
++            'Current complete source/contract/config provenance differs')
++    require(a['environment'] == environment, 'Accepted execution environment differs')
++    require(a['execution'] == dict(gpus=3, seed=13, conditions=list(p.MODES),
++                                  epochs=4, batch_size=32, baseline_retrained=False),
++            'Declared execution assumptions differ')
++    require(a['historical_canary_status'] == 'PARTIAL_RUNTIME_PASS_RNG_ACCEPTANCE_FAILED'
++            and a['historical_complete_acceptance'] is False,
++            'Historical canary status must be preserved')
++
++    unit = regular(Path(args.unit_output) / 'unit-validation.json')
++    unit_seal = regular(unit.parent / 'RUN_COMPLETE')
++    require(p.digest(unit) == a['prior_unit_sha256'] and p.digest(unit_seal) == a['prior_unit_seal_sha256']
++            and p.read(unit_seal) == dict(artifacts={'unit-validation.json': p.digest(unit)}),
++            'Previously exercised unit identity differs')
++    u = p.read(unit)
++    require(u.get('gate') is True and u['source_sha256'] == a['prior_source_sha256']
++            and u['contract_sha256'] == a['prior_contract_sha256']
++            and u['optimizer_steps_per_condition'] == 1
++            and set(u['gradient_errors']) == set(p.MODES)
++            and max(u['gradient_errors'].values()) < 1e-8
++            and set(u['late_nonfinite_microgradients_rejected']) == set(p.MODES),
++            'Scientific unit coverage differs')
++
++    folder = Path(args.admission).parent
++    validation, seal = regular(folder/'canary-validation.json'), regular(folder/'RUN_COMPLETE')
++    require(p.digest(validation) == a['prior_canary_validation_sha256']
++            and p.digest(seal) == a['prior_canary_seal_sha256']
++            and p.read(seal) == dict(artifacts={'canary-validation.json': p.digest(validation)}),
++            'Previously exercised capability seal differs')
++    c = p.read(validation)
++    require(c.get('gate') is True and c['source_sha256'] == a['prior_source_sha256']
++            and c['contract_sha256'] == a['prior_contract_sha256']
++            and all(c.get(k) is True for k in ('serial_parallel_resume_equal', 'export_retry', 'cos_live_pinned_restore')),
++            'Prior capability coverage differs')
++    require(c['input_dependency_versions_verified'] is False,
++            'Prior dependency limitation must remain explicit')
++    require(a['source_equivalence']['verified'] is True
++            and a['source_equivalence']['scientific_config_unchanged'] is True
++            and a['source_equivalence']['checkpoint_schema_unchanged'] is True
++            and a['source_equivalence']['owner_refactor_tests'] == 9
++            and a['source_equivalence']['exact_function_comparisons'] >= 28,
++            'Scoped implementation equivalence missing')
++    seed = a['seed_validation']
++    require(seed['status'] == 'PASS' and seed['legacy_unseeded_python_numpy_reproduced'] is True
++            and seed['fixed_all_rng_equal'] is True and seed['torch_sequence_unchanged'] is True
++            and seed['actual_restore_next_draws_equal'] is True
++            and seed['optimizer_updates'] == 0 and seed['cos_operations'] == 0
++            and seed['source_sha256'] == p.sources()['baselines/retacred/rmea_token_transport_study.py'],
++            'Focused fresh RNG repair evidence differs')
++    rng = a['rng_diagnostic']['result']
++    require(set(rng) == set(p.MODES), 'RNG diagnostic condition coverage differs')
++    for row in rng.values():
++        pairs = row['comparisons']
++        require(all(pairs['local_cos'].get(k) is True for k in ('python','numpy','torch','cuda'))
++                and all(pairs[name].get(k) is True for name in ('serial_local','serial_cos') for k in ('torch','cuda')),
++                'Previously exercised continuation RNG differs')
++
++    depfile = regular(folder/'dependency-verification.json')
++    dep = p.read(depfile)
++    require(p.digest(depfile) == a['dependency_verification_sha256'] and dep.get('verified') is True
++            and dep['request_sha256'] == p.INPUT_REQUEST_SHA
++            and dep['acknowledgement_sha256'] == p.INPUT_ACK_ID
++            and dep['objects'] == 13 and dep['total_pinned_bytes'] == 6947440640
++            and dep['payload_bytes_read'] == 0 and dep['versioned_head_checks'] == 13,
++            'Pinned immutable input dependency differs')
++    return a
