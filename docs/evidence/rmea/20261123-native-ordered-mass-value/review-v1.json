@@ -1,0 +1,28 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 41.35905838012695,
+  "packet_sha256": "9b0e451f14674783881d2b6f58d979a2fbdc25e5d4984b6db3a9bba2dce01756",
+  "hashes": {
+    "diagnose.py": "0cd6b43a750cb43f370c590d978a02640d0a23fb13d0d396d56a9b7b0cc1cd23",
+    "design.json": "3ef637544127c8b1cdb0707f423743ef0a1d14f04a50813785d968610b4059a7",
+    "theory.md": "2311d81db6ecc996c25a870c2f022058b0eeb01cdef444fb69947dd0477aea5f",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "mechanism",
+    "must_fix": [
+      "Check both calibration orientations in the existing `nonzero_orientation` gate. The RMS assertion runs before orientation. If the broken arm has nondegenerate features but its calibration mean derivative is exactly zero, `control_orientation` is zero and `cd *= control_orientation` zeros every broken derivative. The paired bootstrap column then equals the intact column, so both endpoint gates can pass even though the applied perturbations have different RMS. Use `orientation != 0 and control_orientation != 0` to fail closed on either tie."
+    ],
+    "limitations": [
+      "The centered prefix, pair and triple formulas agree with the stated n² and n³ normalizations. The sign of the position term is correct. Its additive-projection interpretation holds under uniform permutation of fixed postencoder records. The reversal, degeneracy and finite-difference CE fixtures target the stated identities.",
+      "The valid-token slice, EPS addition and bias replay agree with the supplied native head. The code seals the exact-token-list split before opening TRAIN targets and selects the first 8192 stored rows. Cache-to-metadata alignment relies on upstream provenance. The local row check compares token counts.",
+      "Each arm fits its own standardized nuisance regression on calibration at the specified rcond. The broken arm shares one value permutation across relations, recomputes its weighted mean and retains the native logits for CE. Paired degenerate rows receive zero features and stay in the averages. Raw-area consistency uses the intact calibration orientation.",
+      "The bootstrap resamples whole assessment sentence groups and divides sampled sums by sampled row counts. Its percentile endpoints are exploratory and conditional on the calibration fits and orientations. Exact-sentence grouping supplies neither document-level separation nor independent validation.",
+      "This was a source review. Runtime replay error, fixture results and bootstrap endpoints remain unverified. The launch contract limits public outputs to summary.json, fixtures.json and RUN_COMPLETE. An execution pass would admit plugin preparation only."
+    ],
+    "admission": "blocked"
+  }
+}
