@@ -1,0 +1,25 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 19.971668481826782,
+  "packet_sha256": "a9dc274642fd60c40b514554b11ccbb7319fd4b6b3cb1dc4051b12eeb68d501e",
+  "hashes": {
+    "probe.py": "bdc652268749665c0cbe74645fbb74b0b8e75656bace95e790db62b05e58075b",
+    "design.json": "4dccd310e1cb77e746ce6a70f0c2c4cb0f3cb334009e318ec5d0556ee10c21eb",
+    "theory.md": "d2512abbbea12646f7ee1ea0fe8a00694863bd128f93dffb65f8f69276d6c4b7",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "For relation r, shared simplex pooling makes the r-versus-null contrast a convex combination of valid-token utility differences plus β_r−β_0. Mixing tokens attaining the minimum and maximum realizes every point in [L_i(r), U_i(r)] before the bias shift. The global bias difference cancels across rows. Thus L_j(r)−U_i(r)≥0.05 forces the null row’s contrast to exceed the positive row’s by at least 0.05. Correctness on both would require the positive contrast to be ≥0 and the null contrast to be ≤0, which is impossible even with favorable tie-breaking.",
+      "Every counted row is strictly native-correct. The matcher visits positives once in stored order, chooses the unused qualifying null with lowest lower bound and then lowest index, and consumes that null across all relations. The resulting K disjoint pairs force at least K distinct losses of native-correct decisions for every comparator in the stated family. Gains elsewhere leave the net error change and Macro score undetermined.",
+      "The gate uses all 19,584 fixed validation rows, with labels and strict native correctness determining eligibility. It requires K≥196 and at least eight relations with five or more pairs each. The synthetic fixture covers matching, disjointness, and wide-interval rejection. The first 256 training rows check one-hot contrasts to 1e−8 and native logit replay to 1e−5. After one native validation pass, every selected pair receives a direct value-only check of both extrema to 1e−8 and of the recomputed gap against 0.05. A failed pair check stops the run.",
+      "This verdict admits the diagnostic on static review. The empirical gate outcome is unverified. A successful run would establish one float64 finite-cohort observation for the frozen values and decoder. Exact-real certification, decoder retraining, quantum exclusivity, five-seed inheritance, and L5 novelty lie outside that conclusion."
+    ],
+    "admission": "one_frozen_interval_order_diagnostic"
+  }
+}
