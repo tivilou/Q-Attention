@@ -465,19 +465,24 @@ class FrozenFeatureTraining:
         from baselines.retacred.rmea_token_transport_parallel import parallel_train
         from baselines.retacred.rmea_token_transport_recovery import run_lock
         from experiments.q_rmea_query_alignment import fresh_output
-        self.require_unit(args.unit_output)
-        require(args.admission is not None, 'Exact canary/COS admission required')
-        require(args.admission_sha256 == self.p.digest(args.admission), 'Owner-approved admission digest differs')
-        a = self.p.read(args.admission)
-        validation = args.admission.parent / 'canary-validation.json'
-        seal = args.admission.parent / 'RUN_COMPLETE'
-        require(self.p.read(seal) == dict(artifacts={'canary-validation.json': self.p.digest(validation)}) and a.get('canary_validation_sha256') == self.p.digest(validation) and (a.get('canary_seal_sha256') == self.p.digest(seal)), 'Completed canary admission seal differs')
-        c = self.p.read(validation)
-        require(all((a.get(k) == c.get(k) for k in ('source_sha256', 'contract_sha256', 'serial_parallel_resume_equal', 'export_retry', 'cos_live_pinned_restore'))), 'Canary gate differs from admission')
-        require(a.get('source_sha256') == self.p.identity(self.p.sources()) and a.get('contract_sha256') == self.p.identity(self.p.contract()) and (a.get('serial_parallel_resume_equal') is True) and (a.get('export_retry') is True) and (a.get('cos_live_pinned_restore') is True) and (a.get('input_dependency_versions_verified') is True) and (a.get('input_request_sha256') == self.p.INPUT_REQUEST_SHA) and (a.get('input_acknowledgement_sha256') == self.p.INPUT_ACK_ID), 'Formal training admission incomplete')
-        depfile = args.admission.parent / 'dependency-verification.json'
-        dep = self.p.read(depfile)
-        require(a.get('dependency_verification_sha256') == self.p.digest(depfile) and dep.get('verified') is True and (dep.get('request_sha256') == self.p.INPUT_REQUEST_SHA) and (dep.get('acknowledgement_sha256') == self.p.INPUT_ACK_ID) and (dep.get('objects') == 13) and (dep.get('total_pinned_bytes') == 6947440640) and (dep.get('payload_bytes_read') == 0), 'Input dependency acceptance record differs')
+        require(args.admission is not None, 'Explicit training admission required')
+        require(args.unit_output is not None, 'Explicit unit evidence required')
+        from .rmea_scoped_admission import SCHEMA, verify
+        if self.p.read(args.admission).get('schema') == SCHEMA:
+            verify(self.p, args, self.execution_environment())
+        else:
+            self.require_unit(args.unit_output)
+            require(args.admission_sha256 == self.p.digest(args.admission), 'Owner-approved admission digest differs')
+            a = self.p.read(args.admission)
+            validation = args.admission.parent / 'canary-validation.json'
+            seal = args.admission.parent / 'RUN_COMPLETE'
+            require(self.p.read(seal) == dict(artifacts={'canary-validation.json': self.p.digest(validation)}) and a.get('canary_validation_sha256') == self.p.digest(validation) and (a.get('canary_seal_sha256') == self.p.digest(seal)), 'Completed canary admission seal differs')
+            c = self.p.read(validation)
+            require(all((a.get(k) == c.get(k) for k in ('source_sha256', 'contract_sha256', 'serial_parallel_resume_equal', 'export_retry', 'cos_live_pinned_restore'))), 'Canary gate differs from admission')
+            require(a.get('source_sha256') == self.p.identity(self.p.sources()) and a.get('contract_sha256') == self.p.identity(self.p.contract()) and (a.get('serial_parallel_resume_equal') is True) and (a.get('export_retry') is True) and (a.get('cos_live_pinned_restore') is True) and (a.get('input_dependency_versions_verified') is True) and (a.get('input_request_sha256') == self.p.INPUT_REQUEST_SHA) and (a.get('input_acknowledgement_sha256') == self.p.INPUT_ACK_ID), 'Formal training admission incomplete')
+            depfile = args.admission.parent / 'dependency-verification.json'
+            dep = self.p.read(depfile)
+            require(a.get('dependency_verification_sha256') == self.p.digest(depfile) and dep.get('verified') is True and (dep.get('request_sha256') == self.p.INPUT_REQUEST_SHA) and (dep.get('acknowledgement_sha256') == self.p.INPUT_ACK_ID) and (dep.get('objects') == 13) and (dep.get('total_pinned_bytes') == 6947440640) and (dep.get('payload_bytes_read') == 0), 'Input dependency acceptance record differs')
         require(bool(os.environ.get('CUDA_VISIBLE_DEVICES', '').strip()), 'Explicit scheduler GPU allocation required')
         devices = gpu_ids('auto')
         require(len(devices) == 3, 'Three allocated GPUs required')

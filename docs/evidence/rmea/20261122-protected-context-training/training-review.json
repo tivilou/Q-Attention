@@ -2,26 +2,26 @@
   "verdict": "PASS",
   "review_scope": "both",
   "must_fix": [],
-  "findings": [
-    "The module-level `import json` in `rmea_protected_context_protocol.py` supplies `protocol.json.dumps` at the lookup that failed in the training logger. The repair is confined to the protocol namespace and preserves the reviewed objective, gradients, optimizer settings, and nine-update canary budget.",
-    "Before training, the recipe verifies the prior unit artifact by SHA-256 and reruns the five-example CPU unit against the repaired source. It replaces only `source_sha256` in the expected record and requires every other field to match.",
-    "The prior owner lifecycle review applies to the registrar and publisher. Enrollment checks the reviewed source bytes, hashes, and recipe. Publication remains bound to the active attempt and limited to `000-preparation` and `010-progress`."
+  "limitations": [
+    "The historical canary retains its PARTIAL_RUNTIME_PASS_RNG_ACCEPTANCE_FAILED status. Its model, optimizer, cursor, replay, export and same-node COS restore checks support scoped reuse. The fresh-seeding repair reproduced the next Python, NumPy and Torch CPU draws after restore. CUDA RNG continuity is supported by the prior diagnostic.",
+    "The supplied migration checks exercised the admission predicate, registrar review and bundle checks, interrupted atomic installation, and publisher milestone scan. The 13 versioned input checks verified metadata with zero payload bytes read. Full-data training and publication through 100-progress remain prospective.",
+    "Admission covers one owner-funded three-GPU seed-13 run with three four-epoch fits and the pinned native baseline. Utility and matched-control attribution depend on the observed results and their separate gates. Claims remain limited to one seed on the repeatedly exposed cohort."
   ],
-  "claim_limits": [
-    "This static review admits one fresh three-GPU scheduler attempt on the fixed 16/8/8 fixture. Runtime acceptance requires sealed canary validation, a matching `canary-acceptance.json` covering persisted RNG equality across all three lanes, and authenticated publisher completion for that attempt.",
-    "The restore drill covers a fresh directory on the same managed node. Discovery training requires separate owner admission and independent verification of the 13 pinned input objects. Scientific utility and L5 remain unassessed."
-  ],
-  "admission": "scheduler_three_gpu_canary_only",
-  "source_sha256": "f31f6410b8b6c91476a761ce1bd837ec1f72f1be169c082ad7931c846e54cc5f",
-  "contract_sha256": "2cf1fab0ee6a04fe2f40f2c9031bc7f732cd5a81d61e50872ea9f28d252f8536",
+  "admission": "owner_three_gpu_discovery_scoped_v2",
+  "source_sha256": "ac08d7b1d59acd6688b33bfd075df5b4e31b3a38a8ff27434478ef772319ab42",
+  "contract_sha256": "e511600ef90e538f8cb721e2205538c84d9e6e5aff2301326d167ebac71d7ca8",
   "model": "gpt-6.2-astra",
   "effort": "high",
   "profile_echo_verified": true,
-  "packet_sha256": "931c81a6eb0dfda6a1a04566fd3a68301a7e0ec1664f98184993af761916f913",
+  "packet_sha256": "75a244351ac127dd4a00e80ec78a3750996bb93de9681300dc7c6aba0bd7e210",
   "owner_hashes": {
-    "register-canary.py": "2a32953dca93de2cd3702b7f6deef1ebe52ac88b52f131be78c7f9aea43658f0",
-    "serve-canary.py": "8a204adfa37c0b3f2910a2f925189b98dc47c36cc16aa3e0659ce1c83e5982e3"
+    "serve-formal.py": "03fd65438540b42f307dcbbfbc20680d1d219780213cdeeb0e862b8ddb282d2f",
+    "register-formal.py": "ea3a7e90ae5dfd34f1444c44f49a239f6cce1d1f6a0995737061c170c6a2409a",
+    "owner_atomic.py": "1d6bd34304f9ccac293daaa92a0914346f2d4683fa12d717cdecc84f331a476f",
+    "deploy.py": "424d4cfd61ee6bc02d852e5d77b7de8e255174fbc9812f09f05f3fbac68014dc",
+    "publisher-transport": "e2b611543836d288daed2bebb95a0c8e68c6b795df7173ef1e3359740aa9e971"
   },
-  "owner_lifecycle_sha256": "562da9ee2fa7d058cfd4c3a5cad1c5a2d661a5af06285758b894f695db800854",
-  "scope": "Exact3GPU tiny canary only; formal scheduler recipe and dependency admission not granted. Old numerical unit is pinned; repaired-source unit executes once inside this exact canary attempt."
+  "owner_lifecycle_sha256": "e9cbe01e7084ff9f2da6e24a3691c755d2360a1405033002647ca4f5dc4ab065",
+  "scope": "Prospective scoped v2 owner discovery admission; prior complete canary remains failed, accepted unaffected capabilities reused",
+  "prior_review_preserved_at": "docs/evidence/rmea/20261122-scoped-training-admission/prior-training-review.json"
 }

@@ -8,6 +8,7 @@ from .rmea_protocol import ROOT, EXPECTED, identity, read, git, inventory, seal
 from .common import atomic_json, digest
 
 EXPERIMENT = 'protected-context'
+SCOPED_ADMISSION_SCHEMA = 'q-rmea.scoped-training-admission.v2'
 SCHEMA_PREFIX = 'q-rmea.protected-context'
 REFERENCE_METHOD = 'native'
 REFERENCE_DESCRIPTION = 'Pinned completed full-data native baseline; not retrained'
@@ -29,7 +30,8 @@ EXTRA = ('baselines/retacred/rmea_frozen_training.py',
          'experiments/q_rmea_query_alignment.py',
          'baselines/retacred/orchestrate.py')
 EXTRA = (*EXTRA, 'baselines/retacred/rmea_task_runtime.py',
-         'baselines/retacred/rmea_experiments.py', 'experiments/q_rmea_train.py')
+         'baselines/retacred/rmea_experiments.py', 'experiments/q_rmea_train.py',
+         'baselines/retacred/rmea_scoped_admission.py')
 
 
 def sources():
@@ -67,7 +69,7 @@ def contract():
         output='Per-condition atomic full-state latest every update and validation-best; fixed final models, private complete v2 trace and exact seven-file compact report',
         recovery='Existing quiescent global10percent COS seals, fixed source/config/input/model/AdamW/RNG/cursor; original13 immutable inputs reused. Explicit resume, no automatic science retry.',
         input='Pinned discovery/canary manifest and old native model; no baseline retrain or data/weights download to Windows',
-        review='Exact mechanism/lifecycle review before unit/canary; changed parent-child integration, replay, resume and exporter-failure/retry acceptance before full launch')
+        review='Exact current both-scope review; prospective scoped v2 admission may reuse exercised primary capabilities with bound source equivalence and focused RNG repair; historical failed full seal remains unchanged')
 
 
 def review_gate(*, action):

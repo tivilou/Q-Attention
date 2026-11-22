@@ -44,4 +44,4 @@ forge its missing acceptance, install a formal recipe, bypass whole-source gates
 or migrate the existing training-review/canary schema. New source will fail those
 old exact-source gates until an explicit scoped admission/migration is completed.
 Do that once at the changed core boundary, then reuse its applicable capability
-coverage; do not repeat it for every idea. L5 scientific research stays paused.
+coverage; do not repeat it for every idea. The later scoped v2 migration preserves that failed historical record and binds current provenance, unchanged exercised capabilities, focused RNG repair and pinned inputs. See `docs/evidence/rmea/20261122-scoped-training-admission/`. Subsequent ordinary plugins reuse unaffected coverage; the current owner authorizes full runs through the shared scheduler.
