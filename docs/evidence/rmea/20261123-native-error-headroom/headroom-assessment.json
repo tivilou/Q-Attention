@@ -1,0 +1,51 @@
+{
+  "role": "headroom_assessment",
+  "scope": {
+    "task": "Re-TACRED relation classification",
+    "population": "Previously exposed first8192TRAIN; primary4000assessment/exactsentence grouping4192calibration",
+    "input": "Pinned native checkpoint outputs and original targets only",
+    "label_reference": "same pinned TRAINtargets/40classes; class0no_relation",
+    "metrics": {
+      "primary_task_target": "positive39Macro-F1",
+      "diagnostic_bound": "fixed-poolaccuracy",
+      "direction": "higher is better",
+      "denominator": 4000
+    },
+    "independence": "in-sample exposed planning, not independent confirmation"
+  },
+  "comparator": {
+    "name": "Unchanged pinned native Q-RMEA",
+    "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+    "accuracy": 0.8805,
+    "positive39_macro_f1": 0.678962929004742,
+    "claim": "This diagnostic comparator; not a new strongest-baseline benchmark comparison"
+  },
+  "bounds": {
+    "fixed_top2_pool": {
+      "status": "exact_under_stated_assumptions",
+      "type": "label-aware empirical oracle",
+      "accuracy": 0.9755,
+      "headroom_accuracy_points": 0.095,
+      "restriction": "Select exactly one existing native top2class perrow; original denominator unchanged",
+      "not_a_predictor": true
+    },
+    "one_shared_class0_offset": {
+      "status": "exact_under_stated_assumptions",
+      "type": "label-aware empirical oracle over4001predictionregions",
+      "accuracy": 0.8835,
+      "headroom_accuracy_points": 0.003,
+      "restriction": "One offset shared byALLassessmentrows, positive ordering fixed",
+      "not_a_predictor": true
+    },
+    "unrestricted_macro": {
+      "status": "unresolved",
+      "reason": "No certified optimalclassifier/inputambiguity bound; accuracy oracles do not bound positive39Macro."
+    }
+  },
+  "decision": "Globaloffset has atmost12netaccuracycorrections here, while frozen top2contains380currenterrors. Motivates a bounded inputdependent evidence test, not a promise to recover that gap or nuisancecausality. No additional fulltraining admitted.",
+  "reassess_when": "Population/checkpoint/labels/inputpool/constraints change; no repeat for unrelated codeedits",
+  "artifacts": {
+    "summary.json": "4420c33240325ff971b44d0ecc1a9695fb4f12ff29312f0fcc99f5287c2ed793",
+    "threshold-summary.json": "db372a7e2f9b3a89cb44eb3e08de0433e5ca944a0feb99b29786c58ddf1925f9"
+  }
+}

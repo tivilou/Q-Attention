@@ -1,0 +1,66 @@
+{
+  "profile": "null-reference-inverse-filter-TRAIN-warmstart128-v1",
+  "seed": 20261123,
+  "updates": 128,
+  "batch_size": 32,
+  "microbatch_size": 4,
+  "lr": 0.001,
+  "weight_decay": 0.01,
+  "betas": [
+    0.9,
+    0.999
+  ],
+  "optimizer_eps": 1e-08,
+  "clip_norm": 1.0,
+  "modes": [
+    "coherent",
+    "diagonal",
+    "native"
+  ],
+  "fit": 4192,
+  "assessment": 4000,
+  "selection": "Final update128 only; local best batchloss is retention, never selection",
+  "precision": "float64/complex128/deterministic",
+  "bootstrap_replicates": 2000,
+  "bootstrap_seed": 20261123,
+  "timeout_seconds": 1800,
+  "code_hashes": {
+    "null_relative.py": "ad1b2606bb3a715daea27ce0bde41d8ca9cda8759919f07a5aa357b2cbbf8fab",
+    "screen.py": "491c0aa79129dff8e1d5c124b770a3ce36bb1fcae8b9ed986512b173e8fb84cb"
+  },
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "baselines/retacred/rmea_task_runtime.py": "df50e9e14b5fae4b6211c55fd17bcfd2acc368127953e23768dcece24e9d5931",
+    "baselines/retacred/rmea_token_transport_study.py": "14d796f4970fddd7f218ef637b9a41a6e0a871dac978025b30f13713b18b6e7b",
+    "baselines/retacred/rmea_token_transport_recovery.py": "5cbb1e46fa964619d024467c0b2f735f1538cb63e1e44f0133d94f8d0d72e0f7",
+    "baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9"
+  },
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "split_reference_sha256": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+  "bootstrap_code_sha256": "d742cc89229cc53c5048886cd7e12e847c4d696e56049f5a32001dbf6865de6e",
+  "gates": "CE lower than both comparator heads; two lower.025 approximate paired whole-sentence bootstrap endpoints>0; positive39Macro >=both. Allrequired.",
+  "stop": "Failure closes exact128updatewarmstartscreen; no lambda/budget/seed/split/control/normalizer rescue, not familyimpossibility",
+  "recovery": "Cheaprestartablefixedwarmstart; atomiclocal latest/best eachupdate, final128only. NoCOS/autoretry or optimizerresume claim",
+  "public_whitelist": [
+    "summary.json",
+    "fixtures.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": [
+    "diagnostic.private.npz",
+    "coherent/*.pt",
+    "diagonal/*.pt",
+    "native/*.pt"
+  ],
+  "claim_scope": "ExposedTRAIN/planningonly/no independent utility/novelty/quantumnecessity/L5",
+  "resources": {
+    "gpus": 2,
+    "cpu_cores": 4,
+    "ram_gib": 16,
+    "disk_gib": 1
+  },
+  "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "initialization": "All arms same pinned fulltrained native checkpoint; fresh identical AdamWstates, no optimizerresume claim",
+  "mechanism": "R_x=sum nativealpha0t psi_t psi_t^dagger + I/8; positivephi=unit(R^-1phi); originalclass0/unmodifiedvalues/pooling/EPS; diagonalcontrol dephasesreference only"
+}
