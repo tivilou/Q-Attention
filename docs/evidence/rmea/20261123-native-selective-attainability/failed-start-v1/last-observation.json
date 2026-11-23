@@ -1,0 +1,79 @@
+{
+  "resident_live": false,
+  "progress.json": {
+    "schema": "research.progress.v1",
+    "attempt": "aa7ef230cfff47aba8dced63fcc5448d",
+    "phase": "failed",
+    "current": 0,
+    "total": null,
+    "unit": "stage",
+    "observed_at": 1795409660.4415963,
+    "heartbeat_at": 1795409660.441597,
+    "reason": "See exact execution record; no automatic retry"
+  },
+  "execution.json": {
+    "argv": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/native-selective-attainability-20261123/probe.py",
+      "--source",
+      "/hy-tmp/Q-Attention/source",
+      "--inputs",
+      "/hy-tmp/Q-Attention/inputs/native-baseline",
+      "--checkpoint",
+      "/hy-tmp/Q-Attention/inputs/native-checkpoint/native-final.pt",
+      "--reference",
+      "/hy-tmp/Q-Attention/inputs/native-word-metadata-20261123",
+      "--design",
+      "/hy-tmp/Q-Attention/control/native-selective-attainability-20261123/design.json",
+      "--output",
+      "/hy-tmp/Q-Attention/control/native-selective-attainability-20261123/output",
+      "--progress",
+      "/hy-tmp/Q-Attention/control/native-selective-attainability-20261123/progress.json",
+      "--allocation",
+      "/hy-tmp/Q-Attention/control/native-selective-attainability-20261123/launch.json",
+      "--attempt",
+      "aa7ef230cfff47aba8dced63fcc5448d"
+    ],
+    "cwd": "/hy-tmp/Q-Attention/source",
+    "inputs": {
+      "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+      "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51"
+    },
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"/hy-tmp/Q-Attention/control/native-selective-attainability-20261123/probe.py\", line 147, in <module>\n    if __name__=='__main__':main()\n  File \"/hy-tmp/Q-Attention/control/native-selective-attainability-20261123/probe.py\", line 76, in main\n    y=np.asarray(data['targets'][:n]);assert set(y)==set(range(40))\nAssertionError\n",
+    "exit_code": 1,
+    "started_at": 1795409656.0024168,
+    "finished_at": 1795409660.4402966,
+    "runner_attempt_id": "aa7ef230cfff47aba8dced63fcc5448d",
+    "file_hashes": {
+      "probe.py": "04cf1070156aa7a754ba2a09e3d265e7cc719c2d186391923dea52e37ab7ebb9",
+      "qualify.py": "dc253e9f8bd7cdb896706bb89d1def5c6c7ec2357928375deaa22522795e12fc",
+      "design.json": "391cc15aad0f85a022861fcd0ff8d5824d2271e5904ab3489278cad726533484",
+      "theory.md": "a77b0ee17d677d90eaac0d1842cefbfd3527354b39d6907b268a24483fa8b074",
+      "verify.py": "1da87b3423031180fb722dfdcf60dbd64e7c811c2f682e58725f3c03a487603a",
+      "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662"
+    }
+  },
+  "resource-return.json": {
+    "allocation_id": "ee8cb598c80d446985afdbe1db0bcd6e",
+    "generation": 24,
+    "project_id": "q-attention",
+    "host_id": "gpushare-i2-38434-2080tix2",
+    "run_id": "native-selective-attainability-20261123-v1",
+    "runner_attempt_id": "aa7ef230cfff47aba8dced63fcc5448d",
+    "schema": "research.resource-return.v1",
+    "event_sequence": 1,
+    "observed_at": "2026-11-23T04:54:20.440867+00:00",
+    "campaign_status": "failed",
+    "all_jobs_terminal": true,
+    "quiescent": true,
+    "no_remaining_consumers": true,
+    "cleanup_status": "not_needed",
+    "resources_reusable": true,
+    "owner_pid": 210192,
+    "owner_pgid": 210192,
+    "owner_start_ticks": "637587741",
+    "boot_id": "74146a10-dc63-48fe-9f2d-86cbe605f111"
+  }
+}

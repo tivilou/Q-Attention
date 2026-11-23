@@ -1,0 +1,33 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "selection_basis": "owner_preference",
+  "transport": "multimodal-gen/A6API/OpenAIResponses",
+  "seconds": 10.749303817749023,
+  "profile_echo_verified": true,
+  "packet_sha256": "0664d26a1ad31e08f1b628b1bc65573da06fd309943b391db3347b36e2c52439",
+  "hashes": {
+    "probe.py": "836f5008e7eb31c1860b88eb3f4185387db21217189fddeeb4454545f2315b7f",
+    "qualify.py": "dc253e9f8bd7cdb896706bb89d1def5c6c7ec2357928375deaa22522795e12fc",
+    "verify.py": "1da87b3423031180fb722dfdcf60dbd64e7c811c2f682e58725f3c03a487603a",
+    "design.json": "10b0321c4b6a0e0266a1efeea26c38a7ace316e7f92be779e672e572afecce89",
+    "theory.md": "0fb8005f105d9619a2d9911ae6390123bab26d3ac1976fa16dc176ef38e15678",
+    "start.py": "f9f4e093bb101e2e52f6523d05e3a5663da142da73e76301f16d2bc3050325df",
+    "collect.py": "1fb45e1358a4d1aa4a311aef3575bab78d9aa435ce29f3d975a5415fb95061ae",
+    "accepted-two-gpu-wrapper.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "limitations": [
+      "The revised assertion checks that every observed gold label lies in 0–39. The probe reports present and absent gold classes across the same 8,192 TRAIN rows. Classes absent as gold labels still compete as rivals, and the prefix supplies no gold-row evidence for those classes.",
+      "The prior PASS carries forward for the unchanged numerical, measurement and verification logic, including the masks on 7,950 eligible rows, all 40 output classes, the 1e-7 tolerance and the bidirectional witness gate. The new all40_output_classes_used field declares that reviewed behavior. The unchanged verifier does not independently check the new summary fields.",
+      "The v2 allocation lookup matches the requested run ID, and launch and collection use the same v2 remote directory. The first attempt reportedly stopped at the label assertion before inference and yielded no scientific result. Empirical witness counts remain pending.",
+      "This delta review used only the supplied packet. The probe hash in design.json matches the supplied v2 hash. Artifact contents, runtime source parity and allocation state were not independently verified."
+    ],
+    "admission": "one_bounded_TRAIN_attainability_diagnostic"
+  },
+  "delta_only": true,
+  "prior_review": "failed-start-v1/review.json"
+}

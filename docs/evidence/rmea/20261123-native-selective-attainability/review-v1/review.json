@@ -1,0 +1,35 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "selection_basis": "owner_preference",
+  "transport": "multimodal-gen/A6API/OpenAIResponses",
+  "seconds": 45.57400059700012,
+  "profile_echo_verified": true,
+  "packet_sha256": "e6fdf05686632a655bc99dd7c5f35adcc582b573f8d3689023594ce4630df7b5",
+  "hashes": {
+    "probe.py": "04cf1070156aa7a754ba2a09e3d265e7cc719c2d186391923dea52e37ab7ebb9",
+    "qualify.py": "dc253e9f8bd7cdb896706bb89d1def5c6c7ec2357928375deaa22522795e12fc",
+    "verify.py": "f14b2b1b89898d1c00fd76554d9787705c6aeef64ae53dbd54870fbdc8158cee",
+    "design.json": "a31df6f8366a49c26b521badd09c0a10f17a9f5a3500500dce7feb347c3431a4",
+    "theory.md": "a77b0ee17d677d90eaac0d1842cefbfd3527354b39d6907b268a24483fa8b074",
+    "start.py": "e22fcd3b71de375bfc98c160b244b91bd331f282ad4f071bb3505e451ddba707",
+    "collect.py": "e149b4363716d0a4808f615f60ebeb9b87627f17082eb2c9be15393def2e19b4",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "accepted-two-gpu-wrapper.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "both",
+    "must_fix": [
+      "In verify.py, load each required NPZ member into memory once before the eigenvalue loop. Each v['A'][i,k,c] access decompresses the entire stored A array. With F flips, the verifier decompresses A 80F times, so the work grows quadratically with F and can exhaust collect.py’s 120-second timeout. Keep verification on the host and retain every flip.",
+      "Independently reconstruct the uncertainty-adjusted margin that decides the gate. verify.py recomputes the raw SciPy margin, then selects damage and repair witnesses from the probe’s saved adjusted margins. An error in an adjusted margin could therefore change a witness count or close the profile while verification still passes. For each mode and row, use the SciPy endpoints and saved per-class allowances to compute (H_y + u_y) − max_{r≠y}(L_r − u_r). Apply the frozen tolerance and compare the resulting witness masks, counts, and gate with the probe’s results. Treat a threshold disagreement as unresolved.",
+      "In start.py, compare the staged host_run.py content with the supplied digest for accepted-two-gpu-wrapper.py before acknowledging the allocation. The launcher currently hashes whichever wrapper it reads from the sibling directory. The host’s subsequent hash check establishes transfer integrity but leaves the contract’s accepted-wrapper identity unchecked."
+    ],
+    "limitations": [
+      "The mathematical design is sound. The signed utility moments include EPS in both A and B, the Cholesky whitening uses the correct conjugate transpose, and independent per-input relation effects attain the stated extremal margin. Both two-token fixtures have the stated signs.",
+      "A passing gate would establish a numerically resolved obstruction in each direction among correctness flips on the exposed TRAIN cohort. Frozen-head correctness uses argmax tie-breaking, so a correct prediction alone does not establish a strictly positive margin. The endpoint allowances are floating-point estimates.",
+      "This was a static review of the supplied text. No files, hashes, fixtures, timings, or empirical witness counts were independently verified."
+    ],
+    "admission": "blocked"
+  }
+}
