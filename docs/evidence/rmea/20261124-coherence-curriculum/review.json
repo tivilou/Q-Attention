@@ -1,0 +1,30 @@
+{
+  "response": {
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "limitations": [
+      "Static review only. Both arms interpolate probabilities before EPS, masking and token normalization. The optional hook sets eta once per logical batch, from 0 at update 1 to 1 at update 1024. The final update and evaluation call each arm’s original forward method.",
+      "The code checks full initial-state and batch-order hashes against the pinned reference and waits for both final checkpoints before assessment. The focused fixtures and first-update gradient and state-change checks still require execution.",
+      "The arms match in trainable parameter count. Effective capacity and training cost can differ. The quantum head retains independent binary effects for the 40 relations.",
+      "A positive result requires quantum-curriculum Macro39 to exceed all five comparators, including the historical dephased score of 0.2709083653938512 and the new same-path real12 score. CE and FN/FP counts are descriptive. Success supports formal-study design only. Failure closes this exact seed-13 linear 1024-update profile. The prior negative result stands in either case."
+    ],
+    "admission": "one_bounded_TRAIN_only_screen"
+  },
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "hashes": {
+    "curriculum.py": "7fbb0b9a654032e73ebc29cdd8a06c827b8ece501c688bed83a9d1d6ed5733d5",
+    "router.py": "ae36da6ce8cb15459a53bdbfdc67fa5e29726897683a23904fa878425d271ac4",
+    "reference-summary.json": "4e889d376931f0277fe0a3d2771076c58e2dcef39fe570eae6d46e8a3cb6d3f0",
+    "design.json": "ca45ae8f7e5882b04f6bfde3161836e484b596866754906708306968fc414084",
+    "core-delta.patch": "89b52a813f4df843b4f82b498871ab563790f5668e1f835d50a55e5dd18afe81",
+    "screen.py": "7d393af2098f336aa8e2863cee71fd47a5a4a728271266d9f12bd0c50a2f77f6",
+    "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662",
+    "rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "packet_sha256": "1e7544b64d6688c47d73d259c59eec77ce805f0534b21c4c266ecd369f53af71",
+  "seconds": 15.094000000040978
+}
