@@ -1,0 +1,30 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 49.71959900856018,
+  "packet_sha256": "a6da0c5f0913356aa2f606050e396b6f2b7d9ba24208b197127fb9218d394f02",
+  "hashes": {
+    "competition.py": "9969403447c152f2105e9c031b3841bc44ceb725b88932d72e491c1b70b023d8",
+    "probe.py": "99947a706d43c8b349992bb8cb8b296e2465690a28b6b66cb6b70b70673441d4",
+    "design.json": "2cc31a61527d32901a690b3a1229d69820ae1979e7151752014b23f56619efd2",
+    "theory.md": "dda8f7e5bd5f58a6f2671039a5f3af1f83b2fb832d1e0f7fa4c943f02061c8af",
+    "source-reading.json": "f5628576b5bc26143df80f5aa7cf7fb0c323ae96a3e28511e428944d536df96d",
+    "original-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "mechanism",
+    "must_fix": [
+      "Make the numerical gate reject nonfinite residuals before accumulating maxima. Python evaluates max(0.0, float('nan')) as 0.0. For example, a zero cached psi row yields NaN when the transformed ket is normalized. The frame_probability accumulator can then retain 0.0, allowing RUN_COMPLETE despite an undefined Born comparison. Check math.isfinite on each residual before updating its maximum, including the initial POVM error, and retain the existing 1e-8 tolerance.",
+      "Bind the competition import to the file whose hash was checked. The probe hashes competition.py beside probe.py, then puts root/source first on sys.path before importing competition. If root/source contains a module of that name, the probe can measure different code under the declared hash. Load the sibling file explicitly, or verify the resolved module path and digest before using attention or CompetitiveHead."
+    ],
+    "limitations": [
+      "The supplied formulas agree with the native source. EPS is added once. All 40 relations, including null, contribute to each token denominator. The final row normalization assigns zero mass to Boolean-masked padding. The covariance identity and cross-relation log-q gradient are correct. Autograd checks a linear loss on cached q. The competitive head appropriately removes the native row-local sensitivity.",
+      "The complex outer product, inverse-square-root frame normalization, and row-stored ket multiplication psi @ sqrt.T have the correct orientations. The resulting Born probability on the normalized filtered state is q_rt/G_t. This supports the stated finite matrix-scaling and frame interpretation. Novelty, hardware advantage, and L5 remain outside the measurement.",
+      "The forward transform uses cached scores and utilities without labels, cues, or types. The scoring path uses calibration labels and entity types to reconstruct the allowed-class mask. It retains all four outcome strata and all five eligible misses. Exact TRAIN membership, cached-input provenance, and runtime parity remain unverified in this text-only review.",
+      "The public summary contains counts, residuals, five paired margins, and private-file digests. Per-case cue masses, logits, and attention arrays go to the designated private files. The probe performs zero optimizer updates. Its results would describe this frozen intervention on 32 exposed cases. Training admission, utility, phase attribution, and learnability remain open."
+    ],
+    "admission": "blocked"
+  }
+}
