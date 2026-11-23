@@ -1,0 +1,29 @@
+{
+  "response": {
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "limitations": [
+      "The quantum and dephased arms delegate directly to their original RMEAHead implementations and load the same complete initial state. Both classical arms copy the shared value, decoder and bias tensors. Their seeded construction also gives them identical initial key weights, key biases and queries.",
+      "Each arm has 68,200 shared scalars and 12,828 routing scalars, totaling 81,028 registered trainable scalars. Softmax12 uses the square-root-of-12 divisor, and its 12 key biases add token-constant offsets that cancel in softmax. Real12 uses squared normalized overlap with the specified 1e-6 offset. The dephased final RZ rotations affect only phases before a basis permutation, accounting for 3 × (1,028 + 1) + 40 × 3 = 3,207 invariant scalars. The count match establishes no equivalence of effective capacity, function class or compute.",
+      "The fixed design uses seed 13 and the exposed, group-disjoint TRAIN split of 4,192 fit and 4,000 assessment items. All arms consume the same 1,024 batches. Assessment starts after every arm finishes training, and evaluation reloads each final state and checks it against the update-1,024 checkpoint.",
+      "The adapter reconstructs each arm through make_head. The router summary branch returns before the legacy bootstrap and gate logic, while the default plugin and constructor fallbacks remain available. The new gate requires all three quantum-minus-comparator positive-39 macro-F1 differences to be strictly positive. CE and error counts are descriptive.",
+      "This is a static review of the supplied source. The design’s screen and router pins agree with the supplied hash entries. The classical fixtures compare logits and gradients using alternative contractions, while the original-arm fixtures check wrapper delegation. Padding and the stated invariant gradient slices have explicit checks. Host file digests, fixture results, the pinned helper’s microbatch behavior and completed-run outputs were unverified here."
+    ],
+    "admission": "one_bounded_TRAIN_only_screen"
+  },
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "hashes": {
+    "router.py": "ae36da6ce8cb15459a53bdbfdc67fa5e29726897683a23904fa878425d271ac4",
+    "design.json": "2b10e53efd53a01bdba054bf776f7c8ee8dbd0fb3a973e7ac75b8eeded86e4d1",
+    "core-delta.patch": "8f78f0f6d9aae0d4eb3b48ee99ac59ff8f7467f3a9c1aa66f16ff9af5681362e",
+    "screen.py": "ee0ce7ff3210e65ed436bb19d52abbe3defed3e6f11491578285a51c0df6cb7e",
+    "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662",
+    "rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "packet_sha256": "60244a71e2c1aee040da0574fc1bde72466fb86ae25a3a05559f0d37d861a43e",
+  "seconds": 28.39000000001397
+}

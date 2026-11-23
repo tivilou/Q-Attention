@@ -1,0 +1,106 @@
+{
+  "results": {
+    "quantum": {
+      "ce": 0.9137020695332404,
+      "positive39_macro_f1": 0.17744588431754932,
+      "updates": 1024,
+      "parameters": 81028,
+      "initial_sha256": "42341c51f163c2de661b483bc206a5248072d7a6c398f1b644461f32c276f0be",
+      "order_sha256": "f4c4f13e6620f6c0dd7b6f5d86fabe0bb610e517c5c9a472d7b3368c8c4d9668",
+      "final_sha256": "fcf16a3485708b0cf074a8c31b4854ce3d66b2fd289476869cba64ec8d079b47",
+      "training_finished_at": 1795451103.1922252,
+      "assessment_started_at": 1795451203.8888144,
+      "positive_to_null": 726,
+      "null_false_positive": 215,
+      "assessment_correct": 2918
+    },
+    "dephased": {
+      "ce": 0.8381267126951952,
+      "positive39_macro_f1": 0.2709083653938512,
+      "updates": 1024,
+      "parameters": 81028,
+      "initial_sha256": "42341c51f163c2de661b483bc206a5248072d7a6c398f1b644461f32c276f0be",
+      "order_sha256": "f4c4f13e6620f6c0dd7b6f5d86fabe0bb610e517c5c9a472d7b3368c8c4d9668",
+      "final_sha256": "4a8f720d303032635ee21914939cc0c44dfd5e7df8b94c98b05d967c4d9e9d9f",
+      "training_finished_at": 1795451099.3376253,
+      "assessment_started_at": 1795451211.3996294,
+      "positive_to_null": 578,
+      "null_false_positive": 280,
+      "assessment_correct": 2998
+    },
+    "softmax12": {
+      "ce": 0.858867123647603,
+      "positive39_macro_f1": 0.18046067668648297,
+      "updates": 1024,
+      "parameters": 81028,
+      "initial_sha256": "8af2fe60039cd719757da5ae97aa069c0a0a0922f1807d0c8da0f44e6b19833a",
+      "order_sha256": "f4c4f13e6620f6c0dd7b6f5d86fabe0bb610e517c5c9a472d7b3368c8c4d9668",
+      "final_sha256": "c3795f1d7a004179b0fac06e0ed3a63638a4d827e73042bc32108c90704cb2f4",
+      "training_finished_at": 1795451187.6106782,
+      "assessment_started_at": 1795451218.8572156,
+      "positive_to_null": 593,
+      "null_false_positive": 255,
+      "assessment_correct": 3009
+    },
+    "real12": {
+      "ce": 0.8454941662165012,
+      "positive39_macro_f1": 0.24221727424832942,
+      "updates": 1024,
+      "parameters": 81028,
+      "initial_sha256": "8af2fe60039cd719757da5ae97aa069c0a0a0922f1807d0c8da0f44e6b19833a",
+      "order_sha256": "f4c4f13e6620f6c0dd7b6f5d86fabe0bb610e517c5c9a472d7b3368c8c4d9668",
+      "final_sha256": "02ebf604182f5ad6ca93d90c95951316926553536dd3ed11b32697d2426cd9dc",
+      "training_finished_at": 1795451203.850994,
+      "assessment_started_at": 1795451221.3943484,
+      "positive_to_null": 529,
+      "null_false_positive": 313,
+      "assessment_correct": 3012
+    }
+  },
+  "contrasts": {
+    "dephased": {
+      "macro_delta": -0.0934624810763019,
+      "ce_comparator_minus_quantum": -0.07557535683804517
+    },
+    "softmax12": {
+      "macro_delta": -0.0030147923689336498,
+      "ce_comparator_minus_quantum": -0.05483494588563742
+    },
+    "real12": {
+      "macro_delta": -0.0647713899307801,
+      "ce_comparator_minus_quantum": -0.0682079033167392
+    }
+  },
+  "gates": {
+    "dephased": false,
+    "softmax12": false,
+    "real12": false
+  },
+  "gate": "NO_L3_PROMOTION_FROM_THIS_SCREEN",
+  "interpretation": "One exposed TRAIN split and seed, fixed1024 updates. This measures operational ordering, not population significance, mature utility, novelty or impossibility. Both positive and negative results retained; no budget/seed/split/control rescue.",
+  "L3": "NOT_ACCEPTED",
+  "L4": "NOT_ACCEPTED",
+  "L5": "NOT_ACCEPTED",
+  "status": "completed",
+  "attempt": "074365a2bca1474584fcbe78dd004836",
+  "seconds": 541.3390293121338,
+  "train_items": 4192,
+  "assessment_items": 4000,
+  "valid_read": false,
+  "test_read": false,
+  "code_hashes": {
+    "screen.py": "ee0ce7ff3210e65ed436bb19d52abbe3defed3e6f11491578285a51c0df6cb7e",
+    "router.py": "ae36da6ce8cb15459a53bdbfdc67fa5e29726897683a23904fa878425d271ac4"
+  },
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "baselines/retacred/rmea_task_runtime.py": "df50e9e14b5fae4b6211c55fd17bcfd2acc368127953e23768dcece24e9d5931",
+    "baselines/retacred/rmea_token_transport_study.py": "14d796f4970fddd7f218ef637b9a41a6e0a871dac978025b30f13713b18b6e7b",
+    "baselines/retacred/rmea_token_transport_recovery.py": "5cbb1e46fa964619d024467c0b2f735f1538cb63e1e44f0133d94f8d0d72e0f7",
+    "baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9"
+  },
+  "design_sha256": "2b10e53efd53a01bdba054bf776f7c8ee8dbd0fb3a973e7ac75b8eeded86e4d1",
+  "private_diagnostic_sha256": "c816d20a084b5e8276109752cb00daaa9f4fda50095a8acb9b248c26637cf300",
+  "cos_writes": 0
+}
