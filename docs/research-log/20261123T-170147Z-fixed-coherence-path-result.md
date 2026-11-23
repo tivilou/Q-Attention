@@ -24,3 +24,6 @@
 本轮两臂实际训练与评估约432.30秒，执行记录 exit0；保存预测独立重算 Macro-F1 误差为0。调度分配已释放。未读取官方 VALID/TEST，未进行 COS 写入，未下载原始数据、预测数组或模型到本机，未重复恢复能力测试。
 
 数值与精确源哈希见 [summary.json](../evidence/rmea/20261124-coherence-curriculum/summary.json)，完整逐类描述见 class-readout.json。旧限定 L4 和全部历史结果保持原样；当前目标仍是先建立符合新标准的独立方法贡献，再争取 L4-E 或 L4-T。
+
+
+补充研究入口：完整TRAIN为58465行/33477句，最稀有正类仅6行/5句；重切分不能保证充分支持。下轮优先准备原完整训练协议下宽12公平经典参照的共同研究与合作者交付，保持全部短实验关闭边界，不视为短筛选通过。详见 [筛选协议分析](../evidence/rmea/20261124-coherence-curriculum/screening-protocol-assessment.md)。
