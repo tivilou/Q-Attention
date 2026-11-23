@@ -1,0 +1,115 @@
+{
+  "cohort": "historical-completed-seed13-heads-on-current-common-cache",
+  "attempt": "531d4beeb8a940b199fa73d23ca0fc9a",
+  "model_provenance_sha256": "f7343dd63bea036c47cfff13f98e43a009ed8ab93f10c3998490474404fc48b6",
+  "rows": 58465,
+  "feature_cache_drift": {
+    "old_full_h_sha256": "c9b41aebbfe66a578d0344257f212874287efc45e0bdce23e5296fffb69b70ce",
+    "current_full_h_sha256": "b69b1bfb97f20932b26dcea8b13a788a12ec98ec43a68de1801960ad5c526635",
+    "first2_fixture_elements": 70656,
+    "changed_elements": 65305,
+    "max_abs": 0.017578125,
+    "rms": 0.0009048734734202731,
+    "scope": "First2 legacy TRAIN fixture only. Current-cache split comparison, not exact original training loss or a full-cache drift bound."
+  },
+  "results": {
+    "uniform": {
+      "raw": {
+        "positive39_macro_f1": 0.4537575807128403,
+        "correct": 44381,
+        "null_false_positive": 4113,
+        "positive_false_negative": 7922,
+        "positive_wrong_relation": 2049,
+        "ce": 0.7068789896153087
+      },
+      "original_selected_epoch": 17,
+      "checkpoint_sha256": "857fc69887197b7c535cf6fcc51184c854d499cc96d84ce980402bc177c2a12b",
+      "valid_raw_positive39_macro_f1": 0.22910137670288025
+    },
+    "relation_softmax": {
+      "raw": {
+        "positive39_macro_f1": 0.8666903429189607,
+        "correct": 54661,
+        "null_false_positive": 2153,
+        "positive_false_negative": 1307,
+        "positive_wrong_relation": 344,
+        "ce": 0.18237244287610524
+      },
+      "original_selected_epoch": 19,
+      "checkpoint_sha256": "b12908c414440616aa6ae7bb9c594b44363da16836f05a098357477cc07e53c0",
+      "valid_raw_positive39_macro_f1": 0.5854063318514707
+    },
+    "real_overlap": {
+      "raw": {
+        "positive39_macro_f1": 0.8663200931834455,
+        "correct": 54953,
+        "null_false_positive": 1490,
+        "positive_false_negative": 1672,
+        "positive_wrong_relation": 350,
+        "ce": 0.17400641573942127
+      },
+      "original_selected_epoch": 17,
+      "checkpoint_sha256": "6051c38627b2d20d41489091dd1015c5f6e45fe030e1386ce8a858b7554b29a7",
+      "valid_raw_positive39_macro_f1": 0.5572205103224462
+    },
+    "quantum": {
+      "raw": {
+        "positive39_macro_f1": 0.8027869942625825,
+        "correct": 53328,
+        "null_false_positive": 2547,
+        "positive_false_negative": 2008,
+        "positive_wrong_relation": 582,
+        "ce": 0.24984997578899024
+      },
+      "original_selected_epoch": 8,
+      "checkpoint_sha256": "93e9abd718ce019bff4cbed16ed4571939aafd1ce91bad703df4723c67423066",
+      "valid_raw_positive39_macro_f1": 0.5791710058938642
+    },
+    "dephased": {
+      "raw": {
+        "positive39_macro_f1": 0.7982036957899954,
+        "correct": 53175,
+        "null_false_positive": 2380,
+        "positive_false_negative": 2364,
+        "positive_wrong_relation": 546,
+        "ce": 0.24886880482313545
+      },
+      "original_selected_epoch": 10,
+      "checkpoint_sha256": "da5e7a986ef2c0b59c4856fe576a00fdf0bb8de96ab45cf64a1e2e597ed3f94b",
+      "valid_raw_positive39_macro_f1": 0.5643554616113973
+    }
+  },
+  "split_gap": {
+    "uniform": {
+      "train_minus_valid_macro39": 0.22465620400996003,
+      "train_accuracy": 0.7591037372787137,
+      "valid_accuracy": 0.6453227124183006
+    },
+    "relation_softmax": {
+      "train_minus_valid_macro39": 0.28128401106749,
+      "train_accuracy": 0.9349354314547165,
+      "valid_accuracy": 0.8068321078431373
+    },
+    "real_overlap": {
+      "train_minus_valid_macro39": 0.30909958286099926,
+      "train_accuracy": 0.9399298725733345,
+      "valid_accuracy": 0.8133169934640523
+    },
+    "quantum": {
+      "train_minus_valid_macro39": 0.22361598836871832,
+      "train_accuracy": 0.9121354656632173,
+      "valid_accuracy": 0.8070363562091504
+    },
+    "dephased": {
+      "train_minus_valid_macro39": 0.23384823417859812,
+      "train_accuracy": 0.9095185153510648,
+      "valid_accuracy": 0.7975388071895425
+    }
+  },
+  "seconds": 61.81260981876403,
+  "optimizer_updates": 0,
+  "test_rows_evaluated": 0,
+  "cos_writes": 0,
+  "scope": "Existing completed five selected checkpoints, current rebuilt TRAIN. VALID predictions reused from completed replay; no new model, training, selection or heldout claim. Cache differs from original h, so measured gap is a current-cache split gap, not exact original fitting loss. Historical reports unchanged.",
+  "source_summary_sha256": "16f215ee0c45b69386820f32843ce56ea72786e706008171d27465e253bd0140"
+}

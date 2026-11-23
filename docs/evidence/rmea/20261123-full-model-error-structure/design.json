@@ -1,0 +1,47 @@
+{
+  "profile": "R0-existing-full-five-model-TRAIN-split-gap-v1",
+  "code_sha256": "90ad1a3dd26cad200a6c200060433b678bc54e287d9807029af941961cd40a9d",
+  "input_hashes": {
+    "inputs/native-baseline/discovery/cache/metadata.json": "9e6eac9ad582a4ef4e1a8a12190bfef3b8f0a18c5efbd9072f91f31563656c0e",
+    "inputs/native-baseline/discovery/manifest.json": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+    "inputs/native-baseline/recovery-inputs/labels.json": "6e822509a07c5c865130ebe315122a9d83e97b1b11496b9e86c6b2a600f8a429",
+    "source/baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9",
+    "source/baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "source/baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "control/historical-type-replay-20261123/model-provenance.json": "f7343dd63bea036c47cfff13f98e43a009ed8ab93f10c3998490474404fc48b6",
+    "control/historical-type-replay-20261123/checkpoints/uniform-selected.pt": "857fc69887197b7c535cf6fcc51184c854d499cc96d84ce980402bc177c2a12b",
+    "control/historical-type-replay-20261123/checkpoints/relation_softmax-selected.pt": "b12908c414440616aa6ae7bb9c594b44363da16836f05a098357477cc07e53c0",
+    "control/historical-type-replay-20261123/checkpoints/real_overlap-selected.pt": "6051c38627b2d20d41489091dd1015c5f6e45fe030e1386ce8a858b7554b29a7",
+    "control/historical-type-replay-20261123/checkpoints/quantum-selected.pt": "93e9abd718ce019bff4cbed16ed4571939aafd1ce91bad703df4723c67423066",
+    "control/historical-type-replay-20261123/checkpoints/dephased-selected.pt": "da5e7a986ef2c0b59c4856fe576a00fdf0bb8de96ab45cf64a1e2e597ed3f94b",
+    "inputs/native-baseline/discovery/cache/train-h.npy": "b69b1bfb97f20932b26dcea8b13a788a12ec98ec43a68de1801960ad5c526635",
+    "inputs/native-baseline/discovery/cache/train-offsets.npy": "a1ef178eae3b9c16b4cfa20dc66af15a1dd0238bb9fc2fffd55b7a6328c25601",
+    "inputs/native-baseline/discovery/cache/train-roles.npy": "b62e4e23836c8b5b9b930e5b9d993f0890a729bfdadbcee02b08c23cae0c3d73",
+    "inputs/native-baseline/discovery/cache/train-targets.npy": "6ce409b586a421995f7d70906f062a7e91fe9d35a04be5359a2f58a3485ee604",
+    "control/full-model-error-structure-20261123/train-h-first2.npy": "9dbed1f8a638d3432438a1a119c6d9ac9ce7baa3b91844c653cd0dc1866d672a"
+  },
+  "original_train_h_sha256": "c9b41aebbfe66a578d0344257f212874287efc45e0bdce23e5296fffb69b70ce",
+  "original_train_non_h_sha256": {
+    "train-roles.npy": "b62e4e23836c8b5b9b930e5b9d993f0890a729bfdadbcee02b08c23cae0c3d73",
+    "train-offsets.npy": "a1ef178eae3b9c16b4cfa20dc66af15a1dd0238bb9fc2fffd55b7a6328c25601",
+    "train-targets.npy": "6ce409b586a421995f7d70906f062a7e91fe9d35a04be5359a2f58a3485ee604"
+  },
+  "scientific_change": "None. Existing fixed original selected checkpoints on all58465currentTRAINcache; no optimizer or new word encoding. Reuse completed same-cache19584VALID logits only. No model/seed/checkpoint selection, no newTEST scoring.",
+  "scope": "Read-only exploratory source/protocol alignment and current-cache split gap. Same source/model/precision/device loops as acceptedR0historical replay; input split/count contract changes only.",
+  "resources": {
+    "cpu": 2,
+    "ram_mb": 8192,
+    "disk_mb": 128,
+    "gpus": 2,
+    "gpu_mb": 2048
+  },
+  "recovery": "Restartable read-only inference from already pinned durable sources. No checkpoint/COS, no automatic scientific retry.",
+  "public_whitelist": [
+    "summary.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": [
+    "*-logits.private.npy"
+  ],
+  "stop": "Describe fixed complete cohort; no chosen favorable class/cohort threshold or reinterpretation of old negatives. No quantum mechanism selected by this diagnostic."
+}
