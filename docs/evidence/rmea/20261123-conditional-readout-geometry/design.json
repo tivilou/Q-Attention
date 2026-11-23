@@ -1,0 +1,33 @@
+{
+  "profile": "R0-fixed-native-routing-effective-readout-gradient-v1",
+  "code_sha256": "4a46bc6c985b65e0700cc5dbc62695751e65a662a08cf343215e63f4e6215a8d",
+  "input_hashes": {
+    "source/baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "source/baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "inputs/native-baseline/recovery-inputs/labels.json": "6e822509a07c5c865130ebe315122a9d83e97b1b11496b9e86c6b2a600f8a429",
+    "inputs/native-baseline/discovery/cache/train-h.npy": "b69b1bfb97f20932b26dcea8b13a788a12ec98ec43a68de1801960ad5c526635",
+    "inputs/native-baseline/discovery/cache/train-roles.npy": "b62e4e23836c8b5b9b930e5b9d993f0890a729bfdadbcee02b08c23cae0c3d73",
+    "inputs/native-baseline/discovery/cache/train-offsets.npy": "a1ef178eae3b9c16b4cfa20dc66af15a1dd0238bb9fc2fffd55b7a6328c25601",
+    "inputs/native-baseline/discovery/cache/train-targets.npy": "6ce409b586a421995f7d70906f062a7e91fe9d35a04be5359a2f58a3485ee604",
+    "control/historical-type-replay-20261123/checkpoints/quantum-selected.pt": "93e9abd718ce019bff4cbed16ed4571939aafd1ce91bad703df4723c67423066",
+    "control/historical-type-replay-20261123/checkpoints/relation_softmax-selected.pt": "b12908c414440616aa6ae7bb9c594b44363da16836f05a098357477cc07e53c0",
+    "control/full-model-error-structure-20261123/output/quantum-logits.private.npy": "40f163f8987f75074a7c3c6ccdf58b9aa308c5e8c06693b41b7a4e4cb217b00f",
+    "control/full-model-error-structure-20261123/output/relation_softmax-logits.private.npy": "551a29cbcd137b20952bb8edc044f4f6471043e0921ce65cddaadf9b27a9cfa9"
+  },
+  "modes": [
+    "quantum",
+    "relation_softmax"
+  ],
+  "batch_size": 32,
+  "parity_tolerance": 0.0002,
+  "resources": {
+    "cpu": 2,
+    "ram_mb": 8192,
+    "disk_mb": 64,
+    "gpus": 2,
+    "gpu_mb": 4096
+  },
+  "scientific_change": "None; unchanged complete selected heads on TRAIN58465; original forward only, algebraic readout collapse and fixed-alpha CE derivative. No parameter step or new prediction rule.",
+  "recovery": "Cheap repeatable observation from pinned inputs; no saved weights/COS/automatic retry.",
+  "scope": "R0 current-cache geometry only. Not original-loss reconstruction, historical optimizer failure, shared-circuit proof, utility, novelty or L5."
+}

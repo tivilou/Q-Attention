@@ -1,0 +1,33 @@
+{
+  "profile": "R0-positive-family-versus-label-confidence-v1",
+  "code_sha256": "81c5af711750753c2f3ba6f6e60976c0752abb1c8ecac171553a6f8526c49e83",
+  "input_hashes": {
+    "control/task-bottleneck-discovery-20261123/cases.private.json": "ad35efee20682e4f42280670de21bfa76a31dcce39d06cfba675348229a93e8c",
+    "control/task-bottleneck-discovery-20261123/validation-cases.private.json": "f491e527472512ec1e69bab04c6b9d5fb1a08c4151251052ca8c1ca2d0023908",
+    "control/native-ordered-mass-value-20261123/output/diagnostic.private.npz": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+    "inputs/native-baseline/discovery/cache/valid-targets.npy": "87f63eef29f0b267dd4be85f6265b7632542ce0b71f7212a2ff240ed6f88a71b",
+    "inputs/native-baseline/recovery-inputs/labels.json": "6e822509a07c5c865130ebe315122a9d83e97b1b11496b9e86c6b2a600f8a429",
+    "control/full-model-error-structure-20261123/semantic/selection.private.json": "4b62027518c45d7de95443fb46f4eb788379479d0da1a768a2c979e3e79b4b41",
+    "control/full-model-error-structure-20261123/semantic/semantic-results.private.json": "08547c78ad7260067173fcbf06dbf9ffe5e9ef8fb43029b2d1052724e467d6b0",
+    "control/historical-type-replay-20261123/output/relation_softmax-logits.private.npy": "1dd18b510389b9d24038450d62e5da29a2d9f1214b67f7bfc540f61dfa669e6a",
+    "control/historical-type-replay-20261123/output/real_overlap-logits.private.npy": "e8b160224d4dd41f4d05812aa9b8173e460c3cf28a0a4f204d12c665e83512a2",
+    "control/historical-type-replay-20261123/output/quantum-logits.private.npy": "87c7aa001fd650b5d512df784744b25f2277a37622592a63855c9d92d83f8987",
+    "control/historical-type-replay-20261123/output/dephased-logits.private.npy": "eb27c6552aff812d1c10f3f509bf0a2add645fc1e35893ed3b58ebab3ae2e74c"
+  },
+  "modes": [
+    "relation_softmax",
+    "real_overlap",
+    "quantum",
+    "dephased"
+  ],
+  "resources": {
+    "cpu": 1,
+    "ram_mb": 1024,
+    "disk_mb": 16,
+    "gpus": 0,
+    "gpu_mb": 0
+  },
+  "scientific_change": "None; arithmetic observation of sum positive softmax mass versus null, retaining all original decisions. No threshold selection or inference intervention.",
+  "scope": "Existing reused19584VALID outputs/fixed32; descriptive only, no novelty or formal utility. No new model forward, encoder, fit, TEST, COS or Windows raw arrays.",
+  "recovery": "Cheap restart from pinned existing outputs; no scientific retry or checkpoints."
+}
