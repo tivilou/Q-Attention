@@ -2,25 +2,29 @@
   "verdict": "PASS",
   "review_scope": "lifecycle",
   "must_fix": [],
-  "model": "gpt-6.2-astra",
-  "effort": "high",
   "source_hashes": {
-    "baselines/retacred/rmea_fair_reference_handoff.py": "167ed487f4e3aabc62d203e450a42c000a5caf49737dbb6fff16b3859759f3ea",
+    "baselines/retacred/rmea_fair_reference_handoff.py": "c904270d9b0004ff5d9372e223bb7a74830dedbca86d1dcab6dae5eddc557865",
     "baselines/retacred/rmea_report_git.py": "89ab8aba0e9d3d28e157b8585b20f5a01e12dbb3ab84baca4b1739e1d051e504",
     "scripts/run_q_rmea_fair_reference.sh": "d25757b4f180f59432347ab8857c5a7f49ba6e20e3fc39e6b3661d263fefb4af"
   },
   "resident_sha256": "63c3395e20e148c35fea542daceb1c618ba3077b33b9949de45cd2ed36658de5",
-  "resident_source_path": "scripts/runtime/rmea_full_study_resident.py",
-  "evidence": {
-    "resident_review_packet_sha256": "0a90bab53c53693cff9114f17e630bfae53ea9b044e2375a8304c7c2dade96dd",
-    "resident_checks": 8,
-    "file_receipt_checks": 6,
-    "thin_cli_checks": 18,
-    "unchanged_report_helper_review": "PASS",
-    "unchanged_report_git_checks": 12,
-    "provider_live_binding": false,
-    "prior_lifecycle_review_packet_sha256": "b0d2a37418e506ad27b2a73c86d667ca35f18cfea2665529561f3f4a209d8be7",
-    "actual_producer_byte_check": "PASS"
+  "reviews": {
+    "publisher": "292dab5272cfb73295bba26660f4c7180dcea7fcbc1c98ead7a4dc540e2ffca2",
+    "report_git": "46340a8071d43cd43dac04457b9b1671e0d34937804b326e7b2258084215c0d4",
+    "resident_identity": "7c2fa6836f57c7151cf8c79560b3f88a147e5a92e9d713e2d635588b9b78400f",
+    "selected_final": "5a95a3171325f2390b99d66d6b5b2e09e35928f342809d59a9f592d4e6fd5ade",
+    "prepared_ack_barrier": "8aee446cf0acab809b23bfacddadcef015bbe2e5d3342c317410fa2f1a39067c"
   },
-  "scope": "reviewed lifecycle code and bounded fixtures; live formal allocation/publisher/admission remain separate"
+  "focused_checks": {
+    "thin_cli": 19,
+    "report_git": 12,
+    "resident_process": 8,
+    "selected_final_files": 6,
+    "actual_producer_compatibility": true
+  },
+  "limitations": [
+    "Static reviewed source plus scoped actual checks; not a new formal result.",
+    "PREPARED binds identity; first update requires authenticated COS preparation ACK.",
+    "Trusted root owner installs private allocation, admission and publisher binding; no secrets in Git."
+  ]
 }

@@ -92,12 +92,11 @@ def binding_context(study,path,action):
         state=compact(p,Path(a['permit_path']).parent/'state.json')
         require(state.get('state')=='unknown' and state.get('allocation_only') is True,
                 'Allocation has returned or changed')
-        attachment=b['publisher_attachment'];now=time.time()
+        attachment=b['publisher_attachment']
         require(attachment['attempt']==attempt and attachment['state'] in ('attached','verified')
                 and attachment['source_sha256']==b['source_sha256']
-                and attachment['config_sha256']==b['config_sha256']
-                and 0<=now-attachment['owner_verified_at']<=300,
-                'Owner must refresh the live publisher attachment before launch')
+                and attachment['config_sha256']==b['config_sha256'],
+                'Prepared owner publisher attachment differs')
         require(p.digest(args.admission)==args.admission_sha256,'Admission file changed')
         require(p.digest(args.inputs/'manifest.json')==p.BASE_MANIFEST,'Fixed input manifest differs')
         gpu_uuids=a['gpu_uuids']
@@ -210,7 +209,7 @@ def main(argv=None):
         require(binding['resident']['sha256']==review['resident_sha256'],'Resident differs from independent review')
         resident_context(p,binding,args.binding,args)
     if args.action=='check':
-        print(json.dumps(dict(status='READY',experiment=p.EXPERIMENT,report_id=binding['report_id'],
+        print(json.dumps(dict(status='PREPARED',cloud_protection='First optimizer update waits for authenticated COS preparation ACK',experiment=p.EXPERIMENT,report_id=binding['report_id'],
                              formal_executor='collaborator',training_started=False,
                              execution_profile=run.execution_profile)));return
     if args.action=='run' and not args.resident_child:
