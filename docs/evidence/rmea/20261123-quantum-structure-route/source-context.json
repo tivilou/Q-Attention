@@ -1,0 +1,43 @@
+{
+  "schema": "q-rmea.quantum-structure-source-context.v1",
+  "sources": [
+    {
+      "title": "Forrelation: A Problem that Optimally Separates Quantum from Classical Computing",
+      "url": "https://arxiv.org/abs/1411.5729",
+      "retrieval": "official arXiv abstract page via urllib, HTTP200",
+      "read_scope": "abstract and metadata only",
+      "relevance": "A query separation under a specified oracle and promise; not evidence that classical text possesses the required structure"
+    },
+    {
+      "title": "A rigorous and robust quantum speed-up in supervised machine learning",
+      "url": "https://www.nature.com/articles/s41567-021-01287-z",
+      "retrieval": "official publisher page via urllib, HTTP200",
+      "read_scope": "abstract only; subscription full text not read",
+      "relevance": "Constructed classical-input supervised separation assumes discrete-log hardness and fault-tolerant quantum kernel estimation"
+    },
+    {
+      "title": "Quantum advantage in learning from experiments",
+      "url": "https://arxiv.org/abs/2112.00778",
+      "doi": "10.1126/science.abn7293",
+      "retrieval": "official arXiv abstract page via urllib, HTTP200",
+      "read_scope": "abstract and metadata only",
+      "relevance": "Quantum memory/collective processing can reduce experiments under specified quantum-data access; not directly applicable to classical feature vectors"
+    },
+    {
+      "title": "Power of data in quantum machine learning",
+      "url": "https://www.nature.com/articles/s41467-021-22539-9",
+      "retrieval": "official publisher page via urllib, HTTP200",
+      "read_scope": "abstract and opening introduction only",
+      "relevance": "Data can let classical learners predict some computationally hard functions; include data-assisted classical controls"
+    }
+  ],
+  "search_limitations": "web tool currently returns404 for /v1/alpha/search; direct official HTTP reads were used. Bounded discovery, no exhaustive novelty search or clearance.",
+  "actual_current_dataset": {
+    "name": "Re-TACRED native frozen-feature cache",
+    "train_count": 58465,
+    "valid_count": 19584,
+    "count_verification": "Remote read-only .npy array headers; no label values or model outputs used for counts",
+    "question100_search": "No match in511 targeted current-source/config/docs files or targeted local artifacts/progress patterns",
+    "question100_identity": "UNRESOLVED; do not infer from another project's shared scheduler entry"
+  }
+}
