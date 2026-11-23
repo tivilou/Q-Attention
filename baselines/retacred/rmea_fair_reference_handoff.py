@@ -178,7 +178,7 @@ def resident_child_guard(p,binding):
 
 def main(argv=None):
     from .rmea_experiments import build
-    from .rmea_report_git import branch_gate,publish_report
+    from .rmea_report_git import branch_gate,publish_report,origin_gate
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action',nargs='?',default='run',choices=('check','run','report'))
     parser.add_argument('--binding',type=Path,default=Path(os.environ.get('QATTN_HANDOFF_BINDING',DEFAULT_BINDING)))
@@ -198,9 +198,7 @@ def main(argv=None):
             and all(not (Path(p.ROOT)/n).is_symlink() and p.digest(Path(p.ROOT)/n)==h
                     for n,h in review['source_hashes'].items()),'Handoff source revision differs')
     if args.action!='report':
-        require(p.git('remote','get-url','origin')==publication.REPOSITORY_ORIGIN
-                and p.git('remote','get-url','--push','--all','origin').splitlines()==[publication.REPOSITORY_ORIGIN],
-                'Unexpected origin; no network operation performed')
+        origin_gate(publication)
         p.git('fetch','--no-tags','origin','+refs/heads/main:refs/remotes/origin/main',
               '+refs/heads/1.1:refs/remotes/origin/1.1')
         branch_gate(publication,set())

@@ -34,11 +34,33 @@ def clean_merge_tree(p,left,right):
         return subprocess.check_output(['git','write-tree'],cwd=p.ROOT,env=env).decode().strip()
 
 
+def origin_gate(p):
+    origin=p.git('remote','get-url','origin')
+    allowed={p.REPOSITORY_ORIGIN}
+    if p.REPOSITORY_ORIGIN=='https://github.com/tivilou/Q-Attention.git':
+        allowed.add('git@github.com:tivilou/Q-Attention.git')
+    require(origin in allowed,'Unexpected origin')
+    require(p.git('remote','get-url','--push','--all','origin').splitlines()==[origin],
+            'Unexpected push destination')
+    if origin=='git@github.com:tivilou/Q-Attention.git':
+        literal=origin.encode('ascii')
+        require(git_bytes(p,'remote','get-url','origin')==literal+b'\n'
+                and git_bytes(p,'remote','get-url','--push','--all','origin')==literal+b'\n',
+                'SSH effective URL requires the exact literal repository')
+        raw=git_bytes(p,'config','--null','--get-regexp',r'^remote\.origin\.(url|pushurl)$')
+        require(raw.endswith(b'\0'),'Invalid configured origin framing')
+        rows=[row.split(b'\n',1) for row in raw[:-1].split(b'\0')]
+        require(all(len(row)==2 for row in rows),'Invalid configured origin')
+        fetch=[value for name,value in rows if name==b'remote.origin.url']
+        push=[value for name,value in rows if name==b'remote.origin.pushurl']
+        require(fetch==[literal] and (not push or push==[literal]),
+                'SSH origin requires the literal repository URL without aliases')
+    return origin
+
+
 def branch_gate(p,allowed):
     require(p.git('branch','--show-current')=='1.1','Report delivery requires branch 1.1')
-    require(p.git('remote','get-url','origin')==p.REPOSITORY_ORIGIN,'Unexpected origin')
-    require(p.git('remote','get-url','--push','--all','origin').splitlines()==[p.REPOSITORY_ORIGIN],
-            'Unexpected push destination')
+    origin_gate(p)
     for marker in ('MERGE_HEAD','CHERRY_PICK_HEAD','REVERT_HEAD'):
         path=Path(p.git('rev-parse','--git-path',marker))
         if not path.is_absolute():path=Path(p.ROOT)/path
@@ -116,9 +138,7 @@ def publish_report(p,runtime,output,run_root,*,push=True):
     if not lock.is_absolute():lock=root/lock
     with p.lock(lock):
         # Refresh refs only; never merge, reset, stash or force-push user work.
-        require(p.git('remote','get-url','origin')==p.REPOSITORY_ORIGIN,'Unexpected origin')
-        require(p.git('remote','get-url','--push','--all','origin').splitlines()==[p.REPOSITORY_ORIGIN],
-                'Unexpected push destination')
+        origin_gate(p)
         p.git('fetch','--no-tags','origin','+refs/heads/main:refs/remotes/origin/main',
               '+refs/heads/1.1:refs/remotes/origin/1.1')
         branch_gate(p,expected)

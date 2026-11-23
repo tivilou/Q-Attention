@@ -18,9 +18,11 @@ TRAIN 58,465、VALID 19,584、TEST 13,418；五路 uniform、quantum、dephased�
 
 私有绑定默认位于 `/etc/q-attention/owner-handoffs/fair-reference.json`；本轮常驻启动固定使用该文件；不得改成另一个绑定文件名。文件及其祖先须由可信 root 账号控制，禁止组/其他用户写入及符号链接；沿用现有节点权限模型，具有该节点 root 权限的操作者属于可信管理方。其中只有路径、哈希、分配和 owner 发布器核验记录，不能包含云密钥；绑定文件和运行输出均不提交 Git。该准备记录只绑定发布器身份，不声称它当前存活。首次训练更新前，既有恢复通道必须收到该运行的 COS preparation 真实确认；缺失时等待并保留现场，不开始优化更新。师弟不修改绑定或准入文件。
 
-启动前激活已准备的 Python 环境；2080 节点的解释器为 `/hy-tmp/Q-Attention/env/bin/python`，可设置 `PYTHON_BIN`。脚本按 `PYTHON_BIN`、`python`、`python3` 顺序选择，不自行安装或替换依赖。
+启动前激活已准备的 Python 环境；2080 节点的解释器为 `/hy-tmp/Q-Attention/env/bin/python`，须使用既定环境变量：`export PYTHON_BIN=/hy-tmp/Q-Attention/env/bin/python CUBLAS_WORKSPACE_CONFIG=:4096:8`。脚本按 `PYTHON_BIN`、`python`、`python3` 顺序选择，不自行安装或替换依赖。
 
 auto 仅使用分配中的显存可用量至少8 GiB的GPU，按最弱入选卡记录 low-memory/balanced/high 调度档；五个独立条件在这些卡上排队，不改 seed、数据、batch 或轮数，不调用未分配的空闲卡。
+
+当前双2080节点已配置仅此仓库的写入部署密钥，私钥留在节点，GitHub主机密钥经官方API固定校验。入口允许同一仓库的精确HTTPS或 `git@github.com:tivilou/Q-Attention.git` 地址，fetch与唯一push地址须一致；SSH地址别名、重写和多目标配置均拒绝。师弟无需在节点输入个人token。
 
 ## 发布完成后执行
 
