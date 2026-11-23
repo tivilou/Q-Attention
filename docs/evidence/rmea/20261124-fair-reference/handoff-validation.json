@@ -1,33 +1,22 @@
 {
-  "status": "PASS",
-  "scope": "thin CLI delegation only; trainer/Git/COS mocked",
-  "checks": 18,
-  "cases": [
-    "origin_verified_before_fetch",
-    "check_only_assigned_eligible_GPUs_no_training",
-    "caller_binding_outside_owner_anchor_rejected",
-    "wrong_owner_or_writable_group_rejected",
-    "wrong_origin_never_fetched",
-    "redirected_output_stops_before_training",
-    "unchanged_trainer_invoked_then_report_delegated",
-    "explicit_resume_flags_forwarded",
-    "trainer_failure_never_publishes",
-    "stale_publisher_stops_before_training",
-    "wrong_project_stops_before_training",
-    "changed_permit_generation_stops_before_training",
-    "changed_admission_stops_before_training",
-    "invalid_calendar_report_stops_before_training",
-    "unassigned_free_card_never_substitutes_busy_assigned_cards",
-    "report_action_cannot_resume_training",
-    "report_retry_independent_of_released_allocation",
-    "completed_run_revision_must_equal_binding"
-  ],
-  "training_runs": 0,
-  "cloud_operations": 0,
-  "source_hashes": {
-    "baselines/retacred/rmea_fair_reference_handoff.py": "47aedca393a3c7551a8151299a2e5c0e4cf5a405f0ea5b7a57558eb89d27531a",
-    "baselines/retacred/rmea_report_git.py": "89ab8aba0e9d3d28e157b8585b20f5a01e12dbb3ab84baca4b1739e1d051e504",
-    "scripts/run_q_rmea_fair_reference.sh": "d25757b4f180f59432347ab8857c5a7f49ba6e20e3fc39e6b3661d263fefb4af"
+  "status": "PASS_BOUNDED_ONLY",
+  "checks": {
+    "thin_cli": 18,
+    "delivery_receipt": 5,
+    "Linux_resident_process": 8,
+    "unchanged_Git": 12,
+    "unchanged_publisher": 21
   },
-  "devices_source_sha256": "7b289e79c6cd47484e909f1268e001bb185d398ecdb035210f4744eb0fca490b"
+  "scientific_core_source_sha256": "584f61837ed746795c0d027d459b6cf050e1b55045f0ea9c04ae64b57981296a",
+  "actual_canary": {
+    "conditions": 5,
+    "updates_per_condition": 1,
+    "scope": "disjoint TRAIN rows only; previously accepted"
+  },
+  "current_process_seconds": 4.721114729531109,
+  "no_current_model_training": true,
+  "no_current_GPU_claim": true,
+  "no_current_COS_operation": true,
+  "formal_admission": false,
+  "source_published": false
 }

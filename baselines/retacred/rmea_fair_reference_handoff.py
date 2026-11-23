@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import time
 from types import SimpleNamespace
 from datetime import datetime
@@ -13,6 +14,7 @@ REVIEW='docs/evidence/rmea/20261124-fair-reference/handoff-review.json'
 TRUST_ROOT=Path('/etc/q-attention/owner-handoffs')
 DEFAULT_BINDING=str(TRUST_ROOT/'fair-reference.json')
 ATTEMPTS_ROOT=Path('/hy-tmp/Q-Attention/owner/attempts')
+CONTROL_ROOT=Path('/hy-tmp/Q-Attention/control/full-protocol-fair-reference-20261124')
 
 
 def require(ok,message):
@@ -109,16 +111,84 @@ def binding_context(study,path,action):
     return b,args,discovery
 
 
+
+def resident_context(p,binding,binding_path,args):
+    a=binding['allocation'];attempt=a['runner_attempt_id']
+    control=CONTROL_ROOT/('formal-'+attempt)
+    resident=binding['resident'];script=control/'full_host_run.py';launch=control/'full-launch.json'
+    require(str(script)==resident['path'] and str(launch)==resident['launch_path'],
+            'Resident control namespace differs')
+    require(all(not path.is_symlink() and path.resolve()==path.absolute() for path in (control,script,launch)),
+            'Resident control paths must not redirect')
+    require(p.digest(script)==resident['sha256'] and p.digest(launch)==resident['launch_sha256'],
+            'Prepared resident code/launch changed')
+    require(len(a['gpu_uuids'])==2,'Prepared resident requires the exact two-card allocation')
+    require(Path(binding_path).absolute()==TRUST_ROOT/'fair-reference.json','Resident requires the fixed fair-reference binding filename')
+    v=compact(p,launch)
+    require(type(v.get('resume',False)) is bool and type(v.get('restore_pin',False)) is bool
+            and v.get('resume',False)==args.resume and v.get('restore_pin',False)==args.restore_pin,
+            'Prepared resume/restore fields must match the explicit requested action')
+    expected=[sys.executable,'-B','-m','baselines.retacred.rmea_fair_reference_handoff',
+              'run','--binding',str(trusted_binding(binding_path)),'--resident-child']
+    if args.resume:expected.append('--resume')
+    if args.restore_pin:expected.append('--restore-pin')
+    output=ATTEMPTS_ROOT/attempt/'output'/binding['report_id']
+    require(v['experiment']=='fair-reference' and v['allocation']==a and v['argv']==expected
+            and v['python']==sys.executable and v['source']==str(Path(p.ROOT).resolve())
+            and v['revision']==binding['revision'] and v['output']==str(output)
+            and v['run_root']==str(output/a['run_id'])
+            and v['identity']['source']==binding['source_sha256']
+            and v['identity']['config']==binding['config_sha256'],
+            'Resident launch does not match the collaborator binding/explicit action')
+    return control,resident
+
+
+def start_resident(p,binding,binding_path,args):
+    control,resident=resident_context(p,binding,binding_path,args)
+    attempt=binding['allocation']['runner_attempt_id'];script=control/'full_host_run.py'
+    marker=control/'resident-start.json'
+    require(not marker.exists() and not (control/'resident-claim.json').exists(),
+            'Resident already started; retain its state and request explicit recovery')
+    with (control/'resident.stdout.log').open('xb') as stdout,(control/'resident.stderr.log').open('xb') as stderr:
+        proc=subprocess.Popen([sys.executable,'-B',str(script),'--launch-sha256',resident['launch_sha256']],
+            cwd=p.ROOT,stdin=subprocess.DEVNULL,stdout=stdout,stderr=stderr,start_new_session=True)
+    deadline=time.monotonic()+5
+    while time.monotonic()<deadline:
+        if marker.exists():
+            row=compact(p,marker)
+            require(row['pid']==proc.pid and row['attempt']==attempt
+                    and row['launch_sha256']==resident['launch_sha256'], 'Resident startup belongs to another process')
+            return dict(status='STARTED',resident_pid=proc.pid,attempt=attempt,
+                        report_id=binding['report_id'],control=str(control),formal_executor='collaborator')
+        require(proc.poll() is None,'Resident exited before startup; retain control logs')
+        time.sleep(.05)
+    raise RuntimeError('Resident startup not confirmed; inspect the existing process, do not relaunch blindly')
+
+
+
+def resident_child_guard(p,binding):
+    attempt=binding['allocation']['runner_attempt_id'];control=CONTROL_ROOT/('formal-'+attempt)
+    row=compact(p,control/'resident-start.json');parent=os.getppid()
+    require(row['pid']==parent and row['attempt']==attempt
+            and row['launch_sha256']==binding['resident']['launch_sha256']
+            and row['boot_id']==Path('/proc/sys/kernel/random/boot_id').read_text().strip()
+            and row['owner_start_ticks']==Path('/proc',str(parent),'stat').read_text().split(') ')[1].split()[19]
+            and os.environ.get('QATTN_RESIDENT_ATTEMPT')==attempt,
+            'Resident child parent/start identity differs')
+
+
 def main(argv=None):
     from .rmea_experiments import build
     from .rmea_report_git import branch_gate,publish_report
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action',nargs='?',default='run',choices=('check','run','report'))
     parser.add_argument('--binding',type=Path,default=Path(os.environ.get('QATTN_HANDOFF_BINDING',DEFAULT_BINDING)))
+    parser.add_argument('--resident-child',action='store_true',help=argparse.SUPPRESS)
     parser.add_argument('--resume',action='store_true');parser.add_argument('--restore-pin',action='store_true')
     args=parser.parse_args(argv)
-    require(not args.restore_pin or (args.action=='run' and args.resume),'Pinned restore requires run --resume')
-    require(not args.resume or args.action=='run','Resume applies only to run')
+    require(not args.resident_child or args.action=='run','Resident child must be a run')
+    require(not args.restore_pin or (args.action in ('run','check') and args.resume),'Pinned restore requires an explicit run/check --resume')
+    require(not args.resume or args.action in ('run','check'),'Resume applies only to run/check')
     study=build('fair-reference');p=study.p;publication=publication_protocol(p)
     review=compact(p,Path(p.ROOT)/REVIEW)
     require(review.get('verdict')=='PASS' and review.get('review_scope')=='lifecycle'
@@ -136,11 +206,17 @@ def main(argv=None):
               '+refs/heads/1.1:refs/remotes/origin/1.1')
         branch_gate(publication,set())
     binding,run,output=binding_context(study,args.binding,args.action)
+    if args.action!='report':
+        require(binding['resident']['sha256']==review['resident_sha256'],'Resident differs from independent review')
+        resident_context(p,binding,args.binding,args)
     if args.action=='check':
         print(json.dumps(dict(status='READY',experiment=p.EXPERIMENT,report_id=binding['report_id'],
                              formal_executor='collaborator',training_started=False,
                              execution_profile=run.execution_profile)));return
+    if args.action=='run' and not args.resident_child:
+        print(json.dumps(start_resident(p,binding,args.binding,args)));return
     if args.action=='run':
+        resident_child_guard(p,binding)
         run.output.mkdir(exist_ok=True)
         control=Path('/hy-tmp/Q-Attention/control/full-protocol-fair-reference-20261124')/(
             'formal-'+binding['allocation']['runner_attempt_id'])

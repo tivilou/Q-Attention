@@ -1,6 +1,6 @@
 # 原版 Q-RMEA：共同缓存五路公平对照
 
-当前为交付草稿。正式准入仍为 false；尚未发布到 main，也未准备正在生效的分配和 COS 发布器绑定。不要把本文草稿当成启动通知。
+当前为交付草稿。训练核心、五路常驻启动/收尾和报告回传已完成定向检查；正式准入仍为 false，尚未发布到 main，实际分配和 COS 发布器绑定仍需准备。不要把本文草稿当成启动通知。
 
 本轮先回答：用同一份固定特征缓存、完整原预算和选模方式，原 Q 是否分别优于 disabled/uniform、去相干和两个经典对照。单种子通过也不自动获得新 L3/L4，更不证明量子独有性。
 
@@ -16,7 +16,7 @@ TRAIN 58,465、VALID 19,584、TEST 13,418；五路 uniform、quantum、dephased�
 
 由我们先经 research-infrastructure 分配现有2080 Ti节点，准备私有 execution binding、精确代码/准入、固定缓存和已核实存活的 owner COS 发布器。师弟执行正式训练；我们不代启动新全量。当前 owner 输入路径为 `/hy-tmp/Q-Attention/inputs/native-baseline/discovery`，不得据此假设师弟自己的服务器已有缓存。
 
-私有绑定默认位于 `/etc/q-attention/owner-handoffs/fair-reference.json`；`QATTN_HANDOFF_BINDING` 只能选择同一受保护目录中的绑定。文件及其祖先须由可信 root 账号控制，禁止组/其他用户写入及符号链接；沿用现有节点权限模型，具有该节点 root 权限的操作者属于可信管理方。其中只有路径、哈希、分配和 owner 发布器核验记录，不能包含云密钥；绑定文件和运行输出均不提交 Git。发布器核验超过5分钟会要求我们刷新后再启动，师弟不修改核验时间或准入文件。
+私有绑定默认位于 `/etc/q-attention/owner-handoffs/fair-reference.json`；本轮常驻启动固定使用该文件；不得改成另一个绑定文件名。文件及其祖先须由可信 root 账号控制，禁止组/其他用户写入及符号链接；沿用现有节点权限模型，具有该节点 root 权限的操作者属于可信管理方。其中只有路径、哈希、分配和 owner 发布器核验记录，不能包含云密钥；绑定文件和运行输出均不提交 Git。发布器核验超过5分钟会要求我们刷新后再启动，师弟不修改核验时间或准入文件。
 
 启动前激活已准备的 Python 环境；2080 节点的解释器为 `/hy-tmp/Q-Attention/env/bin/python`，可设置 `PYTHON_BIN`。脚本按 `PYTHON_BIN`、`python`、`python3` 顺序选择，不自行安装或替换依赖。
 
@@ -33,7 +33,7 @@ git merge --no-edit origin/1.1
 git merge --no-edit origin/main
 ```
 
-普通启动只用一条命令：
+普通启动只用一条命令；确认常驻监督器启动后即返回 STARTED 与进程/控制目录，关闭该终端不影响实验。监督器负责训练、进度与收尾，完成后自动回传报告；不要因命令已返回而重复启动：
 
 ```bash
 bash scripts/run_q_rmea_fair_reference.sh
@@ -47,7 +47,7 @@ bash scripts/run_q_rmea_fair_reference.sh check
 
 本地 best/latest 持续保存；固定10%进度节点封口最小恢复状态，由既有 owner 发布器直接写入 COS、固定 VersionId、校验与登记后确认。发布器缺失或失败时不要绕过等待、关闭 COS 或重建实验目录。更换节点由我们从固定恢复索引处理，师弟不自行拼接 checkpoint。
 
-已确认原任务停止且本地续训条件完整时，按我们指示使用：
+续训需要我们先确认旧进程已停止并准备新的分配/常驻启动记录，不能复用已消耗的启动记录。准备完成后可先用 `check --resume`（恢复 COS 时再加 `--restore-pin`）核对同一续训合同，再按我们指示使用：
 
 ```bash
 bash scripts/run_q_rmea_fair_reference.sh run --resume

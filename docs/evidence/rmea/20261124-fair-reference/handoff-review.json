@@ -2,13 +2,23 @@
   "verdict": "PASS",
   "review_scope": "lifecycle",
   "must_fix": [],
+  "model": "gpt-6.2-astra",
+  "effort": "high",
   "source_hashes": {
-    "baselines/retacred/rmea_fair_reference_handoff.py": "47aedca393a3c7551a8151299a2e5c0e4cf5a405f0ea5b7a57558eb89d27531a",
+    "baselines/retacred/rmea_fair_reference_handoff.py": "167ed487f4e3aabc62d203e450a42c000a5caf49737dbb6fff16b3859759f3ea",
     "baselines/retacred/rmea_report_git.py": "89ab8aba0e9d3d28e157b8585b20f5a01e12dbb3ab84baca4b1739e1d051e504",
     "scripts/run_q_rmea_fair_reference.sh": "d25757b4f180f59432347ab8857c5a7f49ba6e20e3fc39e6b3661d263fefb4af"
   },
-  "model": "gpt-6.2-astra",
-  "reasoning_effort": "high",
-  "packet_sha256": "23afc61739445a830414ab272020c1e7e2d20ec967e42c22380a171a974f0007",
-  "scope": "Thin CLI only; exact unchanged trainer and Git delivery capabilities reused; no live binding or cloud readiness claim"
+  "resident_sha256": "d8202fbd09f317e284e469fd36bef7ad82a1513100a096ccc4b5a12a7c832ab6",
+  "resident_source_path": "scripts/runtime/rmea_full_study_resident.py",
+  "evidence": {
+    "resident_review_packet_sha256": "b0d2a37418e506ad27b2a73c86d667ca35f18cfea2665529561f3f4a209d8be7",
+    "resident_checks": 8,
+    "file_receipt_checks": 5,
+    "thin_cli_checks": 18,
+    "unchanged_report_helper_review": "PASS",
+    "unchanged_report_git_checks": 12,
+    "provider_live_binding": false
+  },
+  "scope": "reviewed lifecycle code and bounded fixtures; live formal allocation/publisher/admission remain separate"
 }
