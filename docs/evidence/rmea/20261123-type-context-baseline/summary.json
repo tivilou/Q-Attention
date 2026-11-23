@@ -1,0 +1,560 @@
+{
+  "profile": "all-cached-lanes-frozen-type-rule-and-residual-census-v1",
+  "scope": "Posthoc reused development VALID. All19584/all4oldlanes; no new model call or trainable method.",
+  "source": {
+    "prediction_sha256": "eceb0359760d1ff5306665285aa7c96cfe26dde357e3235fd1fac4e47f6fcee8",
+    "frozen_support_sha256": "d4c1100df6d306a3fae48d66f7907dfbe2a39d1b30843abb359ba32de7053186",
+    "train_support_rows": 4192,
+    "unchanged_rule": true
+  },
+  "results": {
+    "native": {
+      "raw": {
+        "items": 19584,
+        "correct": 15479,
+        "accuracy": 0.790390114379085,
+        "positive39_macro_f1": 0.5164743763828692,
+        "null_false_positive": 1169,
+        "positive_false_negative": 2293,
+        "positive_wrong_relation": 643
+      },
+      "typed": {
+        "items": 19584,
+        "correct": 15797,
+        "accuracy": 0.8066278594771242,
+        "positive39_macro_f1": 0.5429469429232833,
+        "null_false_positive": 932,
+        "positive_false_negative": 2451,
+        "positive_wrong_relation": 404
+      }
+    },
+    "bridge": {
+      "raw": {
+        "items": 19584,
+        "correct": 15356,
+        "accuracy": 0.784109477124183,
+        "positive39_macro_f1": 0.48535766417141746,
+        "null_false_positive": 1040,
+        "positive_false_negative": 2583,
+        "positive_wrong_relation": 605
+      },
+      "typed": {
+        "items": 19584,
+        "correct": 15625,
+        "accuracy": 0.7978451797385621,
+        "positive39_macro_f1": 0.5095513708339215,
+        "null_false_positive": 838,
+        "positive_false_negative": 2734,
+        "positive_wrong_relation": 387
+      }
+    },
+    "outer": {
+      "raw": {
+        "items": 19584,
+        "correct": 15348,
+        "accuracy": 0.7837009803921569,
+        "positive39_macro_f1": 0.4947053062582087,
+        "null_false_positive": 990,
+        "positive_false_negative": 2689,
+        "positive_wrong_relation": 557
+      },
+      "typed": {
+        "items": 19584,
+        "correct": 15584,
+        "accuracy": 0.795751633986928,
+        "positive39_macro_f1": 0.5168736255214116,
+        "null_false_positive": 818,
+        "positive_false_negative": 2831,
+        "positive_wrong_relation": 351
+      }
+    },
+    "context": {
+      "raw": {
+        "items": 19584,
+        "correct": 15229,
+        "accuracy": 0.777624591503268,
+        "positive39_macro_f1": 0.46937402735189704,
+        "null_false_positive": 888,
+        "positive_false_negative": 2954,
+        "positive_wrong_relation": 513
+      },
+      "typed": {
+        "items": 19584,
+        "correct": 15441,
+        "accuracy": 0.7884497549019608,
+        "positive39_macro_f1": 0.490697163996189,
+        "null_false_positive": 733,
+        "positive_false_negative": 3076,
+        "positive_wrong_relation": 334
+      }
+    }
+  },
+  "typed_native_vs_interventions": {
+    "bridge": {
+      "native_correct_other_wrong": 313,
+      "other_correct_native_wrong": 141,
+      "macro_gap": 0.033395572089361725,
+      "claim": "Fixed-checkpoint intervention only; no retrained classical opponent or quantum necessity."
+    },
+    "outer": {
+      "native_correct_other_wrong": 382,
+      "other_correct_native_wrong": 169,
+      "macro_gap": 0.026073317401871687,
+      "claim": "Fixed-checkpoint intervention only; no retrained classical opponent or quantum necessity."
+    },
+    "context": {
+      "native_correct_other_wrong": 611,
+      "other_correct_native_wrong": 255,
+      "macro_gap": 0.05224977892709426,
+      "claim": "Fixed-checkpoint intervention only; no retrained classical opponent or quantum necessity."
+    }
+  },
+  "type_only": {
+    "fit_only_majority": {
+      "items": 19584,
+      "correct": 11707,
+      "accuracy": 0.5977839052287581,
+      "positive39_macro_f1": 0.043425354426907745,
+      "null_false_positive": 623,
+      "positive_false_negative": 7253,
+      "positive_wrong_relation": 1
+    },
+    "label_aware_best_possible_correct": 12445,
+    "label_aware_maximum_accuracy": 0.6354677287581699,
+    "label_impure_type_pairs": 25,
+    "total_valid_type_pairs": 25,
+    "bound_scope": "Exact upper accuracy of a deterministic TYPE-PAIR-ONLY classifier on this finite labeled population, not a Macro bound, deployable oracle or future-distribution guarantee."
+  },
+  "residual_type_groups": [
+    {
+      "subject_type": "PERSON",
+      "object_type": "PERSON",
+      "items": 4485,
+      "labels": 7,
+      "residual_errors": 784,
+      "gold_relations": {
+        "no_relation": 1753,
+        "per:children": 114,
+        "per:identity": 2293,
+        "per:other_family": 34,
+        "per:parents": 69,
+        "per:siblings": 33,
+        "per:spouse": 189
+      }
+    },
+    {
+      "subject_type": "ORGANIZATION",
+      "object_type": "ORGANIZATION",
+      "items": 2030,
+      "labels": 5,
+      "residual_errors": 428,
+      "gold_relations": {
+        "no_relation": 1337,
+        "org:alternate_names": 440,
+        "org:member_of": 88,
+        "org:members": 125,
+        "org:shareholders": 40
+      }
+    },
+    {
+      "subject_type": "PERSON",
+      "object_type": "ORGANIZATION",
+      "items": 1041,
+      "labels": 3,
+      "residual_errors": 423,
+      "gold_relations": {
+        "no_relation": 490,
+        "per:employee_of": 505,
+        "per:schools_attended": 46
+      }
+    },
+    {
+      "subject_type": "ORGANIZATION",
+      "object_type": "PERSON",
+      "items": 1514,
+      "labels": 4,
+      "residual_errors": 340,
+      "gold_relations": {
+        "no_relation": 936,
+        "org:founded_by": 76,
+        "org:shareholders": 40,
+        "org:top_members/employees": 462
+      }
+    },
+    {
+      "subject_type": "PERSON",
+      "object_type": "TITLE",
+      "items": 1615,
+      "labels": 3,
+      "residual_errors": 337,
+      "gold_relations": {
+        "no_relation": 617,
+        "per:charges": 1,
+        "per:title": 997
+      }
+    },
+    {
+      "subject_type": "PERSON",
+      "object_type": "COUNTRY",
+      "items": 589,
+      "labels": 7,
+      "residual_errors": 253,
+      "gold_relations": {
+        "no_relation": 271,
+        "per:countries_of_residence": 179,
+        "per:country_of_birth": 20,
+        "per:country_of_death": 51,
+        "per:employee_of": 40,
+        "per:origin": 27,
+        "per:stateorprovinces_of_residence": 1
+      }
+    },
+    {
+      "subject_type": "ORGANIZATION",
+      "object_type": "COUNTRY",
+      "items": 799,
+      "labels": 3,
+      "residual_errors": 226,
+      "gold_relations": {
+        "no_relation": 404,
+        "org:country_of_branch": 332,
+        "org:members": 63
+      }
+    },
+    {
+      "subject_type": "PERSON",
+      "object_type": "CITY",
+      "items": 538,
+      "labels": 8,
+      "residual_errors": 160,
+      "gold_relations": {
+        "no_relation": 275,
+        "per:cities_of_residence": 81,
+        "per:city_of_birth": 37,
+        "per:city_of_death": 121,
+        "per:country_of_death": 1,
+        "per:employee_of": 19,
+        "per:stateorprovince_of_birth": 2,
+        "per:stateorprovinces_of_residence": 2
+      }
+    },
+    {
+      "subject_type": "ORGANIZATION",
+      "object_type": "CITY",
+      "items": 326,
+      "labels": 4,
+      "residual_errors": 135,
+      "gold_relations": {
+        "no_relation": 155,
+        "org:city_of_branch": 165,
+        "org:members": 5,
+        "org:stateorprovince_of_branch": 1
+      }
+    },
+    {
+      "subject_type": "PERSON",
+      "object_type": "NATIONALITY",
+      "items": 458,
+      "labels": 7,
+      "residual_errors": 117,
+      "gold_relations": {
+        "no_relation": 237,
+        "per:countries_of_residence": 13,
+        "per:country_of_birth": 2,
+        "per:country_of_death": 3,
+        "per:employee_of": 9,
+        "per:origin": 193,
+        "per:stateorprovince_of_death": 1
+      }
+    },
+    {
+      "subject_type": "PERSON",
+      "object_type": "DATE",
+      "items": 1570,
+      "labels": 3,
+      "residual_errors": 106,
+      "gold_relations": {
+        "no_relation": 1307,
+        "per:date_of_birth": 31,
+        "per:date_of_death": 232
+      }
+    },
+    {
+      "subject_type": "PERSON",
+      "object_type": "STATE_OR_PROVINCE",
+      "items": 224,
+      "labels": 9,
+      "residual_errors": 86,
+      "gold_relations": {
+        "no_relation": 99,
+        "per:cities_of_residence": 2,
+        "per:city_of_birth": 3,
+        "per:city_of_death": 15,
+        "per:country_of_birth": 2,
+        "per:employee_of": 1,
+        "per:stateorprovince_of_birth": 32,
+        "per:stateorprovince_of_death": 39,
+        "per:stateorprovinces_of_residence": 31
+      }
+    },
+    {
+      "subject_type": "PERSON",
+      "object_type": "CAUSE_OF_DEATH",
+      "items": 357,
+      "labels": 3,
+      "residual_errors": 76,
+      "gold_relations": {
+        "no_relation": 158,
+        "per:cause_of_death": 189,
+        "per:charges": 10
+      }
+    },
+    {
+      "subject_type": "ORGANIZATION",
+      "object_type": "STATE_OR_PROVINCE",
+      "items": 172,
+      "labels": 3,
+      "residual_errors": 70,
+      "gold_relations": {
+        "no_relation": 65,
+        "org:city_of_branch": 13,
+        "org:stateorprovince_of_branch": 94
+      }
+    },
+    {
+      "subject_type": "PERSON",
+      "object_type": "CRIMINAL_CHARGE",
+      "items": 176,
+      "labels": 3,
+      "residual_errors": 44,
+      "gold_relations": {
+        "no_relation": 53,
+        "per:cause_of_death": 4,
+        "per:charges": 119
+      }
+    },
+    {
+      "subject_type": "PERSON",
+      "object_type": "LOCATION",
+      "items": 111,
+      "labels": 8,
+      "residual_errors": 35,
+      "gold_relations": {
+        "no_relation": 70,
+        "per:cities_of_residence": 15,
+        "per:city_of_birth": 3,
+        "per:city_of_death": 12,
+        "per:employee_of": 2,
+        "per:origin": 2,
+        "per:stateorprovince_of_death": 4,
+        "per:stateorprovinces_of_residence": 3
+      }
+    },
+    {
+      "subject_type": "PERSON",
+      "object_type": "NUMBER",
+      "items": 601,
+      "labels": 2,
+      "residual_errors": 33,
+      "gold_relations": {
+        "no_relation": 361,
+        "per:age": 240
+      }
+    },
+    {
+      "subject_type": "PERSON",
+      "object_type": "RELIGION",
+      "items": 114,
+      "labels": 3,
+      "residual_errors": 33,
+      "gold_relations": {
+        "no_relation": 33,
+        "per:religion": 80,
+        "per:title": 1
+      }
+    },
+    {
+      "subject_type": "ORGANIZATION",
+      "object_type": "DATE",
+      "items": 1368,
+      "labels": 3,
+      "residual_errors": 28,
+      "gold_relations": {
+        "no_relation": 1325,
+        "org:dissolved": 7,
+        "org:founded": 36
+      }
+    },
+    {
+      "subject_type": "ORGANIZATION",
+      "object_type": "NUMBER",
+      "items": 816,
+      "labels": 3,
+      "residual_errors": 28,
+      "gold_relations": {
+        "no_relation": 782,
+        "org:number_of_employees/members": 27,
+        "org:website": 7
+      }
+    },
+    {
+      "subject_type": "ORGANIZATION",
+      "object_type": "LOCATION",
+      "items": 169,
+      "labels": 5,
+      "residual_errors": 23,
+      "gold_relations": {
+        "no_relation": 146,
+        "org:city_of_branch": 13,
+        "org:country_of_branch": 6,
+        "org:members": 1,
+        "org:stateorprovince_of_branch": 3
+      }
+    },
+    {
+      "subject_type": "ORGANIZATION",
+      "object_type": "RELIGION",
+      "items": 25,
+      "labels": 2,
+      "residual_errors": 10,
+      "gold_relations": {
+        "no_relation": 15,
+        "org:political/religious_affiliation": 10
+      }
+    },
+    {
+      "subject_type": "ORGANIZATION",
+      "object_type": "IDEOLOGY",
+      "items": 48,
+      "labels": 2,
+      "residual_errors": 6,
+      "gold_relations": {
+        "no_relation": 24,
+        "org:political/religious_affiliation": 24
+      }
+    },
+    {
+      "subject_type": "ORGANIZATION",
+      "object_type": "URL",
+      "items": 93,
+      "labels": 2,
+      "residual_errors": 3,
+      "gold_relations": {
+        "no_relation": 6,
+        "org:website": 87
+      }
+    },
+    {
+      "subject_type": "PERSON",
+      "object_type": "DURATION",
+      "items": 345,
+      "labels": 3,
+      "residual_errors": 3,
+      "gold_relations": {
+        "no_relation": 327,
+        "per:age": 16,
+        "per:date_of_death": 2
+      }
+    }
+  ],
+  "top_residual_confusions": [
+    {
+      "gold": "per:employee_of",
+      "predicted": "no_relation",
+      "count": 376
+    },
+    {
+      "gold": "per:identity",
+      "predicted": "no_relation",
+      "count": 246
+    },
+    {
+      "gold": "no_relation",
+      "predicted": "per:identity",
+      "count": 223
+    },
+    {
+      "gold": "org:top_members/employees",
+      "predicted": "no_relation",
+      "count": 198
+    },
+    {
+      "gold": "no_relation",
+      "predicted": "per:title",
+      "count": 182
+    },
+    {
+      "gold": "per:title",
+      "predicted": "no_relation",
+      "count": 153
+    },
+    {
+      "gold": "org:members",
+      "predicted": "no_relation",
+      "count": 140
+    },
+    {
+      "gold": "org:city_of_branch",
+      "predicted": "no_relation",
+      "count": 114
+    },
+    {
+      "gold": "org:country_of_branch",
+      "predicted": "no_relation",
+      "count": 107
+    },
+    {
+      "gold": "org:alternate_names",
+      "predicted": "no_relation",
+      "count": 92
+    },
+    {
+      "gold": "no_relation",
+      "predicted": "org:country_of_branch",
+      "count": 86
+    },
+    {
+      "gold": "per:date_of_death",
+      "predicted": "no_relation",
+      "count": 85
+    },
+    {
+      "gold": "per:origin",
+      "predicted": "no_relation",
+      "count": 84
+    },
+    {
+      "gold": "per:countries_of_residence",
+      "predicted": "no_relation",
+      "count": 80
+    },
+    {
+      "gold": "org:shareholders",
+      "predicted": "no_relation",
+      "count": 78
+    }
+  ],
+  "case_selection": {
+    "rule": "First two SHA256(type-context-case-v1:id_hash) residual cases in each of three mutually exclusive error families; outcome-stratified, explanatory only.",
+    "case_count": 6,
+    "indices": [
+      12431,
+      16331,
+      7533,
+      17396,
+      14623,
+      1426
+    ],
+    "ids_sha256": "d68fe2726631d6978dc3475b4ad257e4b3943b1a5f161caaa4b69864fc5914f7",
+    "semantic_status": "Primary inspection pending; no blind or prevalence claim."
+  },
+  "execution": {
+    "model_forwards": 0,
+    "optimizer_updates": 0,
+    "gpu_compute": 0,
+    "cos_writes": 0,
+    "seconds": 0.7030692463740706
+  },
+  "claim_ceiling": "Task bottleneck and fixed-model intervention association only; no quantum need, retrained comparator, new utility or L5.",
+  "code_sha256": "4d7754bffa76377439bf555e2a44ad556540fec9ffd1324a232db3573479f941"
+}

@@ -1,0 +1,200 @@
+{
+  "state": "terminal",
+  "execution": {
+    "argv": [
+      "/usr/local/miniconda3/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/type-context-calibration-20261123-pinfix/calibrate.py",
+      "--root",
+      "/hy-tmp/Q-Attention",
+      "--output",
+      "/hy-tmp/Q-Attention/control/type-context-calibration-20261123-pinfix/output",
+      "--design",
+      "/hy-tmp/Q-Attention/control/type-context-calibration-20261123-pinfix/calibration-design.json",
+      "--progress",
+      "/hy-tmp/Q-Attention/control/type-context-calibration-20261123-pinfix/progress.json",
+      "--attempt",
+      "375670963e97460cb2153b401ad30bf6"
+    ],
+    "cwd": "/hy-tmp/Q-Attention/source",
+    "inputs": {
+      "train_predictions_sha256": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+      "valid_predictions_sha256": "eceb0359760d1ff5306665285aa7c96cfe26dde357e3235fd1fac4e47f6fcee8",
+      "control/task-bottleneck-discovery-20261123/cases.private.json": "ad35efee20682e4f42280670de21bfa76a31dcce39d06cfba675348229a93e8c",
+      "control/task-bottleneck-discovery-20261123/validation-cases.private.json": "f491e527472512ec1e69bab04c6b9d5fb1a08c4151251052ca8c1ca2d0023908",
+      "control/task-bottleneck-discovery-20261123/validation-summary.json": "32cfb5495b4863f573d866dfa5f981977226fc15fa64f3b20c773c5e6872ce9d",
+      "inputs/native-baseline/discovery/cache/metadata.json": "9e6eac9ad582a4ef4e1a8a12190bfef3b8f0a18c5efbd9072f91f31563656c0e",
+      "inputs/native-word-metadata-20261123/train.private.json": "f5eafb7d51bca46988313c204b6fa5ef19e82fabc32dc9feee9faa70f2285053",
+      "inputs/native-word-metadata-20261123/valid.private.json": "59822bfc80e6a590e2a50f9e0f4c569a3be8945b303da0d319966a6e3c62a06c",
+      "control/type-context-baseline-20261123/calibration-row-provenance.json": "dce6790becd1b1009b439918040ff63ebc336d4b1f3963e9d2f8e5bd2a21efa2",
+      "control/type-context-baseline-20261123/prediction-row-provenance.json": "d4c66a564ec716a5fb5f1e048c73b38a61d4bf7162106c9c60406af1252e11fc"
+    },
+    "stdout": "{\"profile\": \"fixed-native-global-vs-type-convex-calibration-v1\", \"attempt\": \"375670963e97460cb2153b401ad30bf6\", \"source\": {\"train_predictions_sha256\": \"ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833\", \"valid_predictions_sha256\": \"eceb0359760d1ff5306665285aa7c96cfe26dde357e3235fd1fac4e47f6fcee8\", \"fit_rows\": 4192, \"assessment_rows\": 4000, \"type_pairs\": 25, \"penalty\": 0.01, \"frozen_coefficients_sha256\": \"6b7f4f126139859ad9751a10cdde223dc1ce13d5febb874f5b6b66a5ee042e60\"}, \"fits\": {\"global\": {\"parameters\": 40, \"iterations\": 10, \"objective\": 0.34910551821340824, \"gradient_inf\": 8.526945688034845e-08, \"converged\": true}, \"type\": {\"parameters\": 1040, \"iterations\": 12, \"objective\": 0.3426103060374079, \"gradient_inf\": 4.559582726920003e-08, \"converged\": true}}, \"results\": {\"train_assessment\": {\"native\": {\"items\": 4000, \"correct\": 3522, \"positive39_macro_f1\": 0.678962929004742, \"null_false_positive\": 202, \"positive_false_negative\": 216, \"positive_wrong_relation\": 60}, \"global\": {\"items\": 4000, \"correct\": 3537, \"positive39_macro_f1\": 0.6843491926466202, \"null_false_positive\": 162, \"positive_false_negative\": 252, \"positive_wrong_relation\": 49}, \"type\": {\"items\": 4000, \"correct\": 3552, \"positive39_macro_f1\": 0.6821879675471294, \"null_false_positive\": 161, \"positive_false_negative\": 238, \"positive_wrong_relation\": 49}}, \"development_valid\": {\"native\": {\"items\": 19584, \"correct\": 15479, \"positive39_macro_f1\": 0.5164743763828692, \"null_false_positive\": 1169, \"positive_false_negative\": 2293, \"positive_wrong_relation\": 643}, \"global\": {\"items\": 19584, \"correct\": 15432, \"positive39_macro_f1\": 0.5026825147576857, \"null_false_positive\": 998, \"positive_false_negative\": 2601, \"positive_wrong_relation\": 553}, \"type\": {\"items\": 19584, \"correct\": 15500, \"positive39_macro_f1\": 0.5059126184799424, \"null_false_positive\": 999, \"positive_false_negative\": 2558, \"positive_wrong_relation\": 527}, \"frozen_hard_type_rule\": {\"items\": 19584, \"correct\": 15797, \"positive39_macro_f1\": 0.5429469429232833, \"null_false_positive\": 932, \"positive_false_negative\": 2451, \"positive_wrong_relation\": 404}}}, \"fixture_directional_gradient_error\": 4.984805970775774e-12, \"decision\": \"NO_PROMOTION_CLOSE_EXACT_CALIBRATION_PROFILE\", \"scope\": \"Conventional CPU development calibration of frozen Q-RMEA logits with given types; no retrained classical encoder, independent confirmation, quantum advantage or L5. Unequal parameter counts explicitly shown.\", \"stop\": \"No penalty, feature, calibration split, budget, comparator or evaluation rescue.\", \"execution\": {\"seconds\": 1.2629407104104757, \"model_forwards\": 0, \"optimizer_models\": 2, \"gpu_compute\": 0, \"cos_writes\": 0}}\n",
+    "stderr": "",
+    "exit_code": 0,
+    "started_at": 1795417037.8146844,
+    "finished_at": 1795417039.4245927,
+    "runner_attempt_id": "375670963e97460cb2153b401ad30bf6",
+    "file_hashes": {
+      "calibrate.py": "83c7272025848406398ba9cf502963570d6b498290f354b070d83d363746f64b",
+      "calibration-design.json": "c54c6cf1b396d958a255fbae2d20f30483cfa1446b0eeee777afa443097c1a8c",
+      "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662"
+    }
+  },
+  "resource_return": {
+    "allocation_id": "208aa1669a1743b9a168ef2c6ed833a7",
+    "generation": 27,
+    "project_id": "q-attention",
+    "host_id": "gpushare-i2-38434-2080tix2",
+    "run_id": "type-context-calibration-20261123-v1-pinfix",
+    "runner_attempt_id": "375670963e97460cb2153b401ad30bf6",
+    "schema": "research.resource-return.v1",
+    "event_sequence": 1,
+    "observed_at": "2026-11-23T06:57:19.425180+00:00",
+    "campaign_status": "completed",
+    "all_jobs_terminal": true,
+    "quiescent": true,
+    "no_remaining_consumers": true,
+    "cleanup_status": "not_needed",
+    "resources_reusable": true,
+    "owner_pid": 218017,
+    "owner_pgid": 218017,
+    "owner_start_ticks": "638325923",
+    "boot_id": "74146a10-dc63-48fe-9f2d-86cbe605f111"
+  },
+  "resident_exists": false,
+  "summary": {
+    "profile": "fixed-native-global-vs-type-convex-calibration-v1",
+    "attempt": "375670963e97460cb2153b401ad30bf6",
+    "source": {
+      "train_predictions_sha256": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+      "valid_predictions_sha256": "eceb0359760d1ff5306665285aa7c96cfe26dde357e3235fd1fac4e47f6fcee8",
+      "fit_rows": 4192,
+      "assessment_rows": 4000,
+      "type_pairs": 25,
+      "penalty": 0.01,
+      "frozen_coefficients_sha256": "6b7f4f126139859ad9751a10cdde223dc1ce13d5febb874f5b6b66a5ee042e60"
+    },
+    "fits": {
+      "global": {
+        "parameters": 40,
+        "iterations": 10,
+        "objective": 0.34910551821340824,
+        "gradient_inf": 8.526945688034845e-08,
+        "converged": true
+      },
+      "type": {
+        "parameters": 1040,
+        "iterations": 12,
+        "objective": 0.3426103060374079,
+        "gradient_inf": 4.559582726920003e-08,
+        "converged": true
+      }
+    },
+    "results": {
+      "train_assessment": {
+        "native": {
+          "items": 4000,
+          "correct": 3522,
+          "positive39_macro_f1": 0.678962929004742,
+          "null_false_positive": 202,
+          "positive_false_negative": 216,
+          "positive_wrong_relation": 60
+        },
+        "global": {
+          "items": 4000,
+          "correct": 3537,
+          "positive39_macro_f1": 0.6843491926466202,
+          "null_false_positive": 162,
+          "positive_false_negative": 252,
+          "positive_wrong_relation": 49
+        },
+        "type": {
+          "items": 4000,
+          "correct": 3552,
+          "positive39_macro_f1": 0.6821879675471294,
+          "null_false_positive": 161,
+          "positive_false_negative": 238,
+          "positive_wrong_relation": 49
+        }
+      },
+      "development_valid": {
+        "native": {
+          "items": 19584,
+          "correct": 15479,
+          "positive39_macro_f1": 0.5164743763828692,
+          "null_false_positive": 1169,
+          "positive_false_negative": 2293,
+          "positive_wrong_relation": 643
+        },
+        "global": {
+          "items": 19584,
+          "correct": 15432,
+          "positive39_macro_f1": 0.5026825147576857,
+          "null_false_positive": 998,
+          "positive_false_negative": 2601,
+          "positive_wrong_relation": 553
+        },
+        "type": {
+          "items": 19584,
+          "correct": 15500,
+          "positive39_macro_f1": 0.5059126184799424,
+          "null_false_positive": 999,
+          "positive_false_negative": 2558,
+          "positive_wrong_relation": 527
+        },
+        "frozen_hard_type_rule": {
+          "items": 19584,
+          "correct": 15797,
+          "positive39_macro_f1": 0.5429469429232833,
+          "null_false_positive": 932,
+          "positive_false_negative": 2451,
+          "positive_wrong_relation": 404
+        }
+      }
+    },
+    "fixture_directional_gradient_error": 4.984805970775774e-12,
+    "decision": "NO_PROMOTION_CLOSE_EXACT_CALIBRATION_PROFILE",
+    "scope": "Conventional CPU development calibration of frozen Q-RMEA logits with given types; no retrained classical encoder, independent confirmation, quantum advantage or L5. Unequal parameter counts explicitly shown.",
+    "stop": "No penalty, feature, calibration split, budget, comparator or evaluation rescue.",
+    "execution": {
+      "seconds": 1.2629407104104757,
+      "model_forwards": 0,
+      "optimizer_models": 2,
+      "gpu_compute": 0,
+      "cos_writes": 0
+    }
+  },
+  "fits": {
+    "fits": {
+      "global": {
+        "parameters": 40,
+        "iterations": 10,
+        "objective": 0.34910551821340824,
+        "gradient_inf": 8.526945688034845e-08,
+        "converged": true
+      },
+      "type": {
+        "parameters": 1040,
+        "iterations": 12,
+        "objective": 0.3426103060374079,
+        "gradient_inf": 4.559582726920003e-08,
+        "converged": true
+      }
+    },
+    "coefficient_sha256": "6b7f4f126139859ad9751a10cdde223dc1ce13d5febb874f5b6b66a5ee042e60"
+  },
+  "verification": {
+    "status": "PASS",
+    "confusions_recomputed": 7,
+    "all_reported_counts_and_macro_agree": true,
+    "run_complete": true
+  },
+  "output_hashes": {
+    "summary.json": "d4c1ffa5724b19593190aad78edfd4722833139f3669296a46ace590bdc5266c",
+    "fits.json": "a270f3d952ef3450860fc040b7c1586ede35b4da7eddace00281ff66c9ce1ba3",
+    "RUN_COMPLETE": "d3be030801b90ea8057d3997d9845c7f850cc7b784450645d5ec2811cc927d7a",
+    "coefficients.private.npz": "6b7f4f126139859ad9751a10cdde223dc1ce13d5febb874f5b6b66a5ee042e60",
+    "predictions.private.npz": "2fdd8e40dd138cc5d3ffd6f4a5bc3cd846059705c5ec16af9ba6a96585b6899f"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "profile": "fixed-native-global-vs-type-convex-calibration-v1",
+  "code_sha256": "83c7272025848406398ba9cf502963570d6b498290f354b070d83d363746f64b",
+  "penalty": 0.01,
+  "max_iterations": 300,
+  "gradient_inf": 1e-06,
+  "timeout_seconds": 180,
+  "train_predictions_sha256": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+  "valid_predictions_sha256": "eceb0359760d1ff5306665285aa7c96cfe26dde357e3235fd1fac4e47f6fcee8",
+  "equation": "z_prime=z+b_r+W_typepair,r; global comparator W=0. meanCE+.5*.01*(||b||^2+||W||^2), no intercept or native-score scaling other than fixed1.",
+  "fit": "Fixed4192TRAIN, final converged convex optimum only; both fits sealed before assessment4000 or VALID19584 scoring.",
+  "references": "Frozen native and unchanged earlier hard type projection; unequal parameter counts not efficiency comparison.",
+  "gate": "TypeMacro greater than native/global/frozenhardrule; failure closes exact profile, no tuning/rescue.",
+  "public_whitelist": [
+    "summary.json",
+    "RUN_COMPLETE",
+    "fits.json"
+  ],
+  "private_outputs": [
+    "coefficients.private.npz",
+    "predictions.private.npz"
+  ],
+  "recovery": "Cheap restart from existing pinned/rebuildable inputs; no automatic retry or COS required. No full deep-model run.",
+  "resources": {
+    "cpu": 1,
+    "ram_mb": 2048,
+    "disk_mb": 64,
+    "gpus": 0,
+    "gpu_mb": 0
+  },
+  "additional_input_hashes": {
+    "control/task-bottleneck-discovery-20261123/cases.private.json": "ad35efee20682e4f42280670de21bfa76a31dcce39d06cfba675348229a93e8c",
+    "control/task-bottleneck-discovery-20261123/validation-cases.private.json": "f491e527472512ec1e69bab04c6b9d5fb1a08c4151251052ca8c1ca2d0023908",
+    "control/task-bottleneck-discovery-20261123/validation-summary.json": "32cfb5495b4863f573d866dfa5f981977226fc15fa64f3b20c773c5e6872ce9d",
+    "inputs/native-baseline/discovery/cache/metadata.json": "9e6eac9ad582a4ef4e1a8a12190bfef3b8f0a18c5efbd9072f91f31563656c0e",
+    "inputs/native-word-metadata-20261123/train.private.json": "f5eafb7d51bca46988313c204b6fa5ef19e82fabc32dc9feee9faa70f2285053",
+    "inputs/native-word-metadata-20261123/valid.private.json": "59822bfc80e6a590e2a50f9e0f4c569a3be8945b303da0d319966a6e3c62a06c",
+    "control/type-context-baseline-20261123/calibration-row-provenance.json": "dce6790becd1b1009b439918040ff63ebc336d4b1f3963e9d2f8e5bd2a21efa2",
+    "control/type-context-baseline-20261123/prediction-row-provenance.json": "d4c66a564ec716a5fb5f1e048c73b38a61d4bf7162106c9c60406af1252e11fc"
+  },
+  "row_provenance": "Original source/type/word/cache IDs matched, plus retrospective audited original producer indexing and successful execution binding each archive+selected array to ordered ID digests. Not IDs originally emitted in npz.",
+  "frozen_support_sha256": "d4c1100df6d306a3fae48d66f7907dfbe2a39d1b30843abb359ba32de7053186"
+}

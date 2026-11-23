@@ -1,0 +1,27 @@
+{
+  "paper_id": "arxiv:2102.01373v4",
+  "title": "An Improved Baseline for Sentence-level Relation Extraction",
+  "authors": [
+    "Wenxuan Zhou",
+    "Muhao Chen"
+  ],
+  "source": "https://arxiv.org/abs/2102.01373",
+  "pdf_source": "https://arxiv.org/pdf/2102.01373",
+  "pdf_sha256": "2aea677be0a7cbf5a0b91d17eb1027798a7f901d513f61dccc5725d557972e57",
+  "observed_version": "arXiv:2102.01373v4, 22 September 2022",
+  "reading_scope": "Primary researcher read extracted PDF pages1-3, including task input and entity-marker method definitions; later experiment pages and appendices unread.",
+  "source_facts": [
+    "Sentence-level relation extraction is formulated with entity names, spans and NER types.",
+    "The method distinguishes entity markers, punctuation markers, typed entity markers and typed punctuation markers.",
+    "Typed punctuation embeds subject/object types into marked input, then fine-tunes a PLM classifier."
+  ],
+  "project_findings": [
+    "Current marked_words() implementation uses untyped punctuation and explicitly excludes type metadata.",
+    "Later same-input comparisons must account for types as additional explicit information."
+  ],
+  "limits": [
+    "Entity-type input is established prior art, not novelty.",
+    "Its reported F1 and fine-tuned encoder protocol are not directly comparable to our positive39 Macro with a frozen encoder.",
+    "Reading these method pages is not a comprehensive novelty search or independent quantum evidence."
+  ]
+}

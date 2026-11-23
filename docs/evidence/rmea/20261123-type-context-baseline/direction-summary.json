@@ -1,0 +1,82 @@
+{
+  "profile": "cached-fullVALID-residual-semantic-direction-census-v1",
+  "all_reversed_input_pairs": 479,
+  "declared_inverse_gold_consistent_pairs": 430,
+  "other_gold_pairs": 49,
+  "consistent_both_correct": 349,
+  "consistent_same_predicted_label": 389,
+  "pair_counts_by_gold": [
+    {
+      "labels": [
+        "org:alternate_names",
+        "org:alternate_names"
+      ],
+      "pairs": 76
+    },
+    {
+      "labels": [
+        "org:member_of",
+        "org:members"
+      ],
+      "pairs": 2
+    },
+    {
+      "labels": [
+        "per:children",
+        "per:parents"
+      ],
+      "pairs": 5
+    },
+    {
+      "labels": [
+        "per:identity",
+        "per:identity"
+      ],
+      "pairs": 339
+    },
+    {
+      "labels": [
+        "per:siblings",
+        "per:siblings"
+      ],
+      "pairs": 5
+    },
+    {
+      "labels": [
+        "per:spouse",
+        "per:spouse"
+      ],
+      "pairs": 3
+    }
+  ],
+  "bidirectional_confusions": [
+    {
+      "a": "per:children",
+      "b": "per:parents",
+      "a_to_b": 17,
+      "b_to_a": 10
+    },
+    {
+      "a": "org:members",
+      "b": "org:member_of",
+      "a_to_b": 3,
+      "b_to_a": 8
+    },
+    {
+      "a": "per:employee_of",
+      "b": "org:top_members/employees",
+      "a_to_b": 0,
+      "b_to_a": 0
+    },
+    {
+      "a": "per:employee_of",
+      "b": "per:schools_attended",
+      "a_to_b": 14,
+      "b_to_a": 1
+    }
+  ],
+  "claim": "Exploratory allpopulation census; inverse mapping is a task schema hypothesis, no inference all other pairs are erroneous; no fitting/model calls/utility claim.",
+  "directional_gold_consistent_pairs": 7,
+  "symmetric_gold_consistent_pairs": 423,
+  "same_prediction_caveat": "389 includes predominantly symmetric gold pairs, so it is NOT389 direction failures. Only7 gold-consistent pairs in this census have different inverse labels."
+}

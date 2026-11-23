@@ -1,0 +1,26 @@
+{
+  "selection_basis": "owner_preference",
+  "model": "gpt-6.2-astra",
+  "reasoning_effort": "high",
+  "transport": "OpenAI Responses",
+  "metadata_basis": "Exact model/high effort re-used from this campaign verified catalog and responses; no ranking claim",
+  "packet_sha256": "a8b273e5a72ef65446df2aaf6fa0257f8a379fb4ec70095e405b33441ac8d4ac",
+  "profile_echo_verified": true,
+  "seconds": 19.70299999997951,
+  "hashes": {
+    "calibrate.py": "83c7272025848406398ba9cf502963570d6b498290f354b070d83d363746f64b",
+    "calibration-design.json": "7d6b2e8165bc24e4a02135ff6f467a0739560b7a4a0cfbd6861168033a31ad3b"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "limitations": [
+      "The supplied producer sources and pinned execution records resolve the row-order finding. TRAIN appends each batch’s logits in ascending cache-row order. VALID writes each result to its original cache index and asserts that mode 0 is native. The provenance records bind each archive hash and array selector to the corresponding ordered-ID digest. This evidence is retrospective.",
+      "The hard-rule recomputation resolves the class-coverage finding. It verifies the fit-only support digest, applies the rule to the original VALID logits, and builds a 40-class confusion matrix. The gate uses the mean F1 over IDs 1 through 39 exactly once, with zero for a zero denominator. The script also requires the recomputed macro-F1 and correct count to match the frozen summary within 1e-14 and exactly, respectively.",
+      "Both fits use only the 4,192 designated calibration rows and are sealed before assessment or VALID scoring. A pass on all three strict comparisons would establish an exploratory improvement on reused development VALID. The native checkpoint saw all TRAIN rows, and the global and type calibrators have 40 and 1,040 parameters respectively.",
+      "This was a static review of the supplied text. Staged artifact hashes, numerical convergence, comparator agreement, and host resource enforcement remain unverified."
+    ],
+    "admission": "one_CPU_cached_logit_calibration"
+  }
+}

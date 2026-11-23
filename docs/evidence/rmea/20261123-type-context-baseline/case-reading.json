@@ -1,0 +1,53 @@
+{
+  "scope": "Primary unblinded inspection of six outcome-stratified hash-selected development errors; explanatory only, no prevalence/independent judgment claim.",
+  "selection": {
+    "rule": "First two SHA256(type-context-case-v1:id_hash) residual cases in each of three mutually exclusive error families; outcome-stratified, explanatory only.",
+    "case_count": 6,
+    "indices": [
+      12431,
+      16331,
+      7533,
+      17396,
+      14623,
+      1426
+    ],
+    "ids_sha256": "d68fe2726631d6978dc3475b4ad257e4b3943b1a5f161caaa4b69864fc5914f7",
+    "semantic_status": "Primary unblinded inspection completed; explanatory only, no blind or prevalence claim."
+  },
+  "cases": [
+    {
+      "index": 12431,
+      "judgment": "uncertain",
+      "observation": "Pronoun-to-person coreference may support the title, while benchmark gold is no_relation. Sentence-level inspection does not settle annotation policy."
+    },
+    {
+      "index": 16331,
+      "judgment": "uncertain",
+      "observation": "Title phrase directly describes a planned successor; replacement wording also suggests a current role. Explicit attachment versus inference is ambiguous."
+    },
+    {
+      "index": 7533,
+      "judgment": "uncertain",
+      "observation": "Several people and possessive pronouns occur. The recorded identity may not follow the most natural local antecedent; no relabeling without fuller evidence."
+    },
+    {
+      "index": 17396,
+      "judgment": "clear_semantic_model_error",
+      "observation": "An explicit director-of construction links the marked person and organization, yet typed model predicts no_relation."
+    },
+    {
+      "index": 14623,
+      "judgment": "clear_semantic_model_error",
+      "observation": "An explicit parent-to-child phrase is predicted in the inverse direction; same entity types do not resolve direction."
+    },
+    {
+      "index": 1426,
+      "judgment": "clear_semantic_model_error",
+      "observation": "The marked person teaches at an institution, while the prediction is attendance; both share the same person-organization type pair."
+    }
+  ],
+  "clear_examples": 3,
+  "uncertain": 3,
+  "decision": "Preserve all original labels and all six cases. Do not reinterpret ambiguous examples as proven annotation errors or evidence for a chosen quantum mechanism.",
+  "next": "Use fixed classical calibration to distinguish score bias from unresolved contextual predicate/argument evidence before new quantum design."
+}

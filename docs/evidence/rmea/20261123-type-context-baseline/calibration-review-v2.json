@@ -1,0 +1,29 @@
+{
+  "selection_basis": "owner_preference",
+  "model": "gpt-6.2-astra",
+  "reasoning_effort": "high",
+  "transport": "OpenAI Responses",
+  "metadata_basis": "Exact model/high effort re-used from this campaign verified catalog and responses; no ranking claim",
+  "packet_sha256": "3ed7f48a1f0145331eab956b8f37fa0dd7d2c7a8d402da524567f23178ad0356",
+  "profile_echo_verified": true,
+  "seconds": 54.296999999991385,
+  "hashes": {
+    "calibrate.py": "d48be9a1d6ef1f23aaab8eaa1a7e150a428a6455f8e6eb5032e11ba5d4e0a9b3",
+    "calibration-design.json": "21735c7fae5b148180d60fb0f987f5db4edcaa7ca56f0b5e6dc4d92920ab64af"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "both",
+    "must_fix": [
+      "Complete the link from each prediction archive to the ordered row IDs. The pinned proof connects source records, type metadata, word IDs, and cache IDs. It does not establish that the TRAIN logits and the selected VALID logits at index 0 were emitted in that cache order. A swap between two rows with the same label and different type pairs passes the current checks and can change the calibration result. A pinned producer record binding each archive hash and selected array to the existing ordered-ID digest would close this gap without model replay.",
+      "Establish the frozen hard rule’s positive-class coverage. The script verifies the VALID archive hash, raw-source hash, native macro-F1, and mean of 39 finite projected F1 values. A duplicated class and an omitted class can still pass those checks. Verify that the frozen per-class records cover IDs 1 through 39 exactly once under the same label mapping and zero-denominator convention as metrics(), or pin equivalent evidence from the frozen summary producer. This comparator can decide the gate."
+    ],
+    "limitations": [
+      "The revised shape, dtype, metadata-length, and finiteness checks address the prior input-validation findings. Optimized Python is rejected before assertions are used. The objective and gradient agree by inspection, and each fit requires optimizer success and a finite recomputed gradient with infinity norm at most 1e-6.",
+      "The type vocabulary uses only the 4,192 fit rows. All 40 score columns remain present, including class 23. Scoring creates a fresh array, and a present record with an unseen type pair receives the global bias. Both fits are saved before assessment or VALID scoring. VALID-related files are read earlier for hashing and provenance, so the code comment promising sealing before any validation input read is inaccurate.",
+      "The gate uses all three strict comparisons. A pass would establish an exploratory development macro-F1 improvement for this fixed profile. The native checkpoint saw all TRAIN rows, VALID has been reused, and the global and type fits have 40 and 1,040 parameters respectively.",
+      "This was a static review of the supplied text. Artifact hashes, numerical convergence, and host resource enforcement remain unverified. Any edits require refreshed staging hashes."
+    ],
+    "admission": "blocked"
+  }
+}
