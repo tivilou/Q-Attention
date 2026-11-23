@@ -75,6 +75,12 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
     from .rmea_token_transport_diagnostics import inspect_unit, aggregate
     from .rmea_token_transport_trace import capture, close
     p = runtime.protocol if runtime is not None else globals()['p']
+    from .rmea_training_options import batch_size, per_epoch, dtype_name, selection_metric, selection_description, reported_checkpoint
+    logical_batch = batch_size(cfg); tensor_dtype = getattr(torch, dtype_name(cfg))
+    array_dtype = getattr(np, dtype_name(cfg)); metric_name = selection_metric(cfg)
+    report_policy = reported_checkpoint(cfg)
+    if report_policy=='validation_best' and (runtime is None or not hasattr(runtime,'capture_selected')):
+        raise ValueError('Validation-best reporting needs explicit selected-checkpoint capture callback')
     if len(labels) != 40 or labels[0] != 'no_relation':
         raise ValueError('Fixed train-derived label mapping differs')
     torch.set_num_threads(1); torch.use_deterministic_algorithms(True)
@@ -92,8 +98,8 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
 
     def batch(split, indices):
         d = data[split]; lengths = [int(d['offsets'][i+1] - d['offsets'][i]) for i in indices]
-        h = np.zeros((len(indices), max(lengths), 1024), np.float64)
-        r = np.zeros((len(indices), max(lengths), 4), np.float64); mask = np.zeros(h.shape[:2], bool)
+        h = np.zeros((len(indices), max(lengths), 1024), array_dtype)
+        r = np.zeros((len(indices), max(lengths), 4), array_dtype); mask = np.zeros(h.shape[:2], bool)
         for j, (i, length) in enumerate(zip(indices, lengths)):
             a, b = map(int, d['offsets'][i:i+2]); h[j, :length] = d['h'][a:b]
             r[j, :length] = d['roles'][a:b]; mask[j, :length] = True
@@ -104,8 +110,10 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
     @torch.no_grad()
     def evaluate(head, split, routing_kind=None):
         head.eval(); gold = []; predicted = []; loss = 0.
-        for start in range(0, cfg['counts'][split], 32):
-            inputs, y = batch(split, list(range(start, min(start+32, cfg['counts'][split]))))
+        evaluation_batch = cfg.get('eval_batch_size', 32)
+        if type(evaluation_batch) is not int or evaluation_batch < 1: raise ValueError('Invalid evaluation batch')
+        for start in range(0, cfg['counts'][split], evaluation_batch):
+            inputs, y = batch(split, list(range(start, min(start+evaluation_batch, cfg['counts'][split]))))
             if routing_kind is None:
                 logits = runtime.score_batch(head, inputs) if runtime is not None else head(*inputs)[0]
             else:
@@ -125,10 +133,15 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
     random.seed(cfg['seed'])
     np.random.seed(cfg['seed'])
     torch.manual_seed(cfg['seed'])
-    initial = {k: v.clone() for k, v in RMEAHead('quantum').double().state_dict().items()}
+    initial = {k: v.clone() for k, v in RMEAHead('quantum').to(dtype=tensor_dtype).state_dict().items()}
     initial_sha = state_identity(initial)
-    rng = np.random.default_rng(cfg['seed'])
-    orders = [rng.permutation(cfg['counts']['train']) for _ in range(cfg['epochs'])]
+    generator = cfg.get('order_generator', 'numpy_default_rng')
+    if generator == 'torch_epoch_seed':
+        orders = [torch.randperm(cfg['counts']['train'], generator=torch.Generator().manual_seed(cfg['seed']+e)).numpy() for e in range(cfg['epochs'])]
+    elif generator == 'numpy_default_rng':
+        rng = np.random.default_rng(cfg['seed'])
+        orders = [rng.permutation(cfg['counts']['train']) for _ in range(cfg['epochs'])]
+    else: raise ValueError('Unknown epoch permutation generator')
     order_sha = hashlib.sha256(b''.join(o.astype('<i8').tobytes() for o in orders)).hexdigest()
     from .rmea_token_transport_recovery import atomic_torch, cpu_tree, restore_rng
     checkpoints = output / 'checkpoints'; checkpoints.mkdir(exist_ok=True)
@@ -154,9 +167,14 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
             if cursor['epoch'] or cursor['next_start'] or cursor['history'] or cursor['loss_sum'] or resumed['optimizer'] is not None:
                 raise ValueError('Fresh-head boundary state differs')
             restore_rng(resumed['rng'])
-        head = (runtime.make_head(kind) if runtime is not None else TrainableTokenTransportHead(kind)).double(); head.load_state_dict(initial)
-        if state_identity(head.state_dict()) != initial_sha or sum(v.numel() for v in head.parameters()) != 81028:
-            raise ValueError('Initialization or parameter matching differs')
+        if runtime is not None and hasattr(runtime, 'initialize_head'):
+            head = runtime.initialize_head(kind, initial, cfg).to(dtype=tensor_dtype)
+            runtime.validate_initialized_head(head, kind, initial, cfg)
+        else:
+            head = (runtime.make_head(kind) if runtime is not None else TrainableTokenTransportHead(kind)).to(dtype=tensor_dtype); head.load_state_dict(initial)
+            if state_identity(head.state_dict()) != initial_sha or sum(v.numel() for v in head.parameters()) != 81028:
+                raise ValueError('Initialization or parameter matching differs')
+        arm_initial_sha = state_identity(head.state_dict())
         head.to('cuda'); optimizer = torch.optim.AdamW(head.parameters(), lr=cfg['lr'],
             weight_decay=cfg['weight_decay'], betas=tuple(cfg['betas']), eps=cfg['optimizer_eps'])
         history = []; steps = 0; first_epoch = 0; first_start = 0; saved_loss = 0.
@@ -166,7 +184,7 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
         elif resumed and mode_index == resumed['cursor']['mode'] and not boundary:
             cursor = resumed['cursor']; first_epoch = cursor['epoch']; first_start = cursor['next_start']
             history = list(cursor['history']); saved_loss = cursor['loss_sum']
-            steps = first_epoch*((len(orders[0])+31)//32)+(first_start+31)//32
+            steps = first_epoch*per_epoch(cfg)+(first_start+logical_batch-1)//logical_batch
             if resumed['active'] is None or resumed['optimizer'] is None:
                 raise ValueError('Active model/optimizer missing')
             head.load_state_dict(resumed['active']); optimizer.load_state_dict(resumed['optimizer'])
@@ -182,9 +200,9 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
             epoch = epoch_index+1; order = orders[epoch_index]
             head.train(); loss_sum = saved_loss if epoch_index == first_epoch else 0.
             start_at = first_start if epoch_index == first_epoch else 0
-            for start in range(start_at, len(order), 32):
+            for start in range(start_at, len(order), logical_batch):
                 if recovery is not None and hasattr(recovery,'before_update'): recovery.before_update()
-                ids = order[start:start+32]; inputs, y = batch('train', ids)
+                ids = order[start:start+logical_batch]; inputs, y = batch('train', ids)
                 optimizer.zero_grad(set_to_none=True)
                 if runtime is None:
                     loss = F.cross_entropy(head(*inputs)[0], y)
@@ -197,23 +215,26 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
                     raise ValueError('Missing or nonfinite gradient')
                 torch.nn.utils.clip_grad_norm_(head.parameters(), cfg['clip_norm'], error_if_nonfinite=True)
                 optimizer.step(); steps += 1; loss_sum += float(loss.detach()) * len(ids)
-                next_start = min(start+32,len(order)); save(epoch_index,next_start,loss_sum)
+                next_start = min(start+logical_batch,len(order)); save(epoch_index,next_start,loss_sum)
                 if recovery is not None and next_start < len(order): recovery.milestone()
             if not all(torch.isfinite(v).all() for v in head.parameters()):
                 raise ValueError('Nonfinite final parameters')
             history.append(dict(epoch=epoch, train_ce=loss_sum / len(order)))
-            # Retention only: reported test still uses the frozen final epoch.
-            validation = evaluate(head,'valid')['positive39_macro_f1']
-            if kind not in best or validation > best[kind]['validation_positive39_macro_f1']:
-                best[kind] = dict(state=cpu_tree(head.state_dict()), epoch=epoch,
-                    validation_positive39_macro_f1=validation, selection='validation positive39 Macro; strict improvement; first tie')
-                if recovery is not None: atomic_torch(recovery.best,best)
+            # Commit latest (which embeds best) before updating the derived best file.
+            validation = evaluate(head,'valid')[metric_name]
+            if kind not in best or validation > best[kind]['validation_'+metric_name]:
+                best[kind] = dict(state=cpu_tree(head.state_dict()), epoch=epoch, selection=selection_description(cfg))
+                best[kind]['validation_'+metric_name] = validation
             save(epoch_index+1,0,0.)
+            if recovery is not None: atomic_torch(recovery.best,best)
             if recovery is not None: recovery.milestone()
             print(json.dumps(dict(stage='train', condition=kind, epoch=epoch, updates=steps)), flush=True)
         head.eval(); final_state = cpu_tree(head.state_dict())
         cp = checkpoints / (kind + '-final.pt')
-        atomic_torch(cp, final_state)
+        if cp.exists():
+            if state_identity(torch.load(cp,map_location='cpu',weights_only=True))!=state_identity(final_state):
+                raise ValueError('Retained final differs; preserve evidence')
+        else:atomic_torch(cp, final_state)
         if cp.stat().st_size > 1024**2: raise ValueError('Tiny final checkpoint bound exceeded')
         if kind not in completed:
             completed[kind] = dict(state=final_state,history=history,steps=steps,optimizer=cpu_tree(optimizer.state_dict()))
@@ -223,12 +244,27 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, mod
         if state_identity(loaded) != state_identity(final_state):
             raise ValueError('Final checkpoint serialization differs')
         head.load_state_dict(loaded)
-        result = dict(selected_epoch=cfg['epochs'], selection=cfg['selection'], parameters=81028,
+        evaluation_state = None
+        if report_policy == 'validation_best':
+            chosen = best[kind]; head.load_state_dict(chosen['state'])
+            selected = checkpoints / (kind + '-selected.pt')
+            if not selected.exists():atomic_torch(selected, chosen['state'])
+            selected_state=torch.load(selected,map_location='cpu',weights_only=True)
+            if state_identity(selected_state)!=state_identity(chosen['state']):
+                raise ValueError('Selected serialization differs from committed best')
+            head.load_state_dict(selected_state)
+            evaluation_state = dict(path='checkpoints/'+selected.name, sha256=p.digest(selected), state_sha256=state_identity(selected_state), epoch=chosen['epoch'])
+        result = dict(selected_epoch=best[kind]['epoch'] if report_policy == 'validation_best' else cfg['epochs'], selection=cfg['selection'], parameters=sum(v.numel() for v in head.parameters()),
             updates=steps, history=history, initial_state_sha256=initial_sha,
             final_state_sha256=state_identity(loaded), checkpoint_sha256=p.digest(cp),
             valid=evaluate(head, 'valid'), test=evaluate(head, 'test'))
+        if evaluation_state is not None: result['evaluation_checkpoint'] = evaluation_state
+        if runtime is not None and hasattr(runtime, 'initialize_head'): result['arm_initial_state_sha256'] = arm_initial_sha
         results[kind] = result
         for split in cfg['counts']:
+            if evaluation_state is not None:
+                samples += runtime.capture_selected(output,head,kind,split,batch,metadata,evaluation_state)
+                continue
             samples += (runtime.capture(output,head,kind,split,batch,metadata) if runtime is not None
                         else capture(output,head,kind,split,batch,metadata))
         if kind == 'cubic_coherent':

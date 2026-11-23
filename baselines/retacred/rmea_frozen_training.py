@@ -21,6 +21,9 @@ def require(ok,message):
     if not ok:raise ValueError(message)
 
 
+from .rmea_training_options import per_epoch
+
+
 class FrozenFeatureTraining:
     def __init__(self,protocol,runtime):
         if runtime.protocol is not protocol:
@@ -63,10 +66,14 @@ class FrozenFeatureTraining:
         finally:
             os.close(fd)
 
-    def verify_installed_pin(self, folder, root, profile):
+    def verify_installed_pin(self, folder, root, profile, *, require_complete=True):
+        from baselines.retacred.rmea_token_transport_recovery import preflight_recovery_paths
+        preflight_recovery_paths(root/'discovery',self.p.MODES)
         phase = self.p.read(folder / 'restore-install.json')
+        if require_complete:
+            require(self.p.read(root/'discovery/.workers/restore-complete.json')==dict(pin_sha256=self.p.digest(root/'restore-pin.json')), 'Worker pinned installation incomplete')
         pin = self.p.read(root / 'restore-pin.json')
-        require(phase['status'] == 'complete' and phase['pin_sha256'] == self.p.digest(root / 'restore-pin.json') and (phase['run_id'] == root.name) and (phase['profile'] == profile) and (phase['source_sha256'] == self.p.identity(self.p.sources())), 'Pinned installation is incomplete or different')
+        require((phase['status'] == 'complete' if require_complete else phase['status'] in ('pending','complete')) and phase['pin_sha256'] == self.p.digest(root / 'restore-pin.json') and (phase['run_id'] == root.name) and (phase['profile'] == profile) and (phase['source_sha256'] == self.p.identity(self.p.sources())), 'Pinned installation is incomplete or different')
         for row in pin['acknowledged_generations']:
             directory = root / 'cos-channel' / row['request']['generation']
             require(self.p.read(directory / 'request.json') == row['request'] and self.p.read(directory / 'ack.json') == row['ack'] and (self.p.digest(directory / 'request.json') == row['ack']['request_sha256']), 'Installed pinned prefix differs; use --restore-pin')
@@ -89,21 +96,28 @@ class FrozenFeatureTraining:
 
     def restore_identity(self, folder, root, profile, *, inject_failure=False):
         """Same identity admission for the formal pinned restore and its tiny canary."""
-        from baselines.retacred.rmea_token_transport_parallel import pin_receipts, install_pinned_workers
+        from baselines.retacred.rmea_token_transport_parallel import pin_receipts, install_pinned_workers, complete_pinned_install, validate_outer_phase
         output = root / 'discovery'
+        from baselines.retacred.rmea_token_transport_recovery import preflight_recovery_paths
+        preflight_recovery_paths(output,self.p.MODES)
+        validate_outer_phase(output,self.p.config(profile),self.p,allow_pending=True)
         m = self.prepared(output)
         cfg = self.p.config(profile)
         handoff = self.p.read(root / 'handoff.json')
         pin = self.p.read(root / 'restore-pin.json')
         require(m['config'] == cfg and handoff['run_id'] == root.name and (handoff['profile'] == profile) and (handoff['config'] == cfg) and (handoff['source_sha256'] == self.p.identity(self.p.sources())), 'Restored run/source/profile differs')
-        total = len(self.p.MODES) * cfg['epochs'] * ((cfg['counts']['train'] + 31) // 32)
+        total = len(self.p.MODES) * cfg['epochs'] * per_epoch(cfg)
         latest = output / 'checkpoints/latest.pt'
         best = output / 'checkpoints/best.pt'
         receipts = pin_receipts(pin, run_id=root.name, identity=dict(config=self.p.identity(cfg), source=self.p.identity(self.p.sources())), total=total, sha256=self.p.digest(latest), latest_bytes=latest.stat().st_size, best_sha256=self.p.digest(best), best_bytes=best.stat().st_size)
         intent = dict(run_id=root.name, profile=profile, source_sha256=self.p.identity(self.p.sources()), config_sha256=self.p.identity(cfg))
+        identity_file=folder/'run-identity.json'
+        if identity_file.exists():require(self.p.read(identity_file)==intent,'Existing outer run identity differs')
+        install_pinned_workers(output,cfg,self.p,runtime=self.runtime,install=False)
         phase = folder / 'restore-install.json'
         installation = dict(intent, pin_sha256=self.p.digest(root / 'restore-pin.json'), status='pending')
         if phase.exists():
+            require(self.p.read(phase).get('status') in ('pending','complete'), 'Invalid interrupted restore status')
             require(all((self.p.read(phase).get(k) == value for (k, value) in installation.items() if k != 'status')), 'Different interrupted restore installation')
         else:
             self.p.atomic_json(phase, installation)
@@ -133,17 +147,18 @@ class FrozenFeatureTraining:
         self.p.atomic_json(root / 'cos-channel/cloud-latest.json', dict(generation=last['request']['generation'], done=last['request']['done'], index_commit=last['ack']['index_commit'], request_sha256=last['ack']['request_sha256']))
         self.sync_directory(root / 'cos-channel')
         self.sync_directory(root)
-        install_pinned_workers(output, cfg, self.p)
+        install_pinned_workers(output, cfg, self.p, runtime=self.runtime)
+        complete_pinned_install(output,self.p)
         self.durable_inputs(root)
-        self.p.atomic_json(phase, dict(installation, status='complete'))
-        self.sync_directory(folder)
         f = folder / 'run-identity.json'
         if f.exists():
             require(self.p.read(f) == intent, 'Existing outer run identity differs')
         else:
             self.p.atomic_json(f, intent)
         self.sync_directory(folder)
-        self.verify_installed_pin(folder, root, profile)
+        self.verify_installed_pin(folder, root, profile,require_complete=False)
+        self.p.atomic_json(phase,dict(installation,status='complete'))
+        self.sync_directory(folder)
         return intent
 
     def prepared(self, output):
@@ -256,7 +271,7 @@ class FrozenFeatureTraining:
         require(os.getppid() == args.parent_pid, 'Parent identity changed')
         import torch
         from baselines.retacred.rmea_token_transport_parallel import condition_recovery
-        from baselines.retacred.rmea_token_transport_recovery import run_lock
+        from baselines.retacred.rmea_token_transport_recovery import run_lock, regular_paths
         from baselines.retacred.rmea_token_transport_study import train
         require(torch.cuda.device_count() == 1 and bool(os.environ.get('CUDA_VISIBLE_DEVICES')), 'One allocated GPU required')
         output = args.output.resolve()
@@ -265,9 +280,12 @@ class FrozenFeatureTraining:
         require(cfg == self.p.config(cfg['profile']), 'Frozen config differs')
         require(manifest['execution_environment'] == self.execution_environment(), 'Worker execution environment differs')
         folder = output / '.workers' / args.condition
+        regular_paths(directories=(output,folder.parent,folder),files=(folder/'.lock',))
         with run_lock(folder / '.lock'):
             assignment = self.p.read(folder / 'assignment.json')
             require(assignment == dict(token=args.assignment_token, parent_pid=args.parent_pid, condition=args.condition, device=os.environ['CUDA_VISIBLE_DEVICES'], source=self.p.identity(self.p.sources())), 'Active parent assignment differs')
+            if hasattr(self.runtime, 'validate_worker_admission'):
+                self.runtime.validate_worker_admission(output, self.execution_environment())
             require(not (output / 'RUN_COMPLETE').exists() and (not (folder / 'WORKER_COMPLETE').exists()), 'Preserve sealed run/condition')
             require(args.resume or not (folder / 'latest.pt').exists(), 'Explicit worker resume required')
             recovery = condition_recovery(output, cfg, args.condition, protocol=self.p, resume=args.resume)
@@ -443,13 +461,17 @@ class FrozenFeatureTraining:
     def preserve_admission(self, root, args):
         """Keep only the compact already-verified gates needed for replacement-node CLI."""
         sources = {'unit/unit-validation.json': args.unit_output / 'unit-validation.json', 'unit/RUN_COMPLETE': args.unit_output / 'RUN_COMPLETE'}
-        sources.update({'canary/' + n: args.admission.parent / n for n in ('admission.json', 'dependency-verification.json', 'canary-validation.json', 'RUN_COMPLETE')})
+        require(self.p.digest(args.admission) == args.admission_sha256, 'Submitted admission changed before preservation')
+        sources['canary/admission.json'] = args.admission
+        sources.update({'canary/' + n: args.admission.parent / n for n in ('dependency-verification.json', 'canary-validation.json', 'RUN_COMPLETE')})
         if self.p.read(args.admission).get('schema') == 'q-rmea.plugin-training-admission.v3':
             sources['unit/design.json'] = args.unit_output / 'design.json'
             sources['canary/focused-integration.json'] = args.admission.parent / 'focused-integration.json'
         for (name, source) in sources.items():
             target = root / 'recovery-inputs/admission' / name
             data = source.read_bytes()
+            if name == 'canary/admission.json':
+                require(hashlib.sha256(data).hexdigest() == args.admission_sha256, 'Preserved admission differs from submitted bytes')
             require(len(data) < 2 * 1024 ** 2, 'Compact admission required')
             target.parent.mkdir(parents=True, exist_ok=True)
             if target.exists():
@@ -473,7 +495,10 @@ class FrozenFeatureTraining:
         submitted_schema = self.p.read(args.admission).get('schema')
         if getattr(self.p, 'SCOPED_ADMISSION_SCHEMA', None) == 'q-rmea.plugin-training-admission.v3':
             require(submitted_schema == 'q-rmea.plugin-training-admission.v3', 'Protocol requires v3 admission')
-        if submitted_schema == 'q-rmea.plugin-training-admission.v3':
+        if hasattr(self.runtime, 'verify_admission'):
+            require(submitted_schema == self.p.SCOPED_ADMISSION_SCHEMA, 'Protocol admission schema differs')
+            self.runtime.verify_admission(args, self.execution_environment())
+        elif submitted_schema == 'q-rmea.plugin-training-admission.v3':
             from .rmea_plugin_admission import verify as verify_plugin
             verify_plugin(self.p, args, self.execution_environment())
         elif self.p.read(args.admission).get('schema') == SCHEMA:
@@ -494,7 +519,7 @@ class FrozenFeatureTraining:
         require(bool(os.environ.get('CUDA_VISIBLE_DEVICES', '').strip()), 'Explicit scheduler GPU allocation required')
         devices = gpu_ids('auto')
         expected_gpus = self.p.config('discovery').get('allocated_gpus', 3)
-        require(len(devices) == expected_gpus, 'Allocated GPU count differs from declared configuration')
+        require(bool(devices) and (expected_gpus == 'auto' or len(devices) == expected_gpus), 'Allocated GPU count differs from declared configuration')
         output = self.run_location(args)
         root = output.parent
         identity = args.output / 'run-identity.json'
@@ -510,6 +535,10 @@ class FrozenFeatureTraining:
                 require(self.p.read(identity) == intent, 'Run identity changed')
                 if (args.output / 'restore-install.json').exists():
                     self.verify_installed_pin(args.output, root, 'discovery')
+                if (root/'restore-pin.json').exists():
+                    from .rmea_token_transport_recovery import Recovery
+                    from .rmea_token_transport_parallel import verify_completed_pin
+                    verify_completed_pin(output,self.p.config('discovery'),self.p,Recovery(output,self.p.config('discovery'),enabled=True,protocol=self.p))
             else:
                 self.fresh_attempt(args.output)
                 self.p.atomic_json(identity, intent)
