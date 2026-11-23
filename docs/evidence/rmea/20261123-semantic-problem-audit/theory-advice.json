@@ -1,0 +1,45 @@
+{
+  "selection_basis": "owner_preference",
+  "model": "gpt-6.2-astra",
+  "reasoning_effort": "high",
+  "protocol": "OpenAI Responses",
+  "catalog_exact_id_verified": true,
+  "task": "Bounded mathematical design advice, not implementation admission or L5 certification",
+  "ranking_claim": false,
+  "profile_echo_verified": true,
+  "seconds": 96.26500000001397,
+  "packet_sha256": "782e5bd548e53bfbd52c4acaebac8c58ea926f6cce2459da0b61a8c136aec494",
+  "advice": {
+    "verified_problem": "On the pinned replay, one of the five consensus-positive misses has a target-score ceiling about 0.26719 below the original highest rival logit, even when the target row may put all its mass on any token. With the values and biases fixed, a strict target win therefore requires the original leading rival to fall by more than about 0.26719. Every other rival must also finish below the target. On two of the other four misses, uniform weighting of the cited cues already crosses the unchanged highest rival in the relaxed diagnostic.",
+    "unjustified_inferences": [
+      "The ceiling does not establish that the leading rival relies on a removable token, that the shared circuit can demote it, or that the decoder needs new values.",
+      "The five exposed cases do not establish how often this obstruction occurs on Re-TACRED. Reader agreement and patch provenance do not independently verify the semantic label.",
+      "Neither the given-type gains nor the disagreement among heads identifies a quantum operation that addresses the obstruction."
+    ],
+    "selected_lead": "NONE",
+    "mechanism": "The evidence identifies a necessary change in a rival score on one case. It supports testing whether that score depends strongly enough on one token to change the decision. It gives no specific reason to select a new standalone quantum mechanism.",
+    "equations": [
+      "Let g be the stored target, j an original highest-scoring rival, and C_g = b_g + max_t u_gt. For any strict target win with fixed values and biases, z_j - z'_j > z_j - C_g ≈ 0.26719.",
+      "For a diagnostic intervention, multiply the unnormalized weight of token k by 1−λ in every relation row, with 0 ≤ λ ≤ 1. Write μ_r = z_r−b_r. The renormalized score is z_r(k,λ) = b_r + (μ_r−λ α_rk u_rk)/(1−λ α_rk).",
+      "Measure M = max_{k,λ} min_{r≠g} [z_g(k,λ)−z_r(k,λ)]. A strict target win is possible under this intervention exactly when M > 0."
+    ],
+    "difference_from_stopped": [
+      "This is a finite diagnostic on archived token contributions. A single attenuation acts on the same token in all 40 rows, so it includes both the cost to the target and any switch in the leading rival.",
+      "It fits no per-input quantum effect and uses no circuit-reachability assumption. The search uses the stored target solely to test whether a correction exists on this case."
+    ],
+    "theorem_status": "known_tool_only",
+    "theorem_statement": "The ceiling uses convex averaging, and the attenuation formula uses exact renormalization. Neither supplies an L5 theorem. The unresolved question is whether a shared, learnable operation can produce the required rival demotion on unseen inputs.",
+    "counterexample_test": "M ≤ 0 rules out every single-token shared attenuation on this case, including partial attenuation. A drop of more than 0.26719 in the original leading rival can still fail if the target also loses score or a second rival overtakes it.",
+    "distinguishing_prediction": "The single-token explanation predicts a token and an attenuation interval on which the target beats all 39 rivals simultaneously. The existing target-row ceiling leaves that prediction open.",
+    "minimum_next_step": "Use only the ceiling-obstructed example from the pinned replay. For each token, intersect the 39 sets of λ values giving a positive target margin. The denominators are positive on this multi-token input, so each comparison reduces to a polynomial inequality of degree at most two. This tests the whole interval without a grid or a fit. If an intersection is nonempty, report one witnessing token, attenuation, target-score change, and highest remaining rival. Otherwise record the scoped negative.",
+    "fair_controls": [
+      "For a descriptive comparison, apply the identical attenuation search to the archived softmax head and to uniform token weights with the same source, values, biases, and type information. Report each starting margin alongside its result because the starting predictions may differ.",
+      "The intervention is classical arithmetic on exposed weights. A success on the overlap head would identify a property of its saved scores, without isolating a quantum contribution."
+    ],
+    "novelty_risks": [
+      "Token attenuation and rational score normalization are established diagnostic operations.",
+      "Selecting a token and attenuation with the stored label gives an existence witness only. Reusing that witness as a prediction rule would leak the target."
+    ],
+    "proceed_limit": "no_lead"
+  }
+}
