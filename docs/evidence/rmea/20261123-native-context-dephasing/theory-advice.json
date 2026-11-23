@@ -1,0 +1,28 @@
+{
+  "selection_basis": "owner_preference",
+  "task_profile": "bounded mathematical theory advice",
+  "selected_model": "gpt-6.2-astra",
+  "reasoning_effort": "high",
+  "transport": "OpenAI Responses",
+  "metadata_basis": "Exact same model/effort echoed in this campaign review.json; reuse current verified transport, no model discovery/ranking claim",
+  "benchmark_superiority_claim": false,
+  "packet_sha256": "40a2ee3cb470525ff9f0c2f6fc41f7631dab25d7fb48425c8e7c8c0c0755f946",
+  "profile_echo_verified": true,
+  "seconds": 112.67794346809387,
+  "response": {
+    "disposition": "ONE_TESTABLE_LEAD",
+    "research_question": "Does erasing coherence on bridge and outer tokens change which correct decisions are attainable with the original token states and signed utilities? The hypothesis has two directions. Some correct decisions require distinctions that local dephasing destroys. Some original errors arise because a relation effect cannot distinguish tokens that local dephasing makes distinguishable.",
+    "mathematical_statement": "For one input, let ρ_t be the original token projector or its locally dephased version under the existing both-regions intervention. Sum over valid tokens and set B = Σ_t(ρ_t + EPS I) and A_r = Σ_t u_rt(ρ_t + EPS I). For any unit relation effect v, the class logit is b_r + (v†A_r v)/(v†Bv). Let L_r and H_r be b_r plus the smallest and largest generalized eigenvalues of (A_r,B). For gold label y, define M = H_y − max_{s≠y} L_s. This is the exact best gold margin if each of the forty effects may be any unit vector on this input. Thus M < 0 rules out a correct decision even with that extra freedom. The obstruction applies to the trained circuit effects as a special case.",
+    "proof_or_counterexample": "EPS makes B positive definite. The generalized Rayleigh quotient gives the two endpoints, and the forty separate binary effects allow the gold maximum and all rival minima to be attained simultaneously in the relaxation. Selective dephasing matters here. If every token were dephased, any resulting logit could be reproduced on the original states by a diagonal mixed effect. Its quotient lies between the original pure-effect endpoints, so global dephasing could never increase M. Local dephasing can. For example, take two identical |+⟩ tokens on one qubit embedded in the three-qubit space, with gold utilities +1 on the protected token and −1 on the eligible token. Every original effect gives gold utility zero. Dephase only the eligible token and the same |+⟩ effect gives gold utility 1/(3 + 4 EPS), enough to beat a constant rival at 0.2. The other direction is possible too. Start the eligible token in |−⟩ and set the rival at 0.5. The original |+⟩ effect wins, but after local dephasing even the best gold effect reaches only 1/(3 + 4 EPS). Constant token states in the dephasing basis give a counterexample to any claim that the intervention must move the boundary.",
+    "known_tools_and_prior_art_boundary": "The eigenvalue calculation and dephasing duality are standard. The research content is the empirical claim that selective erasure moves actual labeled examples across this attainability boundary in both directions. Its connection to Q-RMEA comes from the per-relation normalization over tokens, the separate signed utilities, and the protected tokens that retain coherence. The supplied CNM reading describes a different pooling order. It does not establish priority for this question.",
+    "discriminating_prediction": "On the all-class cohort with both regions nonempty, predict both kinds of witness. A loss witness is an originally correct prediction that becomes wrong with M_both < 0. A recovery witness is an originally wrong prediction that becomes correct with M_original < 0. In either case the observed correct decision proves that the fixed utilities can support the gold label. The negative bound on the other side attributes the failure to a restriction on attainable token weights that survives every possible choice of relation effects for that input. A fixed-effect flip or an attention–utility covariance alone cannot establish that.",
+    "cheapest_next_test": "Use one fixed original checkpoint on TRAIN and the existing both-regions mask. Make the two forward reads across all classes in the input-defined cohort, then solve the 8×8 eigenproblems only for inputs whose correctness changes. For each direction report the witness count, the total number of correctness changes in that direction, and their ratio. Count a negative margin only when its sign clears numerical error. This requires no fitting or effect search.",
+    "stop_rule": "If either witness count is zero, close the two-direction hypothesis for this checkpoint and cohort. If both occur, the fractions determine how much of the observed behavior the mechanism explains. Isolated witnesses support an existence result only.",
+    "limitations": [
+      "The supplied aggregate CE and Macro scores establish neither witness. They do not even establish that any individual errors were corrected.",
+      "The bound deliberately grants independent, unrestricted effects on each input. A positive M leaves open whether the depth-two circuit and a single shared set of trained effects can realize the decision.",
+      "The interpretation concerns an intervention on token densities with states, utilities, and biases otherwise fixed. It establishes neither a lexical cause nor quantum necessity."
+    ]
+  },
+  "advice_only": true
+}

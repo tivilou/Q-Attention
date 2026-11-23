@@ -1,0 +1,28 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 44.93972992897034,
+  "profile_echo_verified": true,
+  "packet_sha256": "71b25bc6edbaafa5b6d3776d9ab7e80d4efe266cd39c4b3237ce2f661e1bcef0",
+  "hashes": {
+    "probe.py": "e4f30a5e48c5bf12f0a8a9d8b0a06dc71612e3864884d2a88ec08921f56ff85b",
+    "qualify.py": "dc253e9f8bd7cdb896706bb89d1def5c6c7ec2357928375deaa22522795e12fc",
+    "design.json": "08a602239680653d636ad494934fac0bf737e0518e346b236a4098121a357dd9",
+    "theory.md": "499ace0d4e7fc08d6c1acdcd51d26b7e628bbf825cd31c606a48fda914875bca",
+    "qualification.json": "818f27b1bf12ceef69679be5dff8eddb0780029b9c1ecece7948f6f7a4841fb5",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "accepted-two-gpu-wrapper.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "limitations": [
+      "Admission covers one frozen-checkpoint diagnostic on all 19,584 development VALID rows. The half-open span masks implement the stated geometry, and rows with either region empty receive the native computation in every mode. The supplied TRAIN counts meet all three support thresholds.",
+      "The probability substitution matches fixed-basis dephasing in the supplied native head. Each GPU’s first batch checks the explicit density trace and the source head’s fully dephased mode. Native logit parity, native argmax parity, and the centered-utility identity are checked on every row. This static review did not execute those checks or independently verify artifact hashes.",
+      "The six strict inequalities implement the stated decision rule. A pass would establish that outer dephasing scored better than native, bridge, and all-context on both prespecified metrics for this checkpoint and VALID set. Bridge and outer can differ in token count and content, so the comparison cannot isolate position as the cause or establish independent utility, quantum necessity, or novelty.",
+      "The launch relies on the supplied TRAIN qualification having been reviewed before admission. The probe itself does not read qualification.json. Its final ineligible-row check also assumes VALID contains at least one ineligible row. An empty subset would make np.max raise and prevent completion."
+    ],
+    "admission": "one_bounded_context_dephasing_VALID_diagnostic"
+  }
+}

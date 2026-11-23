@@ -1,0 +1,83 @@
+{
+  "verification": {
+    "argv": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/native-context-dephasing-20261123/verify.py",
+      "/hy-tmp/Q-Attention/control/native-context-dephasing-20261123/output",
+      "--reference",
+      "/hy-tmp/Q-Attention/control/native-ordered-mass-value-20261123"
+    ],
+    "stdin": null,
+    "stdout": "{\"status\": \"PASS\", \"gate\": \"FAIL_CLOSE_CONTEXT_PROFILE\", \"all_metrics_confusions_changes_and_six_gates_recomputed\": true, \"allrow_identity_error\": 1.0880185641326534e-14, \"ineligible_identity_verified\": true, \"max_metric_error\": 1.6653345369377348e-16}\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  "execution": {
+    "argv": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/native-context-dephasing-20261123/probe.py",
+      "--source",
+      "/hy-tmp/Q-Attention/source",
+      "--inputs",
+      "/hy-tmp/Q-Attention/inputs/native-baseline",
+      "--checkpoint",
+      "/hy-tmp/Q-Attention/inputs/native-checkpoint/native-final.pt",
+      "--reference",
+      "/hy-tmp/Q-Attention/inputs/native-word-metadata-20261123",
+      "--design",
+      "/hy-tmp/Q-Attention/control/native-context-dephasing-20261123/design.json",
+      "--output",
+      "/hy-tmp/Q-Attention/control/native-context-dephasing-20261123/output",
+      "--progress",
+      "/hy-tmp/Q-Attention/control/native-context-dephasing-20261123/progress.json",
+      "--allocation",
+      "/hy-tmp/Q-Attention/control/native-context-dephasing-20261123/launch.json",
+      "--attempt",
+      "1182874011f240efa913cbbe8b730065"
+    ],
+    "cwd": "/hy-tmp/Q-Attention/source",
+    "inputs": {
+      "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+      "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51"
+    },
+    "stdout": "{\"gate\": \"FAIL_CLOSE_CONTEXT_PROFILE\", \"seconds\": 22.40526008605957, \"eligible_rows\": 19007, \"results\": {\"native\": {\"ce\": 0.6298576331800944, \"positive_macro_f1\": 0.5164743763828692, \"repaired\": 0, \"damaged\": 0}, \"bridge\": {\"ce\": 0.6399093435974207, \"positive_macro_f1\": 0.48535766417141746, \"repaired\": 202, \"damaged\": 325}, \"outer\": {\"ce\": 0.6381667147895749, \"positive_macro_f1\": 0.49470530625820885, \"repaired\": 253, \"damaged\": 384}, \"context\": {\"ce\": 0.6550983168537485, \"positive_macro_f1\": 0.46937402735189704, \"repaired\": 358, \"damaged\": 608}}}\n",
+    "stderr": "",
+    "exit_code": 0,
+    "started_at": 1795406315.078132,
+    "finished_at": 1795406340.709182,
+    "runner_attempt_id": "1182874011f240efa913cbbe8b730065",
+    "file_hashes": {
+      "probe.py": "e4f30a5e48c5bf12f0a8a9d8b0a06dc71612e3864884d2a88ec08921f56ff85b",
+      "qualify.py": "dc253e9f8bd7cdb896706bb89d1def5c6c7ec2357928375deaa22522795e12fc",
+      "design.json": "08a602239680653d636ad494934fac0bf737e0518e346b236a4098121a357dd9",
+      "theory.md": "499ace0d4e7fc08d6c1acdcd51d26b7e628bbf825cd31c606a48fda914875bca",
+      "verify.py": "c57a8d9d6de8982531059cc675bd470d3fa71f9bc9b6a46bd007dae59a8993dd",
+      "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662"
+    }
+  },
+  "resource_return": {
+    "allocation_id": "c289bcf5123044849de63d9cd8178c09",
+    "generation": 23,
+    "project_id": "q-attention",
+    "host_id": "gpushare-i2-38434-2080tix2",
+    "run_id": "native-context-dephasing-20261123-v1",
+    "runner_attempt_id": "1182874011f240efa913cbbe8b730065",
+    "schema": "research.resource-return.v1",
+    "event_sequence": 1,
+    "observed_at": "2026-11-23T03:59:00.709961+00:00",
+    "campaign_status": "completed",
+    "all_jobs_terminal": true,
+    "quiescent": true,
+    "no_remaining_consumers": true,
+    "cleanup_status": "not_needed",
+    "resources_reusable": true,
+    "owner_pid": 207362,
+    "owner_pgid": 207362,
+    "owner_start_ticks": "637253650",
+    "boot_id": "74146a10-dc63-48fe-9f2d-86cbe605f111"
+  },
+  "resident_gone": true,
+  "remaining_group_members": []
+}
