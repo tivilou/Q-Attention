@@ -106,8 +106,19 @@ def verify_delivery(control,v):
                 else {'return_coherent','return_dephased','native_square'})
     if ready.get('trace_materialized') is not False or set(ready.get('checkpoints',{}))!=conditions or set(summary.get('results',{}))!=conditions:raise ValueError('Final checkpoint inventory differs')
     for kind,row in ready['checkpoints'].items():
-     rel='checkpoints/'+kind+'-final.pt';f=study/rel
-     if row.get('path')!=rel or f.is_symlink() or not f.is_file() or hashlib.sha256(f.read_bytes()).hexdigest()!=row['sha256'] or row['sha256']!=summary['results'][kind]['checkpoint_sha256']:raise ValueError('Final checkpoint differs')
+     result=summary['results'][kind]
+     if v['experiment']=='fair-reference':
+      selected=result['evaluation_checkpoint'];rel='checkpoints/'+kind+'-selected.pt';f=study/rel
+      if (row.get('path')!=rel or any(row.get(k)!=selected.get(k) for k in ('path','sha256','state_sha256','epoch'))
+          or row.get('epoch')!=result['selected_epoch'] or f.is_symlink() or not f.is_file()
+          or hashlib.sha256(f.read_bytes()).hexdigest()!=row['sha256']):raise ValueError('Selected checkpoint differs')
+      rel='checkpoints/'+kind+'-final.pt';f=study/rel
+      if (row.get('final_path')!=rel or f.is_symlink() or not f.is_file()
+          or hashlib.sha256(f.read_bytes()).hexdigest()!=row.get('final_sha256')
+          or row.get('final_sha256')!=result['checkpoint_sha256']):raise ValueError('Final checkpoint differs')
+     else:
+      rel='checkpoints/'+kind+'-final.pt';f=study/rel
+      if row.get('path')!=rel or f.is_symlink() or not f.is_file() or hashlib.sha256(f.read_bytes()).hexdigest()!=row['sha256'] or row['sha256']!=result['checkpoint_sha256']:raise ValueError('Final checkpoint differs')
     report=run.parent/(v['experiment']+'-safe-report');members={'summary.json','manifest.json','analysis-readiness.json','data.sha256','data_counts.txt','run_summary.json','receipt.json'}
     if report.is_symlink() or not report.is_dir() or {f.name for f in report.iterdir()}!=members or delivery.get('report',{}).get('path')!=str(report) or set(delivery['report'].get('files',{}))!=members:raise ValueError('Seven-file report coverage differs')
     for name,expected in delivery['report']['files'].items():

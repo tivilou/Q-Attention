@@ -2,7 +2,7 @@
   "status": "PASS_BOUNDED_ONLY",
   "checks": {
     "thin_cli": 18,
-    "delivery_receipt": 5,
+    "delivery_receipt": 6,
     "Linux_resident_process": 8,
     "unchanged_Git": 12,
     "unchanged_publisher": 21
@@ -18,5 +18,20 @@
   "no_current_GPU_claim": true,
   "no_current_COS_operation": true,
   "formal_admission": false,
-  "source_published": false
+  "source_published": false,
+  "actual_producer_byte_check": {
+    "status": "PASS",
+    "baseline": "Final checkpoint differs",
+    "modified": "selected AND final bytes match actual TRAIN-only canary producer",
+    "seconds": 0.03731535840779543,
+    "training_updates": 0,
+    "checkpoint_files_hardlinked": 10
+  },
+  "capability_reuse": {
+    "process_scope_functions": {
+      "run_scope": "4605c3c88c3ad43dc7847a13cb893df6990736aec5e9352beb1ebac77dba585b",
+      "main": "4fb97111c8f6e2b4967a7b0dcd120f64d674636b61648b0e22512faadd5bf888"
+    },
+    "training_core_changed": false
+  }
 }
