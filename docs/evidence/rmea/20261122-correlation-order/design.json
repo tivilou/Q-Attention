@@ -1,0 +1,71 @@
+{
+  "profile": "correlation-order-frozen4096-v1",
+  "time": 0.05,
+  "count_per_split": 4096,
+  "batch_size": 8,
+  "split_totals": {
+    "train": 58465,
+    "valid": 19584
+  },
+  "timeout_seconds": 900,
+  "source_revision": "b9bbdff04e11ebabf809c0649ad74d368ab7c6ec",
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "code_hashes": {
+    "probe.py": "ff907a1a77d5490872c9e646ca78ca1cda7bb7e5026b06f447ff6ad599137162",
+    "correlation_order.py": "bd13b9462b616bc7a1bd5410be35f20550b390fbb61fdc959dc8bc0ef4502c90"
+  },
+  "hypothesis": "At fixed native checkpoint, local correlation-order attenuation has valid4096 CE at least.001 below exactly purity-matched global isotropic smoothing, with Macro-F1 no worse than native by.01. This measures a mechanism opportunity, not trained utility.",
+  "control": "At every class effect and fixed t=.05 match trace1 and purity exactly: kappa=sqrt(sum_k exp(-2kt)*w_rk/7). All valid token inputs, utilities and native parameters identical.",
+  "selection": "First4096 existing train and first4096 existing valid, previously exposed development; no test cache opened or outcome-selected subsampling.",
+  "stop": "One t/checkpoint/cohort. Failed engineering aborts; no t/seed/cohort/floor rescue. A failed fixed-model probe does not establish all-family impossibility. Passing admits method-design/training feasibility assessment, not L5 or automatic full training.",
+  "persistence": "Only code, frozen contract and aggregate scalar reports via GitHub. No fitted states, model/cache download to Windows or newCOS.",
+  "resource_bound": {
+    "cpu_cores": 2,
+    "memory_mb": 8192,
+    "gpu_count": 2
+  },
+  "novelty": "Local depolarization/projected quantum kernels are established. Candidate-specific task mechanism remains exploratory; no novelty claim.",
+  "cache_hashes": {
+    "train-h.npy": {
+      "bytes": 4432355456,
+      "sha256": "b69b1bfb97f20932b26dcea8b13a788a12ec98ec43a68de1801960ad5c526635"
+    },
+    "train-roles.npy": {
+      "bytes": 34627904,
+      "sha256": "b62e4e23836c8b5b9b930e5b9d993f0890a729bfdadbcee02b08c23cae0c3d73"
+    },
+    "train-offsets.npy": {
+      "bytes": 467856,
+      "sha256": "a1ef178eae3b9c16b4cfa20dc66af15a1dd0238bb9fc2fffd55b7a6328c25601"
+    },
+    "train-targets.npy": {
+      "bytes": 467848,
+      "sha256": "6ce409b586a421995f7d70906f062a7e91fe9d35a04be5359a2f58a3485ee604"
+    },
+    "valid-h.npy": {
+      "bytes": 1416849536,
+      "sha256": "a45b2b43bbacbe41b3d7c327b10bc5708b258e13e5c0eff79fea52c4d83ed9f6"
+    },
+    "valid-roles.npy": {
+      "bytes": 11069264,
+      "sha256": "0af5324a5ba0e741b27f85f798277706eb7b0faeb8348657a8319c2b56f772a7"
+    },
+    "valid-offsets.npy": {
+      "bytes": 156808,
+      "sha256": "1b68a943c03e9c80e455da1600cb65a0c463f7ea4815465744001bb0b4c1c13f"
+    },
+    "valid-targets.npy": {
+      "bytes": 156800,
+      "sha256": "87f63eef29f0b267dd4be85f6265b7632542ce0b71f7212a2ff240ed6f88a71b"
+    }
+  },
+  "cache_hash_provenance": {
+    "record_sha256": "a28b15f4143b446c35bb5ed4708f613cfebdf1da14277dfd96ae473581a639f8",
+    "status": "Same owner-side pinned recovery verification; exact8cache files streamed once per diagnostic before use."
+  },
+  "prelaunch_correction": "Bind exact8TRAIN/valid cache bytes before array use; streaming hash avoids whole-file RAM copies. No scientific result/gate/time/cohort changes."
+}

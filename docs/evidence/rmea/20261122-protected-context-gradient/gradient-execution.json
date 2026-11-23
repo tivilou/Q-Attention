@@ -1,0 +1,60 @@
+{
+  "schema": "q-rmea.protected-context.gradient-execution.v1",
+  "task": "44ee015d887d409ba74680ace9d651c7",
+  "attempt": "a47734e3b15f4999a8bffb319e0087bc",
+  "state": "complete",
+  "revision": "633dac31e5dc2f86d3961a61ba80d008230d6b9f",
+  "recipe": {
+    "command": [
+      "{python}",
+      "-B",
+      "experiments/q_rmea_protected_context_unit.py",
+      "--fixture",
+      "/hy-tmp/Q-Attention/worker/attempts/102818b8681f4417a2a64bde19e77e80/output/private-fixture.pt",
+      "--output",
+      "{output}"
+    ],
+    "kind": "unit",
+    "max_attempts": 1,
+    "outputs": [
+      "gradient-summary.json",
+      "private-replay.pt",
+      "RUN_COMPLETE"
+    ],
+    "replay_safe": false,
+    "resources": {
+      "cpu": 2,
+      "disk_mb": 256,
+      "gpu_mb": 0,
+      "gpus": 0,
+      "ram_mb": 8192
+    },
+    "timeout": 300
+  },
+  "receipt": {
+    "returncode": 0,
+    "quiescent": true,
+    "finished": 1795311844.496777,
+    "revision": "633dac31e5dc2f86d3961a61ba80d008230d6b9f",
+    "outputs": {
+      "RUN_COMPLETE": {
+        "bytes": 65,
+        "sha256": "c8020c6003fda29bf8b4466cd5807bfbd18de814ce196c1802d8960e7e56dd2a"
+      },
+      "gradient-summary.json": {
+        "bytes": 3402,
+        "sha256": "daffc942efcc1fdfe0ffb2d2267efa80357a25d71e4a0252e26a76ddba342320"
+      },
+      "private-replay.pt": {
+        "bytes": 1576078,
+        "sha256": "bac71835c0399346120d7ed2f8849765665d58f32efa799a58d4ba56872747dd"
+      }
+    }
+  },
+  "summary_sha256": "daffc942efcc1fdfe0ffb2d2267efa80357a25d71e4a0252e26a76ddba342320",
+  "fixture_sha256": "bac71835c0399346120d7ed2f8849765665d58f32efa799a58d4ba56872747dd",
+  "fixture_bytes": 1576078,
+  "only_safe_json_downloaded": true,
+  "sample_trace_v2": false,
+  "L5": "NOT_ACCEPTED"
+}

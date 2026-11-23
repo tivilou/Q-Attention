@@ -1,0 +1,50 @@
+{
+  "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "profile": "native-two-effect-normalization-order-v1",
+  "code_sha256": "fe54467601d3b3ca714b1f1f13d4bc43e548f2a065b2b7d36a2e107b2c9e53ee",
+  "train_items": 8192,
+  "valid_items": 19584,
+  "trainable": "Two original12-angle raw circuit effects per40relations/960parameters perarm; original preparation/value/decoder/bias frozen",
+  "initialization": "Original raw effects plus/minus .1 times unit12vectors from NumPydefault_rng(0); identical botharms",
+  "optimization": {
+    "epochs": 2,
+    "batch": 32,
+    "updates_per_arm": 512,
+    "optimizer": "Adam",
+    "lr": 0.001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "weight_decay": 0,
+    "clip": null,
+    "scheduler": null,
+    "train_order": "Successive NumPydefault_rng(13) permutations sharedbotharms",
+    "checkpoint_selection": "Fixedfinal512, no validation selection",
+    "dtype": "float64/complex128"
+  },
+  "ce_gain": 0.005,
+  "macro_gain": 0.003,
+  "gate": "Before-normalization candidate must beat BOTH reused native and equallyparameterized postnormalization control by CE>=.005 andpositive39Macro>=.003; all4inequalities",
+  "recovery": "Cheap bounded512update heads; pinned durable inputs; no periodicCOS; numericalfailure invalid/unresolved, scientificfailure closesexactprofile without rank/init/step/regularization/cohort/threshold/seed rescue",
+  "public_whitelist": [
+    "fixtures.json",
+    "summary.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": [
+    "train-C.private.npy",
+    "train-B.private.npy",
+    "valid-C.private.npy",
+    "valid-B.private.npy",
+    "final-effects.private.npz"
+  ],
+  "claim_scope": "Exposed TRAIN/VALID bounded incremental utility, no independent confirmation or full-model utility, genericmixture mathnovelty, originalL4inheritance orL5",
+  "launch": "Unchanged host_run.py and acknowledged allocation, oneGPU batchesboth tinyheads withsharedmoments; no stable-core/lifecycle change"
+}

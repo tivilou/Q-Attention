@@ -1,0 +1,52 @@
+{
+  "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "split_reference_sha256": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "resources": {
+    "gpus": 1,
+    "cpu_cores": 4,
+    "ram_gib": 12,
+    "disk_gib": 1
+  },
+  "zero_gradient_tolerance": 1e-12,
+  "derivative_tolerance": 1e-08,
+  "finite_difference_step": 1e-05,
+  "finite_difference_tolerance": 1e-07,
+  "microbatch_size": 4,
+  "fixture_rows": 8,
+  "timeout_seconds": 1200,
+  "profile": "native-two-label-group-shared-directions-TRAIN8192-v1",
+  "modes": [
+    "frequency",
+    "balanced",
+    "common"
+  ],
+  "group_counts": [
+    2764,
+    1428,
+    2623,
+    1377
+  ],
+  "completed_direction_control": "/hy-tmp/Q-Attention/control/native-effect-transfer-20261123",
+  "completed_direction_sha256": "e30ea3126cb9c07fdc1f2c88c10f45b0fb9760aebe06dc5e34a57fc801f6cde4",
+  "unchanged_helper_sha256": "5e57136d8de7a43f4b73ccce9d604a712b6f50dc834907dd3a3496ce544604b9",
+  "code_hashes": {
+    "two_group.py": "c6a4efa52285ce955ff6608dc1d0569ee53da957ca123924527c78591e7425ca"
+  },
+  "public_whitelist": [
+    "summary.json",
+    "fixtures.json",
+    "RUN_COMPLETE",
+    "directions-frozen.json"
+  ],
+  "private_outputs": [
+    "diagnostic.private.npz",
+    "directions.private.npy"
+  ],
+  "claim_scope": "ExposedTRAIN only, zero-update original shared circuit diagnostic; known MGDA tool not novel quantum theory; no finite repair/Macro gain/independent utility or L5",
+  "recovery": "Cheap deterministic native diagnostic from immutable inputs; no optimizer, checkpoint, COS, automatic retry or substitute direction"
+}

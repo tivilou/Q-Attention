@@ -1,0 +1,38 @@
+{
+  "schema": "q-rmea.role-binding-screen-headroom.v1",
+  "scope": {
+    "task": "Frozen exploratory semantic role-binding screen",
+    "population": "40 input-hash-selected natural pairs from original Re-TACRED TRAIN",
+    "metric": "count of both-reader explicit binding witnesses with both labels matching the stored annotations",
+    "direction": "higher",
+    "units": "pairs",
+    "denominator": 40,
+    "label_change_allowed": false,
+    "selection_sha256": "1eea2dd92f84476408cd714eba97242d6355fd3fe6c658c66ecb18e43bf01e5f"
+  },
+  "comparator": {
+    "status": "not_applicable_with_reason",
+    "reason": "Text-structure qualification, no model/comparator utility experiment"
+  },
+  "bound": {
+    "kind": "label-aware necessary-condition upper bound",
+    "status": "exact_under_stated_assumptions",
+    "value": 7,
+    "proof": "Every counted witness must have unequal stored labels. Exactly7 of the frozen40 pairs have unequal stored labels, so any possible reader output yields at most7 witnesses. This upper bound need not be attainable semantically.",
+    "true_semantic_witness_interval": [0, 7],
+    "operational_both_reader_count": 3,
+    "operational_count_is_not_proven_semantic_lower_bound": true
+  },
+  "decision": {
+    "frozen_required_count": 8,
+    "count_gate_attainable": false,
+    "classification": "INSUFFICIENT_LABEL_CONTRAST_SUPPORT",
+    "exact_selection_closed": true,
+    "quantum_mechanism_falsified": false,
+    "threshold_or_cohort_rescue": false,
+    "lesson": "After sealing an outcome-blind sample, compute cheap necessary-condition ceilings before semantic calls or model experiments. A ceiling below the continuation requirement is a coverage stop, not a negative method result."
+  },
+  "timing": "Derived after the saved two-reader calls; explicitly not a preregistered headroom check",
+  "reassess_when": "A separately specified population, permitted input or annotation contract changes; no rerun/reselection of this closed screen",
+  "l5_status": "NOT_ACCEPTED"
+}

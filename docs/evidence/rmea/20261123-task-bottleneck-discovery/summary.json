@@ -1,0 +1,148 @@
+{
+  "profile": "task-first-existing-TRAIN8192-prediction-census-v1",
+  "scope": "Exploratory reused TRAIN assessment, no heldout/independent claim. All fixed4000 assessment rows retained; all contrasts enumerated, not a rescue/resample of closed binding40.",
+  "data": {
+    "total": 8192,
+    "fit": 4192,
+    "assessment": 4000,
+    "types_join_unresolved": 0,
+    "metadata_alignment_checked": true,
+    "source_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+    "prediction_archive_sha256": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833"
+  },
+  "native": {
+    "correct": 3522,
+    "items": 4000,
+    "accuracy": 0.8805,
+    "positive39_macro_f1": 0.678962929004742
+  },
+  "type_compatibility": {
+    "input": "Original given subject/object entity-type metadata; additional explicit input relative to native four role coordinates.",
+    "rule": "Observed fit-only type-pair labels plus no_relation; unseen type-pairs or ambiguous metadata permit all; fit-absent classes retained. Fixed rule/no threshold tuning.",
+    "seen_fit_type_pairs": 25,
+    "assessment_seen_type_pair": 4000,
+    "incompatible_top1": 55,
+    "gold_excluded": 8,
+    "repairs": 33,
+    "damage": 4,
+    "projected": {
+      "correct": 3551,
+      "items": 4000,
+      "accuracy": 0.88775,
+      "positive39_macro_f1": 0.6983422969080303
+    },
+    "macro_delta": 0.019379367903288314,
+    "decision": "POSITIVE_EXPLORATORY_TYPE_REPAIR"
+  },
+  "role_binding": {
+    "same_type_disjoint_pairs": 139,
+    "different_label_pairs": 34,
+    "positive_positive_pairs": 1,
+    "same_top1_on_different_gold": 15,
+    "wrong_or_zero_relative_label_contrast": 2,
+    "both_correct_pairs": 17,
+    "collapsed_unique_rows": 30,
+    "collapsed_sentence_groups": 15,
+    "oracle_fix_all_collapsed_rows": {
+      "correct": 3537,
+      "items": 4000,
+      "accuracy": 0.88425,
+      "positive39_macro_f1": 0.6816907960448463
+    },
+    "oracle_caveat": "Label-aware ceiling within this exposed cohort, not a deployable repair, causal bottleneck proof or task-independent advantage. Distinct pairs overlap."
+  },
+  "error_counts": {
+    "total": 478,
+    "null_false_positive": 202,
+    "positive_false_negative": 216,
+    "positive_wrong_relation": 60
+  },
+  "top_confusions": [
+    {
+      "gold": "per:employee_of",
+      "predicted": "no_relation",
+      "count": 44
+    },
+    {
+      "gold": "no_relation",
+      "predicted": "per:identity",
+      "count": 39
+    },
+    {
+      "gold": "per:identity",
+      "predicted": "no_relation",
+      "count": 35
+    },
+    {
+      "gold": "no_relation",
+      "predicted": "per:title",
+      "count": 25
+    },
+    {
+      "gold": "no_relation",
+      "predicted": "org:country_of_branch",
+      "count": 25
+    },
+    {
+      "gold": "no_relation",
+      "predicted": "org:top_members/employees",
+      "count": 24
+    },
+    {
+      "gold": "org:top_members/employees",
+      "predicted": "no_relation",
+      "count": 23
+    },
+    {
+      "gold": "org:alternate_names",
+      "predicted": "no_relation",
+      "count": 19
+    },
+    {
+      "gold": "no_relation",
+      "predicted": "per:employee_of",
+      "count": 17
+    },
+    {
+      "gold": "org:city_of_branch",
+      "predicted": "no_relation",
+      "count": 17
+    },
+    {
+      "gold": "no_relation",
+      "predicted": "org:members",
+      "count": 14
+    },
+    {
+      "gold": "org:country_of_branch",
+      "predicted": "no_relation",
+      "count": 11
+    },
+    {
+      "gold": "no_relation",
+      "predicted": "org:city_of_branch",
+      "count": 10
+    },
+    {
+      "gold": "org:member_of",
+      "predicted": "no_relation",
+      "count": 10
+    },
+    {
+      "gold": "per:title",
+      "predicted": "no_relation",
+      "count": 8
+    }
+  ],
+  "execution": {
+    "model_forwards": 0,
+    "optimizer_updates": 0,
+    "gpu_compute": 0,
+    "cos_writes": 0,
+    "valid_test_used": false,
+    "seconds": 0.8938473192974925
+  },
+  "claim_ceiling": "A measurable task problem / cheap repair test only; no chosen quantum solution, novelty, significance, formal utility or L5 acceptance",
+  "code_sha256": "c36f68414a75fefd630c73b9ebab4a48da74a4ada4eba28cd9ee8766622afe33",
+  "design_sha256": "02153070c9b8fb7b4a1e3d3e3e3eb363e5d09ef94a3374c4e3dfd07112dbbe62"
+}

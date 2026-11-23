@@ -1,0 +1,82 @@
+{
+  "mention_distribution": {
+    "9": 8,
+    "8": 19,
+    "11": 4,
+    "13": 1
+  },
+  "eligible_cases": 27,
+  "both_signed_admitted": 1,
+  "one_or_more_signed_admitted": 1,
+  "eligible_signed": 54,
+  "admitted_signed": 2,
+  "eligible_but_raw_residual_failed": 52,
+  "positive_cases": [
+    {
+      "index": 39564,
+      "id_hash": "0a84c3fc580f96ad02352ddb811c8e84dd2959ad7004d224088dd494d2128901",
+      "mention_tokens": 8,
+      "signed": [
+        {
+          "sign": -1,
+          "eligible": true,
+          "admitted": true,
+          "kappa": 0.9414400396885403,
+          "logit_delta": -0.0004706050312819343,
+          "predicted_delta": -0.00047072001984427015,
+          "first_order_error": 1.1498856267166957e-07,
+          "raw_error": 2.601252546696742e-13,
+          "attention_error": 9.980904991380157e-14,
+          "mass_error": 1.2800871473928055e-13,
+          "positive": true
+        },
+        {
+          "sign": 1,
+          "eligible": true,
+          "admitted": true,
+          "kappa": 0.9414400396885403,
+          "logit_delta": 0.0004708344672703646,
+          "predicted_delta": 0.00047072001984427015,
+          "first_order_error": 1.1444742575861255e-07,
+          "raw_error": 2.5596191832732984e-13,
+          "attention_error": 9.847678228425139e-14,
+          "mass_error": 1.2723155862204294e-13,
+          "positive": true
+        }
+      ],
+      "positive": true
+    }
+  ],
+  "gradient_checks": [
+    {
+      "coordinate": 0,
+      "autograd": 0.000227745240726594,
+      "finite_difference": 0.00022774516672541267,
+      "error": 7.400118132204828e-11,
+      "passed": true
+    },
+    {
+      "coordinate": 1,
+      "autograd": 0.00014624491014302246,
+      "finite_difference": 0.00014624486333048026,
+      "error": 4.6812542205251426e-11,
+      "passed": true
+    },
+    {
+      "coordinate": 39,
+      "autograd": -4.735471335209691e-05,
+      "finite_difference": -4.735469616434784e-05,
+      "error": 1.718774906742885e-11,
+      "passed": true
+    }
+  ],
+  "cost": {
+    "examples": 8,
+    "relations": 40,
+    "forward_backward_seconds": 1.7214826392009854,
+    "peak_cuda_bytes": 75436032,
+    "admitted_queries": 280,
+    "total_queries": 320
+  },
+  "zero_beta_error": 0.0
+}

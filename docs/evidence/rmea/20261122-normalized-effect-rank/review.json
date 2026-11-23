@@ -1,0 +1,27 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "packet_sha256": "ba0998c004d0339f1f7d0d7c79b06de2cbc0965d182f3fe368c6e85a2b761712",
+  "seconds": 39.27328824996948,
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "mathematical_verdict": "Three protected mention weights are necessary and sufficient in the existence sense for a strict mixed-over-all-pure advantage in this complex, per-example problem. For the normalization, B ≻ 0 makes Y = ρ/Tr(Bρ) invertible by ρ = Y/Tr(Y). The slice is closed and bounded because Tr(Y) ≤ 1/λ_min(B). Its objective is Tr(CY), and the dual slack has the stated sign, λ₀B + ΣⱼλⱼQⱼ − C. A sufficiently large λ₀ gives strict dual feasibility. Native feasibility and compactness give primal attainment, and strict dual feasibility gives zero gap. At an extreme optimum of rank r, Hermitian perturbations on its range have real dimension r². If r² exceeds the effective equality count, a nonzero perturbation preserves every equality and both sufficiently small signs preserve positivity. Thus r² ≤ rank_R{B,Q₁,…,Qₘ} ≤ m+1, so for m ≤ 2 there is a pure optimum. For the three-mention witness, B = (4+32ε)I and C = P_q+2εI. The stated λ₀ with zero mention multipliers gives slack I−P_q, which annihilates the feasible rank-two mixture and certifies its optimum. For a feasible pure state, expanding each squared overlap gives bⱼ = o−2√2 Re(conj(t)sⱼᴴq), including the positive Pauli-Y convention for (1,i)/√2. Since ‖b‖ = r and λ_max(Σⱼsⱼsⱼᴴ) = (3+√3)/2 = λ, the triangle inequality gives r ≤ √3o+√(8λr|t|²). With a = |t|², the right side is increasing throughout [0,1−r] when 2λr ≥ 3(1−r). Its endpoint then gives r ≤ 8λ/(1+8λ). The complementary branch gives r ≤ 3/(3+2λ), a smaller bound. Consequently the certified logit gap against every feasible pure effect is at least 1/((1+8λ)(4+32ε)), greater than 0.01 at the supplied EPS.",
+    "limitations": [
+      "The bijection is between feasible density matrices and feasible Y matrices. The attention vector is their linear image in Y coordinates and need not identify the density matrix. Pure optimality for m ≤ 2 concerns unrestricted complex pure effects.",
+      "Static review of the supplied verifier confirms the row-state frame operator ψᵀconj(ψ), conjugation in ψᴴρψ, mention indices 0/8/16, and utility indices 24/27. The separate four-token frame gives component denominators 2+4ε and 1+4ε, so denominator reweighting is a substantive check of mixing Born scores before normalization. The all-pure bound comes from the proof. Its exact tightness is unnecessary for the gap.",
+      "In the supplied circuit, the ordered CNOT ring sends |100⟩ to |011⟩, giving the two signed mixture components from second-layer wire-0 RY angles ±π/2. For the native state, the first ring preserves |+++⟩, the second local layer produces |011⟩, and the final ring sends it to |010⟩. All raw parameters atanh(θ/π) are finite. These identities establish effect-side reachability only. The token states and basis completions are synthetic state-port inputs.",
+      "This was a source-text review. The verifier checks the designated rmea.py digest before importing its circuit and EPS. No fixture was executed, no host files or supplied hashes were independently inspected, and no numerical pass or allocation outcome is reported.",
+      "The support value is a frozen-utility oracle for one example and relation. It establishes no shared trainable head, natural-text reachability, favorable cross-entropy or accuracy, novelty, or L5 result. The earlier fixed-chord experiment stays closed under its original gates. Admission covers one frozen no-fit CPU fixture only."
+    ],
+    "nearest_originals": [
+      "Charnes and Cooper, Programming with Linear Fractional Functionals (1962), for the positive-denominator rescaling. The pure objective has generalized Rayleigh quotient form.",
+      "Huang and Zhang, Complex Matrix Decomposition and Quadratic Programming (2007), for complex Hermitian rank reduction and its QCQP setting.",
+      "Weis, Quantum Convex Support (2011), for the geometry of expectation vectors of density matrices and their relation to joint numerical ranges.",
+      "Density-matrix attention and classical mixtures of attention heads are prior-art comparison classes. Here the exact classical mixture uses weights proportional to qₗZₗ. No attention-method priority determination was made."
+    ],
+    "admission": "one_frozen_synthetic_fixture"
+  }
+}

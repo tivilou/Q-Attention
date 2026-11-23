@@ -1,0 +1,26 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 17.16388440132141,
+  "packet_sha256": "f7b700eeed9a054d873402f480184aea90d52a50ccd9bbf094dbcd659ab07586",
+  "hashes": {
+    "qualify.py": "1f0609b29c4cdb4998deb0d0268d8a241771d0a2034ea91d81f1275143064d90",
+    "design.json": "9b87ee1f42279d358c5a3686ffe2ed48f69301ee8989e3e746255a56e59ebfa6",
+    "theory.md": "c6cbb0669a12b91d6fa5cfdfcb0bd5d5d2aa96edee3024717302f20073e96a09",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "Source review supports admission to one run. The checkpoint replay and its numerical tolerances remain unverified until execution. The script reads the first 128 stored TRAIN items through h, roles and offsets, with no target, VALID or TEST file access.",
+      "Slicing each row to its original valid-token count reproduces the native mask. With a_t = bias_r + u_rt − s and D_r = mean_t(p_rt + EPS) > 0, the implemented contrast equals D_r(z_r − s). Adding EPS·mean_t(a_t) exactly preserves the native numerator.",
+      "The four-token fixture gives mean 0.825 under both proposals, with variance 2.019375 for uniform sampling and 0.931875 for |a|-proportional sampling. Zero coefficients can be skipped under the latter proposal, and an all-zero row has deterministic zero contrast and width. The reported range conservatively includes zero and every proposed success value. The minimax result applies only to the maximum absolute importance-weighted value.",
+      "Every item enters the all-40 count at each grid point. A tied top score fails the strict decision check. The oracle midpoint and population-variance widths support descriptive TRAIN scale counts only. Coverage, stopping cost, sampled-shot advantage and L5 remain outside the claim.",
+      "The statement in theory.md that private arrays stay on the GPU is imprecise. qualify.py copies tensors to host memory and writes per-row arrays to scale.private.npz, which the launch contract designates private."
+    ],
+    "admission": "one_TRAIN_only_measurement_scale_qualification"
+  }
+}

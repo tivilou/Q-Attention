@@ -1,0 +1,47 @@
+{
+  "task": "74aa8ea7ab1f4916859ba0e8e631b39e",
+  "attempt": "5054c2c92ef849ab912247ae44225ec1",
+  "state": "complete",
+  "kind": "CPU diagnostic",
+  "revision": "8b5eca869517b873c89e12369a6389355d3845d8",
+  "command": {
+    "command": [
+      "{python}",
+      "-B",
+      "-c",
+      "import hashlib,pathlib,runpy,sys;r=pathlib.Path('/hy-tmp/Q-Attention/control/shared-rng-seeding-20261122');h={'seed-check.py': 'eeafc271ea34743bcfa1056e4d72838b851b679d8648be6ce4293c0d2e0d5a69', 'seed-before.py': '9cadb54b6088cf32e01c7bb08b375442ad68febe5d06628ac173647c4e0d0e85', 'source/baselines/retacred/rmea_token_transport_study.py': '14d796f4970fddd7f218ef637b9a41a6e0a871dac978025b30f13713b18b6e7b'};assert all(hashlib.sha256((r/n).read_bytes()).hexdigest()==v for n,v in h.items());sys.argv=[str(r/'seed-check.py'),'--output',sys.argv[1],'--study',str(r/'source/baselines/retacred/rmea_token_transport_study.py'),'--before',str(r/'seed-before.py')];runpy.run_path(str(r/'seed-check.py'),run_name='__main__')",
+      "{output}"
+    ],
+    "kind": "diagnostic",
+    "max_attempts": 1,
+    "outputs": [
+      "seed-validation.json",
+      "RUN_COMPLETE"
+    ],
+    "replay_safe": false,
+    "resources": {
+      "cpu": 1,
+      "disk_mb": 32,
+      "gpu_mb": 0,
+      "gpus": 0,
+      "ram_mb": 2048
+    },
+    "timeout": 120
+  },
+  "receipt": {
+    "returncode": 0,
+    "quiescent": true,
+    "revision": "8b5eca869517b873c89e12369a6389355d3845d8",
+    "outputs": {
+      "RUN_COMPLETE": {
+        "bytes": 108,
+        "sha256": "fe34a6464b03918a16ba4baaaa4dcdc781e8067503db76880abffa58c2bd3f00"
+      },
+      "seed-validation.json": {
+        "bytes": 763,
+        "sha256": "1be3075d5b619b8e7fede1c57656513e1e85dd66fbe02160ec48d22681eec2fa"
+      }
+    }
+  },
+  "test_inputs": "actual old/new train initialization AST, actual RMEA model initialization and old RNG state serializer; seed13; no fit"
+}

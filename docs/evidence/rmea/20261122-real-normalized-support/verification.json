@@ -1,0 +1,180 @@
+{
+  "status": "BOTH_COMPLETE_ORIGINAL_NUMERICS_UNRESOLVED_EXPLICIT_GATE_FAILED",
+  "scientific_conclusion": "UNRESOLVED_NUMERICAL; no evidence of an empty feasible slice or zero support width.",
+  "source_hashes": {
+    "probe.py": "9596b547c7cd7208ffff926bd6c3678afc810b95b9de85337e2dff46a73e54a6",
+    "design.json": "28e23d7b15596bbef6758dd8fb1cdbf9931e80fd1809e7ea6b21af8d92209003",
+    "host_run.py": "563d64131c2dbfda391651eda3752ae01f56bd2f86b3ab60da399e4e4cbd198d",
+    "population.json": "fb558bfe08bacd94001172d42201ed70912dd4da592b2390b913777a0f01cfa3"
+  },
+  "execution": {
+    "argv": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/real-normalized-support-20261122/probe.py",
+      "--source",
+      "/hy-tmp/Q-Attention/source",
+      "--inputs",
+      "/hy-tmp/Q-Attention/inputs/native-baseline",
+      "--checkpoint",
+      "/hy-tmp/Q-Attention/inputs/native-checkpoint/native-final.pt",
+      "--population",
+      "/hy-tmp/Q-Attention/control/real-normalized-support-20261122/population.json",
+      "--math-target",
+      "/hy-tmp/Q-Attention/tools/convex-support-20261122",
+      "--design",
+      "/hy-tmp/Q-Attention/control/real-normalized-support-20261122/design.json",
+      "--output",
+      "/hy-tmp/Q-Attention/control/real-normalized-support-20261122/output",
+      "--progress",
+      "/hy-tmp/Q-Attention/control/real-normalized-support-20261122/progress.json",
+      "--attempt",
+      "1c2e6070887840d5955654b12d31b2d3"
+    ],
+    "cwd": "/hy-tmp/Q-Attention/source",
+    "inputs": {
+      "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+      "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+      "population_sha256": "fb558bfe08bacd94001172d42201ed70912dd4da592b2390b913777a0f01cfa3"
+    },
+    "stdout": "{\"status\": \"complete\", \"selected_count\": 32, \"finite_count\": 0, \"positive_count\": 0, \"width_range\": null, \"gates\": {\"all_cases_retained\": true, \"finite_nonzero_coverage\": false, \"all_native_feasible\": true, \"native_in_interval\": true}, \"local_gate\": false, \"L5\": \"NOT_ACCEPTED\"}\n",
+    "stderr": "/hy-tmp/Q-Attention/tools/convex-support-20261122/cvxpy/problems/problem.py:1504: UserWarning: Solution may be inaccurate. Try another solver, adjusting the solver settings, or solve with verbose=True for more information.\n  warnings.warn(\n",
+    "exit_code": 0,
+    "started_at": 1795347905.2593243,
+    "finished_at": 1795347912.6582835,
+    "runner_attempt_id": "1c2e6070887840d5955654b12d31b2d3",
+    "file_hashes": {
+      "probe.py": "9596b547c7cd7208ffff926bd6c3678afc810b95b9de85337e2dff46a73e54a6",
+      "design.json": "28e23d7b15596bbef6758dd8fb1cdbf9931e80fd1809e7ea6b21af8d92209003",
+      "host_run.py": "563d64131c2dbfda391651eda3752ae01f56bd2f86b3ab60da399e4e4cbd198d",
+      "population.json": "fb558bfe08bacd94001172d42201ed70912dd4da592b2390b913777a0f01cfa3"
+    }
+  },
+  "centre_status_counts": {
+    "optimal": 2,
+    "optimal_inaccurate": 30
+  },
+  "fully_accepted_intervals": 0,
+  "strict_centres_resolved": 2,
+  "endpoint_statuses": "All4 endpoint solves from2optimal centre cases were optimal_inaccurate.",
+  "allocation_state": "released",
+  "prior_gate_preserved": true,
+  "L5": "NOT_ACCEPTED",
+  "explicit_profile": {
+    "status": "VALID_COMPLETE_GATE_FAILED",
+    "scientific_conclusion": "One actual input has a numerically feasible finite density-effect interval; fixed64 projection has insufficient coverage. No all-family impossibility or training admission.",
+    "execution": {
+      "argv": [
+        "/hy-tmp/Q-Attention/env/bin/python",
+        "-B",
+        "/hy-tmp/Q-Attention/control/explicit-normalized-support-20261122/probe.py",
+        "--source",
+        "/hy-tmp/Q-Attention/source",
+        "--inputs",
+        "/hy-tmp/Q-Attention/inputs/native-baseline",
+        "--checkpoint",
+        "/hy-tmp/Q-Attention/inputs/native-checkpoint/native-final.pt",
+        "--population",
+        "/hy-tmp/Q-Attention/control/explicit-normalized-support-20261122/population.json",
+        "--math-target",
+        "/hy-tmp/Q-Attention/tools/convex-support-20261122",
+        "--design",
+        "/hy-tmp/Q-Attention/control/explicit-normalized-support-20261122/design.json",
+        "--output",
+        "/hy-tmp/Q-Attention/control/explicit-normalized-support-20261122/output",
+        "--progress",
+        "/hy-tmp/Q-Attention/control/explicit-normalized-support-20261122/progress.json",
+        "--attempt",
+        "a954f4ef38bd4a5994e19dce7c015d73"
+      ],
+      "cwd": "/hy-tmp/Q-Attention/source",
+      "inputs": {
+        "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+        "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+        "population_sha256": "fb558bfe08bacd94001172d42201ed70912dd4da592b2390b913777a0f01cfa3"
+      },
+      "stdout": "{\"status\": \"complete\", \"library_fixture\": {\"problem\": \"max t subject to Z>=tI,Tr Z=1; analytic t=1/8\", \"diagnostic_only\": true, \"status\": \"optimal\", \"value\": 0.12500000000018757, \"value_error\": 1.875721800104202e-13, \"minimum_eigenvalue\": 0.125, \"trace_error\": 4.440892098500626e-16}, \"selected_count\": 32, \"finite_count\": 1, \"positive_count\": 1, \"width_lower_bound_range\": [0.06792725310863279, 0.06792725310863279], \"gates\": {\"all_cases_retained\": true, \"finite_nonzero_coverage\": false, \"all_native_feasible\": true}, \"local_gate\": false, \"L5\": \"NOT_ACCEPTED\"}\n",
+      "stderr": "",
+      "exit_code": 0,
+      "started_at": 1795349030.1972954,
+      "finished_at": 1795349035.240633,
+      "runner_attempt_id": "a954f4ef38bd4a5994e19dce7c015d73",
+      "file_hashes": {
+        "probe.py": "7ac81ab79820c508e19e1d0c10d1b1743ea035234119d33201b06839283515f2",
+        "moment_slice.py": "31c97861cba7bc425486af81b797701550721288835417ffd678d65ca501a250",
+        "design.json": "6e0a349f2b9b8200f5c96b598f7f3ab27c44e1dc2d681caacf93c41f981268f6",
+        "host_run.py": "fe7754a2b3bb3943a53246688f470169b55b5476a80b810259b57b62085d2110",
+        "population.json": "fb558bfe08bacd94001172d42201ed70912dd4da592b2390b913777a0f01cfa3"
+      }
+    },
+    "source_hashes": {
+      "probe.py": "7ac81ab79820c508e19e1d0c10d1b1743ea035234119d33201b06839283515f2",
+      "moment_slice.py": "31c97861cba7bc425486af81b797701550721288835417ffd678d65ca501a250",
+      "design.json": "6e0a349f2b9b8200f5c96b598f7f3ab27c44e1dc2d681caacf93c41f981268f6",
+      "host_run.py": "fe7754a2b3bb3943a53246688f470169b55b5476a80b810259b57b62085d2110",
+      "population.json": "fb558bfe08bacd94001172d42201ed70912dd4da592b2390b913777a0f01cfa3"
+    },
+    "finite_count": 1,
+    "positive_count": 1,
+    "selected_count": 32,
+    "positive_case": {
+      "index": 35833,
+      "id_hash": "083b9a5cb59e2c30bc32e43e1199387f1e21e4707b81ea93265da86324fd549d",
+      "mention_tokens": 8,
+      "finite": true,
+      "eigenvalue_b_min": 0.6032140692077115,
+      "constraint_singular_ratio": 0.11749874763724684,
+      "native_equality_error": 1.5543122344752192e-15,
+      "unprotected_psd_interval": [
+        5.688717413628229,
+        7.709863724664537
+      ],
+      "admitted": true,
+      "constraint_ratio": 0.11749874763724695,
+      "centre_min_eigenvalue": 0.0009999999999984618,
+      "centre_equality_error": 2.7755575615628914e-16,
+      "direction_norm": 1.4252871281998543,
+      "step": 0.00035080650776011266,
+      "predicted_pair_delta": 0.0014252871281976618,
+      "equality_error": 3.3306690738754696e-16,
+      "psd_min_eigenvalue": 0.000792235497752491,
+      "constructor_seconds": 0.006149878725409508,
+      "endpoints": [
+        {
+          "logit": 6.169427696017349,
+          "mention_error": 1.1102230246251565e-16,
+          "context_mass_error": 1.6653345369377348e-16,
+          "density_min_eigenvalue": 0.00011058679750972829
+        },
+        {
+          "logit": 6.170852983145545,
+          "mention_error": 1.1102230246251565e-16,
+          "context_mass_error": 2.220446049250313e-16,
+          "density_min_eigenvalue": 0.00010760115513212981
+        }
+      ],
+      "native_logit_without_bias": 6.102925730036913,
+      "constructed_pair_delta": 0.0014252871281961177,
+      "prediction_error": 1.5441207340538554e-15,
+      "attainable_width_lower_bound": 0.06792725310863279,
+      "nonzero": true,
+      "seconds": 0.012551801279187202
+    },
+    "constructor_median_seconds": 0.00614506471902132,
+    "constructor_max_seconds": 0.010249447077512741,
+    "allocation_state": "released",
+    "L5": "NOT_ACCEPTED"
+  },
+  "source_roles": {
+    "modified_artifacts": {
+      "experiments/diagnostics/rmea_normalized_support/oracle_probe.py": "9596b547c7cd7208ffff926bd6c3678afc810b95b9de85337e2dff46a73e54a6",
+      "experiments/diagnostics/rmea_normalized_support/explicit_probe.py": "7ac81ab79820c508e19e1d0c10d1b1743ea035234119d33201b06839283515f2",
+      "experiments/diagnostics/rmea_normalized_support/moment_slice.py": "31c97861cba7bc425486af81b797701550721288835417ffd678d65ca501a250"
+    },
+    "patch": "source.patch",
+    "verification": "verification.json",
+    "rollback": "rollback_source.py",
+    "rollback_verification": "rollback-verification.json"
+  },
+  "publication_scope": "Three standalone diagnostics and compact scientific evidence; stable training source unchanged."
+}

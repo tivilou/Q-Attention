@@ -1,0 +1,28 @@
+{
+  "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "profile": "native-shared-Pauli-TRAIN-scale-v1",
+  "train_items": 128,
+  "selection": "First128 storedTRAIN/all40relations/allvalidwords; no labels/VALID/TEST",
+  "code_sha256": "a7e03cbeaa03acbca059801e23f82b625ccc524d4ed05fd37f0bd1058bc62544",
+  "reference_code_sha256": "1f0609b29c4cdb4998deb0d0268d8a241771d0a2034ea91d81f1275143064d90",
+  "reference_scale_sha256": "5e43edde1f1f433e0d1b640104b815ee2ff0d29160697934a432c7fc3fe26369",
+  "gate_median_ratio": 0.8,
+  "gate_improved_cases": 103,
+  "comparison": "Shared uniformtoken localPauli max standardizedvariance versus oracleallocated independent direct uniform or |a|-token sum standardizedvariance; planningonly",
+  "threshold": "Same exactnative top2midpoint as reference; oracle planningonly",
+  "public_whitelist": [
+    "summary.json",
+    "fixtures.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": [
+    "scale.private.npz"
+  ],
+  "recovery": "Cheap exactmomentqualification, noCOS/checkpoints orautomaticretry; unchanged acknowledged runtime",
+  "claim_scope": "TRAIN-only populationvarianceproxy; no samples, certificate, resourceadvantage, predictivegain, novelty orL5"
+}

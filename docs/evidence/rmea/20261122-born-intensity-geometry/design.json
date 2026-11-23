@@ -1,0 +1,26 @@
+{
+  "profile": "born-intensity-fiber-train32-v1",
+  "frozen_at": 1795329832.0659702,
+  "selection": "TRAIN only; count mentions from role inputs first, retain8..13; take first32 by(id_hash,index), keep all selected cases incl failures; no target/output/rank selection",
+  "sample_cap": 32,
+  "class_index": 0,
+  "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "born_eps": 1e-06,
+  "source_revision": "1c2f39e032d81768a38be3d45f6de8221c338f52",
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "preconditions": "Full complex mention rank8 at existing1e-10 relative cutoff; nonempty context; J singular min/max>=1e-6; projected energy and class0 logit ratios>=1e-8",
+  "step": "min(.01,1/(8||Jrightinverse||sqrt(1+sum||psi||^4)))",
+  "iterations": 48,
+  "positive": "constraint infinity residual<=1e-12 AND energy delta<-1e-10 AND actual source-dtype relative class0 logit absolute delta>=1e-6",
+  "gate": "At least one positive = bounded real-state existence; report all selected/eligible/train denominators",
+  "stop": "No extension of cohort, step, thresholds or iterations after results. Zero positives close this fixed no-fit construction in its tested domain; not a global phase-uniqueness or utility rejection",
+  "claim_scope": "Frozen trained native state port on development TRAIN inputs; no label-directed improvement, full-data utility, new trained method, shallow-circuit realization or inherited L4/L5",
+  "optimizer_updates": 0,
+  "cos_operations": 0,
+  "execution": "CPU1/4GB after current task quiescent via existing shared scheduler; no current-run mutation",
+  "native_inference_dtype": "float64/complex128",
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49"
+}

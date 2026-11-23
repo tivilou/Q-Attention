@@ -1,0 +1,27 @@
+{
+  "schema": "q-rmea.completion-orbit-diagnostic.v1",
+  "status": "FROZEN_NOT_IMPLEMENTED_NOT_RUN",
+  "freeze_timing": "Before the running full study produces final test results",
+  "run_id": "relative-return-seed13-20261122-gpu2-v1",
+  "source_sha256": "f966c012dde22b5d7d54f9e0d59553353b309a623b52f024b227850535de2370",
+  "config_sha256": "cf8706b10010b5d829075b1a0f430a74acc6de06e8f236a37e26913a07ba9ba6",
+  "execution_gate": "Both existing frozen full-study utility and matched-control gates pass; otherwise do not run this checkpoint diagnostic or rescue the recipe",
+  "checkpoint": "discovery/checkpoints/return_coherent-final.pt",
+  "selection": "First64 distinct TRAIN examples in existing deterministic data order, all if fewer; retain every normally valid token",
+  "mode": "eval; zero optimizer updates; existing shared scheduler after full allocation finishes; no Windows data/model payload",
+  "intervention": "Eight Z2^3 characters on token return path amplitudes, shared across all tokens, relations and examples; relations, utilities, bias, EPS and masks fixed",
+  "zero_z_boundary": "Use exact W Z^s matrix-orbit definition; any zero first-layer z makes the corresponding literal interior-angle reparameterization a limiting completion, report count",
+  "primary": "delta = mean_{s!=0}(mean_TRAIN64_CE(s)) - mean_TRAIN64_CE(0)",
+  "falsification": "delta<=0 rejects the stated slice-level learned-orientation-benefit interpretation; no sample/branch/checkpoint rescue",
+  "positive_ceiling": "Within-checkpoint TRAIN64 evidence only; no natural-text process-access necessity, heldout mediation, independent confirmation, novelty clearance or L5",
+  "supplementary": "Exact weighted-logit-center and Walsh/Parseval identities, all eight CE values, nonidentity class log-odds changes; no materialized sample traces required beyond reconstructible final checkpoint and fixed cache",
+  "prohibitions": [
+    "No TEST inspection",
+    "No fitting",
+    "No alternative seed",
+    "No better-branch selection",
+    "No alteration to running full-study gates"
+  ],
+  "frozen_at_utc": "2026-11-22T19:00:27.443422+00:00",
+  "finite_precision_boundary": "Report exact zero affected first-layer z and any tanh saturation at physical endpoints; matrix-orbit formula remains the explicit counterfactual, do not claim every realized float angle lies in the open-chart theorem."
+}

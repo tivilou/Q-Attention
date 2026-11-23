@@ -1,0 +1,30 @@
+{
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "both",
+    "must_fix": [
+      "Correct the active-parameter claim for softmax12. Each arm has 68,200 shared plus 12,828 routing parameters, for exactly 81,028 trainable scalars. In softmax12, the 12 key biases add the same query-dependent constant to every valid token score for a relation. Token softmax cancels that constant, so all 12 biases have zero analytical loss gradient. The fixtures can pass because they check gradient agreement and finiteness. The current implementation supports an exact trainable-parameter-count match. If 81,028 logit-active scalars is required, the softmax reference needs a design change before admission.",
+      "Correct the corresponding claim for dephased. The final three RZ angles change only basis-state phases, and the remaining CNOTs permute basis states. The dephased readout uses squared magnitudes, so its logits are independent of three prepare output rows, including their biases, and three effect angles per relation. That accounts for 3 × 1,029 + 3 × 40 = 3,207 inactive scalars. Preserve the original dephased implementation and qualify the all-arm activity claim."
+    ],
+    "limitations": [
+      "Static review of the supplied source. The quantum and dephased wrappers delegate directly to the original logits and load the full initial state. Both classical arms copy the shared value, decoder and bias tensors, and their identical seeded construction gives them identical initial keys and queries.",
+      "No additional must-fix issue found in the adapter delta. All four fits finish before assessment, evaluation reloads the final checkpoint and checks it against update 1,024, and the plugin summary requires all three quantum-minus-comparator positive39 Macro F1 differences to be strictly positive. The branch returns before the historical bootstrap logic.",
+      "The supplied digests identify the intended revisions. Host-file digest checks, fixture residuals and runtime outputs were not independently observed."
+    ],
+    "admission": "blocked"
+  },
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "hashes": {
+    "router.py": "59120501680d0bb6dee8928ad6c416071a6fea4d6530549fcf0817a600b953dc",
+    "design.json": "6174987c9d2f5a19273a80a38549de9a6771a7bf4426825dfbf07160252e5521",
+    "core-delta.patch": "8f78f0f6d9aae0d4eb3b48ee99ac59ff8f7467f3a9c1aa66f16ff9af5681362e",
+    "screen.py": "ee0ce7ff3210e65ed436bb19d52abbe3defed3e6f11491578285a51c0df6cb7e",
+    "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662",
+    "rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "packet_sha256": "ef82415d1db94a67008e728887510f0ef7e7c0e986cf5aedd834104b1c627bbc",
+  "seconds": 32.45299999997951
+}

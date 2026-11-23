@@ -1,0 +1,81 @@
+{
+  "profile": "bounded-classical-subject-object-context-type-reference-v1",
+  "code_sha256": "031c14f6ef88371b41bc727b5ca215a9fd268c74fbb0d38079acaedfed5aa7f1",
+  "input_hashes": {
+    "control/task-bottleneck-discovery-20261123/cases.private.json": "ad35efee20682e4f42280670de21bfa76a31dcce39d06cfba675348229a93e8c",
+    "control/task-bottleneck-discovery-20261123/validation-cases.private.json": "f491e527472512ec1e69bab04c6b9d5fb1a08c4151251052ca8c1ca2d0023908",
+    "control/task-bottleneck-discovery-20261123/validation-summary.json": "32cfb5495b4863f573d866dfa5f981977226fc15fa64f3b20c773c5e6872ce9d",
+    "inputs/native-baseline/discovery/cache/metadata.json": "9e6eac9ad582a4ef4e1a8a12190bfef3b8f0a18c5efbd9072f91f31563656c0e",
+    "inputs/native-word-metadata-20261123/train.private.json": "f5eafb7d51bca46988313c204b6fa5ef19e82fabc32dc9feee9faa70f2285053",
+    "inputs/native-word-metadata-20261123/valid.private.json": "59822bfc80e6a590e2a50f9e0f4c569a3be8945b303da0d319966a6e3c62a06c",
+    "control/type-context-baseline-20261123/calibration-row-provenance.json": "dce6790becd1b1009b439918040ff63ebc336d4b1f3963e9d2f8e5bd2a21efa2",
+    "control/type-context-baseline-20261123/prediction-row-provenance.json": "d4c66a564ec716a5fb5f1e048c73b38a61d4bf7162106c9c60406af1252e11fc",
+    "inputs/native-baseline/discovery/manifest.json": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+    "inputs/native-baseline/recovery-inputs/labels.json": "6e822509a07c5c865130ebe315122a9d83e97b1b11496b9e86c6b2a600f8a429",
+    "source/baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9",
+    "control/native-ordered-mass-value-20261123/output/diagnostic.private.npz": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+    "control/native-context-dephasing-20261123/output/predictions.private.npz": "eceb0359760d1ff5306665285aa7c96cfe26dde357e3235fd1fac4e47f6fcee8"
+  },
+  "feature_cache": {
+    "train-h.npy": {
+      "bytes": 4432355456,
+      "sha256": "b69b1bfb97f20932b26dcea8b13a788a12ec98ec43a68de1801960ad5c526635"
+    },
+    "train-offsets.npy": {
+      "bytes": 467856,
+      "sha256": "a1ef178eae3b9c16b4cfa20dc66af15a1dd0238bb9fc2fffd55b7a6328c25601"
+    },
+    "train-roles.npy": {
+      "bytes": 34627904,
+      "sha256": "b62e4e23836c8b5b9b930e5b9d993f0890a729bfdadbcee02b08c23cae0c3d73"
+    },
+    "train-targets.npy": {
+      "bytes": 467848,
+      "sha256": "6ce409b586a421995f7d70906f062a7e91fe9d35a04be5359a2f58a3485ee604"
+    },
+    "valid-h.npy": {
+      "bytes": 1416849536,
+      "sha256": "a45b2b43bbacbe41b3d7c327b10bc5708b258e13e5c0eff79fea52c4d83ed9f6"
+    },
+    "valid-offsets.npy": {
+      "bytes": 156808,
+      "sha256": "1b68a943c03e9c80e455da1600cb65a0c463f7ea4815465744001bb0b4c1c13f"
+    },
+    "valid-roles.npy": {
+      "bytes": 11069264,
+      "sha256": "0af5324a5ba0e741b27f85f798277706eb7b0faeb8348657a8319c2b56f772a7"
+    },
+    "valid-targets.npy": {
+      "bytes": 156800,
+      "sha256": "87f63eef29f0b267dd4be85f6265b7632542ce0b71f7212a2ff240ed6f88a71b"
+    }
+  },
+  "penalty": 0.00023854961832061068,
+  "max_iterations": 500,
+  "gradient_inf": 1e-06,
+  "timeout_seconds": 300,
+  "resources": {
+    "cpu": 1,
+    "ram_mb": 8192,
+    "disk_mb": 64,
+    "gpus": 0,
+    "gpu_mb": 0
+  },
+  "fit": "Fixed previous4192TRAIN, assessment4000TRAIN; models fresh zero initial. Both fits sealed before assessment/VALID scoring. All40classes preserved including absent23.",
+  "hypothesis": "Given frozen contextual word features and marked entity roles, simple directed entity/context pooling may repair task errors left by native typed pooling. Additional given types are a separate classical input control, not a quantum mechanism.",
+  "objective": "Mean40class CE+.5*(1/4192)*norm\u00b2 for all weights and bias. Equivalent regularization C1 under sum-loss convention. Fixed blockwise fit-only centered unit-RMS-energy features, type-onehot unscaled.",
+  "comparison": "Report untyped/typed separately against frozen hard type rule, paired net repairs, and typed versus untyped. Historical Q-RMEA used full TRAIN, so fit budgets differ and comparison is exploratory only.",
+  "decision": "Each arm is positive diagnostic only if macro>frozen rule and netpairedcorrect>0. If typed adds benefit, type input remains relevant; if untyped suffices, classical entity/context pooling already explains more error. Neither arm supports quantum advantage or L5.",
+  "stop": "No tuning/retry/feature/split/budget rescue after valid negative. Bounded null does not reject whole classical model family.",
+  "whitelist": [
+    "summary.json",
+    "fits.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": [
+    "coefficients.private.npz",
+    "predictions.private.npz"
+  ],
+  "recovery": "Short deterministic CPU diagnostic; existing immutable feature inputs are pinned/rebuildable, no persistent recovery checkpoint/COS required.",
+  "lifecycle": "Unchanged accepted host_run.py allocation wrapper; source core, GPU pool, resume, COS and export not modified. One objective fixture and actual convex fits only; no lifecycle matrix."
+}

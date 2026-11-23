@@ -1,0 +1,34 @@
+{
+  "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "population_sha256": "fb558bfe08bacd94001172d42201ed70912dd4da592b2390b913777a0f01cfa3",
+  "profile": "real-normalized-effect-support-train32-v1",
+  "source_revision": "fdbda01f406a2eaa2d82d6b01c4f56be74aa27d1",
+  "math_versions": {
+    "numpy": "1.24.3",
+    "cvxpy": "1.6.5",
+    "scipy": "1.14.1",
+    "clarabel": "0.10.0",
+    "scs": "3.2.7",
+    "osqp": "1.0.4"
+  },
+  "probe_sha256": "9596b547c7cd7208ffff926bd6c3678afc810b95b9de85337e2dff46a73e54a6",
+  "timeout_seconds": 600,
+  "solver_max_iter": 250,
+  "centre_min_eigenvalue": 1e-09,
+  "duality_gap_max": 1e-05,
+  "width_min": 0.001,
+  "positive_required": 16,
+  "hypothesis": "At least16of the existing fixed32 exposed TRAIN cases have a finite logit interval>=.001 preserving native normalized mention weights to1e-9, with a corrected strict interior and numerical dual gaps<=1e-5.",
+  "control": "Same fixed native effect is feasible; unprotected PSD support is computed from eigenvalues. No label use or pure-vs-mixed advantage inferred.",
+  "stop": "Retain every original case and actual solver failure. No changed tolerances/solver/cohort or retries after scientific outcomes. Passing only permits shared-deployable-method design, not automatic fitting/full training.",
+  "persistence": "Scalar/code reports to GitHub; no fitted states/checkpoints/newCOS.",
+  "outputs": [
+    "summary.json",
+    "RUN_COMPLETE"
+  ]
+}

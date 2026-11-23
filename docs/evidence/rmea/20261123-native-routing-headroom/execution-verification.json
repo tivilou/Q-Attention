@@ -1,0 +1,84 @@
+{
+  "verification": {
+    "argv": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/native-routing-headroom-20261123/verify.py",
+      "/hy-tmp/Q-Attention/control/native-routing-headroom-20261123/output",
+      "--reference",
+      "/hy-tmp/Q-Attention/control/native-ordered-mass-value-20261123"
+    ],
+    "stdin": null,
+    "stdout": "{\"status\": \"PASS\", \"all_partition_tables_recomputed\": true, \"all8192_shapes_finite_prior_split_and_seal_verified\": true, \"independent_first8_cholesky_extreme_error\": 1.4566126083082054e-13, \"independent_first8_direct_native_error\": 5.329070518200751e-15, \"exact_impossibility_certification\": false, \"optimizer_updates\": 0, \"seconds\": 39.07195329666138, \"diagnostic_sha256\": \"ffff79c84574412da1e09b308306ebb6f053f4c61a488d5872347762d2bbf266\"}\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  "execution": {
+    "argv": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/native-routing-headroom-20261123/diagnose.py",
+      "--source",
+      "/hy-tmp/Q-Attention/source",
+      "--inputs",
+      "/hy-tmp/Q-Attention/inputs/native-baseline",
+      "--checkpoint",
+      "/hy-tmp/Q-Attention/inputs/native-checkpoint/native-final.pt",
+      "--reference",
+      "/hy-tmp/Q-Attention/control/native-ordered-mass-value-20261123",
+      "--design",
+      "/hy-tmp/Q-Attention/control/native-routing-headroom-20261123/design.json",
+      "--output",
+      "/hy-tmp/Q-Attention/control/native-routing-headroom-20261123/output",
+      "--progress",
+      "/hy-tmp/Q-Attention/control/native-routing-headroom-20261123/progress.json",
+      "--allocation",
+      "/hy-tmp/Q-Attention/control/native-routing-headroom-20261123/launch.json",
+      "--attempt",
+      "1f12272ad060438bb91d7e02cff768e9"
+    ],
+    "cwd": "/hy-tmp/Q-Attention/source",
+    "inputs": {
+      "split_reference_sha256": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+      "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+      "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51"
+    },
+    "stdout": "{\"status\": \"complete\", \"seconds\": 39.07195329666138, \"assessment\": {\"n\": 478, \"born_all_rows\": {\"explicit_witness_positive\": 471, \"negative_numerical_margin_not_certificate\": 7, \"unresolved\": 0}, \"born_class0_fixed\": {\"explicit_witness_positive\": 400, \"negative_numerical_margin_not_certificate\": 78, \"unresolved\": 0}, \"born_true_row_only\": {\"explicit_witness_positive\": 332, \"negative_numerical_margin_not_certificate\": 146, \"unresolved\": 0}, \"convex_all_rows\": {\"positive_margin\": 478, \"negative_numerical_margin_not_certificate\": 0, \"unresolved\": 0}}}\n",
+    "stderr": "",
+    "exit_code": 0,
+    "started_at": 1795395732.8250911,
+    "finished_at": 1795395772.8642135,
+    "runner_attempt_id": "1f12272ad060438bb91d7e02cff768e9",
+    "file_hashes": {
+      "bounds.py": "f398e9d61172ab65ae2136c9271e25568b0c7d59b6a86979639971b097125be1",
+      "diagnose.py": "d2eb92d2f89ae5c5d5dbe3d54049ec4046272fc082391a0770c94bd07787f273",
+      "design.json": "b1d56cb96584a6c2e4d56698b3348115bdd47d0ea619a1b8bf52edf72b31194f",
+      "theory.md": "b34d34196b4fcc59cc0dbc7e147af5bbf829d094e4feee31d1ac05d4eb1bdaa4",
+      "verify.py": "8c6687416cf340fd0fbae4b280b1a85dd58605441bfdc89cd4ad580bbf410c51",
+      "host_run.py": "f84cfc70c803e59a68f9f220a74915aa6d622641603f78125125005d4ce75bd7"
+    }
+  },
+  "resource_return": {
+    "allocation_id": "b6ec90526b3a4e8597e771801a0edca0",
+    "generation": 19,
+    "project_id": "q-attention",
+    "host_id": "gpushare-i2-38434-2080tix2",
+    "run_id": "native-routing-headroom-20261123-v1",
+    "runner_attempt_id": "1f12272ad060438bb91d7e02cff768e9",
+    "schema": "research.resource-return.v1",
+    "event_sequence": 1,
+    "observed_at": "2026-11-23T01:02:52.865061+00:00",
+    "campaign_status": "completed",
+    "all_jobs_terminal": true,
+    "quiescent": true,
+    "no_remaining_consumers": true,
+    "cleanup_status": "not_needed",
+    "resources_reusable": true,
+    "owner_pid": 197284,
+    "owner_pgid": 197284,
+    "owner_start_ticks": "636195424",
+    "boot_id": "74146a10-dc63-48fe-9f2d-86cbe605f111"
+  },
+  "resident_gone": true,
+  "remaining_group_members": []
+}

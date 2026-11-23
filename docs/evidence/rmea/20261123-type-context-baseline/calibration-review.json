@@ -1,0 +1,29 @@
+{
+  "selection_basis": "owner_preference",
+  "model": "gpt-6.2-astra",
+  "reasoning_effort": "high",
+  "transport": "OpenAI Responses",
+  "metadata_basis": "Exact model/high effort re-used from this campaign verified catalog and responses; no ranking claim",
+  "packet_sha256": "422b183c4809123f2c1fca32da25906cc3bbc04755e2517f22022e6557a5a05f",
+  "profile_echo_verified": true,
+  "seconds": 38.437000000005355,
+  "hashes": {
+    "calibrate.py": "69e8b9f9bfdd858d119005b77b147251399ccfab02bae233beea737375f0edc1",
+    "calibration-design.json": "781f4e32524526a245888ed185b56fec66195bc2c181d6a17e580d08a8915bdd"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "both",
+    "must_fix": [
+      "Pin the two metadata files and validation-summary.json in the design and verify their hashes before use. The prediction hashes cover the logits and labels, but the type assignments that drive the fit and the hard-rule score that can decide the gate come from these three files. Establish that the pinned metadata uses prediction row order and that the frozen score uses the same VALID rows, class order, and positive-39 macro-F1 definition. Label agreement alone misses swaps between rows with the same label.",
+      "Validate the complete input shapes and values. Require TRAIN logits shaped (8192, 40), VALID logits shaped (19584, 40), matching one-dimensional integer labels in 0 through 39, a Boolean calibration mask shaped (8192,), and exactly one metadata record per row. The current VALID check passes for a short or empty metadata list. In that case, type scoring silently applies only the global bias to the remaining rows. Reserve that fallback for a present record with a genuinely unseen type pair.",
+      "Require finite logits, finite recomputed objectives and gradients for both fits, and a finite frozen comparator score before issuing a decision. A NaN VALID logit can pass through argmax into ordinary-looking metrics. A NaN comparator makes the strict comparison false and can incorrectly close the profile. Use explicit runtime checks for admission conditions or reject optimized Python at startup, since -B permits assertions to be disabled through PYTHONOPTIMIZE."
+    ],
+    "limitations": [
+      "Static review of the supplied text only. Artifact contents, hashes, row provenance, fit support, convergence, and host resource enforcement remain unverified. Any edits require refreshed script and design hashes before staging.",
+      "The objective and analytic gradient agree by inspection. The vocabulary uses fit rows only, all 40 score columns remain present even for a class absent from fitting, and bias addition creates a fresh score array. Both fits are saved before assessment scoring or VALID input reads. The code requires optimizer success and a recomputed gradient infinity norm at most 1e-6, and the gate uses all three strict inequalities.",
+      "The 4,000 assessment rows were exposed during native training, and VALID has been used repeatedly. A passing gate would establish an exploratory development macro-F1 improvement for this fixed 1,040-parameter calibration over the three named references. The 40-parameter global fit supports no parameter-efficiency comparison."
+    ],
+    "admission": "blocked"
+  }
+}

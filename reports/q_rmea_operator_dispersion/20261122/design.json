@@ -1,0 +1,45 @@
+{
+  "schema": "q-rmea.operator-dispersion.design.v1",
+  "checkpoint": "linear_coherent-final",
+  "counts": {
+    "train": 58465,
+    "valid": 19584
+  },
+  "arms": [
+    "baseline",
+    "operator",
+    "outcome",
+    "uniform"
+  ],
+  "original_parameters_frozen": true,
+  "statistics": "F_t=psi_t psi_t^H+eps I; C=sum F; A=sum uF; VQ=(Aphi)^H solve(C,Aphi)/Z-m^2; VC=E_p[u^2]-m^2; VU=uniform variance",
+  "query": "Existing exact linear coherent eight-dimensional query rotation; eps=1e-6 per valid token",
+  "calibration": {
+    "objective": "Full train40class CE, independent shared signed scalar per nonbaseline arm",
+    "bounds": [
+      -1.0,
+      1.0
+    ],
+    "solver": "Monotone derivative; endpoints or scipy.brentq xtol=rtol=1e-12,maxiter100; compare zero and retain zero for improvement<=1e-12",
+    "boundary": "Record bound hit; no expansion or validation selection"
+  },
+  "primary": "Operator-minus-each-of-baseline/outcome/uniform paired CE; all three upper percentile bounds<0 AND fitted operator scalar>0",
+  "bootstrap": {
+    "draws": 10000,
+    "seed": 20261122,
+    "unit": "fixed validation sentence",
+    "quantile": 0.9833333333333333,
+    "conditional": "Fixed training fits; no training uncertainty or independent confirmation"
+  },
+  "parity": {
+    "probability_atol": 1e-09,
+    "logit_atol": 1e-09,
+    "aggregate_atol": 1e-10,
+    "coverage": "All training and validation points: whitened eta0 original-interface probabilities/logits; first batch per split also original token-space route"
+  },
+  "roundoff": "Require raw0<=VQ<=VC and VU>=0 within1e-9*(1+abs(VC)+m^2); clip only certified floating violations within that tolerance",
+  "execution": "One3GPU shared allocation; three disjoint train+valid shards; one CPU calibration/bootstrap parent",
+  "trace": "First two valid units: complete relevant numeric arrays and independent numpy operator calculation; partial probe, not sample-trace.v2",
+  "recovery": "Cheap restart from original protected inputs and Git. No new model checkpoint/COS. No automatic retry",
+  "scope": "Diagnostic only. No finite-eta feedback execution, formal new method, quantum advantage, independent confirmation or L5 acceptance"
+}

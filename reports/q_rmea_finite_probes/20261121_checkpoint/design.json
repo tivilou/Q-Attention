@@ -1,0 +1,32 @@
+{
+  "schema": "q-rmea.finite-probes.design.v1",
+  "proposal_sha256": "1a891f82e73329e71ed4d12b25156a48151c1e480a03c551b01bf543f25ef745",
+  "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "port_shape": [
+    76,
+    1024
+  ],
+  "modular_prime": 2147483647,
+  "frame": "Lexicographic4^3 first-layer(RY,RZ)=(0,0),(pi/2,0),(pi/2,pi/2),(-pi/2,0); secondlayerzero",
+  "selection": "One scipy QR pivoting40x64 scores: first9columns; pivotQR of selectedtranspose: first9rows. No retries",
+  "decoder": "Fixed first2valuecoordinates; all40projectedrowsnonzero; exact determinantrows0,1 nonzero",
+  "certificate": "mpmath.iv dps40 idealrealcircuit with exactbinary64 checkpoint/epsilon. Neumann ||I-C*Sminor||infinity upper<1; C is binary64 inverse",
+  "probes": "T9,zero baseline+16singletonvalueprobes; fixedroleszero; minimum-norm h solve, actualnativefullheadCPUforward",
+  "gates": {
+    "port_modular_rank": 76,
+    "inverse_residual": 1e-10,
+    "decoder_singular_min": 1e-08,
+    "neumann_upper": 1.0,
+    "probe_residual": 1e-10
+  },
+  "launch": "One CPU process,1CPU/4GiB/256MiB/180s,emptyCUDA,exactcleanreviewedsource,maxattempt1,replayfalse",
+  "outputs": [
+    "summary.json",
+    "design.json",
+    "inputs.json",
+    "certificates.json",
+    "RUN_COMPLETE"
+  ],
+  "recovery": "Cheap replay from originalprotectedcheckpoint/Git; no newcheckpoint/COS/inputcopies",
+  "scope": "Ideal syntheticfeatureport theorem and numericalreplay; fixedrouting acrossvalueinterventions only. No naturaltext/full-hrouter exclusion/taskutility/probabilitygap/L5"
+}

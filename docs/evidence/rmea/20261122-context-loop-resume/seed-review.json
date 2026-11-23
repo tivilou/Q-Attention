@@ -1,0 +1,16 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "packet_sha256": "fa4a755c6401fca91ea622d8329680ae3148499a757aeaa9c96a2e00cacbb30a",
+  "seconds": 34.62677216529846,
+  "response": {
+    "verdict": "PASS",
+    "review_scope": "lifecycle",
+    "must_fix": [],
+    "limitations": [
+      "The verdict covers the supplied patch and CPU test at seed 13. The patch seeds standard-library random and NumPy’s global RNG immediately before the existing Torch seed and model initialization. Distinct predecessor states produced identical patched RNG states, and the model initialization hash, epoch-order hash, and Torch CPU RNG state matched the legacy prelude.",
+      "The capture-and-restore check reproduced the next Python, NumPy, and Torch CPU draws from the captured state. It exercised in-memory restoration only. The test performed zero optimizer updates, COS operations, or CUDA draws.",
+      "The verdict applies only to fresh-run initialization. The historical canary retains its failed status. Migration, training, and formal admission are outside this review."
+    ]
+  }
+}

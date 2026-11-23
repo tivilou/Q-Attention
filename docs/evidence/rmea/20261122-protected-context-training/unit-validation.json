@@ -1,0 +1,35 @@
+{
+  "gate": true,
+  "source_sha256": "7a9101811a93a909cc7d96ae0a92886c119c6d4da8056f0e98edc90f57dd4e8d",
+  "contract_sha256": "2cf1fab0ee6a04fe2f40f2c9031bc7f732cd5a81d61e50872ea9f28d252f8536",
+  "gradient_errors": {
+    "protected_context": 8.881784197001252e-16,
+    "context_scrambled": 8.881784197001252e-16,
+    "unprotected_context": 8.881784197001252e-16
+  },
+  "real_fixture_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "CLI_checks": {
+    "experiments/q_rmea_protected_context_train.py": {
+      "returncode": 0,
+      "stdout_sha256": "b24bc37e253661deb2b97d6b068ec9e1b7386c97e80cb005ceb0c303f6616d17"
+    },
+    "experiments/q_rmea_entity_scattering_train.py": {
+      "returncode": 0,
+      "stdout_sha256": "cba97c428f2dc57444802fb4bdea4969f37805c328497052e12cfc3f1a95eb9b"
+    }
+  },
+  "baseline_initial": "037232c406d5cb1b23cea0ee289b7ab2d82366a2febfcedfdeb6fc69ec8da369",
+  "optimizer_steps_per_condition": 1,
+  "late_nonfinite_microgradients_rejected": [
+    "protected_context",
+    "context_scrambled",
+    "unprotected_context"
+  ],
+  "scope": "Actual training logits adapter and microgradient/finite update; prior source derivative/v2 replay evidence reused"
+}

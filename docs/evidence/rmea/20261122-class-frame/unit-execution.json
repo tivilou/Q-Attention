@@ -1,0 +1,65 @@
+{
+  "schema": "q-rmea.class-frame.unit-execution.v1",
+  "task": "dc6a85240f7a413eaea316e6078fd70d",
+  "attempt": "bfc11f21917c4e2aaf462e8a854ba993",
+  "revision": "95537f36b3c49354656de26ffd3ae2d0a5f64460",
+  "state": "complete",
+  "receipt": {
+    "returncode": 0,
+    "quiescent": true,
+    "finished": 1795307115.3229473,
+    "revision": "95537f36b3c49354656de26ffd3ae2d0a5f64460",
+    "outputs": {
+      "RUN_COMPLETE": {
+        "bytes": 65,
+        "sha256": "f2bd2c32b1520d2c970f3b6d16f04ee973ad79e5c4648ac1e9bdf8674d9c90e8"
+      },
+      "source-fixture.pt": {
+        "bytes": 744838,
+        "sha256": "7e61bcee956d8fe3246e57eaf6f22d20bb8da85a3f5bf1df12024aeff8fd26e7"
+      },
+      "unit-validation.json": {
+        "bytes": 1884,
+        "sha256": "35aa5ee99360d6092a87ba1baafcbb7ad9e14417229257ff4074dff9a4432814"
+      }
+    }
+  },
+  "recipe": {
+    "command": [
+      "{python}",
+      "-B",
+      "experiments/q_rmea_class_frame_unit.py",
+      "--output",
+      "{output}"
+    ],
+    "kind": "unit",
+    "max_attempts": 1,
+    "outputs": [
+      "unit-validation.json",
+      "RUN_COMPLETE",
+      "source-fixture.pt"
+    ],
+    "replay_safe": false,
+    "resources": {
+      "cpu": 1,
+      "disk_mb": 256,
+      "gpu_mb": 0,
+      "gpus": 0,
+      "ram_mb": 4096
+    },
+    "timeout": 300
+  },
+  "unit_json_sha256": "35aa5ee99360d6092a87ba1baafcbb7ad9e14417229257ff4074dff9a4432814",
+  "fixture_bytes": 744838,
+  "fixture_sha256": "7e61bcee956d8fe3246e57eaf6f22d20bb8da85a3f5bf1df12024aeff8fd26e7",
+  "source_hashes_verified": true,
+  "only_safe_json_downloaded": true,
+  "worker_sideband": {
+    "schema": "research.progress.v1",
+    "attempt": "bfc11f21917c4e2aaf462e8a854ba993",
+    "current": 0,
+    "total": 1
+  },
+  "collection_correction": "Initial exact-directory assertion overlooked existing worker progress.json sideband. Scientific output whitelist unchanged; same completed run inspected, no rerun.",
+  "monitor_limit": "Generic worker sideband stays0/1; no source-unit live-speed or final-progress claim. Terminal receipt proves completion."
+}

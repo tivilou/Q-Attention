@@ -1,0 +1,75 @@
+{
+  "status": "SOURCE_ROLES_PASS",
+  "records": [
+    {
+      "argv": [
+        "D:/Software/Dev/Language/Anaconda3/envs/QT2/python.exe",
+        "-B",
+        "-c",
+        "from pathlib import Path;assert not Path('baselines/retacred/rmea_relative_return.py').exists();print('BASELINE: native-only source preserved')"
+      ],
+      "cwd": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\rollback-wnax3bp8",
+      "stdout": "BASELINE: native-only source preserved\n",
+      "stderr": "",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.autocrlf=false",
+        "apply",
+        "--check",
+        "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\source.patch"
+      ],
+      "cwd": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\rollback-wnax3bp8",
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.autocrlf=false",
+        "apply",
+        "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\source.patch"
+      ],
+      "cwd": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\rollback-wnax3bp8",
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "D:/Software/Dev/Language/Anaconda3/envs/QT2/python.exe",
+        "-B",
+        "-c",
+        "from pathlib import Path;p=Path('baselines/retacred/rmea_relative_return.py');compile(p.read_bytes(),str(p),'exec');print('MODIFIED: plugin source installed and parses')"
+      ],
+      "cwd": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\rollback-wnax3bp8",
+      "stdout": "MODIFIED: plugin source installed and parses\n",
+      "stderr": "",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "D:/Software/Dev/Language/Anaconda3/envs/QT2/python.exe",
+        "-B",
+        "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\rollback_source.py",
+        "--root",
+        "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\rollback-wnax3bp8"
+      ],
+      "cwd": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\rollback-wnax3bp8",
+      "stdout": "{\"plugin_absent\": true, \"native_preserved\": true}\n",
+      "stderr": "",
+      "exit_code": 0
+    }
+  ],
+  "actual_gpu_verification": "gpu-verification.json",
+  "baseline_native_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+  "modified_sha256": "39728d236fef33b6f682eff0f722bef3c72939b0e198e375f5e1aa7a2089abfc",
+  "rollback_tested_only_in_isolated_copy": true,
+  "full_training": "NOT_STARTED",
+  "draft_adapter": "Remaining source files under source/ are local prospective drafts, not yet reviewed/published/executed"
+}

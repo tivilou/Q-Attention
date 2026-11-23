@@ -1,0 +1,72 @@
+{
+  "status": "GPU_BATCH_FEASIBILITY_PASS",
+  "execution": {
+    "argv": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/relative-return-gpu-feasibility-20261122/gpu_probe.py",
+      "--source",
+      "/hy-tmp/Q-Attention/source",
+      "--inputs",
+      "/hy-tmp/Q-Attention/inputs/native-baseline",
+      "--design",
+      "/hy-tmp/Q-Attention/control/relative-return-gpu-feasibility-20261122/design.json",
+      "--output",
+      "/hy-tmp/Q-Attention/control/relative-return-gpu-feasibility-20261122/output",
+      "--progress",
+      "/hy-tmp/Q-Attention/control/relative-return-gpu-feasibility-20261122/progress.json",
+      "--attempt",
+      "5c58e5ccf66e4642820a53819a97e493"
+    ],
+    "cwd": "/hy-tmp/Q-Attention/source",
+    "inputs": {
+      "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+      "cache_hashes": {
+        "train-h.npy": {
+          "bytes": 4432355456,
+          "sha256": "b69b1bfb97f20932b26dcea8b13a788a12ec98ec43a68de1801960ad5c526635"
+        },
+        "train-roles.npy": {
+          "bytes": 34627904,
+          "sha256": "b62e4e23836c8b5b9b930e5b9d993f0890a729bfdadbcee02b08c23cae0c3d73"
+        },
+        "train-offsets.npy": {
+          "bytes": 467856,
+          "sha256": "a1ef178eae3b9c16b4cfa20dc66af15a1dd0238bb9fc2fffd55b7a6328c25601"
+        },
+        "train-targets.npy": {
+          "bytes": 467848,
+          "sha256": "6ce409b586a421995f7d70906f062a7e91fe9d35a04be5359a2f58a3485ee604"
+        }
+      }
+    },
+    "stdout": "{\"status\": \"PASS\", \"profile\": \"relative-return-gpu-batch-feasibility-v1\", \"design_sha256\": \"1a5486eaa10ce3f8fdfebc9ab443e0f19c122a278421e1cd1543c060e181f434\", \"initial_sha256\": \"037232c406d5cb1b23cea0ee289b7ab2d82366a2febfcedfdeb6fc69ec8da369\", \"batch32_ids\": [40252, 32288, 41779, 44696, 58273, 9419, 51190, 43991, 45050, 56048, 38959, 48477, 29571, 9101, 31934, 51022, 30772, 2152, 4155, 27420, 53574, 25434, 5766, 57146, 16140, 47241, 48602, 21223, 51087, 42808, 15809, 23621], \"worst4_ids\": [21622, 10859, 17565, 38620], \"results\": {\"return_coherent\": {\"device\": 0, \"parameters\": 81028, \"flat_initial_state_sha256\": \"037232c406d5cb1b23cea0ee289b7ab2d82366a2febfcedfdeb6fc69ec8da369\", \"parity_error\": 0.0, \"attention_normalization_error\": 2.220446049250313e-16, \"gradient_norms\": {\"decoder\": 2.1474066266299747, \"bias\": 0.5377945848899528, \"effect\": 0.10944937624580163, \"value.weight\": 18.62176631394884, \"value.bias\": 0.6108084869135294, \"prepare.weight\": 2.6521529265859716, \"prepare.bias\": 0.08312537273747052}, \"optimizer_updates\": 1, \"train_ce_before\": 4.315317978828267, \"train_ce_after\": 3.7854467214016885, \"parameter_max_update\": 0.0010048086966727987, \"batch32_update_seconds\": 1.716536283493042, \"batch32_peak_bytes\": 112144384, \"worst4_backward_seconds\": 0.057023048400878906, \"worst4_peak_bytes\": 93876736, \"worst4_max_length\": 96, \"worst4_optimizer_updates\": 0, \"worst4_gradient_norms\": {\"decoder\": 3.0121959779598217, \"bias\": 0.7876353882484579, \"effect\": 1.0570196276300026, \"value.weight\": 27.69003203668661, \"value.bias\": 0.904733355633622, \"prepare.weight\": 20.482734775253412, \"prepare.bias\": 0.6522644121349328}, \"checkpoint_saved\": false}, \"native_square\": {\"device\": 0, \"parameters\": 81028, \"flat_initial_state_sha256\": \"037232c406d5cb1b23cea0ee289b7ab2d82366a2febfcedfdeb6fc69ec8da369\", \"parity_error\": 0.0, \"attention_normalization_error\": 2.220446049250313e-16, \"gradient_norms\": {\"decoder\": 2.14230016907508, \"bias\": 0.537450733063628, \"effect\": 0.16159107121903407, \"value.weight\": 18.585050332187286, \"value.bias\": 0.6105796566832928, \"prepare.weight\": 3.420283550017722, \"prepare.bias\": 0.10637742270911744}, \"optimizer_updates\": 1, \"train_ce_before\": 4.305872606258456, \"train_ce_after\": 3.6646370227689724, \"parameter_max_update\": 0.0010057316608940159, \"batch32_update_seconds\": 0.3038632869720459, \"batch32_peak_bytes\": 99154432, \"worst4_backward_seconds\": 0.04159855842590332, \"worst4_peak_bytes\": 78317056, \"worst4_max_length\": 96, \"worst4_optimizer_updates\": 0, \"worst4_gradient_norms\": {\"decoder\": 3.019201229394846, \"bias\": 0.7833522248942955, \"effect\": 0.8280952319393241, \"value.weight\": 27.61638628159953, \"value.bias\": 0.8987889273076819, \"prepare.weight\": 19.73665378601622, \"prepare.bias\": 0.6245047884873438}, \"checkpoint_saved\": false}, \"return_dephased\": {\"device\": 1, \"parameters\": 81028, \"flat_initial_state_sha256\": \"037232c406d5cb1b23cea0ee289b7ab2d82366a2febfcedfdeb6fc69ec8da369\", \"parity_error\": 0.0, \"attention_normalization_error\": 2.220446049250313e-16, \"gradient_norms\": {\"decoder\": 2.148443514631988, \"bias\": 0.5376312171330913, \"effect\": 0.026902390181605493, \"value.weight\": 18.624408207146637, \"value.bias\": 0.6105114984771551, \"prepare.weight\": 0.6894248692893904, \"prepare.bias\": 0.021613541914414773}, \"optimizer_updates\": 1, \"train_ce_before\": 4.30886398965775, \"train_ce_after\": 3.828746587951988, \"parameter_max_update\": 0.0010054150129215067, \"batch32_update_seconds\": 1.7169713973999023, \"batch32_peak_bytes\": 112637952, \"worst4_backward_seconds\": 0.05072355270385742, \"worst4_peak_bytes\": 94431744, \"worst4_max_length\": 96, \"worst4_optimizer_updates\": 0, \"worst4_gradient_norms\": {\"decoder\": 3.0470497428528294, \"bias\": 0.7893251997394457, \"effect\": 0.45607722120389477, \"value.weight\": 27.698009156291267, \"value.bias\": 0.9069885494398371, \"prepare.weight\": 12.575892176338044, \"prepare.bias\": 0.4067387590036829}, \"checkpoint_saved\": false}}, \"seconds\": 9.137879848480225, \"scope\": \"Two allocated GPUs; one real batch32 update/arm and worst-length microbatch4 backward only. No trained utility or full-study admission, heldout use, saved checkpoints or COS writes.\", \"L5\": \"NOT_ACCEPTED\"}\n",
+    "stderr": "",
+    "exit_code": 0,
+    "started_at": 1795360306.2281015,
+    "finished_at": 1795360318.1131718,
+    "runner_attempt_id": "5c58e5ccf66e4642820a53819a97e493",
+    "file_hashes": {
+      "gpu_probe.py": "3e24ce7caf330ef5e8cfb9057afa8524fade856d04e2df9d4094ed8c40d22304",
+      "design.json": "1a5486eaa10ce3f8fdfebc9ab443e0f19c122a278421e1cd1543c060e181f434",
+      "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662",
+      "rmea_relative_return.py": "39728d236fef33b6f682eff0f722bef3c72939b0e198e375f5e1aa7a2089abfc"
+    }
+  },
+  "allocation": {
+    "allocation_id": "0480dd446076462ba2ee52086f8eb15a",
+    "generation": 7,
+    "host_id": "gpushare-i2-38434-2080tix2",
+    "run_id": "rmea-relative-return-gpu-feasibility-20261122",
+    "runner_attempt_id": "5c58e5ccf66e4642820a53819a97e493",
+    "state": "released",
+    "gpu_uuids": [
+      "GPU-a04f8ac0-92c0-1d4c-8efa-bce7d9c43fbb",
+      "GPU-d98f09f2-3a95-716a-0b0d-65488e37bd37"
+    ]
+  },
+  "owner_process_gone": true,
+  "unit_sha256": "15365751e5b94aad2e15704fab1a6a2de016799caa272d5937818637c4e61390",
+  "no_windows_payload": true,
+  "cos_operations": 0
+}

@@ -1,4 +1,6 @@
 """Four matched final-state heads; full-data execution is collaborator-only."""
+import json
+import random
 import argparse
 import gc
 import hashlib
@@ -42,7 +44,7 @@ def load_fixture(archive, output):
                 or any(not v.isfile() or not 0 < v.size <= 2**21 for v in members)
                 or sum(v.size for v in members) != 4118454):
             raise ValueError('Recovered fixture inventory differs')
-        manifest = p.json.load(tar.extractfile('canary/manifest.json'))
+        manifest = json.load(tar.extractfile('canary/manifest.json'))
         if (manifest['config']['counts'] != {'train': 16, 'valid': 8, 'test': 8}
                 or manifest['config']['encoder_revision'] != p.config('canary')['encoder_revision']):
             raise ValueError('Recovered tiny cache contract differs')
@@ -63,7 +65,7 @@ def state_identity(state):
     return h.hexdigest()
 
 
-def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None):
+def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None, modes=None, finalize=True, runtime=None):
     import numpy as np
     import torch
     from torch.nn import functional as F
@@ -72,6 +74,13 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None):
     from .rmea_token_transport import TrainableTokenTransportHead, route
     from .rmea_token_transport_diagnostics import inspect_unit, aggregate
     from .rmea_token_transport_trace import capture, close
+    p = runtime.protocol if runtime is not None else globals()['p']
+    from .rmea_training_options import batch_size, per_epoch, dtype_name, selection_metric, selection_description, reported_checkpoint
+    logical_batch = batch_size(cfg); tensor_dtype = getattr(torch, dtype_name(cfg))
+    array_dtype = getattr(np, dtype_name(cfg)); metric_name = selection_metric(cfg)
+    report_policy = reported_checkpoint(cfg)
+    if report_policy=='validation_best' and (runtime is None or not hasattr(runtime,'capture_selected')):
+        raise ValueError('Validation-best reporting needs explicit selected-checkpoint capture callback')
     if len(labels) != 40 or labels[0] != 'no_relation':
         raise ValueError('Fixed train-derived label mapping differs')
     torch.set_num_threads(1); torch.use_deterministic_algorithms(True)
@@ -89,8 +98,8 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None):
 
     def batch(split, indices):
         d = data[split]; lengths = [int(d['offsets'][i+1] - d['offsets'][i]) for i in indices]
-        h = np.zeros((len(indices), max(lengths), 1024), np.float64)
-        r = np.zeros((len(indices), max(lengths), 4), np.float64); mask = np.zeros(h.shape[:2], bool)
+        h = np.zeros((len(indices), max(lengths), 1024), array_dtype)
+        r = np.zeros((len(indices), max(lengths), 4), array_dtype); mask = np.zeros(h.shape[:2], bool)
         for j, (i, length) in enumerate(zip(indices, lengths)):
             a, b = map(int, d['offsets'][i:i+2]); h[j, :length] = d['h'][a:b]
             r[j, :length] = d['roles'][a:b]; mask[j, :length] = True
@@ -101,10 +110,12 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None):
     @torch.no_grad()
     def evaluate(head, split, routing_kind=None):
         head.eval(); gold = []; predicted = []; loss = 0.
-        for start in range(0, cfg['counts'][split], 32):
-            inputs, y = batch(split, list(range(start, min(start+32, cfg['counts'][split]))))
+        evaluation_batch = cfg.get('eval_batch_size', 32)
+        if type(evaluation_batch) is not int or evaluation_batch < 1: raise ValueError('Invalid evaluation batch')
+        for start in range(0, cfg['counts'][split], evaluation_batch):
+            inputs, y = batch(split, list(range(start, min(start+evaluation_batch, cfg['counts'][split]))))
             if routing_kind is None:
-                logits = head(*inputs)[0]
+                logits = runtime.score_batch(head, inputs) if runtime is not None else head(*inputs)[0]
             else:
                 d = head(*inputs, details=True)
                 alpha = route(d['psi'], d['phi'], inputs[2], kind=routing_kind)['alpha']
@@ -119,11 +130,18 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None):
         row['ce'] = row['loss']
         return row
 
+    random.seed(cfg['seed'])
+    np.random.seed(cfg['seed'])
     torch.manual_seed(cfg['seed'])
-    initial = {k: v.clone() for k, v in RMEAHead('quantum').double().state_dict().items()}
+    initial = {k: v.clone() for k, v in RMEAHead('quantum').to(dtype=tensor_dtype).state_dict().items()}
     initial_sha = state_identity(initial)
-    rng = np.random.default_rng(cfg['seed'])
-    orders = [rng.permutation(cfg['counts']['train']) for _ in range(cfg['epochs'])]
+    generator = cfg.get('order_generator', 'numpy_default_rng')
+    if generator == 'torch_epoch_seed':
+        orders = [torch.randperm(cfg['counts']['train'], generator=torch.Generator().manual_seed(cfg['seed']+e)).numpy() for e in range(cfg['epochs'])]
+    elif generator == 'numpy_default_rng':
+        rng = np.random.default_rng(cfg['seed'])
+        orders = [rng.permutation(cfg['counts']['train']) for _ in range(cfg['epochs'])]
+    else: raise ValueError('Unknown epoch permutation generator')
     order_sha = hashlib.sha256(b''.join(o.astype('<i8').tobytes() for o in orders)).hexdigest()
     from .rmea_token_transport_recovery import atomic_torch, cpu_tree, restore_rng
     checkpoints = output / 'checkpoints'; checkpoints.mkdir(exist_ok=True)
@@ -137,19 +155,26 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None):
         if recovery.state is None:
             recovery.save(mode=0,epoch=0,next_start=0,history=[],loss_sum=0.,head=None,optimizer=None,
                 completed=completed,best=best,initial_sha=initial_sha,order_sha=order_sha)
-        if cfg['profile']=='discovery':recovery.prepare(labels,data_dir)
+        if cfg['profile']=='discovery':
+            if runtime is None: recovery.prepare(labels,data_dir)
+            else: runtime.prepare(recovery,labels,data_dir)
         recovery.drain_pending()
     results = {}; samples = []; diagnostics = None
-    for mode_index, kind in enumerate(p.MODES):
+    for mode_index, kind in enumerate(tuple(modes or p.MODES)):
         boundary=(resumed is not None and mode_index==resumed['cursor']['mode'] and resumed['active'] is None)
         if boundary:
             cursor=resumed['cursor']
             if cursor['epoch'] or cursor['next_start'] or cursor['history'] or cursor['loss_sum'] or resumed['optimizer'] is not None:
                 raise ValueError('Fresh-head boundary state differs')
             restore_rng(resumed['rng'])
-        head = TrainableTokenTransportHead(kind).double(); head.load_state_dict(initial)
-        if state_identity(head.state_dict()) != initial_sha or sum(v.numel() for v in head.parameters()) != 81028:
-            raise ValueError('Initialization or parameter matching differs')
+        if runtime is not None and hasattr(runtime, 'initialize_head'):
+            head = runtime.initialize_head(kind, initial, cfg).to(dtype=tensor_dtype)
+            runtime.validate_initialized_head(head, kind, initial, cfg)
+        else:
+            head = (runtime.make_head(kind) if runtime is not None else TrainableTokenTransportHead(kind)).to(dtype=tensor_dtype); head.load_state_dict(initial)
+            if state_identity(head.state_dict()) != initial_sha or sum(v.numel() for v in head.parameters()) != 81028:
+                raise ValueError('Initialization or parameter matching differs')
+        arm_initial_sha = state_identity(head.state_dict())
         head.to('cuda'); optimizer = torch.optim.AdamW(head.parameters(), lr=cfg['lr'],
             weight_decay=cfg['weight_decay'], betas=tuple(cfg['betas']), eps=cfg['optimizer_eps'])
         history = []; steps = 0; first_epoch = 0; first_start = 0; saved_loss = 0.
@@ -159,7 +184,7 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None):
         elif resumed and mode_index == resumed['cursor']['mode'] and not boundary:
             cursor = resumed['cursor']; first_epoch = cursor['epoch']; first_start = cursor['next_start']
             history = list(cursor['history']); saved_loss = cursor['loss_sum']
-            steps = first_epoch*((len(orders[0])+31)//32)+(first_start+31)//32
+            steps = first_epoch*per_epoch(cfg)+(first_start+logical_batch-1)//logical_batch
             if resumed['active'] is None or resumed['optimizer'] is None:
                 raise ValueError('Active model/optimizer missing')
             head.load_state_dict(resumed['active']); optimizer.load_state_dict(resumed['optimizer'])
@@ -175,48 +200,73 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None):
             epoch = epoch_index+1; order = orders[epoch_index]
             head.train(); loss_sum = saved_loss if epoch_index == first_epoch else 0.
             start_at = first_start if epoch_index == first_epoch else 0
-            for start in range(start_at, len(order), 32):
-                ids = order[start:start+32]; inputs, y = batch('train', ids)
-                optimizer.zero_grad(set_to_none=True); loss = F.cross_entropy(head(*inputs)[0], y)
-                if not torch.isfinite(loss): raise ValueError('Nonfinite training loss')
-                loss.backward()
+            for start in range(start_at, len(order), logical_batch):
+                if recovery is not None and hasattr(recovery,'before_update'): recovery.before_update()
+                ids = order[start:start+logical_batch]; inputs, y = batch('train', ids)
+                optimizer.zero_grad(set_to_none=True)
+                if runtime is None:
+                    loss = F.cross_entropy(head(*inputs)[0], y)
+                    if not torch.isfinite(loss): raise ValueError('Nonfinite training loss')
+                    loss.backward()
+                else:
+                    loss = runtime.backward(head,inputs,y)
+                    if not torch.isfinite(loss): raise ValueError('Nonfinite training loss')
                 if not all(v.grad is not None and torch.isfinite(v.grad).all() for v in head.parameters()):
                     raise ValueError('Missing or nonfinite gradient')
                 torch.nn.utils.clip_grad_norm_(head.parameters(), cfg['clip_norm'], error_if_nonfinite=True)
                 optimizer.step(); steps += 1; loss_sum += float(loss.detach()) * len(ids)
-                next_start = min(start+32,len(order)); save(epoch_index,next_start,loss_sum)
+                next_start = min(start+logical_batch,len(order)); save(epoch_index,next_start,loss_sum)
                 if recovery is not None and next_start < len(order): recovery.milestone()
             if not all(torch.isfinite(v).all() for v in head.parameters()):
                 raise ValueError('Nonfinite final parameters')
             history.append(dict(epoch=epoch, train_ce=loss_sum / len(order)))
-            # Retention only: reported test still uses the frozen final epoch.
-            validation = evaluate(head,'valid')['positive39_macro_f1']
-            if kind not in best or validation > best[kind]['validation_positive39_macro_f1']:
-                best[kind] = dict(state=cpu_tree(head.state_dict()), epoch=epoch,
-                    validation_positive39_macro_f1=validation, selection='validation positive39 Macro; strict improvement; first tie')
-                if recovery is not None: atomic_torch(recovery.best,best)
+            # Commit latest (which embeds best) before updating the derived best file.
+            validation = evaluate(head,'valid')[metric_name]
+            if kind not in best or validation > best[kind]['validation_'+metric_name]:
+                best[kind] = dict(state=cpu_tree(head.state_dict()), epoch=epoch, selection=selection_description(cfg))
+                best[kind]['validation_'+metric_name] = validation
             save(epoch_index+1,0,0.)
+            if recovery is not None: atomic_torch(recovery.best,best)
             if recovery is not None: recovery.milestone()
-            print(p.json.dumps(dict(stage='train', condition=kind, epoch=epoch, updates=steps)), flush=True)
+            print(json.dumps(dict(stage='train', condition=kind, epoch=epoch, updates=steps)), flush=True)
         head.eval(); final_state = cpu_tree(head.state_dict())
         cp = checkpoints / (kind + '-final.pt')
-        atomic_torch(cp, final_state)
+        if cp.exists():
+            if state_identity(torch.load(cp,map_location='cpu',weights_only=True))!=state_identity(final_state):
+                raise ValueError('Retained final differs; preserve evidence')
+        else:atomic_torch(cp, final_state)
         if cp.stat().st_size > 1024**2: raise ValueError('Tiny final checkpoint bound exceeded')
         if kind not in completed:
-            completed[kind] = dict(state=final_state,history=history,steps=steps)
+            completed[kind] = dict(state=final_state,history=history,steps=steps,optimizer=cpu_tree(optimizer.state_dict()))
             save(0,0,0.,finished=True)
             if recovery is not None: recovery.milestone(final=mode_index==len(p.MODES)-1)
         loaded = torch.load(cp, map_location='cpu', weights_only=True)
         if state_identity(loaded) != state_identity(final_state):
             raise ValueError('Final checkpoint serialization differs')
         head.load_state_dict(loaded)
-        result = dict(selected_epoch=cfg['epochs'], selection=cfg['selection'], parameters=81028,
+        evaluation_state = None
+        if report_policy == 'validation_best':
+            chosen = best[kind]; head.load_state_dict(chosen['state'])
+            selected = checkpoints / (kind + '-selected.pt')
+            if not selected.exists():atomic_torch(selected, chosen['state'])
+            selected_state=torch.load(selected,map_location='cpu',weights_only=True)
+            if state_identity(selected_state)!=state_identity(chosen['state']):
+                raise ValueError('Selected serialization differs from committed best')
+            head.load_state_dict(selected_state)
+            evaluation_state = dict(path='checkpoints/'+selected.name, sha256=p.digest(selected), state_sha256=state_identity(selected_state), epoch=chosen['epoch'])
+        result = dict(selected_epoch=best[kind]['epoch'] if report_policy == 'validation_best' else cfg['epochs'], selection=cfg['selection'], parameters=sum(v.numel() for v in head.parameters()),
             updates=steps, history=history, initial_state_sha256=initial_sha,
             final_state_sha256=state_identity(loaded), checkpoint_sha256=p.digest(cp),
             valid=evaluate(head, 'valid'), test=evaluate(head, 'test'))
+        if evaluation_state is not None: result['evaluation_checkpoint'] = evaluation_state
+        if runtime is not None and hasattr(runtime, 'initialize_head'): result['arm_initial_state_sha256'] = arm_initial_sha
         results[kind] = result
         for split in cfg['counts']:
-            samples += capture(output, head, kind, split, batch, metadata)
+            if evaluation_state is not None:
+                samples += runtime.capture_selected(output,head,kind,split,batch,metadata,evaluation_state)
+                continue
+            samples += (runtime.capture(output,head,kind,split,batch,metadata) if runtime is not None
+                        else capture(output,head,kind,split,batch,metadata))
         if kind == 'cubic_coherent':
             frozen = {k: evaluate(head, 'test', k) for k in p.MODES}
             if frozen[kind] != result['test']:
@@ -232,6 +282,28 @@ def train(cfg, output, labels, *, data_dir=None, assets=None, recovery=None):
             diagnostics = dict(frozen_cubic_route_metrics=frozen, geometry=aggregate(units))
         del head, optimizer, final_state, loaded; gc.collect(); torch.cuda.empty_cache()
     if recovery is not None: recovery.milestone(final=True)
+    part = dict(results=results, samples=samples, diagnostics=diagnostics,
+                initial_sha=initial_sha, order_sha=order_sha)
+    if finalize:
+        if runtime is None: finish(cfg, output, [part], data_dir=data_dir, assets=assets)
+        else: runtime.finish(cfg,output,[part],data_dir=data_dir,assets=assets)
+    return part
+
+
+def finish(cfg, output, parts, *, data_dir=None, assets=None):
+    from .rmea_token_transport_trace import close
+    results = {}; samples = []; diagnostics = None
+    if len({row['initial_sha'] for row in parts}) != 1 or len({row['order_sha'] for row in parts}) != 1:
+        raise ValueError('Independent jobs changed common initialization/order')
+    initial_sha, order_sha = parts[0]['initial_sha'], parts[0]['order_sha']
+    for row in parts:
+        if set(results) & set(row['results']): raise ValueError('Duplicate completed condition')
+        results.update(row['results']); samples += row['samples']
+        if row['diagnostics'] is not None:
+            if diagnostics is not None: raise ValueError('Duplicate cubic diagnostics')
+            diagnostics = row['diagnostics']
+    if set(results) != set(p.MODES): raise ValueError('Missing condition; no summary seal')
+    metadata = p.read(output/'cache/metadata.json')
     trace = close(output, samples, cfg, metadata, data_dir=data_dir, assets=assets)
     cubic = results['cubic_coherent']['test']; native = results['native']['test']
     contrasts = {k: dict(positive39_macro_f1=cubic['positive39_macro_f1']-results[k]['test']['positive39_macro_f1'],
@@ -264,8 +336,10 @@ def run(args):
         raise ValueError('Full formal run requires the reviewed parent and branch1.1')
     if args.fixture_cache and args.profile != 'canary':
         raise ValueError('Historical fixture is bounded canary only')
-    if not os.environ.get('CUDA_VISIBLE_DEVICES') or torch.cuda.device_count() != 1:
-        raise ValueError('Exactly one assigned GPU required')
+    if not os.environ.get('CUDA_VISIBLE_DEVICES') or torch.cuda.device_count() < 1 or (args.execution=='serial' and torch.cuda.device_count()!=1):
+        raise ValueError('Execution must stay inside the declared GPU allocation')
+    allocation=os.environ['CUDA_VISIBLE_DEVICES'].split(',')
+    if len(allocation)!=torch.cuda.device_count() or len(set(allocation))!=len(allocation):raise ValueError('Invalid CUDA allocation map')
     output = args.output.resolve()
     if output.is_relative_to(p.ROOT) or (output.exists() and not args.resume):
         raise ValueError('Fresh private output or explicit full-state resume required')
@@ -274,8 +348,23 @@ def run(args):
     output.mkdir(parents=True,exist_ok=args.resume)
     from .rmea_token_transport_recovery import run_lock
     with run_lock(output / '.run.lock'):
+        preparing=output/'PREPARING.json'
+        prep_identity=dict(source=p.identity(p.sources()),config=cfg)
+        if args.resume and not (output/'manifest.json').exists():
+            import shutil
+            if ((preparing.exists() and p.read(preparing)!=prep_identity) or
+                    (not preparing.exists() and any(x.name!='.run.lock' for x in output.iterdir())) or (output/'checkpoints').exists()
+                    or (output/'.workers').exists() or (output/'summary.json').exists()):
+                raise ValueError('Unverified interrupted preparation; preserve it for inspection')
+            cache=output/'cache'
+            if cache.is_symlink():raise ValueError('Symlinked incomplete cache')
+            if cache.exists():shutil.rmtree(cache)
+            args.resume=False
+        if not args.resume:p.atomic_json(preparing,prep_identity)
         if args.resume:
-            if args.fixture_cache: raise ValueError('Fixture resume uses its restored live cache, not a new extraction')
+            previous_manifest=p.read(output/'manifest.json')
+            fixture_sha=previous_manifest['environment'].get('fixture_sha256')
+            if args.fixture_cache and fixture_identity(args.fixture_cache)!=fixture_sha: raise ValueError('Fixture resume pin differs')
             labels = sorted(p.read(p.ROOT/'docs/contracts/q_rmea_entity_labels.json'))
             recorded=output.parent/'recovery-inputs/labels.json'
             if recorded.exists() and p.read(recorded)!=labels:raise ValueError('Resume label identity differs')
@@ -288,14 +377,14 @@ def run(args):
             labels, _ = extract(args, cfg, output)
         import importlib.metadata as md
         environment = dict(python=sys.version.split()[0], torch=torch.__version__, numpy=md.version('numpy'),
-            gpu=torch.cuda.get_device_name(0), fixture_sha256=fixture_sha if args.fixture_cache else None,
-            transformers=md.version('transformers') if not args.fixture_cache else 'not used; pinned cached canary')
-        manifest = dict(schema='q-rmea.token-transport.run.v1', config=cfg, source_sha256=p.identity(p.sources()),
+            gpu=torch.cuda.get_device_name(0), fixture_sha256=fixture_sha if args.fixture_cache or args.resume and fixture_sha else None,
+            transformers=md.version('transformers') if not (args.fixture_cache or args.resume and fixture_sha) else 'not used; pinned cached canary')
+        manifest = dict(schema='q-rmea.token-transport.run.v1', execution=args.execution, config=cfg, source_sha256=p.identity(p.sources()),
             git_revision=p.git('rev-parse', 'HEAD'), environment=environment,
             data={s: dict(source_sha256=p.EXPECTED[s][1], source_count=p.EXPECTED[s][0], selected_count=n) for s, n in cfg['counts'].items()})
         if args.resume:
             previous=p.read(output/'manifest.json')
-            if any(previous[k]!=manifest[k] for k in ('config','source_sha256','git_revision','data')):
+            if any(previous[k]!=manifest[k] for k in ('config','source_sha256','git_revision','data','execution')):
                 raise ValueError('Resume run provenance differs')
             if any(previous['environment'][k]!=environment[k] for k in ('python','torch','numpy','transformers')):
                 raise ValueError('Resume software differs')
@@ -304,15 +393,22 @@ def run(args):
             from .rmea_token_transport_recovery import cache_inventory
             manifest['cache']=cache_inventory(output/'cache')
             p.atomic_json(output/'manifest.json',manifest)
+            preparing.unlink(missing_ok=True)
         (output.parent/'recovery-inputs').mkdir(exist_ok=True)
         p.atomic_json(output.parent/'recovery-inputs/labels.json',labels)
         from .rmea_token_transport_recovery import Recovery
-        recovery=Recovery(output,cfg,enabled=args.cos and args.profile=='discovery',resume=args.resume,
-            pause_after=args.pause_after)
-        train(cfg, output, labels, data_dir=None if args.fixture_cache else args.data_dir,
-              assets=None if args.fixture_cache else args.assets,recovery=recovery)
+        if args.execution=='auto':
+            from .rmea_token_transport_parallel import parallel_train
+            parallel_train(cfg,output,labels,os.environ['CUDA_VISIBLE_DEVICES'].split(','),
+                data_dir=None if environment['fixture_sha256'] else args.data_dir,assets=None if environment['fixture_sha256'] else args.assets,
+                cos=args.cos and args.profile=='discovery',resume=args.resume,pause_after=args.pause_after,restore_pin=args.restore_pin)
+        else:
+            recovery=Recovery(output,cfg,enabled=args.cos and args.profile=='discovery',resume=args.resume,
+                pause_after=args.pause_after)
+            train(cfg, output, labels, data_dir=None if environment['fixture_sha256'] else args.data_dir,
+                  assets=None if environment['fixture_sha256'] else args.assets,recovery=recovery)
         (output/'RUN_PAUSED').unlink(missing_ok=True)
-        if not args.fixture_cache:
+        if not environment['fixture_sha256']:
             for split in cfg['counts']:
                 if p.digest(args.data_dir/(split+'.jsonl')) != p.EXPECTED[split][1]:
                     raise ValueError('Data changed during run')
@@ -324,10 +420,18 @@ def main():
     parser.add_argument('--profile',choices=('canary','discovery'),required=True)
     parser.add_argument('--data-dir',type=Path,required=True); parser.add_argument('--assets',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True); parser.add_argument('--fixture-cache',type=Path)
+    parser.add_argument('--execution',choices=('auto','serial'),default='auto')
     parser.add_argument('--resume',action='store_true');parser.add_argument('--cos',action='store_true')
+    parser.add_argument('--restore-pin',action='store_true')
+    parser.add_argument('--parent-pid',type=int)
     parser.add_argument('--pause-after',type=int,default=0,help='Bounded canary only')
     args=parser.parse_args()
     if args.pause_after and args.profile!='canary': parser.error('Fault injection is canary-only')
+    if args.restore_pin and not (args.resume and args.execution=='auto'): parser.error('Pinned restore requires parallel resume')
+    if args.parent_pid:
+        import ctypes,signal
+        if ctypes.CDLL(None,use_errno=True).prctl(1,signal.SIGKILL,0,0,0)!=0:raise OSError('Parent-death fencing failed')
+        if os.getppid()!=args.parent_pid:os.kill(os.getpid(),signal.SIGKILL)
     run(args)
 
 

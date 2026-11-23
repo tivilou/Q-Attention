@@ -1,0 +1,60 @@
+{
+  "profile": "native-decision-biseparability-valid-v1",
+  "frozen_at": 1795379121.1631708,
+  "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "code_hashes": {
+    "witness.py": "0dfe2517a7db097598619d18f59ebf8d79c145b5275f12ed0d26f18f21936477",
+    "collect.py": "2012131f5c88452c925538eeaf897c57a9229a590db62e8b003d09b126530623",
+    "solve.py": "35a978c3ff2563e2a25ab5844195ee1f78385e75b6aba3ddcf1d6cf4eb08e296"
+  },
+  "selection": "Most frequent positive TRAIN label, index tie break; first128 strict native-correct VALID target wins plus first128 strict native-correct rival wins where target uniquely second; original order; >=32 per group",
+  "weights": "Half per group, uniform within group",
+  "primary": "Float64 independently checked delta >= .01 on balanced strict decision reversals under any trace-one biseparable replacement of this one relation effect",
+  "inference_dtype": "float64/complex128; fixed native checkpoint; not a replay of historical float32 full metrics",
+  "norm_slack": {
+    "relative": 1e-10,
+    "absolute": 1e-12
+  },
+  "native_margin_replay_tolerance": {
+    "absolute": 1e-09,
+    "relative": 1e-08
+  },
+  "solver": {
+    "name": "SCS",
+    "eps": 1e-07,
+    "max_iters": 100000,
+    "time_limit_secs": 300,
+    "warm_start": false
+  },
+  "numerical_allowance": "1e-7*(1+||W||op+max||Qk||op), numerical stored-coefficient claim only, not interval/exact real circuit proof",
+  "outputs": [
+    "collection.json",
+    "selection.private.json",
+    "operators.npz",
+    "summary.json",
+    "certificate.private.npz",
+    "RUN_COMPLETE"
+  ],
+  "public_whitelist": [
+    "collection.json",
+    "summary.json",
+    "RUN_COMPLETE"
+  ],
+  "limits": {
+    "valid_examples": 19584,
+    "batch": 16,
+    "inference_seconds": 1800,
+    "solver_seconds": 600,
+    "optimizer_updates": 0,
+    "test_access": false,
+    "cos_writes": 0
+  },
+  "stop": "Any replay/numerical failure or insufficient support or checked delta<.01 closes this exact hypothesis; no alternate relation/subset/threshold/seed; no inherited L4/L5",
+  "launch": "Existing accepted scheduler allocation-only runtime; supplied dual2080Ti after current full task returns its allocation; one GPU native inference, CPU solve under same allocation. Stable lifecycle unchanged.",
+  "persistence": "Code/compact report Git only for this stopped/diagnostic test; no Windows model/data/checkpoint payloads or new COS writes"
+}

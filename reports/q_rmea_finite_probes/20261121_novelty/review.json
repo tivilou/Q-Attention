@@ -1,0 +1,19 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "selection_basis": "owner_preference",
+  "response_id": "resp_04b741967167ae30016b01cbc3fb1487d1b5519e6ed93ea22b",
+  "seconds": 41.2899329662323,
+  "draft_sha256": "8054669cdc8a8d6af42a027694dcefc0406b410e22dcf92b68a4274783a5b9c4",
+  "packet_sha256": "f9d9976a6556e0f3457f841ee32cbafab8ae7ba76908309280034d8f6a717b87",
+  "response": {
+    "verdict": "PASS_WITH_SCOPE",
+    "review_scope": "mathematics_and_literature_scope",
+    "must_fix": [],
+    "count_correct": true,
+    "proof_check": "令 q=T−1。删去每行最后一个坐标后，路由参数域是 Rq 维开集。每次探针提供 R−1 个仿射线性的锚定 log-odds。若 K(R−1)<Rq，观测映射的线性部分有非零核，沿核对均匀路由作足够小的扰动即可得到两个严格正且观测相同的路由。达到下界时，取 s=ceil(q/(R−1))、K=q+s。因 s<K 且 Rs≥K，连续整数 0 至 Rs−1 按长度 s 分块后模 K，每块内无重复，所有块覆盖全部 K 个位置。因此每个 U_r 恰有 q 个不同的标准坐标列。D 满行秩使每个探针、每个 token 所需的 R 维效用向量均可实现。两组概率相同等价于所有 U_rΔ_r 等于同一向量 c。该向量在每个 E_r 上为零，故由覆盖性得 c=0，再由各 U_r 满列秩得 Δ_r=0。构造完全预定，对全部 R≥2、T≥2 成立，包括 R=2 时的 K=2q。",
+    "scope_check": "已知类别偏置可从 log-odds 中扣除，两模型共享的未知偏置也会在模型间作差时消去。若两模型各有不同的未知类别偏置，则全零 value 基线可测出各自的相对偏置。此时 K 次总观测消去任意类别偏置后只有 (K−1)(R−1) 个标量约束，故最坏情形总数为 K*+1，全零只是实现该计数的一种选择。对所有类别相同的标量偏移由 softmax 自动消去。R=40、T=9 时的 9 次依赖 D 满行秩，与较弱 decoder 条件下的 16 次最坏情形锐界相容。按所给审计记录，checkpoint 验证了前两个 decoder 坐标的可观测性并执行了零基线加 16 次探针，尚无该 checkpoint 满行秩或已实现 9 次识别的证据。",
+    "novelty_assessment": "按所给原文阅读范围，Brunner 支持固定 value 下的注意力零空间分析，Heinosaari 给出受限参数集的差集与观测核判据，Fawzi 提供 PSD 秩与非负秩的分解工具，使用秩界时须区分实数与复数情形。Konda 的有限普通输入 bank 面向深层未知有效参数，普通输入会同时改变路由和值。本构造依赖固定路由和独立可控的 value，不能据此推出 Konda 场景的高效输入 bank 设计。所列材料足以界定这些联系，尚不足以判定精确计数的文献优先权。保留正向端口审计、将计数作为小型可观测性引理并撤下独立 L5 提名，符合现有证据。原生输入可达性和真实任务增益仍未建立。",
+    "recommended_status": "tool_only"
+  }
+}

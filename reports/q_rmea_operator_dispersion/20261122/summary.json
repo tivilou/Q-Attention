@@ -1,0 +1,146 @@
+{
+  "schema": "q-rmea.operator-dispersion.result.v1",
+  "gate": false,
+  "results": {
+    "baseline": {
+      "ce": 0.5888370121556012,
+      "positive39_macro_f1": 0.5218478064289379,
+      "count": 19584
+    },
+    "operator": {
+      "ce": 0.5889913759076347,
+      "positive39_macro_f1": 0.5191570288948443,
+      "count": 19584
+    },
+    "outcome": {
+      "ce": 0.5891593917802341,
+      "positive39_macro_f1": 0.5214187009621843,
+      "count": 19584
+    },
+    "uniform": {
+      "ce": 0.5882144451163654,
+      "positive39_macro_f1": 0.5240921608902778,
+      "count": 19584
+    }
+  },
+  "calibration": {
+    "operator": {
+      "gamma": -0.003768441316639892,
+      "train_ce": 0.29246309934822246,
+      "baseline_train_ce": 0.29255100370001846,
+      "derivative": -1.8716083350219007e-17,
+      "boundary_hit": false
+    },
+    "outcome": {
+      "gamma": -0.0014001816823376834,
+      "train_ce": 0.292522388056686,
+      "baseline_train_ce": 0.29255100370001846,
+      "derivative": -9.442701569017053e-14,
+      "boundary_hit": false
+    },
+    "uniform": {
+      "gamma": 0.0021684720972236365,
+      "train_ce": 0.29251518398446763,
+      "baseline_train_ce": 0.29255100370001846,
+      "derivative": 7.998682818742396e-14,
+      "boundary_hit": false
+    }
+  },
+  "contrasts": {
+    "baseline": {
+      "delta": 0.00015436375203357734,
+      "onesided_upper": 0.000440539076749236
+    },
+    "outcome": {
+      "delta": -0.00016801587259936533,
+      "onesided_upper": -1.4707420468136931e-05
+    },
+    "uniform": {
+      "delta": 0.0007769307912691352,
+      "onesided_upper": 0.0011982290100126067
+    }
+  },
+  "source": "30e29d57459926d529669487515da7a957c18aad",
+  "source_hashes": {
+    "experiments/q_rmea_operator_dispersion.py": "f239883d8449c65c3336a94567968e62c86591d8128ab5e352c0bd47bcf8e09c",
+    "experiments/q_rmea_query_alignment.py": "9e1fb11c6ffc13fb497a4c6b57feecb06838d9ac5c191fe94d22e5a1667bb33a",
+    "baselines/retacred/rmea_token_transport.py": "11a10fca4205ad7343177a2175b8569612b541c2bd3c5669724cc1765ba4e254"
+  },
+  "core_sha256": "059b7cab6533fa47a43fccdbb0564c183e3714036eaa22080ca656f0940ad6b8",
+  "design_sha256": "55a3c8b7c161dd78c2d533cd706fc93f13423a95db49cbc43457ea9549d4b025",
+  "seconds": 111.71735119819641,
+  "shards": [
+    {
+      "shard": 0,
+      "current": 26016,
+      "total": 26016,
+      "errors": {
+        "zero_probability": 5.473399511402022e-14,
+        "zero_logit": 4.445332990599127e-13,
+        "original_route": 2.55351295663786e-15,
+        "numpy_operator": 1.3500311979441904e-13,
+        "roundoff": 0.0
+      },
+      "physical_gpu": "GPU-223ab86b-7247-baca-9a77-e087d6b6bbdd",
+      "files": {
+        "train-logits.npy": "3c82ce04237cd49fd198c2a9843c6569ba04e8b23c53b5147e5c989d02593dd3",
+        "train-operator.npy": "6193c58e16bfb9fdf5d1ef68a78db5e496336b246e0fd1b71516f5304b400d3f",
+        "train-outcome.npy": "69f61abb0c0ec1fb1d17382ec2c7b8f0845ecdcfda7c7e312cc3c8f9df387d2e",
+        "train-uniform.npy": "b3849aa2791e2df38cf301d3bf69abe5a78a8c8b572c3989474d13102a2c85be",
+        "first2.npz": "53b6aecc0e670250ceb44fe2849dc95d615264a70f8754420f20797afd5e6e4a",
+        "trace-metadata.json": "c30bbc75a2e78eecaa033a1f924c22644271dc88313d15d4fde5c751af7a608f",
+        "valid-logits.npy": "53dc7888e8907bc6efe2c66756b5d4aa0bce0ec3578ded2dfc4c148110babc88",
+        "valid-operator.npy": "c14401a113d8756d24dccd1a85f9203aea8d32ba87b81ecd82421097ec32e60d",
+        "valid-outcome.npy": "5b51c00a9736f546800961267c3d712ed59c2a5658f03dbcfd35489285571142",
+        "valid-uniform.npy": "6f8fb3fd3fdcd10a7b92c58d87a0b878fdbce0cf496b0167c570f24ad11f85bc"
+      }
+    },
+    {
+      "shard": 1,
+      "current": 26016,
+      "total": 26016,
+      "errors": {
+        "zero_probability": 5.007105841059456e-14,
+        "zero_logit": 2.1049828546892968e-13,
+        "original_route": 2.3314683517128287e-15,
+        "numpy_operator": 0.0,
+        "roundoff": 0.0
+      },
+      "physical_gpu": "GPU-4507ce27-e541-22c1-6666-c6042d5c3b6a",
+      "files": {
+        "train-logits.npy": "527f3362caf760a7a4fe02e049669c4d87748808d04addd60683c20c8d783ff6",
+        "train-operator.npy": "468998587a979db281cbdb47608e1e952e1d4e7d6d57d3e7c09b09c56f716c45",
+        "train-outcome.npy": "cbed8089c096ae2a1607eef12dcf250b21a6b4d75e9dfe57029170c8593e4555",
+        "train-uniform.npy": "601361201ec3213416af694ce5cb743b3adf489c76f7f72e2eb6d79074603be2",
+        "valid-logits.npy": "9ad3ef669fa654c2d9f482fca121456e178eecc79a4adfec9cb1b7f0257c00ef",
+        "valid-operator.npy": "52072d726fdaa584179a02381c7ac87753b3b60be995e224a2d3264db62fbad9",
+        "valid-outcome.npy": "528b39cb404457513c7364b29c4745a1e527b74eda3f8ccf3a665e902ec0ebdc",
+        "valid-uniform.npy": "3789aaa1b76b06402afe9fd77cee1a2173a489442c31ccce182f8ed093073c35"
+      }
+    },
+    {
+      "shard": 2,
+      "current": 26017,
+      "total": 26017,
+      "errors": {
+        "zero_probability": 3.8913317013111737e-14,
+        "zero_logit": 1.9273471707492718e-13,
+        "original_route": 2.7755575615628914e-15,
+        "numpy_operator": 0.0,
+        "roundoff": 0.0
+      },
+      "physical_gpu": "GPU-5437acb9-31d3-3e71-004c-dffa8cb7001b",
+      "files": {
+        "train-logits.npy": "e923f42214ad64c279cdf4b0edf10294d6653a368be64a397d9c014c6fafc589",
+        "train-operator.npy": "8a89a1386c5f44b02e68095cf788086cba64250eabe8405ed1bd2035b8197cb8",
+        "train-outcome.npy": "06da98e08fb6045d6845e1f05f94fdd4ae9765543ba205ac0a12e539428f9d64",
+        "train-uniform.npy": "0ea987f071744f216e0b9cd9e0d0755b47c3b8aaa30356c715ae9a7143e6ebc6",
+        "valid-logits.npy": "b5f03f06dff04388329722bac0f5b641a0343d589e56eec9b80a354fb915fdb2",
+        "valid-operator.npy": "c23100423c00524fe9c8dbbb1bb9d089f0a005ec47d8abb7ee6b15ea554015af",
+        "valid-outcome.npy": "acd3253f56cae76b9954345ee5a6b7dfe9d451646c08c2ca4119690a736bb6d0",
+        "valid-uniform.npy": "4237eeb2ecc8238f839e0903ff9834bfcd7a83a665a87cab0680d47cf1c8b80c"
+      }
+    }
+  ],
+  "scope": "Frozen scalar readout diagnostic, NOT finite-eta routing or independent evidence/L5"
+}

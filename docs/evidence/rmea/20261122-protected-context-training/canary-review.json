@@ -1,0 +1,25 @@
+{
+  "model": "gpt-6.2-astra",
+  "requested_effort": "high",
+  "echoed_effort": "high",
+  "profile_echo_verified": true,
+  "selection_basis": "owner_preference",
+  "response_id": "resp_093324b85bb776cc016b0261ea809087d1a33c5c927f8564c9",
+  "packet_sha256": "931c81a6eb0dfda6a1a04566fd3a68301a7e0ec1664f98184993af761916f913",
+  "seconds": 17.16583514213562,
+  "response": {
+    "verdict": "PASS",
+    "review_scope": "both",
+    "must_fix": [],
+    "findings": [
+      "The module-level `import json` in `rmea_protected_context_protocol.py` supplies `protocol.json.dumps` at the lookup that failed in the training logger. The repair is confined to the protocol namespace and preserves the reviewed objective, gradients, optimizer settings, and nine-update canary budget.",
+      "Before training, the recipe verifies the prior unit artifact by SHA-256 and reruns the five-example CPU unit against the repaired source. It replaces only `source_sha256` in the expected record and requires every other field to match.",
+      "The prior owner lifecycle review applies to the registrar and publisher. Enrollment checks the reviewed source bytes, hashes, and recipe. Publication remains bound to the active attempt and limited to `000-preparation` and `010-progress`."
+    ],
+    "claim_limits": [
+      "This static review admits one fresh three-GPU scheduler attempt on the fixed 16/8/8 fixture. Runtime acceptance requires sealed canary validation, a matching `canary-acceptance.json` covering persisted RNG equality across all three lanes, and authenticated publisher completion for that attempt.",
+      "The restore drill covers a fresh directory on the same managed node. Discovery training requires separate owner admission and independent verification of the 13 pinned input objects. Scientific utility and L5 remain unassessed."
+    ],
+    "admission": "scheduler_three_gpu_canary_only"
+  }
+}

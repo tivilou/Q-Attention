@@ -1,0 +1,165 @@
+{
+  "status": "VALID_COMPLETE_GATE_FAILED",
+  "execution": {
+    "argv": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/correlation-order-20261122/probe.py",
+      "--source",
+      "/hy-tmp/Q-Attention/source",
+      "--inputs",
+      "/hy-tmp/Q-Attention/inputs/native-baseline",
+      "--checkpoint",
+      "/hy-tmp/Q-Attention/inputs/native-checkpoint/native-final.pt",
+      "--design",
+      "/hy-tmp/Q-Attention/control/correlation-order-20261122/design.json",
+      "--output",
+      "/hy-tmp/Q-Attention/control/correlation-order-20261122/output",
+      "--progress",
+      "/hy-tmp/Q-Attention/control/correlation-order-20261122/progress.json",
+      "--attempt",
+      "920bab800d984ad2a03fedc842d13ac9"
+    ],
+    "cwd": "/hy-tmp/Q-Attention/source",
+    "inputs": {
+      "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+      "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+      "cache_hashes": {
+        "train-h.npy": {
+          "bytes": 4432355456,
+          "sha256": "b69b1bfb97f20932b26dcea8b13a788a12ec98ec43a68de1801960ad5c526635"
+        },
+        "train-roles.npy": {
+          "bytes": 34627904,
+          "sha256": "b62e4e23836c8b5b9b930e5b9d993f0890a729bfdadbcee02b08c23cae0c3d73"
+        },
+        "train-offsets.npy": {
+          "bytes": 467856,
+          "sha256": "a1ef178eae3b9c16b4cfa20dc66af15a1dd0238bb9fc2fffd55b7a6328c25601"
+        },
+        "train-targets.npy": {
+          "bytes": 467848,
+          "sha256": "6ce409b586a421995f7d70906f062a7e91fe9d35a04be5359a2f58a3485ee604"
+        },
+        "valid-h.npy": {
+          "bytes": 1416849536,
+          "sha256": "a45b2b43bbacbe41b3d7c327b10bc5708b258e13e5c0eff79fea52c4d83ed9f6"
+        },
+        "valid-roles.npy": {
+          "bytes": 11069264,
+          "sha256": "0af5324a5ba0e741b27f85f798277706eb7b0faeb8348657a8319c2b56f772a7"
+        },
+        "valid-offsets.npy": {
+          "bytes": 156808,
+          "sha256": "1b68a943c03e9c80e455da1600cb65a0c463f7ea4815465744001bb0b4c1c13f"
+        },
+        "valid-targets.npy": {
+          "bytes": 156800,
+          "sha256": "87f63eef29f0b267dd4be85f6265b7632542ce0b71f7212a2ff240ed6f88a71b"
+        }
+      }
+    },
+    "stdout": "{\"status\": \"complete\", \"screen_gate\": false, \"results\": {\"train\": {\"split\": \"train\", \"count\": 4096, \"metrics\": {\"native\": {\"ce\": 0.34714194779864926, \"positive39_macro_f1\": 0.671940428518948, \"macro40\": 0.6780330363492666, \"examples\": 4096}, \"local\": {\"ce\": 0.39948377863720197, \"positive39_macro_f1\": 0.6225909560279005, \"macro40\": 0.6295599308291759, \"examples\": 4096}, \"isotropic\": {\"ce\": 0.4017967117672021, \"positive39_macro_f1\": 0.6306829870028338, \"macro40\": 0.6374703540837254, \"examples\": 4096}}, \"native_parity_error\": 0.0, \"pauli_reconstruction_error\": 1.1102230246251565e-16, \"purity_match_error\": 2.220446049250313e-16, \"probability_min\": 1.8333535405160664e-10, \"ce_direction_at_zero\": {\"local\": -1.222025455388265, \"isotropic\": -1.1301058667217514}, \"paired_local_minus_isotropic_ce\": -0.002312933129999932, \"paired_ce_standard_error\": 0.001548020540008575, \"peak_torch_bytes\": 118681600, \"physical_visible_device\": 0, \"seconds\": 20.08720064163208}, \"valid\": {\"split\": \"valid\", \"count\": 4096, \"metrics\": {\"native\": {\"ce\": 0.6185474973761469, \"positive39_macro_f1\": 0.5200639765031337, \"macro40\": 0.5285995906375033, \"examples\": 4096}, \"local\": {\"ce\": 0.6979909600619109, \"positive39_macro_f1\": 0.41609552283563606, \"macro40\": 0.42664123294724476, \"examples\": 4096}, \"isotropic\": {\"ce\": 0.699318691343404, \"positive39_macro_f1\": 0.4107642454020055, \"macro40\": 0.4213688352431104, \"examples\": 4096}}, \"native_parity_error\": 0.0, \"pauli_reconstruction_error\": 1.1102230246251565e-16, \"purity_match_error\": 2.220446049250313e-16, \"probability_min\": 1.1990967790554072e-09, \"ce_direction_at_zero\": {\"local\": -0.4226232921781967, \"isotropic\": -0.5207167838902367}, \"paired_local_minus_isotropic_ce\": -0.0013277312814945492, \"paired_ce_standard_error\": 0.0019706959824798424, \"peak_torch_bytes\": 49683456, \"physical_visible_device\": 1, \"seconds\": 17.334238529205322}}, \"unit\": {\"dense_channel_error\": 8.881784197001252e-16, \"purity_match_error\": 1.4432899320127035e-15, \"zero_error\": 6.661338147750939e-16, \"derivative_error\": 1.9125789973983842e-06, \"gradients\": {\"local\": {\"finite\": true, \"gradient_error\": 1.6495388388548804e-11, \"gradient_norm\": 0.1864187798159981}, \"isotropic\": {\"finite\": true, \"gradient_error\": 1.5490969618170425e-11, \"gradient_norm\": 0.196395819070024}}}}\n",
+    "stderr": "",
+    "exit_code": 0,
+    "started_at": 1795354159.5051765,
+    "finished_at": 1795354183.9164662,
+    "runner_attempt_id": "920bab800d984ad2a03fedc842d13ac9",
+    "file_hashes": {
+      "probe.py": "ff907a1a77d5490872c9e646ca78ca1cda7bb7e5026b06f447ff6ad599137162",
+      "correlation_order.py": "bd13b9462b616bc7a1bd5410be35f20550b390fbb61fdc959dc8bc0ef4502c90",
+      "design.json": "0730a674ae5c75f18a0b325d4a6875b92b4cc3d2f589a9886df60c14c0b0f65c",
+      "host_run.py": "edd03741a3bc403638b3f12a24ea18527f87697f90a80254f18557462a0f9225"
+    }
+  },
+  "source_roles": {
+    "modified_artifacts": {
+      "experiments/diagnostics/rmea_correlation_order/correlation_order.py": "bd13b9462b616bc7a1bd5410be35f20550b390fbb61fdc959dc8bc0ef4502c90",
+      "experiments/diagnostics/rmea_correlation_order/probe.py": "ff907a1a77d5490872c9e646ca78ca1cda7bb7e5026b06f447ff6ad599137162"
+    },
+    "patch": "source.patch",
+    "verification": "verification.json",
+    "rollback": "rollback_source.py"
+  },
+  "baseline": {
+    "command": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/correlation-order-20261122/probe.py",
+      "--source",
+      "/hy-tmp/Q-Attention/source",
+      "--inputs",
+      "/hy-tmp/Q-Attention/inputs/native-baseline",
+      "--checkpoint",
+      "/hy-tmp/Q-Attention/inputs/native-checkpoint/native-final.pt",
+      "--design",
+      "/hy-tmp/Q-Attention/control/correlation-order-20261122/design.json",
+      "--output",
+      "/hy-tmp/Q-Attention/control/correlation-order-20261122/output",
+      "--progress",
+      "/hy-tmp/Q-Attention/control/correlation-order-20261122/progress.json",
+      "--attempt",
+      "920bab800d984ad2a03fedc842d13ac9"
+    ],
+    "selector": "results.{train,valid}.metrics.native",
+    "behavior": "Exact original native logits: maximum replay error0; valid4096 CE.6185474974/Macro.5200639765"
+  },
+  "modified": {
+    "command": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/correlation-order-20261122/probe.py",
+      "--source",
+      "/hy-tmp/Q-Attention/source",
+      "--inputs",
+      "/hy-tmp/Q-Attention/inputs/native-baseline",
+      "--checkpoint",
+      "/hy-tmp/Q-Attention/inputs/native-checkpoint/native-final.pt",
+      "--design",
+      "/hy-tmp/Q-Attention/control/correlation-order-20261122/design.json",
+      "--output",
+      "/hy-tmp/Q-Attention/control/correlation-order-20261122/output",
+      "--progress",
+      "/hy-tmp/Q-Attention/control/correlation-order-20261122/progress.json",
+      "--attempt",
+      "920bab800d984ad2a03fedc842d13ac9"
+    ],
+    "selector": "results.{train,valid}.metrics.local",
+    "behavior": "Fixed t.05 local channel valid4096 CE.6979909601/Macro.4160955228; paired isotropic CE contrast-.0013277313, overall predeclared gateFAIL"
+  },
+  "matched_control": "Class-wise exact trace/purity match, isotropic valid CE.6993186913/Macro.4107642454",
+  "recomputed_gate": false,
+  "counts": {
+    "train": 4096,
+    "valid": 4096
+  },
+  "unit": {
+    "dense_channel_error": 8.881784197001252e-16,
+    "purity_match_error": 1.4432899320127035e-15,
+    "zero_error": 6.661338147750939e-16,
+    "derivative_error": 1.9125789973983842e-06,
+    "gradients": {
+      "local": {
+        "finite": true,
+        "gradient_error": 1.6495388388548804e-11,
+        "gradient_norm": 0.1864187798159981
+      },
+      "isotropic": {
+        "finite": true,
+        "gradient_error": 1.5490969618170425e-11,
+        "gradient_norm": 0.196395819070024
+      }
+    }
+  },
+  "source_revision": "b9bbdff04e11ebabf809c0649ad74d368ab7c6ec",
+  "allocation": {
+    "id": "f378c712ef9e40b385804a68f3c0ac3f",
+    "generation": 5,
+    "state": "released"
+  },
+  "no_training": true,
+  "no_test_cache": true,
+  "no_new_COS": true,
+  "L5": "NOT_ACCEPTED",
+  "interpretation": "Fixed-model finite-step gate failed despite favorable infinitesimal derivatives; no t/cohort rescue or training/family-impossibility claim."
+}

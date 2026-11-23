@@ -1,0 +1,46 @@
+{
+  "argv": [
+    "/hy-tmp/Q-Attention/env/bin/python",
+    "-B",
+    "/hy-tmp/Q-Attention/control/semantic-native-detail-20261123/detail.py",
+    "--root",
+    "/hy-tmp/Q-Attention",
+    "--design",
+    "/hy-tmp/Q-Attention/control/semantic-native-detail-20261123/detail-design.json",
+    "--output",
+    "/hy-tmp/Q-Attention/control/semantic-native-detail-20261123/output",
+    "--progress",
+    "/hy-tmp/Q-Attention/control/semantic-native-detail-20261123/progress.json",
+    "--attempt",
+    "572c9cbddfb24e4aa2f34233a4b2b5ce"
+  ],
+  "cwd": "/hy-tmp/Q-Attention/source",
+  "inputs": {
+    "control/semantic-problem-audit-20261123/selection.private.json": "02941a63f0458c136fd0dffd300fe9a2304601e19c7e09c7688475003456699a",
+    "control/semantic-problem-audit-20261123/semantic-results.private.json": "70cb11200dda8cc64df65ad410237670d2818ae31f091104099273b8f375c09a",
+    "control/semantic-problem-audit-20261123/reader-a.private.json": "c22039965e24f917c2ced4f34e1d07c455d7cffc6808c0a6791e0dade6c23573",
+    "control/semantic-problem-audit-20261123/reader-b.private.json": "ddbcafbc924f70d8c4f665d9ce3e519de2243d41ce87cf0a729988f3dcd25cf3",
+    "inputs/native-checkpoint/native-final.pt": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+    "source/baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "source/baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "inputs/native-word-metadata-20261123/train.private.json": "f5eafb7d51bca46988313c204b6fa5ef19e82fabc32dc9feee9faa70f2285053",
+    "control/task-bottleneck-discovery-20261123/cases.private.json": "ad35efee20682e4f42280670de21bfa76a31dcce39d06cfba675348229a93e8c",
+    "control/native-ordered-mass-value-20261123/output/diagnostic.private.npz": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+    "inputs/native-baseline/recovery-inputs/labels.json": "6e822509a07c5c865130ebe315122a9d83e97b1b11496b9e86c6b2a600f8a429",
+    "inputs/native-baseline/discovery/cache/train-offsets.npy": "a1ef178eae3b9c16b4cfa20dc66af15a1dd0238bb9fc2fffd55b7a6328c25601",
+    "inputs/native-baseline/discovery/cache/train-roles.npy": "b62e4e23836c8b5b9b930e5b9d993f0890a729bfdadbcee02b08c23cae0c3d73",
+    "inputs/native-baseline/discovery/cache/train-targets.npy": "6ce409b586a421995f7d70906f062a7e91fe9d35a04be5359a2f58a3485ee604",
+    "inputs/native-baseline/discovery/manifest.json": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49"
+  },
+  "stdout": "{\"profile\": \"R0-fixed-native-TRAIN32-semantic-cue-logit-decomposition-v1\", \"attempt\": \"572c9cbddfb24e4aa2f34233a4b2b5ce\", \"rows\": 32, \"strata\": {\"positive_missed\": {\"rows\": 8, \"semantic_gold_cue_eligible\": 5, \"all_token_bound_cannot_cross\": 2, \"semantic_cue_bound_cannot_cross\": 1, \"semantic_cue_bound_can_cross\": 4, \"uniform_cue_can_cross\": 2, \"cue_attention_enrichment\": [2.7848117685732725, 0.21430638514093803, 0.005646994369600612, 0.1781670717652759, 0.10718312199397868], \"cue_upper_margins\": [4.786671058459351, 9.234307262045505, -3.1463901704207307, 2.81737543147283, 3.2589321005914957]}, \"positive_correct\": {\"rows\": 8, \"semantic_gold_cue_eligible\": 6, \"all_token_bound_cannot_cross\": 0, \"semantic_cue_bound_cannot_cross\": 0, \"semantic_cue_bound_can_cross\": 6, \"uniform_cue_can_cross\": 5, \"cue_attention_enrichment\": [0.20184446498222397, 8.215962608692395, 1.4535095145516572, 0.3767532169040866, 1.6142960791921082, 4.615424440989391], \"cue_upper_margins\": [6.053849735829287, 11.530503946436973, 4.0277951800396, 6.523589542109346, 6.225184911354573, 8.337168564434236]}, \"null_false_positive\": {\"rows\": 8, \"semantic_gold_cue_eligible\": 0, \"all_token_bound_cannot_cross\": 0, \"semantic_cue_bound_cannot_cross\": 0, \"semantic_cue_bound_can_cross\": 0, \"uniform_cue_can_cross\": 0, \"cue_attention_enrichment\": [], \"cue_upper_margins\": []}, \"null_correct\": {\"rows\": 8, \"semantic_gold_cue_eligible\": 0, \"all_token_bound_cannot_cross\": 0, \"semantic_cue_bound_cannot_cross\": 0, \"semantic_cue_bound_can_cross\": 0, \"uniform_cue_can_cross\": 0, \"cue_attention_enrichment\": [], \"cue_upper_margins\": []}}, \"seconds\": 2.3325510751456022, \"native_replay_max_abs\": 2.042810365310288e-14, \"logit_identity_max_abs\": 3.552713678800501e-15, \"optimizer_updates\": 0, \"gpu_compute\": 0, \"test_rows\": 0, \"cos_writes\": 0, \"private_details_sha256\": \"359affdf816e2c538e0587a4bd28a66ab7cd01e53ed1ab56df2a634b19b2fa97\", \"private_case_numbers_sha256\": \"f6e3bc908b3d318c1627c51c1594ac46d129bcd98ddaa828f7c0b708767dc7db\", \"bound\": \"With unchanged per-token utility, class bias, and every rival logit, any normalized nonnegative attention supported on E has target logit <=max_E utility+bias. Negative upper-margin excludes repair by changing this one target attention row on E. No claim about jointly changed rival rows, retrained values, shared circuit or global model impossibility.\", \"scope\": \"Frozen32outcome-stratified exposedTRAIN examples. Consensus cues from two same-model readers are uncertain semantic evidence; counts are not prevalence or independent utility. No actual oracle repair, trained candidate, causal attribution beyond this fixed arithmetic, novelty or L5.\"}\n",
+  "stderr": "",
+  "exit_code": 0,
+  "started_at": 1795420825.4263744,
+  "finished_at": 1795420828.6534321,
+  "runner_attempt_id": "572c9cbddfb24e4aa2f34233a4b2b5ce",
+  "file_hashes": {
+    "detail.py": "e8d829b6b814066fb4de2046ec955aac429800ea4f6effc6aa6ee2c5b3520a24",
+    "detail-design.json": "e1aa900b90dc6f3986210f20e0d0ea3791d0007680748387bdc8281496dbe1d6",
+    "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662"
+  }
+}

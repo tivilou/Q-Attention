@@ -1,0 +1,30 @@
+{
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "both",
+    "must_fix": [
+      "Reconcile the `reference-summary.json` digest. The supplied file inventory reports `4e889d376931f0277fe0a3d2771076c58e2dcef39fe570eae6d46e8a3cb6d3f0`, while both pins in `design.json` specify `d989fe9a7d656a8321444faa62b37a0f300aeb4d86d475bc8ea4c8a30efc92c6`. With a file matching the inventory, `screen.py` would stop at its code-hash assertion before fixtures or training. Verify the exact bytes against the completed reference summary and make the staged file, both design pins, and the inventory agree while preserving the recorded outcomes."
+    ],
+    "limitations": [
+      "Static review found no defect in either channel formula or the optional hook. Both arms mix probabilities before EPS and token normalization. The hook advances eta once per logical batch, from 0 at update 1 to 1 at update 1024. Both the final update and evaluation call the inherited reference forward.",
+      "No fixtures or training were executed. Once the digest is reconciled, the proposed gate supports only a single-seed, exposed-TRAIN planning decision across the five specified Macro39 contrasts."
+    ],
+    "admission": "blocked"
+  },
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "hashes": {
+    "curriculum.py": "7fbb0b9a654032e73ebc29cdd8a06c827b8ece501c688bed83a9d1d6ed5733d5",
+    "router.py": "ae36da6ce8cb15459a53bdbfdc67fa5e29726897683a23904fa878425d271ac4",
+    "reference-summary.json": "4e889d376931f0277fe0a3d2771076c58e2dcef39fe570eae6d46e8a3cb6d3f0",
+    "design.json": "8abdd008cf4009294c41b699e6c77351e1f2f5a43af7bb994b51ce97c0111c36",
+    "core-delta.patch": "89b52a813f4df843b4f82b498871ab563790f5668e1f835d50a55e5dd18afe81",
+    "screen.py": "7d393af2098f336aa8e2863cee71fd47a5a4a728271266d9f12bd0c50a2f77f6",
+    "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662",
+    "rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "packet_sha256": "47f5b77522de2b5870250ef0a2c10f04c52f77e64130b0c8e325e6b24f0f5826",
+  "seconds": 11.421999999962281
+}

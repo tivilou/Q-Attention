@@ -1,0 +1,96 @@
+{
+  "status": "complete",
+  "profile": "relative-return-source-real-update-v1",
+  "design_sha256": "49bfd5987484aecea326f3f3b6da0d11f13f25b2428896f0402fe07f81053868",
+  "math": {
+    "checks": {
+      "dense_source_error": 3.4021815010030383e-16,
+      "unitarity_error": 6.661338147750939e-16,
+      "vacuum_column_error": 0.0,
+      "two_pass_path_error": 3.3306690738754696e-16,
+      "gauge_density_error": 0.0,
+      "gauge_prediction_error": 1.1102230246251565e-16,
+      "non_psd_gram_error": 2.220446049250313e-16,
+      "gradient_error": 2.823149700126315e-13
+    },
+    "prepared_state_counterexample": {
+      "native": [
+        0.5000000000000001,
+        0.5000000000000001
+      ],
+      "coherent": [
+        4.930380657631324e-32,
+        0.4999999999999999
+      ],
+      "dephased": [
+        0.5,
+        0.5
+      ]
+    },
+    "gram": [
+      [
+        1.0,
+        1.0,
+        0.43750000000000006
+      ],
+      [
+        1.0,
+        1.0,
+        0.8124999999999999
+      ],
+      [
+        0.43750000000000006,
+        0.8124999999999998,
+        1.0
+      ]
+    ],
+    "gram_determinant": -0.14062499999999983,
+    "gram_eigenvalues": [
+      -0.09704940195700677,
+      0.5743971645391877,
+      2.5226522374178195
+    ],
+    "raw_angle_mapping_error": 0.0
+  },
+  "real_updates": {
+    "coherent": {
+      "parameter_count": 81028,
+      "loss_before": 3.919178620138843,
+      "loss_after": 2.2163510839818077,
+      "native_score_error": 0.0,
+      "gradient_norms": {
+        "native.decoder": 5.282398730490927,
+        "native.bias": 0.6543711603753417,
+        "native.effect": 2.593971042253365,
+        "native.value.weight": 32.435841428101206,
+        "native.value.bias": 1.0603369488862946,
+        "native.prepare.weight": 44.50089797304984,
+        "native.prepare.bias": 1.4028468373009702
+      },
+      "parameter_max_update": 0.0010087087724809374,
+      "optimizer_updates": 1,
+      "checkpoint_saved": false
+    },
+    "dephased": {
+      "parameter_count": 81028,
+      "loss_before": 4.018561776244397,
+      "loss_after": 2.598328431911486,
+      "native_score_error": 0.0,
+      "gradient_norms": {
+        "native.decoder": 5.330289962639216,
+        "native.bias": 0.6563235201698456,
+        "native.effect": 1.5181514580523674,
+        "native.value.weight": 32.4339619761156,
+        "native.value.bias": 1.0606444216231499,
+        "native.prepare.weight": 34.676207943493,
+        "native.prepare.bias": 1.118083614674319
+      },
+      "parameter_max_update": 0.001007456837014531,
+      "optimizer_updates": 1,
+      "checkpoint_saved": false
+    }
+  },
+  "L5": "NOT_ACCEPTED",
+  "scope": "Analytic source fixtures and one memory-only update per arm; no task utility/novelty/independent evidence or full-run admission.",
+  "seconds": 5.242236852645874
+}

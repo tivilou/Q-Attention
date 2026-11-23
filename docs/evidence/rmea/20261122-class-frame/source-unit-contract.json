@@ -1,0 +1,39 @@
+{
+  "schema": "q-rmea.class-frame.source-unit-contract.v1",
+  "scope": "source-unit only; no training/data/model downloads/COS",
+  "source_base": "63932f02335bc8f8a8c7ee411dd605a28f4c6c81",
+  "files": {
+    "baselines/retacred/rmea_class_frame.py": "089d8baf781d221c175028a90090e5a0f95b3bd31a29825069a240c82ecf7e84",
+    "experiments/q_rmea_class_frame_unit.py": "c21ccce0a9df0290aa2578aec8f1495397453d50f924593fc4fb90e78f1c1619"
+  },
+  "recipe_id": "rmea-class-frame-unit-v1",
+  "recipe": {
+    "kind": "unit",
+    "command": [
+      "{python}",
+      "-B",
+      "experiments/q_rmea_class_frame_unit.py",
+      "--output",
+      "{output}"
+    ],
+    "resources": {
+      "cpu": 1,
+      "ram_mb": 4096,
+      "disk_mb": 256,
+      "gpus": 0,
+      "gpu_mb": 0
+    },
+    "timeout": 300,
+    "max_attempts": 1,
+    "replay_safe": false,
+    "outputs": [
+      "unit-validation.json",
+      "RUN_COMPLETE",
+      "source-fixture.pt"
+    ]
+  },
+  "registration": "Same reviewed config writer/worker execution, quiescent q-attention only; add exact fixed recipe on both controller/worker; preserve all old recipes/other projects; source pin at new reviewed commit and readback effective runtime. No scheduler code change or GPU reservation.",
+  "recovery": "Pure seeded source fixture may be manually retried after proven terminal failure with a new attempt; no adoption/automatic replay or training resume.",
+  "rollback": "Restore exact project projections under existing writer locks with CAS only if they still equal installed projections; preserve other projects and all task history. Code is added in isolated worktrees, never overwrite dirty checkout.",
+  "formal_ready": false
+}

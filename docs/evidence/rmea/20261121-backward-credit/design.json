@@ -1,0 +1,78 @@
+{
+  "schema": "q-rmea.backward-credit.design.v1",
+  "arms": [
+    "full",
+    "detach_feature",
+    "detach_token"
+  ],
+  "input_checkpoint_sha256": "d2620148df8c1879b6bf0679ef4386ee265991c1b1d15825b1b9290ad7bc3832",
+  "start": {
+    "mode": 3,
+    "epoch": 0,
+    "next_start": 46816
+  },
+  "steps": 256,
+  "seed": 13,
+  "batch_size": 32,
+  "train_count": 58465,
+  "valid_count": 19584,
+  "optimizer": {
+    "schema": "q-rmea.token-transport.protocol.v1",
+    "profile": "discovery",
+    "seed": 13,
+    "conditions": [
+      "native",
+      "cubic_coherent",
+      "cubic_initial_dephased",
+      "linear_coherent"
+    ],
+    "counts": {
+      "train": 58465,
+      "valid": 19584,
+      "test": 13418
+    },
+    "epochs": 4,
+    "batch_size": 32,
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "optimizer_eps": 1e-08,
+    "clip_norm": 1.0,
+    "dtype": "float64/complex128",
+    "parameters": 81028,
+    "tau": 0.25,
+    "born_eps": 1e-06,
+    "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+    "order": "NumPy default_rng(seed); one permutation per epoch; identical all four conditions",
+    "selection": "Fixed final epoch only; valid descriptive; no early stopping or epoch selection",
+    "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending, no label access",
+    "primary": "positive39Macro fixed denominator39; cubic>each control and CE<=native",
+    "trace_checkpoints": [
+      "final"
+    ],
+    "trace_samples_per_split": 2,
+    "diagnostic_samples": 32,
+    "diagnostic_tolerance": 1e-08,
+    "replication": "No automatic replication or rescue seeds/epochs/tau",
+    "claim_scope": "Single seed on previously exposed official splits; no inherited L4/L5/novelty or mediation"
+  },
+  "forward": "All training arms have identical aligned linear-coherent forward at matched weights; tau=.25, exact original spectral scale",
+  "gradients": "full: differentiate 8D rotation and scale; detach_feature: freeze whole 8D rotation; detach_token: freeze whole original token unitary",
+  "normalization": "All arms explicitly normalize the masked rotated Born numerator. Full matches original native-denominator values AND gradients; detach_feature uses this normalized graph, not the historical native-denominator detach graph.",
+  "static": "One arithmetic mean of C_i/c_i from ALL training inputs at the immutable fork weights, frozen for all evaluations; no labels in construction",
+  "primary": "After exactly256 updates, full static-rotation validation Macro exceeds both detached arms with both paired95% bootstrap lower bounds>0 and CE no worse. Development diagnostic only.",
+  "bootstrap": {
+    "draws": 1000,
+    "seed": 20261121,
+    "unit": "fixed validation example"
+  },
+  "probe": "First2 examples in the checkpoint-owned next minibatch; original/full gradient parity, equal forward and readout gradients, prepare-gradient differences; partial numeric trace",
+  "exclusions": "No test access, checkpoint/epoch selection, new seeds/tau, L5/novelty claim, cloud writes or automatic full-run promotion",
+  "recovery": "Cheap bounded restart from original COS-acknowledged input; atomic local latest per update and initial/final validation-best; no new COS generations",
+  "interpretation": "A null short fork is insufficient to reject a training-dependent family; detach interventions depend on representation and normalization",
+  "execution": "One scheduler allocation of3GPUs; once-only preparation, then one independent worker per arm"
+}

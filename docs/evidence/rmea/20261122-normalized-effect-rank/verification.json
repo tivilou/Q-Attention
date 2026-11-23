@@ -1,0 +1,68 @@
+{
+  "status": "PASS",
+  "independent_review": "gpt-6.2-astra/high",
+  "review_packet_sha256": "ba0998c004d0339f1f7d0d7c79b06de2cbc0965d182f3fe368c6e85a2b761712",
+  "source_hashes": {
+    "theory.md": "af9957e39983d442d8725531eb7a743284bce2090b756a7ad037d885b426b9cc",
+    "verify_witness.py": "3d8ddda7f8d323b81eb134160fa417256351e6e99d3ba5164813d3499ecf0e2c"
+  },
+  "result_sha256": "00eadf83edd20c8be8cbdd458b2d1fae7442122347fd0f0d1c1c1101184dbecd",
+  "baseline": {
+    "argv": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "-c",
+      "import json,sys,torch,hashlib;from pathlib import Path;sys.path.insert(0,'/hy-tmp/Q-Attention/source');from baselines.retacred.rmea import circuit,EPS;x=circuit(torch.zeros(2,3,2,dtype=torch.float64));assert float(x[0].abs())==1;assert float(x[1:].abs().max())==0;print(json.dumps(dict(source_sha256=hashlib.sha256(Path('/hy-tmp/Q-Attention/source/baselines/retacred/rmea.py').read_bytes()).hexdigest(),EPS=EPS,zero_angle_basis='e0',zero_angle_error=0)))"
+    ],
+    "cwd": "/hy-tmp/Q-Attention/control/normalized-effect-rank-20261122",
+    "stdout": "{\"source_sha256\": \"9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0\", \"EPS\": 1e-06, \"zero_angle_basis\": \"e0\", \"zero_angle_error\": 0}\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  "modified": {
+    "argv": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/normalized-effect-rank-20261122/verify_witness.py",
+      "--source",
+      "/hy-tmp/Q-Attention/source",
+      "--output",
+      "/hy-tmp/Q-Attention/control/normalized-effect-rank-20261122/output",
+      "--progress",
+      "/hy-tmp/Q-Attention/control/normalized-effect-rank-20261122/progress.json",
+      "--attempt",
+      "9534f35d8d7b4ef8a3dc75b446f20d77"
+    ],
+    "cwd": "/hy-tmp/Q-Attention/source",
+    "inputs": {
+      "native_source_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+    },
+    "stdout": "{\"status\": \"complete\", \"profile\": \"normalized-effect-rank-finite-witness-v1\", \"source_sha256\": \"9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0\", \"probe_sha256\": \"3d8ddda7f8d323b81eb134160fa417256351e6e99d3ba5164813d3499ecf0e2c\", \"checks\": {\"unit_tokens\": 1.1102230246251565e-16, \"tight_frame\": 4.440892098500626e-16, \"protected_mention\": 1.3877787807814457e-17, \"protected_context_mass\": 0.0, \"mixed_formula\": 5.551115123125783e-17, \"dual_identity\": 2.220446049250313e-16, \"dual_min_eigenvalue\": 8.26875697145128e-17, \"normalization_error\": 2.220446049250313e-16, \"circuit_density_error\": 2.220446049250313e-16, \"raw_inverse_error\": 2.220446049250313e-16, \"mixture_identity_error\": 8.326672684688674e-17, \"naive_average_error\": 0.08076873994314634, \"strict_gap_identity\": 7.45931094670027e-17}, \"dimensions\": {\"state\": 8, \"tokens\": 32, \"mention_constraints\": 3, \"mixed_rank\": 2}, \"native_logit\": 4.999960000319998e-07, \"mixed_optimum\": 0.24999850001199997, \"analytic_all_pure_upper_bound\": 0.2374535657232831, \"certified_gap_lower_bound\": 0.012544934288716789, \"pure_bound_is_tight\": false, \"dual_certificate\": {\"lambda0\": 0.2499985000119999, \"mention_multipliers\": [0, 0, 0]}, \"theory\": \"Analytic all-pure bound is justified by the accompanying proof, not sampled optimization.\", \"scope\": \"Synthetic state-port existence and original effect-circuit reachability only; token circuit reachability and real-input utility unproved.\", \"labels_used\": false, \"dataset_reads\": 0, \"optimizer_updates\": 0, \"cos_writes\": 0, \"L5\": \"NOT_ACCEPTED\"}\n",
+    "stderr": "",
+    "exit_code": 0,
+    "started_at": 1795345772.657526,
+    "finished_at": 1795345775.0037396,
+    "runner_attempt_id": "9534f35d8d7b4ef8a3dc75b446f20d77",
+    "file_hashes": {
+      "verify_witness.py": "3d8ddda7f8d323b81eb134160fa417256351e6e99d3ba5164813d3499ecf0e2c",
+      "theory.md": "af9957e39983d442d8725531eb7a743284bce2090b756a7ad037d885b426b9cc",
+      "host_run.py": "4128d2a55b63005af3c11578d1f948df10a63c2219a0a27283fbea32e9cb91d1"
+    }
+  },
+  "allocation": {
+    "id": "d23a1e64a1244db6b36f4884fb4b5fdb",
+    "state": "released",
+    "attempt": "9534f35d8d7b4ef8a3dc75b446f20d77"
+  },
+  "verified_behavior": [
+    "Original zero-angle source circuit still produces e0; native source SHA unchanged.",
+    "Synthetic normalized-mention fixture has an analytically certified all-pure gap and attainable rank-two mixed optimum; original effect circuit preparations verified."
+  ],
+  "scope": "State-port existence only; no real task utility, shared global learned head, token circuit coverage or novelty.",
+  "L5": "NOT_ACCEPTED",
+  "patch_and_rollback": {
+    "record": "rollback-verification.json",
+    "sha256": "230a4b6ea008fc504e8807266b9bfb43d0fe5c7b5e516dda4c39a4722e5a4dae",
+    "executed": true
+  }
+}

@@ -1,0 +1,73 @@
+"""Source-specific two-return math fixtures and two memory-only real updates."""
+import argparse,hashlib,json,math,signal,sys,time
+from pathlib import Path
+import numpy as np
+import torch
+from relative_return import unitary_from_native,return_scores,RelativeReturnHead
+
+
+def sha(p):
+    h=hashlib.sha256()
+    with Path(p).open('rb') as f:
+        for part in iter(lambda:f.read(8*1024**2),b''):h.update(part)
+    return h.hexdigest()
+def save(p,v):
+    p=Path(p);p.parent.mkdir(parents=True,exist_ok=True);q=p.with_suffix('.pending');q.write_bytes((json.dumps(v,indent=2)+'\n').encode());q.replace(p)
+
+
+def dense(angles):
+    """Independent Kronecker gate multiplication, without native state simulation."""
+    eye=torch.eye(2,dtype=torch.complex128);U=torch.eye(8,dtype=torch.complex128)
+    for layer in range(2):
+        for wire in range(3):
+            y,z=angles[layer,wire];c,s=torch.cos(y/2),torch.sin(y/2)
+            Y=torch.stack([torch.stack([c,-s]),torch.stack([s,c])]).to(torch.complex128);Z=torch.diag(torch.stack([torch.exp(-.5j*z),torch.exp(.5j*z)]));f=[eye,eye,eye];f[wire]=Z@Y;U=torch.kron(torch.kron(f[0],f[1]),f[2])@U
+        for control,target in ((0,1),(1,2),(2,0)):
+            perm=[i^((1<<(2-target)) if ((i>>(2-control))&1) else 0) for i in range(8)];U=U[perm]
+    return U
+
+
+def math_fixtures(circuit):
+    g=torch.Generator().manual_seed(2251);angles=.4*torch.randn(5,2,3,2,generator=g,dtype=torch.float64);u=unitary_from_native(circuit,angles);d=torch.stack([dense(a) for a in angles]);matrix_error=float((u-d).abs().max());unitarity=float((u.mH@u-torch.eye(8,dtype=u.dtype)).abs().max());vacuum=float((u[...,0]-circuit(angles)).abs().max())
+    r=return_scores(circuit,angles[:2][None],angles[2:]);W=torch.einsum('rki,tkj->rtij',u[2:].conj(),u[:2]);p2=(W@W)[...,0,0].abs().square();pd=(W[...,0,:].abs().square()*W[...,:,0].abs().square()).sum(-1);path_error=max(float((p2-r['coherent'][0]).abs().max()),float((pd-r['dephased'][0]).abs().max()))
+    # Native prepared-state gauge counterexample, all physical angles inside(-pi,pi).
+    tokens=torch.zeros(2,2,3,2,dtype=torch.float64);tokens[:,1,0,0]=math.pi/2;tokens[1,0,0,1]=math.pi/2;classes=torch.zeros(1,2,3,2,dtype=torch.float64);x=return_scores(circuit,tokens[None],classes);states=circuit(tokens);density=states[:,:,None]*states[:,None,:].conj();density_error=float((density[0]-density[1]).abs().max())
+    expected={'native':torch.tensor([.5,.5],dtype=torch.float64),'coherent':torch.tensor([0.,.5],dtype=torch.float64),'dephased':torch.tensor([.5,.5],dtype=torch.float64)};gauge={k:x[k][0,0].tolist() for k in expected};gauge_error=max(float((x[k][0,0]-v).abs().max()) for k,v in expected.items())
+    # Non-PSD similarity on three actual source-circuit settings.
+    three=torch.zeros(3,2,3,2,dtype=torch.float64);three[:,1,0,0]=torch.tensor([math.pi/2,-math.pi/2,math.pi/2],dtype=torch.float64);three[2,0,0,1]=-math.pi/3;three[2,1,0,1]=math.pi/3
+    v=return_scores(circuit,three[None],three);gram=v['coherent'][0];exact=torch.tensor([[1,1,7/16],[1,1,13/16],[7/16,13/16,1]],dtype=torch.float64);gram_error=float((gram-exact).abs().max());det=float(torch.linalg.det(gram));eigenvalues=torch.linalg.eigvalsh(gram).tolist()
+    # One exact physical-angle gradient, independent of task labels.
+    theta=angles[:2][None].clone().requires_grad_(True);loss=return_scores(circuit,theta,angles[2:])['coherent'].square().mean();grad=torch.autograd.grad(loss,theta)[0];step=1e-5;plus=theta.detach().clone();minus=plus.clone();plus[0,0,1,0,1]+=step;minus[0,0,1,0,1]-=step;fd=(return_scores(circuit,plus,angles[2:])['coherent'].square().mean()-return_scores(circuit,minus,angles[2:])['coherent'].square().mean())/(2*step);gradient_error=float((fd-grad[0,0,1,0,1]).abs())
+    checks=dict(dense_source_error=matrix_error,unitarity_error=unitarity,vacuum_column_error=vacuum,two_pass_path_error=path_error,gauge_density_error=density_error,gauge_prediction_error=gauge_error,non_psd_gram_error=gram_error,gradient_error=gradient_error)
+    assert max(checks.values())<1e-9,checks
+    assert abs(det+9/64)<1e-9 and eigenvalues[0]<-.001 and torch.isfinite(grad).all()
+    return dict(checks=checks,prepared_state_counterexample=gauge,gram=gram.tolist(),gram_determinant=det,gram_eigenvalues=eigenvalues,raw_angle_mapping_error=float((math.pi*torch.tanh(torch.atanh(tokens/math.pi))-tokens).abs().max()))
+
+
+def main():
+    p=argparse.ArgumentParser(description=__doc__)
+    for n in ('source','inputs','checkpoint','design','output','progress'):p.add_argument('--'+n,type=Path,required=True)
+    p.add_argument('--attempt',required=True);a=p.parse_args();cfg=json.loads(a.design.read_bytes());signal.alarm(cfg['timeout_seconds']);a.output.mkdir(parents=True,exist_ok=True);assert not (a.output/'RUN_COMPLETE').exists()
+    for n,h in cfg['code_hashes'].items():assert sha(Path(__file__).with_name(n))==h
+    for n,h in cfg['source_hashes'].items():assert sha(a.source/n)==h
+    assert sha(a.checkpoint)==cfg['checkpoint_sha256'] and sha(a.inputs/'discovery/manifest.json')==cfg['native_manifest_sha256']
+    sys.path.insert(0,str(a.source));from baselines.retacred.rmea import RMEAHead,circuit,EPS
+    torch.set_num_threads(1);torch.manual_seed(13);torch.use_deterministic_algorithms(True);start=time.time()
+    def progress(phase,current,total):save(a.progress,dict(schema='research.progress.v1',attempt=a.attempt,phase=phase,current=current,total=total,unit='stage',observed_at=time.time(),heartbeat_at=time.time()))
+    progress('source_math',0,3);math_result=math_fixtures(circuit);progress('source_math',1,3)
+    cache=a.inputs/'discovery/cache'
+    for n,pin in cfg['cache_hashes'].items():
+        f=cache/n;assert f.stat().st_size==pin['bytes'] and not f.is_symlink() and sha(f)==pin['sha256']
+    data={n:np.load(cache/('train-'+n+'.npy'),mmap_mode='r',allow_pickle=False) for n in ('h','roles','offsets','targets')};lengths=[int(data['offsets'][i+1]-data['offsets'][i]) for i in (0,1)];n=max(lengths);h=torch.zeros(2,n,1024,dtype=torch.float64);roles=torch.zeros(2,n,4,dtype=torch.float64);mask=torch.zeros(2,n,dtype=torch.bool)
+    for j,length in enumerate(lengths):
+        lo,hi=map(int,data['offsets'][j:j+2]);h[j,:length]=torch.from_numpy(np.array(data['h'][lo:hi],dtype=np.float64));roles[j,:length]=torch.from_numpy(np.array(data['roles'][lo:hi],dtype=np.float64));mask[j,:length]=True
+    y=torch.from_numpy(np.array(data['targets'][:2],dtype=np.int64));rows={};state=torch.load(a.checkpoint,map_location='cpu',weights_only=True)
+    for number,mode in enumerate(('coherent','dephased')):
+        base=RMEAHead('quantum').double();base.load_state_dict(state,strict=True);head=RelativeReturnHead(base,circuit,mode,EPS);parameters=sum(p.numel() for p in head.parameters());assert parameters==sum(p.numel() for p in base.parameters())
+        before={n:p.detach().clone() for n,p in head.named_parameters()};opt=torch.optim.AdamW(head.parameters(),lr=.001,weight_decay=.01);d=head(h,roles,mask,details=True);loss=torch.nn.functional.cross_entropy(d['logits'],y);assert torch.isfinite(loss) and torch.isfinite(d['alpha']).all() and float((d['alpha'].sum(-1)-1).abs().max())<1e-10
+        native_error=float((d['returns']['native']-d['native']['probability']).abs().max());assert native_error<1e-10;loss.backward();norms={n:float(p.grad.norm()) for n,p in head.named_parameters() if p.grad is not None};assert norms and all(p.grad is None or torch.isfinite(p.grad).all() for p in head.parameters());opt.step()
+        with torch.no_grad():after_loss=torch.nn.functional.cross_entropy(head(h,roles,mask)[0],y);changes={n:float((p-before[n]).abs().max()) for n,p in head.named_parameters()}
+        assert torch.isfinite(after_loss) and all(torch.isfinite(p).all() for p in head.parameters()) and max(changes.values())>0
+        rows[mode]=dict(parameter_count=parameters,loss_before=float(loss.detach()),loss_after=float(after_loss),native_score_error=native_error,gradient_norms=norms,parameter_max_update=max(changes.values()),optimizer_updates=1,checkpoint_saved=False);progress('one_real_update',number+2,3)
+    result=dict(status='complete',profile=cfg['profile'],design_sha256=sha(a.design),math=math_result,real_updates=rows,L5='NOT_ACCEPTED',scope='Analytic source fixtures and one memory-only update per arm; no task utility/novelty/independent evidence or full-run admission.',seconds=time.time()-start);save(a.output/'summary.json',result);save(a.output/'RUN_COMPLETE',dict(attempt=a.attempt,design_sha256=sha(a.design)));print(json.dumps(result))
+if __name__=='__main__':main()

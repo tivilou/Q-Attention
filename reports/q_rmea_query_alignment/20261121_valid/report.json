@@ -1,0 +1,369 @@
+{
+  "schema": "q-rmea.query-alignment.report.v1",
+  "result": {
+    "schema": "q-rmea.query-alignment.result.v1",
+    "results": {
+      "aligned": {
+        "positive39_macro_f1": 0.5218478064289379,
+        "ce": 0.5888370121556012,
+        "count": 19584,
+        "physical_gpu": "GPU-223ab86b-7247-baca-9a77-e087d6b6bbdd",
+        "prediction_sha256": "5a1651f1138588d53bcc1a4e4efd043c08f94c76050cc10b2a4d69a424629914",
+        "condition": "aligned"
+      },
+      "deranged": {
+        "positive39_macro_f1": 0.5212273097738795,
+        "ce": 0.5892385249331624,
+        "count": 19584,
+        "physical_gpu": "GPU-4507ce27-e541-22c1-6666-c6042d5c3b6a",
+        "prediction_sha256": "b66441cb347d1e58dbeac45609e2124376686e9593e12109e4b580299b379b9e",
+        "condition": "deranged"
+      },
+      "training_mean": {
+        "positive39_macro_f1": 0.5210004033525225,
+        "ce": 0.5889868456247627,
+        "count": 19584,
+        "physical_gpu": "GPU-5437acb9-31d3-3e71-004c-dffa8cb7001b",
+        "prediction_sha256": "529be97d1ca86163c8c985992f2f56a200e8d06153ede4ed62442d936c59ca0d",
+        "condition": "training_mean"
+      }
+    },
+    "contrasts": {
+      "deranged": {
+        "delta": 0.0006204966550583668,
+        "paired95_percentile": [
+          -0.002648287551773151,
+          0.0037078734558260826
+        ]
+      },
+      "training_mean": {
+        "delta": 0.0008474030764153984,
+        "paired95_percentile": [
+          -0.0016823280998725515,
+          0.0034675560968385004
+        ]
+      }
+    },
+    "gate": false,
+    "source": "5cb5f56e72040605d5a9d3d2dee9a26c069869f1",
+    "script_sha256": "5b6a3d84770a256494e23c9ad750811dd853260b5c2f62b50c457be1db99d9b5",
+    "design_sha256": "8f566571f0268d336df1ec3f0f703d8bebfe7e587fa1a2cff3d52c4ecc1ab597",
+    "input_identity": {
+      "checkpoint_sha256": "23691c168f8900001f94a2eba44aa4dde217b703fa4b06a4af228293dc4ab6c8",
+      "input_hashes": {
+        "metadata.json": {
+          "bytes": 10632131,
+          "sha256": "9e6eac9ad582a4ef4e1a8a12190bfef3b8f0a18c5efbd9072f91f31563656c0e"
+        },
+        "valid-targets.npy": {
+          "bytes": 156800,
+          "sha256": "87f63eef29f0b267dd4be85f6265b7632542ce0b71f7212a2ff240ed6f88a71b"
+        },
+        "train-h.npy": {
+          "bytes": 4432355456,
+          "sha256": "b69b1bfb97f20932b26dcea8b13a788a12ec98ec43a68de1801960ad5c526635"
+        },
+        "train-roles.npy": {
+          "bytes": 34627904,
+          "sha256": "b62e4e23836c8b5b9b930e5b9d993f0890a729bfdadbcee02b08c23cae0c3d73"
+        },
+        "train-offsets.npy": {
+          "bytes": 467856,
+          "sha256": "a1ef178eae3b9c16b4cfa20dc66af15a1dd0238bb9fc2fffd55b7a6328c25601"
+        },
+        "valid-h.npy": {
+          "bytes": 1416849536,
+          "sha256": "a45b2b43bbacbe41b3d7c327b10bc5708b258e13e5c0eff79fea52c4d83ed9f6"
+        },
+        "valid-roles.npy": {
+          "bytes": 11069264,
+          "sha256": "0af5324a5ba0e741b27f85f798277706eb7b0faeb8348657a8319c2b56f772a7"
+        },
+        "valid-offsets.npy": {
+          "bytes": 156808,
+          "sha256": "1b68a943c03e9c80e455da1600cb65a0c463f7ea4815465744001bb0b4c1c13f"
+        }
+      },
+      "original_source": "d9837319bb368e6b43939596802a40e05d1f276cbe5e26c27f34947ceb6f3ee7"
+    },
+    "seconds": 271.256395816803,
+    "scope": "Fixed validation/checkpoint diagnostic, not independent replication, new method or L5",
+    "physical_gpus": [
+      "GPU-223ab86b-7247-baca-9a77-e087d6b6bbdd",
+      "GPU-4507ce27-e541-22c1-6666-c6042d5c3b6a",
+      "GPU-5437acb9-31d3-3e71-004c-dffa8cb7001b"
+    ],
+    "source_core_sha256": "059b7cab6533fa47a43fccdbb0564c183e3714036eaa22080ca656f0940ad6b8"
+  },
+  "trace_metadata": {
+    "aligned": {
+      "path": "first2.npz",
+      "sha256": "4dd100a60928d37c3a001a9ce54786673fb6d4bdb570b690309f4a336b076ed8",
+      "status": "partial numeric probe, not full sample-trace.v2",
+      "arrays": {
+        "psi": {
+          "shape": [
+            2,
+            63,
+            8
+          ],
+          "dtype": "complex128"
+        },
+        "phi": {
+          "shape": [
+            40,
+            8
+          ],
+          "dtype": "complex128"
+        },
+        "mask": {
+          "shape": [
+            2,
+            63
+          ],
+          "dtype": "bool"
+        },
+        "generator": {
+          "shape": [
+            2,
+            8,
+            8
+          ],
+          "dtype": "complex128"
+        },
+        "rotation": {
+          "shape": [
+            2,
+            8,
+            8
+          ],
+          "dtype": "complex128"
+        },
+        "alpha": {
+          "shape": [
+            2,
+            40,
+            63
+          ],
+          "dtype": "float64"
+        },
+        "utilities": {
+          "shape": [
+            2,
+            40,
+            63
+          ],
+          "dtype": "float64"
+        },
+        "bias": {
+          "shape": [
+            40
+          ],
+          "dtype": "float64"
+        },
+        "logits": {
+          "shape": [
+            2,
+            40
+          ],
+          "dtype": "float64"
+        }
+      }
+    },
+    "deranged": {
+      "path": "first2.npz",
+      "sha256": "8b7daa98384cfdfee7331c9fd52f5f4b9597c357fe0acb82327c794fcdc31785",
+      "status": "partial numeric probe, not full sample-trace.v2",
+      "arrays": {
+        "psi": {
+          "shape": [
+            2,
+            63,
+            8
+          ],
+          "dtype": "complex128"
+        },
+        "phi": {
+          "shape": [
+            40,
+            8
+          ],
+          "dtype": "complex128"
+        },
+        "mask": {
+          "shape": [
+            2,
+            63
+          ],
+          "dtype": "bool"
+        },
+        "generator": {
+          "shape": [
+            2,
+            8,
+            8
+          ],
+          "dtype": "complex128"
+        },
+        "rotation": {
+          "shape": [
+            2,
+            8,
+            8
+          ],
+          "dtype": "complex128"
+        },
+        "alpha": {
+          "shape": [
+            2,
+            40,
+            63
+          ],
+          "dtype": "float64"
+        },
+        "utilities": {
+          "shape": [
+            2,
+            40,
+            63
+          ],
+          "dtype": "float64"
+        },
+        "bias": {
+          "shape": [
+            40
+          ],
+          "dtype": "float64"
+        },
+        "logits": {
+          "shape": [
+            2,
+            40
+          ],
+          "dtype": "float64"
+        }
+      }
+    },
+    "training_mean": {
+      "path": "first2.npz",
+      "sha256": "98d353c618ffa7549f89a41780df785e5f806813d4607ba54841437ca257ed7c",
+      "status": "partial numeric probe, not full sample-trace.v2",
+      "arrays": {
+        "psi": {
+          "shape": [
+            2,
+            63,
+            8
+          ],
+          "dtype": "complex128"
+        },
+        "phi": {
+          "shape": [
+            40,
+            8
+          ],
+          "dtype": "complex128"
+        },
+        "mask": {
+          "shape": [
+            2,
+            63
+          ],
+          "dtype": "bool"
+        },
+        "generator": {
+          "shape": [
+            2,
+            8,
+            8
+          ],
+          "dtype": "complex128"
+        },
+        "rotation": {
+          "shape": [
+            2,
+            8,
+            8
+          ],
+          "dtype": "complex128"
+        },
+        "alpha": {
+          "shape": [
+            2,
+            40,
+            63
+          ],
+          "dtype": "float64"
+        },
+        "utilities": {
+          "shape": [
+            2,
+            40,
+            63
+          ],
+          "dtype": "float64"
+        },
+        "bias": {
+          "shape": [
+            40
+          ],
+          "dtype": "float64"
+        },
+        "logits": {
+          "shape": [
+            2,
+            40
+          ],
+          "dtype": "float64"
+        }
+      }
+    }
+  },
+  "sealed_outputs": {
+    "artifacts": {
+      "design.json": "91bb2c490db4e028fcf7d71e87a0a28c5e45569ea213020f20fa246a69404d06",
+      "summary.json": "07489889020e23b932fe234ffd96f1c0fca2c11558901dfb813f0a430fa8748c",
+      "trace-metadata.json": "9bc1962375156ac60b4587dd2d7f93b067302853c81657ea561a5e000aab6ff4",
+      "inputs.json": "d919d41eed6cac27c0bdf5994d48a230ef47cf1f478628e8432168909d589ca0"
+    }
+  },
+  "runtime": {
+    "task": "c99f2aa1398a4089a59e836aa7572866",
+    "attempt": "ecadaa7b58074fe9aa12b2a4e001feb1",
+    "returncode": 0,
+    "quiescent": true,
+    "three_gpu_overlap": true,
+    "worker_intervals": [
+      {
+        "condition": "aligned",
+        "first_batch": 1795257398.170154,
+        "complete": 1795257414.658008,
+        "physical_gpu": "GPU-223ab86b-7247-baca-9a77-e087d6b6bbdd"
+      },
+      {
+        "condition": "deranged",
+        "first_batch": 1795257398.414152,
+        "complete": 1795257414.9300056,
+        "physical_gpu": "GPU-4507ce27-e541-22c1-6666-c6042d5c3b6a"
+      },
+      {
+        "condition": "training_mean",
+        "first_batch": 1795257398.386152,
+        "complete": 1795257415.4940007,
+        "physical_gpu": "GPU-5437acb9-31d3-3e71-004c-dffa8cb7001b"
+      }
+    ],
+    "independent_probe_recompute_max_error": 5.329070518200751e-15
+  },
+  "acceptance": "FAILED_STRONG_INPUT_MATCHING_GATE_NO_PROMOTION",
+  "limits": [
+    "Single frozen checkpoint and reused validation cohort; not independent confirmation",
+    "Intervals crossing zero do not prove equivalence or absence of an effect",
+    "Standard8D identity is not novelty; existing scopedL4 preserved",
+    "Private raw predictions/inputs/probes/logs remain on authorizedGPU; no newCOS objects"
+  ],
+  "failures": [
+    "First attempt sparse checkout omitted review.json and stopped before input preparation",
+    "Second attempt rejected trusted worker initialprogress; fixed exact integerzero sameattempt acceptance; both failedquiescent histories retained"
+  ]
+}

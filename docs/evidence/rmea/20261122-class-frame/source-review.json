@@ -1,0 +1,37 @@
+{
+  "schema": "q-rmea.class-frame.review.v1",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "selection_basis": "owner_preference",
+  "packet_sha256": "964695a60a1f0ba40c083150a3e76cfdafbfae00d14428e04489052c0bce2e8e",
+  "reviewed_files": {
+    "baselines/retacred/rmea_class_frame.py": "089d8baf781d221c175028a90090e5a0f95b3bd31a29825069a240c82ecf7e84",
+    "experiments/q_rmea_class_frame_unit.py": "c21ccce0a9df0290aa2578aec8f1495397453d50f924593fc4fb90e78f1c1619",
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "response": {
+    "verdict": "PASS_WITH_SCOPE",
+    "review_scope": "both",
+    "must_fix": [],
+    "findings": [
+      "In rmea_class_frame.py, phi.T @ phi.conj() sums the complex outer products in the correct orientation. Adding 40 * EPS * I gives H = sum_r A_r. The overlap term and EPS * ||W psi||\u00b2 together compute psi\u2020 E_r psi. For the full frame, the raw scores sum to one across classes for each valid unit token. Masking precedes the separate normalization over tokens for each class.",
+      "The native head delegates to the supplied baseline. Both alternative routes reuse its utilities and bias. The kind attribute adds no parameter or buffer, preserving the state_dict layout and the 81,028 trainable parameters, including all 40 effect rows. The diagonal control yields positive effects and generally lacks class completeness.",
+      "The custom backward is correct for first-order complex autograd. Hermitian projection of the incoming cotangent is appropriate, and the divided difference is real and symmetric. At equal eigenvalues it reduces to -1/(2\u03bb^(3/2)), with no eigengap division. The saved eigensystem comes from the custom forward, so higher-order derivatives are outside the supported scope.",
+      "In q_rmea_class_frame_unit.py, the assertions cover repeated and distinct eigenvalue gradchecks, dense-effect agreement, completeness, padding, tight and identical frames, token-phase invariance, native parity, finite parameter gradients, an actual-head effect finite difference, and cross-class routing dependence.",
+      "The fixture reload uses weights_only=True and strict state_dict loading. Replay compares the saved states, routing weights, utilities, values, and logits. The measurement tensors are saved but are outside that replay comparison. The script writes the three declared outputs and derives RUN_COMPLETE from the validation JSON bytes.",
+      "The declared fixed CPU recipe and quiescent, project-scoped registration are consistent with source-unit admission. The contract includes controller and worker readback, a single attempt, and conditional rollback that preserves task history."
+    ],
+    "claim_limits": [
+      "This verdict admits the supplied source to the bounded unit run. No repository access, independent hash computation, execution, registration, or runtime readback occurred. Unit completion remains unverified.",
+      "The alternative routes require complex128 states, as produced by the fixture's double-precision head. Gradient coverage is first-order.",
+      "The known PGM construction and synthetic checks establish no task efficacy, novelty, quantum exclusivity, or hardware result. Formal readiness, v2 trace and Case Study readiness, and L5 acceptance remain pending."
+    ],
+    "admission": "scheduler_cpu_source_unit_only"
+  },
+  "previous_review": {
+    "verdict": "BLOCK",
+    "issue": "PYTHONOPTIMIZE could skip assert checks",
+    "resolution": "explicit if not __debug__ guard before output creation; exact revised source re-reviewed"
+  }
+}

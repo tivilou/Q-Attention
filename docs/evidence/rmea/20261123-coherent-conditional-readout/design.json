@@ -1,0 +1,65 @@
+{
+  "profile": "word-coherent-conditional-TRAIN-screen-v1",
+  "seed": 13,
+  "updates": 512,
+  "batch_size": 32,
+  "microbatch_size": 4,
+  "lr": 0.001,
+  "weight_decay": 0.01,
+  "betas": [
+    0.9,
+    0.999
+  ],
+  "optimizer_eps": 1e-08,
+  "clip_norm": 1.0,
+  "modes": [
+    "coherent",
+    "diagonal",
+    "classical",
+    "native"
+  ],
+  "fit": 4192,
+  "assessment": 4000,
+  "selection": "Final update512 only; local batchloss best is retention, never selection",
+  "precision": "float64/complex128/deterministic",
+  "bootstrap_replicates": 2000,
+  "bootstrap_seed": 20261123,
+  "timeout_seconds": 1800,
+  "code_hashes": {
+    "screen.py": "47d269562e4b8f53a3b87f3348260e5bdfa825bbdc7ad02faf3c3c4d36de7c27",
+    "weak_readout.py": "2678479931f6c4900a13156b4c1d7a3879d1f2dc301bd336c5a3b5a7914600c6"
+  },
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "baselines/retacred/rmea_task_runtime.py": "df50e9e14b5fae4b6211c55fd17bcfd2acc368127953e23768dcece24e9d5931",
+    "baselines/retacred/rmea_token_transport_study.py": "14d796f4970fddd7f218ef637b9a41a6e0a871dac978025b30f13713b18b6e7b",
+    "baselines/retacred/rmea_token_transport_recovery.py": "5cbb1e46fa964619d024467c0b2f735f1538cb63e1e44f0133d94f8d0d72e0f7",
+    "baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9"
+  },
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "split_reference_sha256": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+  "bootstrap_code_sha256": "d742cc89229cc53c5048886cd7e12e847c4d696e56049f5a32001dbf6865de6e",
+  "gates": "For formal-study preparation: coherent CE lower/paired whole-sentence bootstrap lower.025>0 and Macro39>=native and classical; fewer positive-to-null and no more nullFP than native. Dephased contrast reported separately for attribution.",
+  "stop": "No promotion on failed exact512profile; no seed/split/epsilon/lambda/budget/control rescue. Short failure is not family impossibility. Frozen native phases cannot fairly kill this trained mechanism.",
+  "recovery": "Restartable bounded TRAIN screen from existing pinned inputs; atomic local latest and batchloss-best every update. No COS writes or automatic retry/resume/protection claim.",
+  "public_whitelist": [
+    "summary.json",
+    "fixtures.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": [
+    "diagnostic.private.npz",
+    "coherent/*.pt",
+    "diagonal/*.pt",
+    "classical/*.pt",
+    "native/*.pt"
+  ],
+  "claim_scope": "Exposed TRAIN planning only; no independent utility/novelty/quantumnecessity/L5. Q/internal-diagonal/native identical initialstate and count; classical real signed conditional shares values/decoder/bias/order, smaller router. Formal later requires strong softmax controls.",
+  "resources": {
+    "gpus": 2,
+    "cpu_cores": 4,
+    "ram_gib": 16,
+    "disk_gib": 1
+  }
+}

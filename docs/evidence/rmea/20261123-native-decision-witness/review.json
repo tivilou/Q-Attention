@@ -1,0 +1,28 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 30.337429761886597,
+  "packet_sha256": "e901891e24a0fa6ede7bcbbfa6d9a4768152cba80cf92e422ded2aa77f7a7ff5",
+  "hashes": {
+    "witness.py": "0dfe2517a7db097598619d18f59ebf8d79c145b5275f12ed0d26f18f21936477",
+    "collect.py": "2012131f5c88452c925538eeaf897c57a9229a590db62e8b003d09b126530623",
+    "solve.py": "35a978c3ff2563e2a25ab5844195ee1f78385e75b6aba3ddcf1d6cf4eb08e296",
+    "design.json": "d2ebb10ed1b177a12efd7a4fc63c916faf7c41bc24b724177c094ccbd9a4ef2d",
+    "theory.md": "3f882d0d02d4f8bb567a6261db71e01994f7f61eb749f841a1c22d5dc6d7ff0b",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "The normalized-margin identity holds for a common trace-one PSD replacement E. On valid tokens, tr[E(ρ_it + εI)] equals tr(Eρ_it) + ε, so the denominator is positive. With the largest rival logit frozen, a strictly negative signed numerator reverses the selected native winner in either group. A tie contributes zero to the reversal bound.",
+      "Selection matches the frozen design. TRAIN counts choose the positive relation, and stored VALID order determines membership under the strict winner, unique-second, cap and minimum-support rules. Each group receives half the weight. The collector reads TRAIN and VALID data only.",
+      "The witness sign and both bounds are correct. Unit operator norm and 0 ≤ λ_i ≤ w_i bound tr(EW) above by the balanced weight of strict reversals. The decomposition on each of the three MSB-ordered cuts bounds tr(EW) below by δ for states PPT on that cut. Linearity extends the same bound to mixtures across cuts, including every biseparable E. The PPT-mixture construction is established prior art.",
+      "The gate uses the reconstructed float64 bound after multiplier clipping, PSD projection and the fixed numerical allowance. Its scope is the stored coefficients in the original tensor encoding. The supplied fixtures cover masked mixed-effect replay, cut indexing, witness sign and a positive solver case. This was a static review; fixture execution and the natural-data result are unverified.",
+      "A checked δ ≥ 0.01 would establish a conditional numerical lower bound on balanced reversal weight for one relation at the fixed seed13 checkpoint on the selected exposed VALID cases. A subthreshold result leaves biseparable feasibility unresolved. Net Macro impact, five-seed gain mediation, independent confirmation and L4/L5 promotion remain outside the inference."
+    ],
+    "admission": "one_frozen_native_decision_witness_diagnostic"
+  }
+}

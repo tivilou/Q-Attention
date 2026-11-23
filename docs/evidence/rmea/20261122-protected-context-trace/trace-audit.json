@@ -1,0 +1,57 @@
+{
+  "schema": "q-rmea.protected-context.trace-audit.v1",
+  "decision": "SOURCE_TRACE_PREFLIGHT_PASS",
+  "task": "8f5fb5e9516b49aebfafbdc701ac0631",
+  "attempt": "3d506075b9b848368f5813fca9565435",
+  "source": "d9c1421b3c6884bb3a9c93f267107d8589f754e3",
+  "review": {
+    "model": "gpt-6.2-astra",
+    "effort": "high",
+    "scope": "both",
+    "verdict": "PASS_WITH_SCOPE",
+    "packet_sha256": "c1f5e9ea0bab1098db65dd20b5055a9b0d2b6dc1e97f927a33e813d3749eb49e"
+  },
+  "checks": {
+    "structural": "pass",
+    "semantic": "pass",
+    "replay": "pass",
+    "coordinate_reader": "pass",
+    "samples": 24,
+    "complete_numeric_arrays_checked": 726,
+    "complete_numeric_elements_checked": 2274118,
+    "source_linked_coordinates_checked": 2130,
+    "warnings": [],
+    "boundary": "Pinned frozen word features to final head; no encoder/internal-layer/training-trajectory claim"
+  },
+  "negative_checks": {
+    "incomplete_values": "rejected",
+    "source_index": "rejected",
+    "label_in_routing": "rejected",
+    "legacy_native_lineage": "rejected",
+    "producer_dtype": "rejected",
+    "extra_target_element": "rejected"
+  },
+  "interruption_checks": {
+    "producer_dtype": {
+      "returncode": 73,
+      "validated_archive_unchanged": true,
+      "separate_inode": true
+    },
+    "extra_target_element": {
+      "returncode": 73,
+      "validated_archive_unchanged": true,
+      "separate_inode": true
+    }
+  },
+  "private_arrays_bytes": 8485818,
+  "source_body_gate": true,
+  "numeric_tolerance": {
+    "atol": 1e-08,
+    "rtol": 1e-08,
+    "exact_shape_and_dtype": true
+  },
+  "native_fixture": "Existing unchanged native model, no training",
+  "preserved_earlier_evidence": "Frozen96 remains mixed; fixed-rank first-order unit remains separately accepted; stopped scattering unchanged",
+  "formal_training_admission": false,
+  "L5": "NOT_ACCEPTED"
+}

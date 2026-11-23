@@ -1,0 +1,30 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 20.609822034835815,
+  "packet_sha256": "320c45d9265034d00844db38231a8e9fea0a1e77c54e9f1eb750b1a52efc3518",
+  "hashes": {
+    "memory.py": "fdd5a969b9eb97877dd746559c773fc698a124aaffbb43ba20f1aa85e8f7427b",
+    "screen.py": "b26d4071f21574915b8a9bb5b490e02f34313c5fbd22bb8ed6cd17b4109d3e8e",
+    "design.json": "ad0d42c56cc358ff0a9991138f2d48905d97a09cbb94f37f2608858f87065145",
+    "theory.md": "b2564b3a0610cc9e84df06a97829d849091eace4c461e785ce3abdeec40a2dd9",
+    "unchanged-core-excerpts.json": "81d7e69e61c0287ac2f3e81badfd2e9fcb4d1aaf944d182ba87b74189d76501f",
+    "previous-review.json": "e670e7819ed8f7b66dcbeaaa66c574d6bcfc12e0a8c0fddcc638fd9b39e65d33",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "limitations": [
+      "The original BLOCK stands for the earlier revision. The revised screen collects results from both training lanes and checks that all three modes are present. Before the first assessment prediction, it verifies that every worker reported 512 updates and that all three final checkpoint files match the hashes recorded after training. Each model also passes a state-identity check against its update-512 latest checkpoint before its own scoring.",
+      "The public summary builds each arm’s row from explicit scalar fields. Minibatch loss histories and per-parameter gradient norms stay in private per-arm result files. The public first-update checks expose only finite-gradient and state-change flags.",
+      "The coherent read implements 8 Tr(QW), and the diagonal read implements 8 times the dot product of the two operator diagonals. Both use the subject-only Born-score mixture and the mean signed utility over valid non-subject writes. The occupancy mask zeros surplus gather slots even when clamping repeats a valid final subject token. The native comparator retains full-token pooling. All three arms share the initial parameter state and batch order.",
+      "The conditional diagonal MSE lower bound of 1/2 is sharp. Query normalization places the all-ones direction in the query matrix’s column space, leaving at most seven dimensions to capture the fourteen balanced contrast directions. The two-basis construction attains equality. Payload-independent queries and ideal encodings are essential to the stated result. Its applicability to contextual features, finite-circuit realizability, and novelty remain unestablished.",
+      "The executor waits for both device lanes on ordinary Python exceptions. Checkpoints are local, and assessment uses the final state. All six gates must pass on the exposed 4,000-item TRAIN assessment split. A pass permits independent-study preparation only. A failure closes this exact screen.",
+      "This was a static review of the supplied packet. The bootstrap helper body was unavailable for inspection. Operator and gradient parity, padding invariance, the retrieval fixture, actual first updates, and two-GPU completion remain unverified at runtime."
+    ],
+    "admission": "one_bounded_TRAIN_only_screen"
+  }
+}

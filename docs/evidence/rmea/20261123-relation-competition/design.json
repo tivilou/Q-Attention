@@ -1,0 +1,40 @@
+{
+  "profile": "frozen-native-TRAIN32-cross-relation-competition-v1",
+  "code_hashes": {
+    "competition.py": "9969403447c152f2105e9c031b3841bc44ceb725b88932d72e491c1b70b023d8",
+    "probe.py": "589cb14b34f53a72b3f86fc06af828c819ed8783506923b9c23bda02a8025e02"
+  },
+  "input_hashes": {
+    "control/semantic-problem-audit-20261123/selection.private.json": "02941a63f0458c136fd0dffd300fe9a2304601e19c7e09c7688475003456699a",
+    "inputs/native-checkpoint/native-final.pt": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+    "source/baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "source/baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "control/task-bottleneck-discovery-20261123/cases.private.json": "ad35efee20682e4f42280670de21bfa76a31dcce39d06cfba675348229a93e8c",
+    "control/native-ordered-mass-value-20261123/output/diagnostic.private.npz": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+    "inputs/native-baseline/recovery-inputs/labels.json": "6e822509a07c5c865130ebe315122a9d83e97b1b11496b9e86c6b2a600f8a429",
+    "control/semantic-native-detail-20261123/output/details.private.npz": "359affdf816e2c538e0587a4bd28a66ab7cd01e53ed1ab56df2a634b19b2fa97",
+    "control/semantic-native-detail-20261123/output/cases.private.json": "f6e3bc908b3d318c1627c51c1594ac46d129bcd98ddaa828f7c0b708767dc7db"
+  },
+  "resources": {
+    "cpu": 1,
+    "ram_mb": 4096,
+    "disk_mb": 64,
+    "gpus": 0,
+    "gpu_mb": 0
+  },
+  "population": "All unchanged32outcome-stratified TRAIN cases; fixed semantic eligibility5misses",
+  "transform": "q/G acrossrelations thennormalizewords; all40includingnull; EPSunchanged; nolabelsintoforward",
+  "precision": "CPUfloat64/complex128",
+  "numerical_checks": "Native/padding/covariance/logqgradient/framePOVM all maxabs<1e-8, at leastone changed attention example; not task utility gates.",
+  "selection": "No fit, new selection, score power or threshold. All four strata/all5supportedmisses reported regardlesssign.",
+  "recovery": "Cheap derived probe, pinned inputs. No model/checkpoint writes; no automaticretry/restart/COS. Originalweightfiles nevermodified.",
+  "public_whitelist": [
+    "summary.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": [
+    "probe.private.npz",
+    "cases.private.json"
+  ],
+  "claim_scope": "Developmentfrozenreadoutonly; no newtheory/utility/phaseattribution/L5"
+}

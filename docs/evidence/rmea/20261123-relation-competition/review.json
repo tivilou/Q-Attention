@@ -1,0 +1,30 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 86.78667449951172,
+  "packet_sha256": "e37442c4a341e066f2bc3d6a24168242a6823d37dd03e1fa261068404ee35013",
+  "hashes": {
+    "competition.py": "9969403447c152f2105e9c031b3841bc44ceb725b88932d72e491c1b70b023d8",
+    "probe.py": "589cb14b34f53a72b3f86fc06af828c819ed8783506923b9c23bda02a8025e02",
+    "design.json": "3f6a22e10b1fd9369eaf2ccd15bba08066a8f14cd2dbd683d8c0ad561cc4c315",
+    "theory.md": "dda8f7e5bd5f58a6f2671039a5f3af1f83b2fb832d1e0f7fa4c943f02061c8af",
+    "source-reading.json": "f5628576b5bc26143df80f5aa7cf7fb0c323ae96a3e28511e428944d536df96d",
+    "original-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "prior-review.json": "096f20f9f93bda0acc773a4870b639b1316ba1719e98c3fe65e7862d1a3eb8f1"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "The probe hashes the sibling competition.py and loads that same path with spec_from_file_location. A same-named module under root/source cannot shadow this lookup.",
+      "The initial POVM completeness error passes through math.isfinite before entering the error dictionary. Native parity, covariance, log-q gradient, frame probability, and both padding residuals each pass through math.isfinite before max. With Python assertions enabled, a nonfinite residual stops the probe before RUN_COMPLETE. The final gate retains the strict maximum below 1e-8.",
+      "The transform adds EPS once, normalizes each token across all 40 relations including null, masks padding, then normalizes each relation across tokens. The covariance identity and cross-relation log-q derivative match this map. Autograd checks a linear loss on cached scores, and CompetitiveHead removes the obsolete row-local sensitivity.",
+      "The complex outer products, inverse-square-root POVM normalization, and row-stored ket transform psi @ sqrt.T have consistent orientations. They support the stated matrix-scaling and filtered-state identities. The probe provides no evidence of quantum advantage or shallow-circuit cost.",
+      "Labels, cues, and types enter scoring after the forward transform. The report covers all four fixed outcome strata and all five eligible misses. The public summary contains aggregate diagnostics, five paired margins, and private-file digests. Per-case cue masses, logits, and attention arrays stay in the designated private outputs.",
+      "This was a static review. Input digests, runtime parity, and observed residuals remain unverified. Any resulting prediction changes describe these 32 exposed TRAIN cases only."
+    ],
+    "admission": "one_fixed_TRAIN32_CPU_probe_only"
+  }
+}

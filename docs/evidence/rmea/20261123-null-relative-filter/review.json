@@ -1,0 +1,29 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 14.159253597259521,
+  "profile_echo_verified": true,
+  "packet_sha256": "3c1771b70d6f7587c8699396c16a9d3849835a49614bee0a967b355f26d726b3",
+  "hashes": {
+    "null_relative.py": "ad1b2606bb3a715daea27ce0bde41d8ca9cda8759919f07a5aa357b2cbbf8fab",
+    "screen.py": "491c0aa79129dff8e1d5c124b770a3ce36bb1fcae8b9ed986512b173e8fb84cb",
+    "design.json": "78d48000bfb442d1c66e604e401248cd9dc8a6a70af5d8a86d92b19a2f563eb1",
+    "theory.md": "62b1296ed084cad97857ab9dc65bc8a00af492b24356281267fb0b05e7831daa",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "unchanged-core-excerpts.json": "81d7e69e61c0287ac2f3e81badfd2e9fcb4d1aaf944d182ba87b74189d76501f",
+    "accepted-host-wrapper.py": "f84cfc70c803e59a68f9f220a74915aa6d622641603f78125125005d4ce75bd7",
+    "previous-review.json": "86e1e0180fa65877816bbae3832a0d8eb03b5b40850e081f79751da845c362de"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "limitations": [
+      "Both must-fixes from the original BLOCK are resolved in the supplied revision. The design selects update 128, and the adapter scores each arm’s final.pt after all three fits finish and all final-file digests are checked. It also verifies that the loaded state matches the update-128 latest checkpoint. best.pt serves only as local retention.",
+      "The fixture now builds the expected density from a separate native forward pass by forming ψ_t ψ_t†, weighting each token by native class-0 attention, and summing over tokens. It checks the reported full density to 1e-12 before either mode applies dephasing. The oracle then uses its own density for the explicit inverse, dense trace, logits, and parameter gradients. The reported head hash matches the design pin and focused-test revision.",
+      "This was a source-only review. Nothing was executed. Fixture tolerances, artifact digests, and the hash-pinned bootstrap helper’s implementation remain unverified.",
+      "Admission covers one 128-update comparison per arm from the common pinned warm start on the exposed TRAIN split. Its six gates support only a planning decision. Independent utility, novelty, and quantum necessity remain unestablished."
+    ],
+    "admission": "one_bounded_warmstart_TRAIN_screen"
+  }
+}

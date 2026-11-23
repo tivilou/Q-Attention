@@ -1,0 +1,28 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 11.82349443435669,
+  "profile_echo_verified": true,
+  "packet_sha256": "c236fde74398d75aabd9cf98962054c20093ab2a62e5d5662832eabaee9871ee",
+  "hashes": {
+    "transfer.py": "5e57136d8de7a43f4b73ccce9d604a712b6f50dc834907dd3a3496ce544604b9",
+    "design.json": "bbd35ff51a1415677c36b389144c708bb23053c3b8d43b8cf077dbec33497a08",
+    "theory.md": "bd0bd1a3d82a341b590e6117ba129db7d5cf8fd7aeaa3d06f45303c0cbd2f0d9",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "accepted-host-wrapper.py": "f84cfc70c803e59a68f9f220a74915aa6d622641603f78125125005d4ce75bd7",
+    "original-block.json": "109b2b94ea20846d6666de9269944ecfde47fca53d87a1e407e790fde45b63c0"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "limitations": [
+      "Both original blockers are resolved in the supplied code. An exactly zero assessment gradient skips the cosine division and serializes gradient_cosine as null. The gradient inner product is then zero, and the required agreement within 1e-9 places the reported row-mean derivative inside the 1e-8 unresolved band.",
+      "An empty descriptive cell records n=0, zero increases, decreases and unresolved counts, and null means for both CE and margin derivatives. The primary assessment mean is computed separately over all 4000 assessment rows.",
+      "The direction uses the calibration-only mean 40-class CE gradient across all 480 native effect coordinates, including class 0. A norm at or below 1e-12 terminates with no_direction. Otherwise the code seals the normalized negative gradient before computing assessment derivatives. The circuit JVP, masked normalization with fixed EPS, and exact-tie margin rule agree with the supplied native forward and theory.",
+      "The all-row logit and argmax comparisons, both CE identities, and fixed central-difference fixtures are appropriate for this bounded diagnostic. A negative assessment sign would support only first-order CE descent along the sealed direction on the exposed TRAIN assessment rows. The design performs zero optimizer updates and uses a single fixed step for derivative checks.",
+      "This was a text-only re-review. The original BLOCK is retained as the review of the earlier revision. Nothing was executed, so artifact hashes, runtime fixture outcomes and the primary sign remain unverified. The raw arrays are written to GPU-host storage and are excluded from the public whitelist. Actual privacy depends on host access and whitelist enforcement."
+    ],
+    "admission": "one_bounded_zero_update_TRAIN_direction_diagnostic"
+  }
+}

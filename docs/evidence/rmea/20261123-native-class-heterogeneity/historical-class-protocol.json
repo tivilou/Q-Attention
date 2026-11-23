@@ -1,0 +1,31 @@
+{
+  "scope": "Retrospective exploratory development VALID, no TEST or new predictions/training",
+  "seeds": [
+    29,
+    53,
+    71,
+    97,
+    113
+  ],
+  "conditions": [
+    "uniform",
+    "relation_softmax",
+    "real_overlap",
+    "quantum",
+    "dephased"
+  ],
+  "endpoint": "selected_valid as already frozen independently per existing condition",
+  "metric": "per_class F1 recomputed from stored confusion; positive39 Macro",
+  "stability": "strictly positive / negative in all five seeds, tolerance1e-12; descriptive, not significance",
+  "comparisons": [
+    "quantum-uniform",
+    "quantum-relation_softmax",
+    "quantum-real_overlap",
+    "quantum-dephased"
+  ],
+  "classes": "all positive class IDs1..39 without exclusions",
+  "input_sha256": "fad5c12213f6b8ea1e8fc1a724f5fa28e535c39035a8af8fc8653dc385d74522",
+  "historical_audit_sha256": "1dd3962f4c936a2f6ecf1c9a1f3b78d7f6e43fa968431145ce33541627045ce6",
+  "code_sha256": "baf5ea3c8602052bec20097d8b2d068448cd4b11ad7094173a0aec50d760eb80",
+  "frozen_at": "2026-11-23T02:24:59.575586+00:00"
+}

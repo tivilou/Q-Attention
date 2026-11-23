@@ -1,0 +1,26 @@
+{
+  "manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "executed_revision": "4044c8b166b4ae63b66f57b5bcfd7163df281956",
+  "declared_dtype": "float64/complex128",
+  "training_source": "baselines/retacred/rmea_token_transport_study.py",
+  "source_sha256": "0c7d5879fd2daaf2a377791133eb0518b099293cd86575c9866dcd011741e21b",
+  "source_manifest_hash": null,
+  "source_dtype_lines": [
+    {
+      "line": 92,
+      "text": "        h = np.zeros((len(indices), max(lengths), 1024), np.float64)"
+    },
+    {
+      "line": 93,
+      "text": "        r = np.zeros((len(indices), max(lengths), 4), np.float64); mask = np.zeros(h.shape[:2], bool)"
+    },
+    {
+      "line": 123,
+      "text": "    initial = {k: v.clone() for k, v in RMEAHead('quantum').double().state_dict().items()}"
+    },
+    {
+      "line": 150,
+      "text": "        head = TrainableTokenTransportHead(kind).double(); head.load_state_dict(initial)"
+    }
+  ]
+}

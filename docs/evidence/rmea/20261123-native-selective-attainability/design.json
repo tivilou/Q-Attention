@@ -1,0 +1,32 @@
+{
+  "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9"
+  },
+  "profile": "native-selective-attainability-TRAIN8192-v1",
+  "microbatch_size": 8,
+  "timeout_seconds": 1200,
+  "code_hashes": {
+    "probe.py": "836f5008e7eb31c1860b88eb3f4185387db21217189fddeeb4454545f2315b7f",
+    "qualify.py": "dc253e9f8bd7cdb896706bb89d1def5c6c7ec2357928375deaa22522795e12fc",
+    "verify.py": "1da87b3423031180fb722dfdcf60dbd64e7c811c2f682e58725f3c03a487603a"
+  },
+  "qualification_sha256": "818f27b1bf12ceef69679be5dff8eddb0780029b9c1ecece7948f6f7a4841fb5",
+  "public_whitelist": [
+    "summary.json",
+    "fixtures.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": [
+    "moments.private.npz"
+  ],
+  "claim_scope": "Numerically resolved pointwise unrestricted-effect obstruction on exposed TRAIN; no shared-head/circuit realizability, independent evidence, novelty, utility or L5",
+  "recovery": "Cheap immutable-input inference; no checkpoint/COS/autoretry or alternate masks",
+  "train_count": 8192,
+  "train_word_sha256": "f5eafb7d51bca46988313c204b6fa5ef19e82fabc32dc9feee9faa70f2285053",
+  "margin_tolerance": 1e-07,
+  "coverage_note": "Original8192 rows unchanged, all40outputclasses/rivals; finite prefix may lack some goldlabels, explicitly reported. First assertion failed before model/fixture calls."
+}

@@ -13,6 +13,8 @@ FILES = (
     'baselines/retacred/rmea_token_transport_protocol.py',
     'baselines/retacred/rmea_token_transport_study.py',
     'baselines/retacred/rmea_token_transport_recovery.py',
+    'baselines/retacred/rmea_token_transport_parallel.py',
+    'tests/test_rmea_token_transport_parallel.py',
     'scripts/rmea_cos_supervisor.py',
     'tests/test_rmea_token_transport_recovery.py',
     'baselines/retacred/rmea_token_transport_trace.py',
@@ -65,9 +67,9 @@ def config(profile):
 
 def contract():
     return dict(profiles={s: config(s) for s in ('canary', 'discovery')},
-        launch='Portable isolated probe; live canary then full discovery; one GPU serial heads; explicit scheduler-managed owner exception or collaborator branch1.1',
+        launch='Portable isolated probe; live canary then full discovery; auto independent condition workers on allocated GPUs (one worker/device), optional explicit serial; shared feature preparation once; explicit scheduler-managed owner exception or collaborator branch1.1',
         output='Private cache, four final checkpoints, complete final sample-trace.v2; exact seven-file report only',
-        recovery='Atomic local complete latest each completed update; validation-only best retention; explicit resume with exact source/config/cache/AdamW/RNG/cursor; owner-managed COS preparation once and ten global 10-percent sealed generations, blocking until pinned readback and private-index acknowledgement; no automatic science retry',
+        recovery='Atomic local complete latest each completed update; validation-only best retention; explicit resume with exact source/config/cache/AdamW/RNG/cursor; parallel v1 envelope pins per-condition v1 states, quiescent global checkpoint barriers, no automatic conversion of historical serial runs; owner-managed COS preparation once and ten global 10-percent sealed generations, blocking until pinned readback and private-index acknowledgement; no automatic science retry',
         diagnostic='First32 hash-ordered testunits; fixed cubic state and four swaps; reviewed coordinate and phase-gauge bounds; separate task gate')
 
 

@@ -1,0 +1,45 @@
+{
+  "records": [
+    {
+      "split": "train",
+      "control": "native-ordered-mass-value-20261123",
+      "producer": "diagnose.py",
+      "producer_sha256": "d742cc89229cc53c5048886cd7e12e847c4d696e56049f5a32001dbf6865de6e",
+      "local_execution_record_sha256": "cab853da5196dd12767a425cde3ad94618258a347caccb1193dbc5384016b75e",
+      "runner_attempt_id": "8fdb5df7d19a4ca3935c42f296488332",
+      "archive": "diagnostic.private.npz",
+      "selected_array": "logits",
+      "shape": [
+        8192,
+        40
+      ],
+      "row_id_order_sha256": "a7a2e924ea58737172ea0745d024fab831cfc552eceef4c9cb17b93d1b30825b",
+      "archive_sha256": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+      "basis": "diagnose.py reads cache rows lo+j in ascending contiguous batches, appends z[j] in that order, then writes logits unchanged to npz. Token order perturbation affects other feature arrays only.",
+      "limitation": "Retrospective source-audited lineage linked to the original successful execution; not an ID array originally emitted inside the npz.",
+      "host_execution_sha256": "2c153d12d29d8f16e5ee41e8cb027a7cfa6c733b95f284b24257ac76c8049ad1",
+      "successful_original_execution_verified": true
+    },
+    {
+      "split": "valid",
+      "control": "native-context-dephasing-20261123",
+      "producer": "probe.py",
+      "producer_sha256": "e4f30a5e48c5bf12f0a8a9d8b0a06dc71612e3864884d2a88ec08921f56ff85b",
+      "local_execution_record_sha256": "5cd8cc0b1251036d978e7187b566bffec8ebdfbdda8a2ca7be8a195da2a34282",
+      "runner_attempt_id": "1182874011f240efa913cbbe8b730065",
+      "archive": "predictions.private.npz",
+      "selected_array": "logits[0]",
+      "shape": [
+        19584,
+        40
+      ],
+      "row_id_order_sha256": "aa11aa9a6ce033b3b3d31386a6588df6a421d6ff49154d8ba37e7da43aee8f23",
+      "archive_sha256": "eceb0359760d1ff5306665285aa7c96cfe26dde357e3235fd1fac4e47f6fcee8",
+      "basis": "probe.py uses explicit index into cache rows and writes logits[:,index,:]; worker scheduling does not change row order. The frozen modes list is native,bridge,outer,context, so logits[0] is native.",
+      "limitation": "Retrospective source-audited lineage linked to the original successful execution; not an ID array originally emitted inside the npz.",
+      "host_execution_sha256": "3fa1c66c105801ded10c094beea487be7b3609dbfbba9ad4545189863e6d9dbd",
+      "successful_original_execution_verified": true
+    }
+  ],
+  "method": "Source-audited fixed producer row indexing, original execution identity and pinned prediction bytes; no replay."
+}

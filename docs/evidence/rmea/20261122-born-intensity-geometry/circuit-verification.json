@@ -1,0 +1,118 @@
+{
+  "status": "PASS",
+  "comparison_scope": "General-state versus actual circuit feasibility on identical exposed TRAIN32, not a classification comparison",
+  "commands_and_literal_outputs": {
+    "baseline": {
+      "stdout.log": "{\"status\": \"complete\", \"selected_count\": 32, \"input_eligible_count\": 663, \"full_span_count\": 32, \"evaluated_count\": 32, \"positive_count\": 32, \"existence_gate\": true, \"optimizer_updates\": 0, \"cos_operations\": 0, \"L5\": \"NOT_ACCEPTED\"}\n",
+      "stderr.log": "",
+      "command": {
+        "argv": [
+          "/hy-tmp/Q-Attention/env/bin/python",
+          "-B",
+          "-c",
+          "import hashlib,pathlib,runpy,sys,subprocess;r=pathlib.Path('/hy-tmp/Q-Attention/control/born-intensity-fiber-train32-20261122');h={'real_probe.py': 'a5bdb48d60034e4ceb3008c5b3d3fe121ea4a8994ef1fa840f6545bc6b20d3c4', 'design.json': '8e14ebc2130f58bec5dd72dcfdc741833e466522352c92020d965a6b740ca3f4', 'training-cache-pins.json': 'cf7b184fdc32c097c2e42748c82f8163e59d1583538aa14695039a3ef119d025'};assert all(hashlib.sha256((r/n).read_bytes()).hexdigest()==v for n,v in h.items());assert subprocess.check_output(['git','-C','/hy-tmp/Q-Attention/source-protected-context-discovery-20261122','rev-parse','HEAD'],text=True).strip()=='1c2f39e032d81768a38be3d45f6de8221c338f52';sys.argv=[str(r/'real_probe.py'),'--output',sys.argv[1],'--source-root','/hy-tmp/Q-Attention/source-protected-context-discovery-20261122','--design',str(r/'design.json'),'--baseline-run','/hy-tmp/Q-Attention/worker/attempts/6a2bf35b8d9d4ac4a6b4fe2acb6bc116/output/20261121T034306Z_seed13/discovery','--pins',str(r/'training-cache-pins.json')];runpy.run_path(str(r/'real_probe.py'),run_name='__main__')",
+          "/hy-tmp/Q-Attention/worker/attempts/b0e33a7563b54f3ab91f060e8dc96334/output"
+        ],
+        "cwd": "/hy-tmp/Q-Attention/source-protected-context-discovery-20261122"
+      },
+      "exit_status": 0
+    },
+    "modified": {
+      "stdout.log": "{\"status\": \"complete\", \"selected_count\": 32, \"evaluated_count\": 31, \"positive_count\": 31, \"existence_gate\": true, \"L5\": \"NOT_ACCEPTED\"}\n",
+      "stderr.log": "",
+      "command": {
+        "argv": [
+          "/hy-tmp/Q-Attention/env/bin/python",
+          "-B",
+          "-c",
+          "import hashlib,pathlib,runpy,sys,subprocess;r=pathlib.Path('/hy-tmp/Q-Attention/control/born-intensity-circuit-train32-20261122');h={'circuit_probe.py': '2121c299c67ee6bb08e135b3fa3cc0ee3e96a811ee337b28fe47db668ee53a7d', 'circuit-design.json': '282d1eee49c1beeeda18b60b1d15b2270d2481e048659b949a28d73b4aa7bc2c', 'training-cache-pins.json': 'cf7b184fdc32c097c2e42748c82f8163e59d1583538aa14695039a3ef119d025', 'prior-population.json': 'fb558bfe08bacd94001172d42201ed70912dd4da592b2390b913777a0f01cfa3'};assert all(hashlib.sha256((r/n).read_bytes()).hexdigest()==v for n,v in h.items());assert subprocess.check_output(['git','-C','/hy-tmp/Q-Attention/source-protected-context-discovery-20261122','rev-parse','HEAD'],text=True).strip()=='1c2f39e032d81768a38be3d45f6de8221c338f52';sys.argv=[str(r/'circuit_probe.py'),'--output',sys.argv[1],'--source-root','/hy-tmp/Q-Attention/source-protected-context-discovery-20261122','--design',str(r/'circuit-design.json'),'--baseline-run','/hy-tmp/Q-Attention/worker/attempts/6a2bf35b8d9d4ac4a6b4fe2acb6bc116/output/20261121T034306Z_seed13/discovery','--pins',str(r/'training-cache-pins.json'),'--population',str(r/'prior-population.json')];runpy.run_path(str(r/'circuit_probe.py'),run_name='__main__')",
+          "/hy-tmp/Q-Attention/worker/attempts/c5c6e8d068914c00835a80aa25ec985b/output"
+        ],
+        "cwd": "/hy-tmp/Q-Attention/source-protected-context-discovery-20261122"
+      },
+      "exit_status": 0
+    }
+  },
+  "result": {
+    "status": "PASS",
+    "task": "e85cb1ce63cd43f189554c452a4bf233",
+    "attempt": "c5c6e8d068914c00835a80aa25ec985b",
+    "node": "qattn-3060x3-53328-v1",
+    "returncode": 0,
+    "quiescent": true,
+    "selected": 32,
+    "evaluated": 31,
+    "positive": 31,
+    "existence_gate": true,
+    "inapplicable": [
+      {
+        "mention_tokens": 13,
+        "reason": "outside_frozen_full_row_rank_nonzero_kernel_domain"
+      }
+    ],
+    "physical_rank_values": [
+      12
+    ],
+    "ranges": {
+      "constraint_residual": {
+        "min": 5.551115123125783e-17,
+        "median": 2.7755575615628914e-16,
+        "max": 8.881784197001252e-16
+      },
+      "tangent_only_residual": {
+        "min": 5.441671058203923e-09,
+        "median": 4.8881260344968425e-08,
+        "max": 1.253204727214019e-07
+      },
+      "energy_delta": {
+        "min": -6.139791954671604e-06,
+        "median": -2.4377361552705215e-06,
+        "max": -2.865854294292758e-07
+      },
+      "relative_logit_delta": {
+        "min": -0.00021249162116809828,
+        "median": 7.891699614681613e-05,
+        "max": 0.0008294412340106305
+      },
+      "angle_delta_norm": {
+        "min": 0.00100000000482708,
+        "median": 0.0010000003677999286,
+        "max": 0.0010000553291619335
+      },
+      "raw_inverse_error": {
+        "min": 0.0,
+        "median": 2.220446049250313e-16,
+        "max": 2.220446049250313e-16
+      }
+    },
+    "source_sha256": "2121c299c67ee6bb08e135b3fa3cc0ee3e96a811ee337b28fe47db668ee53a7d",
+    "design_sha256": "282d1eee49c1beeeda18b60b1d15b2270d2481e048659b949a28d73b4aa7bc2c",
+    "population_sha256": "fb558bfe08bacd94001172d42201ed70912dd4da592b2390b913777a0f01cfa3",
+    "artifacts": {
+      "RUN_COMPLETE": "a0cc0ee232b3ad7490152646ba0ac121eb23b156e33365c0099b1ebb38ddf08f",
+      "summary.json": "d178141567efa9d875972331ed32ec7ca24523654a4b4a9d8eb30969579a2767"
+    },
+    "optimizer_updates": 0,
+    "cos_operations": 0,
+    "labels_used": false,
+    "claim_scope": "Original two-layer three-qubit12-angle circuit; no fitting/labels or favorable classification utility; empirical residual, no guaranteed convergence/global regularity or inheritedL4/L5",
+    "L5": "NOT_ACCEPTED",
+    "temporary_recipe_restored": true
+  },
+  "rollback": {
+    "command": [
+      "D:\\Software\\Dev\\Language\\Anaconda3\\envs\\QT2\\python.exe",
+      "-X",
+      "utf8",
+      "-B",
+      ".codex-artifacts\\born-intensity-geometry-20261122\\rollback_circuit.py",
+      "--root",
+      "C:\\Users\\14630\\AppData\\Local\\Temp\\tmpala8b2rt"
+    ],
+    "stdout": "{\"verified\": true, \"removed_added_file\": 1}\n",
+    "stderr": "",
+    "exit_status": 0,
+    "fixture_only": true,
+    "live_source_unchanged": true
+  }
+}

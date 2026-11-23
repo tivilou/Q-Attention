@@ -1,0 +1,30 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 29.418840646743774,
+  "profile_echo_verified": true,
+  "packet_sha256": "96121cb85d97d43f22e7077d274285a3c5a54ccd80ee3c44517f060853a6d4ff",
+  "hashes": {
+    "bounds.py": "f398e9d61172ab65ae2136c9271e25568b0c7d59b6a86979639971b097125be1",
+    "diagnose.py": "246f22021d059718bf91c24dc1788d20947fa06a2ec9e3f6934f595290744759",
+    "design.json": "64a6fabdf715d4b933deade7311bcbf27cdb1d80551c37c7b7fa7155594a324c",
+    "theory.md": "b34d34196b4fcc59cc0dbc7e147af5bbf829d094e4feee31d1ac05d4eb1bdaa4",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "accepted-host-wrapper.py": "f84cfc70c803e59a68f9f220a74915aa6d622641603f78125125005d4ce75bd7"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "both",
+    "must_fix": [
+      "In diagnose.py, check the native logit against both spectral endpoints for every example and relation. Add max(0, max(lower - logits[j]), max(logits[j] - upper)) to the existing per-example tolerance gate and recorded maxima. The current nesting check covers the spectral interval inside the convex interval. A mistakenly narrowed spectral interval could pass that check and both endpoint replays while excluding a known attainable native logit.",
+      "Verify that logits[j].argmax() equals prior_logits[i].argmax() on every row. The existing logit tolerance permits a winner change near a tie, which can change the native-error and class-0 transition counts. Keep the logit discrepancy check as well.",
+      "Align the first-eight private fixture with the witness-retention statement in theory.md. The fixture's phi is the native effect. Save q['phi'] under a distinct key such as extremizer_phi so an independent verifier can directly replay the actual lower and upper directions used by the diagnostic."
+    ],
+    "limitations": [
+      "Static review of the supplied text supports the interval derivation. The conjugation matches the native overlap, valid-token averaging gives the correct EPS terms in S and B, and mapping the whitened eigenvectors back through S^-1/2 followed by unit normalization gives valid extremizer directions.",
+      "The three intervention margins use the intended competitors. Independent binary effects permit simultaneous per-relation endpoint choices within the pointwise relaxation. Strict replay margins supply numerical witnesses, and negative spectral margins carry no impossibility certificate.",
+      "The adapter iterates over all 8192 exposed TRAIN rows and reuses the pinned partition. The 4000-row assessment supports exploratory counts only. Runtime conformance, fixture results and checkpoint agreement remain unverified in this review."
+    ],
+    "admission": "blocked"
+  }
+}

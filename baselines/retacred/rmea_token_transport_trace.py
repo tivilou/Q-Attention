@@ -119,6 +119,29 @@ def read_value(root, sample, representation, coords):
 
 def close(root, samples, cfg, metadata, *, data_dir=None, assets=None):
     root=Path(root); manifest=p.read(root/'manifest.json')
+    for sample in samples:
+        provenance=sample['roles']['provenance'];kind=provenance['condition'];split=sample['split'];i=provenance['cache_index']
+        if kind not in p.MODES or split not in cfg['counts'] or type(i) is not int or i not in (0,1):
+            raise ValueError('Sample identity fields differ')
+        expected=f'{kind}:final:{split}:{i}';cp='checkpoints/'+kind+'-final.pt';trace=f'trace/{kind}-final-{split}-{i}.npz'
+        if (sample['sample_id']!=expected or provenance['checkpoint_file']!=cp
+                or provenance['checkpoint_sha256']!=p.digest(root/cp)
+                or any(ref['path']!=trace for rep in sample['representations'] for ref in rep['artifact_refs'])):
+            raise ValueError('Sample/condition/checkpoint/trace binding differs')
+        canonical=dict(path=trace,sha256=p.digest(root/trace),bytes=(root/trace).stat().st_size,visibility='private')
+        ids=[r['id'] for r in sample['representations']]
+        with np.load(root/trace,allow_pickle=False) as arrays:
+            if len(ids)!=len(set(ids)) or set(ids)!=set(arrays.files):raise ValueError('Representation inventory differs')
+        if provenance['value_reader_source_sha256']!=p.digest(p.ROOT/'scripts/view_rmea_token_transport_trace.py'):
+            raise ValueError('Value reader source changed')
+        for rep in sample['representations']:
+            if rep['artifact_refs']!=[canonical] or rep['value_capture']['artifact_refs']!=[canonical]:
+                raise ValueError('Coordinate reader reference differs from producer artifact')
+            reader=rep['value_capture']['reader_projection']
+            if (reader['reader_ref']!='scripts/view_rmea_token_transport_trace.py --sample '+expected+' --representation '+rep['id']
+                    or reader['source_sha256']!=[canonical['sha256']]):raise ValueError('Advertised reader binding differs')
+
+
     required=['input_ids','attention_mask','encoder_hidden','h','roles','mask','features',
               'psi','phi','alpha','native_alpha','values','utilities','logits','route_swap_logits','target']
     payload=dict(schema_version='sample-trace.v2',trace_id='rmea-token-transport-final-seed13',trace_completeness='complete',

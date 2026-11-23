@@ -1,0 +1,25 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 24.465726375579834,
+  "packet_sha256": "2f7e849040c5f4cfca0d78a3802e503de4ec4ec2a3f831696cfb8e261ac34882",
+  "hashes": {
+    "screen.py": "fe54467601d3b3ca714b1f1f13d4bc43e548f2a065b2b7d36a2e107b2c9e53ee",
+    "design.json": "b837ecc8334a6136c63f4ea65a69e6f82c5de7f81dc706fa601c229730d98e4e",
+    "theory.md": "0566e478f10ec515a2240928c4cdf53c03570e8d046186618ca6a1c833bbc0d7",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "Static review found no mechanism defect. Both 960-parameter arms use the native π·tanh parameterization, masked EPS normalization, and frozen utilities and bias. The C/B contractions have the correct conjugation. For unit effects they reproduce the token sums, preserve gradients through each normalizer, and recover native logits at coincident effects.",
+      "The eight-example fixture checks native parity, direct logits and gradients for both arms, the normalization-order identity, and one Adam step per arm. The fit starts fresh from identical effects. Summing the two mean CE losses gives each disjoint parameter tensor its full gradient across 512 updates with shared minibatch order.",
+      "Admission covers one fixed-final screen on the first 8,192 TRAIN examples and all 19,584 VALID examples. Promotion requires all four inclusive thresholds: CE reduction of at least 0.005 and positive-39 macro-F1 gain of at least 0.003 against each of native and the after-normalization control. A valid miss closes this profile. A numerical failure leaves utility unresolved.",
+      "The run was not executed in this review. Fixture results, observed gains, and the completion seal remain unverified. The code records provenance and the final-effects digest in summary.json, then seals that file’s SHA-256 in RUN_COMPLETE. A pass supports exposed-VALID feasibility only."
+    ],
+    "admission": "one_frozen_two_effect_screen"
+  }
+}

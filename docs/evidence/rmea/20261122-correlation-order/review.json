@@ -1,0 +1,20 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "packet_sha256": "24a6d90cd03a58a93d5e1c3c27a3e7269bf8437500cd67b5be1b13005bb842e0",
+  "seconds": 79.60589385032654,
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "For the supplied three-qubit circuit, the MSB wire convention, partial traces and complex conjugations are consistent. Each retained subset S contributes its reduced-state overlap with coefficient λ^|S| ((1−λ)/2)^(3−|S|). The unit fixture independently constructs the local effect by summing all 64 Pauli conjugations and checks both its score and its purity.",
+      "The diagonal self-overlaps give each class its own Pauli-order weights w_k, summing to 7. Both effects have trace one. Setting κ² = Σ_k w_k exp(−2kt)/7 matches their purities and gives κ′(0) = −Σ_k k w_k/7. The per-batch reconstruction and purity residuals are algebraic consistency checks. The dense fixture supplies the independent numerical check.",
+      "The CE derivative correctly centers signed utilities under native attention, divides by the masked EPS-adjusted normalizer and contracts all 40 logit derivatives with softmax minus one-hot target. The valid gate uses the paired mean CE difference, local minus isotropic ≤ −0.001, and allows a drop of at most 0.01 from native positive-39 macro-F1. The paired standard error is descriptive and does not enter the gate.",
+      "Static review covers the supplied code and declared pins. With Python assertions enabled, the probe checks the listed source, code, checkpoint, manifest and eight cache files before diagnostic use. Each worker scores indices 0 through 4095 of its assigned split, uses targets for scoring, and opens only train or valid arrays. The workers select separate visible CUDA devices, serialize progress writes and finish before the combined summary is written. Actual byte identity, fixture results and resource fit remain launch-time checks.",
+      "A passing gate supports further feasibility assessment at this checkpoint, time and exposed cohort. Independent confirmation, trained utility and novelty remain outside this diagnostic's evidence."
+    ],
+    "admission": "one_frozen_train_valid4096_channel_probe"
+  }
+}

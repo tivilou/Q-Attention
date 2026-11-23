@@ -1,0 +1,45 @@
+{
+  "schema": "q-rmea.protected-context.analysis-readiness.v1",
+  "selection": "Fixed final epoch only; valid descriptive; no early stopping or epoch selection",
+  "checks": {
+    "structural": "pass",
+    "semantic": "pass",
+    "replay": "pass",
+    "coordinate_reader": "pass",
+    "samples": 24,
+    "complete_numeric_arrays_checked": 726,
+    "complete_numeric_elements_checked": 2274118,
+    "source_linked_coordinates_checked": 2130,
+    "warnings": [],
+    "boundary": "Pinned frozen word features to final head; no encoder/internal-layer/training-trajectory claim"
+  },
+  "checkpoints": {
+    "native": {
+      "path": "checkpoints/native-final.pt",
+      "sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51"
+    },
+    "protected_context": {
+      "path": "checkpoints/protected_context-final.pt",
+      "sha256": "2ec9ca6a6715ae16cd26580e41ca047e471c8bec3fe2ae163eb537269ae903fc"
+    },
+    "context_scrambled": {
+      "path": "checkpoints/context_scrambled-final.pt",
+      "sha256": "e4c5140934a4fe46a925b04adc98a7ffc4f7d8ccd4b9277afe3a31d53157d17f"
+    },
+    "unprotected_context": {
+      "path": "checkpoints/unprotected_context-final.pt",
+      "sha256": "d953314814ce7b69a2e185373a11d3e4ad3bcef734b189c1cefc3f7bb134dd94"
+    }
+  },
+  "trace_artifacts": {
+    "sample-trace.json": {
+      "sha256": "d7886b96cafaa195fe38c1c51d0b48baace23f2dba2281f7cd2cedb3d82b5c75",
+      "bytes": 1776122
+    },
+    "trace-validation.json": {
+      "sha256": "9538e9b77a6e7132c91464afca004fde37191a74b33e4933da455ac8ca789b70",
+      "bytes": 382
+    }
+  },
+  "status": "Materialized full-value v2 final-head replay validated; no encoder/training-trajectory claim"
+}

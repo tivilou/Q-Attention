@@ -1,0 +1,28 @@
+{
+  "selection_basis": "owner_preference",
+  "task_profile": "bounded mathematical ideation",
+  "selected_model": "gpt-6.2-astra",
+  "reasoning_effort": "high",
+  "transport": "OpenAI Responses",
+  "metadata_basis": "Reuse exact same model and high effort echoed by existing campaign theory-advice.json; no discovery or benchmark-ranking claim",
+  "packet_sha256": "adef6f49a5231e5ddba936d4d2c41d2c8ab0f9f06e7dbffa0e15492637cfce02",
+  "profile_echo_verified": true,
+  "seconds": 63.759084939956665,
+  "response": {
+    "disposition": "NO_NEW_LEAD",
+    "routes": [],
+    "selected_next_action": "Audit TRAIN for naturally paired examples of role binding. Group existing Re-TACRED rows by exact token sequence and marked subject span. Keep groups with two distinct, nonoverlapping candidate object spans of the same entity type. Before reading labels or predictions, choose one pair per sentence by a fixed hash of its span offsets, then take the first 40 sentences in hash order, or all if fewer qualify. Give a reader the text, marked spans and relation inventory. For each pair, have them assign both relations and mark the predicate and argument attachment supporting each positive assignment. Count a witness only when both assignments match the recorded labels, the labels differ, and the reader can point to an explicit cue that applies to one candidate while the sentence attaches it to someone else for the other. Stop after one pass. Use eight witnesses across at least two positive relation labels as a screening threshold fixed in advance. A pass yields a concrete binding problem worth explaining and a set of examples on which to challenge a mechanism. A miss closes this route from naturally paired TRAIN rows at this budget. Record the eligible-group count so that scarce paired annotations can be distinguished from scarce witnesses. Cost is one CPU grouping pass, at most 40 paired human judgments and zero training runs.",
+    "why_not_duplicate": "The audit changes the marked argument while holding the observed sentence, subject and object type fixed. Context dephasing changed the scorer while holding the marked argument fixed. The two comparisons answer different questions. The proposed count also requires textual evidence of attachment, so a label difference alone cannot pass the screen.",
+    "what_is_known": "Dephasing context damaged the fitted head on reused development data. On all 343 TRAIN flips examined, both representations admitted a positive gold margin under the unrestricted per-input oracle. Neither result identifies a recurring linguistic operation that favors a circuit. In the supplied forward pass, each relation scores one contextual token at a time before normalization and signed-value aggregation. Any predicate–argument binding may already be encoded in the frozen token features.",
+    "novelty_unresolved": [
+      "Even a successful audit would establish only that binding matters for these examples. A circuit proposal would still need to specify what operation it shares across examples and why that sharing should improve generalization.",
+      "The relevant classical comparators would include a role-conditioned biaffine predicate–argument scorer and an attachment-path scorer using the same frozen features, with matched supervision and trainable parameter budgets. A gain over dephasing alone would leave the inductive-bias claim unresolved."
+    ],
+    "limitations": [
+      "The witness threshold is a workload and continuation decision. The selected pairs cannot estimate benchmark-wide prevalence.",
+      "A sentence may contain a genuine binding contrast even when the corpus annotates only one candidate object. A miss therefore limits this source of evidence.",
+      "The audit is advice only and has not been executed. It uses the established task and makes no assumption about the unidentified 100-question set."
+    ]
+  },
+  "advice_only": true
+}

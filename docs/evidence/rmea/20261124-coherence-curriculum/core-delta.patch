@@ -1,0 +1,11 @@
+--- planning-screen-core-v2
++++ planning-screen-core-v3
+@@ -118,6 +118,8 @@
+             folder = args.output/mode; folder.mkdir()
+             losses = []; first = None; retained_best = float('inf')
+             for step, ids in enumerate(batches, 1):
++                if hasattr(model, 'set_training_progress'):
++                    model.set_training_progress(step, cfg['updates'])
+                 model.train(); inputs, y = batch(ids, device); optimizer.zero_grad(set_to_none=True)
+                 loss = backward(model, inputs, y)
+                 assert torch.isfinite(loss) and all(p.grad is not None and torch.isfinite(p.grad).all() for p in model.parameters())

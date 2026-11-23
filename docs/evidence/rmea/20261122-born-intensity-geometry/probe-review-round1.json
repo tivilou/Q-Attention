@@ -1,0 +1,20 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "packet_sha256": "7a3b69e3e41277fa04f870e9e75ea0294a045ad757b7591ab4e7170ddfc8675b",
+  "seconds": 38.71458435058594,
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "mechanism",
+    "must_fix": [
+      "Verify the baseline inference dtype before applying the 1e-6 logit gate. `real_probe.py` calls `head.double()` and loads `h` as float64, so `newalpha.to(h.dtype)` leaves attention in float64. The alpha agreement check verifies the double-precision replay only. If the sealed baseline used float64 throughout, documenting that resolves the issue. Otherwise, obtain the native states and utilities through the original forward path, use double precision for the geometric calculation, and score both the baseline effect and the candidate through the same native Born, EPS, normalization, and decoder operations. Apply the frozen threshold to that paired delta."
+    ],
+    "limitations": [
+      "The real-coordinate Jacobian, SVD right inverse, and projected direction agree with the stated derivation. The sign choice gives a negative energy derivative and a nonzero class-0 logit derivative whenever both projected gradients are resolved. Moving only class 0 makes its logit delta equal to the change in its margin against each fixed class.",
+      "The step uses the correct spectral norm, ||B|| = 1/σ_min(J), and bounds the contraction factor by 1/2. After 48 floating-point iterations, the measured constraint residual determines whether the candidate passes. The preserved quantities are unit norm and raw mention intensities. Normalized mention weights can change through the shared denominator.",
+      "The input-only 8–13 mention-token filter and hash ordering implement the declared cohort. The supplied positive is synthetic. A real-data positive would establish finite motion at the frozen state interface for a selected case. Its logit sign carries no accuracy implication, and shallow-circuit reachability remains untested."
+    ],
+    "admission": "blocked"
+  }
+}

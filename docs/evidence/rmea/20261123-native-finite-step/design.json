@@ -1,0 +1,43 @@
+{
+  "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9"
+  },
+  "profile": "native-frozen-three-direction-finite-step-VALID19584-v1",
+  "eta": 0.05,
+  "modes": [
+    "native",
+    "frequency",
+    "balanced",
+    "common"
+  ],
+  "valid_count": 19584,
+  "tolerance": 1e-08,
+  "microbatch_size": 8,
+  "timeout_seconds": 1200,
+  "direction_artifact_hashes": {
+    "summary.json": "ded77ef0f155096d8fd645cca41a099557f81e486314c9209f07915bb458ca4b",
+    "directions-frozen.json": "58d3719e433925a3478d62d2cf934db15e4f95d5f4bf9fd8277f87d8e92f5218",
+    "directions.private.npy": "205e7fb1a55069f8de1d89223458edabb5a6d5337a03b578137727fc8ed1baf9"
+  },
+  "code_hashes": {
+    "probe.py": "99da0ec5d4abfdc0832f7503b41cfb4a8177ab70cd84b9f01ce2d102c4a4d831"
+  },
+  "public_whitelist": [
+    "summary.json",
+    "fixtures.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": [
+    "predictions.private.npz"
+  ],
+  "claim_scope": "One fixed eta=.05 development VALID inference step from exposed-TRAIN directions; zero fitting/search, not independent/full-training utility, novelty or L5",
+  "recovery": "Cheap immutable-input inference; no checkpoint/COS/autoretry or alternate step",
+  "producer_file_hashes": {
+    "design.json": "df872eaa5c84868cda8648cee742904650c7e5db415ee883523b8ce288968fba",
+    "two_group.py": "c6a4efa52285ce955ff6608dc1d0569ee53da957ca123924527c78591e7425ca"
+  }
+}

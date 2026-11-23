@@ -1,0 +1,85 @@
+{
+  "status": "completed",
+  "attempt": "ca6fea2d94604c69a4f3c13b8b20a31c",
+  "seconds": 2.0197037793695927,
+  "rows": 32,
+  "formula": "q=Born+EPS; c_rt=q_rt/sum_s q_st; alpha_rt=c_rt/sum_t c_rt; z_r=sum_t alpha_rt*u_rt+bias_r",
+  "changed_attention_examples": 32,
+  "errors": {
+    "native": 0.0,
+    "covariance": 2.383510055992133e-15,
+    "gradient": 3.885780586188048e-16,
+    "povm": 8.881953960799245e-15,
+    "frame_probability": 2.3869795029440866e-15,
+    "padding": 8.326672684688674e-17
+  },
+  "strata": {
+    "positive_missed": {
+      "rows": 8,
+      "repairs": 0,
+      "damages": 0,
+      "changed": 1,
+      "old_correct": 0,
+      "new_correct": 0
+    },
+    "positive_correct": {
+      "rows": 8,
+      "repairs": 0,
+      "damages": 4,
+      "changed": 4,
+      "old_correct": 8,
+      "new_correct": 4
+    },
+    "null_false_positive": {
+      "rows": 8,
+      "repairs": 8,
+      "damages": 0,
+      "changed": 8,
+      "old_correct": 0,
+      "new_correct": 8
+    },
+    "null_correct": {
+      "rows": 8,
+      "repairs": 0,
+      "damages": 0,
+      "changed": 0,
+      "old_correct": 8,
+      "new_correct": 8
+    }
+  },
+  "supported_misses": {
+    "rows": 5,
+    "repairs": 0,
+    "cue_mass_increases": 4,
+    "margins": [
+      {
+        "old": -0.7450049493221087,
+        "new": -1.7544669370896893
+      },
+      {
+        "old": -0.4400219558248919,
+        "new": -0.3479820378333738
+      },
+      {
+        "old": -4.8481520702820475,
+        "new": -9.440274870701955
+      },
+      {
+        "old": -3.4281428367837816,
+        "new": -1.3922942054595135
+      },
+      {
+        "old": -0.24951184803697934,
+        "new": -5.4066587599052625
+      }
+    ]
+  },
+  "optimizer_updates": 0,
+  "new_model_word_forwards": 0,
+  "valid_rows": 0,
+  "test_rows": 0,
+  "cos_writes": 0,
+  "private_arrays_sha256": "0dcd4fc8c01379a7e4315a10c10b32557aa2f7daae6642ca4b75012d99baea1c",
+  "private_cases_sha256": "8fd6564e508e990e660e5030a35b8215a5f6737facdf8ae52ccefd003abaa146",
+  "scope": "Fixed exposed outcome-stratified TRAIN32, same checkpoint values and Born scores; label-free transform, labels only for scoring. Known finite column/row normalization and POVM identity, not new theory. No trained utility, population estimate, independent evidence, phase attribution or L5. No hyperparameter selection. Negative is only this frozen intervention, not all training."
+}

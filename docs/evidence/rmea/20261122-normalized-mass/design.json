@@ -1,0 +1,36 @@
+{
+  "profile": "normalized-mass-circuit-train32-v1",
+  "frozen_at": 1795341525.3147392,
+  "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "population_sha256": "fb558bfe08bacd94001172d42201ed70912dd4da592b2390b913777a0f01cfa3",
+  "source_revision": "ef080a12b382f404e37fce133c7e4b811e047e02",
+  "code_hashes": {
+    "normalized_mass.py": "f3434aec98df5aab547e6ba3f3ef03970fa8a091296890b4364d5fc7c8c0f20c",
+    "probe.py": "ab71d2766e3ca273da62a9eda07f16e39161dc3f9540ba26497ee080d62edd8e"
+  },
+  "smax": 0.001,
+  "finite_difference_step": 0.001,
+  "chord_corrections": 2,
+  "timeout_seconds": 600,
+  "resources": {
+    "cpu": 8,
+    "ram_mb": 16384,
+    "gpus": 1,
+    "gpu_mb": 8192
+  },
+  "preconditions": "m1..10, nonempty context, physical metric eigmin/eigmax>=1e-12, whitened full row constraint singular ratio>=1e-6, projected physical gradient ratio>=1e-8. Reject others; retain all32.",
+  "gates": "At least1 case with both signed s=+/-.0005 admitted and |deltaL|>=1e-8, |finite-firstorder|<=max(1e-8,.05|prediction|); every admitted finite row preserves raw+normalized constraints<=1e-12. Fixed first8 all40 beta gradient coordinates0/1/39 error<=1e-7+.001|FD|; finite/nonzero gradient; actual8x40 forward/backward<=30s, peak<8GiB.",
+  "stop": "No changed cohort, threshold, correction count or step after scientific results. Failed gate closes this fixed construction; no automatic fit/full promotion. A passing local engineering gate is not task utility or L5.",
+  "persistence": "Zero fitting, no new checkpoints/COS writes. Reuse restored fixed inputs; compact report/code to GitHub.",
+  "outputs": [
+    "summary.json",
+    "RUN_COMPLETE"
+  ],
+  "byte_format": "UTF-8 LF; CRLF-only prelaunch mismatch corrected before any scientific execution",
+  "implementation_correction": "Prelaunch exact denominators on admitted rows; cost peak captured with timed batch. Original numerical thresholds/step/cohort unchanged; native zero-beta identity checked at1e-12."
+}

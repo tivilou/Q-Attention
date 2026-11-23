@@ -1,0 +1,28 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 28.677939414978027,
+  "profile_echo_verified": true,
+  "packet_sha256": "7619bcb8ec9be95b65e3a301892450dba878acc7bb5d29e67111f2a761c94c8c",
+  "hashes": {
+    "transfer.py": "1c6b63f3b01677b3001050eedb888cc485fee8ea54460cf636371fdfbcb487d7",
+    "design.json": "c99ef284022fe4bc670527c1de93fed292d711dbe7fed00dd7f3ea50e851d250",
+    "theory.md": "731ee2baa84b17b1e90ce5ab9ae24d767ff470b3d128fd35717377447068c759",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "accepted-host-wrapper.py": "f84cfc70c803e59a68f9f220a74915aa6d622641603f78125125005d4ce75bd7"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "both",
+    "must_fix": [
+      "Handle a zero assessment gradient in transfer.py. With a nonzero calibration gradient and a zero assessment gradient, the primary derivative is zero and its specified sign is unresolved. The gradient_cosine calculation divides by zero, produces NaN, and causes the strict JSON writer to fail before RUN_COMPLETE. Record the undefined cosine as null and preserve the primary result.",
+      "Ensure an empty descriptive error subtype cannot suppress the primary result. In tables(), assert mask.any() aborts the entire diagnostic if either partition lacks even one subtype. Evidence that every requested cell is populated in the pinned reference would resolve this for the frozen run. Otherwise, represent an empty cell with n=0, zero counts, and null means."
+    ],
+    "limitations": [
+      "Static review supports the direction calculation. The code includes class 0, accumulates the row-mean calibration CE gradient over all 480 native effect coordinates, and seals its normalized negative direction before computing assessment derivatives. The vanishing calibration gradient branch terminates with no_direction.",
+      "The circuit JVP, masked Born-probability normalization with fixed EPS, and exact-tie competitor rule agree with the supplied native forward and theory. The fixed central differences and two CE identities are scoped numerical checks. A negative primary sign would support only first-order CE descent along this direction on the 4000 exposed TRAIN assessment rows.",
+      "The supplied whitelist excludes both raw arrays. transfer.py copies them to CPU and writes them to GPU-host storage, so privacy depends on host access and whitelist enforcement. Artifact hashes, runtime fixture results, and export behavior remain unverified in this text-only review."
+    ],
+    "admission": "blocked"
+  }
+}

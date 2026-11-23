@@ -1,0 +1,110 @@
+{
+  "status": "PASS",
+  "scope": "Six-file source delta/isolated rollback, not a training result",
+  "records": [
+    {
+      "argv": [
+        "D:\\Software\\Dev\\Language\\Anaconda3\\envs\\QT2\\python.exe",
+        "-B",
+        "-c",
+        "from pathlib import Path;import hashlib;v={'baselines/retacred/rmea_relative_return_protocol.py': None, 'baselines/retacred/rmea_relative_return_runtime.py': None, 'baselines/retacred/rmea_experiments.py': 'c53ebabcb034de1659f7d7e6aa8fd3f9def0b1f9767107ade6e767cb06243c0d', 'baselines/retacred/rmea_frozen_training.py': 'a4de6e10cd862b143b2edf082b9f835bc1e52509ef71ab02ee0b137d848c4eff', 'baselines/retacred/rmea_plugin_admission.py': None, 'experiments/q_rmea_relative_return_train.py': None};assert all(hashlib.sha256(Path(n).read_bytes()).hexdigest()==h if h else not Path(n).exists() for n,h in v.items());print('BASELINE: stable core/registry intact; four adapter files absent')"
+      ],
+      "cwd": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\full-source-roles-wzhnoe9p",
+      "stdout": "BASELINE: stable core/registry intact; four adapter files absent\n",
+      "stderr": "",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.autocrlf=false",
+        "apply",
+        "--check",
+        "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\full-source.patch"
+      ],
+      "cwd": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\full-source-roles-wzhnoe9p",
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.autocrlf=false",
+        "apply",
+        "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\full-source.patch"
+      ],
+      "cwd": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\full-source-roles-wzhnoe9p",
+      "stdout": "",
+      "stderr": "",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "D:\\Software\\Dev\\Language\\Anaconda3\\envs\\QT2\\python.exe",
+        "-B",
+        "-c",
+        "from pathlib import Path;import hashlib;v={'baselines/retacred/rmea_relative_return_protocol.py': '1d4ff41e74c24be54c13b0cd8d68e4c553b28a69c2c75250430fabc741b00a16', 'baselines/retacred/rmea_relative_return_runtime.py': '7c4a5910c89675b715bedbb0597c78dd34c4bd21b214c9431424a3a30df783dd', 'baselines/retacred/rmea_experiments.py': '70325048c83be17458d9c4889cb26237edc7377f2013cedc66110834958563b8', 'baselines/retacred/rmea_frozen_training.py': 'a07d221a1c90a2d7d694c917736a02b8ce27881cd7e7d366f4060727fd224e8d', 'baselines/retacred/rmea_plugin_admission.py': '65703fddfae9947c0f944e010152b322f9c6d3d29d6c2c256b5d51da25dcae5d', 'experiments/q_rmea_relative_return_train.py': 'b05fd930d69cd44ed05b05cbed3a81833d8499024ba921f9d619bdb0b5718569'};assert all(hashlib.sha256(Path(n).read_bytes()).hexdigest()==h for n,h in v.items());[compile(Path(n).read_bytes(),n,'exec') for n in v];print('MODIFIED: exact six reviewed adapter/core files; all compile')"
+      ],
+      "cwd": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\full-source-roles-wzhnoe9p",
+      "stdout": "MODIFIED: exact six reviewed adapter/core files; all compile\n",
+      "stderr": "",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "D:\\Software\\Dev\\Language\\Anaconda3\\envs\\QT2\\python.exe",
+        "-B",
+        "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\rollback_full_source.py",
+        "--root",
+        "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\full-source-roles-wzhnoe9p"
+      ],
+      "cwd": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\full-source-roles-wzhnoe9p",
+      "stdout": "ROLLBACK: exact two prior files restored, four new adapter files removed\n",
+      "stderr": "",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "D:\\Software\\Dev\\Language\\Anaconda3\\envs\\QT2\\python.exe",
+        "-B",
+        "-c",
+        "from pathlib import Path;import hashlib;v={'baselines/retacred/rmea_relative_return_protocol.py': None, 'baselines/retacred/rmea_relative_return_runtime.py': None, 'baselines/retacred/rmea_experiments.py': 'c53ebabcb034de1659f7d7e6aa8fd3f9def0b1f9767107ade6e767cb06243c0d', 'baselines/retacred/rmea_frozen_training.py': 'a4de6e10cd862b143b2edf082b9f835bc1e52509ef71ab02ee0b137d848c4eff', 'baselines/retacred/rmea_plugin_admission.py': None, 'experiments/q_rmea_relative_return_train.py': None};assert all(hashlib.sha256(Path(n).read_bytes()).hexdigest()==h if h else not Path(n).exists() for n,h in v.items());print('BASELINE: stable core/registry intact; four adapter files absent')"
+      ],
+      "cwd": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\relative-return-training-20261122\\full-source-roles-wzhnoe9p",
+      "stdout": "BASELINE: stable core/registry intact; four adapter files absent\n",
+      "stderr": "",
+      "exit_code": 0
+    }
+  ],
+  "source_hashes": {
+    "baselines/retacred/rmea_relative_return_protocol.py": {
+      "before": null,
+      "after": "1d4ff41e74c24be54c13b0cd8d68e4c553b28a69c2c75250430fabc741b00a16"
+    },
+    "baselines/retacred/rmea_relative_return_runtime.py": {
+      "before": null,
+      "after": "7c4a5910c89675b715bedbb0597c78dd34c4bd21b214c9431424a3a30df783dd"
+    },
+    "baselines/retacred/rmea_experiments.py": {
+      "before": "c53ebabcb034de1659f7d7e6aa8fd3f9def0b1f9767107ade6e767cb06243c0d",
+      "after": "70325048c83be17458d9c4889cb26237edc7377f2013cedc66110834958563b8"
+    },
+    "baselines/retacred/rmea_frozen_training.py": {
+      "before": "a4de6e10cd862b143b2edf082b9f835bc1e52509ef71ab02ee0b137d848c4eff",
+      "after": "a07d221a1c90a2d7d694c917736a02b8ce27881cd7e7d366f4060727fd224e8d"
+    },
+    "baselines/retacred/rmea_plugin_admission.py": {
+      "before": null,
+      "after": "65703fddfae9947c0f944e010152b322f9c6d3d29d6c2c256b5d51da25dcae5d"
+    },
+    "experiments/q_rmea_relative_return_train.py": {
+      "before": null,
+      "after": "b05fd930d69cd44ed05b05cbed3a81833d8499024ba921f9d619bdb0b5718569"
+    }
+  },
+  "patch_sha256": "900bcf7de1b919f82662fd46b201fec933c20c686d73c98149412da2a5669963",
+  "rollback_sha256": "9c492c108bf624d1815d4ad9ee5763f0b5e65dffbfdd4eca44cf2bb869e58786"
+}

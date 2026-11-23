@@ -1,0 +1,48 @@
+--- planning-screen-core-v1
++++ planning-screen-core-v2
+@@ -50,7 +50,7 @@
+     from torch.nn import functional as F
+     sys.path.insert(0, str(args.source))
+     sys.path.insert(0, str(Path(__file__).parent))
+-    spec = importlib.util.spec_from_file_location('reviewed_shared_null', Path(__file__).parent/'differential.py')
++    spec = importlib.util.spec_from_file_location('reviewed_shared_null', Path(__file__).parent/cfg.get('plugin_module', 'differential.py'))
+     plugin = importlib.util.module_from_spec(spec); spec.loader.exec_module(plugin)
+     from baselines.retacred.rmea import RMEAHead
+     from baselines.retacred.rmea_task_runtime import backward, score_batch
+@@ -153,7 +153,7 @@
+         latest = torch.load(folder/'latest.pt', map_location='cpu', weights_only=True)
+         assert latest['update'] == cfg['updates']
+         with torch.cuda.device(device):
+-            model = plugin.SharedNullHead(mode).double()
++            model = (plugin.make_head(mode) if hasattr(plugin, 'make_head') else plugin.SharedNullHead(mode)).double()
+             model.load_state_dict(torch.load(folder/'final.pt', map_location='cpu', weights_only=True))
+             assert state_identity(model.state_dict()) == state_identity(latest['head'])
+             model.to(device); model.eval(); logits = []
+@@ -206,6 +206,27 @@
+         for k,v in results.items()}
+     checks['first_updates'] = {k:dict(finite_gradients=True, state_changed=v[0]['first_update']['state_changed']) for k,v in results.items()}
+     write(args.output/'fixtures.json', checks)
++    if hasattr(plugin, 'summarize'):
++        y = targets[assess]
++        for mode in cfg['modes']:
++            pred = results[mode][1].argmax(-1)
++            rows[mode]['positive_to_null'] = int(((y > 0) & (pred == 0)).sum())
++            rows[mode]['null_false_positive'] = int(((y == 0) & (pred != 0)).sum())
++            rows[mode]['assessment_correct'] = int((y == pred).sum())
++        np.savez(args.output/'diagnostic.private.npz', assessment_indices=assess,
++            calibration=calibration, groups=groups, labels=targets,
++            **{k+'_logits': v[1] for k, v in results.items()})
++        summary = plugin.summarize(rows, {k:v[1] for k,v in results.items()}, y, cfg)
++        summary.update(status='completed', attempt=args.attempt, seconds=time.time()-started,
++            train_items=len(fit), assessment_items=len(assess), valid_read=False, test_read=False,
++            code_hashes=cfg['code_hashes'], source_hashes=cfg['source_hashes'],
++            design_sha256=digest(args.design), private_diagnostic_sha256=digest(args.output/'diagnostic.private.npz'), cos_writes=0)
++        write(args.output/'summary.json', summary)
++        write(args.output/'RUN_COMPLETE', {n:digest(args.output/n) for n in ('summary.json','fixtures.json')})
++        write(args.progress, dict(schema='research.progress.v1', attempt=args.attempt, phase='completed',
++            current=cfg['updates']*len(cfg['modes']), total=cfg['updates']*len(cfg['modes']), unit='optimizer_update', heartbeat_at=time.time(), observed_at=time.time()))
++        print(json.dumps(dict(gate=summary['gate'], seconds=summary['seconds'], results={k:dict(ce=v['ce'],macro=v['positive39_macro_f1']) for k,v in rows.items()})), flush=True)
++        return
+     comparators = tuple(k for k in cfg['modes'] if k != 'coherent')
+     differences = np.column_stack([results[k][2]-results['coherent'][2] for k in comparators])
+     boot = helper.bootstrap(differences, groups[assess], cfg['bootstrap_replicates'], cfg['bootstrap_seed'])

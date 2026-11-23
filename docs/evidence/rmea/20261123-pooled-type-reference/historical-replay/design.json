@@ -1,0 +1,48 @@
+{
+  "profile": "R0-historical-five-fixed-heads-same-current-cache-type-rule-v1",
+  "code_sha256": "c5a80fabd8b9d8f7a5436888a555dcde83a0943f350a39bc491124e6496fd4c6",
+  "input_hashes": {
+    "control/task-bottleneck-discovery-20261123/cases.private.json": "ad35efee20682e4f42280670de21bfa76a31dcce39d06cfba675348229a93e8c",
+    "control/task-bottleneck-discovery-20261123/validation-cases.private.json": "f491e527472512ec1e69bab04c6b9d5fb1a08c4151251052ca8c1ca2d0023908",
+    "control/task-bottleneck-discovery-20261123/validation-summary.json": "32cfb5495b4863f573d866dfa5f981977226fc15fa64f3b20c773c5e6872ce9d",
+    "inputs/native-baseline/discovery/cache/metadata.json": "9e6eac9ad582a4ef4e1a8a12190bfef3b8f0a18c5efbd9072f91f31563656c0e",
+    "inputs/native-word-metadata-20261123/train.private.json": "f5eafb7d51bca46988313c204b6fa5ef19e82fabc32dc9feee9faa70f2285053",
+    "inputs/native-word-metadata-20261123/valid.private.json": "59822bfc80e6a590e2a50f9e0f4c569a3be8945b303da0d319966a6e3c62a06c",
+    "control/type-context-baseline-20261123/calibration-row-provenance.json": "dce6790becd1b1009b439918040ff63ebc336d4b1f3963e9d2f8e5bd2a21efa2",
+    "control/type-context-baseline-20261123/prediction-row-provenance.json": "d4c66a564ec716a5fb5f1e048c73b38a61d4bf7162106c9c60406af1252e11fc",
+    "inputs/native-baseline/discovery/manifest.json": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+    "inputs/native-baseline/recovery-inputs/labels.json": "6e822509a07c5c865130ebe315122a9d83e97b1b11496b9e86c6b2a600f8a429",
+    "source/baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9",
+    "control/native-ordered-mass-value-20261123/output/diagnostic.private.npz": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+    "source/baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "source/baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "inputs/native-baseline/discovery/cache/valid-h.npy": "a45b2b43bbacbe41b3d7c327b10bc5708b258e13e5c0eff79fea52c4d83ed9f6",
+    "inputs/native-baseline/discovery/cache/valid-roles.npy": "0af5324a5ba0e741b27f85f798277706eb7b0faeb8348657a8319c2b56f772a7",
+    "inputs/native-baseline/discovery/cache/valid-offsets.npy": "1b68a943c03e9c80e455da1600cb65a0c463f7ea4815465744001bb0b4c1c13f",
+    "inputs/native-baseline/discovery/cache/valid-targets.npy": "87f63eef29f0b267dd4be85f6265b7632542ce0b71f7212a2ff240ed6f88a71b",
+    "control/historical-type-replay-20261123/model-provenance.json": "f7343dd63bea036c47cfff13f98e43a009ed8ab93f10c3998490474404fc48b6",
+    "control/historical-type-replay-20261123/valid-h-first2.npy": "aa8c0ac5c89fbbfe9f13032190eaad4a48567fc904db591b19d35d0877197df1",
+    "control/historical-type-replay-20261123/checkpoints/uniform-selected.pt": "857fc69887197b7c535cf6fcc51184c854d499cc96d84ce980402bc177c2a12b",
+    "control/historical-type-replay-20261123/checkpoints/relation_softmax-selected.pt": "b12908c414440616aa6ae7bb9c594b44363da16836f05a098357477cc07e53c0",
+    "control/historical-type-replay-20261123/checkpoints/real_overlap-selected.pt": "6051c38627b2d20d41489091dd1015c5f6e45fe030e1386ce8a858b7554b29a7",
+    "control/historical-type-replay-20261123/checkpoints/quantum-selected.pt": "93e9abd718ce019bff4cbed16ed4571939aafd1ce91bad703df4723c67423066",
+    "control/historical-type-replay-20261123/checkpoints/dephased-selected.pt": "da5e7a986ef2c0b59c4856fe576a00fdf0bb8de96ab45cf64a1e2e597ed3f94b"
+  },
+  "frozen_support_sha256": "d4c1100df6d306a3fae48d66f7907dfbe2a39d1b30843abb359ba32de7053186",
+  "resources": {
+    "cpu": 2,
+    "ram_mb": 8192,
+    "disk_mb": 64,
+    "gpus": 2,
+    "gpu_mb": 2048
+  },
+  "scientific_change": "None: accepted five RMEAHead modes/checkpoints, existing fixed type support, existing dataset/labels. No fit/checkpoint/seed choice or TEST scoring. Common rebuilt h differs from original archive: report this explicitly and retain historical metrics.",
+  "scope": "Read-only exploratory common-cache diagnostic, not new method/lifecycle, formal experiment or L5. Reuse unchanged host_run.py; two deterministic independent inference lanes only.",
+  "whitelist": [
+    "summary.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": [
+    "*-logits.private.npy"
+  ]
+}

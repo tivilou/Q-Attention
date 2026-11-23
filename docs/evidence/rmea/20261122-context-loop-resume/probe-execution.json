@@ -1,0 +1,52 @@
+{
+  "task": "48a8b444925340a4a61b301a352cb280",
+  "attempt": "168e3295bb89475693367315c61541a7",
+  "state": "complete",
+  "receipt": {
+    "returncode": 0,
+    "quiescent": true,
+    "revision": "8b5eca869517b873c89e12369a6389355d3845d8",
+    "outputs": {
+      "RUN_COMPLETE": {
+        "bytes": 227,
+        "sha256": "57bb39864f58f9479648a1f90503b3a4bffa6092cb3a3c082810464f6107e26b"
+      },
+      "population-contract.json": {
+        "bytes": 13886,
+        "sha256": "accc826082cf05b12e4fc9fc6045c0bdf4f8fcba079c45dcf3c2607e2d0d3bdb"
+      },
+      "redistribution-summary.json": {
+        "bytes": 109799,
+        "sha256": "269185edd382d1a30b5f44ed12221ab74c59b50e9de31a8454360bc8b45b87dd"
+      }
+    }
+  },
+  "command": {
+    "command": [
+      "{python}",
+      "-B",
+      "-c",
+      "import hashlib,pathlib,runpy,sys,subprocess;r=pathlib.Path('/hy-tmp/Q-Attention/control/context-mass-held-training96-20261122');h={'redistribution-probe.py': '333b77d7bd39742922c3d5e0b721c7e9f03c6b1dbca7ac1f5b5a3330863579b3', 'training-cache-pins.json': 'cf7b184fdc32c097c2e42748c82f8163e59d1583538aa14695039a3ef119d025'};assert all(hashlib.sha256((r/n).read_bytes()).hexdigest()==v for n,v in h.items());assert subprocess.check_output(['git','-C','/hy-tmp/Q-Attention/source-protected-context-gradient-20261122','rev-parse','HEAD'],text=True).strip()=='1f6e2e0057faf16a910e146a94c88044bba92956';sys.argv=[str(r/'redistribution-probe.py'),'--output',sys.argv[1],'--baseline-run','/hy-tmp/Q-Attention/worker/attempts/6a2bf35b8d9d4ac4a6b4fe2acb6bc116/output/20261121T034306Z_seed13/discovery','--pins',str(r/'training-cache-pins.json')];runpy.run_path(str(r/'redistribution-probe.py'),run_name='__main__')",
+      "{output}"
+    ],
+    "kind": "diagnostic",
+    "max_attempts": 1,
+    "outputs": [
+      "population-contract.json",
+      "redistribution-summary.json",
+      "RUN_COMPLETE"
+    ],
+    "replay_safe": false,
+    "resources": {
+      "cpu": 1,
+      "disk_mb": 256,
+      "gpu_mb": 0,
+      "gpus": 0,
+      "ram_mb": 4096
+    },
+    "timeout": 300
+  },
+  "gpu_count": 0,
+  "all_inputs_remained_on_gpu_host": true,
+  "only_compact_json_downloaded": true
+}

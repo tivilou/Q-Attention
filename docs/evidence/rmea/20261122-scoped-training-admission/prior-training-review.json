@@ -1,0 +1,27 @@
+{
+  "verdict": "PASS",
+  "review_scope": "both",
+  "must_fix": [],
+  "findings": [
+    "The module-level `import json` in `rmea_protected_context_protocol.py` supplies `protocol.json.dumps` at the lookup that failed in the training logger. The repair is confined to the protocol namespace and preserves the reviewed objective, gradients, optimizer settings, and nine-update canary budget.",
+    "Before training, the recipe verifies the prior unit artifact by SHA-256 and reruns the five-example CPU unit against the repaired source. It replaces only `source_sha256` in the expected record and requires every other field to match.",
+    "The prior owner lifecycle review applies to the registrar and publisher. Enrollment checks the reviewed source bytes, hashes, and recipe. Publication remains bound to the active attempt and limited to `000-preparation` and `010-progress`."
+  ],
+  "claim_limits": [
+    "This static review admits one fresh three-GPU scheduler attempt on the fixed 16/8/8 fixture. Runtime acceptance requires sealed canary validation, a matching `canary-acceptance.json` covering persisted RNG equality across all three lanes, and authenticated publisher completion for that attempt.",
+    "The restore drill covers a fresh directory on the same managed node. Discovery training requires separate owner admission and independent verification of the 13 pinned input objects. Scientific utility and L5 remain unassessed."
+  ],
+  "admission": "scheduler_three_gpu_canary_only",
+  "source_sha256": "f31f6410b8b6c91476a761ce1bd837ec1f72f1be169c082ad7931c846e54cc5f",
+  "contract_sha256": "2cf1fab0ee6a04fe2f40f2c9031bc7f732cd5a81d61e50872ea9f28d252f8536",
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "packet_sha256": "931c81a6eb0dfda6a1a04566fd3a68301a7e0ec1664f98184993af761916f913",
+  "owner_hashes": {
+    "register-canary.py": "2a32953dca93de2cd3702b7f6deef1ebe52ac88b52f131be78c7f9aea43658f0",
+    "serve-canary.py": "8a204adfa37c0b3f2910a2f925189b98dc47c36cc16aa3e0659ce1c83e5982e3"
+  },
+  "owner_lifecycle_sha256": "562da9ee2fa7d058cfd4c3a5cad1c5a2d661a5af06285758b894f695db800854",
+  "scope": "Exact3GPU tiny canary only; formal scheduler recipe and dependency admission not granted. Old numerical unit is pinned; repaired-source unit executes once inside this exact canary attempt."
+}

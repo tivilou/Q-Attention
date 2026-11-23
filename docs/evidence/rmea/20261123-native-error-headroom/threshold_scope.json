@@ -1,0 +1,8 @@
+{
+  "purpose": "Diagnose whether a single no-relation offset accounts for frozen native TRAIN errors; no new primary model or quantum-mechanism claim.",
+  "inputs": "Same pinned native TRAIN8192 outputs and sentence partition as error_summary.py",
+  "fit": "One class0-only logit offset minimizing full40class CE on calibration4192, unique root by bisection of meanP0-label0rate, bracket[-64,64],100steps.",
+  "assessment": "Apply that fixed offset to all4000assessment rows; report same metric/error categories. No perclass tuning, selection or refit.",
+  "oracle": "Exact label-aware maximum accuracy over ONE shared real class0 offset on all4000assessment rows. Stable lower-class-ID argmax means zero wins ties. Positive-class ordering stays frozen. Report as restricted-family empirical upper bound only.",
+  "limits": "All TRAIN exposed; native checkpoint may have trained on these rows. Oracle uses assessmentlabels and is not a proposed predictor; no generalization/Macro-optimality/causal claim. No VALID/TEST/new model inference/CUDA/COS. No formal-study admission."
+}

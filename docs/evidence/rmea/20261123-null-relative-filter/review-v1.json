@@ -1,0 +1,30 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 25.9821834564209,
+  "profile_echo_verified": true,
+  "packet_sha256": "d42757d161fbd6211695b1b2adde4a4845d4ab7f319543fcafd33e4db4452c48",
+  "hashes": {
+    "null_relative.py": "cf7a6d7a890f7296d7406504eafb053aeb3fa32108f59c2841cfe7914d3a25f4",
+    "screen.py": "491c0aa79129dff8e1d5c124b770a3ce36bb1fcae8b9ed986512b173e8fb84cb",
+    "design.json": "72825a9baa8bdef6b2a1286b4434748f6fcc94597d69ee3b7d0b83eab8ea6a32",
+    "theory.md": "62b1296ed084cad97857ab9dc65bc8a00af492b24356281267fb0b05e7831daa",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "unchanged-core-excerpts.json": "81d7e69e61c0287ac2f3e81badfd2e9fcb4d1aaf944d182ba87b74189d76501f",
+    "accepted-host-wrapper.py": "f84cfc70c803e59a68f9f220a74915aa6d622641603f78125125005d4ce75bd7"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "both",
+    "must_fix": [
+      "`design.json` specifies “Final update512 only” while the adapter trains and scores update 128. Correct `selection` to name update 128 and refresh the affected design hash. The executable selection logic already matches the requested screen.",
+      "In `fixtures()`, the dense oracle takes `n` from `detail['reference_density']`. Both gradient paths therefore share the production reference construction. A wrong conjugation or attention row in that construction could pass forward and gradient parity. Build the expected reference independently from `nd['psi']` and `nd['alpha'][:, 0]`, for example by explicitly forming masked-weighted ket–bra outer products and summing over tokens. Compare that density with the reported density, then use the independently built density for the inverse, dense trace, and gradient comparison. Refresh the affected code and focused-test hashes."
+    ],
+    "limitations": [
+      "By inspection, the production head uses the intended ket–bra orientation, solves against all 39 positive effect vectors, normalizes each vector before Born scoring and EPS, and preserves the native class-0 logit at fixed weights. The diagonal control dephases only the reference. The positive logits retain a gradient path to the null effect.",
+      "The adapter uses a common checkpoint and batch order, fresh AdamW instances, and 128 updates per arm. All three fits finish and their final-file hashes are checked before assessment scoring. The gate requires all six comparisons, and scoring loads the final state.",
+      "This was a source-only review. Runtime fixture results, artifact digests, and the implementation of the hash-pinned bootstrap helper remain unverified. The exposed TRAIN split and full-trained warm start limit interpretation to this planning screen. The matrix examples establish state-level behavior only."
+    ],
+    "admission": "blocked"
+  }
+}

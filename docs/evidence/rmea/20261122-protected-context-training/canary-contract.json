@@ -1,0 +1,139 @@
+{
+  "schema": "q-rmea.protected-context.canary-contract.v1",
+  "recipe_id": "rmea-protected-context-training-canary-v2",
+  "recipe": {
+    "kind": "diagnostic",
+    "command": [
+      "{python}",
+      "-B",
+      "-c",
+      "import hashlib,json,pathlib,runpy,sys\nif not __debug__:raise RuntimeError('Canary admission requires unoptimized Python')\nprior_unit=pathlib.Path(sys.argv[2]);out=pathlib.Path(sys.argv[1]);unit=out.parent/'protected-context-unit'\nexpected='a251c7003e5e40d746e70c069adbd2f0430c32e90dc6a0220f17ad98daa69a0f'\nsha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()\nif sha(prior_unit/'unit-validation.json')!=expected:raise ValueError('Pinned unit artifact differs')\nunit.mkdir()\nsys.argv=['experiments/q_rmea_protected_context_train.py','unit','--output',str(unit)]\nrunpy.run_path(sys.argv[0],run_name='__main__')\nprior=json.loads((prior_unit/'unit-validation.json').read_bytes());current=json.loads((unit/'unit-validation.json').read_bytes())\nfrom baselines.retacred import rmea_protected_context_protocol as p\nprior['source_sha256']=p.identity(p.sources())\nif current!=prior:raise ValueError('Single-import repair changed accepted CPU adapter unit result')\nsys.argv=['experiments/q_rmea_protected_context_train.py','canary','--output',str(out),'--unit-output',str(unit)]\nrunpy.run_path(sys.argv[0],run_name='__main__')\nimport torch\nfrom baselines.retacred import rmea_protected_context_protocol as p\nfrom baselines.retacred.rmea_token_transport_parallel import equal_state\nseal=p.read(out/'RUN_COMPLETE');validation=out/'canary-validation.json'\nif seal['artifacts']['canary-validation.json']!=sha(validation) or p.read(validation).get('gate') is not True:raise ValueError('Primary canary seal differs')\nsuffix=out.parent.name\nroots=[out/('serial-'+suffix)/'discovery',out/('canary-'+suffix)/'discovery',out/'restored'/('canary-'+suffix)/'discovery']\nchecks={}\nfor kind in p.MODES:\n states=[torch.load(root/'.workers'/kind/'latest.pt',map_location='cpu',weights_only=True) for root in roots]\n if any(set(s.get('rng',{}))!={'python','numpy','torch','cuda'} for s in states):raise ValueError('Incomplete persisted RNG')\n if not all(equal_state(states[0]['rng'],s['rng']) for s in states[1:]):raise ValueError('Serial/local/COS RNG continuation differs: '+kind)\n checks[kind]=dict(python=True,numpy=True,torch=True,cuda=True,lanes=3)\np.atomic_json(out/'canary-acceptance.json',dict(schema='q-rmea.protected-context.canary-acceptance.v1',gate=True,prior_unit_sha256=expected,unit_sha256=sha(unit/'unit-validation.json'),unit_validation=current,primary_validation_sha256=sha(validation),primary_seal_sha256=sha(out/'RUN_COMPLETE'),rng=checks,source_sha256=p.identity(p.sources()),contract_sha256=p.identity(p.contract()),scope='Owner wrapper pins prior unit, then executes exact-source CPU adapter unit once before official canary CLI, then all persisted RNG across3 completed lanes. No mutation of primary seal or scientific source; no full training admission.'))\nprint(json.dumps(dict(canary_acceptance=True,rng_conditions=len(checks),unit_pin=True)))\n",
+      "{output}",
+      "/hy-tmp/Q-Attention/worker/attempts/d67ef0b3c5ca45a7ad79606110c4fcb9/output"
+    ],
+    "resources": {
+      "cpu": 3,
+      "ram_mb": 8192,
+      "disk_mb": 1024,
+      "gpus": 3,
+      "gpu_mb": 8192
+    },
+    "timeout": 1800,
+    "max_attempts": 1,
+    "replay_safe": false,
+    "outputs": [
+      "canary-validation.json",
+      "RUN_COMPLETE",
+      "canary-acceptance.json"
+    ]
+  },
+  "source_hashes": {
+    "baselines/retacred/rmea_frozen_training.py": "1de61a9effcb8f33ca8271e5b153b221bd7d9ef604e47a2ddbb343ff927f7e9f",
+    "baselines/retacred/rmea_entity_scattering_protocol.py": "1c3b166a2cf25598d62b6f66879bb914cdae9c76ce5bc40fa4c8f24faa431ea2",
+    "baselines/retacred/rmea_entity_scattering_runtime.py": "7ab3dcda9d49ee21c85ddc96cb15ee2ccb143cb84fff8340bbd256eef5ade313",
+    "experiments/q_rmea_entity_scattering_train.py": "df53882d5de6ceabab4fd28dfc1ebdab8a8ba790ba9f07bd9b496612d9f04385",
+    "baselines/retacred/rmea_protected_context_protocol.py": "3c04e15e2c9702ce8fb1a48966429ec266f75d8b6bc2c2d32ba6366bc405599b",
+    "baselines/retacred/rmea_protected_context_runtime.py": "eaec6f34e9752ba924a4c35b09a15b7e1cf988b0c59dad520884179428f45b3c",
+    "experiments/q_rmea_protected_context_train.py": "973bb74fc2ed39d6834e8f9278c6820b027ba99977dcf3e44ba1340fe7405a92",
+    "baselines/retacred/rmea_protected_context_trace.py": "66779486a803a78b88a0485fe2482eb60a7539f6f59e1bf7e871a47b17d30c42"
+  },
+  "scientific_source_sha256": "f31f6410b8b6c91476a761ce1bd837ec1f72f1be169c082ad7931c846e54cc5f",
+  "scientific_contract_sha256": "2cf1fab0ee6a04fe2f40f2c9031bc7f732cd5a81d61e50872ea9f28d252f8536",
+  "profile": {
+    "schema": "q-rmea.protected-context.training.v1",
+    "profile": "canary",
+    "seed": 13,
+    "conditions": [
+      "protected_context",
+      "context_scrambled",
+      "unprotected_context"
+    ],
+    "counts": {
+      "train": 16,
+      "valid": 8,
+      "test": 8
+    },
+    "epochs": 3,
+    "batch_size": 32,
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.01,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "optimizer_eps": 1e-08,
+    "clip_norm": 1.0,
+    "dtype": "float64/complex128",
+    "parameters": 81028,
+    "tau": 0.25,
+    "born_eps": 1e-06,
+    "encoder_revision": "722cf37b1afa9454edce342e7895e588b6ff1d59",
+    "order": "NumPy default_rng(seed); one permutation per epoch; identical all four conditions",
+    "selection": "Fixed final epoch only; valid descriptive; no early stopping or epoch selection",
+    "sample_rule": "SHA256(rmea-sample-v1:split:original_id), ascending, no label access",
+    "primary": "Protected-context test positive39Macro minus completed native; signed absolute and relative delta",
+    "trace_checkpoints": [
+      "final"
+    ],
+    "trace_samples_per_split": 2,
+    "diagnostic_samples": 0,
+    "diagnostic_tolerance": 1e-08,
+    "replication": "No automatic replication or rescue seeds/epochs/tau",
+    "claim_scope": "One training seed on repeatedly exposed official cohort; no inherited L4/L5, independent confirmation, encoder trajectory or quantum-necessity claim",
+    "trace_conditions": [
+      "native",
+      "protected_context",
+      "context_scrambled",
+      "unprotected_context"
+    ],
+    "micro_batch_size": 4,
+    "mechanism": {
+      "ridge": 0.125,
+      "projector_relative_cutoff": 1e-10,
+      "source_probability_floor": 1e-06,
+      "derivative": "Actual retained-span first derivative on fixed-rank positive-gap strata; no detach/surrogate"
+    },
+    "control": "Fixed same-example DFT8 covariance conjugation; unprotected Pi=I; unchanged parameter count and value readout",
+    "reference": {
+      "manifest": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+      "summary": "053b8aef68dfec5ecb6c3d5706365f898814243137fa826af2bd3c3b4e77633a",
+      "initial": "037232c406d5cb1b23cea0ee289b7ab2d82366a2febfcedfdeb6fc69ec8da369",
+      "method": "native",
+      "selection": "fixed epoch4",
+      "retrain": false
+    },
+    "ordinary_utility_gate": "Strictly positive primary delta after shared integrity/leakage gates; no hidden practical threshold",
+    "attribution_gate": "Separately protected-context Macro exceeds both DFT-scrambled and unprotected; CE is descriptive, no automatic significance/replication",
+    "promotion": "Ordinary utility and matched-control comparisons are reported separately; failed exact recipe stops, no rescue seed/epoch/ridge/checkpoint",
+    "analysis": "Post-training complete final-head sample-trace.v2 on first2 fixed cache units/split, including unchanged old native; private coordinates only"
+  },
+  "profile_sha256": "0831bcef30592d6b56a3c539fe9119c01613dc2588a987ea25d2677343efdf95",
+  "unit": {
+    "task": "9af81e0afc4e49d38e1b519eb3c7a2cf",
+    "attempt": "d67ef0b3c5ca45a7ad79606110c4fcb9",
+    "unit_sha256": "a251c7003e5e40d746e70c069adbd2f0430c32e90dc6a0220f17ad98daa69a0f"
+  },
+  "publisher_transport_sha256": "e2b611543836d288daed2bebb95a0c8e68c6b795df7173ef1e3359740aa9e971",
+  "scope": "Three-GPU tiny canary only. Fixed16/8/8 inputs, seed13,3epochs*3conditions=9updates each serial/grouped/resumed lane. No full fit or utility inference.",
+  "checks": [
+    "Actual one-GPU serial vs3GPUgroup nine-update canary, explicit pause and optimizer/RNG/cursor continuation",
+    "Live COS000preparation and010progress VersionId/hash restore into fresh directory; interrupted pin installation retry",
+    "All4final-model trace conditions complete v2 closure and replay; original native not retrained",
+    "Injected report copy failure cleaned, retry from same immutable completed run; exact seven-file whitelist"
+  ],
+  "recovery": "Only fresh exact scheduler attempt,000preparation<=8MiB and010progress latest+best<=16MiB; unchanged streaming verified VersionId/index Publisher. Payload never stored on Windows. Native model included in minimal prep. Publisher stops after010 ack; canary downloads/restores pinned bytes on GPU host and continues locally. No parent/source adoption or migration.",
+  "runtime_admission": "Host writes current exact source/scientific-contract both-scope PASS record with canary-only admission from this review. CPU unit accepted/source unchanged. Formal run still requires sealed canary success + independently pinned original13input VersionId admission; this does not grant a formal recipe.",
+  "L5": "NOT_ACCEPTED",
+  "admission_extra": "Pin prior accepted unit artifact, execute exact repaired-source five-example CPU unit once inside same managed attempt, require its result to match prior except source hash, then unchanged official canary. Compare all persisted RNG across3 lanes after primary success; separate acceptance binds new unit, primary seal and RNG. Formal admission still separate.",
+  "runtime_repair": {
+    "failed_task": "5f1d490a5d12428291e40e271cddd168",
+    "failed_attempt": "4db25d1a3bc0492faf80faf3b578a109",
+    "returncode": 1,
+    "quiescent": true,
+    "error": "Protocol missing json required by unchanged train log output",
+    "delta": "Expose standard-library json; no math/config/budget change",
+    "cos_publication_started": false
+  },
+  "identity_correction": "Scientific identity is exact protocol.sources() only. Enrollment additionally pins the old CLI compatibility file; it is not appended to the scientific source map."
+}

@@ -1,0 +1,28 @@
+{
+  "profile": "TRAIN-semantic-error-strata-32-v1",
+  "host": "/hy-tmp/Q-Attention/control/semantic-problem-audit-20261123",
+  "per_stratum": 8,
+  "stratum_order": [
+    "positive_missed",
+    "positive_correct",
+    "null_false_positive",
+    "null_correct"
+  ],
+  "frozen_support_sha256": "d4c1100df6d306a3fae48d66f7907dfbe2a39d1b30843abb359ba32de7053186",
+  "input_hashes": {
+    "inputs/native-word-metadata-20261123/train.private.json": "f5eafb7d51bca46988313c204b6fa5ef19e82fabc32dc9feee9faa70f2285053",
+    "control/task-bottleneck-discovery-20261123/cases.private.json": "ad35efee20682e4f42280670de21bfa76a31dcce39d06cfba675348229a93e8c",
+    "control/native-ordered-mass-value-20261123/output/diagnostic.private.npz": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+    "inputs/native-baseline/recovery-inputs/labels.json": "6e822509a07c5c865130ebe315122a9d83e97b1b11496b9e86c6b2a600f8a429"
+  },
+  "selection": "Exclude rule-excluded golds and wrong-positive-label errors from four prespecified strata; report counts. Sort within strata by SHA256(qattn-semantic-problem-v1:inputhash), take8, one exact sentence globally in stated stratum order. No reselection.",
+  "annotation": "Two isolated gpt-6.1-sol/medium API contexts. Gold/prediction/stratum and other reader hidden. Reader-specific anonymous IDs and order. Use sentence plus given types; cite token indices, preserve uncertainty and invalid/missing rows as unknown. Same-model readers not independent experts.",
+  "purpose": "Distinguish explicit missed relation evidence from insufficient/ambiguous input. Compare structural features against matched outcome strata; no trained method, baseline tuning, quantum attribution or L5 acceptance.",
+  "stop": "No outcome rescue, prompt revision or model redispatch after valid output. If no repeated unambiguous missed structure with counterexamples, do not choose a quantum operation from this audit.",
+  "execution": "R0 read-only cached-array selection and external text annotation. No model/GPU training, formal experiment, TEST, COS or stable-core/lifecycle change.",
+  "raw_storage": "Raw32sentences and per-case mappings/answers remain private on existing compute node. Windows holds design and compact aggregate receipts only. API inputs relayed only in RAM.",
+  "api_model": "gpt-6.1-sol",
+  "api_effort": "medium",
+  "selection_basis": "owner_preference",
+  "code_sha256": "073cd1d711460f3f74038d3b41f65180157aba47eb49b57121d121ae43195982"
+}

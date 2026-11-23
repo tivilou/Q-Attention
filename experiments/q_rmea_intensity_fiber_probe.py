@@ -1,0 +1,102 @@
+"""Frozen TRAIN-only intensity-fiber existence test; zero fitting, no label use.
+
+Run through the shared CPU scheduler after the current full experiment. Keep
+all preselected cases, including inapplicable or negative outcomes.
+"""
+import argparse,hashlib,json,sys
+from pathlib import Path
+import numpy as np
+import torch
+
+a=argparse.ArgumentParser();a.add_argument('--source-root',required=True,type=Path);a.add_argument('--baseline-run',required=True,type=Path);a.add_argument('--pins',required=True,type=Path);a.add_argument('--design',required=True,type=Path);a.add_argument('--output',required=True,type=Path);args=a.parse_args()
+design=json.loads(args.design.read_bytes())
+assert design['profile']=='born-intensity-fiber-train32-v1' and design['class_index']==0
+def digest(p):
+ h=hashlib.sha256()
+ with p.open('rb') as f:
+  for b in iter(lambda:f.read(8*1024**2),b''):h.update(b)
+ return h.hexdigest()
+def atomic(p,x):
+ p.parent.mkdir(parents=True,exist_ok=True);t=p.with_suffix(p.suffix+'.tmp')
+ t.write_bytes((json.dumps(x,indent=2)+'\n').encode());t.replace(p)
+for n,expected in design['source_hashes'].items():assert digest(args.source_root/n)==expected,'Model source differs'
+sys.path.insert(0,str(args.source_root))
+from baselines.retacred.rmea import RMEAHead,EPS
+assert EPS==design['born_eps']
+torch.set_num_threads(1);torch.use_deterministic_algorithms(True)
+cache=args.baseline_run/'cache';pins=json.loads(args.pins.read_bytes())
+for n,row in pins.items():
+ p=cache/n
+ assert p.is_file() and not p.is_symlink() and p.stat().st_size==row['bytes'] and digest(p)==row['sha256'],'Pinned input differs'
+cp=args.baseline_run/'checkpoints/native-final.pt';assert digest(cp)==design['checkpoint_sha256']
+assert digest(args.baseline_run/'manifest.json')==design['native_manifest_sha256']
+assert design['native_inference_dtype']=='float64/complex128'
+assert json.loads((args.baseline_run/'manifest.json').read_bytes())['config']['dtype']==design['native_inference_dtype']
+assert not (args.output/'RUN_COMPLETE').exists(),'Preserve completed output'
+data={k:np.load(cache/('train-'+k+'.npy'),mmap_mode='r',allow_pickle=False) for k in ('h','roles','offsets')}
+metadata=json.loads((cache/'metadata.json').read_bytes())['train'];assert len(metadata)==58465
+# This input-only restriction addresses the regular full-span domain; it does
+# not use model rank, output, target labels or favorable outcomes to select.
+mention=(data['roles'][:,2]!=0)|(data['roles'][:,3]!=0)
+prefix=np.empty(len(mention)+1,dtype=np.int64);prefix[0]=0;np.cumsum(mention,dtype=np.int64,out=prefix[1:])
+counts=prefix[data['offsets'][1:]]-prefix[data['offsets'][:-1]]
+eligible=np.flatnonzero((counts>=8)&(counts<=13)).tolist()
+selected=sorted(eligible,key=lambda i:(metadata[i]['id_hash'],i))[:32]
+population=dict(design_sha256=digest(args.design),selection=design['selection'],train_total=58465,input_eligible_count=len(eligible),selected_count=len(selected),cases=[dict(index=i,id_hash=metadata[i]['id_hash'],mention_tokens=int(counts[i])) for i in selected],before_model_forward=True,labels_used=False)
+atomic(args.output/'population.json',population)
+head=RMEAHead('quantum').double().eval();head.load_state_dict(torch.load(cp,map_location='cpu',weights_only=True),strict=True)
+real=lambda x:torch.cat((x.real,x.imag),dim=-1)
+complexify=lambda x:torch.complex(x[:8],x[8:])
+rows=[]
+with torch.no_grad():
+ for i in selected:
+  start,stop=map(int,data['offsets'][i:i+2]);h=torch.from_numpy(np.array(data['h'][start:stop],dtype=np.float64,copy=True))[None]
+  roles=torch.from_numpy(np.array(data['roles'][start:stop],dtype=np.float64,copy=True))[None];mask=torch.ones(1,stop-start,dtype=torch.bool)
+  details=head(h,roles,mask,details=True);psi=details['psi'][0].to(torch.complex128);phi=details['phi'][0].to(torch.complex128)
+  is_mention=(roles[0,:,2]!=0)|(roles[0,:,3]!=0);context=~is_mention;mentions=psi[is_mention];m=len(mentions)
+  row=dict(index=i,id_hash=metadata[i]['id_hash'],mention_tokens=m,contexts=int(context.sum()),status='inapplicable',positive=False)
+  assert 8<=m<=13 and float((psi.abs().square().sum(-1)-1).abs().max())<1e-12 and abs(float(phi.abs().square().sum())-1)<1e-12
+  singular=torch.linalg.svdvals(mentions.T);rank=int((singular>1e-10*singular[0]).sum());row['retained_mention_rank']=rank
+  if rank!=8 or not context.any():row['reason']='not_full_span_or_empty_context';rows.append(row);continue
+  amp=mentions.conj()@phi
+  j=torch.cat((2*real(phi)[None],real(2*mentions*amp[:,None])),dim=0)
+  u,s,vh=torch.linalg.svd(j,full_matrices=False);ratio=float(s[-1]/s[0]);row['jacobian_singular_ratio']=ratio
+  if ratio<1e-6:row['reason']='outside_well_conditioned_regular_branch';rows.append(row);continue
+  b=(vh.T/s)@u.T
+  projector=torch.eye(16,dtype=torch.float64)-b@j
+  covariance=psi[context].T@psi[context].conj()/int(context.sum())
+  ge=real(2*covariance@phi)
+  probabilities=(psi.conj()@phi).abs().square();raw=probabilities+EPS;z=raw.sum();utilities=details['utilities'][0,0]
+  native_alpha=raw/z
+  assert float((native_alpha-details['alpha'][0,0]).abs().max())<1e-12
+  mean=(native_alpha*utilities).sum()
+  gradients=real(2*psi*(psi.conj()@phi)[:,None])
+  gl=((utilities-mean)[:,None]*gradients).sum(0)/z
+  projected_e=projector@ge;projected_l=projector@gl
+  row['energy_projected_ratio']=float(projected_e.norm()/ge.norm()) if ge.norm()>0 else 0.
+  row['logit_projected_ratio']=float(projected_l.norm()/gl.norm()) if gl.norm()>0 else 0.
+  if min(row['energy_projected_ratio'],row['logit_projected_ratio'])<1e-8:
+   row['reason']='unresolved_energy_or_task_tangent';rows.append(row);continue
+  ae=projected_e/projected_e.norm();al=projected_l/projected_l.norm();sign=1 if (ae@al)>=0 else -1
+  tangent=-ae-sign*al;tangent=tangent/tangent.norm()
+  assert float((j@tangent).abs().max())<1e-8 and float(ge@tangent)<0 and abs(float(gl@tangent))>0
+  D=torch.sqrt(1+mentions.norm(dim=-1).pow(4).sum());step=min(.01,float(s[-1]/(8*D)))
+  def q(x):
+   vector=complexify(x)
+   return torch.cat((vector.abs().square().sum()[None],(mentions.conj()@vector).abs().square()))
+  normal=torch.zeros(16,dtype=torch.float64)
+  for _ in range(48):normal=-b@q(step*tangent+normal)
+  candidate=phi+complexify(step*tangent+normal);plain=phi+complexify(step*tangent)
+  def constraints(w):return torch.cat((w.abs().square().sum()[None],(mentions.conj()@w).abs().square()))
+  def energy(w):return (w.conj()@(covariance@w)).real+.125*(w-phi).abs().square().sum()
+  newraw=((psi.conj()@candidate).abs().square()+EPS)
+  newalpha=(newraw/newraw.sum()).to(h.dtype)
+  newlogit=(newalpha*utilities).sum()+head.bias[0]
+  delta_logit=float(newlogit-details['logits'][0,0]);delta_e=float(energy(candidate)-energy(phi))
+  residual=float((constraints(candidate)-constraints(phi)).abs().max())
+  row.update(status='evaluated',reason='finite_step_result',step=step,iterations=48,retracted_residual=residual,tangent_only_residual=float((constraints(plain)-constraints(phi)).abs().max()),energy_delta=delta_e,relative_logit_delta=delta_logit,positive=residual<=1e-12 and delta_e<-1e-10 and abs(delta_logit)>=1e-6)
+  assert all(np.isfinite(row[k]) for k in ('step','retracted_residual','energy_delta','relative_logit_delta'))
+  rows.append(row)
+summary=dict(profile=design['profile'],status='complete',population_sha256=digest(args.output/'population.json'),design_sha256=digest(args.design),checkpoint_sha256=digest(cp),selected_count=len(selected),input_eligible_count=len(eligible),full_span_count=sum(x['retained_mention_rank']==8 for x in rows),evaluated_count=sum(x['status']=='evaluated' for x in rows),positive_count=sum(x['positive'] for x in rows),existence_gate=any(x['positive'] for x in rows),rows=rows,optimizer_updates=0,cos_operations=0,labels_used=False,claim_scope=design['claim_scope'],L5='NOT_ACCEPTED')
+atomic(args.output/'summary.json',summary);atomic(args.output/'RUN_COMPLETE',dict(artifacts={n:digest(args.output/n) for n in ('population.json','summary.json')}))
+print(json.dumps({k:summary[k] for k in ('status','selected_count','input_eligible_count','full_span_count','evaluated_count','positive_count','existence_gate','optimizer_updates','cos_operations','L5')}))

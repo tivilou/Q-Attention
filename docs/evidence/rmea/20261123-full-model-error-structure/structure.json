@@ -1,0 +1,2426 @@
+{
+  "scope": "Descriptive reused development and complete-model current-cache replay. No new fit, selection, TEST score or quantum attribution; exposure bins are not causal.",
+  "raw_common_fn": {
+    "train": {
+      "positive_rows": 19704,
+      "all_four_fn": 560
+    },
+    "valid": {
+      "positive_rows": 8338,
+      "all_four_fn": 1006
+    }
+  },
+  "valid_typed_common_fn": 1155,
+  "valid_typed_common_fn_gold_allowed": 1070,
+  "class_support_and_errors": [
+    {
+      "label": "org:alternate_names",
+      "train_support": 1319,
+      "valid_support": 440,
+      "valid_shared_typed_fn": 47,
+      "train": {
+        "relation_softmax": {
+          "correct": 1258,
+          "false_negative": 48
+        },
+        "real_overlap": {
+          "correct": 1262,
+          "false_negative": 49
+        },
+        "quantum": {
+          "correct": 1189,
+          "false_negative": 107
+        },
+        "dephased": {
+          "correct": 1225,
+          "false_negative": 77
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 303,
+          "false_negative": 92
+        },
+        "real_overlap": {
+          "correct": 344,
+          "false_negative": 80
+        },
+        "quantum": {
+          "correct": 355,
+          "false_negative": 64
+        },
+        "dephased": {
+          "correct": 324,
+          "false_negative": 83
+        }
+      }
+    },
+    {
+      "label": "org:city_of_branch",
+      "train_support": 622,
+      "valid_support": 191,
+      "valid_shared_typed_fn": 67,
+      "train": {
+        "relation_softmax": {
+          "correct": 487,
+          "false_negative": 126
+        },
+        "real_overlap": {
+          "correct": 481,
+          "false_negative": 132
+        },
+        "quantum": {
+          "correct": 481,
+          "false_negative": 130
+        },
+        "dephased": {
+          "correct": 526,
+          "false_negative": 89
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 70,
+          "false_negative": 108
+        },
+        "real_overlap": {
+          "correct": 79,
+          "false_negative": 103
+        },
+        "quantum": {
+          "correct": 83,
+          "false_negative": 100
+        },
+        "dephased": {
+          "correct": 106,
+          "false_negative": 82
+        }
+      }
+    },
+    {
+      "label": "org:country_of_branch",
+      "train_support": 891,
+      "valid_support": 338,
+      "valid_shared_typed_fn": 76,
+      "train": {
+        "relation_softmax": {
+          "correct": 791,
+          "false_negative": 92
+        },
+        "real_overlap": {
+          "correct": 723,
+          "false_negative": 162
+        },
+        "quantum": {
+          "correct": 705,
+          "false_negative": 167
+        },
+        "dephased": {
+          "correct": 669,
+          "false_negative": 198
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 223,
+          "false_negative": 112
+        },
+        "real_overlap": {
+          "correct": 170,
+          "false_negative": 164
+        },
+        "quantum": {
+          "correct": 196,
+          "false_negative": 136
+        },
+        "dephased": {
+          "correct": 161,
+          "false_negative": 174
+        }
+      }
+    },
+    {
+      "label": "org:dissolved",
+      "train_support": 23,
+      "valid_support": 7,
+      "valid_shared_typed_fn": 6,
+      "train": {
+        "relation_softmax": {
+          "correct": 15,
+          "false_negative": 8
+        },
+        "real_overlap": {
+          "correct": 13,
+          "false_negative": 10
+        },
+        "quantum": {
+          "correct": 8,
+          "false_negative": 15
+        },
+        "dephased": {
+          "correct": 2,
+          "false_negative": 21
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 1,
+          "false_negative": 6
+        },
+        "real_overlap": {
+          "correct": 0,
+          "false_negative": 7
+        },
+        "quantum": {
+          "correct": 0,
+          "false_negative": 7
+        },
+        "dephased": {
+          "correct": 0,
+          "false_negative": 7
+        }
+      }
+    },
+    {
+      "label": "org:founded",
+      "train_support": 80,
+      "valid_support": 36,
+      "valid_shared_typed_fn": 11,
+      "train": {
+        "relation_softmax": {
+          "correct": 68,
+          "false_negative": 11
+        },
+        "real_overlap": {
+          "correct": 59,
+          "false_negative": 19
+        },
+        "quantum": {
+          "correct": 58,
+          "false_negative": 20
+        },
+        "dephased": {
+          "correct": 63,
+          "false_negative": 16
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 19,
+          "false_negative": 13
+        },
+        "real_overlap": {
+          "correct": 13,
+          "false_negative": 20
+        },
+        "quantum": {
+          "correct": 23,
+          "false_negative": 13
+        },
+        "dephased": {
+          "correct": 18,
+          "false_negative": 18
+        }
+      }
+    },
+    {
+      "label": "org:founded_by",
+      "train_support": 107,
+      "valid_support": 76,
+      "valid_shared_typed_fn": 24,
+      "train": {
+        "relation_softmax": {
+          "correct": 102,
+          "false_negative": 3
+        },
+        "real_overlap": {
+          "correct": 84,
+          "false_negative": 19
+        },
+        "quantum": {
+          "correct": 87,
+          "false_negative": 15
+        },
+        "dephased": {
+          "correct": 69,
+          "false_negative": 30
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 36,
+          "false_negative": 35
+        },
+        "real_overlap": {
+          "correct": 31,
+          "false_negative": 40
+        },
+        "quantum": {
+          "correct": 26,
+          "false_negative": 47
+        },
+        "dephased": {
+          "correct": 22,
+          "false_negative": 47
+        }
+      }
+    },
+    {
+      "label": "org:member_of",
+      "train_support": 365,
+      "valid_support": 88,
+      "valid_shared_typed_fn": 32,
+      "train": {
+        "relation_softmax": {
+          "correct": 329,
+          "false_negative": 28
+        },
+        "real_overlap": {
+          "correct": 324,
+          "false_negative": 37
+        },
+        "quantum": {
+          "correct": 269,
+          "false_negative": 72
+        },
+        "dephased": {
+          "correct": 248,
+          "false_negative": 89
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 36,
+          "false_negative": 39
+        },
+        "real_overlap": {
+          "correct": 27,
+          "false_negative": 50
+        },
+        "quantum": {
+          "correct": 34,
+          "false_negative": 42
+        },
+        "dephased": {
+          "correct": 20,
+          "false_negative": 58
+        }
+      }
+    },
+    {
+      "label": "org:members",
+      "train_support": 560,
+      "valid_support": 194,
+      "valid_shared_typed_fn": 73,
+      "train": {
+        "relation_softmax": {
+          "correct": 447,
+          "false_negative": 88
+        },
+        "real_overlap": {
+          "correct": 353,
+          "false_negative": 162
+        },
+        "quantum": {
+          "correct": 360,
+          "false_negative": 163
+        },
+        "dephased": {
+          "correct": 382,
+          "false_negative": 150
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 58,
+          "false_negative": 101
+        },
+        "real_overlap": {
+          "correct": 41,
+          "false_negative": 130
+        },
+        "quantum": {
+          "correct": 29,
+          "false_negative": 137
+        },
+        "dephased": {
+          "correct": 52,
+          "false_negative": 119
+        }
+      }
+    },
+    {
+      "label": "org:number_of_employees/members",
+      "train_support": 54,
+      "valid_support": 27,
+      "valid_shared_typed_fn": 5,
+      "train": {
+        "relation_softmax": {
+          "correct": 52,
+          "false_negative": 2
+        },
+        "real_overlap": {
+          "correct": 49,
+          "false_negative": 5
+        },
+        "quantum": {
+          "correct": 47,
+          "false_negative": 7
+        },
+        "dephased": {
+          "correct": 42,
+          "false_negative": 12
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 18,
+          "false_negative": 9
+        },
+        "real_overlap": {
+          "correct": 12,
+          "false_negative": 15
+        },
+        "quantum": {
+          "correct": 15,
+          "false_negative": 12
+        },
+        "dephased": {
+          "correct": 16,
+          "false_negative": 11
+        }
+      }
+    },
+    {
+      "label": "org:political/religious_affiliation",
+      "train_support": 190,
+      "valid_support": 34,
+      "valid_shared_typed_fn": 11,
+      "train": {
+        "relation_softmax": {
+          "correct": 179,
+          "false_negative": 11
+        },
+        "real_overlap": {
+          "correct": 180,
+          "false_negative": 8
+        },
+        "quantum": {
+          "correct": 163,
+          "false_negative": 26
+        },
+        "dephased": {
+          "correct": 158,
+          "false_negative": 21
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 20,
+          "false_negative": 13
+        },
+        "real_overlap": {
+          "correct": 20,
+          "false_negative": 14
+        },
+        "quantum": {
+          "correct": 21,
+          "false_negative": 13
+        },
+        "dephased": {
+          "correct": 20,
+          "false_negative": 14
+        }
+      }
+    },
+    {
+      "label": "org:shareholders",
+      "train_support": 93,
+      "valid_support": 80,
+      "valid_shared_typed_fn": 59,
+      "train": {
+        "relation_softmax": {
+          "correct": 60,
+          "false_negative": 29
+        },
+        "real_overlap": {
+          "correct": 58,
+          "false_negative": 29
+        },
+        "quantum": {
+          "correct": 41,
+          "false_negative": 42
+        },
+        "dephased": {
+          "correct": 43,
+          "false_negative": 41
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 11,
+          "false_negative": 66
+        },
+        "real_overlap": {
+          "correct": 11,
+          "false_negative": 63
+        },
+        "quantum": {
+          "correct": 9,
+          "false_negative": 64
+        },
+        "dephased": {
+          "correct": 14,
+          "false_negative": 63
+        }
+      }
+    },
+    {
+      "label": "org:stateorprovince_of_branch",
+      "train_support": 315,
+      "valid_support": 98,
+      "valid_shared_typed_fn": 12,
+      "train": {
+        "relation_softmax": {
+          "correct": 280,
+          "false_negative": 32
+        },
+        "real_overlap": {
+          "correct": 274,
+          "false_negative": 36
+        },
+        "quantum": {
+          "correct": 233,
+          "false_negative": 68
+        },
+        "dephased": {
+          "correct": 251,
+          "false_negative": 51
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 59,
+          "false_negative": 31
+        },
+        "real_overlap": {
+          "correct": 69,
+          "false_negative": 24
+        },
+        "quantum": {
+          "correct": 60,
+          "false_negative": 31
+        },
+        "dephased": {
+          "correct": 49,
+          "false_negative": 31
+        }
+      }
+    },
+    {
+      "label": "org:top_members/employees",
+      "train_support": 1475,
+      "valid_support": 462,
+      "valid_shared_typed_fn": 50,
+      "train": {
+        "relation_softmax": {
+          "correct": 1359,
+          "false_negative": 102
+        },
+        "real_overlap": {
+          "correct": 1327,
+          "false_negative": 140
+        },
+        "quantum": {
+          "correct": 1246,
+          "false_negative": 210
+        },
+        "dephased": {
+          "correct": 1139,
+          "false_negative": 322
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 363,
+          "false_negative": 83
+        },
+        "real_overlap": {
+          "correct": 343,
+          "false_negative": 108
+        },
+        "quantum": {
+          "correct": 320,
+          "false_negative": 115
+        },
+        "dephased": {
+          "correct": 297,
+          "false_negative": 147
+        }
+      }
+    },
+    {
+      "label": "org:website",
+      "train_support": 119,
+      "valid_support": 94,
+      "valid_shared_typed_fn": 7,
+      "train": {
+        "relation_softmax": {
+          "correct": 116,
+          "false_negative": 3
+        },
+        "real_overlap": {
+          "correct": 105,
+          "false_negative": 13
+        },
+        "quantum": {
+          "correct": 112,
+          "false_negative": 5
+        },
+        "dephased": {
+          "correct": 108,
+          "false_negative": 10
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 91,
+          "false_negative": 2
+        },
+        "real_overlap": {
+          "correct": 90,
+          "false_negative": 3
+        },
+        "quantum": {
+          "correct": 92,
+          "false_negative": 1
+        },
+        "dephased": {
+          "correct": 89,
+          "false_negative": 4
+        }
+      }
+    },
+    {
+      "label": "per:age",
+      "train_support": 421,
+      "valid_support": 256,
+      "valid_shared_typed_fn": 18,
+      "train": {
+        "relation_softmax": {
+          "correct": 400,
+          "false_negative": 19
+        },
+        "real_overlap": {
+          "correct": 415,
+          "false_negative": 6
+        },
+        "quantum": {
+          "correct": 410,
+          "false_negative": 10
+        },
+        "dephased": {
+          "correct": 408,
+          "false_negative": 12
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 217,
+          "false_negative": 36
+        },
+        "real_overlap": {
+          "correct": 227,
+          "false_negative": 29
+        },
+        "quantum": {
+          "correct": 232,
+          "false_negative": 19
+        },
+        "dephased": {
+          "correct": 229,
+          "false_negative": 27
+        }
+      }
+    },
+    {
+      "label": "per:cause_of_death",
+      "train_support": 114,
+      "valid_support": 193,
+      "valid_shared_typed_fn": 33,
+      "train": {
+        "relation_softmax": {
+          "correct": 112,
+          "false_negative": 2
+        },
+        "real_overlap": {
+          "correct": 107,
+          "false_negative": 7
+        },
+        "quantum": {
+          "correct": 108,
+          "false_negative": 6
+        },
+        "dephased": {
+          "correct": 104,
+          "false_negative": 8
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 143,
+          "false_negative": 42
+        },
+        "real_overlap": {
+          "correct": 135,
+          "false_negative": 50
+        },
+        "quantum": {
+          "correct": 138,
+          "false_negative": 41
+        },
+        "dephased": {
+          "correct": 128,
+          "false_negative": 58
+        }
+      }
+    },
+    {
+      "label": "per:charges",
+      "train_support": 87,
+      "valid_support": 130,
+      "valid_shared_typed_fn": 20,
+      "train": {
+        "relation_softmax": {
+          "correct": 86,
+          "false_negative": 1
+        },
+        "real_overlap": {
+          "correct": 80,
+          "false_negative": 7
+        },
+        "quantum": {
+          "correct": 74,
+          "false_negative": 13
+        },
+        "dephased": {
+          "correct": 82,
+          "false_negative": 5
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 90,
+          "false_negative": 33
+        },
+        "real_overlap": {
+          "correct": 93,
+          "false_negative": 34
+        },
+        "quantum": {
+          "correct": 95,
+          "false_negative": 27
+        },
+        "dephased": {
+          "correct": 97,
+          "false_negative": 28
+        }
+      }
+    },
+    {
+      "label": "per:children",
+      "train_support": 275,
+      "valid_support": 114,
+      "valid_shared_typed_fn": 5,
+      "train": {
+        "relation_softmax": {
+          "correct": 241,
+          "false_negative": 5
+        },
+        "real_overlap": {
+          "correct": 262,
+          "false_negative": 2
+        },
+        "quantum": {
+          "correct": 233,
+          "false_negative": 6
+        },
+        "dephased": {
+          "correct": 230,
+          "false_negative": 8
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 62,
+          "false_negative": 13
+        },
+        "real_overlap": {
+          "correct": 57,
+          "false_negative": 14
+        },
+        "quantum": {
+          "correct": 65,
+          "false_negative": 11
+        },
+        "dephased": {
+          "correct": 58,
+          "false_negative": 24
+        }
+      }
+    },
+    {
+      "label": "per:cities_of_residence",
+      "train_support": 188,
+      "valid_support": 98,
+      "valid_shared_typed_fn": 32,
+      "train": {
+        "relation_softmax": {
+          "correct": 149,
+          "false_negative": 34
+        },
+        "real_overlap": {
+          "correct": 143,
+          "false_negative": 36
+        },
+        "quantum": {
+          "correct": 121,
+          "false_negative": 53
+        },
+        "dephased": {
+          "correct": 141,
+          "false_negative": 33
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 48,
+          "false_negative": 39
+        },
+        "real_overlap": {
+          "correct": 34,
+          "false_negative": 50
+        },
+        "quantum": {
+          "correct": 39,
+          "false_negative": 49
+        },
+        "dephased": {
+          "correct": 43,
+          "false_negative": 39
+        }
+      }
+    },
+    {
+      "label": "per:city_of_birth",
+      "train_support": 88,
+      "valid_support": 43,
+      "valid_shared_typed_fn": 5,
+      "train": {
+        "relation_softmax": {
+          "correct": 81,
+          "false_negative": 3
+        },
+        "real_overlap": {
+          "correct": 87,
+          "false_negative": 1
+        },
+        "quantum": {
+          "correct": 73,
+          "false_negative": 8
+        },
+        "dephased": {
+          "correct": 85,
+          "false_negative": 1
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 31,
+          "false_negative": 7
+        },
+        "real_overlap": {
+          "correct": 36,
+          "false_negative": 5
+        },
+        "quantum": {
+          "correct": 29,
+          "false_negative": 9
+        },
+        "dephased": {
+          "correct": 37,
+          "false_negative": 5
+        }
+      }
+    },
+    {
+      "label": "per:city_of_death",
+      "train_support": 120,
+      "valid_support": 148,
+      "valid_shared_typed_fn": 28,
+      "train": {
+        "relation_softmax": {
+          "correct": 117,
+          "false_negative": 2
+        },
+        "real_overlap": {
+          "correct": 115,
+          "false_negative": 2
+        },
+        "quantum": {
+          "correct": 111,
+          "false_negative": 7
+        },
+        "dephased": {
+          "correct": 111,
+          "false_negative": 6
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 87,
+          "false_negative": 48
+        },
+        "real_overlap": {
+          "correct": 76,
+          "false_negative": 52
+        },
+        "quantum": {
+          "correct": 92,
+          "false_negative": 43
+        },
+        "dephased": {
+          "correct": 77,
+          "false_negative": 55
+        }
+      }
+    },
+    {
+      "label": "per:countries_of_residence",
+      "train_support": 201,
+      "valid_support": 192,
+      "valid_shared_typed_fn": 58,
+      "train": {
+        "relation_softmax": {
+          "correct": 148,
+          "false_negative": 30
+        },
+        "real_overlap": {
+          "correct": 154,
+          "false_negative": 32
+        },
+        "quantum": {
+          "correct": 97,
+          "false_negative": 61
+        },
+        "dephased": {
+          "correct": 87,
+          "false_negative": 75
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 71,
+          "false_negative": 80
+        },
+        "real_overlap": {
+          "correct": 69,
+          "false_negative": 108
+        },
+        "quantum": {
+          "correct": 53,
+          "false_negative": 90
+        },
+        "dephased": {
+          "correct": 45,
+          "false_negative": 107
+        }
+      }
+    },
+    {
+      "label": "per:country_of_birth",
+      "train_support": 25,
+      "valid_support": 24,
+      "valid_shared_typed_fn": 6,
+      "train": {
+        "relation_softmax": {
+          "correct": 23,
+          "false_negative": 2
+        },
+        "real_overlap": {
+          "correct": 16,
+          "false_negative": 3
+        },
+        "quantum": {
+          "correct": 20,
+          "false_negative": 3
+        },
+        "dephased": {
+          "correct": 20,
+          "false_negative": 5
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 7,
+          "false_negative": 10
+        },
+        "real_overlap": {
+          "correct": 8,
+          "false_negative": 5
+        },
+        "quantum": {
+          "correct": 9,
+          "false_negative": 7
+        },
+        "dephased": {
+          "correct": 12,
+          "false_negative": 6
+        }
+      }
+    },
+    {
+      "label": "per:country_of_death",
+      "train_support": 6,
+      "valid_support": 55,
+      "valid_shared_typed_fn": 28,
+      "train": {
+        "relation_softmax": {
+          "correct": 1,
+          "false_negative": 1
+        },
+        "real_overlap": {
+          "correct": 5,
+          "false_negative": 0
+        },
+        "quantum": {
+          "correct": 3,
+          "false_negative": 2
+        },
+        "dephased": {
+          "correct": 3,
+          "false_negative": 1
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 0,
+          "false_negative": 26
+        },
+        "real_overlap": {
+          "correct": 2,
+          "false_negative": 36
+        },
+        "quantum": {
+          "correct": 0,
+          "false_negative": 35
+        },
+        "dephased": {
+          "correct": 0,
+          "false_negative": 44
+        }
+      }
+    },
+    {
+      "label": "per:date_of_birth",
+      "train_support": 69,
+      "valid_support": 31,
+      "valid_shared_typed_fn": 1,
+      "train": {
+        "relation_softmax": {
+          "correct": 63,
+          "false_negative": 6
+        },
+        "real_overlap": {
+          "correct": 61,
+          "false_negative": 7
+        },
+        "quantum": {
+          "correct": 57,
+          "false_negative": 11
+        },
+        "dephased": {
+          "correct": 59,
+          "false_negative": 10
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 30,
+          "false_negative": 1
+        },
+        "real_overlap": {
+          "correct": 27,
+          "false_negative": 4
+        },
+        "quantum": {
+          "correct": 28,
+          "false_negative": 2
+        },
+        "dephased": {
+          "correct": 27,
+          "false_negative": 3
+        }
+      }
+    },
+    {
+      "label": "per:date_of_death",
+      "train_support": 172,
+      "valid_support": 234,
+      "valid_shared_typed_fn": 54,
+      "train": {
+        "relation_softmax": {
+          "correct": 133,
+          "false_negative": 39
+        },
+        "real_overlap": {
+          "correct": 158,
+          "false_negative": 14
+        },
+        "quantum": {
+          "correct": 152,
+          "false_negative": 20
+        },
+        "dephased": {
+          "correct": 128,
+          "false_negative": 44
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 139,
+          "false_negative": 94
+        },
+        "real_overlap": {
+          "correct": 154,
+          "false_negative": 78
+        },
+        "quantum": {
+          "correct": 155,
+          "false_negative": 77
+        },
+        "dephased": {
+          "correct": 121,
+          "false_negative": 113
+        }
+      }
+    },
+    {
+      "label": "per:employee_of",
+      "train_support": 2136,
+      "valid_support": 576,
+      "valid_shared_typed_fn": 150,
+      "train": {
+        "relation_softmax": {
+          "correct": 1934,
+          "false_negative": 169
+        },
+        "real_overlap": {
+          "correct": 1817,
+          "false_negative": 288
+        },
+        "quantum": {
+          "correct": 1878,
+          "false_negative": 221
+        },
+        "dephased": {
+          "correct": 1583,
+          "false_negative": 468
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 301,
+          "false_negative": 202
+        },
+        "real_overlap": {
+          "correct": 253,
+          "false_negative": 279
+        },
+        "quantum": {
+          "correct": 299,
+          "false_negative": 234
+        },
+        "dephased": {
+          "correct": 200,
+          "false_negative": 316
+        }
+      }
+    },
+    {
+      "label": "per:identity",
+      "train_support": 5320,
+      "valid_support": 2293,
+      "valid_shared_typed_fn": 76,
+      "train": {
+        "relation_softmax": {
+          "correct": 5049,
+          "false_negative": 246
+        },
+        "real_overlap": {
+          "correct": 5068,
+          "false_negative": 217
+        },
+        "quantum": {
+          "correct": 4996,
+          "false_negative": 263
+        },
+        "dephased": {
+          "correct": 5004,
+          "false_negative": 297
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 2050,
+          "false_negative": 201
+        },
+        "real_overlap": {
+          "correct": 2046,
+          "false_negative": 192
+        },
+        "quantum": {
+          "correct": 2090,
+          "false_negative": 159
+        },
+        "dephased": {
+          "correct": 2055,
+          "false_negative": 215
+        }
+      }
+    },
+    {
+      "label": "per:origin",
+      "train_support": 295,
+      "valid_support": 222,
+      "valid_shared_typed_fn": 45,
+      "train": {
+        "relation_softmax": {
+          "correct": 233,
+          "false_negative": 22
+        },
+        "real_overlap": {
+          "correct": 251,
+          "false_negative": 24
+        },
+        "quantum": {
+          "correct": 244,
+          "false_negative": 34
+        },
+        "dephased": {
+          "correct": 244,
+          "false_negative": 42
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 131,
+          "false_negative": 62
+        },
+        "real_overlap": {
+          "correct": 153,
+          "false_negative": 55
+        },
+        "quantum": {
+          "correct": 130,
+          "false_negative": 66
+        },
+        "dephased": {
+          "correct": 135,
+          "false_negative": 73
+        }
+      }
+    },
+    {
+      "label": "per:other_family",
+      "train_support": 105,
+      "valid_support": 34,
+      "valid_shared_typed_fn": 10,
+      "train": {
+        "relation_softmax": {
+          "correct": 69,
+          "false_negative": 16
+        },
+        "real_overlap": {
+          "correct": 76,
+          "false_negative": 14
+        },
+        "quantum": {
+          "correct": 69,
+          "false_negative": 16
+        },
+        "dephased": {
+          "correct": 75,
+          "false_negative": 17
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 4,
+          "false_negative": 13
+        },
+        "real_overlap": {
+          "correct": 6,
+          "false_negative": 12
+        },
+        "quantum": {
+          "correct": 8,
+          "false_negative": 12
+        },
+        "dephased": {
+          "correct": 10,
+          "false_negative": 16
+        }
+      }
+    },
+    {
+      "label": "per:parents",
+      "train_support": 182,
+      "valid_support": 69,
+      "valid_shared_typed_fn": 4,
+      "train": {
+        "relation_softmax": {
+          "correct": 162,
+          "false_negative": 4
+        },
+        "real_overlap": {
+          "correct": 130,
+          "false_negative": 18
+        },
+        "quantum": {
+          "correct": 135,
+          "false_negative": 5
+        },
+        "dephased": {
+          "correct": 152,
+          "false_negative": 9
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 29,
+          "false_negative": 18
+        },
+        "real_overlap": {
+          "correct": 19,
+          "false_negative": 20
+        },
+        "quantum": {
+          "correct": 28,
+          "false_negative": 10
+        },
+        "dephased": {
+          "correct": 26,
+          "false_negative": 16
+        }
+      }
+    },
+    {
+      "label": "per:religion",
+      "train_support": 74,
+      "valid_support": 80,
+      "valid_shared_typed_fn": 8,
+      "train": {
+        "relation_softmax": {
+          "correct": 67,
+          "false_negative": 5
+        },
+        "real_overlap": {
+          "correct": 59,
+          "false_negative": 8
+        },
+        "quantum": {
+          "correct": 56,
+          "false_negative": 11
+        },
+        "dephased": {
+          "correct": 67,
+          "false_negative": 4
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 56,
+          "false_negative": 15
+        },
+        "real_overlap": {
+          "correct": 41,
+          "false_negative": 22
+        },
+        "quantum": {
+          "correct": 34,
+          "false_negative": 20
+        },
+        "dephased": {
+          "correct": 60,
+          "false_negative": 15
+        }
+      }
+    },
+    {
+      "label": "per:schools_attended",
+      "train_support": 142,
+      "valid_support": 46,
+      "valid_shared_typed_fn": 2,
+      "train": {
+        "relation_softmax": {
+          "correct": 139,
+          "false_negative": 2
+        },
+        "real_overlap": {
+          "correct": 141,
+          "false_negative": 1
+        },
+        "quantum": {
+          "correct": 135,
+          "false_negative": 5
+        },
+        "dephased": {
+          "correct": 137,
+          "false_negative": 5
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 36,
+          "false_negative": 8
+        },
+        "real_overlap": {
+          "correct": 36,
+          "false_negative": 7
+        },
+        "quantum": {
+          "correct": 38,
+          "false_negative": 7
+        },
+        "dephased": {
+          "correct": 38,
+          "false_negative": 8
+        }
+      }
+    },
+    {
+      "label": "per:siblings",
+      "train_support": 211,
+      "valid_support": 33,
+      "valid_shared_typed_fn": 1,
+      "train": {
+        "relation_softmax": {
+          "correct": 186,
+          "false_negative": 11
+        },
+        "real_overlap": {
+          "correct": 171,
+          "false_negative": 10
+        },
+        "quantum": {
+          "correct": 163,
+          "false_negative": 10
+        },
+        "dephased": {
+          "correct": 151,
+          "false_negative": 20
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 19,
+          "false_negative": 4
+        },
+        "real_overlap": {
+          "correct": 9,
+          "false_negative": 2
+        },
+        "quantum": {
+          "correct": 14,
+          "false_negative": 3
+        },
+        "dephased": {
+          "correct": 8,
+          "false_negative": 9
+        }
+      }
+    },
+    {
+      "label": "per:spouse",
+      "train_support": 271,
+      "valid_support": 189,
+      "valid_shared_typed_fn": 19,
+      "train": {
+        "relation_softmax": {
+          "correct": 230,
+          "false_negative": 21
+        },
+        "real_overlap": {
+          "correct": 251,
+          "false_negative": 11
+        },
+        "quantum": {
+          "correct": 198,
+          "false_negative": 35
+        },
+        "dephased": {
+          "correct": 168,
+          "false_negative": 36
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 97,
+          "false_negative": 45
+        },
+        "real_overlap": {
+          "correct": 117,
+          "false_negative": 38
+        },
+        "quantum": {
+          "correct": 111,
+          "false_negative": 34
+        },
+        "dephased": {
+          "correct": 66,
+          "false_negative": 58
+        }
+      }
+    },
+    {
+      "label": "per:stateorprovince_of_birth",
+      "train_support": 44,
+      "valid_support": 34,
+      "valid_shared_typed_fn": 7,
+      "train": {
+        "relation_softmax": {
+          "correct": 36,
+          "false_negative": 3
+        },
+        "real_overlap": {
+          "correct": 37,
+          "false_negative": 5
+        },
+        "quantum": {
+          "correct": 32,
+          "false_negative": 3
+        },
+        "dephased": {
+          "correct": 34,
+          "false_negative": 4
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 23,
+          "false_negative": 8
+        },
+        "real_overlap": {
+          "correct": 16,
+          "false_negative": 10
+        },
+        "quantum": {
+          "correct": 17,
+          "false_negative": 9
+        },
+        "dephased": {
+          "correct": 19,
+          "false_negative": 8
+        }
+      }
+    },
+    {
+      "label": "per:stateorprovince_of_death",
+      "train_support": 58,
+      "valid_support": 44,
+      "valid_shared_typed_fn": 7,
+      "train": {
+        "relation_softmax": {
+          "correct": 49,
+          "false_negative": 4
+        },
+        "real_overlap": {
+          "correct": 58,
+          "false_negative": 0
+        },
+        "quantum": {
+          "correct": 50,
+          "false_negative": 4
+        },
+        "dephased": {
+          "correct": 37,
+          "false_negative": 10
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 15,
+          "false_negative": 17
+        },
+        "real_overlap": {
+          "correct": 15,
+          "false_negative": 15
+        },
+        "quantum": {
+          "correct": 22,
+          "false_negative": 9
+        },
+        "dephased": {
+          "correct": 11,
+          "false_negative": 22
+        }
+      }
+    },
+    {
+      "label": "per:stateorprovinces_of_residence",
+      "train_support": 261,
+      "valid_support": 37,
+      "valid_shared_typed_fn": 7,
+      "train": {
+        "relation_softmax": {
+          "correct": 237,
+          "false_negative": 21
+        },
+        "real_overlap": {
+          "correct": 217,
+          "false_negative": 28
+        },
+        "quantum": {
+          "correct": 237,
+          "false_negative": 18
+        },
+        "dephased": {
+          "correct": 216,
+          "false_negative": 40
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 18,
+          "false_negative": 13
+        },
+        "real_overlap": {
+          "correct": 16,
+          "false_negative": 11
+        },
+        "quantum": {
+          "correct": 23,
+          "false_negative": 11
+        },
+        "dephased": {
+          "correct": 13,
+          "false_negative": 14
+        }
+      }
+    },
+    {
+      "label": "per:title",
+      "train_support": 2626,
+      "valid_support": 998,
+      "valid_shared_typed_fn": 51,
+      "train": {
+        "relation_softmax": {
+          "correct": 2565,
+          "false_negative": 56
+        },
+        "real_overlap": {
+          "correct": 2511,
+          "false_negative": 110
+        },
+        "quantum": {
+          "correct": 2463,
+          "false_negative": 136
+        },
+        "dephased": {
+          "correct": 2543,
+          "false_negative": 77
+        }
+      },
+      "valid": {
+        "relation_softmax": {
+          "correct": 872,
+          "false_negative": 98
+        },
+        "real_overlap": {
+          "correct": 845,
+          "false_negative": 137
+        },
+        "quantum": {
+          "correct": 807,
+          "false_negative": 155
+        },
+        "dephased": {
+          "correct": 884,
+          "false_negative": 96
+        }
+      }
+    }
+  ],
+  "gold_rank_within_fixed_allowed_positives": {
+    "relation_softmax": {
+      "rows": 1155,
+      "gold_allowed": 1070,
+      "gold_top_positive": 804,
+      "gold_top3_positive": 1026,
+      "gold_minus_null_quantiles": [
+        -15.790396213531494,
+        -4.855531215667725,
+        -3.003154754638672,
+        -1.5308356285095215,
+        7.974934101104736
+      ]
+    },
+    "real_overlap": {
+      "rows": 1155,
+      "gold_allowed": 1070,
+      "gold_top_positive": 827,
+      "gold_top3_positive": 1035,
+      "gold_minus_null_quantiles": [
+        -14.015846729278564,
+        -5.1149375438690186,
+        -3.138002872467041,
+        -1.6917014122009277,
+        8.282651901245117
+      ]
+    },
+    "quantum": {
+      "rows": 1155,
+      "gold_allowed": 1070,
+      "gold_top_positive": 815,
+      "gold_top3_positive": 1052,
+      "gold_minus_null_quantiles": [
+        -11.418851375579834,
+        -3.8445873260498047,
+        -2.4372920989990234,
+        -1.2647714614868164,
+        6.21926212310791
+      ]
+    },
+    "dephased": {
+      "rows": 1155,
+      "gold_allowed": 1070,
+      "gold_top_positive": 820,
+      "gold_top3_positive": 1041,
+      "gold_minus_null_quantiles": [
+        -12.309303283691406,
+        -4.501749157905579,
+        -2.795687675476074,
+        -1.5764319896697998,
+        5.783604621887207
+      ]
+    }
+  },
+  "training_support_exposure": {
+    "status": "NOT_ESTIMATED",
+    "reason": "Cache metadata contains tokens/spans only for first2 rows. Full TRAIN lexical support is unavailable in this cache; no partial8192 support presented as full-training exposure.",
+    "metadata_rows_with_tokens": {
+      "train": 2,
+      "valid": 2
+    }
+  },
+  "length_groups": {
+    "train": [
+      {
+        "word_length_range": [
+          0,
+          20
+        ],
+        "positive_rows": 2599,
+        "shared_raw_fn": 56,
+        "shared_raw_fn_rate": 0.021546748749519045
+      },
+      {
+        "word_length_range": [
+          21,
+          40
+        ],
+        "positive_rows": 11182,
+        "shared_raw_fn": 275,
+        "shared_raw_fn_rate": 0.024593096047218745
+      },
+      {
+        "word_length_range": [
+          41,
+          80
+        ],
+        "positive_rows": 5731,
+        "shared_raw_fn": 213,
+        "shared_raw_fn_rate": 0.037166288605827956
+      },
+      {
+        "word_length_range": [
+          81,
+          1000000
+        ],
+        "positive_rows": 192,
+        "shared_raw_fn": 16,
+        "shared_raw_fn_rate": 0.08333333333333333
+      }
+    ],
+    "valid": [
+      {
+        "word_length_range": [
+          0,
+          20
+        ],
+        "positive_rows": 1134,
+        "shared_raw_fn": 77,
+        "shared_raw_fn_rate": 0.06790123456790123
+      },
+      {
+        "word_length_range": [
+          21,
+          40
+        ],
+        "positive_rows": 5069,
+        "shared_raw_fn": 616,
+        "shared_raw_fn_rate": 0.12152298283685145
+      },
+      {
+        "word_length_range": [
+          41,
+          80
+        ],
+        "positive_rows": 2110,
+        "shared_raw_fn": 309,
+        "shared_raw_fn_rate": 0.14644549763033177
+      },
+      {
+        "word_length_range": [
+          81,
+          1000000
+        ],
+        "positive_rows": 25,
+        "shared_raw_fn": 4,
+        "shared_raw_fn_rate": 0.16
+      }
+    ]
+  },
+  "old_semantic32_alignment": [
+    {
+      "case_id": "76ddecf4a92c7b3f6ef01155",
+      "old_family": "positive_missed",
+      "gold": "per:employee_of",
+      "two_readers_supported_missed_gold": true,
+      "full_raw_predictions": {
+        "relation_softmax": "per:employee_of",
+        "real_overlap": "per:employee_of",
+        "quantum": "per:employee_of",
+        "dephased": "per:employee_of"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "per:employee_of",
+        "real_overlap": "per:employee_of",
+        "quantum": "per:employee_of",
+        "dephased": "per:employee_of"
+      }
+    },
+    {
+      "case_id": "aad7dcb5fbb1006979de2555",
+      "old_family": "positive_missed",
+      "gold": "per:employee_of",
+      "two_readers_supported_missed_gold": true,
+      "full_raw_predictions": {
+        "relation_softmax": "per:employee_of",
+        "real_overlap": "per:employee_of",
+        "quantum": "per:employee_of",
+        "dephased": "per:employee_of"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "per:employee_of",
+        "real_overlap": "per:employee_of",
+        "quantum": "per:employee_of",
+        "dephased": "per:employee_of"
+      }
+    },
+    {
+      "case_id": "356c63cd5f9d3d3bb7237249",
+      "old_family": "positive_missed",
+      "gold": "per:employee_of",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "per:employee_of",
+        "real_overlap": "per:employee_of",
+        "quantum": "per:employee_of",
+        "dephased": "per:employee_of"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "per:employee_of",
+        "real_overlap": "per:employee_of",
+        "quantum": "per:employee_of",
+        "dephased": "per:employee_of"
+      }
+    },
+    {
+      "case_id": "a8a180916f0013c7ea6b63b1",
+      "old_family": "positive_missed",
+      "gold": "per:other_family",
+      "two_readers_supported_missed_gold": true,
+      "full_raw_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "c90bcd7d0a228234e2c07405",
+      "old_family": "positive_missed",
+      "gold": "per:title",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "per:title",
+        "real_overlap": "per:title",
+        "quantum": "no_relation",
+        "dephased": "per:title"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "per:title",
+        "real_overlap": "per:title",
+        "quantum": "no_relation",
+        "dephased": "per:title"
+      }
+    },
+    {
+      "case_id": "b6cec6caebd3888447c9ac74",
+      "old_family": "positive_missed",
+      "gold": "per:identity",
+      "two_readers_supported_missed_gold": true,
+      "full_raw_predictions": {
+        "relation_softmax": "per:identity",
+        "real_overlap": "per:identity",
+        "quantum": "per:identity",
+        "dephased": "per:identity"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "per:identity",
+        "real_overlap": "per:identity",
+        "quantum": "per:identity",
+        "dephased": "per:identity"
+      }
+    },
+    {
+      "case_id": "1139bb04a87a7d9d86b251ef",
+      "old_family": "positive_missed",
+      "gold": "org:member_of",
+      "two_readers_supported_missed_gold": true,
+      "full_raw_predictions": {
+        "relation_softmax": "org:member_of",
+        "real_overlap": "org:member_of",
+        "quantum": "org:member_of",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "org:member_of",
+        "real_overlap": "org:member_of",
+        "quantum": "org:member_of",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "1109e4075ee954751380d496",
+      "old_family": "positive_missed",
+      "gold": "per:cities_of_residence",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "org:stateorprovince_of_branch",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "org:city_of_branch"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "02c966432e7ebac967f51d56",
+      "old_family": "positive_correct",
+      "gold": "per:identity",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "per:identity",
+        "real_overlap": "per:identity",
+        "quantum": "per:identity",
+        "dephased": "per:identity"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "per:identity",
+        "real_overlap": "per:identity",
+        "quantum": "per:identity",
+        "dephased": "per:identity"
+      }
+    },
+    {
+      "case_id": "e2e7536f15572e8068254859",
+      "old_family": "positive_correct",
+      "gold": "per:employee_of",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "per:employee_of",
+        "real_overlap": "per:employee_of",
+        "quantum": "per:employee_of",
+        "dephased": "per:employee_of"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "per:employee_of",
+        "real_overlap": "per:employee_of",
+        "quantum": "per:employee_of",
+        "dephased": "per:employee_of"
+      }
+    },
+    {
+      "case_id": "c839f5e25e77c8760d293129",
+      "old_family": "positive_correct",
+      "gold": "per:identity",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "per:identity",
+        "real_overlap": "per:identity",
+        "quantum": "per:identity",
+        "dephased": "per:identity"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "per:identity",
+        "real_overlap": "per:identity",
+        "quantum": "per:identity",
+        "dephased": "per:identity"
+      }
+    },
+    {
+      "case_id": "c412715f246b3f0af4d2fb22",
+      "old_family": "positive_correct",
+      "gold": "per:identity",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "per:identity",
+        "real_overlap": "per:identity",
+        "quantum": "per:identity",
+        "dephased": "per:identity"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "per:identity",
+        "real_overlap": "per:identity",
+        "quantum": "per:identity",
+        "dephased": "per:identity"
+      }
+    },
+    {
+      "case_id": "199fa42f6ff318ae18a872dd",
+      "old_family": "positive_correct",
+      "gold": "org:country_of_branch",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "org:country_of_branch",
+        "real_overlap": "org:country_of_branch",
+        "quantum": "org:country_of_branch",
+        "dephased": "org:country_of_branch"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "org:country_of_branch",
+        "real_overlap": "org:country_of_branch",
+        "quantum": "org:country_of_branch",
+        "dephased": "org:country_of_branch"
+      }
+    },
+    {
+      "case_id": "ded29ae64d8715d2d77388b3",
+      "old_family": "positive_correct",
+      "gold": "per:identity",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "per:identity",
+        "real_overlap": "per:identity",
+        "quantum": "per:identity",
+        "dephased": "per:identity"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "per:identity",
+        "real_overlap": "per:identity",
+        "quantum": "per:identity",
+        "dephased": "per:identity"
+      }
+    },
+    {
+      "case_id": "1bd180d1101426f70ee2e050",
+      "old_family": "positive_correct",
+      "gold": "org:member_of",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "org:member_of",
+        "real_overlap": "org:member_of",
+        "quantum": "org:member_of",
+        "dephased": "org:member_of"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "org:member_of",
+        "real_overlap": "org:member_of",
+        "quantum": "org:member_of",
+        "dephased": "org:member_of"
+      }
+    },
+    {
+      "case_id": "b3b05351984cd59bcfeb0829",
+      "old_family": "positive_correct",
+      "gold": "per:title",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "per:title",
+        "real_overlap": "per:title",
+        "quantum": "per:title",
+        "dephased": "per:title"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "per:title",
+        "real_overlap": "per:title",
+        "quantum": "per:title",
+        "dephased": "per:title"
+      }
+    },
+    {
+      "case_id": "d960fbb0e2cda63d49cf7461",
+      "old_family": "null_false_positive",
+      "gold": "no_relation",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "per:children",
+        "quantum": "per:siblings",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "per:children",
+        "quantum": "per:siblings",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "89bcfe403b9b1ece3bca465a",
+      "old_family": "null_false_positive",
+      "gold": "no_relation",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "72ffa464d14c0a6a59999b69",
+      "old_family": "null_false_positive",
+      "gold": "no_relation",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "1090e8628701a819c611b2ab",
+      "old_family": "null_false_positive",
+      "gold": "no_relation",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "265b36ba021e0897e1904621",
+      "old_family": "null_false_positive",
+      "gold": "no_relation",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "fee642567d1c7f9dad855ae8",
+      "old_family": "null_false_positive",
+      "gold": "no_relation",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "per:title",
+        "real_overlap": "per:title",
+        "quantum": "no_relation",
+        "dephased": "per:title"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "per:title",
+        "real_overlap": "per:title",
+        "quantum": "no_relation",
+        "dephased": "per:title"
+      }
+    },
+    {
+      "case_id": "738b0efcb4e2801a31aca2fb",
+      "old_family": "null_false_positive",
+      "gold": "no_relation",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "26bc222f7266326edbb323e8",
+      "old_family": "null_false_positive",
+      "gold": "no_relation",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "6759808c714552eb9108ba9d",
+      "old_family": "null_correct",
+      "gold": "no_relation",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "6178d95011ad383c309f0e7a",
+      "old_family": "null_correct",
+      "gold": "no_relation",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "822068f8b5a581bb79184e1c",
+      "old_family": "null_correct",
+      "gold": "no_relation",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "a370d60f9dc6a1aaccb28203",
+      "old_family": "null_correct",
+      "gold": "no_relation",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "a0543799a6fe6005c30f0037",
+      "old_family": "null_correct",
+      "gold": "no_relation",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "fc2bce283a88c509cc82af72",
+      "old_family": "null_correct",
+      "gold": "no_relation",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "adf0a8b32b152c1d9d35f182",
+      "old_family": "null_correct",
+      "gold": "no_relation",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      }
+    },
+    {
+      "case_id": "937ff7eafcdb40a1d4be42dc",
+      "old_family": "null_correct",
+      "gold": "no_relation",
+      "two_readers_supported_missed_gold": false,
+      "full_raw_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      },
+      "full_typed_predictions": {
+        "relation_softmax": "no_relation",
+        "real_overlap": "no_relation",
+        "quantum": "no_relation",
+        "dephased": "no_relation"
+      }
+    }
+  ],
+  "old_semantic32_counts": {
+    "null_correct": {
+      "rows": 8,
+      "full_typed_correct": {
+        "relation_softmax": 8,
+        "real_overlap": 8,
+        "quantum": 8,
+        "dephased": 8
+      },
+      "still_all_four_null": 8
+    },
+    "null_false_positive": {
+      "rows": 8,
+      "full_typed_correct": {
+        "relation_softmax": 7,
+        "real_overlap": 6,
+        "quantum": 7,
+        "dephased": 7
+      },
+      "still_all_four_null": 6
+    },
+    "positive_correct": {
+      "rows": 8,
+      "full_typed_correct": {
+        "relation_softmax": 8,
+        "real_overlap": 8,
+        "quantum": 8,
+        "dephased": 8
+      },
+      "still_all_four_null": 0
+    },
+    "positive_missed": {
+      "rows": 8,
+      "full_typed_correct": {
+        "relation_softmax": 6,
+        "real_overlap": 6,
+        "quantum": 5,
+        "dephased": 5
+      },
+      "still_all_four_null": 2
+    }
+  },
+  "old_five_supported_now_full_typed_correct": {
+    "relation_softmax": 4,
+    "real_overlap": 4,
+    "quantum": 4,
+    "dephased": 3
+  },
+  "cautions": [
+    "Old32 are TRAIN examples from a four-epoch checkpoint, not complete-model development errors. Full models have seen these TRAIN rows; repair here demonstrates budget/cohort mismatch, not generalization.",
+    "Full-model checkpoints were selected on historical VALID; current h differs. No exact original fitting-loss or full-cache drift bound.",
+    "Gold ranks, shared errors and support-exposure rates do not by themselves yield a deployable correction or causal mechanism."
+  ]
+}

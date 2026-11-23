@@ -1,0 +1,156 @@
+{
+  "schema": "q-rmea.credit-pairing.result.v1",
+  "source": "487d44cd52fe088c9db00041a6fbe0175a3cf93b",
+  "calibration": {
+    "informative": true,
+    "gradient": {
+      "loss": 0.20875427558216,
+      "permutation": [
+        9,
+        17,
+        5,
+        12,
+        2,
+        18,
+        20,
+        0,
+        19,
+        26,
+        8,
+        4,
+        31,
+        21,
+        22,
+        30,
+        14,
+        25,
+        29,
+        27,
+        16,
+        10,
+        13,
+        3,
+        28,
+        7,
+        11,
+        23,
+        1,
+        15,
+        6,
+        24
+      ],
+      "direct_VJP_max_abs": 1.7763568394002505e-15,
+      "discarded_phase_response_max": 3.122502256758253e-17,
+      "gradient_norms": {
+        "full": 5.083613155538394,
+        "direct": 5.063863241129503,
+        "shuffle": 5.1145418506036595
+      },
+      "credit_norm": 0.14787382651389933,
+      "shuffled_credit_norm": 0.2860536187533307
+    },
+    "preclip_norms": {
+      "full": 5.083613155538394,
+      "direct": 5.063863241129503,
+      "shuffle": 5.114541850603659
+    },
+    "trace_status": "32 fixed train rotations/cotangents, aggregate VJPs and2valid derivative probe; partial,not sample-trace.v2",
+    "matching": {
+      "full_norm": 0.06707277445332752,
+      "direct_norm": 0.06717554654126212,
+      "shuffle_norm": 0.0670141695488509,
+      "matched_norm": 0.06707277445332753,
+      "projection_full": 0.004505431024141698,
+      "projection_matched": 0.0045054310241417,
+      "full_residual_norm": 0.000661690304393569,
+      "shuffle_residual_norm": 0.00045957701433886145,
+      "contrast_norm": 0.0008733926747054297
+    },
+    "finite_probe": {
+      "analytic": -0.00012106043465469845,
+      "central_difference": -0.00012106043512094544,
+      "error": 4.662469954390402e-13,
+      "spacing": 0.001
+    }
+  },
+  "gate": false,
+  "scope": "One fixed training batch/update and full development-validation localdirection;not independent utility or L5",
+  "source_core_sha256": "059b7cab6533fa47a43fccdbb0564c183e3714036eaa22080ca656f0940ad6b8",
+  "design_sha256": "60300001308fc0b7d5d59a9ec71726b6d38d3e252e90cd31c98eb54794f3ba33",
+  "ce": {
+    "initial": 0.7681809158777693,
+    "full": 0.7702902371735151,
+    "direct": 0.7703012356806707,
+    "matched_shuffle": 0.7702970427716372
+  },
+  "directional_contrast": 4.450380641250162e-06,
+  "matched_minus_full_ce": 6.8055981266003624e-06,
+  "paired95_percentile": [
+    -6.9190282196617506e-06,
+    2.1615978678667135e-05
+  ],
+  "validation_count": 19584,
+  "shards": [
+    {
+      "shard": 0,
+      "start": 0,
+      "stop": 6528,
+      "count": 6528,
+      "columns": [
+        "initial",
+        "full",
+        "direct",
+        "matched_shuffle"
+      ],
+      "ce": [
+        0.7618963898673282,
+        0.7643017795147086,
+        0.7643122239863138,
+        0.7643025366943781
+      ],
+      "directional_contrast": -9.054666492481155e-07,
+      "losses_sha256": "9d67fb6a9d23c71438c988424c13d1c450847e72ae954db78586e04685274cb2"
+    },
+    {
+      "shard": 1,
+      "start": 6528,
+      "stop": 13056,
+      "count": 6528,
+      "columns": [
+        "initial",
+        "full",
+        "direct",
+        "matched_shuffle"
+      ],
+      "ce": [
+        0.7582745474765575,
+        0.7603332251326969,
+        0.7603435528640784,
+        0.7603373987186904
+      ],
+      "directional_contrast": 4.2802956257417605e-07,
+      "losses_sha256": "e4dc7ed85921e09395ad727094f6446c69ef09fcd5e30dd18170589fab6cf843"
+    },
+    {
+      "shard": 2,
+      "start": 13056,
+      "stop": 19584,
+      "count": 6528,
+      "columns": [
+        "initial",
+        "full",
+        "direct",
+        "matched_shuffle"
+      ],
+      "ce": [
+        0.7843718102894263,
+        0.7862357068731324,
+        0.7862479301916153,
+        0.7862511929018455
+      ],
+      "directional_contrast": 4.927817727924101e-06,
+      "losses_sha256": "38ad17aeb9910e0cd21648dce48bb46b06721b841f175988856604e14b8d6d04"
+    }
+  ],
+  "seconds": 49.58479380607605
+}

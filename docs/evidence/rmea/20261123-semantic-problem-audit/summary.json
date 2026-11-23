@@ -1,0 +1,79 @@
+{
+  "selection_sha256": "d20f3623ad6765e6cd9e5df2fbe7c9197de50cc5162e8e98a3c1f23d8f785bf8",
+  "selected": 32,
+  "strata": {
+    "positive_missed": {
+      "total": 8,
+      "confident_consensus": 7,
+      "consensus_equals_stored_label": 5,
+      "consensus_equals_model": 2,
+      "consensus_differs_stored_label": 2,
+      "positive_consensus_with_citations": 5,
+      "both_explicit_or_entailed": 5,
+      "gold_consensus_both_competing_entity": 0,
+      "gold_consensus_both_requires_coreference": 1,
+      "gold_consensus_same_form_apposition": 1,
+      "gold_consensus_same_form_direct_predicate": 1,
+      "gold_consensus_same_form_attribute": 2,
+      "gold_consensus_same_form_coreference": 1,
+      "unknown_or_uncertain": 1
+    },
+    "positive_correct": {
+      "total": 8,
+      "confident_consensus": 8,
+      "consensus_equals_stored_label": 6,
+      "consensus_equals_model": 6,
+      "consensus_differs_stored_label": 2,
+      "positive_consensus_with_citations": 6,
+      "both_explicit_or_entailed": 6,
+      "gold_consensus_both_competing_entity": 0,
+      "gold_consensus_both_requires_coreference": 4,
+      "gold_consensus_same_form_composed_clauses": 1,
+      "gold_consensus_same_form_coreference": 3,
+      "gold_consensus_same_form_attribute": 1,
+      "gold_consensus_same_form_apposition": 1
+    },
+    "null_false_positive": {
+      "total": 8,
+      "unknown_or_uncertain": 2,
+      "confident_consensus": 6,
+      "consensus_equals_stored_label": 5,
+      "consensus_equals_model": 1,
+      "consensus_differs_stored_label": 1,
+      "gold_consensus_both_competing_entity": 2,
+      "gold_consensus_both_requires_coreference": 1,
+      "gold_consensus_same_form_direct_predicate": 2,
+      "gold_consensus_same_form_none": 2,
+      "positive_consensus_with_citations": 1,
+      "both_explicit_or_entailed": 1
+    },
+    "null_correct": {
+      "total": 8,
+      "confident_consensus": 7,
+      "consensus_equals_stored_label": 7,
+      "consensus_equals_model": 7,
+      "consensus_differs_stored_label": 0,
+      "gold_consensus_both_competing_entity": 1,
+      "gold_consensus_both_requires_coreference": 0,
+      "gold_consensus_same_form_cooccurrence": 3,
+      "unknown_or_uncertain": 1
+    }
+  },
+  "readers": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium",
+    "valid_rows": [
+      32,
+      32
+    ],
+    "two_isolated_contexts": true,
+    "independent_experts": false
+  },
+  "limitations": [
+    "Outcome-stratified32exposedTRAIN cases do not estimate benchmark prevalence.",
+    "Same-model agreement is not human ground truth; do not change labels or infer a new upper bound.",
+    "Only label names, not the complete official annotation manual, were supplied; semantic conventions may confound disagreement.",
+    "No mechanism/attention trace yet; cue descriptions do not establish attention failure, quantum utility or L5."
+  ],
+  "summary": "Positive missed group: separate both-reader label-supported relation evidence from disputed/uncertain stored labels. No reselection, relabeling, prompt repair, training, VALID/TEST or COS."
+}

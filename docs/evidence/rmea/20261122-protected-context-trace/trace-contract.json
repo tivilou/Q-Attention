@@ -1,0 +1,57 @@
+{
+  "schema": "q-rmea.protected-context.trace-contract.v1",
+  "recipe_id": "rmea-protected-context-trace-v1",
+  "recipe": {
+    "command": [
+      "{python}",
+      "-B",
+      "experiments/q_rmea_protected_context_trace_preflight.py",
+      "--baseline-run",
+      "/hy-tmp/Q-Attention/worker/attempts/6a2bf35b8d9d4ac4a6b4fe2acb6bc116/output/20261121T034306Z_seed13/discovery",
+      "--output",
+      "{output}"
+    ],
+    "kind": "unit",
+    "max_attempts": 1,
+    "replay_safe": false,
+    "resources": {
+      "cpu": 2,
+      "disk_mb": 256,
+      "gpu_mb": 0,
+      "gpus": 0,
+      "ram_mb": 8192
+    },
+    "timeout": 300,
+    "outputs": [
+      "trace-preflight.json",
+      "RUN_COMPLETE"
+    ]
+  },
+  "source_hashes": {
+    "baselines/retacred/rmea_protected_context.py": "d659fc4a4499ae9c2c18af6ce12174871278dab1e1b530bb4875b14ab772d462",
+    "baselines/retacred/rmea_protected_context_trace.py": "660b8063eab503968dadec16219dc407ae6c16732fbb7d468088146a79a647a5",
+    "experiments/q_rmea_protected_context_trace_preflight.py": "54c25b85b140a4073149b14d2f37c37c57ac3f67885c17bf190f95b082df0108",
+    "scripts/view_q_rmea_protected_context_trace.py": "18a222abef98629746dd0a9436c8aa4069504cf34f4aa562175f1c2d9e2cb515",
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "baselines/retacred/rmea_token_transport_trace.py": "9718f80469dffdb20772239b47dacc073dd6dfd15171ffa6ca100fac25a19f97",
+    "scripts/validate_sample_trace_v2.py": "55e7bcb34a048b3b8c6cd3837364d75ab8f3a24a23b276999dc009495b7df2c9",
+    "baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9",
+    "baselines/retacred/rmea_protocol.py": "fb3486fa16dba9959256b32712e46c8bc40b6612801eff254b0f8ffe72650be1"
+  },
+  "population": "Pinned16/8/8 canary cache; first2 cache units per split fixed before outputs; all4 KINDS,24replays",
+  "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "canary_manifest_sha256": "d1e17dfd0f8f75d2d90ab1b9c5365b7a752b7e44a70c950c3c2b94ad28d207ea",
+  "primary": "Real sample-trace.v2 structural and project semantic validation: all full values, live pinned cache/spans/labels, immutable model hashes, exact producer lineage and reader path/source/coordinates, same sample inputs across conditions, source replay and negative completeness/source-index/label-in-routing rejection. Independent replay dtype/shape equality for every array, exact int64 singleton target; semantically consistent wrong producer dtype and extra target element must be rejected. Native paired lineage consumes original h/roles/mask plus checkpoint preparation/effect/value/decoder/bias; evaluation consumes pinned_split_target, with no held-out claim for train. Legacy native lineage must be rejected with unchanged numeric arrays.",
+  "numeric": "CPU1thread deterministic float64/complex128; unchanged first-order source derivative already accepted; source head diff only adds system/rhs/amplitude to details return.",
+  "private_output": "cache13hardlinks, four immutable checkpoint hardlinks,24complete compressed npz arrays, private sample-trace.json and trace-validation.json/manifest. Only compact trace-preflight summary and seal returned to ownerPC. No data/model/tensor download.",
+  "recovery": "One CPU attempt, zero optimizer/COS/autoretry. Preserve partial evidence, restore exact temporary enrollment after terminal quiescence. No duplicate source/data copies; reuse existing Git object store. Negative NPZ mutations use isolated roots, independent target inodes and hardlinked immutable other inputs. Child os._exit(73) after mutation tests abrupt interruption; published NPZ hash must remain unchanged. Partial negative fixtures retained. Enrollment compares every embedded reviewed UTF-8 source body and digest with exact local bytes (no newline normalization), including registrar and original native head, before node/controller writes. Tampered-inline-body gate must reject before mutation.",
+  "limits": [
+    "Frozen features to final head only; no tokenization/encoder/internal layer/training trajectory claim",
+    "Existing final native model is a preflight fixture, not a future trained model or efficacy test",
+    "Paired native is a disabled route at the same checkpoint, distinct from historical separately trained native reference",
+    "This only admits source trace preflight. Full training review/parent-child/recovery/export readiness still pending.",
+    "Known constrained filtering/spectral derivative and mixed frozen96 result supply no novelty/L5"
+  ],
+  "L5": "NOT_ACCEPTED"
+}

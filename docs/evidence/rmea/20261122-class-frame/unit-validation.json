@@ -1,0 +1,53 @@
+{
+  "source_hashes": {
+    "baselines/retacred/rmea_class_frame.py": "089d8baf781d221c175028a90090e5a0f95b3bd31a29825069a240c82ecf7e84",
+    "experiments/q_rmea_class_frame_unit.py": "c21ccce0a9df0290aa2578aec8f1495397453d50f924593fc4fb90e78f1c1619",
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "schema": "q-rmea.class-frame.unit.v1",
+  "status": "pass",
+  "checks": {
+    "repeated_eigenvalue_gradcheck": true,
+    "distinct_eigenvalue_gradcheck": true,
+    "tight_frame_native_equivalence": true,
+    "identical_query_uniform_limit": true,
+    "dense_classical_probability_completeness_padding": true,
+    "token_gauge_invariance": true,
+    "actual_head_effect_directional_derivative": {
+      "analytic": 1.892788695196592e-05,
+      "finite": 1.89278814843874e-05
+    },
+    "actual_head_native_parity_gradient_and_competitor_dependency": true,
+    "private_fixture_reopen_replay": {
+      "max_error": 0.0
+    }
+  },
+  "head_results": {
+    "native": {
+      "loss": 3.6871417610705612,
+      "parameter_count": 81028,
+      "gradient_norm": 1.0629672209241667
+    },
+    "class_frame": {
+      "loss": 3.685502077102683,
+      "parameter_count": 81028,
+      "gradient_norm": 1.0710672405972772
+    },
+    "class_frame_diagonal": {
+      "loss": 3.685540515788525,
+      "parameter_count": 81028,
+      "gradient_norm": 1.0705098925827092
+    }
+  },
+  "competitor_class0_alpha_deltas": {
+    "native": 0.0,
+    "class_frame": 0.0003746570864156529,
+    "class_frame_diagonal": 0.00023492598566005052
+  },
+  "fixture_sha256": "7e61bcee956d8fe3246e57eaf6f22d20bb8da85a3f5bf1df12024aeff8fd26e7",
+  "formal_ready": false,
+  "optimizer_steps": 0,
+  "model_parameters": 81028,
+  "L5": "NOT_ACCEPTED"
+}

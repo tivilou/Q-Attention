@@ -1,0 +1,33 @@
+{
+  "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9"
+  },
+  "profile": "native-decision-measurement-TRAIN-scale-v1",
+  "train_items": 128,
+  "selection": "First128 storedTRAIN/all40relations/allvalidoriginalwords; no target file opened",
+  "shot_grid": [
+    32,
+    64,
+    128,
+    256,
+    512,
+    1024
+  ],
+  "delta": 4.1666666666666665e-05,
+  "code_sha256": "1f0609b29c4cdb4998deb0d0268d8a241771d0a2034ea91d81f1275143064d90",
+  "threshold": "Oracle midpoint of exactnative top2 logits for planningonly, not controller or optimalthreshold",
+  "planning": "sqrt(2*POPULATIONvariance*log(2/delta)/n)+7*support_range*log(2/delta)/(3*(n-1)); not a valid confidence interval, guaranteedcoverage or stoppingtimecost",
+  "comparison": "Uniformtokens versus |bias+utility-threshold| proportional; exactconditionalBernoullimean/variance, no sampledraws",
+  "public_whitelist": [
+    "summary.json",
+    "RUN_COMPLETE"
+  ],
+  "private_outputs": [
+    "scale.private.npz"
+  ],
+  "recovery": "Cheap inference/pinneddurableinputs, noCOS/checkpoints/autoretry, no scientificgateorfrozenVALIDexperiment; report actualscale",
+  "claim_scope": "TRAIN-only scalequalification, no sampledshotadvantage, predictivegain, hardware speedup, novelmath orL5"
+}
