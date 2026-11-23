@@ -3,8 +3,8 @@
   "review_scope": "lifecycle",
   "must_fix": [],
   "source_hashes": {
-    "baselines/retacred/rmea_fair_reference_handoff.py": "c904270d9b0004ff5d9372e223bb7a74830dedbca86d1dcab6dae5eddc557865",
-    "baselines/retacred/rmea_report_git.py": "89ab8aba0e9d3d28e157b8585b20f5a01e12dbb3ab84baca4b1739e1d051e504",
+    "baselines/retacred/rmea_fair_reference_handoff.py": "59bd0a0910b10220127a865bd7de3618af942849630328029123763d4ce83093",
+    "baselines/retacred/rmea_report_git.py": "c567b8500f790bfd5b45a0ceef6a99a51c5ec1f53081b0fc20963e7b8e845d36",
     "scripts/run_q_rmea_fair_reference.sh": "d25757b4f180f59432347ab8857c5a7f49ba6e20e3fc39e6b3661d263fefb4af"
   },
   "resident_sha256": "63c3395e20e148c35fea542daceb1c618ba3077b33b9949de45cd2ed36658de5",
@@ -13,18 +13,21 @@
     "report_git": "46340a8071d43cd43dac04457b9b1671e0d34937804b326e7b2258084215c0d4",
     "resident_identity": "7c2fa6836f57c7151cf8c79560b3f88a147e5a92e9d713e2d635588b9b78400f",
     "selected_final": "5a95a3171325f2390b99d66d6b5b2e09e35928f342809d59a9f592d4e6fd5ade",
-    "prepared_ack_barrier": "8aee446cf0acab809b23bfacddadcef015bbe2e5d3342c317410fa2f1a39067c"
+    "prepared_ack_barrier": "8aee446cf0acab809b23bfacddadcef015bbe2e5d3342c317410fa2f1a39067c",
+    "exact_ssh_repository": "28e7ec397f1eb00dbc306ba3a687379a67cc2d637735d721d4b46876f699fd52"
   },
   "focused_checks": {
     "thin_cli": 19,
     "report_git": 12,
     "resident_process": 8,
     "selected_final_files": 6,
-    "actual_producer_compatibility": true
+    "actual_producer_compatibility": true,
+    "literal_origin": 25
   },
   "limitations": [
     "Static reviewed source plus scoped actual checks; not a new formal result.",
     "PREPARED binds identity; first update requires authenticated COS preparation ACK.",
-    "Trusted root owner installs private allocation, admission and publisher binding; no secrets in Git."
+    "Trusted root owner installs private allocation, admission and publisher binding; no secrets in Git.",
+    "Prepared node uses a repository-only write deploy key and pinned GitHub SSH host key through loopback relay; owner personal credential remains on owner host."
   ]
 }
