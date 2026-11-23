@@ -1,0 +1,353 @@
+{
+  "schema": "task-headroom-assessment.v1",
+  "created_at": "2026-11-23T08:25:50.948188+00:00",
+  "source_hashes": {
+    ".codex-artifacts/pooled-type-reference-20261123/historical-replay/summary.json": "a74926bd1fc8fc38141b6df58154e2eaba543b5eb609a1ba2633b16cdb0afccf",
+    ".codex-artifacts/pooled-type-reference-20261123/historical-replay/residual-summary.json": "9ec3d54ca803c750bfa797261e69d3b024c4577216bc43632e71cb155392639b"
+  },
+  "code_sha256": "9670c3b29548b7625c52caaae382c319f856d552c4dc8c0dde78431fdf0246e0",
+  "scope": {
+    "dataset": "Re-TACRED 1.1",
+    "population": "all 19584 reused development VALID rows",
+    "inputs": "same rebuilt frozen encoder cache; same TRAIN-only empirical type rule for all models",
+    "comparator": "historical seed13 relation_softmax, fixed selected epoch19",
+    "labels": "unchanged original labels",
+    "metric": "positive39 macro F1",
+    "formal_metric": "historical formal metrics unchanged",
+    "nominal_maximum_not_assumed_attainable": true
+  },
+  "baseline_macro39": 0.608184463863742,
+  "bound": {
+    "status": "exact_under_stated_assumptions",
+    "kind": "label-aware empirical repair oracle",
+    "assumptions": "Correct exactly the named existing errors using gold labels; all other predictions fixed. This does not establish a label-free rule, shared-parameter/circuit reachability, annotation truth, expected gain, independent evidence or a population ceiling."
+  },
+  "scenarios": [
+    {
+      "name": "shared_positive_fn",
+      "repairs": 1155,
+      "macro39": 0.780184186393658,
+      "absolute_delta": 0.17199972252991602
+    },
+    {
+      "name": "shared_fn_zero_rule_exclusions",
+      "repairs": 721,
+      "macro39": 0.7033401164581855,
+      "absolute_delta": 0.09515565259444347
+    },
+    {
+      "name": "all_positive_fn",
+      "repairs": 1976,
+      "macro39": 0.8507174258376633,
+      "absolute_delta": 0.24253296197392127
+    },
+    {
+      "name": "all_null_fp",
+      "repairs": 1046,
+      "macro39": 0.6531109476712749,
+      "absolute_delta": 0.044926483807532835
+    },
+    {
+      "name": "all_wrong_positive",
+      "repairs": 409,
+      "macro39": 0.7264588207906859,
+      "absolute_delta": 0.11827435692694388
+    }
+  ],
+  "legal_shared_fn_count": 1070,
+  "legal_subset_note": "721 is a conservative subset of the 1070 legal shared misses: retain only relation classes with zero gold exclusions anywhere in this reused VALID population. Posthoc descriptive selection, not a deployment rule or a new model target.",
+  "frequency_sensitivity": {
+    "posthoc_cutoff": 100,
+    "classes": 22,
+    "positive_rows": 1168,
+    "shared_fn": 285,
+    "oracle_macro_delta": 0.1187252347364941,
+    "warning": "No class selection, resampling, loss weighting or tuning authorized by this table."
+  },
+  "per_class": [
+    {
+      "label": "org:alternate_names",
+      "support": 440,
+      "shared_fn": 47,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.0017479699993800946
+    },
+    {
+      "label": "org:city_of_branch",
+      "support": 191,
+      "shared_fn": 67,
+      "gold_rule_exclusions": 13,
+      "single_class_shared_fn_repair_macro_delta": 0.007303574472785068
+    },
+    {
+      "label": "org:country_of_branch",
+      "support": 338,
+      "shared_fn": 76,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.0035140325195573974
+    },
+    {
+      "label": "org:dissolved",
+      "support": 7,
+      "shared_fn": 6,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.019230769230769162
+    },
+    {
+      "label": "org:founded",
+      "support": 36,
+      "shared_fn": 11,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.005110076254574603
+    },
+    {
+      "label": "org:founded_by",
+      "support": 76,
+      "shared_fn": 24,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.005776150115723522
+    },
+    {
+      "label": "org:member_of",
+      "support": 88,
+      "shared_fn": 32,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.005583446350535648
+    },
+    {
+      "label": "org:members",
+      "support": 194,
+      "shared_fn": 73,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.007760188529419287
+    },
+    {
+      "label": "org:number_of_employees/members",
+      "support": 27,
+      "shared_fn": 5,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.002852338917912589
+    },
+    {
+      "label": "org:political/religious_affiliation",
+      "support": 34,
+      "shared_fn": 11,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.005234712260783758
+    },
+    {
+      "label": "org:shareholders",
+      "support": 80,
+      "shared_fn": 59,
+      "gold_rule_exclusions": 40,
+      "single_class_shared_fn_repair_macro_delta": 0.017570505375383294
+    },
+    {
+      "label": "org:stateorprovince_of_branch",
+      "support": 98,
+      "shared_fn": 12,
+      "gold_rule_exclusions": 1,
+      "single_class_shared_fn_repair_macro_delta": 0.0020086786255939515
+    },
+    {
+      "label": "org:top_members/employees",
+      "support": 462,
+      "shared_fn": 50,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.0015996290034751004
+    },
+    {
+      "label": "org:website",
+      "support": 94,
+      "shared_fn": 7,
+      "gold_rule_exclusions": 7,
+      "single_class_shared_fn_repair_macro_delta": 0.0010014527702189024
+    },
+    {
+      "label": "per:age",
+      "support": 256,
+      "shared_fn": 18,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.001011739264751288
+    },
+    {
+      "label": "per:cause_of_death",
+      "support": 193,
+      "shared_fn": 33,
+      "gold_rule_exclusions": 4,
+      "single_class_shared_fn_repair_macro_delta": 0.0025953649142054225
+    },
+    {
+      "label": "per:charges",
+      "support": 130,
+      "shared_fn": 20,
+      "gold_rule_exclusions": 11,
+      "single_class_shared_fn_repair_macro_delta": 0.0024735800597869284
+    },
+    {
+      "label": "per:children",
+      "support": 114,
+      "shared_fn": 5,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.0008457666994251545
+    },
+    {
+      "label": "per:cities_of_residence",
+      "support": 98,
+      "shared_fn": 32,
+      "gold_rule_exclusions": 2,
+      "single_class_shared_fn_repair_macro_delta": 0.005648197955890222
+    },
+    {
+      "label": "per:city_of_birth",
+      "support": 43,
+      "shared_fn": 5,
+      "gold_rule_exclusions": 6,
+      "single_class_shared_fn_repair_macro_delta": 0.0019658119658119144
+    },
+    {
+      "label": "per:city_of_death",
+      "support": 148,
+      "shared_fn": 28,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.003293299081391088
+    },
+    {
+      "label": "per:countries_of_residence",
+      "support": 192,
+      "shared_fn": 58,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.005877169794695436
+    },
+    {
+      "label": "per:country_of_birth",
+      "support": 24,
+      "shared_fn": 6,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.005704821494295187
+    },
+    {
+      "label": "per:country_of_death",
+      "support": 55,
+      "shared_fn": 28,
+      "gold_rule_exclusions": 4,
+      "single_class_shared_fn_repair_macro_delta": 0.017299969107198
+    },
+    {
+      "label": "per:date_of_birth",
+      "support": 31,
+      "shared_fn": 1,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.0004174929548064199
+    },
+    {
+      "label": "per:date_of_death",
+      "support": 234,
+      "shared_fn": 54,
+      "gold_rule_exclusions": 2,
+      "single_class_shared_fn_repair_macro_delta": 0.004037093090752286
+    },
+    {
+      "label": "per:employee_of",
+      "support": 576,
+      "shared_fn": 150,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.0043719454288558834
+    },
+    {
+      "label": "per:identity",
+      "support": 2293,
+      "shared_fn": 76,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.0004601572821548716
+    },
+    {
+      "label": "per:origin",
+      "support": 222,
+      "shared_fn": 45,
+      "gold_rule_exclusions": 29,
+      "single_class_shared_fn_repair_macro_delta": 0.0036843240232431462
+    },
+    {
+      "label": "per:other_family",
+      "support": 34,
+      "shared_fn": 10,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.008922701230393626
+    },
+    {
+      "label": "per:parents",
+      "support": 69,
+      "shared_fn": 4,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.0011587311347502904
+    },
+    {
+      "label": "per:religion",
+      "support": 80,
+      "shared_fn": 8,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.0014939081632134865
+    },
+    {
+      "label": "per:schools_attended",
+      "support": 46,
+      "shared_fn": 2,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.0006381250725141507
+    },
+    {
+      "label": "per:siblings",
+      "support": 33,
+      "shared_fn": 1,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.0005596255596255206
+    },
+    {
+      "label": "per:spouse",
+      "support": 189,
+      "shared_fn": 19,
+      "gold_rule_exclusions": 0,
+      "single_class_shared_fn_repair_macro_delta": 0.0019908562514390216
+    },
+    {
+      "label": "per:stateorprovince_of_birth",
+      "support": 34,
+      "shared_fn": 7,
+      "gold_rule_exclusions": 2,
+      "single_class_shared_fn_repair_macro_delta": 0.003356468994617612
+    },
+    {
+      "label": "per:stateorprovince_of_death",
+      "support": 44,
+      "shared_fn": 7,
+      "gold_rule_exclusions": 5,
+      "single_class_shared_fn_repair_macro_delta": 0.003980911406176624
+    },
+    {
+      "label": "per:stateorprovinces_of_residence",
+      "support": 37,
+      "shared_fn": 7,
+      "gold_rule_exclusions": 3,
+      "single_class_shared_fn_repair_macro_delta": 0.003210339795705619
+    },
+    {
+      "label": "per:title",
+      "support": 998,
+      "shared_fn": 51,
+      "gold_rule_exclusions": 1,
+      "single_class_shared_fn_repair_macro_delta": 0.0007077973781030034
+    }
+  ],
+  "decision": "Task problem warrants research: recover explicit entity-pair relations currently rejected as null without increasing false positives; assess all positive classes, including rare relations. Next derive a label-free shared evidence-versus-null hypothesis with equal-input classical control. Do not select a quantum mechanism from oracle arithmetic.",
+  "runtime_scope": {
+    "new_training": 0,
+    "model_forwards": 0,
+    "gpu_jobs": 0,
+    "new_valid_predictions": 0,
+    "test_rows": 0,
+    "cos_writes": 0,
+    "new_raw_windows_payload": 0
+  },
+  "verification": "PASS: original Macro reproduced; counts, total, per-gold-row support, exact repairs and classwise Macro additivity checked."
+}
