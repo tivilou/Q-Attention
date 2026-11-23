@@ -1,0 +1,111 @@
+{
+  "status": "completed",
+  "attempt": "6dd0121b4b5449cd910bdf675834375f",
+  "seconds": 1779.7881696224213,
+  "train_items": 4192,
+  "assessment_items": 4000,
+  "valid_read": false,
+  "test_read": false,
+  "results": {
+    "coherent": {
+      "ce": 2.089000153147018,
+      "positive39_macro_f1": 0.09787046382755991,
+      "updates": 2048,
+      "parameters": 81028,
+      "initial_sha256": "42341c51f163c2de661b483bc206a5248072d7a6c398f1b644461f32c276f0be",
+      "order_sha256": "b9a26b765400fd9961376994f5e36894b555744a305b39c5a9d044cbc4d58604",
+      "final_sha256": "dd5c9cf09d03edebd6cc08c8694e7695dbbea98fa878b02ddf43429320eee01f",
+      "training_finished_at": 1795427960.2900736,
+      "assessment_started_at": 1795428811.9941084,
+      "positive_to_null": 613,
+      "null_false_positive": 560,
+      "assessment_correct": 2456
+    },
+    "diagonal": {
+      "ce": 1.5291746302870204,
+      "positive39_macro_f1": 0.09405776081408497,
+      "updates": 2048,
+      "parameters": 81028,
+      "initial_sha256": "42341c51f163c2de661b483bc206a5248072d7a6c398f1b644461f32c276f0be",
+      "order_sha256": "b9a26b765400fd9961376994f5e36894b555744a305b39c5a9d044cbc4d58604",
+      "final_sha256": "af2e5f449bace7273d2331f33b125e39fd50f34d5da52b5b610b38278d92417b",
+      "training_finished_at": 1795427975.6579306,
+      "assessment_started_at": 1795428820.6418078,
+      "positive_to_null": 811,
+      "null_false_positive": 361,
+      "assessment_correct": 2634
+    },
+    "classical": {
+      "ce": 1.6542561015134678,
+      "positive39_macro_f1": 0.11756691199484631,
+      "updates": 2048,
+      "parameters": 76752,
+      "initial_sha256": "68751f86c902f090d00d2e2be9ee4dbbc89179ff667dd1afdbbeb9366c90ec5e",
+      "order_sha256": "b9a26b765400fd9961376994f5e36894b555744a305b39c5a9d044cbc4d58604",
+      "final_sha256": "d4b44ec74e48692a25e3c7b27c4e3a661a3c527c76975041011faafe66c0081d",
+      "training_finished_at": 1795428190.1545599,
+      "assessment_started_at": 1795428828.6089754,
+      "positive_to_null": 783,
+      "null_false_positive": 308,
+      "assessment_correct": 2776
+    },
+    "native": {
+      "ce": 1.1201046064655946,
+      "positive39_macro_f1": 0.2887038957962918,
+      "updates": 2048,
+      "parameters": 81028,
+      "initial_sha256": "42341c51f163c2de661b483bc206a5248072d7a6c398f1b644461f32c276f0be",
+      "order_sha256": "b9a26b765400fd9961376994f5e36894b555744a305b39c5a9d044cbc4d58604",
+      "final_sha256": "64b4d89282e1e510a46b8411a768b8ab9c471d8b1dd9963c855e40830270f488",
+      "training_finished_at": 1795428811.939502,
+      "assessment_started_at": 1795428831.2725754,
+      "positive_to_null": 642,
+      "null_false_positive": 299,
+      "assessment_correct": 2893
+    }
+  },
+  "paired_ce_comparator_minus_coherent": {
+    "diagonal": -0.5598255228599971,
+    "classical": -0.43474405163354995,
+    "native": -0.9688955466814237
+  },
+  "paired_bootstrap_lower_025": {
+    "diagonal": -0.6532208674167816,
+    "classical": -0.5459671973328171,
+    "native": -1.0640209404795133
+  },
+  "gates": {
+    "ce_beats_diagonal": false,
+    "paired_lower_positive_diagonal": false,
+    "macro_not_below_diagonal": true,
+    "ce_beats_classical": false,
+    "paired_lower_positive_classical": false,
+    "macro_not_below_classical": false,
+    "ce_beats_native": false,
+    "paired_lower_positive_native": false,
+    "macro_not_below_native": false
+  },
+  "task_gates": {
+    "fewer_positive_to_null": true,
+    "no_extra_null_fp": false
+  },
+  "attribution_gate": false,
+  "gate": "NO_PROMOTION_EXACT_SCREEN",
+  "code_hashes": {
+    "screen.py": "a141bf566385c3a6bc6320edf145e851bd6aa3911bc8dcebcc4d389a90703197",
+    "differential.py": "46c9bd33e04066a6dd895c8bec8719b068bb0eb122687d81cf72ba7dae01f163"
+  },
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "baselines/retacred/rmea_task_runtime.py": "df50e9e14b5fae4b6211c55fd17bcfd2acc368127953e23768dcece24e9d5931",
+    "baselines/retacred/rmea_token_transport_study.py": "14d796f4970fddd7f218ef637b9a41a6e0a871dac978025b30f13713b18b6e7b",
+    "baselines/retacred/rmea_token_transport_recovery.py": "5cbb1e46fa964619d024467c0b2f735f1538cb63e1e44f0133d94f8d0d72e0f7",
+    "baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9"
+  },
+  "design_sha256": "61abfb13a5317032a6c49d12d9a1046334278c77cf35461264db6e9e452d0f95",
+  "private_diagnostic_sha256": "2e12a152aaab2bebd6ab47942edce6c83dc4d604dc41a7016b9833dc09f86f96",
+  "cos_writes": 0,
+  "limitations": "Exposed TRAIN planning split; one initialization, fixed2048 updates/arm. Approximate sentence bootstrap, not independent utility/novelty/quantumnecessity or L5. Short-screen miss is not family impossibility.",
+  "L5": "NOT_ACCEPTED"
+}
