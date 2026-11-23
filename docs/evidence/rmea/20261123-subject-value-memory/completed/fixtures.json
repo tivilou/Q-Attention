@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "errors": {
+    "coherent": 1.3322676295501878e-15,
+    "coherent_gradient": 7.815970093361102e-14,
+    "coherent_padding": 8.881784197001252e-16,
+    "diagonal": 4.440892098500626e-16,
+    "diagonal_gradient": 4.440892098500626e-15,
+    "diagonal_padding": 4.440892098500626e-16
+  },
+  "scope": "New readout parity/padding/gradient only; real first update checked in training",
+  "retrieval": {
+    "status": "PASS",
+    "population": 4900,
+    "queries": 16,
+    "intact_max_error": 1.3322676295501878e-15,
+    "covariance_max_error": 0.0,
+    "particular_diagonal_mse": 0.5,
+    "general_normalized_query_lower_bound": 0.5,
+    "assumptions": "Payload-independent normalized diagonal queries; arbitrary payload-dependent memory; balanced independent banks; ideal encodings. Not actual contextualized text or finite circuit realization."
+  },
+  "first_updates": {
+    "coherent": {
+      "finite_gradients": true,
+      "state_changed": true
+    },
+    "diagonal": {
+      "finite_gradients": true,
+      "state_changed": true
+    },
+    "native": {
+      "finite_gradients": true,
+      "state_changed": true
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 29.135987043380737,
+  "packet_sha256": "e530386d5882d0152e3adb89e186b14d7fbd2563434ba98370b168b72c1f6e3b",
+  "hashes": {
+    "memory.py": "fdd5a969b9eb97877dd746559c773fc698a124aaffbb43ba20f1aa85e8f7427b",
+    "screen.py": "bcbed4bbf6dd1f7f19d49348e0c73f84b7a99b5b9029d29c29a418fde5560536",
+    "design.json": "64c316bbda806391636d5dfde4d2d88d9e6ce43b53ab44616b458932163e93a0",
+    "theory.md": "b2564b3a0610cc9e84df06a97829d849091eace4c461e785ce3abdeec40a2dd9",
+    "unchanged-core-excerpts.json": "81d7e69e61c0287ac2f3e81badfd2e9fcb4d1aaf944d182ba87b74189d76501f",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "both",
+    "must_fix": [
+      "`screen.py` evaluates each arm inside `worker()`. The coherent arm therefore scores all 4,000 assessment items before the native arm starts training. To meet the stated assessment timing, finish all three fits, verify that each final checkpoint reached update 512, then score those checkpoints. The current code shows no assessment-driven checkpoint selection.",
+      "`summary.json` publishes the full contents of all three private `result.json` files through `results=rows`, including every minibatch loss and the per-parameter first-update gradient norms. Build each public result from explicit fields such as final CE, positive-39 macro F1, update count and checkpoint hash. Keep the detailed histories and gradient records in the private per-arm files."
+    ],
+    "limitations": [
+      "The gathered coherent and diagonal reads agree algebraically with the stated contractions. The `occupied` mask zeros surplus gathered slots even when clamping repeats a valid final subject token. The native arm retains full-token pooling and shares the initial parameter state with both addressed arms.",
+      "The conditional MSE bound of 1/2 is correct and sharp. Normalization puts the all-ones direction in the query matrix's column space, leaving at most seven directions to capture fourteen balanced contrast directions. The two-basis diagonal construction attains the bound. Its application to contextual Re-TACRED queries and its realization by the finite preparer remain unproved.",
+      "The executor context waits for both lanes when a worker raises a Python exception. On the success path, the gate combines all six specified comparisons. The exposed TRAIN split and single initialization support an exploratory screen only.",
+      "This was a static review of the supplied text. The forward, gradient, padding and retrieval fixtures, actual first optimizer updates, and two-GPU run remain unverified. The bootstrap helper body was outside the supplied excerpts."
+    ],
+    "admission": "blocked"
+  }
+}

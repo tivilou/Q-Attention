@@ -1,0 +1,78 @@
+{
+  "status": "completed",
+  "attempt": "59232883625d41de8ae5b54b309d6e2e",
+  "seconds": 473.42714619636536,
+  "train_items": 4192,
+  "assessment_items": 4000,
+  "valid_read": false,
+  "test_read": false,
+  "results": {
+    "coherent": {
+      "ce": 1.121291536998765,
+      "positive39_macro_f1": 0.06817142920407479,
+      "updates": 512,
+      "parameters": 81028,
+      "initial_sha256": "53426641b8b5ca359c193dfcec1b84d83954a75c236cd0eecc4b6192c1bbfb6e",
+      "order_sha256": "44247a1b7d30da62dc8cd8015c0b3b8a21a1d831bd759c6f23a8e6a2b8001e4d",
+      "final_sha256": "1cf1604cb0eb2531c6b2700a404173ea4e0a2dd88af9724988d8f9334adff4c0",
+      "training_finished_at": 1795391970.4534204,
+      "assessment_started_at": 1795392162.41928
+    },
+    "diagonal": {
+      "ce": 1.1504141078142256,
+      "positive39_macro_f1": 0.04824186089588825,
+      "updates": 512,
+      "parameters": 81028,
+      "initial_sha256": "53426641b8b5ca359c193dfcec1b84d83954a75c236cd0eecc4b6192c1bbfb6e",
+      "order_sha256": "44247a1b7d30da62dc8cd8015c0b3b8a21a1d831bd759c6f23a8e6a2b8001e4d",
+      "final_sha256": "0849d0f454baa1c2e193d8d9253bff13b6aed0f297f80a998e3aa971a92b13ff",
+      "training_finished_at": 1795391977.8308938,
+      "assessment_started_at": 1795392172.1458604
+    },
+    "native": {
+      "ce": 0.9278917028106899,
+      "positive39_macro_f1": 0.10673615907024654,
+      "updates": 512,
+      "parameters": 81028,
+      "initial_sha256": "53426641b8b5ca359c193dfcec1b84d83954a75c236cd0eecc4b6192c1bbfb6e",
+      "order_sha256": "44247a1b7d30da62dc8cd8015c0b3b8a21a1d831bd759c6f23a8e6a2b8001e4d",
+      "final_sha256": "2f5f3835b1a46d911c87501f7ec57b2d93ee2312e08f0fd1a8b0c28e6d59d315",
+      "training_finished_at": 1795392162.3843994,
+      "assessment_started_at": 1795392182.2966402
+    }
+  },
+  "paired_ce_comparator_minus_coherent": {
+    "diagonal": 0.02912257081546074,
+    "native": -0.19339983418807458
+  },
+  "paired_bootstrap_lower_025": {
+    "diagonal": 0.012370477536737463,
+    "native": -0.2179277946050326
+  },
+  "gates": {
+    "ce_beats_diagonal": true,
+    "paired_lower_positive_diagonal": true,
+    "macro_not_below_diagonal": true,
+    "ce_beats_native": false,
+    "paired_lower_positive_native": false,
+    "macro_not_below_native": false
+  },
+  "gate": "FAIL_CLOSE_EXACT_SCREEN",
+  "code_hashes": {
+    "memory.py": "fdd5a969b9eb97877dd746559c773fc698a124aaffbb43ba20f1aa85e8f7427b",
+    "screen.py": "b26d4071f21574915b8a9bb5b490e02f34313c5fbd22bb8ed6cd17b4109d3e8e"
+  },
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "baselines/retacred/rmea_task_runtime.py": "df50e9e14b5fae4b6211c55fd17bcfd2acc368127953e23768dcece24e9d5931",
+    "baselines/retacred/rmea_token_transport_study.py": "14d796f4970fddd7f218ef637b9a41a6e0a871dac978025b30f13713b18b6e7b",
+    "baselines/retacred/rmea_token_transport_recovery.py": "5cbb1e46fa964619d024467c0b2f735f1538cb63e1e44f0133d94f8d0d72e0f7",
+    "baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9"
+  },
+  "design_sha256": "ad0d42c56cc358ff0a9991138f2d48905d97a09cbb94f37f2608858f87065145",
+  "private_diagnostic_sha256": "3a50a452d37c86f6f0e699cf8caef5823ffee4496cfc2208406dbd46360c43da",
+  "cos_writes": 0,
+  "limitations": "Exposed TRAIN planning split; one initialization,512 updates/arm. Approximate sentence bootstrap, not independent utility/novelty/quantumnecessity or L5. Short-screen miss is not family impossibility.",
+  "L5": "NOT_ACCEPTED"
+}
