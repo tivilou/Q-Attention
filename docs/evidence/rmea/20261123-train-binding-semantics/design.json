@@ -1,0 +1,19 @@
+{
+  "profile": "model-blind-matched-TRAIN-binding-semantic32-v1",
+  "host": "/hy-tmp/Q-Attention/control/train-binding-semantics-20261123",
+  "census_sha256": "3eb24b2fcf01f65c17610397fda323fe780a6f03d497f7f5f16d25fe947b4f76",
+  "selection": "8goldpositive class/length-matched pairs from8distinct labels and8null type/length-matched pairs, input-ID hashes, globally distinct32sentences; no model output read by selector.",
+  "purpose": "Qualify whether annotated competing-object proxy reflects semantic competing_entity rather than assume binding causality from corpus association.",
+  "reader": "Reuse unchanged accepted semantic judge/parser;2isolated gpt-6.1-sol/medium contexts. Hidden gold,predictions,proxy,stratum,pairing and other answer. Same-model judgments are not independent humans.",
+  "gates": {
+    "minimum_both_valid": 24,
+    "minimum_both_confident_gold_positive": 12,
+    "minimum_competing_entity_consensus_rate_difference": 0.25
+  },
+  "denominators": "32all,16goldpositive,16competing and16simple. Missing/uncertain kept in denominator, not repaired or redispatched.",
+  "next_if_pass": "Predeclare one actual consistently encoded matched intervention; no training/plugin or causal/quantum/L5 promotion from annotation.",
+  "if_fail": "Do not promote annotated-object proxy as established semantic binding mechanism; retain whole-corpus association and original results.",
+  "recovery": "Repeatable text audit, no new checkpoints/COS; raw32text/answers stay private compute, Windows compact receipts only.",
+  "code_sha256": "87b886e3ae2b4e9ae995708c23f594c0f21c651ef9622f979b891e91827a9c44",
+  "reader_sha256": "073cd1d711460f3f74038d3b41f65180157aba47eb49b57121d121ae43195982"
+}

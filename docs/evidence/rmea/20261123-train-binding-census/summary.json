@@ -1,0 +1,1172 @@
+{
+  "profile": "R0-full-TRAIN-competing-object-census-v1",
+  "attempt": "f356b4afdae2475c9002a6137638b66b",
+  "counts": {
+    "rows": 58465,
+    "unique_sentences": 33477,
+    "competing_rows": 15157,
+    "competing_positive_rows": 4839,
+    "simple_positive_rows": 14865,
+    "overlap_positive_classes": 26,
+    "overlap_class_length_cells": 56,
+    "overlap_null_type_length_cells": 65
+  },
+  "results": {
+    "relation_softmax": {
+      "strata": {
+        "positive_competing": {
+          "rows": 4839,
+          "correct": 4363,
+          "null_predictions": 362,
+          "positive_false_negatives": 362,
+          "null_false_positives": 0,
+          "wrong_positive": 114,
+          "fn_gold_top_positive": 324,
+          "fn_rate": 0.07480884480264517
+        },
+        "positive_simple": {
+          "rows": 14865,
+          "correct": 13690,
+          "null_predictions": 945,
+          "positive_false_negatives": 945,
+          "null_false_positives": 0,
+          "wrong_positive": 230,
+          "fn_gold_top_positive": 838,
+          "fn_rate": 0.06357214934409687
+        },
+        "null_competing": {
+          "rows": 10318,
+          "correct": 9764,
+          "null_predictions": 9764,
+          "positive_false_negatives": 0,
+          "null_false_positives": 554,
+          "wrong_positive": 0,
+          "fn_gold_top_positive": 0,
+          "fn_rate": null
+        },
+        "null_simple": {
+          "rows": 28443,
+          "correct": 26844,
+          "null_predictions": 26844,
+          "positive_false_negatives": 0,
+          "null_false_positives": 1599,
+          "wrong_positive": 0,
+          "fn_gold_top_positive": 0,
+          "fn_rate": null
+        }
+      },
+      "standardized_positive_fn_delta": 0.012872316494621956,
+      "positive_delta_classes": 11,
+      "per_class": [
+        {
+          "label": "org:alternate_names",
+          "overlap_cells": 3,
+          "competing_rows": 232,
+          "simple_rows": 1029,
+          "competing_standardized_fn_rate": 0.06896551724137931,
+          "simple_standardized_fn_rate": 0.02932020216502975,
+          "delta": 0.03964531507634956
+        },
+        {
+          "label": "org:city_of_branch",
+          "overlap_cells": 2,
+          "competing_rows": 40,
+          "simple_rows": 488,
+          "competing_standardized_fn_rate": 0.25,
+          "simple_standardized_fn_rate": 0.18094813547442845,
+          "delta": 0.06905186452557152
+        },
+        {
+          "label": "org:country_of_branch",
+          "overlap_cells": 4,
+          "competing_rows": 96,
+          "simple_rows": 795,
+          "competing_standardized_fn_rate": 0.125,
+          "simple_standardized_fn_rate": 0.11879438706726371,
+          "delta": 0.006205612932736283
+        },
+        {
+          "label": "org:founded_by",
+          "overlap_cells": 1,
+          "competing_rows": 21,
+          "simple_rows": 40,
+          "competing_standardized_fn_rate": 0.0,
+          "simple_standardized_fn_rate": 0.0,
+          "delta": 0.0
+        },
+        {
+          "label": "org:member_of",
+          "overlap_cells": 2,
+          "competing_rows": 83,
+          "simple_rows": 228,
+          "competing_standardized_fn_rate": 0.1325301204819277,
+          "simple_standardized_fn_rate": 0.0350797800126711,
+          "delta": 0.0974503404692566
+        },
+        {
+          "label": "org:members",
+          "overlap_cells": 3,
+          "competing_rows": 150,
+          "simple_rows": 358,
+          "competing_standardized_fn_rate": 0.20699399505475097,
+          "simple_standardized_fn_rate": 0.12430571626938208,
+          "delta": 0.08268827878536887
+        },
+        {
+          "label": "org:shareholders",
+          "overlap_cells": 1,
+          "competing_rows": 14,
+          "simple_rows": 30,
+          "competing_standardized_fn_rate": 0.2857142857142857,
+          "simple_standardized_fn_rate": 0.3333333333333333,
+          "delta": -0.047619047619047616
+        },
+        {
+          "label": "org:stateorprovince_of_branch",
+          "overlap_cells": 1,
+          "competing_rows": 10,
+          "simple_rows": 90,
+          "competing_standardized_fn_rate": 0.2,
+          "simple_standardized_fn_rate": 0.1111111111111111,
+          "delta": 0.0888888888888889
+        },
+        {
+          "label": "org:top_members/employees",
+          "overlap_cells": 2,
+          "competing_rows": 161,
+          "simple_rows": 1176,
+          "competing_standardized_fn_rate": 0.16770186335403725,
+          "simple_standardized_fn_rate": 0.05539621347785968,
+          "delta": 0.11230564987617757
+        },
+        {
+          "label": "per:age",
+          "overlap_cells": 1,
+          "competing_rows": 15,
+          "simple_rows": 186,
+          "competing_standardized_fn_rate": 0.0,
+          "simple_standardized_fn_rate": 0.04838709677419355,
+          "delta": -0.04838709677419355
+        },
+        {
+          "label": "per:cause_of_death",
+          "overlap_cells": 1,
+          "competing_rows": 11,
+          "simple_rows": 15,
+          "competing_standardized_fn_rate": 0.0,
+          "simple_standardized_fn_rate": 0.0,
+          "delta": 0.0
+        },
+        {
+          "label": "per:charges",
+          "overlap_cells": 1,
+          "competing_rows": 15,
+          "simple_rows": 48,
+          "competing_standardized_fn_rate": 0.0,
+          "simple_standardized_fn_rate": 0.020833333333333332,
+          "delta": -0.020833333333333332
+        },
+        {
+          "label": "per:children",
+          "overlap_cells": 3,
+          "competing_rows": 149,
+          "simple_rows": 87,
+          "competing_standardized_fn_rate": 0.012190874259839776,
+          "simple_standardized_fn_rate": 0.034482758620689655,
+          "delta": -0.022291884360849876
+        },
+        {
+          "label": "per:cities_of_residence",
+          "overlap_cells": 1,
+          "competing_rows": 16,
+          "simple_rows": 86,
+          "competing_standardized_fn_rate": 0.0,
+          "simple_standardized_fn_rate": 0.1744186046511628,
+          "delta": -0.1744186046511628
+        },
+        {
+          "label": "per:countries_of_residence",
+          "overlap_cells": 2,
+          "competing_rows": 34,
+          "simple_rows": 136,
+          "competing_standardized_fn_rate": 0.08823529411764706,
+          "simple_standardized_fn_rate": 0.15871611802615782,
+          "delta": -0.07048082390851076
+        },
+        {
+          "label": "per:date_of_death",
+          "overlap_cells": 2,
+          "competing_rows": 39,
+          "simple_rows": 95,
+          "competing_standardized_fn_rate": 0.17948717948717946,
+          "simple_standardized_fn_rate": 0.20385632885632884,
+          "delta": -0.02436914936914937
+        },
+        {
+          "label": "per:employee_of",
+          "overlap_cells": 4,
+          "competing_rows": 388,
+          "simple_rows": 1748,
+          "competing_standardized_fn_rate": 0.06958762886597938,
+          "simple_standardized_fn_rate": 0.09058342879784022,
+          "delta": -0.020995799931860838
+        },
+        {
+          "label": "per:identity",
+          "overlap_cells": 4,
+          "competing_rows": 2142,
+          "simple_rows": 3178,
+          "competing_standardized_fn_rate": 0.056983507203718885,
+          "simple_standardized_fn_rate": 0.042036714730713146,
+          "delta": 0.014946792473005743
+        },
+        {
+          "label": "per:origin",
+          "overlap_cells": 2,
+          "competing_rows": 39,
+          "simple_rows": 205,
+          "competing_standardized_fn_rate": 0.10256410256410256,
+          "simple_standardized_fn_rate": 0.0922537038205619,
+          "delta": 0.010310398743540661
+        },
+        {
+          "label": "per:other_family",
+          "overlap_cells": 1,
+          "competing_rows": 22,
+          "simple_rows": 32,
+          "competing_standardized_fn_rate": 0.18181818181818182,
+          "simple_standardized_fn_rate": 0.21875,
+          "delta": -0.03693181818181818
+        },
+        {
+          "label": "per:parents",
+          "overlap_cells": 2,
+          "competing_rows": 63,
+          "simple_rows": 83,
+          "competing_standardized_fn_rate": 0.015873015873015872,
+          "simple_standardized_fn_rate": 0.02443609022556391,
+          "delta": -0.008563074352548036
+        },
+        {
+          "label": "per:schools_attended",
+          "overlap_cells": 1,
+          "competing_rows": 31,
+          "simple_rows": 63,
+          "competing_standardized_fn_rate": 0.0,
+          "simple_standardized_fn_rate": 0.031746031746031744,
+          "delta": -0.031746031746031744
+        },
+        {
+          "label": "per:siblings",
+          "overlap_cells": 3,
+          "competing_rows": 99,
+          "simple_rows": 101,
+          "competing_standardized_fn_rate": 0.01639344262295082,
+          "simple_standardized_fn_rate": 0.05023796932839768,
+          "delta": -0.033844526705446853
+        },
+        {
+          "label": "per:spouse",
+          "overlap_cells": 3,
+          "competing_rows": 113,
+          "simple_rows": 142,
+          "competing_standardized_fn_rate": 0.04424778761061947,
+          "simple_standardized_fn_rate": 0.09908822740681147,
+          "delta": -0.054840439796192006
+        },
+        {
+          "label": "per:stateorprovinces_of_residence",
+          "overlap_cells": 2,
+          "competing_rows": 22,
+          "simple_rows": 172,
+          "competing_standardized_fn_rate": 0.4545454545454545,
+          "simple_standardized_fn_rate": 0.05341551104262968,
+          "delta": 0.40112994350282477
+        },
+        {
+          "label": "per:title",
+          "overlap_cells": 4,
+          "competing_rows": 498,
+          "simple_rows": 2128,
+          "competing_standardized_fn_rate": 0.030120481927710843,
+          "simple_standardized_fn_rate": 0.022741707611115505,
+          "delta": 0.007378774316595339
+        }
+      ],
+      "standardized_null_fp_delta": -0.010308680427032382
+    },
+    "real_overlap": {
+      "strata": {
+        "positive_competing": {
+          "rows": 4839,
+          "correct": 4243,
+          "null_predictions": 470,
+          "positive_false_negatives": 470,
+          "null_false_positives": 0,
+          "wrong_positive": 126,
+          "fn_gold_top_positive": 409,
+          "fn_rate": 0.09712750568299236
+        },
+        "positive_simple": {
+          "rows": 14865,
+          "correct": 13439,
+          "null_predictions": 1202,
+          "positive_false_negatives": 1202,
+          "null_false_positives": 0,
+          "wrong_positive": 224,
+          "fn_gold_top_positive": 1079,
+          "fn_rate": 0.08086108308106289
+        },
+        "null_competing": {
+          "rows": 10318,
+          "correct": 9879,
+          "null_predictions": 9879,
+          "positive_false_negatives": 0,
+          "null_false_positives": 439,
+          "wrong_positive": 0,
+          "fn_gold_top_positive": 0,
+          "fn_rate": null
+        },
+        "null_simple": {
+          "rows": 28443,
+          "correct": 27392,
+          "null_predictions": 27392,
+          "positive_false_negatives": 0,
+          "null_false_positives": 1051,
+          "wrong_positive": 0,
+          "fn_gold_top_positive": 0,
+          "fn_rate": null
+        }
+      },
+      "standardized_positive_fn_delta": 0.041307163167869115,
+      "positive_delta_classes": 17,
+      "per_class": [
+        {
+          "label": "org:alternate_names",
+          "overlap_cells": 3,
+          "competing_rows": 232,
+          "simple_rows": 1029,
+          "competing_standardized_fn_rate": 0.06896551724137931,
+          "simple_standardized_fn_rate": 0.03249217387148422,
+          "delta": 0.03647334336989509
+        },
+        {
+          "label": "org:city_of_branch",
+          "overlap_cells": 2,
+          "competing_rows": 40,
+          "simple_rows": 488,
+          "competing_standardized_fn_rate": 0.19999999999999998,
+          "simple_standardized_fn_rate": 0.1971862051905753,
+          "delta": 0.0028137948094246884
+        },
+        {
+          "label": "org:country_of_branch",
+          "overlap_cells": 4,
+          "competing_rows": 96,
+          "simple_rows": 795,
+          "competing_standardized_fn_rate": 0.15625,
+          "simple_standardized_fn_rate": 0.20025120070778565,
+          "delta": -0.044001200707785654
+        },
+        {
+          "label": "org:founded_by",
+          "overlap_cells": 1,
+          "competing_rows": 21,
+          "simple_rows": 40,
+          "competing_standardized_fn_rate": 0.2857142857142857,
+          "simple_standardized_fn_rate": 0.05,
+          "delta": 0.2357142857142857
+        },
+        {
+          "label": "org:member_of",
+          "overlap_cells": 2,
+          "competing_rows": 83,
+          "simple_rows": 228,
+          "competing_standardized_fn_rate": 0.14457831325301204,
+          "simple_standardized_fn_rate": 0.07989181649266089,
+          "delta": 0.06468649676035117
+        },
+        {
+          "label": "org:members",
+          "overlap_cells": 3,
+          "competing_rows": 150,
+          "simple_rows": 358,
+          "competing_standardized_fn_rate": 0.37972447898269157,
+          "simple_standardized_fn_rate": 0.26857622243528284,
+          "delta": 0.11114825654740876
+        },
+        {
+          "label": "org:shareholders",
+          "overlap_cells": 1,
+          "competing_rows": 14,
+          "simple_rows": 30,
+          "competing_standardized_fn_rate": 0.21428571428571427,
+          "simple_standardized_fn_rate": 0.3333333333333333,
+          "delta": -0.11904761904761904
+        },
+        {
+          "label": "org:stateorprovince_of_branch",
+          "overlap_cells": 1,
+          "competing_rows": 10,
+          "simple_rows": 90,
+          "competing_standardized_fn_rate": 0.0,
+          "simple_standardized_fn_rate": 0.15555555555555556,
+          "delta": -0.15555555555555556
+        },
+        {
+          "label": "org:top_members/employees",
+          "overlap_cells": 2,
+          "competing_rows": 161,
+          "simple_rows": 1176,
+          "competing_standardized_fn_rate": 0.22981366459627328,
+          "simple_standardized_fn_rate": 0.07541581109453661,
+          "delta": 0.15439785350173668
+        },
+        {
+          "label": "per:age",
+          "overlap_cells": 1,
+          "competing_rows": 15,
+          "simple_rows": 186,
+          "competing_standardized_fn_rate": 0.0,
+          "simple_standardized_fn_rate": 0.016129032258064516,
+          "delta": -0.016129032258064516
+        },
+        {
+          "label": "per:cause_of_death",
+          "overlap_cells": 1,
+          "competing_rows": 11,
+          "simple_rows": 15,
+          "competing_standardized_fn_rate": 0.18181818181818182,
+          "simple_standardized_fn_rate": 0.0,
+          "delta": 0.18181818181818182
+        },
+        {
+          "label": "per:charges",
+          "overlap_cells": 1,
+          "competing_rows": 15,
+          "simple_rows": 48,
+          "competing_standardized_fn_rate": 0.0,
+          "simple_standardized_fn_rate": 0.08333333333333333,
+          "delta": -0.08333333333333333
+        },
+        {
+          "label": "per:children",
+          "overlap_cells": 3,
+          "competing_rows": 149,
+          "simple_rows": 87,
+          "competing_standardized_fn_rate": 0.022988505747126436,
+          "simple_standardized_fn_rate": 0.0,
+          "delta": 0.022988505747126436
+        },
+        {
+          "label": "per:cities_of_residence",
+          "overlap_cells": 1,
+          "competing_rows": 16,
+          "simple_rows": 86,
+          "competing_standardized_fn_rate": 0.375,
+          "simple_standardized_fn_rate": 0.1511627906976744,
+          "delta": 0.2238372093023256
+        },
+        {
+          "label": "per:countries_of_residence",
+          "overlap_cells": 2,
+          "competing_rows": 34,
+          "simple_rows": 136,
+          "competing_standardized_fn_rate": 0.14705882352941177,
+          "simple_standardized_fn_rate": 0.15021798192961394,
+          "delta": -0.003159158400202172
+        },
+        {
+          "label": "per:date_of_death",
+          "overlap_cells": 2,
+          "competing_rows": 39,
+          "simple_rows": 95,
+          "competing_standardized_fn_rate": 0.02564102564102564,
+          "simple_standardized_fn_rate": 0.09391534391534391,
+          "delta": -0.06827431827431826
+        },
+        {
+          "label": "per:employee_of",
+          "overlap_cells": 4,
+          "competing_rows": 388,
+          "simple_rows": 1748,
+          "competing_standardized_fn_rate": 0.18041237113402062,
+          "simple_standardized_fn_rate": 0.14873926365752352,
+          "delta": 0.031673107476497105
+        },
+        {
+          "label": "per:identity",
+          "overlap_cells": 4,
+          "competing_rows": 2142,
+          "simple_rows": 3178,
+          "competing_standardized_fn_rate": 0.05590552891534205,
+          "simple_standardized_fn_rate": 0.03301467233663055,
+          "delta": 0.022890856578711503
+        },
+        {
+          "label": "per:origin",
+          "overlap_cells": 2,
+          "competing_rows": 39,
+          "simple_rows": 205,
+          "competing_standardized_fn_rate": 0.1282051282051282,
+          "simple_standardized_fn_rate": 0.08734916528189703,
+          "delta": 0.040855962923231175
+        },
+        {
+          "label": "per:other_family",
+          "overlap_cells": 1,
+          "competing_rows": 22,
+          "simple_rows": 32,
+          "competing_standardized_fn_rate": 0.22727272727272727,
+          "simple_standardized_fn_rate": 0.125,
+          "delta": 0.10227272727272727
+        },
+        {
+          "label": "per:parents",
+          "overlap_cells": 2,
+          "competing_rows": 63,
+          "simple_rows": 83,
+          "competing_standardized_fn_rate": 0.14285714285714285,
+          "simple_standardized_fn_rate": 0.03634085213032581,
+          "delta": 0.10651629072681705
+        },
+        {
+          "label": "per:schools_attended",
+          "overlap_cells": 1,
+          "competing_rows": 31,
+          "simple_rows": 63,
+          "competing_standardized_fn_rate": 0.0,
+          "simple_standardized_fn_rate": 0.015873015873015872,
+          "delta": -0.015873015873015872
+        },
+        {
+          "label": "per:siblings",
+          "overlap_cells": 3,
+          "competing_rows": 99,
+          "simple_rows": 101,
+          "competing_standardized_fn_rate": 0.04918032786885246,
+          "simple_standardized_fn_rate": 0.02538339502908514,
+          "delta": 0.02379693283976732
+        },
+        {
+          "label": "per:spouse",
+          "overlap_cells": 3,
+          "competing_rows": 113,
+          "simple_rows": 142,
+          "competing_standardized_fn_rate": 0.017699115044247787,
+          "simple_standardized_fn_rate": 0.06154465004022526,
+          "delta": -0.04384553499597747
+        },
+        {
+          "label": "per:stateorprovinces_of_residence",
+          "overlap_cells": 2,
+          "competing_rows": 22,
+          "simple_rows": 172,
+          "competing_standardized_fn_rate": 0.36363636363636365,
+          "simple_standardized_fn_rate": 0.11402157164869028,
+          "delta": 0.24961479198767333
+        },
+        {
+          "label": "per:title",
+          "overlap_cells": 4,
+          "competing_rows": 498,
+          "simple_rows": 2128,
+          "competing_standardized_fn_rate": 0.05421686746987952,
+          "simple_standardized_fn_rate": 0.04251045403557149,
+          "delta": 0.011706413434308026
+        }
+      ],
+      "standardized_null_fp_delta": 0.0006076918835577109
+    },
+    "quantum": {
+      "strata": {
+        "positive_competing": {
+          "rows": 4839,
+          "correct": 4136,
+          "null_predictions": 519,
+          "positive_false_negatives": 519,
+          "null_false_positives": 0,
+          "wrong_positive": 184,
+          "fn_gold_top_positive": 426,
+          "fn_rate": 0.10725356478611284
+        },
+        "positive_simple": {
+          "rows": 14865,
+          "correct": 12978,
+          "null_predictions": 1489,
+          "positive_false_negatives": 1489,
+          "null_false_positives": 0,
+          "wrong_positive": 398,
+          "fn_gold_top_positive": 1248,
+          "fn_rate": 0.1001681802892701
+        },
+        "null_competing": {
+          "rows": 10318,
+          "correct": 9692,
+          "null_predictions": 9692,
+          "positive_false_negatives": 0,
+          "null_false_positives": 626,
+          "wrong_positive": 0,
+          "fn_gold_top_positive": 0,
+          "fn_rate": null
+        },
+        "null_simple": {
+          "rows": 28443,
+          "correct": 26522,
+          "null_predictions": 26522,
+          "positive_false_negatives": 0,
+          "null_false_positives": 1921,
+          "wrong_positive": 0,
+          "fn_gold_top_positive": 0,
+          "fn_rate": null
+        }
+      },
+      "standardized_positive_fn_delta": 0.014474656644391137,
+      "positive_delta_classes": 14,
+      "per_class": [
+        {
+          "label": "org:alternate_names",
+          "overlap_cells": 3,
+          "competing_rows": 232,
+          "simple_rows": 1029,
+          "competing_standardized_fn_rate": 0.125,
+          "simple_standardized_fn_rate": 0.0747033837551079,
+          "delta": 0.05029661624489211
+        },
+        {
+          "label": "org:city_of_branch",
+          "overlap_cells": 2,
+          "competing_rows": 40,
+          "simple_rows": 488,
+          "competing_standardized_fn_rate": 0.2,
+          "simple_standardized_fn_rate": 0.19576075529261402,
+          "delta": 0.004239244707385965
+        },
+        {
+          "label": "org:country_of_branch",
+          "overlap_cells": 4,
+          "competing_rows": 96,
+          "simple_rows": 795,
+          "competing_standardized_fn_rate": 0.16666666666666666,
+          "simple_standardized_fn_rate": 0.21418934168712983,
+          "delta": -0.04752267502046319
+        },
+        {
+          "label": "org:founded_by",
+          "overlap_cells": 1,
+          "competing_rows": 21,
+          "simple_rows": 40,
+          "competing_standardized_fn_rate": 0.14285714285714285,
+          "simple_standardized_fn_rate": 0.15,
+          "delta": -0.007142857142857145
+        },
+        {
+          "label": "org:member_of",
+          "overlap_cells": 2,
+          "competing_rows": 83,
+          "simple_rows": 228,
+          "competing_standardized_fn_rate": 0.25301204819277107,
+          "simple_standardized_fn_rate": 0.12477306486218848,
+          "delta": 0.1282389833305826
+        },
+        {
+          "label": "org:members",
+          "overlap_cells": 3,
+          "competing_rows": 150,
+          "simple_rows": 358,
+          "competing_standardized_fn_rate": 0.3663016601907453,
+          "simple_standardized_fn_rate": 0.25425455417066156,
+          "delta": 0.11204710602008376
+        },
+        {
+          "label": "org:shareholders",
+          "overlap_cells": 1,
+          "competing_rows": 14,
+          "simple_rows": 30,
+          "competing_standardized_fn_rate": 0.2857142857142857,
+          "simple_standardized_fn_rate": 0.5,
+          "delta": -0.2142857142857143
+        },
+        {
+          "label": "org:stateorprovince_of_branch",
+          "overlap_cells": 1,
+          "competing_rows": 10,
+          "simple_rows": 90,
+          "competing_standardized_fn_rate": 0.5,
+          "simple_standardized_fn_rate": 0.2222222222222222,
+          "delta": 0.2777777777777778
+        },
+        {
+          "label": "org:top_members/employees",
+          "overlap_cells": 2,
+          "competing_rows": 161,
+          "simple_rows": 1176,
+          "competing_standardized_fn_rate": 0.27329192546583847,
+          "simple_standardized_fn_rate": 0.12229812448863228,
+          "delta": 0.15099380097720622
+        },
+        {
+          "label": "per:age",
+          "overlap_cells": 1,
+          "competing_rows": 15,
+          "simple_rows": 186,
+          "competing_standardized_fn_rate": 0.0,
+          "simple_standardized_fn_rate": 0.010752688172043012,
+          "delta": -0.010752688172043012
+        },
+        {
+          "label": "per:cause_of_death",
+          "overlap_cells": 1,
+          "competing_rows": 11,
+          "simple_rows": 15,
+          "competing_standardized_fn_rate": 0.09090909090909091,
+          "simple_standardized_fn_rate": 0.0,
+          "delta": 0.09090909090909091
+        },
+        {
+          "label": "per:charges",
+          "overlap_cells": 1,
+          "competing_rows": 15,
+          "simple_rows": 48,
+          "competing_standardized_fn_rate": 0.06666666666666667,
+          "simple_standardized_fn_rate": 0.1875,
+          "delta": -0.12083333333333333
+        },
+        {
+          "label": "per:children",
+          "overlap_cells": 3,
+          "competing_rows": 149,
+          "simple_rows": 87,
+          "competing_standardized_fn_rate": 0.012190874259839776,
+          "simple_standardized_fn_rate": 0.04597701149425287,
+          "delta": -0.033786137234413094
+        },
+        {
+          "label": "per:cities_of_residence",
+          "overlap_cells": 1,
+          "competing_rows": 16,
+          "simple_rows": 86,
+          "competing_standardized_fn_rate": 0.1875,
+          "simple_standardized_fn_rate": 0.2441860465116279,
+          "delta": -0.0566860465116279
+        },
+        {
+          "label": "per:countries_of_residence",
+          "overlap_cells": 2,
+          "competing_rows": 34,
+          "simple_rows": 136,
+          "competing_standardized_fn_rate": 0.29411764705882354,
+          "simple_standardized_fn_rate": 0.25725026852846405,
+          "delta": 0.03686737853035949
+        },
+        {
+          "label": "per:date_of_death",
+          "overlap_cells": 2,
+          "competing_rows": 39,
+          "simple_rows": 95,
+          "competing_standardized_fn_rate": 0.05128205128205128,
+          "simple_standardized_fn_rate": 0.13369963369963367,
+          "delta": -0.0824175824175824
+        },
+        {
+          "label": "per:employee_of",
+          "overlap_cells": 4,
+          "competing_rows": 388,
+          "simple_rows": 1748,
+          "competing_standardized_fn_rate": 0.12371134020618556,
+          "simple_standardized_fn_rate": 0.10893516059582413,
+          "delta": 0.01477617961036145
+        },
+        {
+          "label": "per:identity",
+          "overlap_cells": 4,
+          "competing_rows": 2142,
+          "simple_rows": 3178,
+          "competing_standardized_fn_rate": 0.061680994455335855,
+          "simple_standardized_fn_rate": 0.04484960882940951,
+          "delta": 0.01683138562592635
+        },
+        {
+          "label": "per:origin",
+          "overlap_cells": 2,
+          "competing_rows": 39,
+          "simple_rows": 205,
+          "competing_standardized_fn_rate": 0.17948717948717952,
+          "simple_standardized_fn_rate": 0.1314128857196946,
+          "delta": 0.048074293767484906
+        },
+        {
+          "label": "per:other_family",
+          "overlap_cells": 1,
+          "competing_rows": 22,
+          "simple_rows": 32,
+          "competing_standardized_fn_rate": 0.22727272727272727,
+          "simple_standardized_fn_rate": 0.1875,
+          "delta": 0.039772727272727265
+        },
+        {
+          "label": "per:parents",
+          "overlap_cells": 2,
+          "competing_rows": 63,
+          "simple_rows": 83,
+          "competing_standardized_fn_rate": 0.015873015873015872,
+          "simple_standardized_fn_rate": 0.02443609022556391,
+          "delta": -0.008563074352548036
+        },
+        {
+          "label": "per:schools_attended",
+          "overlap_cells": 1,
+          "competing_rows": 31,
+          "simple_rows": 63,
+          "competing_standardized_fn_rate": 0.03225806451612903,
+          "simple_standardized_fn_rate": 0.047619047619047616,
+          "delta": -0.015360983102918585
+        },
+        {
+          "label": "per:siblings",
+          "overlap_cells": 3,
+          "competing_rows": 99,
+          "simple_rows": 101,
+          "competing_standardized_fn_rate": 0.04918032786885246,
+          "simple_standardized_fn_rate": 0.05790586991010048,
+          "delta": -0.008725542041248016
+        },
+        {
+          "label": "per:spouse",
+          "overlap_cells": 3,
+          "competing_rows": 113,
+          "simple_rows": 142,
+          "competing_standardized_fn_rate": 0.08849557522123894,
+          "simple_standardized_fn_rate": 0.16948243496916066,
+          "delta": -0.08098685974792169
+        },
+        {
+          "label": "per:stateorprovinces_of_residence",
+          "overlap_cells": 2,
+          "competing_rows": 22,
+          "simple_rows": 172,
+          "competing_standardized_fn_rate": 0.13636363636363635,
+          "simple_standardized_fn_rate": 0.06351652114363979,
+          "delta": 0.07284711521999657
+        },
+        {
+          "label": "per:title",
+          "overlap_cells": 4,
+          "competing_rows": 498,
+          "simple_rows": 2128,
+          "competing_standardized_fn_rate": 0.07228915662650602,
+          "simple_standardized_fn_rate": 0.0525562905035412,
+          "delta": 0.019732866122964824
+        }
+      ],
+      "standardized_null_fp_delta": -0.009271054569168442
+    },
+    "dephased": {
+      "strata": {
+        "positive_competing": {
+          "rows": 4839,
+          "correct": 4068,
+          "null_predictions": 593,
+          "positive_false_negatives": 593,
+          "null_false_positives": 0,
+          "wrong_positive": 178,
+          "fn_gold_top_positive": 493,
+          "fn_rate": 0.12254598057449886
+        },
+        "positive_simple": {
+          "rows": 14865,
+          "correct": 12726,
+          "null_predictions": 1771,
+          "positive_false_negatives": 1771,
+          "null_false_positives": 0,
+          "wrong_positive": 368,
+          "fn_gold_top_positive": 1509,
+          "fn_rate": 0.1191389169189371
+        },
+        "null_competing": {
+          "rows": 10318,
+          "correct": 9724,
+          "null_predictions": 9724,
+          "positive_false_negatives": 0,
+          "null_false_positives": 594,
+          "wrong_positive": 0,
+          "fn_gold_top_positive": 0,
+          "fn_rate": null
+        },
+        "null_simple": {
+          "rows": 28443,
+          "correct": 26657,
+          "null_predictions": 26657,
+          "positive_false_negatives": 0,
+          "null_false_positives": 1786,
+          "wrong_positive": 0,
+          "fn_gold_top_positive": 0,
+          "fn_rate": null
+        }
+      },
+      "standardized_positive_fn_delta": 0.019533942064805316,
+      "positive_delta_classes": 14,
+      "per_class": [
+        {
+          "label": "org:alternate_names",
+          "overlap_cells": 3,
+          "competing_rows": 232,
+          "simple_rows": 1029,
+          "competing_standardized_fn_rate": 0.09913793103448276,
+          "simple_standardized_fn_rate": 0.05137494921977681,
+          "delta": 0.04776298181470595
+        },
+        {
+          "label": "org:city_of_branch",
+          "overlap_cells": 2,
+          "competing_rows": 40,
+          "simple_rows": 488,
+          "competing_standardized_fn_rate": 0.125,
+          "simple_standardized_fn_rate": 0.13834903423965697,
+          "delta": -0.013349034239656984
+        },
+        {
+          "label": "org:country_of_branch",
+          "overlap_cells": 4,
+          "competing_rows": 96,
+          "simple_rows": 795,
+          "competing_standardized_fn_rate": 0.17708333333333331,
+          "simple_standardized_fn_rate": 0.25864697686455773,
+          "delta": -0.08156364353122443
+        },
+        {
+          "label": "org:founded_by",
+          "overlap_cells": 1,
+          "competing_rows": 21,
+          "simple_rows": 40,
+          "competing_standardized_fn_rate": 0.38095238095238093,
+          "simple_standardized_fn_rate": 0.225,
+          "delta": 0.15595238095238093
+        },
+        {
+          "label": "org:member_of",
+          "overlap_cells": 2,
+          "competing_rows": 83,
+          "simple_rows": 228,
+          "competing_standardized_fn_rate": 0.2530120481927711,
+          "simple_standardized_fn_rate": 0.183374239334714,
+          "delta": 0.06963780885805707
+        },
+        {
+          "label": "org:members",
+          "overlap_cells": 3,
+          "competing_rows": 150,
+          "simple_rows": 358,
+          "competing_standardized_fn_rate": 0.3066054397739314,
+          "simple_standardized_fn_rate": 0.24634571197143518,
+          "delta": 0.060259727802496284
+        },
+        {
+          "label": "org:shareholders",
+          "overlap_cells": 1,
+          "competing_rows": 14,
+          "simple_rows": 30,
+          "competing_standardized_fn_rate": 0.42857142857142855,
+          "simple_standardized_fn_rate": 0.43333333333333335,
+          "delta": -0.0047619047619048005
+        },
+        {
+          "label": "org:stateorprovince_of_branch",
+          "overlap_cells": 1,
+          "competing_rows": 10,
+          "simple_rows": 90,
+          "competing_standardized_fn_rate": 0.3,
+          "simple_standardized_fn_rate": 0.2,
+          "delta": 0.09999999999999998
+        },
+        {
+          "label": "org:top_members/employees",
+          "overlap_cells": 2,
+          "competing_rows": 161,
+          "simple_rows": 1176,
+          "competing_standardized_fn_rate": 0.391304347826087,
+          "simple_standardized_fn_rate": 0.19023146341433764,
+          "delta": 0.2010728844117493
+        },
+        {
+          "label": "per:age",
+          "overlap_cells": 1,
+          "competing_rows": 15,
+          "simple_rows": 186,
+          "competing_standardized_fn_rate": 0.06666666666666667,
+          "simple_standardized_fn_rate": 0.03763440860215054,
+          "delta": 0.029032258064516127
+        },
+        {
+          "label": "per:cause_of_death",
+          "overlap_cells": 1,
+          "competing_rows": 11,
+          "simple_rows": 15,
+          "competing_standardized_fn_rate": 0.0,
+          "simple_standardized_fn_rate": 0.13333333333333333,
+          "delta": -0.13333333333333333
+        },
+        {
+          "label": "per:charges",
+          "overlap_cells": 1,
+          "competing_rows": 15,
+          "simple_rows": 48,
+          "competing_standardized_fn_rate": 0.06666666666666667,
+          "simple_standardized_fn_rate": 0.0625,
+          "delta": 0.004166666666666666
+        },
+        {
+          "label": "per:children",
+          "overlap_cells": 3,
+          "competing_rows": 149,
+          "simple_rows": 87,
+          "competing_standardized_fn_rate": 0.023685127133402994,
+          "simple_standardized_fn_rate": 0.057471264367816084,
+          "delta": -0.033786137234413094
+        },
+        {
+          "label": "per:cities_of_residence",
+          "overlap_cells": 1,
+          "competing_rows": 16,
+          "simple_rows": 86,
+          "competing_standardized_fn_rate": 0.0625,
+          "simple_standardized_fn_rate": 0.1511627906976744,
+          "delta": -0.08866279069767441
+        },
+        {
+          "label": "per:countries_of_residence",
+          "overlap_cells": 2,
+          "competing_rows": 34,
+          "simple_rows": 136,
+          "competing_standardized_fn_rate": 0.3529411764705882,
+          "simple_standardized_fn_rate": 0.31493650091615594,
+          "delta": 0.03800467555443229
+        },
+        {
+          "label": "per:date_of_death",
+          "overlap_cells": 2,
+          "competing_rows": 39,
+          "simple_rows": 95,
+          "competing_standardized_fn_rate": 0.15384615384615385,
+          "simple_standardized_fn_rate": 0.21988196988196987,
+          "delta": -0.06603581603581603
+        },
+        {
+          "label": "per:employee_of",
+          "overlap_cells": 4,
+          "competing_rows": 388,
+          "simple_rows": 1748,
+          "competing_standardized_fn_rate": 0.2603092783505155,
+          "simple_standardized_fn_rate": 0.21893675843363633,
+          "delta": 0.041372519916879145
+        },
+        {
+          "label": "per:identity",
+          "overlap_cells": 4,
+          "competing_rows": 2142,
+          "simple_rows": 3178,
+          "competing_standardized_fn_rate": 0.06614224968909695,
+          "simple_standardized_fn_rate": 0.05070181642827117,
+          "delta": 0.01544043326082577
+        },
+        {
+          "label": "per:origin",
+          "overlap_cells": 2,
+          "competing_rows": 39,
+          "simple_rows": 205,
+          "competing_standardized_fn_rate": 0.20512820512820512,
+          "simple_standardized_fn_rate": 0.12160380864236484,
+          "delta": 0.08352439648584029
+        },
+        {
+          "label": "per:other_family",
+          "overlap_cells": 1,
+          "competing_rows": 22,
+          "simple_rows": 32,
+          "competing_standardized_fn_rate": 0.13636363636363635,
+          "simple_standardized_fn_rate": 0.21875,
+          "delta": -0.08238636363636365
+        },
+        {
+          "label": "per:parents",
+          "overlap_cells": 2,
+          "competing_rows": 63,
+          "simple_rows": 83,
+          "competing_standardized_fn_rate": 0.047619047619047616,
+          "simple_standardized_fn_rate": 0.04824561403508772,
+          "delta": -0.0006265664160401002
+        },
+        {
+          "label": "per:schools_attended",
+          "overlap_cells": 1,
+          "competing_rows": 31,
+          "simple_rows": 63,
+          "competing_standardized_fn_rate": 0.0,
+          "simple_standardized_fn_rate": 0.07936507936507936,
+          "delta": -0.07936507936507936
+        },
+        {
+          "label": "per:siblings",
+          "overlap_cells": 3,
+          "competing_rows": 99,
+          "simple_rows": 101,
+          "competing_standardized_fn_rate": 0.09836065573770493,
+          "simple_standardized_fn_rate": 0.09994711792702274,
+          "delta": -0.0015864621893178204
+        },
+        {
+          "label": "per:spouse",
+          "overlap_cells": 3,
+          "competing_rows": 113,
+          "simple_rows": 142,
+          "competing_standardized_fn_rate": 0.1150442477876106,
+          "simple_standardized_fn_rate": 0.1576830249396621,
+          "delta": -0.042638777152051485
+        },
+        {
+          "label": "per:stateorprovinces_of_residence",
+          "overlap_cells": 2,
+          "competing_rows": 22,
+          "simple_rows": 172,
+          "competing_standardized_fn_rate": 0.40909090909090906,
+          "simple_standardized_fn_rate": 0.1361924328026023,
+          "delta": 0.27289847628830677
+        },
+        {
+          "label": "per:title",
+          "overlap_cells": 4,
+          "competing_rows": 498,
+          "simple_rows": 2128,
+          "competing_standardized_fn_rate": 0.04618473895582329,
+          "simple_standardized_fn_rate": 0.029331546754866197,
+          "delta": 0.016853192200957094
+        }
+      ],
+      "standardized_null_fp_delta": -0.008960406058820303
+    }
+  },
+  "gates": {
+    "class_coverage": true,
+    "row_coverage": true,
+    "relation_softmax_association": true,
+    "real_overlap_association": true,
+    "quantum_association": true,
+    "dephased_association": true
+  },
+  "identity_alignment": {
+    "rows_reordered": 58465,
+    "all_ids_unique": true,
+    "all_labels_match": true,
+    "all_word_counts_match": true,
+    "source_order_sha256": "b8487f762d855cc87a26a70dea5793afe170201465fa2d3bb486790a49b816f5"
+  },
+  "decision": "ASSOCIATION_SUPPORTED_PROCEED_TO_BLIND_SEMANTIC_CHECK",
+  "private_census_sha256": "3eb24b2fcf01f65c17610397fda323fe780a6f03d497f7f5f16d25fe947b4f76",
+  "seconds": 2.5214075334370136,
+  "model_forwards": 0,
+  "optimizer_updates": 0,
+  "valid_rows": 0,
+  "test_rows": 0,
+  "cos_writes": 0,
+  "scope": "Full reused TRAIN descriptive class/length-standardized association, not causal, independent utility, quantum necessity or a rescue/reselection of the closed40-pair sample."
+}

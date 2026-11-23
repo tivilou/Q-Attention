@@ -1,0 +1,48 @@
+{
+  "identity_repair": {
+    "previous_attempt": "4fc91c936be64adaa4ad645169a63460",
+    "failure": "Source text order differs cache order; assertion stopped before any statistics. Join exact SHA256(str(metadata.id)) to cache id_hash. All gates unchanged."
+  },
+  "profile": "R0-full-TRAIN-competing-object-census-v1",
+  "code_sha256": "8cb4416048656390fd38893ad5ef31958f57c1d9074eab749e6eecf759414273",
+  "input_hashes": {
+    "inputs/native-baseline/discovery/cache/train-targets.npy": "6ce409b586a421995f7d70906f062a7e91fe9d35a04be5359a2f58a3485ee604",
+    "inputs/native-baseline/recovery-inputs/labels.json": "6e822509a07c5c865130ebe315122a9d83e97b1b11496b9e86c6b2a600f8a429",
+    "inputs/native-baseline/discovery/cache/metadata.json": "9e6eac9ad582a4ef4e1a8a12190bfef3b8f0a18c5efbd9072f91f31563656c0e",
+    "inputs/native-baseline/recovery-inputs/train.jsonl": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+    "control/full-model-error-structure-20261123/output/relation_softmax-logits.private.npy": "551a29cbcd137b20952bb8edc044f4f6471043e0921ce65cddaadf9b27a9cfa9",
+    "control/full-model-error-structure-20261123/output/real_overlap-logits.private.npy": "2299be833f520a53c46db336f41646e5929c547abf67c762c95e840a74f0be5a",
+    "control/full-model-error-structure-20261123/output/quantum-logits.private.npy": "40f163f8987f75074a7c3c6ccdf58b9aa308c5e8c06693b41b7a4e4cb217b00f",
+    "control/full-model-error-structure-20261123/output/dephased-logits.private.npy": "a0d8300d1b7b8dce33aab2a3c43d04f1663af8ebb1290121bee837296f27ae4a"
+  },
+  "modes": [
+    "relation_softmax",
+    "real_overlap",
+    "quantum",
+    "dephased"
+  ],
+  "hypothesis": "At fixed gold relation class and length bin, input sentences with another annotated disjoint same-type object for the same subject have at least1pp higher null-rejection rate in all4complete heads.",
+  "exposure": "All original TRAIN rows; input-only competing-object flag. No labels/predictions select rows; labels define standardization only. Raw original predictions, no empirical type rule.",
+  "length_bin_upper_bounds": [
+    20,
+    40,
+    60,
+    100
+  ],
+  "minimum_per_arm_cell": 10,
+  "minimum_positive_classes": 10,
+  "minimum_positive_rows_per_arm": 500,
+  "minimum_absolute_fn_delta": 0.01,
+  "controls": "Perclass/length overlap standardization; ordered type/length standardized null false positives; unchanged all40classes and all58465rows.",
+  "interpretation": "An association can prioritize semantic checks but cannot prove entity binding causality. Failed gates stop promotion of this fixed explanation, not all binding methods. No multiple-proxy search or gate rescue.",
+  "relation_to_history": "Different question from fixed40natural pair witness support; no reselection, threshold lowering, new witness count or promotion of that closed profile.",
+  "resources": {
+    "cpu": 1,
+    "ram_mb": 2048,
+    "disk_mb": 64,
+    "gpus": 0,
+    "gpu_mb": 0
+  },
+  "recovery": "Cheap observation from unchanged durable inputs; no checkpoint/COS.",
+  "next_if_pass": "Only then predeclare a model-blind, gold-stratified atmost64text semantic check with null/wrong-entity controls. No training, counterfactual re-encoding or new plugin selected."
+}
