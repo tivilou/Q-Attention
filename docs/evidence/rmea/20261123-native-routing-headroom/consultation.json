@@ -1,0 +1,30 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 51.41632318496704,
+  "packet_sha256": "01eed5147d3963d5afefa39d8f6eaded22a1b857dc59a9ca344ba602bef3fc97",
+  "response": {
+    "verdict": "one_informative_next_step",
+    "what_the_new_result_actually_rules_out": [
+      "For 471 of 478 native errors on the exploratory assessment partition, the frozen states, utilities and biases admit an explicit Born-weight replay that gives the true label a strict winning margin. Lack of pointwise routing headroom cannot explain those 471 errors.",
+      "The intervention matters. Holding class 0 fixed leaves 400 witnesses, and changing only the true-class effect gives 332. Among the 216 positive examples predicted as class 0, freeing class 0 raises the witness count from 146 to 211. Class 0 is therefore worth retaining in a diagnostic of the original head."
+    ],
+    "what_it_does_not_identify": [
+      "The witnesses use each example’s label to choose its own effects. They leave open whether a change available to the shared native circuit would help across examples, and what it would do to examples the checkpoint already gets right.",
+      "The seven negative numerical margins provide no exact impossibility certificate. The exposed TRAIN partitions provide no independent estimate of task gain."
+    ],
+    "proposed_next_step": "Measure whether a routing gradient from the 4,192 calibration rows transfers through the original shared effect circuit to the 4,000 assessment rows. At the pinned checkpoint, compute one direction from calibration cross-entropy with respect to the native effect parameters, including class 0. Keep states, utilities and biases fixed. Evaluate directional derivatives on assessment without applying an update. This directly tests whether the pointwise headroom has a locally accessible, cross-example component under one specified learning rule.",
+    "why_more_informative_than_shared_perfect_fit_certificate": "A valid mixture certificate could establish incompatibility for its specified binary constraints. Even a conflict supported entirely on individually feasible rows could coexist with a shared change that helps hundreds of errors at little cost. The proposed measurement asks whether a direction selected without assessment labels improves the native head’s assessment loss, and shows which margins it helps or harms. Positive transfer would support investigating native effect optimization. Adverse transfer would weaken the case for pursuing this particular local learning rule on the strength of the oracle counts.",
+    "exact_falsifiable_question": "Does the calibration-derived direction give a strictly negative directional derivative of mean 40-way assessment cross-entropy at the pinned checkpoint? Use that as the primary readout. To interpret it, report the distribution of true-versus-strongest-competitor margin derivatives separately for the 478 native errors and 3,522 native-correct rows, with the three supplied error types broken out. A loss decrease concentrated on already-correct rows gives little evidence for an error-repair mechanism.",
+    "minimal_controls_and_budget": "Use every row in its existing partition, all 40 logits, native valid-token masking, and EPS in both numerator and denominator. Use ordinary row-mean cross-entropy and the Euclidean metric in the checkpoint’s native effect-parameter coordinates as explicit diagnostic choices. Preserve parameter sharing exactly and verify that the selected parameters affect only the effect branch. Construct the direction once from calibration alone. Check the assessment derivative by both a gradient inner product and an average of per-row logit directional derivatives. Report the calibration gradient norm and numerical agreement, treating a numerically indeterminate sign as unresolved. One checkpoint, zero updates, no step size, seeds, fitting, selection, VALID or TEST.",
+    "mathematical_derivation": "Let θ denote the shared native effect parameters, L_C and L_A the calibration and assessment mean losses, and g_C = ∇θL_C. For nonzero g_C use d = −g_C/‖g_C‖₂. The primary readout is D_d L_A = −⟨∇θL_A,g_C⟩/‖g_C‖₂. It also equals the assessment mean of Σ_r (softmax(z_i)_r − 1[r=y_i]) D_d z_ir. For q_ir = z_ir − b_r and φ̇_r = D_d φ_r from the native circuit, D_d z_ir = 2 Re[φ̇_r†(B_ir − q_ir S_i)φ_r]/(φ_r†S_iφ_r). Thus every row sees the effect change induced by the same parameter direction. For the one-sided winning-margin derivative, subtract the largest D_d z_ir among competitors tied for the highest native competitor logit from D_d z_iy. Keep the source tie policy for native error membership. If g_C vanishes, the specified learning rule supplies no direction at this checkpoint.",
+    "novelty_status_and_missing_evidence": "This is a first-order diagnostic of the accepted Q-RMEA. A positive result would establish local transfer for the specified direction on exposed TRAIN. Finite error repair, Macro improvement, superiority to a matched classical mechanism, and independent evidence for a substantive same-core L5 claim would all remain open. A negative result would leave other shared directions and finite changes open as well.",
+    "avoid": [
+      "Selecting a direction, parameter subset, loss or step size after inspecting assessment derivatives.",
+      "Counting a positive margin derivative as a repaired prediction or extrapolating it to a finite-step gain.",
+      "Using failure of perfect shared classification to motivate an input-conditioned replacement, or presenting generalized-Rayleigh theory, minimax duality or gradient alignment as L5 novelty."
+    ]
+  },
+  "scope": "Advice only, not novelty clearance or execution approval"
+}

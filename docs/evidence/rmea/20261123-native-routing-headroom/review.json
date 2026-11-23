@@ -1,0 +1,28 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 17.18633532524109,
+  "profile_echo_verified": true,
+  "packet_sha256": "e4fb3c250dcb0ef89382faa4e1e050dd09bffafe4a55a7a6c19252c78c58a4b2",
+  "hashes": {
+    "bounds.py": "f398e9d61172ab65ae2136c9271e25568b0c7d59b6a86979639971b097125be1",
+    "diagnose.py": "d2eb92d2f89ae5c5d5dbe3d54049ec4046272fc082391a0770c94bd07787f273",
+    "design.json": "b1d56cb96584a6c2e4d56698b3348115bdd47d0ea619a1b8bf52edf72b31194f",
+    "theory.md": "b34d34196b4fcc59cc0dbc7e147af5bbf829d094e4feee31d1ac05d4eb1bdaa4",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "accepted-host-wrapper.py": "f84cfc70c803e59a68f9f220a74915aa6d622641603f78125125005d4ce75bd7",
+    "original-block.json": "98028c9b2a5dab74ed393e3e6996ef157f0bf518661c6171ddc8e49f1a1a8c64"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "limitations": [
+      "All three original findings are resolved in the supplied code. For every example, `native_outside_spectral` measures the largest violation of either endpoint across all 40 native logits, must be below the example’s tolerance, and contributes to the recorded maximum. The adapter separately requires exact prior argmax agreement on every example and retains the logit discrepancy check. Each of the first eight private fixtures saves both the native `phi` and the lower and upper unit directions in `extremizer_phi`.",
+      "The interval derivation matches the native squared overlap. Averaging over valid tokens gives the required EPS terms in both S and B. Whitening by S^(-1/2), mapping the endpoint eigenvectors back by S^(-1/2), and normalizing them gives unit directions for direct replay. Independent binary effects permit simultaneous endpoint choices within the stated per-example relaxation.",
+      "The all-row, class-0-fixed, and true-row-only margins use the intended competitors. A Born witness count requires a direct replay margin strictly above the per-example tolerance. Near ties remain unresolved, and negative numerical margins carry no impossibility certificate.",
+      "Admission covers one pass over the 8192 exposed TRAIN examples using the pinned 4192/4000 partition. The assessment counts are exploratory and establish neither independent generalization nor shared-circuit reachability. This was a static review. The original BLOCK record is preserved, no run was executed, and runtime conformance, fixture replay, checkpoint agreement, and observed counts remain unverified."
+    ],
+    "admission": "one_bounded_native_TRAIN_forward"
+  }
+}
