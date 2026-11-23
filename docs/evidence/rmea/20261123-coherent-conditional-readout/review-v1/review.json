@@ -1,0 +1,33 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 46.5841588973999,
+  "packet_sha256": "169da945058fc436022f19400d30e39390c07dd0755116dac85986f182ad940e",
+  "hashes": {
+    "weak_readout.py": "ef496926e03e860d799d9a9527673b03e2c98bf89baaf4d710aafd0d4f6e17da",
+    "screen.py": "e80fcf0fcbf70fa8f7cb1ab75ea075421dd1b2b98b8e0302e66e692c5fd866ee",
+    "design.json": "488c5718a0857692d03209b13b75b70af26b9bb7438bc554c181673415664b13",
+    "theory.md": "1d44d746a15584cd41e2d20a836a303321ea90a9d59e7d09f0affc6857b58e63",
+    "source-reading.json": "bd7377c7dd212180b490ddce5ec51393e732ae001ec50a0ce5e8e47641d5ec95",
+    "original-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "original-frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "unchanged-core-excerpts.json": "81d7e69e61c0287ac2f3e81badfd2e9fcb4d1aaf944d182ba87b74189d76501f",
+    "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "both",
+    "must_fix": [
+      "In screen.py, evaluate() calls plugin.SharedNullHead(mode), but weak_readout.py exports ConditionalHead. The first assessment would raise AttributeError after all four 512-update fits finish. Use plugin.ConditionalHead(mode).double() when loading the final checkpoint. The fixtures miss this error because they instantiate ConditionalHead directly.",
+      "In weak_readout.py, signed_weights() multiplies EPS by a Boolean mask and an integer count before either term enters float64 arithmetic. Under the runner’s default PyTorch dtype, both products use float32 and round separately. With three valid words and zero total projected amplitude, the weights can sum to one with an error of about 3.8e-8, exceeding the fixture tolerance of 1e-8. Compute noise = mask.to(numerator.dtype) * EPS, add noise[:, None, :] to the numerator, and add noise.sum(-1, keepdim=True) to the denominator. This preserves the specified identity-noise branch under cancellation. Refresh the affected design and launch hashes after both fixes."
+    ],
+    "limitations": [
+      "The stated density-matrix normalization and Re tr(F V rho) ordering give the proposed coherent ratio. Word dephasing recovers native Born-plus-epsilon pooling. Internal dephasing retains word interference and can produce negative coefficients. The epsilon floor makes the denominator positive for every nonempty mask, while near cancellation can still produce large gradients. At exact cancellation the intended coherent weights are uniform, including for the real signed control.",
+      "The quantum, internal-diagonal, and native arms share the full initialization and have 81,028 parameters each. The smaller real signed arm shares the values, decoder, bias, and batch order. The density-matrix fixture independently checks a forward value. Its tensors are detached, so the gradient comparison checks the pooling expression using the same computed weights and utilities.",
+      "This was a pre-execution review. The exposed TRAIN split and final-update gates can support a planning decision only. A reduction in positive-to-null errors can include predictions that move to an incorrect positive class, so that count alone cannot establish correct-label repairs."
+    ],
+    "admission": "blocked",
+    "theory_novelty_status": "known_tools_only"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 40.02588605880737,
+  "packet_sha256": "2205df746640592badf4b08cee513e274c5337690a06d636c1f86b49b48627a4",
+  "hashes": {
+    "weak_readout.py": "2678479931f6c4900a13156b4c1d7a3879d1f2dc301bd336c5a3b5a7914600c6",
+    "screen.py": "47d269562e4b8f53a3b87f3348260e5bdfa825bbdc7ad02faf3c3c4d36de7c27",
+    "design.json": "e6333978b484a4e656d108bacd12e19b1a7231935cb375c79fc6fce1a5a976b4",
+    "theory.md": "1d44d746a15584cd41e2d20a836a303321ea90a9d59e7d09f0affc6857b58e63",
+    "source-reading.json": "bd7377c7dd212180b490ddce5ec51393e732ae001ec50a0ce5e8e47641d5ec95",
+    "original-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "original-frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "unchanged-core-excerpts.json": "81d7e69e61c0287ac2f3e81badfd2e9fcb4d1aaf944d182ba87b74189d76501f",
+    "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "limitations": [
+      "The implemented coherent coefficients agree with Re tr(F V ρ) / tr(F ρ). The density normalization cancels in the ratio, and the identity term contributes ε per valid word. Word dephasing recovers native Born-plus-ε pooling. Internal dephasing retains cross-word terms and can still yield negative coefficients.",
+      "Masking removes padded words from both signal and noise. Every nonempty row has denominator at least εT, the coefficients sum to one, and exact amplitude cancellation gives uniform weights. Near cancellation, both the coherent and signed-real arms can still produce large gradients.",
+      "Coherent, internal-diagonal, and native share the full initialization and 81,028 parameters. The signed-real arm shares the value layer, decoder, bias, and batch order, with a smaller router. The diagonal comparison supports a separate internal-coherence contrast. The classical comparison cannot establish quantum necessity.",
+      "The adapter loads weak_readout.py, returns logits in the format expected by backward and score_batch, and reconstructs ConditionalHead for scoring. Assessment starts after all four final checkpoints exist and their digests are checked. The gradient fixture compares the returned and reconstructed logit paths. The independent density-matrix fixture checks a forward value. Fixture results and first-update gradient checks remain pending execution.",
+      "Admission covers one seed and 512 updates per arm on the exposed TRAIN planning split. Fewer positive-to-null errors can include switches to an incorrect positive class, so that count alone cannot establish correct-label repairs. The prospective CE, paired-bootstrap, Macro39, and null-error gates remain unevaluated."
+    ],
+    "admission": "one_bounded_TRAIN_only_screen",
+    "theory_novelty_status": "known_tools_only"
+  }
+}
