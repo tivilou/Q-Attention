@@ -1,0 +1,24 @@
+{
+  "model": "gpt-6.2-astra",
+  "reasoning_effort": "high",
+  "selection_basis": "owner_preference",
+  "profile_echo_verified": true,
+  "packet_sha256": "4fe991c546633fa049280de2e739aedd35e4f27e23531370a017899256b1dd20",
+  "hashes": {
+    "probe.py": "031c14f6ef88371b41bc727b5ca215a9fd268c74fbb0d38079acaedfed5aa7f1",
+    "design.json": "8299e8e8aae1c6b5df5250581bd7af5c0aa41bfc52193635f7bb6504227837d5"
+  },
+  "seconds": 16.812999999994645,
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "Both heads use the same subject, object and nonentity-context means. Empty context contributes a zero vector before centering. The 4,192 fit rows determine the centering, block scales and 25-pair vocabulary. The typed head adds a one-hot vector that is all zeros for an unseen pair.",
+      "The analytic gradient matches the stated 40-class mean cross-entropy objective with L2 regularization on weights and bias. Both fits retain all 40 output columns and use only pooled features and, for the typed arm, type-pair indicators as predictors. The script requires optimizer success and a gradient infinity norm at most 1e-6 for both heads before sealing their coefficients and scoring either evaluation set.",
+      "The script scores all 4,000 assessment rows and all 19,584 development VALID rows. It checks the reconstructed hard type rule against the frozen macro-F1 and correct count. Each arm requires both a strict gain in macro-F1 over classes 1 through 39 and more paired repairs than damages. The separate typed-versus-untyped comparison measures macro-F1 gain only.",
+      "Prior exposure of both TRAIN subsets, reuse of development VALID and the historical full-TRAIN fit budget limit a positive result to an exploratory comparison. A negative result applies only to these fixed fits. This static review relies on the accepted retrospective row lineage. Staged hashes, numerical convergence and comparator agreement remain execution-time checks."
+    ],
+    "admission": "one_bounded_CPU_diagnostic"
+  }
+}
