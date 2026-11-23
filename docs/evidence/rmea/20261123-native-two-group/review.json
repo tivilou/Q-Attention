@@ -1,0 +1,27 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 24.821571111679077,
+  "profile_echo_verified": true,
+  "packet_sha256": "4bb3678ab2d8aa6dd317a2762819535db17787d6c61e905525fc511f79dc7f40",
+  "hashes": {
+    "two_group.py": "c6a4efa52285ce955ff6608dc1d0569ee53da957ca123924527c78591e7425ca",
+    "design.json": "df872eaa5c84868cda8648cee742904650c7e5db415ee883523b8ce288968fba",
+    "theory.md": "d1c608b49ceb0234b423278b67665bb96676bc0ccb2d2316a4aadaec2dc15f9f",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "accepted-tables-and-previous-direction.py": "5e57136d8de7a43f4b73ccce9d604a712b6f50dc834907dd3a3496ce544604b9",
+    "accepted-host-wrapper.py": "f84cfc70c803e59a68f9f220a74915aa6d622641603f78125125005d4ce75bd7"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "limitations": [
+      "The selection uses only calibration gradients. The positive-group gradient reconstruction uses the correct row counts, and the clipped minimum-norm formula gives the stated calibration descent bound whenever the common direction is valid. The fixed assessment rows were previously exposed.",
+      "The gate requires both assessment groups to have negative CE derivatives beyond tolerance and the common direction to improve the worst-group derivative over equal weighting. One group can still have a more favorable derivative under equal weighting.",
+      "The native JVP follows the masked Born+EPS normalization. The implementation checks group inner products on both partitions, uses finite differences on the circuit state and first eight logit rows for each valid new direction, and reuses the pinned frequency-direction JVP. Argmax parity is exact, while logit parity uses an absolute tolerance of 1e-8.",
+      "This is a static review. Runtime checks and the empirical gate outcome remain unverified. A passing run would support only a local, zero-update derivative result on this exposed TRAIN split."
+    ],
+    "admission": "one_bounded_native_two_group_direction_diagnostic"
+  }
+}

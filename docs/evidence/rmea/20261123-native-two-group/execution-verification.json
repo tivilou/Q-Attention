@@ -1,0 +1,83 @@
+{
+  "verification": {
+    "argv": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/native-effect-transfer-20261123/two-group-v1/verify.py",
+      "/hy-tmp/Q-Attention/control/native-effect-transfer-20261123/two-group-v1/output",
+      "--reference",
+      "/hy-tmp/Q-Attention/control/native-ordered-mass-value-20261123"
+    ],
+    "stdin": null,
+    "stdout": "{\"status\": \"PASS\", \"gate\": \"PASS_LOCAL_DIRECTION_ONLY\", \"group_gradient_jvp_max_error\": 2.220446049250313e-16, \"cached_frequency_direction_and_jvp_reused\": true, \"all_group_counts_seals_selection_and_primary_recomputed\": true, \"descriptive_tables_reuse\": \"Previously accepted native tables helper; primary/group fields independently recomputed\", \"optimizer_updates\": 0, \"diagnostic_sha256\": \"61bd02b286a4f2dcf7206aef4503263bcba3c8fdb523e0c544ec7bce8a0a2ecc\"}\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  "execution": {
+    "argv": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/native-effect-transfer-20261123/two-group-v1/two_group.py",
+      "--source",
+      "/hy-tmp/Q-Attention/source",
+      "--inputs",
+      "/hy-tmp/Q-Attention/inputs/native-baseline",
+      "--checkpoint",
+      "/hy-tmp/Q-Attention/inputs/native-checkpoint/native-final.pt",
+      "--reference",
+      "/hy-tmp/Q-Attention/control/native-ordered-mass-value-20261123",
+      "--design",
+      "/hy-tmp/Q-Attention/control/native-effect-transfer-20261123/two-group-v1/design.json",
+      "--output",
+      "/hy-tmp/Q-Attention/control/native-effect-transfer-20261123/two-group-v1/output",
+      "--progress",
+      "/hy-tmp/Q-Attention/control/native-effect-transfer-20261123/two-group-v1/progress.json",
+      "--allocation",
+      "/hy-tmp/Q-Attention/control/native-effect-transfer-20261123/two-group-v1/launch.json",
+      "--attempt",
+      "34cc591a54f14c17a93cd1d5626d0acb"
+    ],
+    "cwd": "/hy-tmp/Q-Attention/source",
+    "inputs": {
+      "split_reference_sha256": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+      "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+      "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51"
+    },
+    "stdout": "{\"gate\": \"PASS_LOCAL_DIRECTION_ONLY\", \"seconds\": 100.88742017745972, \"assessment\": {\"frequency\": {\"class0\": -0.2583826917112191, \"positive\": 0.15370170833327582, \"worst\": 0.15370170833327582}, \"balanced\": {\"class0\": 0.08650912475040651, \"positive\": -0.27815659582008173, \"worst\": 0.08650912475040651}, \"common\": {\"class0\": -0.07718400225668552, \"positive\": -0.09815325088522993, \"worst\": -0.07718400225668552}}}\n",
+    "stderr": "",
+    "exit_code": 0,
+    "started_at": 1795398447.9185588,
+    "finished_at": 1795398549.7495742,
+    "runner_attempt_id": "34cc591a54f14c17a93cd1d5626d0acb",
+    "file_hashes": {
+      "two_group.py": "c6a4efa52285ce955ff6608dc1d0569ee53da957ca123924527c78591e7425ca",
+      "design.json": "df872eaa5c84868cda8648cee742904650c7e5db415ee883523b8ce288968fba",
+      "theory.md": "d1c608b49ceb0234b423278b67665bb96676bc0ccb2d2316a4aadaec2dc15f9f",
+      "verify.py": "cc5ad56096ec2ec3e48b9e46c07f3e872f2e0e80b933bca1ca08fff977cfe28e",
+      "host_run.py": "f84cfc70c803e59a68f9f220a74915aa6d622641603f78125125005d4ce75bd7"
+    }
+  },
+  "resource_return": {
+    "allocation_id": "17d21e8b001c42a6800b9fb82e839402",
+    "generation": 21,
+    "project_id": "q-attention",
+    "host_id": "gpushare-i2-38434-2080tix2",
+    "run_id": "native-effect-transfer-two-group-20261123-v1",
+    "runner_attempt_id": "34cc591a54f14c17a93cd1d5626d0acb",
+    "schema": "research.resource-return.v1",
+    "event_sequence": 1,
+    "observed_at": "2026-11-23T01:49:09.750231+00:00",
+    "campaign_status": "completed",
+    "all_jobs_terminal": true,
+    "quiescent": true,
+    "no_remaining_consumers": true,
+    "cleanup_status": "not_needed",
+    "resources_reusable": true,
+    "owner_pid": 200643,
+    "owner_pgid": 200643,
+    "owner_start_ticks": "636466933",
+    "boot_id": "74146a10-dc63-48fe-9f2d-86cbe605f111"
+  },
+  "resident_gone": true,
+  "remaining_group_members": []
+}

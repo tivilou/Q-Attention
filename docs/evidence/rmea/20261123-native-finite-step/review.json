@@ -1,0 +1,27 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 20.00697612762451,
+  "profile_echo_verified": true,
+  "packet_sha256": "89412cd5831c466ade23277b8f5109c33b1b5972e626156268cb260d02cc13d8",
+  "hashes": {
+    "probe.py": "99da0ec5d4abfdc0832f7503b41cfb4a8177ab70cd84b9f01ce2d102c4a4d831",
+    "design.json": "81a57c6ecc5d7454e452de777ac85558b2ab5d0f689bdd59a1680c3879c5ee60",
+    "theory.md": "965e8ebfe40315b09cc782b51e29b24f0d82ad71a10dff69282db7e8d20a2083",
+    "sealed-direction-producer.py": "c6a4efa52285ce955ff6608dc1d0569ee53da957ca123924527c78591e7425ca",
+    "sealed-direction-producer-design.json": "df872eaa5c84868cda8648cee742904650c7e5db415ee883523b8ce288968fba",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "accepted-two-gpu-host-wrapper.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "limitations": [
+      "Static review establishes the direction order. The pinned producer stacks directions in frequency, balanced, common order, and the probe checks that order before pairing them with the three perturbed effects. Artifact hashes and numerical parity still require runtime verification.",
+      "The probe uses the original head’s prepared states, utilities, bias, and masked Born normalization. It checks native logits and argmax on every row. Direct forward checks for all four modes cover the first batch on each GPU.",
+      "The five strict comparisons match the declared gate. A pass would establish only that the common step at eta 0.05 met those criteria on the 19,584 previously used development VALID examples. Independent confirmation, full-training gains, and novelty remain outside the evidence."
+    ],
+    "admission": "one_fixed_step_development_VALID_diagnostic"
+  }
+}

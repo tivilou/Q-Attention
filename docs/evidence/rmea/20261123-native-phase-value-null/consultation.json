@@ -1,0 +1,22 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 26.907259702682495,
+  "packet_sha256": "f3d669820cc06d0092aa18e870f86a57565f75ea5f5c3b1da04b135bbf9a2c57",
+  "response": {
+    "correctness": "valid_conditional",
+    "must_fix": [
+      "Specify that P is the Euclidean orthogonal projector onto ker V. The minimum-norm formula uses P = Pᵀ = P² and consequently WPWᵀ = (WP)(WP)ᵀ.",
+      "Replace “a constant utility path” with “utilities equal across all valid tokens for relation r.” Every utility is already constant along the proposed feature curve. Attention can still change the logit by shifting weight between tokens with different utilities. For a single perturbed token, the exact cancellation condition when dp_rt ≠ 0 is u_rt = pooled_r."
+    ],
+    "source_correspondence": "The supplied source supports the construction. W is the first 1024 columns of prepare.weight, and the final four columns multiply the fixed roles. Under rank(WP) = 12, the stated lift is the minimum-norm value-preserving displacement, with the stated singular-value bound. Its exact domain is α + δ ∈ (−π, π)^12 componentwise. In zero-based (layer, wire, rotation) order, 7, 9 and 11 are the final RZ angles. Each added RZ can move past subsequent gates on other wires to just before the final CNOT ring. Conjugation by that ring preserves diagonality, so every token population and every same-parameter dephased logit stays fixed. The source convention exp(−iδG_j/2) gives the stated positive imaginary-part sign. Differentiating the masked, EPS-normalized weighted mean gives (u_rt − pooled_r)/N_r for a valid token, with N_r taken from the coherent branch when computing its Jacobian.",
+    "substantive_novelty": "not_established",
+    "nearest_known_tool_collision": "The feature lift is a Moore–Penrose right inverse restricted to a linear nullspace. The population argument is diagonal-phase invariance under a basis permutation. The scalar protection argument is the regular-level-set theorem: J_0 ≠ 0 makes the local level set smooth, and J_r outside span(J_0) gives a tangent direction on which z_r changes. The source-specific contribution is identifying the native coordinates where all three arguments apply together.",
+    "exact_claim_ceiling": "For a fixed example and fixed head parameters satisfying the rank assumption, the continuous head-input interface admits exact value- and population-preserving phase variation in real arithmetic. If J_r ≠ 0, some such variation changes coherent logit r while every same-parameter dephased logit stays fixed. If also J_0 ≠ 0 and J_r is outside span(J_0), a local curve keeps coherent logit 0 exactly fixed while logit r changes to first order. The result establishes conditional phase sensitivity at this interface. Checkpoint instantiation, encoder or text reachability, task-level phase necessity, benchmark advantage and separation from independently parameterized models remain unestablished.",
+    "should_measure_checkpoint_assumptions_now": false,
+    "reason": "The unmeasured assumptions limit applicability, but the conditional proof can be audited directly from the supplied code. Measuring rank and Jacobians would address checkpoint instantiation. It would not resolve the known-tool collision or supply a substantive L5 theoretical contribution.",
+    "one_next_step": "With the two wording edits above, retain the theorem as a source-correspondence lemma alongside the accepted L4 result."
+  },
+  "scope": "Advice only, not novelty clearance or execution approval"
+}

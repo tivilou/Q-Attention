@@ -1,0 +1,28 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 46.501561641693115,
+  "profile_echo_verified": true,
+  "packet_sha256": "0f2a76366395d04dc129b2792b14392fd5aaf4a86ff56273e7e278bbb61f1415",
+  "hashes": {
+    "probe.py": "4504d8b3056f8b4d39234ddacc489f041e09da99a013f0859cd26c3edb361d74",
+    "design.json": "d9ee539d00a60b04cee60483a2e1ed8dac865acc99758e105c7a655a61926212",
+    "theory.md": "0edd54c0cdfa23f39182d8e478515a29a9c6371dd92a551022aa239b96bd3196",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "accepted-two-gpu-host-wrapper.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "both",
+    "must_fix": [
+      "Establish the direction order before interpreting the five gates. The probe assigns frequency, balanced and common to tensor slices 0, 1 and 2 by position. The hashes pin the bytes, and the direct-forward fixtures verify the logits for each slice, but neither check establishes which slice is the TRAIN-selected common direction. A reference to an explicit axis-order record from the sealed producer is sufficient. If directions-frozen.json contains that order, check it against modes[1:].",
+      "Correct the storage statement in theory.md. The probe copies every logit to host RAM with z.cpu().numpy() and writes logits and labels to predictions.private.npz. The launch contract designates that file as private. Describe it as private on the allocated host."
+    ],
+    "limitations": [
+      "The fixed-step arithmetic matches the supplied original quantum head. Each lane applies eta=0.05 before the tanh angle map, reuses the original prepared states, utilities and bias, and evaluates all four modes on its VALID shard. The decision function implements all five declared strict inequalities with tolerance 1e-8.",
+      "This was a static review. Native parity on every row, direct-forward agreement on each lane’s first batch, and final weight equality are runtime checks. They use Python assertions and therefore require an interpreter running with assertions enabled.",
+      "Even a passing result supports only this fixed step on the previously exposed development VALID set."
+    ],
+    "admission": "blocked"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "verification": {
+    "argv": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/native-effect-transfer-20261123/finite-step-v1/verify.py",
+      "/hy-tmp/Q-Attention/control/native-effect-transfer-20261123/finite-step-v1/output",
+      "--reference",
+      "/hy-tmp/Q-Attention/control/native-ordered-mass-value-20261123"
+    ],
+    "stdin": null,
+    "stdout": "{\"status\": \"PASS\", \"gate\": \"FAIL_CLOSE_EXACT_STEP\", \"all_metrics_confusions_changes_and_five_gates_recomputed\": true, \"max_metric_error\": 0.0}\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  "execution": {
+    "argv": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/native-effect-transfer-20261123/finite-step-v1/probe.py",
+      "--source",
+      "/hy-tmp/Q-Attention/source",
+      "--inputs",
+      "/hy-tmp/Q-Attention/inputs/native-baseline",
+      "--checkpoint",
+      "/hy-tmp/Q-Attention/inputs/native-checkpoint/native-final.pt",
+      "--reference",
+      "/hy-tmp/Q-Attention/control/native-effect-transfer-20261123/two-group-v1",
+      "--design",
+      "/hy-tmp/Q-Attention/control/native-effect-transfer-20261123/finite-step-v1/design.json",
+      "--output",
+      "/hy-tmp/Q-Attention/control/native-effect-transfer-20261123/finite-step-v1/output",
+      "--progress",
+      "/hy-tmp/Q-Attention/control/native-effect-transfer-20261123/finite-step-v1/progress.json",
+      "--allocation",
+      "/hy-tmp/Q-Attention/control/native-effect-transfer-20261123/finite-step-v1/launch.json",
+      "--attempt",
+      "f9cae33ee90a40dd847cc6e9d2ab6ef1"
+    ],
+    "cwd": "/hy-tmp/Q-Attention/source",
+    "inputs": {
+      "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+      "checkpoint_sha256": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51"
+    },
+    "stdout": "{\"gate\": \"FAIL_CLOSE_EXACT_STEP\", \"seconds\": 19.571502923965454, \"results\": {\"native\": {\"ce\": 0.6298576331800944, \"positive_macro_f1\": 0.5164743763828692, \"class0_ce\": 0.3083533537529263, \"positive_ce\": 1.0634912535252528, \"repaired\": 0, \"damaged\": 0}, \"frequency\": {\"ce\": 0.6268942295732807, \"positive_macro_f1\": 0.5149371987803741, \"class0_ce\": 0.28802123216808556, \"positive_ce\": 1.0839541634685583, \"repaired\": 103, \"damaged\": 92}, \"balanced\": {\"ce\": 0.627032501264437, \"positive_macro_f1\": 0.5177418739558639, \"class0_ce\": 0.3122529128203665, \"positive_ce\": 1.051596095848512, \"repaired\": 60, \"damaged\": 68}, \"common\": {\"ce\": 0.6262553664764972, \"positive_macro_f1\": 0.5159357654021082, \"class0_ce\": 0.300246387939295, \"positive_ce\": 1.0659647659283291, \"repaired\": 72, \"damaged\": 57}}}\n",
+    "stderr": "",
+    "exit_code": 0,
+    "started_at": 1795399989.9883564,
+    "finished_at": 1795400011.877099,
+    "runner_attempt_id": "f9cae33ee90a40dd847cc6e9d2ab6ef1",
+    "file_hashes": {
+      "probe.py": "99da0ec5d4abfdc0832f7503b41cfb4a8177ab70cd84b9f01ce2d102c4a4d831",
+      "design.json": "81a57c6ecc5d7454e452de777ac85558b2ab5d0f689bdd59a1680c3879c5ee60",
+      "theory.md": "965e8ebfe40315b09cc782b51e29b24f0d82ad71a10dff69282db7e8d20a2083",
+      "verify.py": "66e5cd6d64103443a30ce43e96f3f019e9f22d9b5e84845f651d3db482966f20",
+      "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662"
+    }
+  },
+  "resource_return": {
+    "allocation_id": "f6ac0d770ca0441285cbd20f826eb11e",
+    "generation": 22,
+    "project_id": "q-attention",
+    "host_id": "gpushare-i2-38434-2080tix2",
+    "run_id": "native-effect-transfer-finite-step-20261123-v1",
+    "runner_attempt_id": "f9cae33ee90a40dd847cc6e9d2ab6ef1",
+    "schema": "research.resource-return.v1",
+    "event_sequence": 1,
+    "observed_at": "2026-11-23T02:13:31.877574+00:00",
+    "campaign_status": "completed",
+    "all_jobs_terminal": true,
+    "quiescent": true,
+    "no_remaining_consumers": true,
+    "cleanup_status": "not_needed",
+    "resources_reusable": true,
+    "owner_pid": 202616,
+    "owner_pgid": 202616,
+    "owner_start_ticks": "636621140",
+    "boot_id": "74146a10-dc63-48fe-9f2d-86cbe605f111"
+  },
+  "resident_gone": true,
+  "remaining_group_members": []
+}
