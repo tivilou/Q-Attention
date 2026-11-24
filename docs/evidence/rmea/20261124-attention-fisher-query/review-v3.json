@@ -1,0 +1,25 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 16.467952489852905,
+  "hashes": {
+    "plugin.py": "033380993eb89adbb55f6e8c65936678fdaab8bdb899add246977b2fb5a67acc",
+    "adapter.py": "d2cee0fc88da439037f42e2fd77c8fb4874d756c9c39e6788d74794489e531d7",
+    "core-delta.patch": "f7ae73dabc86f34ea9e9d681f84d7fbc8c03077dc878317e5fa2ad71f81ee776",
+    "design.json": "349d55fd2f8285c8c5e25215b7f660152195f6eca282f8e30456bbb96b95fa5b",
+    "protocol.md": "e5a16967c751342c4df369862a1cdb85fd4ac8b113632dd1ca2ca4657ae0ad16",
+    "screen.py": "755e63477e50be8e8624c12446809645b764bc0e646f918ce6ca362c201266c0",
+    "native/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "native/rmea_matched_routers.py": "3813f29b61dfc1819a7fd2a610889efb97e8ace950344aaac5ed2800c0921e4d",
+    "previous-review.json": "8d3d601d8e7764eb274e471af9e63a139daa8f6ca0165919769bdb1979a474b9"
+  },
+  "response": {
+    "verdict": "PASS",
+    "must_fix": [],
+    "limitations": [
+      "Static review only. The revised fixture detaches the reference query before NumPy conversion, resolving the previous blocker. No fixture execution results were supplied.",
+      "The four query derivatives and centered Fisher Gram agree with the supplied routing formulas. The JVP fixture checks them in FP64. During FP32 training, routing_metric recomputes attention normalization in FP64, so its weights can differ from the native forward by rounding.",
+      "The optimizer applies the damped inverse square root to the decay-separated AdamW displacement and matches each query row\u2019s norm before FP32 storage. The fixture checks one cloned update per mode. The factory hook preserves the original AdamW arguments when a plugin omits make_optimizer."
+    ]
+  }
+}

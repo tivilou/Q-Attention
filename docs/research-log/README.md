@@ -6,6 +6,8 @@
 
 ## 时间线
 
+- [2026-11-24｜注意力Fisher五路筛选](20261124T-attention-fisher-query.md)：Q方向修正Macro下降1.54pt且未胜经典，固定1/8门关闭；锚点logits完全一致。回到完整模型独有正例，L3/L4-T未通过。
+
 - [2026-11-24｜原生编码标签盲诊断](20261124T-native-angle-aliasing.md)：全TRAIN未见整体周期端点塌缩；条件注意力Fisher与QFI反例已验证，不作新T。下一步研究归一化路由更新，L3/L4-T未通过。
 
 - [2026-11-24｜双测量方向五路筛选](20261124T-shared-rank2-screen.md)：Q2比Q1提高5.12pt，但低于同参数softmax；固定门5/8，配置关闭，不晋级全量/L3/T。

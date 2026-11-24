@@ -1,0 +1,137 @@
+{
+  "status": "PASS",
+  "checks": {
+    "quantum_adam_update": {
+      "loss": 4.356342792510986,
+      "parameters": 81028,
+      "finite": true,
+      "state_changed": true,
+      "query_step_check": null
+    },
+    "quantum_fisher_derivative": {
+      "alpha_error": 0.0,
+      "query_jvp_error": 1.9984014443252818e-15,
+      "padding_metric_error": 7.105427357601002e-15,
+      "normalization_tangent_error": 2.1094237467877974e-15
+    },
+    "quantum_fisher_numpy_step": {
+      "query_max_error": 2.619292871486323e-08,
+      "unchanged_body_step_exact": true
+    },
+    "quantum_fisher_update": {
+      "loss": 4.356342792510986,
+      "parameters": 81028,
+      "finite": true,
+      "state_changed": true,
+      "query_step_check": {
+        "step_norm_error": 8.673617379884035e-19,
+        "minimum_eigenvalue": 3.504596708113752e-06,
+        "maximum_eigenvalue": 84.1407437536357,
+        "minimum_damping": 0.00649944617441911,
+        "maximum_query_step": 0.0034639301310419542,
+        "stored_fp32_step_norm_error": 1.160320792746583e-08
+      }
+    },
+    "dephased_fisher_derivative": {
+      "alpha_error": 0.0,
+      "query_jvp_error": 3.0531133177191805e-16,
+      "padding_metric_error": 2.220446049250313e-16,
+      "normalization_tangent_error": 4.718447854656915e-16
+    },
+    "dephased_fisher_numpy_step": {
+      "query_max_error": 2.3318948882966595e-08,
+      "unchanged_body_step_exact": true
+    },
+    "dephased_fisher_update": {
+      "loss": 4.350152969360352,
+      "parameters": 81028,
+      "finite": true,
+      "state_changed": true,
+      "query_step_check": {
+        "step_norm_error": 8.673617379884035e-19,
+        "minimum_eigenvalue": 1.3475033650873351e-30,
+        "maximum_eigenvalue": 5.419545191664695,
+        "minimum_damping": 0.0016988435819899996,
+        "maximum_query_step": 0.0029998038166464155,
+        "stored_fp32_step_norm_error": 1.0767529957499827e-08
+      }
+    },
+    "real12_fisher_derivative": {
+      "alpha_error": 0.0,
+      "query_jvp_error": 7.105427357601002e-15,
+      "padding_metric_error": 0.0,
+      "normalization_tangent_error": 7.105427357601002e-15
+    },
+    "real12_zero_and_sub_epsilon": {
+      "relative_jvp_error": 1.160150622420612e-14,
+      "zero_fisher": true,
+      "finite": true
+    },
+    "real12_fisher_numpy_step": {
+      "query_max_error": 2.9650183530627316e-08,
+      "unchanged_body_step_exact": true
+    },
+    "real12_fisher_update": {
+      "loss": 4.365175247192383,
+      "parameters": 81028,
+      "finite": true,
+      "state_changed": true,
+      "query_step_check": {
+        "step_norm_error": 4.336808689942018e-19,
+        "minimum_eigenvalue": 3.4463865501254145e-15,
+        "maximum_eigenvalue": 1532.329620239462,
+        "minimum_damping": 0.00032340742057730324,
+        "maximum_query_step": 0.0034640613178278596,
+        "stored_fp32_step_norm_error": 2.1181013208117216e-08
+      }
+    },
+    "softmax12_fisher_derivative": {
+      "alpha_error": 0.0,
+      "query_jvp_error": 2.5370330836160804e-17,
+      "padding_metric_error": 0.0,
+      "normalization_tangent_error": 6.288372600415926e-17
+    },
+    "softmax12_fisher_numpy_step": {
+      "query_max_error": 2.9560593861610585e-08,
+      "unchanged_body_step_exact": true
+    },
+    "softmax12_fisher_update": {
+      "loss": 4.359975814819336,
+      "parameters": 81028,
+      "finite": true,
+      "state_changed": true,
+      "query_step_check": {
+        "step_norm_error": 8.673617379884035e-19,
+        "minimum_eigenvalue": 0.0007664374673516756,
+        "maximum_eigenvalue": 0.0038794598168605896,
+        "minimum_damping": 1.783037979340928e-05,
+        "maximum_query_step": 0.003463076414827011,
+        "stored_fp32_step_norm_error": 1.752307630248362e-08
+      }
+    }
+  },
+  "real_first8_updates": 5,
+  "scope": "New query metric/derivatives/optimizer one batch only; no lifecycle/resume/COS matrix.",
+  "first_updates": {
+    "quantum_adam": {
+      "finite_gradients": true,
+      "state_changed": true
+    },
+    "quantum_fisher": {
+      "finite_gradients": true,
+      "state_changed": true
+    },
+    "dephased_fisher": {
+      "finite_gradients": true,
+      "state_changed": true
+    },
+    "real12_fisher": {
+      "finite_gradients": true,
+      "state_changed": true
+    },
+    "softmax12_fisher": {
+      "finite_gradients": true,
+      "state_changed": true
+    }
+  }
+}
