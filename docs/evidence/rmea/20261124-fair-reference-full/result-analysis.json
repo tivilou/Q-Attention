@@ -1,0 +1,131 @@
+{
+  "at_utc": "2026-11-24T01:08:14.467790+00:00",
+  "scope": "Completed seed13 frozen full-budget five-condition qualification; descriptive only",
+  "report_sha256": {
+    "summary.json": "2c6388e4ddf0798277b7f07be204dc005f1759c4c680eef67ff1140bbd52b9a2",
+    "manifest.json": "bc930a61b89190bad8ffc862cf551e54cf675acd9b26141cfc57c23143579be8",
+    "analysis-readiness.json": "dcac490c1b8550290c049d433d5c68f8261e4d6e69c97cd2f368ee8f66380d65",
+    "receipt.json": "dd3b2ddda112743ce170d3381ea52635d536c207d73ef91e4e68a00192f4274f",
+    "run_summary.json": "92cfd44ff9caba9fe3787548da981df8af2c2fc0a384098584d1f21fc10ee9c4",
+    "data.sha256": "011f9a348b9dc44e45ae998a680e16d9e68a90e998f555ed22f1874b40327a32",
+    "data_counts.txt": "0eea5f2e8ad45c89cee45ffa2e9094c21822e4947166ef1877e0e8ad7bec4592"
+  },
+  "rows": {
+    "uniform": {
+      "selected_epoch": 17,
+      "updates": 9140,
+      "valid": {
+        "macro_f1_all40": 0.242704894233446,
+        "macro_f1_positive39": 0.22916124936595444,
+        "micro_f1_positive39": 0.42571348628987127,
+        "ce": 1.1689609215150472,
+        "positive_to_null": 4039,
+        "null_to_positive": 1659
+      },
+      "test": {
+        "macro_f1_all40": 0.22116609369589763,
+        "macro_f1_positive39": 0.20717392419025835,
+        "micro_f1_positive39": 0.455183640248245,
+        "ce": 1.150371873337886,
+        "positive_to_null": 2716,
+        "null_to_positive": 1249
+      }
+    },
+    "quantum": {
+      "selected_epoch": 17,
+      "updates": 9140,
+      "valid": {
+        "macro_f1_all40": 0.5798136359765834,
+        "macro_f1_positive39": 0.5727249742090496,
+        "micro_f1_positive39": 0.7119079750658698,
+        "ce": 0.6722783506695741,
+        "positive_to_null": 2254,
+        "null_to_positive": 1139
+      },
+      "test": {
+        "macro_f1_all40": 0.4953236416708159,
+        "macro_f1_positive39": 0.48618727743560514,
+        "micro_f1_positive39": 0.7114118846759989,
+        "ce": 0.6506665412173894,
+        "positive_to_null": 1445,
+        "null_to_positive": 936
+      }
+    },
+    "dephased": {
+      "selected_epoch": 9,
+      "updates": 9140,
+      "valid": {
+        "macro_f1_all40": 0.57589593877507,
+        "macro_f1_positive39": 0.5686578931346541,
+        "micro_f1_positive39": 0.7032642938534754,
+        "ce": 0.5986411680583081,
+        "positive_to_null": 2598,
+        "null_to_positive": 841
+      },
+      "test": {
+        "macro_f1_all40": 0.5047678876047107,
+        "macro_f1_positive39": 0.49585455539701667,
+        "micro_f1_positive39": 0.7062036675770581,
+        "ce": 0.5872772661437397,
+        "positive_to_null": 1746,
+        "null_to_positive": 702
+      }
+    },
+    "softmax12": {
+      "selected_epoch": 19,
+      "updates": 9140,
+      "valid": {
+        "macro_f1_all40": 0.5867049859825312,
+        "macro_f1_positive39": 0.5796560589333494,
+        "micro_f1_positive39": 0.7256912084498292,
+        "ce": 0.6472746846722621,
+        "positive_to_null": 1887,
+        "null_to_positive": 1306
+      },
+      "test": {
+        "macro_f1_all40": 0.5342961108617414,
+        "macro_f1_positive39": 0.5259242632712876,
+        "micro_f1_positive39": 0.7401348314606742,
+        "ce": 0.6065335798981399,
+        "positive_to_null": 1179,
+        "null_to_positive": 1008
+      }
+    },
+    "real12": {
+      "selected_epoch": 17,
+      "updates": 9140,
+      "valid": {
+        "macro_f1_all40": 0.5777309875760047,
+        "macro_f1_positive39": 0.5702985636424485,
+        "micro_f1_positive39": 0.7264426125554851,
+        "ce": 0.6338385996086146,
+        "positive_to_null": 2002,
+        "null_to_positive": 1096
+      },
+      "test": {
+        "macro_f1_all40": 0.5464475261833319,
+        "macro_f1_positive39": 0.5381048724028521,
+        "micro_f1_positive39": 0.7510263662074628,
+        "ce": 0.5705182121983049,
+        "positive_to_null": 1185,
+        "null_to_positive": 850
+      }
+    }
+  },
+  "quantum_test_all40_deltas": {
+    "uniform": 0.27415754797491826,
+    "dephased": -0.009444245933894813,
+    "softmax12": -0.03897246919092556,
+    "real12": -0.05112388451251604
+  },
+  "qualification_gate": false,
+  "max_metric_recomputation_error": 2.220446049250313e-16,
+  "disposition": "CLOSE_EXACT_QUALIFICATION_PROFILE",
+  "L3": "NOT_ACCEPTED",
+  "L4-T": "NOT_ACCEPTED",
+  "limitations": [
+    "Single seed on a previously exposed benchmark; not independent replication.",
+    "Registered parameter matching is not equality of effective capacity.",
+    "All endpoints retained; no seed, budget, metric or checkpoint rescue."
+  ]
+}
