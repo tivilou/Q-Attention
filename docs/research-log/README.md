@@ -6,6 +6,8 @@
 
 ## 时间线
 
+- [2026-11-24｜完整模型 TRAIN 错误对照](20261124T-full-train-error-contrast.md)：Q训练拟合优于去相干但TEST未保持；867独有错误中754涉及关系／无关系边界，295独有正确。下一步同权重相干定位，L3/L4-T未通过。
+
 - [2026-11-24｜TRAIN 类型支持失败与无关系近邻](20261124T-train-type-support-closed.md)：完整 TRAIN 条件查询方向关闭；NAV/MNAV 与 ATLOP 原文对应；下一项完整模型 TRAIN 回放排队，无新训练或评级提升。
 
 - [2026-11-24｜条件查询的等价边界](20261124T-conditional-query-boundary.md)：TRAIN 支持统计排队；排除共同酉旋转的新颖性误判，跟踪去相干基；无新训练或评级提升。
