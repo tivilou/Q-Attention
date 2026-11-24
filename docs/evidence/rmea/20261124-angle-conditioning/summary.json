@@ -1,0 +1,128 @@
+{
+  "status": "COMPLETE",
+  "profile": "R0-fixed-selected-angle-coordinate-conditioning",
+  "sample_rows": 1024,
+  "words": 37707,
+  "selection_id_hash_sha256": "8f57ebc0801df848bf361e9c7b7bd8e51c86bd702d3ff7bc0ae492d3eef11606",
+  "actual_selected_input_bytes_sha256": "1d1a0bac42b3eba1f46c06956d6760c1ad45e6c9b161f345fbb36b46aa8904db",
+  "results": {
+    "quantum": {
+      "prepare": {
+        "coordinates": 452484,
+        "derivative_relative_to_pi_quantiles": {
+          "0": 6.080796457770411e-06,
+          "0.01": 0.00732011070224646,
+          "0.1": 0.050991088638750695,
+          "0.5": 0.490613808652097,
+          "0.9": 0.990015282494927,
+          "0.99": 0.9999058900637898,
+          "1": 0.9999999999969936
+        },
+        "relative_derivative_below_001": 0.01592542498740287,
+        "relative_derivative_below_01": 0.18141635947348414,
+        "mean_squared_relative_derivative": 0.4158562829114935,
+        "severe_global_saturation": false
+      },
+      "effect": {
+        "coordinates": 480,
+        "derivative_relative_to_pi_quantiles": {
+          "0": 0.5089403438258151,
+          "0.01": 0.7059461845322987,
+          "0.1": 0.903345572602507,
+          "0.5": 0.9905984754159547,
+          "0.9": 0.9996965310086933,
+          "0.99": 0.9999957840301626,
+          "1": 0.9999999516268442
+        },
+        "relative_derivative_below_001": 0.0,
+        "relative_derivative_below_01": 0.0,
+        "mean_squared_relative_derivative": 0.9371991149441342,
+        "severe_global_saturation": false
+      },
+      "checkpoint_sha256": "93e9abd718ce019bff4cbed16ed4571939aafd1ce91bad703df4723c67423066",
+      "selected_epoch": 8
+    },
+    "dephased": {
+      "prepare": {
+        "coordinates": 452484,
+        "derivative_relative_to_pi_quantiles": {
+          "0": 3.8066264831081545e-09,
+          "0.01": 2.339375847740483e-05,
+          "0.1": 0.0026185814757427087,
+          "0.5": 0.24159454639189748,
+          "0.9": 0.9747850107123144,
+          "0.99": 0.9997595924513618,
+          "1": 0.999999999973532
+        },
+        "relative_derivative_below_001": 0.1510616949991602,
+        "relative_derivative_below_01": 0.3828201660169199,
+        "mean_squared_relative_derivative": 0.2766780458804231,
+        "severe_global_saturation": false
+      },
+      "effect": {
+        "coordinates": 480,
+        "derivative_relative_to_pi_quantiles": {
+          "0": 0.5777463043035443,
+          "0.01": 0.7518273364348228,
+          "0.1": 0.9120107628731905,
+          "0.5": 0.9964954400218338,
+          "0.9": 0.9999999999990973,
+          "0.99": 1.0,
+          "1": 1.0000000000000002
+        },
+        "relative_derivative_below_001": 0.0,
+        "relative_derivative_below_01": 0.0,
+        "mean_squared_relative_derivative": 0.9477158121553252,
+        "severe_global_saturation": false
+      },
+      "checkpoint_sha256": "da5e7a986ef2c0b59c4856fe576a00fdf0bb8de96ab45cf64a1e2e597ed3f94b",
+      "selected_epoch": 10
+    }
+  },
+  "derivative_fixture_max_abs": 3.33333360913457e-11,
+  "seconds": 3.2080029165372252,
+  "optimizer_updates": 0,
+  "full_circuit_forward_calls": 0,
+  "gpu_operations": 0,
+  "test_rows_read": 0,
+  "cos_writes": 0,
+  "formal_training_started": false,
+  "limitations": [
+    "Historical completed seed13 heads on rebuilt TRAIN cache, not pending width12 fair-study results.",
+    "Only selected1024 TRAIN rows, not population inference or heldout utility.",
+    "Coordinate derivative is neither actual gradient norm nor diagnosis of causal task loss; low attenuation does not rule out circuit-gradient/optimization difficulties.",
+    "Full feature payload hashes reused from existing verified immutable manifest; current selected actual bytes are separately hashed, no new full-cache readback claim.",
+    "Born+epsilon direct normalization does not itself imply near-uniform attention; prior concentration routes not repeated."
+  ],
+  "design": {
+    "profile": "R0-fixed-selected-angle-coordinate-conditioning",
+    "sample_rows": 1024,
+    "selection": "Lowest1024 sorted id_hash from all58465 TRAIN rows; fixed before coordinate reads, labels/logits unused.",
+    "question": "Does pi*tanh have severe global coordinate saturation at immutable completed heads?",
+    "formula": "Derivative pi*(1-tanh(z)^2), relative attenuation sech(z)^2. Known chain rule, not new theory or actual circuit/parameter gradient.",
+    "criterion": "Describe all coordinates and quantiles. Severe global saturation only if at least50percent prepare coordinates have relative derivative below0.01; effect summarized separately. No threshold/sample/checkpoint rescue.",
+    "input_hashes": {
+      "inputs/native-baseline/discovery/cache/metadata.json": "9e6eac9ad582a4ef4e1a8a12190bfef3b8f0a18c5efbd9072f91f31563656c0e",
+      "inputs/native-baseline/discovery/manifest.json": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+      "control/historical-type-replay-20261123/model-provenance.json": "f7343dd63bea036c47cfff13f98e43a009ed8ab93f10c3998490474404fc48b6",
+      "control/historical-type-replay-20261123/checkpoints/quantum-selected.pt": "93e9abd718ce019bff4cbed16ed4571939aafd1ce91bad703df4723c67423066",
+      "control/historical-type-replay-20261123/checkpoints/dephased-selected.pt": "da5e7a986ef2c0b59c4856fe576a00fdf0bb8de96ab45cf64a1e2e597ed3f94b"
+    },
+    "scope": "Synchronous CPU-only read of immutable selected Q/dephased heads and existing sampled TRAIN features in the already reserved development node. No new task, formal launch or training.",
+    "limitations": [
+      "Historical completed seed13 heads on rebuilt TRAIN cache, not pending width12 fair-study results.",
+      "Only selected1024 TRAIN rows, not population inference or heldout utility.",
+      "Coordinate derivative is neither actual gradient norm nor diagnosis of causal task loss; low attenuation does not rule out circuit-gradient/optimization difficulties.",
+      "Full feature payload hashes reused from existing verified immutable manifest; current selected actual bytes are separately hashed, no new full-cache readback claim.",
+      "Born+epsilon direct normalization does not itself imply near-uniform attention; prior concentration routes not repeated."
+    ]
+  },
+  "code_sha256": "3fe8149f360446f498c1f076930e19f3fa86072febd82f2df7b668b08c282440",
+  "current_maturity": {
+    "policy": "idea-maturity1",
+    "L3": "NOT_ACCEPTED",
+    "L4_E": "NOT_ACCEPTED",
+    "L4_T": "NOT_ACCEPTED",
+    "L5": "NOT_ACCEPTED"
+  }
+}
