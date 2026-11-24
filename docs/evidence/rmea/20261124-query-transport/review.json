@@ -1,0 +1,23 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 31.550819158554077,
+  "hashes": {
+    "protocol.md": "b977a9ba4d504ad15eed42b90db81e14c93767b83ada29cc4e348a7e9d906532",
+    "modified/baselines/retacred/rmea_query_transport.py": "b5f982d8d393890d507b09dd76ea44acb22194a584644bf1c13515ebcbe0bfea",
+    "unit/replay.py": "5c50b7bcb8e0fb89d0a1d43fd313f2e3ba54b8676ba826c33d555396b3d40852",
+    "native/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "native/rmea_matched_routers.py": "3813f29b61dfc1819a7fd2a610889efb97e8ace950344aaac5ed2800c0921e4d",
+    "native/rmea_entity_query.py": "0ed6a1c1e4358c25ae2b221f01e8b999b1740f16c48ff1174965a4c2a4916e24"
+  },
+  "response": {
+    "verdict": "PASS",
+    "must_fix": [],
+    "limitations": [
+      "Static review only. The replay is written to check native circuit parity from |000> in FP64, then query norms, Gram preservation, padding, finite gradients, and one AdamW update per mode on the first eight TRAIN examples in FP32. It also checks conditioning-disabled logits against native Q and D. No run output was supplied; these are checks in the code, not observed passes.",
+      "The Gram guarantee is per example at fixed parameters: every prepared query receives the same U(c), so (U(c)q_r)\u2020(U(c)q_s) = q_r\u2020q_s. This holds for the real control as well. It does not extend to normalized attention or imply better classification.",
+      "At matched parameters, Q and D construct identical keys and transported queries. Q scores squared overlap; D takes basis probabilities after transport and scores their dot product. All three modes reuse the biased key projection for context and retain 81,028 registered parameters. The real control uses the disclosed four-layer circuit; equal parameter counts do not establish equal capacity.",
+      "The prior negative result remains closed. This review establishes neither held-out utility nor L3/T qualification and does not cover the unbuilt full-study adapter."
+    ]
+  }
+}
