@@ -1,0 +1,26 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 26.10890293121338,
+  "hashes": {
+    "protocol.md": "f2c3640aa2727ea2cf89e97d6a22426ba37bb71ba373216ba9de8a96b2931975",
+    "plugin.py": "37f6556c3fa468189e4a861dc9586ea046ff98507141132f0b4f86c04b660477",
+    "adapter.py": "fc2b4f0be56e61dce7631d99aeb0bedc6ebb3c036364682188cf20823d7ef3c8",
+    "design.json": "fa8b09d66bff1a3bdfc746c6806a9a35249e983a0ba85ef255f97753aca4a810",
+    "screen.py": "737980cde34cb0adcf23d304244102520b2e55cf83e4cb08200311d3860d643e",
+    "native/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "native/rmea_matched_routers.py": "3813f29b61dfc1819a7fd2a610889efb97e8ace950344aaac5ed2800c0921e4d",
+    "previous-review.json": "4612377c7602eb9d205d1db35cd6ee56fb900d3646b2b1773f955c1db1c15af1"
+  },
+  "response": {
+    "verdict": "PASS",
+    "must_fix": [],
+    "limitations": [
+      "Static review of the supplied source. The authorized GPU fixtures and training run were not executed. Numerical tolerances, cloned first-eight updates, and assessment results remain unverified at runtime.",
+      "The Q6 and D6 factorizations are exact. Tensor-product inner products factor by wire, as do the computational-basis probabilities used by D6. A common terminal CNOT ring permutes both states identically and preserves both overlaps. D6 therefore has 6 \u00d7 (1028 + 1 + 40) = 6414 phase-related scalars with zero probability derivative. The FP64 fixture checks key and query gradient errors separately for finiteness before taking their maximum.",
+      "The native Welch bound is (40\u00b2/8 \u2212 40)/(40 \u00d7 39) = 4/39. The Q6 witness uses finite effect coordinates \u00b1atanh(1/2) and zero phase. Every pair of distinct codes differs on a wire with orthogonal local states. These results establish query geometry only.",
+      "All three previous blockers are resolved. The four new forward paths validate feature, role, and mask shapes, require boolean masks, and reject any example with no valid word. The fixture checks each arm\u2019s parameter names, individual shapes, FP32 dtype, and 81,028 count. The summary computes paired repair and harm from aligned predictions for each comparator and uses six strict all-40 Macro-F1 comparisons for the primary gate.",
+      "The seven-arm verdict covers RegisterHead.forward, the entry point used by the screen. Direct route_alpha calls are implemented for the four new routes only. The three baseline forward paths delegate to their native heads."
+    ]
+  }
+}
