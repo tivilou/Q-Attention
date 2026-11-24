@@ -1,0 +1,23 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 27.44148087501526,
+  "hashes": {
+    "router.py": "88056fd0c023acfa2be868ed8e63a9d00716305b1cd6917d2dc0314a3341f0b6",
+    "screen.py": "3cd487a7bbeceb9872ee981a01716581806714514779f455ea903e7ac4770584",
+    "design.json": "3b85d62ff49d827f2e6e56c8cccf174d40152818279d5964a8db6c621699282a",
+    "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662",
+    "native_rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "limitations": [
+      "Static review only. The coherent, dephased, and real12 formulas implement the specified word-frame weights, and the inverse-square-root derivative has the correct repeated-eigenvalue limit. The fixtures check padding, duplication, and that limit. They do not directly check the pre-normalization sum or a noncommuting derivative direction at unequal eigenvalues.",
+      "The frame path assumes at least one valid word per example. The real12 path also requires a nonzero query for each class, since an exactly zero query produces a zero normalizer.",
+      "Under the supplied native Head contract, initialization and final-state reload are compatible with the accepted runner. The gate uses final all40 macro-F1 against all seven controls. The console field named `macro` reports the secondary positive39 metric.",
+      "Execution and hashes were unverified. The supplied argv contains `NEXT_CONFIRMED_ATTEMPT`, which must resolve to the allocation\u2019s runner attempt ID at launch. A passing screen would support full-protocol design only."
+    ]
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "profile": "context-word-frame-PGM-fixed-TRAIN-screen-v1",
+  "seed": 13,
+  "updates": 1024,
+  "batch_size": 32,
+  "microbatch_size": 4,
+  "lr": 0.001,
+  "weight_decay": 0.01,
+  "betas": [
+    0.9,
+    0.999
+  ],
+  "optimizer_eps": 1e-08,
+  "clip_norm": 1.0,
+  "modes": [
+    "quantum",
+    "quantum_frame",
+    "dephased",
+    "dephased_frame",
+    "real12",
+    "real12_frame",
+    "softmax12",
+    "uniform"
+  ],
+  "fit": 4192,
+  "assessment": 4000,
+  "selection": "Final update1024 only. Primary all40Macro specified before newresults; positive39secondary, localbest objective notselected.",
+  "precision": "float64/complex128/deterministic",
+  "bootstrap_replicates": 0,
+  "bootstrap_seed": 20261123,
+  "timeout_seconds": 3600,
+  "code_hashes": {
+    "router.py": "88056fd0c023acfa2be868ed8e63a9d00716305b1cd6917d2dc0314a3341f0b6",
+    "screen.py": "3cd487a7bbeceb9872ee981a01716581806714514779f455ea903e7ac4770584"
+  },
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/rmea_task_runtime.py": "df50e9e14b5fae4b6211c55fd17bcfd2acc368127953e23768dcece24e9d5931",
+    "baselines/retacred/rmea_token_transport_study.py": "d6fcd40ea95725612efa1b10d12059b375b213cc68a0234a8d1e79ff8c2f3370",
+    "baselines/retacred/rmea_token_transport_recovery.py": "e0e708aaa73895b1f174cd08b845854f10e91246aa8b93db8d4fb336edc1244e",
+    "baselines/retacred/rmea_matched_routers.py": "3813f29b61dfc1819a7fd2a610889efb97e8ace950344aaac5ed2800c0921e4d",
+    "baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9"
+  },
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "split_reference_sha256": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+  "bootstrap_code_sha256": "d742cc89229cc53c5048886cd7e12e847c4d696e56049f5a32001dbf6865de6e",
+  "gates": "Qframe final all40Macro strictly above all7 controls before full-study design; TRAIN exposed planning only, no L3/T promotion.",
+  "stop": "Exact8arms/1024updates/seed13/4192fit/4000assess/EPS1e-6/native optimizer. No split,epsilon,rank,matrix-function,coefficient,seed,budget,control,checkpoint or metric rescue.",
+  "recovery": "Rebuildable bounded screen; existing best/latest local every update, final selected. No COS/automatic retry/full-run claim.",
+  "public_whitelist": [
+    "summary.json",
+    "fixtures.json",
+    "RUN_COMPLETE",
+    "design.json",
+    "router.py",
+    "screen.py"
+  ],
+  "private_outputs": [
+    "diagnostic.private.npz",
+    "perarm/latest.pt",
+    "perarm/best.pt",
+    "perarm/final.pt",
+    "perarm/result.json"
+  ],
+  "claim_scope": "Known frame/PGM operation. Conditional wordPOVM sums to I; 40class queries remain independent, not a joint40POVM. No novelty, quantum-exclusive algorithm, benchmark gain or hardware speedup.",
+  "resources": {
+    "gpus": 2,
+    "cpu_cores": 4,
+    "ram_gib": 16,
+    "disk_gib": 1
+  },
+  "plugin_module": "router.py",
+  "hypothesis": "Whitening the word-state frame before fixed class queries improves full40 recognition by changing context conditioning; Qframe must beat nativeQ, same-rule dephased/real12 frames and all native controls. Current geometry is motivation, not proven failure cause.",
+  "rationale": "Known square-root measurement over word states with fixed learned class query, unlike earlier cross-relation scalar normalization on transformed states. No task-optimality or new theory asserted. Scalar-Gram case reduces to native.",
+  "training_objective": "Unchanged mean full40 CE on identical32rows/micro4 for all8 arms; nativeAdamW,1024updates,seed13,finalonly."
+}
