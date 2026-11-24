@@ -1,0 +1,24 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 18.782614946365356,
+  "hashes": {
+    "protocol.md": "1cb2043096891057d92f6819133e38469704430bdf2a4bdaf8c8d35adddd6412",
+    "plugin.py": "acf82389c53b7aff93d579ec4e590aa55cf320fa756b47468698a9da7aece463",
+    "adapter.py": "e00114e9d184e47bd3d05f8dfefcb7508dbb89397c2254d96f87793efc0ed24e",
+    "design.json": "94bc211563f1a275721b3fc6ff14c8f713c643182bb19f9038003a4812e19932",
+    "screen.py": "737980cde34cb0adcf23d304244102520b2e55cf83e4cb08200311d3860d643e",
+    "native/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "native/rmea_matched_routers.py": "3813f29b61dfc1819a7fd2a610889efb97e8ace950344aaac5ed2800c0921e4d",
+    "previous-review.json": "8ed25057ed8267ef08c234170c9556f93f8a01d0e2f4ed45774555e5cb834ee2"
+  },
+  "response": {
+    "verdict": "PASS",
+    "must_fix": [],
+    "limitations": [
+      "Source inspection supports the routing formulas. Q and D use the native probabilities, subtract half the mean squared pre-tanh prepare output from log(p + EPS), and preserve the utility-first readout. The real12 and softmax12 priors use the specified key energy. The RBF pair shares initialization and dot/12 scaling, so the token-dependent score difference is the key energy.",
+      "The runner schedules all nine 512-update fits in one campaign and waits for all 4,608 updates before final-state assessment. The readout averages F1 across all 40 classes and requires quantum_prior to strictly beat each of the other eight arms. A tie fails the gate. CE is secondary.",
+      "This was a static review. GPU fixture values, completed fits, and gate outcomes remain unverified. A passing screen on exposed TRAIN would support preparation of an independent evaluation only."
+    ]
+  }
+}
