@@ -1,0 +1,130 @@
+--- planning-screen-v3
++++ planning-screen-v4
+@@ -57,7 +57,12 @@
+     from baselines.retacred.rmea_token_transport_study import state_identity
+     from baselines.retacred.rmea_token_transport_recovery import atomic_torch, cpu_tree
+     from baselines.retacred.common import metrics
++    dtype_name=cfg.get('training_dtype','float64');assert dtype_name in ('float32','float64')
++    dtype=getattr(torch,dtype_name)
++    if cfg.get('dense_batches',False):
++        from baselines.retacred.rmea_fair_reference_runtime import backward,score_batch
+     torch.set_num_threads(1); torch.use_deterministic_algorithms(True)
++    torch.backends.cuda.matmul.allow_tf32=False
+     assert torch.cuda.device_count() == 2
+     spec = importlib.util.spec_from_file_location('reviewed_bootstrap', args.reference/'diagnose.py')
+     helper = importlib.util.module_from_spec(spec); spec.loader.exec_module(helper)
+@@ -78,7 +83,7 @@
+     batches = batches[:cfg['updates']]
+     order_sha = hashlib.sha256(b''.join(x.astype('<i8').tobytes() for x in batches)).hexdigest()
+     torch.manual_seed(cfg['seed'])
+-    initial = {k: v.clone() for k, v in RMEAHead('quantum').double().state_dict().items()}
++    initial = {k: v.clone() for k, v in RMEAHead('quantum').to(dtype=dtype).state_dict().items()}
+     initial_sha = state_identity(initial)
+     models = plugin.initialize(initial, cfg['seed'])
+     assert tuple(models) == tuple(cfg['modes'])
+@@ -87,6 +92,27 @@
+     for model in models.values():
+         assert state_identity({k: model.head.state_dict()[k] for k in shared}) == shared_sha
+     started = time.time(); lock = threading.Lock(); cursors = {k: 0 for k in cfg['modes']}
++    # Scientific per-condition compute budget, independent of scheduler leases.
++    budget_lock=threading.Lock();active_deadlines={};budget_finished=threading.Event()
++    def enter_budget(mode,remaining):
++        assert remaining>0
++        now=time.monotonic()
++        with budget_lock:active_deadlines[mode]=(now,now+remaining)
++    def leave_budget(mode):
++        with budget_lock:
++            now=time.monotonic();start,deadline=active_deadlines.pop(mode)
++            assert now<deadline,'Per-arm compute deadline exhausted'
++            return now-start
++    def budget_watch():
++        while not budget_finished.wait(.05):
++            with budget_lock:
++                expired=any(time.monotonic()>=deadline for start,deadline in active_deadlines.values())
++            if expired:
++                # Same default signal as the existing whole-campaign alarm.
++                # Fail the complete scientific attempt, including in-flight work.
++                os.kill(os.getpid(),signal.SIGALRM)
++                return
++    threading.Thread(target=budget_watch,daemon=True).start()
+ 
+     def progress(mode, update):
+         with lock:
+@@ -98,8 +124,8 @@
+ 
+     def batch(indices, device):
+         lengths = [int(data['offsets'][i+1]-data['offsets'][i]) for i in indices]
+-        h = np.zeros((len(indices), max(lengths), 1024), np.float64)
+-        roles = np.zeros(h.shape[:2]+(4,), np.float64); mask = np.zeros(h.shape[:2], bool)
++        h = np.zeros((len(indices), max(lengths), 1024), getattr(np,dtype_name))
++        roles = np.zeros(h.shape[:2]+(4,), getattr(np,dtype_name)); mask = np.zeros(h.shape[:2], bool)
+         for j, i in enumerate(indices):
+             a, b = map(int, data['offsets'][i:i+2]); n = b-a
+             h[j, :n] = data['h'][a:b]; roles[j, :n] = data['roles'][a:b]; mask[j, :n] = True
+@@ -109,6 +135,8 @@
+     def worker(mode, gpu):
+         device = torch.device('cuda', gpu)
+         with torch.cuda.device(device):
++            arm_started=time.monotonic()
++            enter_budget(mode,cfg.get('arm_timeout_seconds',float('inf')))
+             model = models[mode]
+             arm_initial_sha = state_identity(model.state_dict())
+             model.to(device)
+@@ -118,6 +146,7 @@
+             folder = args.output/mode; folder.mkdir()
+             losses = []; first = None; retained_best = float('inf')
+             for step, ids in enumerate(batches, 1):
++                assert time.monotonic()-arm_started<cfg.get('arm_timeout_seconds',float('inf')),'Per-arm budget exhausted'
+                 if hasattr(model, 'set_training_progress'):
+                     model.set_training_progress(step, cfg['updates'])
+                 model.train(); inputs, y = batch(ids, device); optimizer.zero_grad(set_to_none=True)
+@@ -144,10 +173,13 @@
+                 shared_value_sha256=shared_sha,
+                 order_sha256=order_sha, final_sha256=digest(folder/'final.pt'), first_update=first,
+                 train_ce_history=losses, training_finished_at=time.time())
++            result['train_seconds']=leave_budget(mode)
+             write(folder/'result.json', result)
+             return result
+ 
+     def evaluate(mode, gpu, trained):
++        assessment_compute_started=time.monotonic()
++        enter_budget(mode,cfg.get('arm_timeout_seconds',float('inf'))-trained[mode]['train_seconds'])
+         device = torch.device('cuda', gpu); folder = args.output/mode
+         # No assessment prediction until EVERY fit's immutable final state exists.
+         assert all(row['updates'] == cfg['updates'] for row in trained.values())
+@@ -155,7 +187,7 @@
+         latest = torch.load(folder/'latest.pt', map_location='cpu', weights_only=True)
+         assert latest['update'] == cfg['updates']
+         with torch.cuda.device(device):
+-            model = (plugin.make_head(mode) if hasattr(plugin, 'make_head') else plugin.SharedNullHead(mode)).double()
++            model = (plugin.make_head(mode) if hasattr(plugin, 'make_head') else plugin.SharedNullHead(mode)).to(dtype=dtype)
+             model.load_state_dict(torch.load(folder/'final.pt', map_location='cpu', weights_only=True))
+             assert state_identity(model.state_dict()) == state_identity(latest['head'])
+             model.to(device); model.eval(); logits = []
+@@ -172,13 +204,15 @@
+             macro = float(np.mean([q['f1'] for q in row['per_class'][1:]]))
+             result = dict(trained[mode], ce=float(ce.mean()), positive39_macro_f1=macro,
+                 metrics=row, assessment_started_at=assessment_started_at)
++            result['compute_seconds']=trained[mode]['train_seconds']+leave_budget(mode)
++            assert result['compute_seconds']<cfg.get('arm_timeout_seconds',float('inf'))
+             write(folder/'result.json', result)
+             return result, logits, ce
+ 
+     # Validate only the new readout; no training/resume/COS capability matrix.
+     with torch.cuda.device(0):
+-        inputs, _ = batch(fit[:8], torch.device('cuda', 0))
+-        checks = plugin.fixtures(models, inputs)
++        inputs, fixture_labels = batch(fit[:8], torch.device('cuda', 0))
++        checks = plugin.fixtures(models,inputs,fixture_labels) if cfg.get('fixture_real_labels',False) else plugin.fixtures(models,inputs)
+     write(args.output/'fixtures.json', checks)
+ 
+     from queue import Queue, Empty
+@@ -204,7 +238,7 @@
+     # Scoring is cheap; serialize it after both training lanes settle.
+     results = {mode: evaluate(mode, 1 if mode == 'diagonal' else 0, trained) for mode in cfg['modes']}
+     rows = {k:{n:v[0][n] for n in ('ce','positive39_macro_f1','updates','parameters',
+-        'initial_sha256','order_sha256','final_sha256','training_finished_at','assessment_started_at')}
++        'initial_sha256','order_sha256','final_sha256','training_finished_at','assessment_started_at','compute_seconds')}
+         for k,v in results.items()}
+     checks['first_updates'] = {k:dict(finite_gradients=True, state_changed=v[0]['first_update']['state_changed']) for k,v in results.items()}
+     write(args.output/'fixtures.json', checks)
