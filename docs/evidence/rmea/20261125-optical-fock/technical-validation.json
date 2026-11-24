@@ -1,0 +1,86 @@
+{
+  "gate": true,
+  "source_sha256": "4fb7d595d2bbc1af2c70108a9eed66ebd03c3a7b584543500761892afe398d01",
+  "contract_sha256": "20bdf7f00cc6d97be2875c6c92f4aafe62b63d5d2f06b386eb978d63006b35f3",
+  "config_sha256": "aa2d22cda159c4e5a13d7ab9036f616e69ce4078f8da7148d13c5a541e955758",
+  "input_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "math": {
+    "operator": {
+      "max_operator_error": 1.887379141862766e-15,
+      "cutoffs": [
+        32,
+        48
+      ],
+      "complex_point_pairs": 3,
+      "scope": "Pointwise operator/parity witness only; production uses exact closed formula, no cutoff"
+    },
+    "gradients": {
+      "analytic_gradient_errors": {
+        "fock1": 4.718447854656915e-16,
+        "parity_fock1": 3.3306690738754696e-16,
+        "vacuum_born": 2.3592239273284576e-16,
+        "gaussian3_born": 3.0531133177191805e-16
+      },
+      "vacuum_rbf_identity_error": 1.1102230246251565e-16,
+      "node_and_large_distance_finite": true,
+      "fock_origin_slope": -3
+    }
+  },
+  "conditions": {
+    "fock1": {
+      "parameters": 81028,
+      "padding_error": 2.384185791015625e-07,
+      "initial_train_ce": 4.385003566741943,
+      "finite_gradients": true,
+      "real_train_updates": 1,
+      "state_changed": true
+    },
+    "parity_fock1": {
+      "parameters": 81028,
+      "padding_error": 2.384185791015625e-07,
+      "initial_train_ce": 4.386207580566406,
+      "finite_gradients": true,
+      "real_train_updates": 1,
+      "state_changed": true
+    },
+    "vacuum_born": {
+      "parameters": 81028,
+      "padding_error": 2.384185791015625e-07,
+      "initial_train_ce": 4.3838677406311035,
+      "finite_gradients": true,
+      "real_train_updates": 1,
+      "state_changed": true
+    },
+    "gaussian3_born": {
+      "parameters": 81028,
+      "padding_error": 1.7881393432617188e-07,
+      "initial_train_ce": 4.384932518005371,
+      "finite_gradients": true,
+      "real_train_updates": 1,
+      "state_changed": true
+    },
+    "rbf12": {
+      "parameters": 81028,
+      "padding_error": 2.384185791015625e-07,
+      "initial_train_ce": 4.3838677406311035,
+      "finite_gradients": true,
+      "real_train_updates": 1,
+      "state_changed": true
+    }
+  },
+  "test_model_rows": 0,
+  "test_target_reads": 0,
+  "real_train_updates_per_condition": 1,
+  "environment": {
+    "python": "3.10.10",
+    "implementation": "CPython",
+    "numpy": "1.24.3",
+    "torch": "2.4.1+cu121",
+    "cuda": "12.1",
+    "cudnn": 90100,
+    "torch_build_sha256": "309d0333438e4085d1fb3b9ce6c38a2623d2e515744ca5fac3c601ec48073df0",
+    "cublas_workspace": ":4096:8"
+  },
+  "seconds": 8.14583134651184,
+  "scope": "Changed formulas/model only; no VALID/TEST reads/inference, utility gate or lifecycle recertification"
+}

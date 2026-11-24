@@ -18,6 +18,7 @@ EXPERIMENTS = MappingProxyType({
     'entity-scattering': Experiment('rmea_entity_scattering_protocol', 'rmea_entity_scattering_runtime'),
     'protected-context': Experiment('rmea_protected_context_protocol', 'rmea_protected_context_runtime'),
     'relative-return': Experiment('rmea_relative_return_protocol', 'rmea_relative_return_runtime'),
+    'optical-fock': Experiment('rmea_optical_fock_protocol', 'rmea_optical_fock_runtime'),
     'fair-reference': Experiment('rmea_fair_reference_protocol', 'rmea_fair_reference_runtime'),
 })
 
