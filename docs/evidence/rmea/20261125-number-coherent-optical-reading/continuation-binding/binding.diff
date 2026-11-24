@@ -1,0 +1,70 @@
+--- before/full_host_run.py
++++ modified/full_host_run.py
+@@ -150,10 +150,34 @@
+ 
+ def optical_binding(experiment,run_id,control_root):
+     expected_run='number-coherent-optical-seed13-20261125-v1'
+-    expected_root='/hy-tmp/Q-Attention/control/number-coherent-optical-full-20261125'
++    expected_root='/hy-tmp/Q-Attention/control/number-coherent-optical-full-20261125/continuation-20261125'
+     if experiment=='number-coherent-optical' or run_id.startswith('number-coherent-optical-') or 'number-coherent-optical' in str(control_root):
+         require(experiment=='number-coherent-optical' and run_id==expected_run and str(control_root)==expected_root,
+             'Optical experiment/run/control binding differs')
++
++PARENT_ATTEMPT = '5698113c7a6a407797c6d2e7b146be06'
++PARENT_GENERATION = 83
++PARENT_LAUNCH_SHA = 'e5cc4e553c402295a4b509d5adffaaf0c3e9ea4dafc33142c50be93638b9f8bb'
++PARENT_REVISION = '05219727de8cd668498d43e24eacd3c3720a5c9f'
++PARENT_ARGV = ['/hy-tmp/Q-Attention/env/bin/python', '-B', '/hy-tmp/Q-Attention/owner/attempts/cfe9d4543dd4468ab9d1037813dd6706/source/experiments/q_rmea_train.py', '--experiment', 'number-coherent-optical', 'run', '--output', '/hy-tmp/Q-Attention/owner/attempts/5698113c7a6a407797c6d2e7b146be06/output', '--run-id', 'number-coherent-optical-seed13-20261125-v1', '--inputs', '/hy-tmp/Q-Attention/inputs/native-baseline/discovery', '--unit-output', '/hy-tmp/Q-Attention/control/number-coherent-optical-technical-20261125/output', '--admission', '/hy-tmp/Q-Attention/control/number-coherent-optical-full-20261125/admission/admission.json', '--admission-sha256', 'df1bf000bba7bfd1d4dfa64c6151c502b0080bb5a0d3dd432425a5449c704aa5']
++
++def validate_number_optical_continuation(v):
++    require(v.get('experiment') == 'number-coherent-optical' and v.get('resume') is True,
++            'Only explicit number-optical continuation is supported')
++    require(v.get('parent_attempt_id') == PARENT_ATTEMPT
++            and v.get('parent_launch_sha256') == PARENT_LAUNCH_SHA,
++            'Continuation parent differs')
++    require(v['allocation']['runner_attempt_id'] != PARENT_ATTEMPT
++            and v['allocation']['generation'] > PARENT_GENERATION,
++            'Fresh scheduler-bound continuation allocation required')
++    require(v['revision'] == PARENT_REVISION, 'Scientific source revision differs')
++    output = Path('/hy-tmp/Q-Attention/owner/attempts') / v['allocation']['runner_attempt_id'] / 'output'
++    require(v['output'] == str(output) and v['run_root'] == str(output / v['allocation']['run_id']),
++            'Exact continuation output namespace differs')
++    expected = list(PARENT_ARGV)
++    expected[expected.index('--output') + 1] = v['output']
++    expected.append('--resume')
++    require(v['argv'] == expected, 'Exact local-resume command differs')
+ 
+ def main():
+     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--launch-sha256')
+@@ -201,7 +225,7 @@
+         else:
+             require(v['experiment'] in ('relative-return','entity-query','number-coherent-optical') and v['argv'][:4]==[v['python'],'-B',str(source/'experiments/q_rmea_train.py'),'--experiment'],'Trainer entry differs')
+             require(v['argv'][4:6]==[v['experiment'],'run'],'Experiment action differs')
+-            require('--resume' not in v['argv'] and '--restore-pin' not in v['argv'],'Fresh launch cannot imply resume')
++            validate_number_optical_continuation(v)
+             for flag,value in (('--output',str(out)),('--run-id',a['run_id']),('--admission-sha256',v['admission_sha256'])):
+                 require(v['argv'][v['argv'].index(flag)+1]==value,'Launch argument differs')
+         for name,h in v['file_hashes'].items():require(digest(root/name)==h,'Reviewed control bytes changed')
+--- before/allocation_publisher.py
++++ modified/allocation_publisher.py
+@@ -24,7 +24,7 @@
+ 
+ def optical_binding(experiment,run_id,control_root):
+     expected_run='number-coherent-optical-seed13-20261125-v1'
+-    expected_root='/hy-tmp/Q-Attention/control/number-coherent-optical-full-20261125'
++    expected_root='/hy-tmp/Q-Attention/control/number-coherent-optical-full-20261125/continuation-20261125'
+     if experiment=='number-coherent-optical' or run_id.startswith('number-coherent-optical-') or 'number-coherent-optical' in str(control_root):
+         require(experiment=='number-coherent-optical' and run_id==expected_run and str(control_root)==expected_root,
+             'Optical experiment/run/control binding differs')
+@@ -44,8 +44,10 @@
+                 'Legacy control root differs')
+     elif experiment=='number-coherent-optical':
+         expected=output+'/'+a['run_id']
++        require(a['runner_attempt_id'] != '5698113c7a6a407797c6d2e7b146be06' and a['generation'] > 83, 'Fresh continuation allocation required')
++        require(not cfg.get('publication_lineage'), 'Existing authenticated generation index must be reused')
+         require(a['run_id']=='number-coherent-optical-seed13-20261125-v1'
+-            and cfg['control_root']=='/hy-tmp/Q-Attention/control/number-coherent-optical-full-20261125',
++            and cfg['control_root']=='/hy-tmp/Q-Attention/control/number-coherent-optical-full-20261125/continuation-20261125',
+                 'Optical-fock exact run/control binding differs')
+     elif experiment=='entity-query':
+         expected=output+'/'+a['run_id']

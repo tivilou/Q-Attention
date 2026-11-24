@@ -1,0 +1,33 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 18.627334356307983,
+  "hashes": {
+    "prepared.json": "a1619ff97ea5fe45fe0116aa8df76025ba97191c7e778a28e629f4648cc9019f",
+    "binding.diff": "78b309099b8043168aee0753055c700d8e85ef2ca5b0accaaf77a49c9d0280b8",
+    "verification.json": "e0a5db2e24266bfc9e356c34cf4cb8e27a8c63681f73765eb5277899eeaefe01",
+    "check_binding.py": "557079c0cf51116e467b81799bc2daf7301180efe12e14b70b510bef753acfc2",
+    "modified/full_host_run.py": "78e84b664bb2e1809692101871c25e9e672ddd34e0decd1e0e541632de15fb86",
+    "modified/allocation_publisher.py": "8696caba235625e9fe4e0b75f1a902c1c06e3c19d83714ce2b27d331768df80d",
+    "unchanged-core-resume-entry.txt": "0f423ff547053404fd8eec65f8c442ab676e6da277134ddfb70786ab64b07009",
+    "unchanged-parallel-resume.txt": "4ce48ced3ad59ecad49e5e1957237081662fe3f08fcaac982e3a79e5b9649ae4",
+    "retained-cursors.json": "dedd74f776c993a07f581ff07e92f0ff9829e0b63a0a56b5be1fae75da63dfd4"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "lifecycle",
+    "must_fix": [
+      {
+        "location": "full_host_run.py: main, non-fair output validation",
+        "finding": "The host checks only out.parent.name against the attempt ID, and the argv check takes its expected output from that same launch record. A path ending in <new_attempt>/scratch therefore passes both checks, while the publisher requires /hy-tmp/Q-Attention/owner/attempts/<new_attempt>/output. The trainer and publisher can bind to different run trees."
+      },
+      {
+        "location": "allocation_publisher.py: validate_attempt_paths, number-coherent-optical branch",
+        "finding": "The publisher accepts the parent attempt or generation 83 at the continuation control root. Its later allocation guard checks active status and agreement with the supplied allocation, but only the host enforces a different attempt ID and generation greater than 83. The publisher can therefore admit an allocation the continuation host rejects."
+      }
+    ],
+    "limitations": [
+      "Offline review only. User confirmation, parent fencing and resource return, a fresh two-GPU permit, isolated clone verification, and the bounded recovery check remain pending."
+    ]
+  }
+}

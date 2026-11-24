@@ -1,0 +1,27 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 9.526540517807007,
+  "hashes": {
+    "prepared.json": "d1d4b8e6c9774719a56f48da12ee7853066369cca335ad6b74596fc330d59d67",
+    "binding.diff": "8ec89f52760defd1a93f4c9184906d5c26e58c33adaab48b6c9a635e9c406522",
+    "verification.json": "f5e3490aeb7626a51e1f8f3a721dc82d46cf773be93acb1936e2e2f115a631e7",
+    "check_binding.py": "243a4615618b3a87b3bc779c1e2ed41e86e5b124bb30ec94748eff59d4f63ef7",
+    "modified/full_host_run.py": "e723e7e71ace0cce66fde25ee546123e053dbe6de902c05e231cbd375655ebbd",
+    "modified/allocation_publisher.py": "56d4116d0c745204c61392d6386c4e8cb0050f4f62c1e761649811f40225c4d7",
+    "unchanged-core-resume-entry.txt": "0f423ff547053404fd8eec65f8c442ab676e6da277134ddfb70786ab64b07009",
+    "unchanged-parallel-resume.txt": "4ce48ced3ad59ecad49e5e1957237081662fe3f08fcaac982e3a79e5b9649ae4",
+    "retained-cursors.json": "dedd74f776c993a07f581ff07e92f0ff9829e0b63a0a56b5be1fae75da63dfd4",
+    "previous-review.json": "3dcb78518330634efd2504b3f782e8b7b9cf6dbac4730115de0bad66d01bc4a3"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "lifecycle",
+    "must_fix": [],
+    "limitations": [
+      "Offline review of the two prepared bindings only. Both now require a different attempt ID, a generation above 83, and the same canonical attempt output and run paths.",
+      "Launch remains gated on the user\u2019s shutdown or resource-change reply, correlated parent-writer fencing and resource return, and a fresh whole-fleet observation and two-GPU allocation with its permit.",
+      "The isolated clone, retained worker cursors, completed conditions, and authenticated history through 050 still require verification. The bounded recovery check and live terminal delivery remain untested."
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "status": "PREPARED_NOT_DEPLOYED",
+  "parent_attempt": "5698113c7a6a407797c6d2e7b146be06",
+  "parent_launch_sha256": "e5cc4e553c402295a4b509d5adffaaf0c3e9ea4dafc33142c50be93638b9f8bb",
+  "files": {
+    "full_host_run.py": {
+      "original_sha256": "6c86a214b6fc4466f10c428574a24e001ec98236933782244772931360813b67",
+      "modified_sha256": "e723e7e71ace0cce66fde25ee546123e053dbe6de902c05e231cbd375655ebbd"
+    },
+    "allocation_publisher.py": {
+      "original_sha256": "e1bfe7972dc0efd983e3f6fa070cb9d9c5687687efff40431a70d72890dfe69a",
+      "modified_sha256": "56d4116d0c745204c61392d6386c4e8cb0050f4f62c1e761649811f40225c4d7"
+    }
+  },
+  "scientific_source_changed": false,
+  "training_started": false,
+  "required_before_launch": [
+    "Existing user shutdown/resource-change reply",
+    "Correlated parent-writer termination/fencing and resource-return evidence",
+    "Fresh whole-fleet observation and actual new two-GPU allocation/permit",
+    "Isolated local clone of closed original run, copied worker state/cursors and compact identity files; immutable cache may be hardlinked",
+    "Source/config/environment/admission and completed-worker verification using unchanged core",
+    "One bounded actual recovery check required for this interruption, not a lifecycle matrix",
+    "PASS scoped lifecycle review of these two exact control bindings"
+  ],
+  "recovery_semantics": "Explicit local full-state resume from closed retained worker states, with authenticated050 history retained. No new restore-pin claim, no retraining completed conditions. Existing COS logical run/prefix/index are unchanged; future milestones use new allocation-bound publisher.",
+  "output_whitelist": "Existing seven-file report, selected/final checkpoints and exact terminal delivery/resource-return records; unchanged."
+}
