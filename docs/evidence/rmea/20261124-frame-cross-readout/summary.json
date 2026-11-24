@@ -1,0 +1,105 @@
+{
+  "status": "completed",
+  "seconds": 30.97159481048584,
+  "results": {
+    "quantum": {
+      "all40_macro_f1": 0.19392340752401044,
+      "positive39_macro_f1": 0.17744588431754932,
+      "ce": 0.9137020695332404,
+      "correct": 2918,
+      "positive_to_null": 726,
+      "null_false_positive": 215
+    },
+    "quantum_frame": {
+      "all40_macro_f1": 0.16438783698663165,
+      "positive39_macro_f1": 0.14729910642093394,
+      "ce": 0.9710197647252217,
+      "correct": 2897,
+      "positive_to_null": 788,
+      "null_false_positive": 199
+    },
+    "dephased": {
+      "all40_macro_f1": 0.2852666086399573,
+      "positive39_macro_f1": 0.2709083653938512,
+      "ce": 0.8381267126951952,
+      "correct": 2998,
+      "positive_to_null": 578,
+      "null_false_positive": 280
+    },
+    "dephased_frame": {
+      "all40_macro_f1": 0.3275084217677076,
+      "positive39_macro_f1": 0.3141555420024089,
+      "ce": 0.8567700721357826,
+      "correct": 3043,
+      "positive_to_null": 474,
+      "null_false_positive": 342
+    },
+    "Qnative_to_frame": {
+      "all40_macro_f1": 0.18941596210902623,
+      "positive39_macro_f1": 0.17288835152681997,
+      "ce": 0.9408479296710691,
+      "correct": 2912,
+      "positive_to_null": 766,
+      "null_false_positive": 199,
+      "reference": "quantum",
+      "delta_all40_macro_f1": -0.0045074454149842125,
+      "repairs": 103,
+      "damages": 109,
+      "changed": 264
+    },
+    "Qframe_to_native": {
+      "all40_macro_f1": 0.12457015635653797,
+      "positive39_macro_f1": 0.10670034671642978,
+      "ce": 1.0883291351593158,
+      "correct": 2831,
+      "positive_to_null": 985,
+      "null_false_positive": 108,
+      "reference": "quantum_frame",
+      "delta_all40_macro_f1": -0.03981768063009368,
+      "repairs": 123,
+      "damages": 189,
+      "changed": 383
+    },
+    "Qframe_to_diagonal_frame": {
+      "all40_macro_f1": 0.09829205305713402,
+      "positive39_macro_f1": 0.08010954741153775,
+      "ce": 1.2003620716516126,
+      "correct": 2696,
+      "positive_to_null": 1111,
+      "null_false_positive": 95,
+      "reference": "quantum_frame",
+      "delta_all40_macro_f1": -0.06609578392949762,
+      "repairs": 151,
+      "damages": 352,
+      "changed": 596
+    },
+    "Dnative_to_diagonal_frame": {
+      "all40_macro_f1": 0.2782965959244472,
+      "positive39_macro_f1": 0.26404161990238983,
+      "ce": 0.872148938754868,
+      "correct": 2941,
+      "positive_to_null": 482,
+      "null_false_positive": 401,
+      "reference": "dephased",
+      "delta_all40_macro_f1": -0.0069700127155100655,
+      "repairs": 92,
+      "damages": 149,
+      "changed": 287
+    }
+  },
+  "fit_updates": 0,
+  "assessment_items": 4000,
+  "valid_read": false,
+  "test_read": false,
+  "cos_writes": 0,
+  "design_sha256": "03ee5e9a715cfabe3dc0b2f23c6476645f924d173308e499c9fa08687a670949",
+  "source_weights_sha256": {
+    "quantum": "fcf16a3485708b0cf074a8c31b4854ce3d66b2fd289476869cba64ec8d079b47",
+    "quantum_frame": "3cbddccfb45d56582e3ee02c36662311254413819125e7adb9c699bfff9e1de4",
+    "dephased": "4a8f720d303032635ee21914939cc0c44dfd5e7df8b94c98b05d967c4d9e9d9f"
+  },
+  "private_diagnostic_sha256": "929aa4b764e01beadd81da502a6fd1ca638763840d1315b0f7138eca271ef542",
+  "scope": "ExposedTRAIN fixed-state intervention; learned-state and readout sensitivity only, not semantic causality, independently trained utility or promotion.",
+  "L3": "NOT_ACCEPTED",
+  "L4_T": "NOT_ACCEPTED"
+}

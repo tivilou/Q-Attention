@@ -1,0 +1,51 @@
+{
+  "profile": "fixed-frame-cross-readout-diagnostic-v1",
+  "trained_root": "/hy-tmp/Q-Attention/control/context-frame-uniform-recovery-20261124",
+  "source": "/hy-tmp/Q-Attention/owner/attempts/9a28320fd4174c8f95544c9ba96eb1ae/source",
+  "inputs": "/hy-tmp/Q-Attention/inputs/native-baseline",
+  "private_predictions_sha256": "9133bcafed76cd177ef2e3bda84166c8e81ba37a4c2bdef7541abcb82bbf8da1",
+  "summary_sha256": "22aae46c4e2dacd35ad2ac20722e00363c87ccb3b9f33f1772a2a368af82125f",
+  "weight_hashes": {
+    "quantum": "fcf16a3485708b0cf074a8c31b4854ce3d66b2fd289476869cba64ec8d079b47",
+    "quantum_frame": "3cbddccfb45d56582e3ee02c36662311254413819125e7adb9c699bfff9e1de4",
+    "dephased": "4a8f720d303032635ee21914939cc0c44dfd5e7df8b94c98b05d967c4d9e9d9f"
+  },
+  "contrasts": [
+    {
+      "name": "Qnative_to_frame",
+      "weights": "quantum",
+      "readout": "quantum_frame",
+      "reference": "quantum"
+    },
+    {
+      "name": "Qframe_to_native",
+      "weights": "quantum_frame",
+      "readout": "quantum",
+      "reference": "quantum_frame"
+    },
+    {
+      "name": "Qframe_to_diagonal_frame",
+      "weights": "quantum_frame",
+      "readout": "dephased_frame",
+      "reference": "quantum_frame"
+    },
+    {
+      "name": "Dnative_to_diagonal_frame",
+      "weights": "dephased",
+      "readout": "dephased_frame",
+      "reference": "dephased"
+    }
+  ],
+  "hypothesis": "Cross fixed learned states and readout rules to separate readout-intervention sensitivity from trained-state differences. Neither identifies a semantic root cause or supports new utility.",
+  "budget": "Exactly4 frozen forward passes on existing4000 exposedTRAIN assessment; zero fit/optimizer/VALID/TEST/COS/selection.",
+  "stop": "No follow-up strength,epsilon,subset,checkpoint or threshold sweep; do not promote from this diagnostic.",
+  "resources": {
+    "gpus": 1,
+    "cpu_cores": 2,
+    "ram_gib": 8,
+    "disk_gib": 1
+  },
+  "recovery": "Cheap rebuildable inference, no new COS; immutable input models retained for this named consumer.",
+  "review": "R0 reuse known reviewed forward functions and metrics; no new mechanism/optimization/recovery semantics.",
+  "mechanical_correction": "Original execution stopped before output directory/forward because Windows line-ending conversion changed local summary file hash. Use original sealed remote summary hash; no scientific change."
+}

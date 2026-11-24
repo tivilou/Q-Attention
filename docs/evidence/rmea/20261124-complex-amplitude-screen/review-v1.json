@@ -1,0 +1,23 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 18.208349466323853,
+  "hashes": {
+    "router.py": "e9e359c34ee0cad47866d20ee53b46a81064fdd251b442d05a767d336d5a3fa4",
+    "screen.py": "e8372f42578d17cad4387bb7c8a5c302ccbd9242447f9ef1fb5e1286a3ae36d9",
+    "design.json": "034162d1d348a641d36f1102666f301a3e75369ac14466c96508af220b00877c",
+    "execute.py": "d595b19ba7ed30d36afe67ae7dcca9014b29cab771accf0b9df30926c48029ab",
+    "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662",
+    "matched_routers.py": "1f45cad04ed6fe4354fb4bc1497931ea8e939571d6ce14875fd781ffd7d10106"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "must_fix": [
+      "In router.py, fixtures() multiplies x and y of shape [B,T,6] by phase factors of shape [T]. PyTorch aligns [T] with the six amplitude coordinates. For T outside {1,6}, the fixture raises a shape error before training. For T=6, it rotates each coordinate separately and can reject a correct Born score. Change the angle construction to torch.linspace(-2, 2, key.shape[1], dtype=key.dtype, device=key.device).view(1, -1, 1). This applies one phase per word across all six coordinates. Refresh the router.py digest in design.json after the edit."
+    ],
+    "limitations": [
+      "Static review only. For normalized inputs, the coherent score equals the sum of squared projections onto q and J(q). The dephased score retains the coordinate-probability products. The free plane starts at the coherent projector and adds 480 trainable scalars through its independent second query.",
+      "The reuse path checks the three pinned artifacts for each of the five completed baselines and returns before optimizer creation. Only the three new arms enter training. Assessment waits for all eight final-state digest checks, and atomic replacement of each staged result.json preserves the original. Artifact contents, fixture results, and runtime updates were not independently verified."
+    ]
+  }
+}

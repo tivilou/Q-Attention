@@ -1,0 +1,113 @@
+{
+  "profile": "linear-complex6-Born-vs-real-plane12-TRAIN-v1",
+  "seed": 13,
+  "updates": 1024,
+  "batch_size": 32,
+  "microbatch_size": 4,
+  "lr": 0.001,
+  "weight_decay": 0.01,
+  "betas": [
+    0.9,
+    0.999
+  ],
+  "optimizer_eps": 1e-08,
+  "clip_norm": 1.0,
+  "modes": [
+    "quantum_amplitude6",
+    "dephased_amplitude6",
+    "real_plane12",
+    "quantum",
+    "dephased",
+    "real12",
+    "softmax12",
+    "uniform"
+  ],
+  "fit": 4192,
+  "assessment": 4000,
+  "selection": "Final update1024 only. Primary all40Macro specified before newresults; positive39secondary, localbest objective notselected.",
+  "precision": "float64/complex128/deterministic",
+  "bootstrap_replicates": 0,
+  "bootstrap_seed": 20261123,
+  "timeout_seconds": 3600,
+  "code_hashes": {
+    "router.py": "240fc33e2c31f843ef11a957abbdfb6c320a066c3d0034384b12392cf401ed6d",
+    "screen.py": "e8372f42578d17cad4387bb7c8a5c302ccbd9242447f9ef1fb5e1286a3ae36d9"
+  },
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/rmea_task_runtime.py": "df50e9e14b5fae4b6211c55fd17bcfd2acc368127953e23768dcece24e9d5931",
+    "baselines/retacred/rmea_token_transport_study.py": "d6fcd40ea95725612efa1b10d12059b375b213cc68a0234a8d1e79ff8c2f3370",
+    "baselines/retacred/rmea_token_transport_recovery.py": "e0e708aaa73895b1f174cd08b845854f10e91246aa8b93db8d4fb336edc1244e",
+    "baselines/retacred/rmea_matched_routers.py": "3813f29b61dfc1819a7fd2a610889efb97e8ace950344aaac5ed2800c0921e4d",
+    "baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9"
+  },
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "split_reference_sha256": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+  "bootstrap_code_sha256": "d742cc89229cc53c5048886cd7e12e847c4d696e56049f5a32001dbf6865de6e",
+  "gates": "Complex6 final all40Macro must strictly exceed ALL7 controls, including81028-scalar real12,originalPQC,dephasedamplitude and81508-scalar independent-real-plane12, before new full-protocol design.",
+  "stop": "Exact8arms/1024updates/seed13/4192fit/4000assess/nativeCEAdamW/finalonly. No phase/dimension/rank/init/normalization/epsilon/seed/budget/control/checkpoint/metric rescue.",
+  "recovery": "Rebuildable bounded screen; existing best/latest local every update, final selected. No COS/automatic retry/full-run claim.",
+  "public_whitelist": [
+    "summary.json",
+    "fixtures.json",
+    "RUN_COMPLETE",
+    "design.json",
+    "router.py",
+    "screen.py"
+  ],
+  "private_outputs": [
+    "diagnostic.private.npz",
+    "perarm/latest.pt",
+    "perarm/best.pt",
+    "perarm/final.pt",
+    "perarm/result.json"
+  ],
+  "claim_scope": "Complex linear normalized6-amplitude state padded by2zero amplitudes in3qubits; binary rank1Born then native wordpooling. Known realification to a J-invariant real12plane, not quantum-exclusive speedup or novel theory. Changes state encoding, not a rescue of closed frame or relative-return profiles.",
+  "resources": {
+    "gpus": 2,
+    "cpu_cores": 4,
+    "ram_gib": 16,
+    "disk_gib": 1
+  },
+  "plugin_module": "router.py",
+  "hypothesis": "A smooth learned complex-amplitude encoder may preserve useful relation-dependent interference while avoiding the current tanh-angle/circuit inductive bias; compare a strictly less constrained real12rank2plane with identical initial probabilities, originalPQC and all same-budget controls. No cause identified by prior diagnostics.",
+  "rationale": "Full5way shows currentQ generalizes below3controls despite strongTRAINfit; frame alteration alsofailed. Candidate is a new state-encoding hypothesis, not another attention reweighting/phase-strength schedule. Measured oracle headroom and prior task qualification reused; expected gain unknown.",
+  "training_objective": "Unchanged mean40CE/32rows/micro4/nativeAdamW1024. Reuse5completed sameprotocol baseline fits by hash/initial/order/value; train exactly3newarms,all8assess after3complete.",
+  "reuse_completed": {
+    "quantum": {
+      "result.json": "5178b74089336baa740fe839c38ac869571e01fae5b93c84ac8dd8d3964667d7",
+      "final.pt": "fcf16a3485708b0cf074a8c31b4854ce3d66b2fd289476869cba64ec8d079b47",
+      "latest.pt": "568ba1e29c588da9aef93738c5405bd59c2e9789c2b103f9312eeec825be47a8"
+    },
+    "dephased": {
+      "result.json": "59e517dfeea720198d11188ec89fc7ea30a08217cca40c5ba7e213cbbd983b32",
+      "final.pt": "4a8f720d303032635ee21914939cc0c44dfd5e7df8b94c98b05d967c4d9e9d9f",
+      "latest.pt": "0ce10fdc5c03b8ebf94a9dd077df321b57a64de6d126b0a7913c8d76e318a7fa"
+    },
+    "real12": {
+      "result.json": "0845212aa73393b49a988b1780cb9ea3ab43820400b478c9ce5d0cdbc5607a2c",
+      "final.pt": "02ebf604182f5ad6ca93d90c95951316926553536dd3ed11b32697d2426cd9dc",
+      "latest.pt": "5665fa338fd5dd8926ce2004b4982222a42e22a63df2c2b85da8b0a465c3fd21"
+    },
+    "softmax12": {
+      "result.json": "c12e049783ec3c9c50617e25579a8b0e8e5ab735aa2ce51d2aba41f9f51df8ac",
+      "final.pt": "c3795f1d7a004179b0fac06e0ed3a63638a4d827e73042bc32108c90704cb2f4",
+      "latest.pt": "8dd1dca2e5819e62b24ee93eec5c92bb6c42036f909a7fdde3aa809e4672a32e"
+    },
+    "uniform": {
+      "result.json": "3c2af39bb84fedebb4fea17bbb92b06a8ede3a8a1b4fb42a8b81a6aa35a830e0",
+      "final.pt": "da9daa2a4deea896c839143f07f5881c524021fa54eb3ec5adf41b6e8d77207d",
+      "latest.pt": "0a4029e577277d18bae343e9d65d3c1ca2ac5be120ab71cd9c69480b302d5d90"
+    }
+  },
+  "reuse_root": "/hy-tmp/Q-Attention/control/context-frame-uniform-recovery-20261124",
+  "reuse_design_sha256": "fdc4d6dc043c3cc9f96c0471da69496dac2f05dc629f0b7f1650b481a1bcba0b",
+  "initialization": "All3newmaps start from exact same native real12 key/query. Complex pair(xfirst6,ysecond6); dephases the same complexstate; plane starts from(q,Jq) then frees the second query and Gram-Schmidt orthonormalizes. Samevalue/decoder/bias. Newstates/oldstates tagged separately.",
+  "parameters": "Complex6 and itsdiagonal81028; realplane12 81508(extra480), originals81028/uniform68200; no equal effective-capacity claim.",
+  "neighbor_boundary": "CNM NAACL2019 N19-1420 original methods/ablation scope alreadyread: complexstates,mixtures,trainableBorn measurements andrealcontrols known. Linearcomplex map alone is notTnovelty. No nearest-work clearance or utility assumed.",
+  "new_modes": [
+    "quantum_amplitude6",
+    "dephased_amplitude6",
+    "real_plane12"
+  ]
+}
