@@ -1,0 +1,100 @@
+{
+  "scope": "All native complete TRAIN aggregate confusions; taxonomy inverse pairs do not imply reversed natural examples exist or encoder covariance.",
+  "pairs": [
+    {
+      "pair": [
+        "per:parents",
+        "per:children"
+      ],
+      "counts": {
+        "uniform": {
+          "a_to_b": 19,
+          "b_to_a": 7,
+          "a_to_null": 43,
+          "b_to_null": 52,
+          "support": 457
+        },
+        "quantum": {
+          "a_to_b": 13,
+          "b_to_a": 7,
+          "a_to_null": 9,
+          "b_to_null": 6,
+          "support": 457
+        },
+        "dephased": {
+          "a_to_b": 9,
+          "b_to_a": 14,
+          "a_to_null": 12,
+          "b_to_null": 16,
+          "support": 457
+        },
+        "softmax12": {
+          "a_to_b": 5,
+          "b_to_a": 10,
+          "a_to_null": 5,
+          "b_to_null": 6,
+          "support": 457
+        },
+        "real12": {
+          "a_to_b": 6,
+          "b_to_a": 6,
+          "a_to_null": 1,
+          "b_to_null": 3,
+          "support": 457
+        }
+      }
+    },
+    {
+      "pair": [
+        "org:members",
+        "org:member_of"
+      ],
+      "counts": {
+        "uniform": {
+          "a_to_b": 13,
+          "b_to_a": 2,
+          "a_to_null": 366,
+          "b_to_null": 227,
+          "support": 925
+        },
+        "quantum": {
+          "a_to_b": 30,
+          "b_to_a": 0,
+          "a_to_null": 150,
+          "b_to_null": 24,
+          "support": 925
+        },
+        "dephased": {
+          "a_to_b": 4,
+          "b_to_a": 1,
+          "a_to_null": 189,
+          "b_to_null": 103,
+          "support": 925
+        },
+        "softmax12": {
+          "a_to_b": 13,
+          "b_to_a": 2,
+          "a_to_null": 78,
+          "b_to_null": 24,
+          "support": 925
+        },
+        "real12": {
+          "a_to_b": 15,
+          "b_to_a": 0,
+          "a_to_null": 85,
+          "b_to_null": 25,
+          "support": 925
+        }
+      }
+    }
+  ],
+  "not_in_inventory": [
+    {
+      "pair": [
+        "org:parents",
+        "org:subsidiaries"
+      ],
+      "reason": "Not both present in actual40-label inventory"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "profile": "native-TRAIN-natural-exact-token-and-span-reversal-census-v1",
+  "rows": 58465,
+  "totals": {
+    "unique_unordered_span_pairs": 1242,
+    "paired_row_units": 1242
+  },
+  "distinct_sentences": 837,
+  "label_mapping": {
+    "per:parents": "per:children",
+    "per:children": "per:parents",
+    "org:members": "org:member_of",
+    "org:member_of": "org:members",
+    "no_relation": "no_relation",
+    "per:spouse": "per:spouse",
+    "per:siblings": "per:siblings",
+    "per:identity": "per:identity"
+  },
+  "cohorts": {
+    "inverse_gold_consistent": 1056,
+    "unmapped": 135,
+    "inverse_gold_inconsistent": 51
+  },
+  "performance": {
+    "quantum": {
+      "both_correct": 968,
+      "prediction_inverse_consistent": 974,
+      "one_correct": 79,
+      "neither_correct": 9
+    },
+    "dephased": {
+      "neither_correct": 42,
+      "prediction_inverse_consistent": 960,
+      "both_correct": 925,
+      "one_correct": 89
+    },
+    "real12": {
+      "both_correct": 1006,
+      "prediction_inverse_consistent": 1016,
+      "one_correct": 38,
+      "neither_correct": 12
+    },
+    "softmax12": {
+      "both_correct": 998,
+      "prediction_inverse_consistent": 1010,
+      "one_correct": 46,
+      "neither_correct": 12
+    }
+  },
+  "seconds": 2.7314966190606356,
+  "limitation": "Posthoc descriptive census; Cartesian duplicate row pairs reported separately from unique span pairs; no label rewriting, learned encoder covariance, root cause, deployable repair or utility claim.",
+  "model_forwards": 0,
+  "training_updates": 0,
+  "new_valid": 0,
+  "new_test": 0,
+  "cos_writes": 0,
+  "raw_text_on_windows": false
+}

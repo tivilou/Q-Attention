@@ -1,0 +1,199 @@
+{
+  "profile": "native-TRAIN-natural-exact-token-and-span-reversal-census-v1",
+  "rows": 58465,
+  "totals": {
+    "unique_unordered_span_pairs": 1242,
+    "paired_row_units": 1242
+  },
+  "distinct_sentences": 837,
+  "label_mapping": {
+    "per:parents": "per:children",
+    "per:children": "per:parents",
+    "org:members": "org:member_of",
+    "org:member_of": "org:members",
+    "no_relation": "no_relation",
+    "per:spouse": "per:spouse",
+    "per:siblings": "per:siblings",
+    "per:identity": "per:identity"
+  },
+  "cohorts": {
+    "inverse_gold_consistent": 1056,
+    "unmapped": 141,
+    "inverse_gold_inconsistent": 45
+  },
+  "performance": {
+    "quantum": {
+      "both_correct": 968,
+      "prediction_inverse_consistent": 974,
+      "one_correct": 79,
+      "neither_correct": 9
+    },
+    "dephased": {
+      "neither_correct": 42,
+      "prediction_inverse_consistent": 960,
+      "both_correct": 925,
+      "one_correct": 89
+    },
+    "real12": {
+      "both_correct": 1006,
+      "prediction_inverse_consistent": 1016,
+      "one_correct": 38,
+      "neither_correct": 12
+    },
+    "softmax12": {
+      "both_correct": 998,
+      "prediction_inverse_consistent": 1010,
+      "one_correct": 46,
+      "neither_correct": 12
+    }
+  },
+  "by_relation": {
+    "per:identity <-> per:identity": {
+      "rows": 878,
+      "performance": {
+        "quantum": {
+          "both_correct": 840,
+          "one_correct": 33,
+          "neither_correct": 5
+        },
+        "dephased": {
+          "neither_correct": 33,
+          "both_correct": 776,
+          "one_correct": 69
+        },
+        "real12": {
+          "both_correct": 852,
+          "one_correct": 18,
+          "neither_correct": 8
+        },
+        "softmax12": {
+          "both_correct": 857,
+          "one_correct": 17,
+          "neither_correct": 4
+        }
+      }
+    },
+    "per:spouse <-> per:spouse": {
+      "rows": 21,
+      "performance": {
+        "quantum": {
+          "one_correct": 8,
+          "both_correct": 13
+        },
+        "dephased": {
+          "both_correct": 15,
+          "neither_correct": 4,
+          "one_correct": 2
+        },
+        "real12": {
+          "both_correct": 20,
+          "one_correct": 1
+        },
+        "softmax12": {
+          "both_correct": 17,
+          "one_correct": 3,
+          "neither_correct": 1
+        }
+      }
+    },
+    "per:children <-> per:parents": {
+      "rows": 27,
+      "performance": {
+        "quantum": {
+          "both_correct": 12,
+          "one_correct": 14,
+          "neither_correct": 1
+        },
+        "dephased": {
+          "one_correct": 13,
+          "both_correct": 13,
+          "neither_correct": 1
+        },
+        "real12": {
+          "one_correct": 4,
+          "both_correct": 22,
+          "neither_correct": 1
+        },
+        "softmax12": {
+          "both_correct": 17,
+          "one_correct": 10
+        }
+      }
+    },
+    "org:member_of <-> org:members": {
+      "rows": 6,
+      "performance": {
+        "quantum": {
+          "one_correct": 5,
+          "both_correct": 1
+        },
+        "dephased": {
+          "both_correct": 4,
+          "one_correct": 1,
+          "neither_correct": 1
+        },
+        "real12": {
+          "one_correct": 5,
+          "both_correct": 1
+        },
+        "softmax12": {
+          "one_correct": 3,
+          "both_correct": 3
+        }
+      }
+    },
+    "no_relation <-> no_relation": {
+      "rows": 112,
+      "performance": {
+        "quantum": {
+          "both_correct": 91,
+          "one_correct": 18,
+          "neither_correct": 3
+        },
+        "dephased": {
+          "both_correct": 106,
+          "neither_correct": 2,
+          "one_correct": 4
+        },
+        "real12": {
+          "both_correct": 100,
+          "neither_correct": 3,
+          "one_correct": 9
+        },
+        "softmax12": {
+          "one_correct": 13,
+          "both_correct": 92,
+          "neither_correct": 7
+        }
+      }
+    },
+    "per:siblings <-> per:siblings": {
+      "rows": 12,
+      "performance": {
+        "quantum": {
+          "both_correct": 11,
+          "one_correct": 1
+        },
+        "dephased": {
+          "both_correct": 11,
+          "neither_correct": 1
+        },
+        "real12": {
+          "both_correct": 11,
+          "one_correct": 1
+        },
+        "softmax12": {
+          "both_correct": 12
+        }
+      }
+    }
+  },
+  "seconds": 2.4953371044248343,
+  "limitation": "Posthoc descriptive census; Cartesian duplicate row pairs reported separately from unique span pairs; no label rewriting, learned encoder covariance, root cause, deployable repair or utility claim.",
+  "model_forwards": 0,
+  "training_updates": 0,
+  "new_valid": 0,
+  "new_test": 0,
+  "cos_writes": 0,
+  "raw_text_on_windows": false
+}
