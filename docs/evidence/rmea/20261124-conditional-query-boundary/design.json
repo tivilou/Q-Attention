@@ -1,0 +1,22 @@
+{
+  "profile": "R0-full-TRAIN-conditional-query-type-support-v1",
+  "source": "inputs/native-baseline/recovery-inputs/train.jsonl",
+  "source_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+  "code_sha256": "2cfc72ad09dde4d4314ad6a878fff265c4c054c66b421847aacd2de565c438ed",
+  "hypothesis": "Multiple common entity-type pairs within the same relation are a necessary data-support condition for a subsequent conditional-query conflict diagnostic.",
+  "minimum_sentences_per_pair": 100,
+  "minimum_positive_relations": 3,
+  "exposure": "All58465TRAIN rows/all40relations. No predictions, feature arrays, model calls, VALID or TEST. Counts only; no raw text in returned report.",
+  "interpretation": "Necessary support only, not conflict, learnability, novelty or utility. If failed close exact type-heterogeneity lead without threshold/class/sample rescue.",
+  "resources": {
+    "cpu": 1,
+    "ram_mb": 2048,
+    "disk_mb": 32,
+    "gpus": 0,
+    "gpu_mb": 0
+  },
+  "recovery": "Cheap deterministic reconstruction from existing pinned input; Git code/report only; no new COS objects.",
+  "input_hashes": {
+    "inputs/native-baseline/recovery-inputs/train.jsonl": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f"
+  }
+}
