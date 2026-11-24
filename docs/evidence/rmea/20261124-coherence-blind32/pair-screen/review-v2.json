@@ -1,0 +1,27 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 23.17626667022705,
+  "hashes": {
+    "router.py": "2d2ef8517e81ae0bb28dfcb687a938a43511fd1abd5daa6c11ff2dd25bd128be",
+    "objective.py": "eab467826761f5e22662eb85add45051cee05198572da2e47fd78f41a25714cd",
+    "task_adapter.py": "1f0becffb1d253dede3f464611d5feb3589e8fd402f7942161b141dc715255d6",
+    "screen.py": "3cd487a7bbeceb9872ee981a01716581806714514779f455ea903e7ac4770584",
+    "core-delta.patch": "e971bf62d26ce7a65144515e69478c5e86835d5fe5b0871bd18603160e3b8035",
+    "design.json": "2cb91ffdbcaef9222bedfe9d25fa4a2e836c5516c4201edf24b4dcc8f3466938",
+    "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662",
+    "native_rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "limitations": [
+      "The revision resolves all three prior blockers. The parity fixture moves its inputs to CPU alongside the initialized heads, the public whitelist includes `task-context.json`, and the native fallback retains `first_update.ce` and `train_ce_history`.",
+      "Under the supplied native-backward contract, each of the 48 CE exposures has weight 1/48. All six arms share the same rows and order. Each of the eight pairs contributes weight 1/8 on the five ranking arms.",
+      "The favorable-margin witness demonstrates the stated decision limit. Its paired margin is 16 and its ranking loss is below 1e-6, yet class 2 wins both rows.",
+      "The object nonoverlap check assumes half-open spans. The supplied text leaves the endpoint convention unverified. If the source uses inclusive endpoints, both `<=` comparisons in the pair filter must become `<` to exclude objects sharing a token.",
+      "This verdict covers static review of the supplied objective, task context, and core hook delta. Actual pair support, runtime parity, and assessment outcomes remain unverified."
+    ]
+  }
+}

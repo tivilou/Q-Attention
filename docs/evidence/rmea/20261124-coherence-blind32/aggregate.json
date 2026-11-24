@@ -1,0 +1,108 @@
+{
+  "profile": "two-isolated-Sol-medium-blind32-full-trained-coherence-cases",
+  "groups": {
+    "harm_null": {
+      "rows": 8,
+      "both_support_gold": 6,
+      "both_choose_other": 1,
+      "choice_disagreement": 1,
+      "any_uncertain_or_nonbinary": 0,
+      "agreed_categories": {
+        "other_pair_only": 4,
+        "same_pair_explicit": 1,
+        "implicit_or_external_knowledge": 1,
+        "underspecified": 1
+      },
+      "reader_categories": [
+        {
+          "other_pair_only": 4,
+          "same_pair_explicit": 1,
+          "negated_or_hypothetical": 1,
+          "implicit_or_external_knowledge": 1,
+          "underspecified": 1
+        },
+        {
+          "other_pair_only": 4,
+          "same_pair_explicit": 2,
+          "implicit_or_external_knowledge": 1,
+          "underspecified": 1
+        }
+      ]
+    },
+    "harm_positive": {
+      "rows": 8,
+      "both_support_gold": 7,
+      "both_choose_other": 1,
+      "choice_disagreement": 0,
+      "any_uncertain_or_nonbinary": 0,
+      "agreed_categories": {
+        "same_pair_explicit": 7
+      },
+      "reader_categories": [
+        {
+          "same_pair_explicit": 7,
+          "other_pair_only": 1
+        },
+        {
+          "same_pair_explicit": 7,
+          "argument_or_type_mismatch": 1
+        }
+      ]
+    },
+    "help_positive": {
+      "rows": 8,
+      "both_support_gold": 5,
+      "both_choose_other": 1,
+      "choice_disagreement": 1,
+      "any_uncertain_or_nonbinary": 1,
+      "agreed_categories": {
+        "same_pair_explicit": 6
+      },
+      "reader_categories": [
+        {
+          "same_pair_explicit": 7,
+          "argument_or_type_mismatch": 1
+        },
+        {
+          "same_pair_explicit": 6,
+          "implicit_or_external_knowledge": 1,
+          "other_pair_only": 1
+        }
+      ]
+    },
+    "help_null": {
+      "rows": 8,
+      "both_support_gold": 6,
+      "both_choose_other": 1,
+      "choice_disagreement": 0,
+      "any_uncertain_or_nonbinary": 1,
+      "agreed_categories": {
+        "other_pair_only": 5,
+        "same_pair_explicit": 2,
+        "argument_or_type_mismatch": 1
+      },
+      "reader_categories": [
+        {
+          "other_pair_only": 5,
+          "same_pair_explicit": 2,
+          "argument_or_type_mismatch": 1
+        },
+        {
+          "other_pair_only": 5,
+          "same_pair_explicit": 2,
+          "argument_or_type_mismatch": 1
+        }
+      ]
+    }
+  },
+  "valid_reader_rows": [
+    32,
+    32
+  ],
+  "limitation": "Fixed outcome-stratified8pergroup; same-model isolated contexts, not human independent groundtruth, prevalence estimate, relabeling or utility/quantum cause proof.",
+  "model_forwards": 0,
+  "training_updates": 0,
+  "new_valid": 0,
+  "new_test": 0,
+  "cos_writes": 0
+}

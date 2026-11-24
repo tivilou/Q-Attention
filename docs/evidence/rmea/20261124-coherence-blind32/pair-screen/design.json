@@ -1,0 +1,80 @@
+{
+  "profile": "natural-same-sentence-entity-pair-auxiliary-TRAIN-screen-v1",
+  "seed": 13,
+  "updates": 1024,
+  "batch_size": 32,
+  "microbatch_size": 4,
+  "lr": 0.001,
+  "weight_decay": 0.01,
+  "betas": [
+    0.9,
+    0.999
+  ],
+  "optimizer_eps": 1e-08,
+  "clip_norm": 1.0,
+  "modes": [
+    "quantum_ce",
+    "quantum_pair",
+    "dephased_pair",
+    "softmax12_pair",
+    "real12_pair",
+    "uniform_pair"
+  ],
+  "fit": 4192,
+  "assessment": 4000,
+  "selection": "Final update1024 only. Primary all40Macro specified before newresults; positive39secondary, localbest objective notselected.",
+  "precision": "float64/complex128/deterministic",
+  "bootstrap_replicates": 0,
+  "bootstrap_seed": 20261123,
+  "timeout_seconds": 3600,
+  "code_hashes": {
+    "screen.py": "3cd487a7bbeceb9872ee981a01716581806714514779f455ea903e7ac4770584",
+    "router.py": "2d2ef8517e81ae0bb28dfcb687a938a43511fd1abd5daa6c11ff2dd25bd128be",
+    "objective.py": "eab467826761f5e22662eb85add45051cee05198572da2e47fd78f41a25714cd",
+    "task_adapter.py": "1f0becffb1d253dede3f464611d5feb3589e8fd402f7942161b141dc715255d6"
+  },
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/rmea_task_runtime.py": "df50e9e14b5fae4b6211c55fd17bcfd2acc368127953e23768dcece24e9d5931",
+    "baselines/retacred/rmea_token_transport_study.py": "d6fcd40ea95725612efa1b10d12059b375b213cc68a0234a8d1e79ff8c2f3370",
+    "baselines/retacred/rmea_token_transport_recovery.py": "e0e708aaa73895b1f174cd08b845854f10e91246aa8b93db8d4fb336edc1244e",
+    "baselines/retacred/rmea_matched_routers.py": "3813f29b61dfc1819a7fd2a610889efb97e8ace950344aaac5ed2800c0921e4d",
+    "baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9"
+  },
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "split_reference_sha256": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+  "bootstrap_code_sha256": "d742cc89229cc53c5048886cd7e12e847c4d696e56049f5a32001dbf6865de6e",
+  "gates": "All5 Qpair final all40Macro contrasts strictly positive before any full-protocol promotion; report all40+positive39/FN/FP/CE and task-only pairtable counts. Not newL3/L4-T.",
+  "stop": "Fixed1024/seed13/4192fit/4000assess/coefficient1/8auxpairs/matched48CE exposure. No coefficient, pair selection, budget, seed, score, metric or control rescue. Insufficient frozen pair support stops before training, not a model failure.",
+  "recovery": "Rebuildable bounded screen; existing best/latest local every update, final selected. No COS/automatic retry/full-run claim.",
+  "public_whitelist": [
+    "summary.json",
+    "fixtures.json",
+    "RUN_COMPLETE",
+    "task-context.json"
+  ],
+  "private_outputs": [
+    "diagnostic.private.npz",
+    "perarm/latest.pt",
+    "perarm/best.pt",
+    "perarm/final.pt",
+    "perarm/result.json"
+  ],
+  "claim_scope": "Known auxiliary pairwise logistic tool with full40CE. No quantum/theory novelty, complete decision guarantee, benchmark gain or historical negative rerating. Feasibility only.",
+  "resources": {
+    "gpus": 2,
+    "cpu_cores": 4,
+    "ram_gib": 16,
+    "disk_gib": 1
+  },
+  "plugin_module": "router.py",
+  "hypothesis": "Same-head CE plus existing-natural-pair ranking improves correct entity binding without an inference threshold or phase suppression; Qpair final all40Macro exceeds matched CE-onlyQ and same-rule dephased/width12classics/uniform.",
+  "rationale": "Actual full-model coherence helps and harms other-pair relation content; this is a task training hypothesis, not established quantum cause. Round47 already analyzed paired conditional loss; no novelty/guaranteed full40 correctness claimed.",
+  "aux_pairs_per_batch": 8,
+  "minimum_fit_pairs": 100,
+  "minimum_fit_pair_classes": 3,
+  "source_train_sha256": "f1051d574a44df3ecbd036c1de4fbbe0a372c768f6ec990330e2cea4a657269f",
+  "metadata_sha256": "9e6eac9ad582a4ef4e1a8a12190bfef3b8f0a18c5efbd9072f91f31563656c0e",
+  "training_objective": "All6arms: item-weighted CE over common32base+16aux rows. Pairarms add mean softplus(-[(z_pr-z_p0)-(z_nr-z_n0)]) over8fixedsamecontext positive/null pairs; coefficient1, no tuning. Qce computes same48CE exposures without ranking.",
+  "pair_definition": "Fit-only same original tokens/subject-span/ordered subject/object types, different nonoverlapping object spans; positive-v-null original labels; dedup exact query+label. Sentence groups disjoint from assessment. No at-least-one-positive inference assumption."
+}

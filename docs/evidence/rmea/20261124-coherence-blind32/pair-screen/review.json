@@ -1,0 +1,30 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 32.98263120651245,
+  "hashes": {
+    "router.py": "b03feaeb99443dc2ca130eaca0c3992db992494101635f15348c46c7758e25bc",
+    "objective.py": "a9c3aef8d89ccf1a24d97f03b4531e0e2d9b02adf93626f8ae25074c71a66238",
+    "task_adapter.py": "1f0becffb1d253dede3f464611d5feb3589e8fd402f7942161b141dc715255d6",
+    "screen.py": "178ba8c4e33a2cedec3e14e3a7374a2debec66996bdac9892b3d6bc256820afd",
+    "core-delta.patch": "ce2de6613de49353a6c9e74f480ee33562d787ebcd8cc475b998e9d610bf3fbf",
+    "design.json": "5623cacd74e6f4264f31fad0600c4c6efb87e40c95cc238c28741eacfb376dab",
+    "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662",
+    "native_rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "both",
+    "must_fix": [
+      "Make device placement explicit in `router.fixtures`. `screen.py` supplies CUDA inputs before the workers move the models to their assigned GPUs. Entering `torch.cuda.device(0)` does not move model parameters. With CPU-initialized heads, the first quantum forward fails before training. Run the parity fixture with both heads and inputs on the same device.",
+      "Add `task-context.json` to `design.json`’s `public_whitelist`. The new hook writes the pair-support counts and schedule digest there, and the contract includes that file among the public outputs. A publisher following the whitelist would omit it.",
+      "Preserve `first_update.ce` and `train_ce_history` on the native fallback path. The backward dispatch preserves native CE when the context is absent, but the patch unconditionally removes both existing result keys. Use the objective-named fields for the new path and retain the CE fields for existing callers."
+    ],
+    "limitations": [
+      "Under the supplied native-backward contract, the weighting is correct. Scaling mean CE over 32 rows by 2/3 gives each main row weight 1/48. Each four-row auxiliary chunk gives each row weight 1/48 and, on pair arms, each of its two pairs weight 1/8. The shared schedule preserves matched CE exposure across all six arms.",
+      "The pair filter implements nonoverlap for half-open object spans. The supplied material does not establish the source endpoint convention. If endpoints are inclusive, the `<=` comparisons admit objects sharing a token and must become `<`.",
+      "The third-class fixture has margin d = -2, so it illustrates a ranking violation. To demonstrate the stated limitation directly, use a separate example such as positive logits [0, 8, 9] and null logits [0, -8, 9] for relation 1. Its margin is 16 and class 2 wins both rows.",
+      "This was a static review of the supplied text. Pair support, runtime parity, and assessment outcomes remain unverified."
+    ]
+  }
+}
