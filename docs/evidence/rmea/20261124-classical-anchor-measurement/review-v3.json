@@ -1,0 +1,24 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 18.186812162399292,
+  "hashes": {
+    "protocol.md": "223927876060beaa0aa627023a229e3b45d0f50c6dc5e2a9c1f0e69c7458cb23",
+    "plugin.py": "c5cecf20d5f98e88e10044806ec21749dc0b30692ae44b2b9cedf8be03dea0b3",
+    "adapter.py": "273d5345266048897dbdf23500bd862ecc8ae2a6a3983d04ae30c5913b6b0b27",
+    "design.json": "69492d17f39331b7fd7f78df68517d10eaa20a778e762f8afeb3951094b28001",
+    "screen.py": "737980cde34cb0adcf23d304244102520b2e55cf83e4cb08200311d3860d643e",
+    "native/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "native/rmea_matched_routers.py": "3813f29b61dfc1819a7fd2a610889efb97e8ace950344aaac5ed2800c0921e4d",
+    "previous-review.json": "8d27682d3fbb1b6cb63ac7d6efcc814730a393ee54971df7cd330d87930cfd52"
+  },
+  "response": {
+    "verdict": "PASS",
+    "must_fix": [],
+    "limitations": [
+      "Static review found that all four hybrids implement the specified centered correction using native route attention and the anchor\u2019s value and decoder. At gate zero, each hybrid returns the native logits exactly for finite inputs. The revised FP64 padding check rejects NaN directly, resolving the previous blocker.",
+      "Training initialization and evaluation reconstruction select the same mode and state-dict schema for all six arms. Each hybrid has 81,028 anchor parameters, 12,828 route parameters and one scalar gate. The seed-1013 quantum and dephased routes have identical initial tensors.",
+      "No GPU fixture output, checkpoint reload result or assessment metrics were supplied or executed in this review. The verdict covers source correctness only."
+    ]
+  }
+}
