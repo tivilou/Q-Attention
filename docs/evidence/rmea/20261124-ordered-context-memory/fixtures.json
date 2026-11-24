@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "checks": {
+    "native_first_column": 0.0,
+    "numpy_full_operator": 4.47545209131181e-16,
+    "zero_transition": 0.0,
+    "quantum": {
+      "prefix_error": 1.7554167342883506e-16,
+      "gradient_error": 1.6653345369377348e-16,
+      "padding_error": 0.0,
+      "norm_error": 4.440892098500626e-16
+    },
+    "dephased": {
+      "prefix_error": 8.326672684688674e-17,
+      "gradient_error": 5.551115123125783e-17,
+      "padding_error": 0.0,
+      "norm_error": 4.440892098500626e-16
+    },
+    "real12": {
+      "prefix_error": 5.551115123125783e-17,
+      "gradient_error": 4.440892098500626e-16,
+      "padding_error": 0.0,
+      "norm_error": 1.1102230246251565e-16
+    },
+    "single_word_native_error": 3.885780586188048e-16,
+    "quantum_native_update": {
+      "loss": 4.356342792510986,
+      "parameters": 81028,
+      "finite": true,
+      "state_changed": true
+    },
+    "quantum_seq_update": {
+      "loss": 4.363194465637207,
+      "parameters": 81028,
+      "finite": true,
+      "state_changed": true
+    },
+    "dephased_seq_update": {
+      "loss": 4.365939140319824,
+      "parameters": 81028,
+      "finite": true,
+      "state_changed": true
+    },
+    "real12_seq_update": {
+      "loss": 4.366479873657227,
+      "parameters": 81028,
+      "finite": true,
+      "state_changed": true
+    },
+    "softmax12_seq_update": {
+      "loss": 4.363824367523193,
+      "parameters": 81028,
+      "finite": true,
+      "state_changed": true
+    }
+  },
+  "scope": "Changed operators/prefix/gradients and one cloned real8 update per arm only; no lifecycle matrix.",
+  "first_updates": {
+    "quantum_native": {
+      "finite_gradients": true,
+      "state_changed": true
+    },
+    "quantum_seq": {
+      "finite_gradients": true,
+      "state_changed": true
+    },
+    "dephased_seq": {
+      "finite_gradients": true,
+      "state_changed": true
+    },
+    "real12_seq": {
+      "finite_gradients": true,
+      "state_changed": true
+    },
+    "softmax12_seq": {
+      "finite_gradients": true,
+      "state_changed": true
+    }
+  }
+}

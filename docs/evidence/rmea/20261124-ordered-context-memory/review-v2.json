@@ -1,0 +1,25 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 32.97786903381348,
+  "hashes": {
+    "plugin.py": "907f484c6b40cd50a2d8557a6823276a760cc8e8f02b49e5417c2c263b0462e3",
+    "adapter.py": "a0ef483ab0b70b0d4a627ed878248929e9ea476aeb02cfeb79bddd0cd7f98aeb",
+    "design.json": "e503a82873d0c1bb1a902afe7a171d76148b683024cdd50dc89b5fc9dc706274",
+    "protocol.md": "afce9122930039e0d86ec7ffc0831e7fcf2a108186a9d08686245c6dd591b22b",
+    "screen.py": "755e63477e50be8e8624c12446809645b764bc0e646f918ce6ca362c201266c0",
+    "native/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "native/rmea_matched_routers.py": "3813f29b61dfc1819a7fd2a610889efb97e8ace950344aaac5ed2800c0921e4d"
+  },
+  "response": {
+    "verdict": "PASS",
+    "must_fix": [],
+    "limitations": [
+      "For valid, nonempty masks, the quantum operator matches the specified gate order and broadcasting. The final transpose puts evolved basis states in columns, and indexing the last dimension by rowmap implements U(\u03b8)U(0)\u2020. The scan multiplies later transitions on the left and returns column zero of each inclusive prefix. Masked steps contribute identity.",
+      "The controls match their definitions. The dephased arm propagates the prior probability vector through |V_t|\u00b2 at every word. Both real arms use the same length scaling and two staggered Givens layers, followed by their specified readouts. Each arm has 81,028 trainable parameters and reuses the prescribed initialization.",
+      "The fixtures compare the full quantum operator with a NumPy construction and compare serial and parallel states and angle gradients for a weighted scalar objective. The one-word logit check has limited diagnostic value because attention on one valid word is always one. The separate native-first-column check directly tests state preparation.",
+      "The real-eight update operates on a clone of each arm. Its assertions check finite gradients and an overall parameter change. The final gate uses all-40 macro F1 and CE in all eight strict comparisons.",
+      "This verdict covers static inspection of the supplied source text. Fixture outcomes and byte-for-byte correspondence to the listed hashes were not independently verified."
+    ]
+  }
+}
