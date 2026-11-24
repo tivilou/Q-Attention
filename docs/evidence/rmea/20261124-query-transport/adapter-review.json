@@ -1,0 +1,12 @@
+{
+  "verdict": "PASS",
+  "source_sha256": "a431a01b96ef54db912127ec57f4392b34ebf6135747c9f1b2444e7ed6b7b634",
+  "contract_sha256": "be0927a346c4d875c8a4a5d6591763f053f35b8d37994eb69bc241ab8d0a2233",
+  "model": "gpt-6.2-astra",
+  "reasoning": "high",
+  "scope": "Only changed scientific adapter/admission and static three-condition registration",
+  "limitations": [
+    "Static review confirms that full/prepare.py requires all four adapter paths before creating the PASS record and verifies their local and staged bytes against the reviewed hashes. This resolves the prior coverage finding.",
+    "The supplied fixture reports acceptance of the complete hash inventory and rejection when each of the four adapter paths is omitted individually. It records zero model updates and zero COS writes."
+  ]
+}
