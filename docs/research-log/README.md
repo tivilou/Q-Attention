@@ -6,6 +6,8 @@
 
 ## 时间线
 
+- [2026-11-24｜Q独有样本固定内容检查](20261124T-q-only-positive-carryover.md)：两份隔离Sol-medium共64条判断；Q独有正关系2/8支持，反向6/8，多线索/干扰无清晰区分。不改标签，不推效用或L3/T。
+
 - [2026-11-24｜注意力Fisher五路筛选](20261124T-attention-fisher-query.md)：Q方向修正Macro下降1.54pt且未胜经典，固定1/8门关闭；锚点logits完全一致。回到完整模型独有正例，L3/L4-T未通过。
 
 - [2026-11-24｜原生编码标签盲诊断](20261124T-native-angle-aliasing.md)：全TRAIN未见整体周期端点塌缩；条件注意力Fisher与QFI反例已验证，不作新T。下一步研究归一化路由更新，L3/L4-T未通过。
