@@ -1,0 +1,50 @@
+{
+  "question": "Can nonnegative Q-minus-D margin gain be satisfied without repairing a wrong Q decision?",
+  "joint_reference_counterexample": {
+    "quantum_margin_before": -1.0,
+    "quantum_margin_after": -1.0,
+    "reference_margin_before": 0.0,
+    "reference_margin_after": -2.0,
+    "penalty_before": 1.0,
+    "penalty_after": 0.0,
+    "quantum_still_wrong": true
+  },
+  "native_readout_witness": {
+    "epsilon": 1e-06,
+    "quantum_alpha": [
+      0.3333335555552593,
+      0.6666664444447407
+    ],
+    "diagonal_alpha": [
+      0.5,
+      0.5
+    ],
+    "utilities_before": [
+      3.000004000000001,
+      -3.000004000000001
+    ],
+    "utilities_after": [
+      -5.000004000000001,
+      1.0000040000000006
+    ],
+    "quantum_and_reference_before": [
+      -0.9999999999999998,
+      0.0
+    ],
+    "quantum_and_reference_after": [
+      -0.9999999999999999,
+      -2.0
+    ],
+    "max_residual": 2.220446049250313e-16,
+    "scope": "Two valid tokens, fixed reachable pure states and signed utilities, rival logit0; an affine utility map can realize both pairs on two distinct features. Not a measured descent direction of a trained checkpoint or general optimization theorem."
+  },
+  "conclusion": "Naive joint-reference nonnegative-gain constraint is insufficient; do not implement/launch this objective as a valid repair.",
+  "stop_gradient_limit": "Stops only direct reference gradient at that step; shared parameters still move D over the trajectory. Not a global no-cheating theorem.",
+  "fixed_reference_limit": "Same-input fixed reference adds teacher provenance/storage and may forbid useful departures; does not establish quantum advantage or novelty.",
+  "status": "NAIVE_OBJECTIVE_REJECTED_BEFORE_MODEL_CODE",
+  "new_model_updates": 0,
+  "new_gpu": 0,
+  "new_validation": 0,
+  "new_test": 0,
+  "new_cos": 0
+}
