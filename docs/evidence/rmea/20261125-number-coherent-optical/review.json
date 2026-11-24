@@ -1,0 +1,13 @@
+{
+  "verdict": "PASS",
+  "source_sha256": "e053617afd50b8c1571ef6994a1a6cc2226c6fc5323441f2f076bf8235a4efa8",
+  "contract_sha256": "e0773bae289a9121e753573d9dd934c7cc4a27f9eabd73e4a4b08e7294a7a486",
+  "model": "gpt-6.2-astra",
+  "reasoning": "high",
+  "scope": "Changed scientific adapter; unchanged core capabilities reused",
+  "limitations": [
+    "Static review only. The four kernel formulas, six-mode sqrt(24) embedding, EPS placement, masking and strict real12 initialization agree with the frozen specification. The supplied fixtures cover operator values, gradients, padding and one update on the first eight TRAIN examples per condition. Their execution remains unverified.",
+    "One wording correction in derivation.md: scaling rho to 2*rho changes its two nonzero effect eigenvalues from 1/2 to 1. Both effects have rank two. The implementation uses the correct factor.",
+    "The scoped registration names all four conditions. The adapter checks both reference sets against the input, initialization, order and training budget, retains all 14 endpoints and 13 paired partitions, and uses a strict positive TEST Macro-F1 difference for every comparison. Passing on exposed seed13 permits independent confirmation only. Failure closes the frozen profile."
+  ]
+}
