@@ -1,0 +1,23 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 37.348941802978516,
+  "hashes": {
+    "protocol.md": "786a46883332210cdbe840803db3fbcd4147d4d4e9e9075d54272fb96a01996c",
+    "endpoints.py": "9870fc0028f1e1e243d33f3ac29cc7d8e0521e6996cf6d89c1caeab86617ae88",
+    "replay.py": "699e1147bec36bcd2a0acf5625611a2448a5c5b4d58bd7dbfac879a704382138",
+    "native/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "native/rmea_matched_routers.py": "3813f29b61dfc1819a7fd2a610889efb97e8ace950344aaac5ed2800c0921e4d",
+    "previous-review.json": "b2393bc6480b72a00df0ff6bbe3e5f828dfaf2c8dad8bbdc0800c69138f30c9e"
+  },
+  "response": {
+    "verdict": "PASS",
+    "must_fix": [],
+    "limitations": [
+      "Static review found no mismatch in the masked simplex extrema, the real and complex Rayleigh matrices, either EPS term, whitening, bias addition, or the generalized eigenpair residual calculation. Both gold margins compare the gold upper endpoint with the largest lower endpoint among all 39 rivals.",
+      "All three prior findings are resolved in the supplied code. Each worker requires exact agreement on all 1,600 confusion counts and retains the CE check. It measures containment directly on native forward logits, including real12\u2019s pool-before-decode result. The final 900-second check uses the same elapsed value reported after per-model verification, output writing, and aggregation.",
+      "The endpoints use FP64 arithmetic on native FP32 keys and utilities. The replay records source-query norm error. The resulting categories describe numerical reachability with independent per-input, per-relation choices. They provide no formal interval certificate or shared-model performance guarantee.",
+      "Execution remains unverified. The design, private inputs, checkpoints, prior metrics, and GPU allocation were unavailable for this review. Fixture results, first-three-row NumPy agreement, artifact identities, full 58,465-row TRAIN parity for both models, and timing therefore remain runtime checks."
+    ]
+  }
+}

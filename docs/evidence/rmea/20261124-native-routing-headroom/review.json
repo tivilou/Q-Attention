@@ -1,0 +1,36 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 48.804940700531006,
+  "hashes": {
+    "protocol.md": "786a46883332210cdbe840803db3fbcd4147d4d4e9e9075d54272fb96a01996c",
+    "endpoints.py": "9870fc0028f1e1e243d33f3ac29cc7d8e0521e6996cf6d89c1caeab86617ae88",
+    "replay.py": "ce75fd604a265730d51a2fd9e86669c1ecf001def70eabfb1697b8c452043bb7",
+    "native/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "native/rmea_matched_routers.py": "3813f29b61dfc1819a7fd2a610889efb97e8ace950344aaac5ed2800c0921e4d"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "must_fix": [
+      {
+        "location": "replay.py, worker() metric parity check",
+        "finding": "The replay computes the 40\u00d740 confusion matrix but checks only CE and macro-F1 against the prior selected-state TRAIN evaluation. Different confusion matrices can have identical macro-F1, including when errors move between rival classes.",
+        "correction": "Compare all 1,600 integer counts with the pinned prior confusion matrix for each model before marking the run complete. Retain the CE comparison."
+      },
+      {
+        "location": "endpoints.py, bounds() outside calculation, and replay.py, worker()",
+        "finding": "The reported containment residual uses the reconstructed FP64 query logit. The frozen protocol asks for containment of the original model logit, which is available as z in worker(). This distinction matters for real12 because its native forward pools values before applying the decoder. The separate readout agreement check permits a discrepancy up to 1e-4 and cannot establish the observed native-logit containment residual.",
+        "correction": "Compute max(query_low - z.double(), z.double() - query_high, 0) directly over all examples and relations, report its maximum, and apply the existing original-logit containment check to that quantity. Keep the reconstructed-query check as a separate diagnostic."
+      },
+      {
+        "location": "replay.py, worker() final 900-second check",
+        "finding": "The final deadline check precedes metric computation, prior-result verification, the private array write, and report aggregation. A worker can therefore report more than 900 seconds and still contribute to RUN_COMPLETE.",
+        "correction": "Measure elapsed time after the required per-model work and use that same value for the final budget check and the reported duration."
+      }
+    ],
+    "limitations": [
+      "Static inspection supports the endpoint formulas for both heads. The masked outer products, both EPS identity terms, complex conjugation, whitening, bias addition, and gold-versus-all-39-rivals margin agree with the protocol. The endpoint calculation promotes native FP32 keys and utilities to FP64 and records the source query norm error.",
+      "The supplied material supports a code review only. Fixture execution, first-three-row NumPy agreement, checkpoint and cache identity, full TRAIN parity, and runtime remain unverified."
+    ]
+  }
+}
