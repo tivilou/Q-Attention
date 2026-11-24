@@ -1,0 +1,116 @@
+{
+  "profile": "context-word-frame-PGM-fixed-TRAIN-screen-v1",
+  "seed": 13,
+  "updates": 1024,
+  "batch_size": 32,
+  "microbatch_size": 4,
+  "lr": 0.001,
+  "weight_decay": 0.01,
+  "betas": [
+    0.9,
+    0.999
+  ],
+  "optimizer_eps": 1e-08,
+  "clip_norm": 1.0,
+  "modes": [
+    "quantum",
+    "quantum_frame",
+    "dephased",
+    "dephased_frame",
+    "real12",
+    "real12_frame",
+    "softmax12",
+    "uniform"
+  ],
+  "fit": 4192,
+  "assessment": 4000,
+  "selection": "Final update1024 only. Primary all40Macro specified before newresults; positive39secondary, localbest objective notselected.",
+  "precision": "float64/complex128/deterministic",
+  "bootstrap_replicates": 0,
+  "bootstrap_seed": 20261123,
+  "timeout_seconds": 3600,
+  "code_hashes": {
+    "router.py": "b27a4bfabf114f68a524170e2c4c2ff51e395a312e245b0c9d7d0ae88ed34dee",
+    "screen.py": "e8372f42578d17cad4387bb7c8a5c302ccbd9242447f9ef1fb5e1286a3ae36d9"
+  },
+  "source_hashes": {
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/rmea_task_runtime.py": "df50e9e14b5fae4b6211c55fd17bcfd2acc368127953e23768dcece24e9d5931",
+    "baselines/retacred/rmea_token_transport_study.py": "d6fcd40ea95725612efa1b10d12059b375b213cc68a0234a8d1e79ff8c2f3370",
+    "baselines/retacred/rmea_token_transport_recovery.py": "e0e708aaa73895b1f174cd08b845854f10e91246aa8b93db8d4fb336edc1244e",
+    "baselines/retacred/rmea_matched_routers.py": "3813f29b61dfc1819a7fd2a610889efb97e8ace950344aaac5ed2800c0921e4d",
+    "baselines/retacred/common.py": "3ee30fa3b9d5b10d00ea5610588dfd9c118823f039cf4582ba7a28c64a0b5be9"
+  },
+  "native_manifest_sha256": "dfb347aef35657c5463486e1043aca0617ccc11d3aca1eea851a59af15ec5f49",
+  "split_reference_sha256": "ff920146542e7af85f90df5ececfa62f0742be4e90f0db4de8645946e043d833",
+  "bootstrap_code_sha256": "d742cc89229cc53c5048886cd7e12e847c4d696e56049f5a32001dbf6865de6e",
+  "gates": "Qframe final all40Macro strictly above all7 controls before full-study design; TRAIN exposed planning only, no L3/T promotion.",
+  "stop": "Exact8arms/1024updates/seed13/4192fit/4000assess/EPS1e-6/native optimizer. No split,epsilon,rank,matrix-function,coefficient,seed,budget,control,checkpoint or metric rescue.",
+  "recovery": "Rebuildable bounded screen; existing best/latest local every update, final selected. No COS/automatic retry/full-run claim.",
+  "public_whitelist": [
+    "summary.json",
+    "fixtures.json",
+    "RUN_COMPLETE",
+    "design.json",
+    "router.py",
+    "screen.py"
+  ],
+  "private_outputs": [
+    "diagnostic.private.npz",
+    "perarm/latest.pt",
+    "perarm/best.pt",
+    "perarm/final.pt",
+    "perarm/result.json"
+  ],
+  "claim_scope": "Known frame/PGM operation. Conditional wordPOVM sums to I; 40class queries remain independent, not a joint40POVM. No novelty, quantum-exclusive algorithm, benchmark gain or hardware speedup.",
+  "resources": {
+    "gpus": 2,
+    "cpu_cores": 4,
+    "ram_gib": 16,
+    "disk_gib": 1
+  },
+  "plugin_module": "router.py",
+  "hypothesis": "Whitening the word-state frame before fixed class queries improves full40 recognition by changing context conditioning; Qframe must beat nativeQ, same-rule dephased/real12 frames and all native controls. Current geometry is motivation, not proven failure cause.",
+  "rationale": "Known square-root measurement over word states with fixed learned class query, unlike earlier cross-relation scalar normalization on transformed states. No task-optimality or new theory asserted. Scalar-Gram case reduces to native.",
+  "training_objective": "Unchanged mean full40 CE on identical32rows/micro4 for all8 arms; nativeAdamW,1024updates,seed13,finalonly.",
+  "reuse_completed": {
+    "dephased": {
+      "result.json": "c3faab35c92f0340f2497cacae7d4b0f4a4727bd774a77e2aea477b9fd36a17f",
+      "final.pt": "4a8f720d303032635ee21914939cc0c44dfd5e7df8b94c98b05d967c4d9e9d9f",
+      "latest.pt": "0ce10fdc5c03b8ebf94a9dd077df321b57a64de6d126b0a7913c8d76e318a7fa"
+    },
+    "dephased_frame": {
+      "result.json": "c123d674b4ae68d9753e79c96fe923cb1a9534877a1b61f07bb86b66710acb9a",
+      "final.pt": "c6d08d207268f1394cc2ea2713c2733af197fa2ed7308ad9fddaad93f3bd2d26",
+      "latest.pt": "16d4f35d5b7cae20caad6b334d57569039c34c607fc6d3a653073b21934507b6"
+    },
+    "quantum": {
+      "result.json": "3322e2fca3a80b9e3c32c0f9efcba91d44635357aca6dfd8d23089149df558f3",
+      "final.pt": "fcf16a3485708b0cf074a8c31b4854ce3d66b2fd289476869cba64ec8d079b47",
+      "latest.pt": "568ba1e29c588da9aef93738c5405bd59c2e9789c2b103f9312eeec825be47a8"
+    },
+    "quantum_frame": {
+      "result.json": "f80823870b7186b9dd209a87367dbd59160d0de5d6e2b902c6aceeb89e8bd149",
+      "final.pt": "3cbddccfb45d56582e3ee02c36662311254413819125e7adb9c699bfff9e1de4",
+      "latest.pt": "ecf3fc7fc62b41b47063da37ba4ca6dedc2f79c569e879a464b223208c343cae"
+    },
+    "real12": {
+      "result.json": "39f7bad372ad6e246fdf71f34e09ffcf24bdc8759550e2210e591769b9b0ee64",
+      "final.pt": "02ebf604182f5ad6ca93d90c95951316926553536dd3ed11b32697d2426cd9dc",
+      "latest.pt": "5665fa338fd5dd8926ce2004b4982222a42e22a63df2c2b85da8b0a465c3fd21"
+    },
+    "real12_frame": {
+      "result.json": "c67e00913c3613baa49730113fc2cb5643deb83e91023953664d52bb624951df",
+      "final.pt": "58b65f07164854d478f627ecf0aa6cc5f475a87adb648a24c55f3d916055e865",
+      "latest.pt": "e4fbb212e5290aba87761e728e3675fcae21051be6ecb3716207d503ca47eabc"
+    },
+    "softmax12": {
+      "result.json": "66bb62fc3bcf6539200836930b2985aa988dc2cc44ca63d8ccdc264674790f79",
+      "final.pt": "c3795f1d7a004179b0fac06e0ed3a63638a4d827e73042bc32108c90704cb2f4",
+      "latest.pt": "8dd1dca2e5819e62b24ee93eec5c92bb6c42036f909a7fdde3aa809e4672a32e"
+    }
+  },
+  "reuse_root": "/hy-tmp/Q-Attention/control/context-frame-training-20261124",
+  "scientific_design_sha256": "3b85d62ff49d827f2e6e56c8cccf174d40152818279d5964a8db6c621699282a",
+  "recovery_scope": "Mechanical uniform Float/Double interface only; no assessment seen. Reuse7complete1024 states by hash and identicalinitial/order/sharedvalue; only uniform gets1024updates. Same8arms/budget/split/metric/selection; preserve original failed execution."
+}

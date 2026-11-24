@@ -27,7 +27,7 @@ class FrozenFeatureHead(nn.Module):
             raise ValueError('Each row requires at least one valid original word')
         value=self.value(h)
         if self.mode=='uniform':
-            weights=mask[:,None,:].float().expand(-1,40,-1)
+            weights=mask[:,None,:].to(dtype=value.dtype).expand(-1,40,-1)
             weights=weights/weights.sum(-1,keepdim=True)
         else:
             key=self.key(torch.cat([h,roles],dim=-1))

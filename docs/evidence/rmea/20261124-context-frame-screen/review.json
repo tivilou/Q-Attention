@@ -1,0 +1,25 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 16.579099655151367,
+  "hashes": {
+    "router.py": "b27a4bfabf114f68a524170e2c4c2ff51e395a312e245b0c9d7d0ae88ed34dee",
+    "screen.py": "e8372f42578d17cad4387bb7c8a5c302ccbd9242447f9ef1fb5e1286a3ae36d9",
+    "design.json": "fdc4d6dc043c3cc9f96c0471da69496dac2f05dc629f0b7f1650b481a1bcba0b",
+    "host_run.py": "238f7e68ea94250ecd786e64c269c8006c7225e40e638879515e545bf7795662",
+    "native_rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "execute.py": "0cf24d72027193a2c973b19523c6c1f72390d638fe08db3c6d67768fb357fee8",
+    "original_router.py": "88056fd0c023acfa2be868ed8e63a9d00716305b1cd6917d2dc0314a3341f0b6",
+    "original_screen.py": "3cd487a7bbeceb9872ee981a01716581806714514779f455ea903e7ac4770584"
+  },
+  "response": {
+    "verdict": "PASS",
+    "scope": "both",
+    "must_fix": [],
+    "limitations": [
+      "Static review only. For the supplied float64 inputs, `mask.to(h.dtype)` gives the pooling weights the same dtype as the projected values and preserves the uniform masked mean. The new fixture compares logits against a direct masked sum divided by the valid-word count, with a 1e-12 tolerance. Its runtime result is unverified.",
+      "The recovery path pins each reused arm\u2019s `result.json`, `final.pt`, and `latest.pt`, checks the update count, initialization, batch order, shared parameters, and final-file digest, then returns before optimizer creation. Assessment replaces `result.json` atomically in the new attempt directory, preserving the original hard-linked file. Artifact hashes and prior completion are supplied facts.",
+      "Only uniform receives 1,024 new updates. Scoring starts after all eight training records have returned and all eight final-file digests have been checked. The gate uses final all40 macro-F1 against all seven controls. The prior PGM review PASS stands. This review covers the proposed attempt through launch and scoring logic. Execution and outcomes are unverified."
+    ]
+  }
+}
