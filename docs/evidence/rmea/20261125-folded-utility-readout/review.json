@@ -1,0 +1,26 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "scope": "mechanism",
+  "seconds": 44.5667564868927,
+  "profile_echo_verified": true,
+  "hashes": {
+    "plugin.py": "667b64e224370343b7af9294a6fdd9fd5f32b9b4f0c8d718fdbb58560601a38d",
+    "adapter.py": "370b656f6a9d7541cebd019a60562b0c0e13da7481a846cae9c438a29de66c1c",
+    "design.json": "4adeb87fec473e1ae415e3a2476f74011ecb694c79414c46b8a7bf8184640c08",
+    "protocol.md": "c0e2ed52fd0784b936a1de8fdecf26842a648373480453a07dff307a96f57750"
+  },
+  "packet_sha256": "03043207b66099c7542d03411151cd65248701d45d595bc55240a4f60c90f442",
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "The fold is correct for every admitted input in real arithmetic. Each relation\u2019s attention weights sum to one over valid tokens, so the value bias contributes D_r c exactly once. The code uses M = DV and \u03b2 = b + Dc, computes token utilities without bias, and adds \u03b2 once after pooling. Conversely, D = [I\u2084\u2080, 0], V = [M; 0], c = 0 and b = \u03b2 realize every direct readout at the same router. AdamW, gradient clipping and weight decay act on different parameters after folding, so a score difference cannot identify improved conditioning as its cause.",
+      "The four source tensors retain their native keys in head.state_dict() as persistent buffers and follow module device and dtype conversions. The live readout uses only utility.weight and utility.bias. Its 41,000 trainable scalars plus 12,828 router scalars give 53,828 per arm. Fresh training uses initialize() to load and fold each native state. Reconstruction through make_head(kind) requires loading the full folded state, including the learned utility tensors.",
+      "The fixtures operate on deep copies. They compare the actual FP32 initialization with the factorized readout, recompute the fold in FP64 from the source coefficients, check the Gaussian formula independently in NumPy, and compare gradients from two separately built readout graphs using the same router implementation. They also check masked padding, finite gradients for every registered parameter, an AdamW step that changes at least one parameter, and preservation of all four source buffers. This was a static review. Numerical tolerances and the runner-supplied eight-example batch were not verified by execution.",
+      "The gate requires six strict all-40 macro-F1 wins over folded dephased, folded Gaussian base, and the four fixed native references. The highest reused score is Gaussian covariance at 0.512054050292468. All three new arms train jointly from step one. A six-win result admits only full protocol design. Failure defers the specified profile under its fixed stop rule, and neither outcome establishes independent L3 or T."
+    ],
+    "admission": "bounded_small_TRAIN_screen"
+  }
+}

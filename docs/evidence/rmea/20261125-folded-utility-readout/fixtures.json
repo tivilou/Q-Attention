@@ -1,0 +1,47 @@
+{
+  "status": "PASS",
+  "checks": {
+    "quantum": {
+      "initial_fp32_error": 2.384185791015625e-07,
+      "folded_fp64_error": 2.220446049250313e-16,
+      "independent_gradient_error": 6.38378239159465e-15,
+      "parameters": 53828,
+      "real8_update": true,
+      "baseline_buffers_unchanged": true,
+      "ce": 4.272670745849609
+    },
+    "dephased": {
+      "initial_fp32_error": 2.384185791015625e-07,
+      "folded_fp64_error": 4.440892098500626e-16,
+      "independent_gradient_error": 1.9671764217576992e-15,
+      "parameters": 53828,
+      "real8_update": true,
+      "baseline_buffers_unchanged": true,
+      "ce": 4.264359951019287
+    },
+    "gaussian_base": {
+      "initial_fp32_error": 2.682209014892578e-07,
+      "folded_fp64_error": 3.3306690738754696e-16,
+      "independent_gradient_error": 6.661338147750939e-16,
+      "parameters": 53828,
+      "real8_update": true,
+      "baseline_buffers_unchanged": true,
+      "ce": 4.269209384918213
+    }
+  },
+  "scope": "Only folded utility identity/gradient/update; stable core and native attention unchanged",
+  "first_updates": {
+    "quantum": {
+      "finite_gradients": true,
+      "state_changed": true
+    },
+    "dephased": {
+      "finite_gradients": true,
+      "state_changed": true
+    },
+    "gaussian_base": {
+      "finite_gradients": true,
+      "state_changed": true
+    }
+  }
+}
