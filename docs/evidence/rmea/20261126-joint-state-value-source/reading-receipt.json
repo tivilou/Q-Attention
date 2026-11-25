@@ -1,0 +1,66 @@
+{
+  "paper_id": "arxiv:2205.05625v2",
+  "title": "Quantum Self-Attention Neural Networks for Text Classification",
+  "authors": [
+    "Guangxi Li",
+    "Xuanqiang Zhao",
+    "Xin Wang"
+  ],
+  "source_url": "https://arxiv.org/pdf/2205.05625v2",
+  "pdf_sha256": "95561d5444e91b185a60c39838ce7590c33779511803b461bf7b9e67ed2c51ad",
+  "pdf_bytes": 804181,
+  "total_pages": 13,
+  "identity": "VERIFIED_TITLE_AUTHORS_ID_VERSION",
+  "version": "arxiv_v2",
+  "version_notes": "Official landing: revision 2023-09-28; PDF title date 2023-09-29. Both retained, not silently equated.",
+  "reading": "READ_FOR_SCOPE",
+  "text_pages_read": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "visually_inspected_pages": [
+    3,
+    4,
+    5,
+    7
+  ],
+  "unread_pages": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "uninspected": [
+    "upstream implementation",
+    "supplements",
+    "published-version differences"
+  ],
+  "findings": [
+    {
+      "locator": "p3 Eq3; p4 Eq4-7",
+      "fact": "Common encoded input state feeds query, key and value circuits. Value coordinates are Pauli-observable expectations after a unitary; the attention kernel is Gaussian on projected query/key expectations."
+    },
+    {
+      "locator": "p5 Eq8-10; p6 Eq11-18; p7 Algorithm1",
+      "fact": "Task loss optimizes quantum ansatz and decoder parameters; previous-layer outputs feed later common encoded states. This is not a frozen-teacher value-regression protocol."
+    },
+    {
+      "locator": "p3-5",
+      "fact": "The source does not implement the native 1028-to-12 preparer, forty rank-one Born class effects, EPS word normalization and arbitrary bounded class-Hermitian utility as one exact architecture."
+    }
+  ],
+  "interpretation": "Same-state bounded quantum values and task optimization have direct precedent. A specific native joint architecture remains untested here; that scope gap does not establish a new structural mechanism, efficacy or theory.",
+  "epistemic_limits": [
+    "No claim that this paper proves all native joint variants equivalent.",
+    "No empirical benefit transfers from its text-classification experiments.",
+    "No hardware speedup or task-independent impossibility is inferred."
+  ],
+  "recorded_at": "2026-11-25T23:56:29.598569+00:00"
+}

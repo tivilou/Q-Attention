@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-gen105四checkpoint/4096真实TRAIN无更新诊断完成并归还；主S AUC.509391低于长度.541584/纯度.524882/同Q去相位.513610，优势-.032192 vs冻结+.02、主.55未达，4门2PASS/STOP确切预测。541discordants:Gcov独对300/Q独对241，0缺失；全部80strata和4路40CM保留，原预测argmax0差/Macro0差。512head512circuit0updates/11.292636s，real16 1.11e-15/NumPy2.11e-15/状态checkpoint未变，Fraction36829/72300与-931/28920核验。收集换行失败及字节修复保留、未重跑。原量子goalACTIVE/L3L4T未接受，下一步仅排重joint state/observable utility是否有未测任务假设，0GPU/forward/fit，不旧profile救援。
+共同词态/observable value只读排重完成：10本地源pins核验，QSANN官方2205.05625v2 PDF95561d54/13页中实际读1–7、视觉3/4/5/7。同态有界值和任务优化已有组件先例；原生完整共同训练未在指定记录执行，但D公式相同且尚无独立任务机制，本轮NONE_NEW_STRUCTURAL_CANDIDATE/不准入训练。0GPU-forward-circuit-fit-模型API-新容量；原Q-RMEA goal ACTIVE，新L3/L4T未接受。gen98/102/104/105及全部确切停止/原L4历史保留。下一步从既有结果设计至多一个实际信息路径不同的量子假设，给最强经典控制/预测/小筛选门，不重复建资格框架。
 
 ## 时间线
+
+- [2026-11-26｜同态value原文排重](20261125T-235842Z-joint-state-value-source.md)：QSANN已含相关组件；原生共同学习仍未测，本轮无新结构候选，保持目标ACTIVE。
 
 - [2026-11-26｜配对混叠预测真实数据未通过](20261125T-214027Z-context-pair-diagnostic.md)：4路重放一致但主AUC.5094低于长度；冻结预测STOP，gen105已归还。
 
