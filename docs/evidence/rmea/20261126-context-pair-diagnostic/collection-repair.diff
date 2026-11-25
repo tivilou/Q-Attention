@@ -1,0 +1,11 @@
+--- collect.before.py
++++ collect.py
+@@ -7,7 +7,7 @@
+ assert v['execution']['runner_attempt_id']==launch['runner_attempt_id']==v['resource_return']['runner_attempt_id']
+ assert v['resource_return']['allocation_id']==launch['allocation_id'] and v['resource_return']['generation']==launch['generation']
+ for n,b in v['files'].items():
+- p=r/n;assert not p.exists();p.write_text(b,encoding='utf8')
++ p=r/n;assert not p.exists();p.write_bytes(b.encode('utf8'))
+ for n,k in [('execution.json','execution'),('resource-return.json','resource_return'),('independent-verification.json','independent_verification')]:
+  (r/n).write_text(json.dumps(v[k],indent=2)+'\n',encoding='utf8')
+ seal=json.loads((r/'RUN_COMPLETE').read_bytes())

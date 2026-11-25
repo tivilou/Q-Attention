@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-Q-RMEA六个旧定义源级排重完成，纠正词帧technical exit1非有效负筛选、native shared-query为零更新诊断。保留唯一暂定输入距离/词态相似pair关联S，不选方法；2人工native-structure例同纯度/长度/输入距离直方图/alpha/40输出，AQ=-1/3与1/6、差1/2，说明统计不是纯度改名但不足导致任务错误；Fraction正定下界23/50/独立标量核验误差2.23e-16。后续真实数据AUC>=.55且胜长度/纯度/同Q去相位最强者>=.02，失败STOP；尚未运行。0新task/circuit/fit/GPU/容量，原L4/全部历史/gen98-102-104STOP保持，新L3-L4T未接受/goalACTIVE。
+gen105四checkpoint/4096真实TRAIN无更新诊断完成并归还；主S AUC.509391低于长度.541584/纯度.524882/同Q去相位.513610，优势-.032192 vs冻结+.02、主.55未达，4门2PASS/STOP确切预测。541discordants:Gcov独对300/Q独对241，0缺失；全部80strata和4路40CM保留，原预测argmax0差/Macro0差。512head512circuit0updates/11.292636s，real16 1.11e-15/NumPy2.11e-15/状态checkpoint未变，Fraction36829/72300与-931/28920核验。收集换行失败及字节修复保留、未重跑。原量子goalACTIVE/L3L4T未接受，下一步仅排重joint state/observable utility是否有未测任务假设，0GPU/forward/fit，不旧profile救援。
 
 ## 时间线
+
+- [2026-11-26｜配对混叠预测真实数据未通过](20261125T-214027Z-context-pair-diagnostic.md)：4路重放一致但主AUC.5094低于长度；冻结预测STOP，gen105已归还。
 
 - [2026-11-26｜输入词态配对诊断与充分性反例](20261125T-211848Z-context-pair-alignment.md)：6源排重、精确1/2差与输出不变；仅暂定诊断，冻结AUC门槛未运行。
 

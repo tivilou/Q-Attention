@@ -1,0 +1,41 @@
+{
+  "status": "PASS_ACTUAL_EXECUTED_SOURCE_AND_CONFIG",
+  "configuration": [
+    {
+      "local": "design.json",
+      "executed": "staged-design.json",
+      "local_sha256": "24e3a61b8e9c7427015c7db1bc8268230f607f452bfcf51cfeade85c773640b4",
+      "executed_sha256": "861491a29a14b6128d963482e125fb282e368b28355cd3c4139bce1a42e37100",
+      "identical_semantics": true,
+      "only_newline_normalization": true
+    },
+    {
+      "local": "protocol.md",
+      "executed": "staged-protocol.md",
+      "local_sha256": "3f0ce094a10e75a95e7a6ce7475b553c020e44abdbd383d18450e59b44118d77",
+      "executed_sha256": "068964f056ebc54cb564df05d545c5efb8b6de801becaa5be7b86d731ccae42b",
+      "identical_semantics": true,
+      "only_newline_normalization": true
+    }
+  ],
+  "source_hashes_exact": true,
+  "original_frozen_configuration_semantics_unchanged": true,
+  "literal_command": [
+    "/hy-tmp/Q-Attention/env/bin/python",
+    "-B",
+    "/hy-tmp/Q-Attention/control/context-pair-diagnostic-20261126/runner.py",
+    "--root",
+    "/hy-tmp/Q-Attention",
+    "--design",
+    "/hy-tmp/Q-Attention/control/context-pair-diagnostic-20261126/design.json",
+    "--output",
+    "/hy-tmp/Q-Attention/control/context-pair-diagnostic-20261126/output",
+    "--progress",
+    "/hy-tmp/Q-Attention/control/context-pair-diagnostic-20261126/progress.json",
+    "--attempt",
+    "a02af986ce414536a39d821464d41dd5"
+  ],
+  "literal_stdout": "{\"phase\": \"assessment\", \"current\": 32, \"total\": 4096}\n{\"phase\": \"assessment\", \"current\": 1056, \"total\": 4096}\n{\"phase\": \"assessment\", \"current\": 2080, \"total\": 4096}\n{\"phase\": \"assessment\", \"current\": 3104, \"total\": 4096}\n{\"status\": \"COMPLETE\", \"decision\": \"STOP_THIS_EXACT_ALIASING_PREDICTION\", \"auc\": {\"S\": 0.5093914246196404, \"sameQ_dephased_minus_G\": 0.513609958506224, \"length\": 0.5415836791147994, \"purity_pair_mean\": 0.5248824343015215}, \"gates\": {\"technical_numeric\": true, \"population\": true, \"main_auc_at_least_055\": false, \"advantage_at_least_002\": false}, \"seconds\": 11.292636265978217}\n",
+  "literal_stderr": "",
+  "exit_status": 0
+}
