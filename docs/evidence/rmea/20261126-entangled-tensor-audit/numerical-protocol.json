@@ -1,0 +1,14 @@
+{
+  "scope": "Synthetic equation/implementation audit only, not task utility or a new hypothesis screen.",
+  "seed": 250320683,
+  "dtype": "float64/complex128, CPU",
+  "native_source_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+  "base_source_sha256": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+  "representation": "Real normalized Pauli density coordinates, each RY/RZ channel affine in1/cos/sin, fixed Clifford channels;12 sites virtual64. Core B^T B is PSD/rank<=64; this is a known tensor rewrite, not newT. Dephased core B^T Pi_Z B.",
+  "cases": "96 fixed random legal angle ports; one random native initialization,3 synthetic sentences x7tokens,40effects, valid lengths7/5/1; Q and D share parameters.",
+  "checks": ["Native statevector versus real density tensor contraction", "Q/D probabilities, normalized weights and signed full readout", "All7 full-head parameter tensors and synthetic input gradients", "Kernel Gram and coherence-difference PSD/rank bounds", "Independent NumPy dense-gate probabilities/readout and paired angle-direction finite differences"],
+  "tolerances": {"state_density_probability_readout_absolute": 1e-11, "all_parameter_gradient_absolute": 1e-10, "independent_directional_derivative_absolute": 1e-7},
+  "finite_difference_steps": [0.0001, 0.00003, 0.00001],
+  "interpretation": "No train/test rows, encoder or learned checkpoint. Rank is not minimal MPO bond dimension. Known exact re-expression cannot improve utility by itself; no task-cause, generalization or newT claim.",
+  "execution": "Local existing QT environment, no GPU, optimizer updates, server writes, model API, new allocation or capacity."
+}
