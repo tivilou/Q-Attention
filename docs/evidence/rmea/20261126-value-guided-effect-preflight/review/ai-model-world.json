@@ -1,0 +1,2253 @@
+{
+  "schema_version": "model-catalog.v1",
+  "source": "ai-model-world",
+  "source_kind": "derived_aggregator",
+  "query_priority": 0,
+  "capability_authority": false,
+  "source_url": "https://github.com/liyupi/ai-model-world",
+  "retrieved_at": "2026-11-25T18:59:42Z",
+  "status": "ok",
+  "content_sha256": "dd4b8c39dedec9dc998c205ec5babaabe220eb8120038af3290104fb03eb4894",
+  "source_ref": "6d17c876ce0761a7c39d333589a4c2af6a02e76c",
+  "source_commit": "6d17c876ce0761a7c39d333589a4c2af6a02e76c",
+  "generated_at": "2026-11-25T13:41:29.763Z",
+  "files": {
+    "models": {
+      "path": "data/models.json",
+      "url": "https://raw.githubusercontent.com/liyupi/ai-model-world/6d17c876ce0761a7c39d333589a4c2af6a02e76c/data/models.json",
+      "content_sha256": "6858382de3989a4eb85f31f27419b8bf5acfdc71630a2de1462f137d8a9e7858",
+      "byte_length": 3249086
+    },
+    "sync_report": {
+      "path": "data/sync-report.json",
+      "url": "https://raw.githubusercontent.com/liyupi/ai-model-world/6d17c876ce0761a7c39d333589a4c2af6a02e76c/data/sync-report.json",
+      "content_sha256": "8bd0929fbe4571d2b89235679776f82254ec72a22b45b36e414a843e67fe4c76",
+      "byte_length": 63677
+    }
+  },
+  "counts": {
+    "models": 5,
+    "benchmarks": 105,
+    "vendors": 89
+  },
+  "lineage": {
+    "repository": "https://github.com/liyupi/ai-model-world",
+    "commit": "6d17c876ce0761a7c39d333589a4c2af6a02e76c",
+    "upstream_sources": [
+      "derived",
+      "epoch.ai",
+      "huggingface",
+      "litellm",
+      "livebench",
+      "lmarena",
+      "models.dev",
+      "openrouter",
+      "override",
+      "vercel-gateway"
+    ],
+    "field_provenance_preserved": true,
+    "benchmark_scores_are_discovery_hints_only": true
+  },
+  "models": [
+    {
+      "id": "anthropic/claude-fable-5-2",
+      "name": "Claude Fable 5.2",
+      "vendor_id": "anthropic",
+      "release_date": "2026-11-09",
+      "release_date_precision": "day",
+      "context_window": 1000000,
+      "max_output": 128000,
+      "modalities": {
+        "input": [
+          "image",
+          "pdf",
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "pricing": {
+        "cachedInputPerMTok": 0.2,
+        "inputPerMTok": 8,
+        "outputPerMTok": 40
+      },
+      "capabilities": {
+        "promptCaching": true,
+        "reasoning": true,
+        "structuredOutput": null,
+        "toolCall": true
+      },
+      "benchmark_hint_ids": [
+        "aime",
+        "arc_agi_2",
+        "eci",
+        "gpqa_diamond"
+      ],
+      "coding_hint_leagues": [
+        "ale_bench",
+        "cursorbench",
+        "frontier_code",
+        "frontier_swe"
+      ],
+      "provenance": {
+        "benchmarks.aime": "epoch.ai",
+        "benchmarks.arc_agi_2": "epoch.ai",
+        "benchmarks.eci": "epoch.ai",
+        "benchmarks.gpqa_diamond": "epoch.ai",
+        "capabilities.promptCaching": "derived",
+        "capabilities.reasoning": "models.dev",
+        "capabilities.toolCall": "models.dev",
+        "coding": "derived",
+        "contextWindow": "models.dev",
+        "knowledgeCutoff": "models.dev",
+        "maxOutput": "models.dev",
+        "modalities": "models.dev",
+        "name": "models.dev",
+        "openWeights": "models.dev",
+        "params.sizeTier": "derived",
+        "pricing.cachedInputPerMTok": "models.dev",
+        "pricing.inputPerMTok": "models.dev",
+        "pricing.outputPerMTok": "models.dev",
+        "releaseDate": "models.dev",
+        "releaseDatePrecision": "models.dev",
+        "scores": "derived",
+        "vendorId": "derived"
+      }
+    },
+    {
+      "id": "openai/gpt-6.2-astra",
+      "name": "GPT-6.2 Astra",
+      "vendor_id": "openai",
+      "release_date": "2026-11-17",
+      "release_date_precision": "day",
+      "context_window": 1050000,
+      "max_output": 128000,
+      "modalities": {
+        "input": [
+          "image",
+          "pdf",
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "pricing": {
+        "cachedInputPerMTok": 0.4,
+        "inputPerMTok": 8,
+        "outputPerMTok": 40
+      },
+      "capabilities": {
+        "promptCaching": true,
+        "reasoning": true,
+        "structuredOutput": null,
+        "toolCall": true
+      },
+      "benchmark_hint_ids": [
+        "aime",
+        "arc_agi_2",
+        "eci",
+        "gpqa_diamond"
+      ],
+      "coding_hint_leagues": [
+        "mirrorcode"
+      ],
+      "provenance": {
+        "benchmarks.aime": "epoch.ai",
+        "benchmarks.arc_agi_2": "epoch.ai",
+        "benchmarks.eci": "epoch.ai",
+        "benchmarks.gpqa_diamond": "epoch.ai",
+        "capabilities.promptCaching": "derived",
+        "capabilities.reasoning": "models.dev",
+        "capabilities.toolCall": "models.dev",
+        "coding": "derived",
+        "contextWindow": "models.dev",
+        "knowledgeCutoff": "models.dev",
+        "maxOutput": "models.dev",
+        "modalities": "models.dev",
+        "name": "models.dev",
+        "openWeights": "models.dev",
+        "params.sizeTier": "derived",
+        "pricing.cachedInputPerMTok": "models.dev",
+        "pricing.inputPerMTok": "models.dev",
+        "pricing.outputPerMTok": "models.dev",
+        "releaseDate": "models.dev",
+        "releaseDatePrecision": "models.dev",
+        "scores": "derived",
+        "vendorId": "derived"
+      }
+    },
+    {
+      "id": "openai/gpt-6.2-astra-pro",
+      "name": "GPT 6.2 Astra PRO",
+      "vendor_id": "openai",
+      "release_date": "2026-11-17",
+      "release_date_precision": "day",
+      "context_window": 1050000,
+      "max_output": 128000,
+      "modalities": {
+        "input": [
+          "image",
+          "pdf",
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "pricing": {
+        "cachedInputPerMTok": 0.4,
+        "inputPerMTok": 8,
+        "outputPerMTok": 40
+      },
+      "capabilities": {
+        "promptCaching": true,
+        "reasoning": null,
+        "structuredOutput": null,
+        "toolCall": null
+      },
+      "benchmark_hint_ids": [],
+      "coding_hint_leagues": [],
+      "provenance": {
+        "capabilities.promptCaching": "derived",
+        "contextWindow": "openrouter",
+        "maxOutput": "openrouter",
+        "modalities": "openrouter",
+        "name": "derived",
+        "params.sizeTier": "derived",
+        "pricing.cachedInputPerMTok": "openrouter",
+        "pricing.inputPerMTok": "openrouter",
+        "pricing.outputPerMTok": "openrouter",
+        "releaseDate": "openrouter",
+        "releaseDatePrecision": "openrouter",
+        "vendorId": "derived"
+      }
+    },
+    {
+      "id": "openai/gpt-6.2-sol",
+      "name": "GPT-6.2 Sol",
+      "vendor_id": "openai",
+      "release_date": "2026-11-17",
+      "release_date_precision": "day",
+      "context_window": 1050000,
+      "max_output": 128000,
+      "modalities": {
+        "input": [
+          "image",
+          "pdf",
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "pricing": {
+        "cachedInputPerMTok": 0.1,
+        "inputPerMTok": 2,
+        "outputPerMTok": 10
+      },
+      "capabilities": {
+        "promptCaching": true,
+        "reasoning": true,
+        "structuredOutput": null,
+        "toolCall": true
+      },
+      "benchmark_hint_ids": [
+        "arc_agi_2"
+      ],
+      "coding_hint_leagues": [],
+      "provenance": {
+        "benchmarks.arc_agi_2": "epoch.ai",
+        "capabilities.promptCaching": "derived",
+        "capabilities.reasoning": "models.dev",
+        "capabilities.toolCall": "models.dev",
+        "contextWindow": "models.dev",
+        "knowledgeCutoff": "models.dev",
+        "maxOutput": "models.dev",
+        "modalities": "models.dev",
+        "name": "models.dev",
+        "openWeights": "models.dev",
+        "params.sizeTier": "derived",
+        "pricing.cachedInputPerMTok": "models.dev",
+        "pricing.inputPerMTok": "models.dev",
+        "pricing.outputPerMTok": "models.dev",
+        "releaseDate": "models.dev",
+        "releaseDatePrecision": "models.dev",
+        "scores": "derived",
+        "vendorId": "derived"
+      }
+    },
+    {
+      "id": "openai/gpt-6.2-sol-pro",
+      "name": "GPT 6.2 SOL PRO",
+      "vendor_id": "openai",
+      "release_date": "2026-11-17",
+      "release_date_precision": "day",
+      "context_window": 1050000,
+      "max_output": 128000,
+      "modalities": {
+        "input": [
+          "image",
+          "pdf",
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "pricing": {
+        "cachedInputPerMTok": 0.1,
+        "inputPerMTok": 2,
+        "outputPerMTok": 10
+      },
+      "capabilities": {
+        "promptCaching": true,
+        "reasoning": null,
+        "structuredOutput": null,
+        "toolCall": null
+      },
+      "benchmark_hint_ids": [],
+      "coding_hint_leagues": [],
+      "provenance": {
+        "capabilities.promptCaching": "derived",
+        "contextWindow": "openrouter",
+        "maxOutput": "openrouter",
+        "modalities": "openrouter",
+        "name": "derived",
+        "params.sizeTier": "derived",
+        "pricing.cachedInputPerMTok": "openrouter",
+        "pricing.inputPerMTok": "openrouter",
+        "pricing.outputPerMTok": "openrouter",
+        "releaseDate": "openrouter",
+        "releaseDatePrecision": "openrouter",
+        "vendorId": "derived"
+      }
+    }
+  ],
+  "benchmarks": [
+    {
+      "id": "adversarial_nli",
+      "releaseDate": "2019-10-31",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 33.33,
+      "models": 5,
+      "sourceFile": "adversarial_nli_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "aider_polyglot",
+      "releaseDate": "2024-12-21",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 64,
+      "sourceFile": "aider_polyglot_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "aime",
+      "releaseDate": "2024-12-19",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0.1,
+      "models": 220,
+      "sourceFile": "otis_mock_aime_2024_2025.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "ale_bench",
+      "releaseDate": "2025-06-10",
+      "unit": "index",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 166,
+      "sourceFile": "ale_bench_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "algotune",
+      "releaseDate": "2025-07-19",
+      "unit": "index",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 29,
+      "sourceFile": "algotune_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "apex_agents",
+      "releaseDate": "2026-01-21",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 78,
+      "sourceFile": "apex_agents_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "arc_agi",
+      "releaseDate": "2019-11-05",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 126,
+      "sourceFile": "arc_agi_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "arc_agi_2",
+      "releaseDate": "2025-03-24",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 127,
+      "sourceFile": "arc_agi_2_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "arc_ai2",
+      "releaseDate": "2018-03-14",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 25,
+      "models": 16,
+      "sourceFile": "arc_ai2_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "arena_document",
+      "releaseDate": null,
+      "unit": "elo",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 50,
+      "sourceFile": "huggingface.co/datasets/lmarena-ai/leaderboard-dataset",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "arena_image_edit",
+      "releaseDate": null,
+      "unit": "elo",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 16,
+      "sourceFile": "huggingface.co/datasets/lmarena-ai/leaderboard-dataset",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "arena_image_to_video",
+      "releaseDate": null,
+      "unit": "elo",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 7,
+      "sourceFile": "huggingface.co/datasets/lmarena-ai/leaderboard-dataset",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "arena_search",
+      "releaseDate": null,
+      "unit": "elo",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 58,
+      "sourceFile": "huggingface.co/datasets/lmarena-ai/leaderboard-dataset",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "arena_text_to_image",
+      "releaseDate": null,
+      "unit": "elo",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 16,
+      "sourceFile": "huggingface.co/datasets/lmarena-ai/leaderboard-dataset",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "arena_text_to_video",
+      "releaseDate": null,
+      "unit": "elo",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 7,
+      "sourceFile": "huggingface.co/datasets/lmarena-ai/leaderboard-dataset",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "arena_video_edit",
+      "releaseDate": null,
+      "unit": "elo",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 3,
+      "sourceFile": "huggingface.co/datasets/lmarena-ai/leaderboard-dataset",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "balrog",
+      "releaseDate": "2024-11-20",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 49,
+      "sourceFile": "balrog_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "bbh",
+      "releaseDate": "2022-10-17",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 25,
+      "models": 15,
+      "sourceFile": "bbh_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "blueprint_bench_2",
+      "releaseDate": "2026-05-04",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 46,
+      "sourceFile": "blueprint_bench_2_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "bool_q",
+      "releaseDate": "2019-05-24",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 50,
+      "models": 8,
+      "sourceFile": "bool_q_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "cad_eval",
+      "releaseDate": "2025-04-22",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 17,
+      "sourceFile": "cad_eval_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "chess_puzzles",
+      "releaseDate": "2025-12-10",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 4.96,
+      "models": 115,
+      "sourceFile": "chess_puzzles.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "cl_bench",
+      "releaseDate": "2026-02-03",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 41,
+      "sourceFile": "cl_bench_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "cl_bench_life",
+      "releaseDate": "2026-04-29",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 29,
+      "sourceFile": "cl_bench_life_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "claw_eval",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 6,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "common_sense_qa_2",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 3,
+      "sourceFile": "common_sense_qa_2_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "critpt",
+      "releaseDate": "2025-09-30",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 194,
+      "sourceFile": "critpt_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "cursorbench",
+      "releaseDate": "2026-03-11",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 12,
+      "sourceFile": "cursorbench_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "cybench",
+      "releaseDate": "2024-08-15",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 20,
+      "sourceFile": "cybench_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "deepresearchbench",
+      "releaseDate": "2025-06-13",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 38,
+      "sourceFile": "deepresearchbench_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "deepswe",
+      "releaseDate": "2026-05-26",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 47,
+      "sourceFile": "deepswe_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "dtbench",
+      "releaseDate": "2026-08-12",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 40,
+      "models": 225,
+      "sourceFile": "dtbench_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "ebr_bench",
+      "releaseDate": "2026-07-01",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 41,
+      "sourceFile": "ebr_bench.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "eci",
+      "releaseDate": null,
+      "unit": "index",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 219,
+      "sourceFile": "epoch_capabilities_index/eci_scores.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "enigma_eval",
+      "releaseDate": "2025-02-13",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 52,
+      "sourceFile": "enigma_eval_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "exploitbench",
+      "releaseDate": "2026-05-13",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 9,
+      "sourceFile": "exploitbench_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "fiction_live",
+      "releaseDate": "2025-02-21",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 46,
+      "sourceFile": "fictionlivebench_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "frontier_code",
+      "releaseDate": "2026-06-08",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 52,
+      "sourceFile": "frontiercode_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "frontier_swe",
+      "releaseDate": "2026-09-02",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 27,
+      "sourceFile": "frontierswe_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "frontiermath",
+      "releaseDate": "2025-02-28",
+      "unit": "pct",
+      "scoreCeiling": 57,
+      "randomBaseline": 0,
+      "models": 97,
+      "sourceFile": "frontiermath.csv",
+      "supersededBy": "frontiermath_tiers_1_3_v2",
+      "inEci": true
+    },
+    {
+      "id": "frontiermath_erdos",
+      "releaseDate": "2026-09-03",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 18,
+      "sourceFile": "frontiermath_erdos.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "frontiermath_tier_4",
+      "releaseDate": "2025-07-11",
+      "unit": "pct",
+      "scoreCeiling": 60,
+      "randomBaseline": 0,
+      "models": 68,
+      "sourceFile": "frontiermath_tier_4.csv",
+      "supersededBy": "frontiermath_tier_4_v2",
+      "inEci": true
+    },
+    {
+      "id": "frontiermath_tier_4_v2",
+      "releaseDate": "2026-06-12",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 91,
+      "sourceFile": "frontiermath_tier_4_v2.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "frontiermath_tiers_1_3_v2",
+      "releaseDate": "2026-06-12",
+      "unit": "pct",
+      "scoreCeiling": 95,
+      "randomBaseline": 0,
+      "models": 119,
+      "sourceFile": "frontiermath_tiers_1_3_v2.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "furniture_assembly",
+      "releaseDate": "2026-09-23",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 30,
+      "models": 48,
+      "sourceFile": "furniture_assembly.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "gbaeval",
+      "releaseDate": "2026-05-02",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 28,
+      "sourceFile": "gbaeval_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "gdpval",
+      "releaseDate": "2025-09-25",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 21,
+      "sourceFile": "gdpval_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "geobench",
+      "releaseDate": "2025-03-01",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 49,
+      "sourceFile": "geobench_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "gpqa_diamond",
+      "releaseDate": "2023-11-20",
+      "unit": "pct",
+      "scoreCeiling": 97,
+      "randomBaseline": 25,
+      "models": 222,
+      "sourceFile": "gpqa_diamond.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "gsm8k",
+      "releaseDate": "2021-10-27",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 11,
+      "sourceFile": "gsm8k_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "gso",
+      "releaseDate": "2025-05-29",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 47,
+      "sourceFile": "gso_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "hella_swag",
+      "releaseDate": "2019-05-19",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 25,
+      "models": 14,
+      "sourceFile": "hella_swag_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "hle",
+      "releaseDate": "2025-01-23",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 4.8,
+      "models": 62,
+      "sourceFile": "hle_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "lech_mazur_writing",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 6,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "livebench_agentic_coding",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 114,
+      "sourceFile": "livebench.ai/table_<release>.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "livebench_coding",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 134,
+      "sourceFile": "livebench.ai/table_<release>.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "livecodebench",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 8,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "livecodebench_pro",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 2,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "livecodebench_v6",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 3,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "lmca",
+      "releaseDate": "2026-08-12",
+      "unit": "pct",
+      "scoreCeiling": 85,
+      "randomBaseline": 0,
+      "models": 209,
+      "sourceFile": "lmca_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "math_level_5",
+      "releaseDate": "2021-03-05",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 94,
+      "sourceFile": "math_level_5.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "metr_time_horizons",
+      "releaseDate": "2025-03-19",
+      "unit": "minutes",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 54,
+      "sourceFile": "metr_time_horizons_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "mindcube",
+      "releaseDate": "2025-06-26",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 3,
+      "sourceFile": "mindcube_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "mirrorcode",
+      "releaseDate": "2026-06-26",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 47,
+      "sourceFile": "mirrorcode.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "mle_bench",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 2,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "mmlu",
+      "releaseDate": "2020-09-07",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 25,
+      "models": 48,
+      "sourceFile": "mmlu_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "mystery_game_puzzles",
+      "releaseDate": "2026-07-30",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 9.22,
+      "models": 112,
+      "sourceFile": "mystery_game_puzzles.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "nl2repo",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 16,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "open_book_qa",
+      "releaseDate": "2018-09-08",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 25,
+      "models": 5,
+      "sourceFile": "open_book_qa_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "os_world",
+      "releaseDate": "2024-04-11",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 10,
+      "sourceFile": "os_world_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "osworld_2",
+      "releaseDate": "2026-06-26",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 9,
+      "sourceFile": "osworld_2_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "piqa",
+      "releaseDate": "2019-11-26",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 50,
+      "models": 16,
+      "sourceFile": "piqa_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "posttrainbench",
+      "releaseDate": "2026-03-11",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 22,
+      "sourceFile": "posttrainbench_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "program_bench",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 3,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "proofbench",
+      "releaseDate": "2026-01-30",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 99,
+      "sourceFile": "proofbench_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "rli",
+      "releaseDate": "2025-10-29",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 26,
+      "sourceFile": "rli_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "science_qa",
+      "releaseDate": "2022-09-20",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 25,
+      "models": 6,
+      "sourceFile": "science_qa_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "simplebench",
+      "releaseDate": "2024-10-31",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 16.67,
+      "models": 130,
+      "sourceFile": "simplebench_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "simpleqa_verified",
+      "releaseDate": "2025-09-09",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 116,
+      "sourceFile": "simpleqa_verified.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "spatialviz_bench",
+      "releaseDate": "2025-07-10",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 8,
+      "sourceFile": "spatialviz_bench_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "spireclimb",
+      "releaseDate": "2026-10-14",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 16,
+      "sourceFile": "spireclimb.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "spireclimb_sts1_a20_heart",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 16,
+      "sourceFile": "spireclimb_sts1_a20_heart.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "spireclimb_sts2_a10",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 16,
+      "sourceFile": "spireclimb_sts2_a10.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "surface_evolver_bench",
+      "releaseDate": "2026-06-19",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 34,
+      "sourceFile": "surface_evolver_bench_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "swe_atlas_codebase_qna",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 14,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "swe_atlas_refactoring",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 11,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "swe_atlas_test_writing",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 10,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "swe_bench_multilingual",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 16,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "swe_bench_multimodal",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 1,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "swe_bench_pro",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 58,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "swe_bench_vendor",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 44,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "swe_bench_verified",
+      "releaseDate": "2024-08-13",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 48,
+      "sourceFile": "swe_bench_verified.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "swe_marathon",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 6,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "terminal_bench",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 64,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "terminal_bench_2_0",
+      "releaseDate": "2025-05-19",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 69,
+      "sourceFile": "terminalbench_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "terminal_bench_2_1",
+      "releaseDate": null,
+      "unit": "pct",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 5,
+      "sourceFile": "models.dev/models.json#benchmarks[]",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "the_agent_company",
+      "releaseDate": "2024-12-18",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 24,
+      "sourceFile": "the_agent_company_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "trivia_qa",
+      "releaseDate": "2017-05-09",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 16,
+      "sourceFile": "trivia_qa_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "vending_bench_2",
+      "releaseDate": "2025-11-18",
+      "unit": "usd",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 106,
+      "sourceFile": "vending_bench_2_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "video_mme",
+      "releaseDate": "2024-05-31",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 25,
+      "models": 8,
+      "sourceFile": "video_mme_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "vpct",
+      "releaseDate": "2025-01-30",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 33.33,
+      "models": 38,
+      "sourceFile": "vpct_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "webdev_arena_elo",
+      "releaseDate": "2024-12-10",
+      "unit": "elo",
+      "scoreCeiling": null,
+      "randomBaseline": null,
+      "models": 136,
+      "sourceFile": "webdev_arena_external.csv",
+      "supersededBy": null,
+      "inEci": false
+    },
+    {
+      "id": "weirdml",
+      "releaseDate": "2025-01-16",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 0,
+      "models": 151,
+      "sourceFile": "weirdml_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "weirdml_v3",
+      "releaseDate": "2026-09-18",
+      "unit": "pct",
+      "scoreCeiling": 90,
+      "randomBaseline": 0,
+      "models": 32,
+      "sourceFile": "weirdml_v3_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    },
+    {
+      "id": "wino_grande",
+      "releaseDate": "2019-07-24",
+      "unit": "pct",
+      "scoreCeiling": 100,
+      "randomBaseline": 50,
+      "models": 19,
+      "sourceFile": "wino_grande_external.csv",
+      "supersededBy": null,
+      "inEci": true
+    }
+  ],
+  "vendors": [
+    {
+      "id": "abacusai",
+      "name": "Abacusai",
+      "nameZh": "Abacusai",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "ai21",
+      "name": "AI21 Labs",
+      "nameZh": "AI21",
+      "homepage": "https://ai21.com",
+      "country": "IL",
+      "continent": "west"
+    },
+    {
+      "id": "aion-labs",
+      "name": "Aion Labs",
+      "nameZh": "Aion Labs",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "aisingapore",
+      "name": "Aisingapore",
+      "nameZh": "AI Singapore",
+      "homepage": "https://aisingapore.org",
+      "country": "SG",
+      "continent": "west"
+    },
+    {
+      "id": "aleph-alpha",
+      "name": "Aleph Alpha",
+      "nameZh": "Aleph Alpha",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "alibaba",
+      "name": "Alibaba",
+      "nameZh": "阿里通义",
+      "homepage": "https://qwen.ai",
+      "country": "CN",
+      "continent": "east"
+    },
+    {
+      "id": "allenai",
+      "name": "Allenai",
+      "nameZh": "Allen AI",
+      "homepage": "https://allenai.org",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "amazon",
+      "name": "Amazon",
+      "nameZh": "亚马逊",
+      "homepage": "https://aws.amazon.com/bedrock",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "anthracite-org",
+      "name": "Anthracite ORG",
+      "nameZh": "Anthracite ORG",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic",
+      "nameZh": "Anthropic",
+      "homepage": "https://anthropic.com",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "apodex",
+      "name": "Apodex",
+      "nameZh": "Apodex",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "arcee-ai",
+      "name": "Arcee AI",
+      "nameZh": "Arcee AI",
+      "homepage": "https://arcee.ai",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "baai",
+      "name": "Baai",
+      "nameZh": "Baai",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "baichuan",
+      "name": "Baichuan",
+      "nameZh": "Baichuan",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "baidu",
+      "name": "Baidu",
+      "nameZh": "百度文心",
+      "homepage": "https://yiyan.baidu.com",
+      "country": "CN",
+      "continent": "east"
+    },
+    {
+      "id": "black-forest-labs",
+      "name": "Black Forest Labs",
+      "nameZh": "Black Forest Labs",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "bytedance-seed",
+      "name": "Bytedance Seed",
+      "nameZh": "字节豆包",
+      "homepage": "https://volcengine.com",
+      "country": "CN",
+      "continent": "east"
+    },
+    {
+      "id": "canopylabs",
+      "name": "Canopylabs",
+      "nameZh": "Canopylabs",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "cognitivecomputations",
+      "name": "Cognitivecomputations",
+      "nameZh": "Cognitivecomputations",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "cohere",
+      "name": "Cohere",
+      "nameZh": "Cohere",
+      "homepage": "https://cohere.com",
+      "country": "CA",
+      "continent": "west"
+    },
+    {
+      "id": "deepreinforce",
+      "name": "Deepreinforce",
+      "nameZh": "Deep Reinforce",
+      "homepage": null,
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "nameZh": "深度求索",
+      "homepage": "https://deepseek.com",
+      "country": "CN",
+      "continent": "east"
+    },
+    {
+      "id": "elorian",
+      "name": "Elorian",
+      "nameZh": "Elorian",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "elorian-labs",
+      "name": "Elorian Labs",
+      "nameZh": "Elorian Labs",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "essentialai",
+      "name": "Essentialai",
+      "nameZh": "Essentialai",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "fireworks",
+      "name": "Fireworks",
+      "nameZh": "Fireworks",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "google",
+      "name": "Google",
+      "nameZh": "谷歌",
+      "homepage": "https://deepmind.google",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "gryphe",
+      "name": "Gryphe",
+      "nameZh": "Gryphe",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "huawei",
+      "name": "Huawei",
+      "nameZh": "Huawei",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "ibm",
+      "name": "IBM",
+      "nameZh": "IBM",
+      "homepage": "https://ibm.com/granite",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "inception",
+      "name": "Inception",
+      "nameZh": "Inception",
+      "homepage": "https://inceptionlabs.ai",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "inclusionai",
+      "name": "Inclusionai",
+      "nameZh": "蚂蚁百灵",
+      "homepage": "https://ling.tbox.cn",
+      "country": "CN",
+      "continent": "east"
+    },
+    {
+      "id": "inference-net",
+      "name": "Inference NET",
+      "nameZh": "Inference NET",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "kwaipilot",
+      "name": "Kwaipilot",
+      "nameZh": "快手",
+      "homepage": "https://kwaipilot.github.io",
+      "country": "CN",
+      "continent": "east"
+    },
+    {
+      "id": "lightonai",
+      "name": "Lightonai",
+      "nameZh": "Lightonai",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "liquid",
+      "name": "Liquid Inference",
+      "nameZh": "Liquid AI",
+      "homepage": "https://liquid.ai",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "mancer",
+      "name": "Mancer",
+      "nameZh": "Mancer",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "meituan",
+      "name": "Meituan",
+      "nameZh": "美团龙猫",
+      "homepage": "https://longcat.chat",
+      "country": "CN",
+      "continent": "east"
+    },
+    {
+      "id": "meragpt",
+      "name": "meraGPT",
+      "nameZh": "meraGPT",
+      "homepage": "https://meragpt.com",
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "meta",
+      "name": "Meta",
+      "nameZh": "Meta",
+      "homepage": "https://ai.meta.com",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "microsoft",
+      "name": "Microsoft",
+      "nameZh": "微软",
+      "homepage": "https://microsoft.com/ai",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "mindlab",
+      "name": "Mindlab",
+      "nameZh": "Mindlab",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "minimax",
+      "name": "MiniMax (minimax.io)",
+      "nameZh": "MiniMax",
+      "homepage": "https://minimax.io",
+      "country": "CN",
+      "continent": "east"
+    },
+    {
+      "id": "mistral",
+      "name": "Mistral",
+      "nameZh": "Mistral",
+      "homepage": "https://mistral.ai",
+      "country": "FR",
+      "continent": "west"
+    },
+    {
+      "id": "mixedbread",
+      "name": "Mixedbread",
+      "nameZh": "Mixedbread",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "moonshotai",
+      "name": "Moonshot AI",
+      "nameZh": "月之暗面",
+      "homepage": "https://moonshot.cn",
+      "country": "CN",
+      "continent": "east"
+    },
+    {
+      "id": "morph",
+      "name": "Morph",
+      "nameZh": "Morph",
+      "homepage": "https://morphllm.com",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "motif-technologies",
+      "name": "Motif Technologies",
+      "nameZh": "Motif Technologies",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "nex-agi",
+      "name": "NEX AGI",
+      "nameZh": "NEX AGI",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "nousresearch",
+      "name": "Nousresearch",
+      "nameZh": "Nous Research",
+      "homepage": "https://nousresearch.com",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "nvidia",
+      "name": "Nvidia",
+      "nameZh": "英伟达",
+      "homepage": "https://nvidia.com",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "nameZh": "OpenAI",
+      "homepage": "https://openai.com",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "openbmb",
+      "name": "Openbmb",
+      "nameZh": "Openbmb",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "opendatalab",
+      "name": "Opendatalab",
+      "nameZh": "Opendatalab",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "paddlepaddle",
+      "name": "Paddlepaddle",
+      "nameZh": "Paddlepaddle",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "paperinstruments",
+      "name": "Paperinstruments",
+      "nameZh": "Paperinstruments",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "particle-ai",
+      "name": "Particle AI",
+      "nameZh": "Particle AI",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "perceptron",
+      "name": "Perceptron",
+      "nameZh": "Perceptron",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "perplexity",
+      "name": "Perplexity",
+      "nameZh": "Perplexity",
+      "homepage": "https://perplexity.ai",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "poolside",
+      "name": "Poolside",
+      "nameZh": "Poolside",
+      "homepage": "https://poolside.ai",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "prism-ml",
+      "name": "Prism ML",
+      "nameZh": "Prism ML",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "quiverai",
+      "name": "Quiverai",
+      "nameZh": "Quiverai",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "recursive",
+      "name": "Recursive",
+      "nameZh": "Recursive",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "reflection",
+      "name": "Reflection",
+      "nameZh": "Reflection",
+      "homepage": "https://developers.reflection.ai",
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "rekaai",
+      "name": "Rekaai",
+      "nameZh": "Reka",
+      "homepage": "https://reka.ai",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "relace",
+      "name": "Relace",
+      "nameZh": "Relace",
+      "homepage": null,
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "ricursiveai",
+      "name": "Ricursiveai",
+      "nameZh": "Ricursiveai",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "sakana",
+      "name": "Sakana AI",
+      "nameZh": "Sakana AI",
+      "homepage": "https://sakana.ai",
+      "country": "JP",
+      "continent": "west"
+    },
+    {
+      "id": "sao10k",
+      "name": "Sao10k",
+      "nameZh": "Sao10k",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "sarvam",
+      "name": "Sarvam AI",
+      "nameZh": "Sarvam AI",
+      "homepage": "https://sarvam.ai",
+      "country": "IN",
+      "continent": "west"
+    },
+    {
+      "id": "scaledown",
+      "name": "Scaledown",
+      "nameZh": "Scaledown",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "sdaia",
+      "name": "Sdaia",
+      "nameZh": "SDAIA",
+      "homepage": "https://sdaia.gov.sa",
+      "country": "SA",
+      "continent": "west"
+    },
+    {
+      "id": "stealth",
+      "name": "Stealth",
+      "nameZh": "Stealth",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "stepfun",
+      "name": "StepFun (China)",
+      "nameZh": "阶跃星辰",
+      "homepage": "https://stepfun.com",
+      "country": "CN",
+      "continent": "east"
+    },
+    {
+      "id": "swiss-ai",
+      "name": "Swiss AI",
+      "nameZh": "Swiss AI",
+      "homepage": "https://swiss-ai.org",
+      "country": "CH",
+      "continent": "west"
+    },
+    {
+      "id": "tencent",
+      "name": "Tencent",
+      "nameZh": "腾讯混元",
+      "homepage": "https://hunyuan.tencent.com",
+      "country": "CN",
+      "continent": "east"
+    },
+    {
+      "id": "thedrummer",
+      "name": "Thedrummer",
+      "nameZh": "Thedrummer",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "thinkingmachines",
+      "name": "Thinking Machines",
+      "nameZh": "Thinking Machines",
+      "homepage": "https://thinkingmachines.ai",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "trendyol",
+      "name": "Trendyol",
+      "nameZh": "Trendyol",
+      "homepage": "https://trendyol.com",
+      "country": "TR",
+      "continent": "west"
+    },
+    {
+      "id": "typesafe",
+      "name": "Typesafe",
+      "nameZh": "Typesafe",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "unbiased",
+      "name": "Pareto by Unbiased",
+      "nameZh": "Pareto by Unbiased",
+      "homepage": "https://unbiased.ai",
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "undi95",
+      "name": "Undi95",
+      "nameZh": "Undi95",
+      "homepage": null,
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "upstage",
+      "name": "Upstage",
+      "nameZh": "Upstage",
+      "homepage": "https://upstage.ai",
+      "country": "KR",
+      "continent": "west"
+    },
+    {
+      "id": "vispark",
+      "name": "Vispark",
+      "nameZh": "Vispark",
+      "homepage": "https://lab.vispark.in",
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "vivgrid",
+      "name": "Vivgrid",
+      "nameZh": "Vivgrid",
+      "homepage": "https://docs.vivgrid.com",
+      "country": "ZZ",
+      "continent": "west"
+    },
+    {
+      "id": "writer",
+      "name": "Writer",
+      "nameZh": "Writer",
+      "homepage": null,
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "xai",
+      "name": "xAI",
+      "nameZh": "xAI",
+      "homepage": "https://x.ai",
+      "country": "US",
+      "continent": "west"
+    },
+    {
+      "id": "xiaomi",
+      "name": "Xiaomi",
+      "nameZh": "小米",
+      "homepage": "https://xiaomi.com",
+      "country": "CN",
+      "continent": "east"
+    },
+    {
+      "id": "zhipuai",
+      "name": "Zhipu AI",
+      "nameZh": "智谱",
+      "homepage": "https://z.ai",
+      "country": "CN",
+      "continent": "east"
+    }
+  ],
+  "sync_report": {
+    "accepted": true,
+    "generated_at": "2026-11-25T13:41:29.763Z",
+    "warning_count": 0,
+    "warnings": [],
+    "failure_count": 0,
+    "failures": [],
+    "release_date_conflicts": [],
+    "sources": {
+      "derived": {
+        "note": "管线内推导的字段（规模档位、缓存能力、退役判定）",
+        "ok": true
+      },
+      "epoch.ai": {
+        "note": "ZIP 92 个条目；取到 7/7 个指标；编程赛制 9 个；全榜单 80 个；训练算力 345 行；去重后 430 个模型实体；合规拦截 1 个文件",
+        "ok": true
+      },
+      "huggingface": {
+        "note": "请求 328 个开源模型，成功 324，失败 4",
+        "ok": true
+      },
+      "litellm": {
+        "note": "7174 条（对话类 4940 条）；用作新模型的第三方佐证，以及 models.dev 缺项时的定价/上下文兜底",
+        "ok": true
+      },
+      "livebench": {
+        "note": "Apache-2.0 / DATASHEET 明文「no copyrights on the data」。采用 6 个同期 release（2026-06-25, 2026-01-08, 2025-12-23, 2025-11-25, 2025-05-30, 2025-04-25）；跳过题目集换代前的 5 个（2024-06-24, 2024-07-26, 2024-08-31, 2024-11-25, 2025-04-02）——实测跨这个断点同一模型的 Coding 分中位差 27.6 分，不可同池。",
+        "ok": true
+      },
+      "lmarena": {
+        "note": "7/7 个分榜，共 354 条 Arena 分",
+        "ok": true
+      },
+      "models.dev": {
+        "note": "models.json 640 条；api.json 326 provider / 10194 条；benchmarks[] 1215 条，已拦截 AA 血缘 190 条，非编程口径跳过 635 条",
+        "ok": true
+      },
+      "openrouter": {
+        "note": "472 条；已剔除 artificial_analysis 214 处（AA ToS 合规）；用于新模型发现、发布日期投票，以及 models.dev 缺项时的定价/上下文/模态兜底",
+        "ok": true
+      },
+      "override": {
+        "note": "暂无人工覆盖层",
+        "ok": true
+      },
+      "vercel-gateway": {
+        "note": "517 条（language 322 条）；用于新模型发现、发布日期投票，以及 models.dev 缺项时的定价/上下文/模态兜底",
+        "ok": true
+      }
+    }
+  },
+  "warnings": [
+    "model_filter_applied"
+  ]
+}

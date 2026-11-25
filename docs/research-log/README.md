@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-固定nativeQ表示value-span诊断gen102完成/released：TRAIN8192/4096、一次64/8维线性解；主方案全40类normalizedMSE均值0.90961/最差0.98261/teacher保持67.62695%，冻结三门0PASS，STOP指定固定逐词utility替换，非全部联合训练不可行。19.05秒320head/640circuit、零更新；NumPy重放及同解SVD复核PASS，非新L3/T或独立任务确认。下一项仅signed-value引导effect的代数/历史去重，未选任务方法、0新GPU。原L4/全部历史/gen98STOP保持，量子目标ACTIVE。
+signed-value引导effect代数/历史前查完成：保证高于原分数但非随步长单调，40类反例CE .3133→1.3123；24context960行及12精确Fraction例核验。匹配原alpha/64values/populations的两context输出0/.9640，区别于指定旧统计与gen90等，但real8精确复现；仅功能区别，无任务/量子必要性/新T。Astrahigh一次独立静态PASS，文字澄清完成，无GPU准入；下一项Knyazev广义Rayleigh与Ba fastweights两近邻原文审计。0新任务-GPU/一次限定模型审核。原L4/全历史/gen98及gen102STOP保持，新L3-L4T未接受/量子目标ACTIVE。
 
 ## 时间线
+
+- [2026-11-26｜value引导effect的行为区别与分类边界](20261125T-190545Z-value-guided-effect-preflight.md)：960行/12精确例与反例；独立静态审核PASS，无GPU准入，下一步两近邻原文。
 
 - [2026-11-26｜固定表示 value-span 诊断停止](20261125T-184709Z-observable-value-span.md)：三门0PASS；固定逐词替换失败，资源释放，下一步只作未选机制代数去重。
 
