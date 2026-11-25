@@ -1,0 +1,26 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 71.71460819244385,
+  "hashes": {
+    "current-exact-plugin.py": "73ef2fb6e3016459d6a4df9629363e7dd4115533eff69fff8760f64aa67ffe1a",
+    "current-mechanism.md": "463f2a1142d59c3ee138224463e53312da6fd5104d9f5813c062b68012f28471",
+    "native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "recommendation": "NONE",
+    "bottleneck": "The open question is whether the coherent router can learn a better allocation of word weights than dephasing and Gaussian routing when all three must use exactly the same word utilities. Gen91 leaves this unresolved. Covariance raised Q Macro from .389301 to .428488, but Dcov reached .473626 and Gcov reached .512054. Each fit learned its own utility map.",
+    "lead": "No new redistribution mechanism is selected. One bounded training comparison would change that choice if Q could win with a common, frozen utility map.",
+    "exact_math": "For valid word i, let u_ri = d_r\u1d40v(h_i). Fit v, d and b once by cross-entropy using uniform pooling, \u2113_r = b_r + \u03a3_i u_ri/n, where n is the valid-word count. Freeze those parameters and fork three arms. In arm A, train only the existing router through \u2113_r\u1d2c = b_r + \u03a3_i \u03b1_ri\u1d2c u_ri. For any two arms, \u2113_r\u1d2c \u2212 \u2113_r\u1d2e = \u03a3_i(\u03b1_ri\u1d2c \u2212 \u03b1_ri\u1d2e)u_ri. Thus a classification difference requires redistribution across words with different utilities. If u_ri is constant across valid words for every example and relation, all three arms tie exactly.",
+    "claimed_new_part": "None. The common utility map makes the comparison interpretable. The experiment tests a prerequisite for investing in a new coherent routing mechanism.",
+    "nearest_collision": "The supplied native RMEA head already implements the weighted-utility equation. Its fixed-checkpoint replay changes weights after fitting. This question requires each competing router to learn its weights against the same frozen utilities.",
+    "discriminating_prediction": "A Q win over both matched arms would show that coherent routing can learn a more useful allocation on this assessment with identical word utilities. Exceeding the existing Gcov score as well would make that result actionable against the strongest small-screen alternative.",
+    "minimal_check": "Use the existing TRAIN-only 8192/4096 split, seed 13, batch 128, order and optimizer settings. Precommit 256 uniform-pooling updates, then 768 router-only updates per arm from matched native router initializations using the same remaining batches. This costs 256 + 3\u00d7768 = 2560 updates and gives each path 1024 updates. Assess final checkpoints once on all 4096 examples using all-40 Macro.",
+    "fair_control": "Use the native dephased router and the existing anisotropic Gaussian router as the two trained controls. Copy the same frozen value map, decoder and bias into all three arms. Use the recorded Gcov Macro .512054050292468 as the practical comparison at the same per-path budget.",
+    "falsifier": "Pursue common-utility routing only if Q strictly exceeds both trained controls and the recorded Gcov score. Otherwise retain NONE and stop this comparison without changing the warm-up, seed or budget.",
+    "limits": [
+      "Uniform pooling may learn utilities that suppress cues available to a jointly trained router. A loss closes only this staged profile.",
+      "A win would establish a single-seed development result. It would leave the useful linguistic cue, the cause of the TRAIN/TEST difference, generalization and theoretical novelty unresolved."
+    ]
+  }
+}

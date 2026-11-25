@@ -1,0 +1,27 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "scope": "mechanism",
+  "seconds": 44.575485944747925,
+  "profile_echo_verified": true,
+  "hashes": {
+    "plugin.py": "4b78c3cfd634b5c3e312a3f9f85f9bee0e157af03baa1de24805cafb8ec6f803",
+    "adapter.py": "bc68d5071c2752ffb9cd1f3ff957ca589ec080c376a046abe2dfc19c2ca5cc9c",
+    "design.json": "7977e50aa0cb3b35eb4b68a693b78732b198964b80a745a9fb33b0e1d7261c32",
+    "protocol.md": "47ea065d2b5a82d0371dcb80a8dd63dac261646d702d956145e9de66ca39dee3"
+  },
+  "packet_sha256": "d1bd6f32d83bb4accfdd4fa13669552f81b83b6e6c3c27b02987d1fdd2ef005d",
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "Static review of the supplied code supports admission to the bounded TRAIN screen. The real8 fixtures and three fits were not executed in this review.",
+      "Training updates 1\u2013256 use the masked uniform mean. Updates 257\u20131024 use router attention with detached value, decoder and bias tensors. In both stages the inactive group receives explicit zero gradients and zero AdamW learning rate, preserving finite parameter values through weight decay and momentum updates. On the first router update, the optimizer clears router state before AdamW steps, so its counter starts at 1. Stage selection uses the explicit update index. Evaluation always uses router attention, including on a reconstructed head with its default counter.",
+      "The real8 fixture checks one update on each side of the boundary. It checks uniform logits, inactive gradients and parameter equality, the router counter reset, and native quantum and dephased logits. The Gaussian exponent uses alternating squared-distance coefficients (3\u2212\u221a2)/24 and (3+\u221a2)/24. Its fixture independently checks the weighted-utility readout but reuses the implementation\u2019s attention weights.",
+      "Matched initial utility tensors and identical deterministic warmup updates imply identical boundary utilities. Before interpreting either gate outcome, local inspection must confirm one common, populated step-257 fingerprint across all three actual fits and compare each final utility hash with its own fingerprint. summarize() checks update counts and order hashes only. A fingerprint failure invalidates the run.",
+      "The three strict all-40 macro-F1 gates require Q>D, Q>Gaussian base and Q>0.512054050292468. The gen91 Gaussian covariance score is a practical reference with a different training path and active capacity. Passing supports only a small development route. A valid gate failure stops this exact profile without a warmup, seed, budget or control rescue. Uniform warmup may suppress useful cues, so the result cannot establish family impossibility. L3 and L4-T remain unaccepted."
+    ],
+    "admission": "bounded_small_TRAIN_screen"
+  }
+}

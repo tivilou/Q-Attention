@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-同词线索共现读出筛选完成：Qcov Macro 0.428488，Gaussian-cov 0.512054，dephased-cov 0.473626，固定七门2/7PASS，不晋级全量。五新fit/5120updates，两卡已归还；已知二阶统计工具不是新T。新L3/L4-T未接受，原限定L4及全部历史保留。
+共同冻结词评分的三路训练诊断完成：Q Macro 0.171101，Gaussian 0.170070，dephased 0.158276，固定三门2/3PASS，关闭确切256/768配置，不晋级全量。三路boundary/final utility hash相同且不变；3072updates，两卡已归还。已知加权平均恒等式不是新T；新L3/L4-T未接受，原限定L4及全部历史保留。
 
 ## 时间线
+
+- [2026-11-25｜共同词评分下的三路注意力训练诊断](20261125T-064555Z-common-utility-router.md)：8192fit/4096assessment，三新fit、实用参照保留；关闭确切256/768配置，不晋级全量。
 
 - [2026-11-25｜同词线索共现读出小数据筛选](20261125T-062818Z-connected-value-pooling.md)：8192fit/4096assessment，五新fit及三控制复用；不晋级全量，完整八路结果保留。
 
