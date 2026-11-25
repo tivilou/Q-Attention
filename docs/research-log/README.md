@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-同态attention/value代数前置检查COMPLETE：rank1投影后读值成为类常数，原EPS池化的未正则化weakvalue有极点；80组560词密度max1.75e-13及48精确分数事件核验。D同态observable读出仍非退化，有精确经典二阶矩控制，尚未选择任务方法或取得新T。下一项固定旧nativeQ checkpoint和TRAIN8192/4096的Hermitian-span信息诊断，输入metadata/cohort/source回执已预核，服务器可用性与执行尚未发生；0新任务行-nativeforward-fit-GPU/API。原L4/全部历史/gen98STOP保持，新L3-L4T未接受/量子目标ACTIVE。
+固定nativeQ表示value-span诊断gen102完成/released：TRAIN8192/4096、一次64/8维线性解；主方案全40类normalizedMSE均值0.90961/最差0.98261/teacher保持67.62695%，冻结三门0PASS，STOP指定固定逐词utility替换，非全部联合训练不可行。19.05秒320head/640circuit、零更新；NumPy重放及同解SVD复核PASS，非新L3/T或独立任务确认。下一项仅signed-value引导effect的代数/历史去重，未选任务方法、0新GPU。原L4/全部历史/gen98STOP保持，量子目标ACTIVE。
 
 ## 时间线
+
+- [2026-11-26｜固定表示 value-span 诊断停止](20261125T-184709Z-observable-value-span.md)：三门0PASS；固定逐词替换失败，资源释放，下一步只作未选机制代数去重。
 
 - [2026-11-26｜同态读值退化与信息必要条件](20261125T-181017Z-state-value-preflight.md)：两种指定读出停止，同态observable保留为未选组件；下一步固定表示的信息诊断，非任务训练晋级。
 

@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "env",
+    "OMP_NUM_THREADS=1",
+    "OPENBLAS_NUM_THREADS=1",
+    "MKL_NUM_THREADS=1",
+    "/hy-tmp/Q-Attention/env/bin/python",
+    "-B",
+    "-c",
+    "from pathlib import Path\nimport json,numpy as np,hashlib\nr=Path('/hy-tmp/Q-Attention/control/observable-value-span-20261126/output')\ns=json.loads((r/'summary.json').read_bytes())\nwith np.load(r/'sufficient.private.npz',allow_pickle=False) as z:\n G,B,ys,y2=[z[k] for k in ('G','B','sum_u','sum_u2')]\nwith np.load(r/'coefficients.private.npz',allow_pickle=False) as z:\n aq,ad,mu,var=[z[k] for k in ('quantum','diagonal','constant','fit_variance')]\nout={}\nfor kind,g,b,a in [('quantum_span',G,B,aq),('diagonal_span',G[:8,:8],B[:8],ad)]:\n ref,_,rank,_=np.linalg.lstsq(g,b,rcond=1e-10)\n relative=float(np.linalg.norm(ref-a)/np.linalg.norm(a))\n normal=float(np.linalg.norm(g@a-b)/np.linalg.norm(b))\n mse=(y2-2*(a*b).sum(0)+(a*(g@a)).sum(0))/8192\n error=float(np.max(np.abs(mse-np.array(s['metrics']['fit'][kind]['MSE_all40']))))\n assert relative<1e-7 and normal<1e-9 and error<1e-8\n out[kind]={'SVD_same_G_reference_rank':int(rank),'relative_coefficient_difference':relative,'relative_normal_equation_residual':normal,'max_fit_MSE_difference_sufficient_vs_second_pass':error}\nassert float(np.max(np.abs(var-(y2/8192-mu**2))))<1e-10\nprint(json.dumps({'status':'PASS_SAME_SOLUTION_SUFFICIENT_STATISTICS_AUDIT','checks':out,'teacher_FIT_variance_consistent':True,'private_arrays_returned':False,'new_feature_or_checkpoint_reads':0,'new_native_forwards':0,'optimizer_updates':0,'reference_SVD_checks':2,'coefficient_sha256':hashlib.sha256((r/'coefficients.private.npz').read_bytes()).hexdigest()}))\n"
+  ],
+  "stdout": "{\"status\": \"PASS_SAME_SOLUTION_SUFFICIENT_STATISTICS_AUDIT\", \"checks\": {\"quantum_span\": {\"SVD_same_G_reference_rank\": 64, \"relative_coefficient_difference\": 5.103490128584126e-14, \"relative_normal_equation_residual\": 1.4764204479945939e-15, \"max_fit_MSE_difference_sufficient_vs_second_pass\": 4.973799150320701e-14}, \"diagonal_span\": {\"SVD_same_G_reference_rank\": 8, \"relative_coefficient_difference\": 2.5233330811049594e-14, \"relative_normal_equation_residual\": 6.987998465518041e-16, \"max_fit_MSE_difference_sufficient_vs_second_pass\": 1.0302869668521453e-13}}, \"teacher_FIT_variance_consistent\": true, \"private_arrays_returned\": false, \"new_feature_or_checkpoint_reads\": 0, \"new_native_forwards\": 0, \"optimizer_updates\": 0, \"reference_SVD_checks\": 2, \"coefficient_sha256\": \"92722b5ef01f3deaff506947a959d7ad0e0154727fc4087de31fe67ebc98963d\"}\n",
+  "stderr": "",
+  "exit_status": 0,
+  "transport_nonzero_raises": true,
+  "remote_code_sha256": "b5b12c4408c1537b76e2828ca798a39a38bdb1e9cfb336ac50bcf8730f725554"
+}
