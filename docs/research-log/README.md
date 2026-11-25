@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-原生合成相位构造PASS：同一prepare/effect/value/decoder生成plus/plus与plus/minus，两context原alpha/全64value/populations相同、原Q/D全部40logits0；固定更新row0为0/.9640256520，最大误差4.44e-16。2head4批量circuit、CPU.03125s、0任务/训练/GPU，real8仍可精确复现；仅人工head输入与参数可达，不是自然任务效用或新T。Knyazev全文仍缺、FastWeights仍未被排除、候选HOLD。下一步沿现有精确DOI metadata中的ORCID作者链接限4请求找确切原文，不重试旧失败源。原L4/全部历史/gen98-gen102STOP，新L3-L4T未接受/量子目标ACTIVE。
+ORCID作者姓名匹配、arXiv作者索引已核，但Knyazev原文仍UNRESOLVED；3请求0PDF关闭该渠道，不作论文算法归因。新增固定C初始导数的tangent/Gram分解：0<=g<=2Gamma*Var，g_cross可正负；10数值例+2Fraction证书/max8.88e-16，knownlinearalgebra非新T/非任务证据。下一步重用同nativeQ checkpoint/cohort契约核输入映射/fresh共享资源，冻结无fit TRAIN导数标签对齐诊断；无自动训练准入。0任务/native重跑/GPU/模型API，原L4/全部历史/gen98-gen102STOP，新L3-L4T未接受/量子目标ACTIVE。
 
 ## 时间线
+
+- [2026-11-26｜作者原文缺口与导数的方差/几何控制](20261125T-201101Z-author-source-tangent-controls.md)：ORCID姓名匹配但无原文；tangent分解及界10例/2精确证书通过，下一步无fit诊断契约。
 
 - [2026-11-26｜原生相位构造的实现可达性核验](20261125T-195236Z-native-phase-construction.md)：固定两context构造0/.9640，2head4circuit/独立实现误差4.44e-16；仅合成可达、HOLD，下一步精确作者源。
 
