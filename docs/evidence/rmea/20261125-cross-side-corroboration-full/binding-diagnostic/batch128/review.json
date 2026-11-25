@@ -1,0 +1,28 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "scope": "mechanism",
+  "seconds": 15.708233118057251,
+  "profile_echo_verified": true,
+  "hashes": {
+    "diagnose.py": "920c10861af85d4e3967cf64961cd4c31e72d17cb21bf87e1d318c06a8c7544f",
+    "plugin.py": "6174cb5aba15c106ed432dbe08c6f750dae6b70499a32be34797e9d744f0b131",
+    "design.json": "a723feebd6a6e51a6d54bbb4516dba62c552001d08f9a47f187188b84680d992",
+    "protocol.md": "a2b43ab1e8ec56e170930ded0ad8193b2526799c1e72082d64812e45ecc2bf01"
+  },
+  "packet_sha256": "84cd686d20e7c3c7423a6ced25ec05cc97088b71d7924077e8aaf2a8fe6c7f4b",
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "The supplied manifest excerpt closes the prior finding. Its manifest SHA-256 matches both the parent manifest pin and the retry\u2019s manifest pin. Its entries for train-h.npy, train-roles.npy, and train-offsets.npy each match the corresponding retry pin. diagnose.py stream-hashes all four files before constructing the donor map.",
+      "Batch 128 matches the supplied parent configuration. Both arms use pinned final checkpoints in inference mode. The override replaces the object-side contribution to the recipient\u2019s subject-side gate while preserving recipient keys, base scores, values, masks, and decoder. It uses a unit gate outside eligible subject tokens. Each batch checks finite outputs and compares the identity override with the native plugin at atol=rtol=1e-5.",
+      "Both arms receive the same donor map. The code requires at least 90% eligibility, checks bijection and different-sentence assignment for every eligible row, and verifies the saved map\u2019s exact SHA-256 before loading labels or model logits. All 4096 rows contribute to scoring. The separate all-row same-sentence count includes the ineligible identity assignments.",
+      "Both arms must reproduce parent logits within atol=rtol=1e-5, with exact argmax, confusion matrix, correct count, and both null-transition counts. Absolute tolerances are 1e-12 for all-40 macro-F1 and 1e-6 for cross-entropy. Only after both arms pass does the code test whether the quantum original-minus-permuted macro-F1 drop is positive and strictly exceeds the Gaussian drop.",
+      "This static review admits one bounded TRAIN forward. Batch-128 replay parity remains to be demonstrated by execution. A scientific pass permits only full-single-seed preparation, and a failure defers this exact profile. The global donor permutation tests routing dependence under an out-of-distribution shift and cannot establish semantic causality or quantum novelty.",
+      "Private arrays use CPU memory and local output files on the GPU host. The launch contract excludes those files from its public whitelist."
+    ],
+    "admission": "one_bounded_TRAIN_forward"
+  }
+}

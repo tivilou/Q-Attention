@@ -1,0 +1,33 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 78.2464394569397,
+  "hashes": {
+    "modified/baselines/retacred/rmea_corroboration.py": "6174cb5aba15c106ed432dbe08c6f750dae6b70499a32be34797e9d744f0b131",
+    "modified/baselines/retacred/rmea_corroboration_factory.py": "a0810c24514da47c821d890f3c1ea25665690ad891d7d316fb5d83bdaf3164cb",
+    "modified/baselines/retacred/rmea_corroboration_protocol.py": "8ed613dbd783c51efb5e5fbf3880e5f61daec5ac664db50fada6a6b14970acba",
+    "modified/baselines/retacred/rmea_corroboration_runtime.py": "5a18334765d768c3dc4221edbcc3f3349f512a8444c1a605aa4367e0903aeb3e",
+    "modified/baselines/retacred/rmea_corroboration_pairs.py": "f04287433aa664fb5472f1c1e2bba4f33124d01fe5f936c4bf30b47ee9dae299",
+    "modified/baselines/retacred/rmea_experiments.py": "e95ad7950af4b3208e795af6baa9df240bdcfa176ead776d4c37a8e0108a105e",
+    "modified/experiments/q_rmea_corroboration_train.py": "e3befcf49862b40839b304065188367a45c5fa041c05de35f87c5d861ee0f52d",
+    "modified/experiments/check_rmea_corroboration.py": "b676a04ed466f59a6d2dedd82f91ec6561881c375194dfae0932591a43d89f33",
+    "protocol.md": "4464468b89c827d814b3017b99651ead730502bc36d9aa3042b0570905f7565a",
+    "registration.diff": "dcdeea100afd5fc3be084ccceea73c41bf90d348ff72c80954f328501cddea3f"
+  },
+  "packet_sha256": "0ac6f952399f04c95a3c8e50a0646cd6bc492d693974ddfbbc61b71229ce1e90",
+  "response": {
+    "verdict": "BLOCK",
+    "must_fix": [
+      "In `rmea_corroboration_pairs.py::paired_counts`, verify that each of the 14 replays reproduces its selected TEST result before publishing repair/harm counts. The checkpoint hashes authenticate the weights. Finite logits and four counts summing to 13,418 can still pass if replay changes predictions. Compute the all-40 confusion matrix from the replayed predictions and pinned targets, require exact equality with the matrix in that condition\u2019s result, then form the paired counts. This check belongs in the planned post-selection replay and requires no additional TEST pass.",
+      "In `rmea_corroboration_runtime.py::finish`, the native and optical comparator checks compare a fixed tuple of configuration keys. A shared training or evaluation setting outside that tuple can differ silently, despite the requested full-protocol match. Compare the shared configurations after explicitly excluding the intended study-specific differences, such as condition names, parameter schemas and qualification metadata. Keep the existing cache, input-manifest, initialization, epoch-order and selected-state checks."
+    ],
+    "limitations": [
+      "For all five admitted modes, the full factory constructs the screened `CorroborationHead` around a native `real12` initialization. The `native.` prefix matches the registered wrapper hierarchy and is removed for native schema validation. The first-eight-TRAIN fixture checks 81,028 parameters, equal initial tensors across modes, finite gradients and one update per mode. The packet supplies the fixture source but no execution receipt.",
+      "The contrast roster is correct. Four new controls, five native controls and four optical controls give 13 strict positive-delta gates. Both the newly trained Gaussian base and the prior curvature-matched Gaussian participate. Paired replay selects the corresponding factory for each family and checks each selected file and state digest before loading it.",
+      "The registration diff targets corroboration-specific host and publisher copies. Its substitutions bind the new experiment, run ID, control root and five-condition roster. Applying those substitutions in place to shared copies would remove the prior number-optical registration. The diff shows no change to checkpoint cadence or COS transfer mechanics.",
+      "The protocol discloses per-condition selected TEST evaluation and defers reading effects until all five conditions finish. A pass on exposed seed 13 would qualify only a prospective confirmation study. The existing theory, causality and L3/L4-T limitations still apply."
+    ],
+    "admission": "blocked"
+  }
+}

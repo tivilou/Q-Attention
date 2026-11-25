@@ -1,0 +1,30 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 13.385979890823364,
+  "hashes": {
+    "modified/baselines/retacred/rmea_corroboration.py": "6174cb5aba15c106ed432dbe08c6f750dae6b70499a32be34797e9d744f0b131",
+    "modified/baselines/retacred/rmea_corroboration_factory.py": "a0810c24514da47c821d890f3c1ea25665690ad891d7d316fb5d83bdaf3164cb",
+    "modified/baselines/retacred/rmea_corroboration_protocol.py": "8ed613dbd783c51efb5e5fbf3880e5f61daec5ac664db50fada6a6b14970acba",
+    "modified/baselines/retacred/rmea_corroboration_runtime.py": "93d7da4d7d8fa2ab4dff75632173e818d3d8a92b814baf145ae590bcb9a82ece",
+    "modified/baselines/retacred/rmea_corroboration_pairs.py": "b668c4455bb8d3bb5af6832d526d1820955b26ade38a5488ef4685722b2e8fca",
+    "modified/baselines/retacred/rmea_experiments.py": "e95ad7950af4b3208e795af6baa9df240bdcfa176ead776d4c37a8e0108a105e",
+    "modified/experiments/q_rmea_corroboration_train.py": "e3befcf49862b40839b304065188367a45c5fa041c05de35f87c5d861ee0f52d",
+    "modified/experiments/check_rmea_corroboration.py": "b676a04ed466f59a6d2dedd82f91ec6561881c375194dfae0932591a43d89f33",
+    "protocol.md": "4464468b89c827d814b3017b99651ead730502bc36d9aa3042b0570905f7565a",
+    "registration.diff": "8ccad225aafbef5cee3a3e17060c43f5518766bb0de3c165d1e16532d121f5e9"
+  },
+  "packet_sha256": "4445ccf2e33c8ece02d1d47adae29283ce40a4f0f2d285de0084011dd4c75e7d",
+  "response": {
+    "verdict": "PASS",
+    "must_fix": [],
+    "limitations": [
+      "`paired_counts` checks all 14 selected checkpoints across the five new, five native and four optical conditions. In the planned replay, it combines pinned TEST targets and replayed predictions into a 40\u00d740 confusion matrix with targets as rows and predictions as columns. Each matrix must exactly equal that condition\u2019s recorded TEST matrix before the function computes any of the 13 repair/harm partitions. A mismatch stops `finish` before summary publication.",
+      "`finish` compares the complete configuration dictionaries for both reused comparator families after excluding the 11 enumerated study-specific fields. A missing, extra or unequal shared setting fails the comparison, including differences within nested settings. The cache, input-manifest, initialization, epoch-order and selected-checkpoint checks remain in force.",
+      "This review verifies the two guards in source. The supplied first-eight-TRAIN integration receipt covers the unchanged factory and screened forward, and records one update for each of the five 81,028-parameter conditions. The 14 matrix comparisons execute after selection during the full run. Matrix equality establishes aggregate replay agreement and can coexist with row-level prediction changes within a target class.",
+      "Admission covers the fixed, exposed seed-13 qualification run. Passing all 13 strict TEST macro-F1 gates would qualify the plugin for prospective independent confirmation. The existing theory, semantic-causality and L3/L4-T limitations still apply."
+    ],
+    "admission": "full_single_seed"
+  }
+}
