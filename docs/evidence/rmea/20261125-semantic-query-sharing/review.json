@@ -1,0 +1,26 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "scope": "mechanism",
+  "seconds": 110.43069434165955,
+  "profile_echo_verified": true,
+  "hashes": {
+    "plugin.py": "67837ba62195b2971f3445ad9e617ff445a41bac971fc80ebae11db2c56d83d8",
+    "adapter.py": "b93c63b368754d993cc4f861bc15f0bcaa872f0f577c7d9a19db02288edc6ffe",
+    "design.json": "04294f2a676bb09d619d198c262dac882f8ddba4bb5f9d6abe2c7f171e6136ec",
+    "protocol.md": "da0980f0993057b879c791b39f2fb44ed72b821721a5dde96bed9a9447f994bc",
+    "label-codes.json": "b7622c7bf8c4076fa695bbe43f0c218b430dedf0f33cb9474a8cddf36c316e6f"
+  },
+  "packet_sha256": "c1b2944936c9685a0d50dbfc2057531a1304399a6a1e71ce61ceb5bad6bd535a",
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "This was a static review. All four live forwards use code @ query_weights, and the factory recreates the parameters and buffers needed for a full state load. The FP64 gelsd projection uses the stored FP32 code and source query. CPU placement relies on the declared host initialization path.",
+      "The fixtures cover the least-squares normal equations, the C.T @ dL/dquery gradient identity, a finite difference, native Q/D or NumPy Gaussian agreement, padding, and a cloned optimizer update. Fixture execution and the pinned numeric arrays were outside this review.",
+      "The frozen cohort, training order, and assessment timing rely on the accepted core and full runtime configuration. The summary implements seven strict all-40 macro-F1 comparisons. A tie fails promotion. Passing all seven would authorize full-protocol design only."
+    ],
+    "admission": "bounded_small_TRAIN_screen"
+  }
+}

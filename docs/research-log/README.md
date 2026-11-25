@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-关系混淆及原fit回放完成：Q fit Macro 0.806097，dephased 0.787402，Gaussian 0.875209；Q拟合高于D但assessment低于D，稀有类贡献大、部分也欠拟合，未隔离因果。四旧模型33280forward/0更新、两卡归还；Astra/high建议NONE并未接受新机制。主agent冻结公平共享查询+打乱对应四臂设计，未运行；新L3/L4-T未接受，原限定L4及历史保留。
+关系语义共享查询筛选完成：Q Macro 0.468022，Gaussian共享 0.500862，dephased共享 0.492804，固定七门2/7PASS，本确切配置暂缓，不晋级全量。四新fit/4096updates，各80644 trainables，Q高于自身native及打乱code，但仍低于匹配D/G；两卡已归还。已知共享结构不是新T，新L3/L4-T未接受，原限定L4及历史保留。
 
 ## 时间线
+
+- [2026-11-25｜关系语义共享查询的四路小筛选](20261125T-084938Z-semantic-query-sharing.md)：8192fit/4096assessment，四新fit及四固定参照，完整八路保留；本确切配置暂缓，不晋级全量。
 
 - [2026-11-25｜关系类别混淆与原fit回放诊断](20261125T-074335Z-relation-confusion-map.md)：8192fit/4096assessment，四旧模型全类分析、0新fit，下一四臂设计固定；固定模型诊断完成；下一共享查询四路小筛选仅设计冻结、未实现/未运行。
 

@@ -1,0 +1,30 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "scope": "mechanism",
+  "seconds": 46.65530037879944,
+  "profile_echo_verified": true,
+  "hashes": {
+    "plugin.py": "67837ba62195b2971f3445ad9e617ff445a41bac971fc80ebae11db2c56d83d8",
+    "adapter.py": "5036697f358c9905a05fe34a0946b01a3fc33d54a52b85261f7429c753f7f3e0",
+    "design.json": "9c36ee0c0546eaadadf1c17ef7e4fda4ef65ad12f3e9bba2728e600825449077",
+    "protocol.md": "1e7e0a29de2cd1035020f5a609a315a1b10ad8f8edde58c3df8f4379ab89a9bc",
+    "label-codes.json": "b7622c7bf8c4076fa695bbe43f0c218b430dedf0f33cb9474a8cddf36c316e6f"
+  },
+  "packet_sha256": "4f580a87ffa3fb5e27886a9a40edeb45b899f964a4f8ae6409d31fe7d4a7993d",
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "mechanism",
+    "must_fix": [
+      "Set `config.physical_optimizer_updates` to 4096. The four new arms each take 1024 optimizer steps. The configured 3072 contradicts both `modes` and the frozen protocol.",
+      "Ensure the runtime config supplies `reused_native_rows` before calling `summarize`. The supplied config contains only `reused_macro` and report hashes. Passed as shown, it raises `KeyError` after training, before any gate is reported. If the host already loads the four exact rows from the pinned reports, that satisfies this requirement.",
+      "Require one common `order_sha256` across all eight rows. The current assertion compares two sets for equality, so it accepts multiple training orders whenever both sets contain the same hashes. Check that the union has exactly one member before evaluating the seven gates."
+    ],
+    "limitations": [
+      "On static inspection, the live forward uses `code @ query_weights`, the original query is a buffer, and the fixture checks the mapped gradient against both `code.T @ qgrad` and a finite difference. The `gelsd` solve promotes the rounded FP32 tensors to FP64 and relies on CPU model construction for device placement.",
+      "The protocol and metadata describe the null coordinate as eighth, while the fixture requires `[1,0,0,0,0,0,0,0]`, which selects the first. A consistent column ordering preserves the independent-null mechanism. Align the wording with the pinned array.",
+      "The seven strict all-40 macro-F1 comparisons match the declared promotion rule. The exact arrays, stable core, host, and native heads were outside the supplied source excerpt, so the fixture results, factory reload, cohort identity, and four-fit assessment barrier were not independently verified."
+    ],
+    "admission": "blocked"
+  }
+}

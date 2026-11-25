@@ -1,0 +1,104 @@
+{
+  "descriptive_macro_differences": {
+    "Qshared_minus_Qnative": 0.07872157443512318,
+    "Qshared_minus_Qpermuted": 0.03707449058776813,
+    "Qshared_minus_Dshared": -0.02478197165386886,
+    "Qshared_minus_Gshared": -0.03283997446862591,
+    "Qshared_minus_Gcov_practical": -0.04403187328317176,
+    "Dshared_minus_Dnative": 0.02030306337030241,
+    "Gshared_minus_Gnative": 0.016633204677936164
+  },
+  "metrics": {
+    "new/quantum_shared": {
+      "macro": 0.4680221770092962,
+      "ce": 0.7507264614105225,
+      "correct": 3258,
+      "null_f1": 0.8657465495608532,
+      "positive39_macro": 0.4578241161746408,
+      "positive_to_null": 433,
+      "null_false_positive": 316,
+      "predicted_null": 2848
+    },
+    "new/dephased_shared": {
+      "macro": 0.4928041486631651,
+      "ce": 0.7356392741203308,
+      "correct": 3205,
+      "null_f1": 0.8598772119898881,
+      "positive39_macro": 0.48339201883427474,
+      "positive_to_null": 426,
+      "null_false_positive": 350,
+      "predicted_null": 2807
+    },
+    "new/gaussian_shared": {
+      "macro": 0.5008621514779221,
+      "ce": 0.6996996402740479,
+      "correct": 3261,
+      "null_f1": 0.8681378807222323,
+      "positive39_macro": 0.49144482508704257,
+      "positive_to_null": 372,
+      "null_false_positive": 351,
+      "predicted_null": 2752
+    },
+    "new/quantum_permuted": {
+      "macro": 0.4309476864215281,
+      "ce": 0.7603480815887451,
+      "correct": 3214,
+      "null_f1": 0.8611455931902819,
+      "positive39_macro": 0.4199169708633548,
+      "positive_to_null": 480,
+      "null_false_positive": 303,
+      "predicted_null": 2908
+    },
+    "reused/quantum": {
+      "macro": 0.38930060257417304,
+      "ce": 0.7501261830329895,
+      "correct": 3176,
+      "null_f1": 0.8596522674314393,
+      "positive39_macro": 0.3772403034752687,
+      "positive_to_null": 450,
+      "null_false_positive": 333,
+      "predicted_null": 2848
+    },
+    "reused/dephased": {
+      "macro": 0.47250108529286267,
+      "ce": 0.7079744338989258,
+      "correct": 3228,
+      "null_f1": 0.8614545454545455,
+      "positive39_macro": 0.4625279196476912,
+      "positive_to_null": 400,
+      "null_false_positive": 362,
+      "predicted_null": 2769
+    },
+    "reused/gaussian_base": {
+      "macro": 0.48422894679998596,
+      "ce": 0.7054392099380493,
+      "correct": 3238,
+      "null_f1": 0.8642245307089484,
+      "positive39_macro": 0.4744854702894998,
+      "positive_to_null": 385,
+      "null_false_positive": 360,
+      "predicted_null": 2756
+    },
+    "reused/gaussian_covariance": {
+      "macro": 0.512054050292468,
+      "ce": 0.6950918436050415,
+      "correct": 3279,
+      "null_f1": 0.8712259003273918,
+      "positive39_macro": 0.5028445156761878,
+      "positive_to_null": 372,
+      "null_false_positive": 336,
+      "predicted_null": 2767
+    }
+  },
+  "gates": {
+    "macro_beats_dephased_shared": false,
+    "macro_beats_gaussian_shared": false,
+    "macro_beats_quantum_permuted": true,
+    "macro_beats_reused/quantum": true,
+    "macro_beats_reused/dephased": false,
+    "macro_beats_reused/gaussian_base": false,
+    "macro_beats_reused/gaussian_covariance": false
+  },
+  "stage_decision": "DEFER_EXACT_SEMANTIC_QUERY_SCREEN",
+  "limitation": "Development screen, known low-rank sharing; no causal variance/coherence or independent confirmation claim."
+}
