@@ -1,0 +1,27 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "scope": "mechanism",
+  "seconds": 26.46550178527832,
+  "profile_echo_verified": true,
+  "hashes": {
+    "plugin.py": "7ff4ff2e422fcaa8aacf81c0a9f4cf102afa4107624e60f19a785e70cb1fbcab",
+    "adapter.py": "777c575ead1c470145b3efb1f1101cb90b50435e2b041927933c02326ae01c22",
+    "design.json": "93b2a9a62101d7076f24a6fed038199988ee9a5565f175364ece8322b6ec7d9d",
+    "protocol.md": "ec95624fca7535386342a8b1878207de8b4451c83c53e390b4700c04e195b92c",
+    "shared_query.py": "67837ba62195b2971f3445ad9e617ff445a41bac971fc80ebae11db2c56d83d8",
+    "label-codes.json": "b7622c7bf8c4076fa695bbe43f0c218b430dedf0f33cb9474a8cddf36c316e6f"
+  },
+  "packet_sha256": "191bddfb961eeb7bb2a85f238ca33527bd021e28e787930c7672e61258295858",
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "Static review confirms that each joint head loads its corresponding gen96 shared state with only the zero-initialized moment_decoder missing. The live query is code @ query_weights. Both statistics use the same masked attention and 32 adjacent value-channel pairs as specified.",
+      "The supplied fixtures check exact zero-moment endpoint equality, independent moment formulas and gradients, a query finite difference with a nonzero moment decoder, padding invariance, and an optimizer step on a clone. Fixture execution, artifact hashes, and training outcomes were not independently verified here.",
+      "The decision rule requires eight strict all-40 macro-F1 wins. The candidate must exceed 0.512054050292468 to clear the strongest cached reference and must also beat every new control. Any failed gate defers this exact configuration. Clearing all eight permits full-protocol design only."
+    ],
+    "admission": "bounded_small_TRAIN_screen"
+  }
+}

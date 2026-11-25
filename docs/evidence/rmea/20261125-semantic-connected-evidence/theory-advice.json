@@ -1,0 +1,27 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 48.418028116226196,
+  "packet_sha256": "8eb6f48a43bdd6cde594da783963794668a04142eb51b8f0b2e6716616241406",
+  "profile_echo_verified": true,
+  "response": {
+    "recommendation": "ONE",
+    "problem": "The quantum shared mean product reached 0.504046 all-40 Macro, above quantum shared covariance at 0.478786 and below native Gaussian covariance at 0.512054. The mean product mixes evidence from two distinct token positions with evidence from using one token twice. The screen leaves their contributions unresolved.",
+    "hypothesis": "Removing the same-token terms from the shared mean product will improve quantum Q-RMEA\u2019s all-40 Macro over the full mean product and give it a lead over dephased and Gaussian heads using the identical distinct-token statistic, as well as over the existing native Gaussian covariance reference.",
+    "mechanism": "For each example, relation and value-channel pair (x,y), let M = (\u03a3_t \u03b1_t x_t)(\u03a3_t \u03b1_t y_t). Use U = M \u2212 \u03a3_t \u03b1_t\u00b2 x_t y_t = \u03a3_{t\u2260u} \u03b1_t \u03b1_u x_t y_u. A relation query can then combine a cue at one position with a cue at another. A high-weight token loses its quadratic self-contribution but retains its contribution to the base logit. Leave U unnormalized so that deleting the same-token terms is the only change.",
+    "distinction_from_closed_profiles": "The screened covariance used \u03a3_t \u03b1_t x_t y_t \u2212 M. The proposed subtraction uses \u03b1_t\u00b2, the exact weight of drawing position t twice in M. This changes which token pairs enter the readout. It preserves the existing circuit, token probabilities, shared queries and decoder.",
+    "minimal_discriminating_test": "Prespecify U as the sole candidate statistic. On the same development protocol, substitute U for M in the quantum head and apply the identical substitution to matched dephased, Gaussian and permuted-query heads. Use all-40 Macro for the decision and the existing quantum mean-product score for the direct deletion contrast.",
+    "fair_controls": [
+      "Give each new head the same frozen inputs, role features, 32 paired value channels, zero-initialized moment decoder, seed and update budget.",
+      "Retain all eight original Macro comparisons, including quantum mean product and native Gaussian covariance. Include the matched dephased, Gaussian and permuted-query U heads in the decision."
+    ],
+    "stop_rule": "Defer the hypothesis if quantum U ties or loses any prespecified comparison. A positive result on this exposed cohort warrants candidate status only.",
+    "theoretical_lead": "Under two independent token draws from \u03b1, U is the expected paired utility restricted to distinct positions. Its total pair weight is 1 \u2212 \u03a3_t \u03b1_t\u00b2. This gives a precise task-linked question for theory: under what distribution of relation cues across positions does coherent weighting improve the correct relation\u2019s logit margin through distinct-position terms?",
+    "unverified_literature_leads": [],
+    "limitations": [
+      "The aggregate scores motivate the deletion contrast but do not reveal whether the same-token terms helped or hurt. Retraining measures the effect of the readout change across the fit.",
+      "U is symmetric across token positions and can use correlated cues from neighboring words. A gain would not establish that the head combined subject and object evidence specifically.",
+      "The identity holds for any normalized attention weights. A single-seed development win would establish neither independent quantum attribution nor theoretical novelty."
+    ]
+  }
+}

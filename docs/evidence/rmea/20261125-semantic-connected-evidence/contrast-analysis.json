@@ -1,0 +1,119 @@
+{
+  "metrics": {
+    "new/quantum_shared_covariance": {
+      "macro": 0.4787864911226845,
+      "ce": 0.775347113609314,
+      "correct": 3269,
+      "positive39_macro": 0.4687697095719308,
+      "null_f1": 0.8694409716020718,
+      "positive_to_null": 434,
+      "null_false_positive": 297,
+      "parameters": 81924
+    },
+    "new/dephased_shared_covariance": {
+      "macro": 0.48377793282273773,
+      "ce": 0.7449080944061279,
+      "correct": 3249,
+      "positive39_macro": 0.47398401467099405,
+      "null_f1": 0.8657407407407407,
+      "positive_to_null": 454,
+      "null_false_positive": 300,
+      "parameters": 81924
+    },
+    "new/gaussian_shared_covariance": {
+      "macro": 0.49842179647089796,
+      "ce": 0.6926774978637695,
+      "correct": 3283,
+      "positive39_macro": 0.48885484646463045,
+      "null_f1": 0.8715328467153285,
+      "positive_to_null": 361,
+      "null_false_positive": 343,
+      "parameters": 81924
+    },
+    "new/quantum_shared_mean_product": {
+      "macro": 0.5040456713501248,
+      "ce": 0.9836580753326416,
+      "correct": 3146,
+      "positive39_macro": 0.4952762812792854,
+      "null_f1": 0.8460518841128574,
+      "positive_to_null": 316,
+      "null_false_positive": 497,
+      "parameters": 81924
+    },
+    "new/quantum_permuted_covariance": {
+      "macro": 0.4544535709420677,
+      "ce": 0.7604310512542725,
+      "correct": 3197,
+      "positive39_macro": 0.44415790640403696,
+      "null_f1": 0.85598448792526,
+      "positive_to_null": 514,
+      "null_false_positive": 303,
+      "parameters": 81924
+    },
+    "reused/shared_quantum": {
+      "macro": 0.4680221770092962,
+      "ce": 0.7507264614105225,
+      "correct": 3258,
+      "positive39_macro": 0.4578241161746408,
+      "null_f1": 0.8657465495608532,
+      "positive_to_null": 433,
+      "null_false_positive": 316,
+      "parameters": 80644
+    },
+    "reused/native_quantum_covariance": {
+      "macro": 0.42848814071837954,
+      "ce": 0.7819591164588928,
+      "correct": 3165,
+      "positive39_macro": 0.41763993411127825,
+      "null_f1": 0.8515681983953318,
+      "positive_to_null": 418,
+      "null_false_positive": 396,
+      "parameters": 82308
+    },
+    "reused/native_gaussian_covariance": {
+      "macro": 0.512054050292468,
+      "ce": 0.6950918436050415,
+      "correct": 3279,
+      "positive39_macro": 0.5028445156761878,
+      "null_f1": 0.8712259003273918,
+      "positive_to_null": 372,
+      "null_false_positive": 336,
+      "parameters": 82308
+    },
+    "reused/shared_gaussian": {
+      "macro": 0.5008621514779221,
+      "ce": 0.6996996402740479,
+      "correct": 3261,
+      "positive39_macro": 0.49144482508704257,
+      "null_f1": 0.8681378807222323,
+      "positive_to_null": 372,
+      "null_false_positive": 351,
+      "parameters": 80644
+    }
+  },
+  "descriptive_macro_differences": {
+    "Qjoint_minus_Djoint": -0.004991441700053223,
+    "Qjoint_minus_Gjoint": -0.01963530534821345,
+    "Qjoint_minus_Qshared": 0.010764314113388296,
+    "Qjoint_minus_Qmeanproduct": -0.02525918022744028,
+    "Qjoint_minus_Qpermuted": 0.024332920180616835,
+    "Qjoint_minus_QnativeCov": 0.05029835040430497,
+    "Qjoint_minus_GnativeCov": -0.03326755916978347,
+    "Djoint_minus_Dshared": -0.009026215840427343,
+    "Gjoint_minus_Gshared": -0.002440355007024164,
+    "sharing_cov_gain_Q_minus_D": 0.01979052995381564,
+    "sharing_cov_gain_Q_minus_G": 0.01320466912041246
+  },
+  "gates": {
+    "macro_beats_dephased_shared_covariance": false,
+    "macro_beats_gaussian_shared_covariance": false,
+    "macro_beats_quantum_shared_mean_product": false,
+    "macro_beats_quantum_permuted_covariance": true,
+    "macro_beats_reused/shared_quantum": true,
+    "macro_beats_reused/native_quantum_covariance": true,
+    "macro_beats_reused/native_gaussian_covariance": false,
+    "macro_beats_reused/shared_gaussian": false
+  },
+  "stage_decision": "DEFER_EXACT_SEMANTIC_CONNECTED_SCREEN",
+  "limitation": "Same exposed development cohort/single seed. Differences are descriptive, not interaction identification, significance or independent confirmation."
+}
