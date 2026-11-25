@@ -1,0 +1,31 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 27.749244451522827,
+  "hashes": {
+    "audit.py": "1451a5eb6c0fe28bdc23a7bc54a0d6125b8172c3bb5368c51e6418abd26a561d",
+    "verify_sources.py": "e90b6bb15088ce67961899072fdeb4a96ce515207194882f82426eb2c1b119f4",
+    "verification.json": "ae46d9a2193a80c071e87269ec033da191717d33ce01227a624e799b74039255",
+    "source-pins.json": "db6b2ff2845c59ab0ae25d6c832ad53b54394eeb4c4bc1ba88213d9956bc119c",
+    "source-verification.json": "44025afbff0d6fda6a6123c9b1d1cebf010aa1cd39a5c883fbe1fa01a608018e",
+    "reading-receipt.json": "5c021404a90eb586ecad3385626ae5ab2914527ea019a80fd5762be9edf31088",
+    "history-comparison.json": "e752bde42f2984a494c954f5512f0173f6087e67404898e14e115fe8ff8b23ec",
+    "analysis.md": "9a427c52121957cb1e413b339571c1005cfbdec5f575ad9e0b5a056aa0d6b8d1"
+  },
+  "response": {
+    "verdict": "PASS",
+    "must_fix": [],
+    "limitations": [
+      "At the source port, swapping subject and object exactly permutes the four role columns by [1, 0, 3, 2]. It also exchanges the @ and # boundary markers before tokenization and frozen encoding. The original-word index map identifies which subwords to pool, but gives no guarantee that their contextual vectors are invariant. This justifies stopping the shortcut that reuses cached h and changes only roles. The numerical effect on h is unmeasured, and other role-aware methods remain open.",
+      "Given the supplied Table 4 summary, PERSON/TITLE reverses to TITLE/PERSON, outside the benchmark subject-type domain. This single counterexample establishes failure of universal closure. A model can still accept such an input, and individual relations can admit valid reversals. The identity definition alone certifies neither the eight-item historical mapping nor a task-wide involution across all 40 labels, including no_relation.",
+      "The span enumeration gives 6,006 ordered cases across lengths 2 through 12, including adjacent spans and both role orders. The reported marker changes, preserved mappings, double-swap recovery and zero role-permutation error concern synthetic source-port checks. The historical census separately reports 1,242 pairs across 837 sentences, with 1,056 mapped-consistent, 141 unmapped and 45 mapped-inconsistent pairs. Of the 1,056 consistent pairs, 878 are identity pairs and 33 belong to the two directed relation groups (27 + 6). Those 33 represent 2.657% of all pairs and 3.125% of the consistent subset. Selection using observed labels limits the subgroup to descriptive evidence. It supplies no fresh training qualification or causal, quantum-specific diagnosis. The earlier 31 positive-versus-null pairs used a different-object protocol with a frozen minimum of 100.",
+      "The supplied provenance record resolves the reported aggregate discrepancy. The 22-file base-RMEA contract produced 7ca1b015\u2026, while the 31-file token-transport contract at Git revision 4044c8b166b4ae63b66f57b5bcfd7163df281956 reports the manifest aggregate d9837319bb368e6b43939596802a40e05d1f276cbe5e26c27f34947ceb6f3ee7. The match is scoped to the declared source set. This static review inspected the verifier and supplied records without independently reading Git blobs or rerunning tests. Encoder-feature reproduction is unnecessary for the source-port conclusion.",
+      "The audit materials report zero encoder or head forwards, training updates, GPU allocations, new task VALID/TEST file reads and COS writes. The reading receipt separately discloses exposure to five published test illustrations in the supplement and records that they were unused for candidate selection or evaluation. Original-source acquisition and execution history were outside this static review. The recorded outcome is newT=false, L3=NOT_ACCEPTED and L4_T=NOT_ACCEPTED."
+    ],
+    "scope": "bounded_role_exchange_input_audit"
+  },
+  "launch_admitted": false,
+  "newT": false,
+  "L3": "NOT_ACCEPTED",
+  "L4_T": "NOT_ACCEPTED"
+}

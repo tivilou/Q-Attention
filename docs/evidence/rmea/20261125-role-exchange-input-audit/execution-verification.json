@@ -1,0 +1,40 @@
+{
+  "status": "PASS",
+  "runs": [
+    {
+      "command_argv": [
+        "D:/Software/Dev/Language/Anaconda3/envs/QT/python.exe",
+        "-B",
+        "D:\\CodexHome\\task-artifacts\\qattn-role-exchange-audit-20261125\\verify_sources.py",
+        "--repo",
+        "E:/Claude.Code/Paper.Writing/Q-Attention/.codex-artifacts/reference-results-20261017/repo",
+        "--pins",
+        "D:\\CodexHome\\task-artifacts\\qattn-role-exchange-audit-20261125\\source-pins.json",
+        "--output",
+        "D:\\CodexHome\\task-artifacts\\qattn-role-exchange-audit-20261125\\source-verification.json"
+      ],
+      "exit_status": 0,
+      "stdout_literal": "{\"status\": \"PASS\", \"declared_git_revision\": \"4044c8b166b4ae63b66f57b5bcfd7163df281956\", \"source_files\": 31, \"aggregate_sha256\": \"d9837319bb368e6b43939596802a40e05d1f276cbe5e26c27f34947ceb6f3ee7\", \"manifest_schema\": \"q-rmea.token-transport.run.v1\", \"no_checkout\": true, \"source_contract\": \"baselines/retacred/rmea_token_transport_protocol.py:FILES\"}\n",
+      "stderr_literal": ""
+    },
+    {
+      "command_argv": [
+        "D:/Software/Dev/Language/Anaconda3/envs/QT/python.exe",
+        "-B",
+        "D:\\CodexHome\\task-artifacts\\qattn-role-exchange-audit-20261125\\audit.py",
+        "--source-dir",
+        "D:\\CodexHome\\task-artifacts\\qattn-role-exchange-audit-20261125\\source",
+        "--historical",
+        "D:\\CodexHome\\task-artifacts\\qattn-role-exchange-audit-20261125\\historical-natural-swap.json",
+        "--source-pins",
+        "D:\\CodexHome\\task-artifacts\\qattn-role-exchange-audit-20261125\\source-pins.json",
+        "--output",
+        "D:\\CodexHome\\task-artifacts\\qattn-role-exchange-audit-20261125\\verification.json"
+      ],
+      "exit_status": 0,
+      "stdout_literal": "{\"status\": \"PASS_BOUNDED_AUDIT\", \"synthetic_source_port\": {\"cases\": 6006, \"marked_encoder_inputs_changed\": 6006, \"original_word_mappings_equal\": 6006, \"involutions\": 6006, \"label_metadata_ignored\": 6006, \"role_permutation_max_error\": 0.0}, \"historical_reuse\": {\"source_sha256\": \"0be1c28719ad72f8650f1fa275db7e480c714b140bdc6d31f031c9f5c41fc38f\", \"new_census_executed\": false, \"pairs\": 1242, \"sentences\": 837, \"mapped_consistent\": 1056, \"unmapped\": 141, \"mapped_inconsistent\": 45, \"identity_pairs\": 878, \"directed_pairs\": 33, \"directed_fraction_all_pairs\": 0.026570048309178744, \"directed_fraction_consistent\": 0.03125, \"cohort_selected_using_observed_labels\": true, \"label_mapping_semantically_recertified\": false}, \"provenance\": {\"source_pins_sha256\": \"db6b2ff2845c59ab0ae25d6c832ad53b54394eeb4c4bc1ba88213d9956bc119c\", \"component_matches_declared_git_revision\": true, \"manifest_schema_matched_source_aggregate_verified\": true, \"source_contract_file_count\": 31}, \"decision\": \"STOP_ROLE_EXCHANGE_SHORTCUT_BEFORE_MODEL_DESIGN\", \"scope\": [\"Changed marked words do not prove numerically unequal encoder hidden states.\", \"Synthetic tests do not validate a frozen encoder/cache transformation.\", \"Historical label-consistent pairs are descriptive, not fresh task qualification.\", \"An earlier 22-file aggregate comparison used the wrong schema; the correct 31-file contract matches.\", \"A universal label involution and quantum-specific prediction remain unestablished.\"], \"encoder_forwards\": 0, \"task_head_forwards\": 0, \"training_updates\": 0, \"gpu_allocations\": 0, \"new_dataset_valid_test_access\": 0, \"cos_writes\": 0, \"original_pdf_source_examples_used_in_candidate_design\": false, \"newT\": false, \"L3\": \"NOT_ACCEPTED\", \"L4_T\": \"NOT_ACCEPTED\"}\n",
+      "stderr_literal": ""
+    }
+  ],
+  "no_scientific_model_execution": true
+}
