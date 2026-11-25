@@ -1,0 +1,21 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 61.405460834503174,
+  "packet_sha256": "fba66923ab862e55c615a30213b56e5e1b8d2acd72e89d5cef23d116d3716ba8",
+  "selection_basis": "explicit_owner_preference",
+  "response": {
+    "recommendation": "NONE",
+    "observation": "Q wins against D on fit macro-F1 in all three positive-class support groups and loses in all three on assessment. Q also makes 301 forced-positive ranking errors to D\u2019s 236, so the deficit extends to choosing among positive relations. These observations leave the cause open.",
+    "problem": "Does D\u2019s learned token weighting transfer better even when the signed token utilities and biases come from Q? The separately trained Q and D scores leave this question unresolved. Its answer bears directly on whether to design another relation measurement.",
+    "mechanism": "I have no task-linked quantum mechanism with a discriminating advantage over a fair classical replacement. The one test I suggest is to substitute D\u2019s normalized attention into the fitted Q checkpoint. This directly intervenes on which tokens supply evidence for each relation.",
+    "exact_math": "For relation r and valid token i, let u\u1d60\u1d63\u1d62 = C\u1d60v\u1d60(h\u1d62) be Q\u2019s scalar token utility and a\u1d39\u1d63\u1d62 the native normalized attention from model M, including its EPS. Replay z*\u1d63 = b\u1d60\u1d63 + \u03a3\u1d62 a\u1d30\u1d63\u1d62u\u1d60\u1d63\u1d62. The exact logit change is \u03b4\u1d63 = \u03a3\u1d62(a\u1d30\u1d63\u1d62 \u2212 a\u1d60\u1d63\u1d62)u\u1d60\u1d63\u1d62. This follows from the supplied affine decoder and assumes aligned tokens, masks and relation IDs. Only the forward weights change. There is no gradient update or theorem claim.",
+    "distinguishing_prediction": "If D\u2019s weighting itself carries a transferable assessment advantage on Q\u2019s utilities, the replay will exceed Q\u2019s 0.389301 assessment all-40 macro-F1. For a true relation t and rival s, the replay reverses a strict Q loss exactly when \u03b4\u209c \u2212 \u03b4\u209b > z\u1d60\u209b \u2212 z\u1d60\u209c. Even very different attentions give \u03b4\u1d63 = 0 when the tokens exchanging mass have equal Q utility.",
+    "nearest_collision": "This is a standard component substitution. Its purpose is to test the learned attention at the point where it changes class margins. It supplies no theoretical novelty.",
+    "fair_control": "Use native Q as the paired control. Each example then has identical inputs, Q utilities and Q biases in both passes. Native D at 0.472501 provides a reference for the size of the observed gap. The substitution includes D\u2019s learned keys and queries through their output weights, so it cannot attribute a gain specifically to dephasing.",
+    "screen": "One inference-only replay on the existing seed-13, 4096-example assessment split using the checkpoints fitted on 8192 examples for 1024 updates. Primary outcome is all-40 macro-F1. Forced-positive errors are descriptive. No new training arms.",
+    "stop_rule": "A replay at or below native Q falsifies the stated directional prediction on this split. A gain establishes that substituting D\u2019s weights is sufficient to improve this checkpoint on these examples. Neither outcome warrants full-scale advancement.",
+    "limitations": "A failed substitution leaves open co-adaptation between D\u2019s attention and its own utilities. A successful substitution still leaves the origin of D\u2019s better weights unresolved. The reused development split supplies no independent confirmation or evidence of an advantage over Gcov."
+  },
+  "status": "ADVICE_NOT_ACCEPTANCE"
+}

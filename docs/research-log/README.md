@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-原生三路类别先验训练修正筛选完成：Q Macro 0.369464，Gaussian 0.405525，dephased 0.385478，固定六门0/6PASS，本确切配置暂缓，不晋级全量。三新fit/3072updates，各81028 trainables，原生读出不变，三路均使用训练集prior修正；两卡已归还。已知Balanced Softmax不是新T或Macro最优保证，新L3/L4-T未接受，原限定L4及历史保留。
+关系混淆及原fit回放完成：Q fit Macro 0.806097，dephased 0.787402，Gaussian 0.875209；Q拟合高于D但assessment低于D，稀有类贡献大、部分也欠拟合，未隔离因果。四旧模型33280forward/0更新、两卡归还；Astra/high建议NONE并未接受新机制。主agent冻结公平共享查询+打乱对应四臂设计，未运行；新L3/L4-T未接受，原限定L4及历史保留。
 
 ## 时间线
+
+- [2026-11-25｜关系类别混淆与原fit回放诊断](20261125T-074335Z-relation-confusion-map.md)：8192fit/4096assessment，四旧模型全类分析、0新fit，下一四臂设计固定；固定模型诊断完成；下一共享查询四路小筛选仅设计冻结、未实现/未运行。
 
 - [2026-11-25｜原生三路的类别先验训练目标筛选](20261125T-072421Z-prior-adjusted-native-training.md)：8192fit/4096assessment，三新fit及四固定参照，完整七路保留；本确切配置暂缓，不晋级全量。
 
