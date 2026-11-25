@@ -1,0 +1,29 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 33.7183358669281,
+  "hashes": {
+    "plugin.py": "b732ead75387b3df8bc682b75ccd4788691d09109d263a48a3a144c01f059597",
+    "test_plugin.py": "dd2a2a737e83499d37961476cbb0b20881a29e85f83be5e98f1b43e0ef6e7b5d",
+    "protocol-draft.md": "68b17ae6857c0e103c33cd0c7a19efe3e8e23cbea1908843e0479f9af408a106",
+    "plugin-verification.json": "5c685676482ca9f7abd4c0801df196abba551ef4eeea8c8f5f3536c10fe6c9b8",
+    "references.json": "b496fce452b46fbb87d4ba18fead1e7689ecc8ab427ee02bf93dab88df1c0e52",
+    "source-identities.json": "f80228869c37f31f632976c13f4ec3cb503bb386446cc9bfe39ac89e142914ff"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "must_fix": [
+      "In `frame_probability(..., diagonal=True)`, `key.abs().square().double()` and its query counterpart round the squared magnitudes in FP32 for complex64 inputs. Promote the amplitudes to complex128 before `abs().square()` (float64 for real inputs), then retain the existing final cast. Add a complex64 regression fixture that distinguishes the two operation orders against an FP64 reference cast to float32. The current complex128 diagonal test cannot detect this defect.",
+      "The model test checks `abs().max()` over the entire query parameter tensor, so one active relation can satisfy the assertion for all 40. To verify the protocol\u2019s all-query gradient requirement, use a nondegenerate synthetic fixture, reshape the query or effect gradient to `(40, -1)`, and assert a finite, nonzero gradient norm for every row in each arm."
+    ],
+    "limitations": [
+      "The full-frame algebra matches the protocol. With queries stored as rows, `q.T @ q.conj()` sums the outer products in the correct orientation. For `u = S^(-1/2) k`, the code computes `|q_r\u2020 u|\u00b2 + EPS \u2016u\u2016\u00b2`, which equals `k\u2020 E_r k` on the original key. The `R * EPS` term in S accounts for all R regularized effects. Word normalization adds no further EPS.",
+      "The Hermitian inverse-square-root backward uses the correct divided difference, `-1 / (s_i s_j (s_i + s_j))`, where `s_i = sqrt(lambda_i)`. At a repeated eigenvalue it gives `-1 / (2 s_i\u00b3)` directly. The supplied verification reports passing real and complex gradchecks, including the repeated-eigenvalue fixture.",
+      "The diagonal formula removes coherence consistently from both the effects and their sum. Real12 uses normalized real vectors as a classical control. The supplied record reports 81,028 registered parameters per new arm. Effective capacity and compute can differ, and the protocol\u2019s FP32 training description should identify the internal FP64 frame operations.",
+      "The draft specifies three fits of 1,024 updates each, seed 13, 8,192 fit rows, 4,096 assessment rows, and all 40 labels. All fits finish before assessment. Q must strictly beat both new controls and all four archived references on the designated Macro metric. The strongest archived positive39 Macro-F1 is 0.5028445156761878 from Gaussian covariance. The draft makes no expected-gain, new-theory, or transferred PGM guarantee claim.",
+      "This review used the supplied code and synthetic verification record. Actual8 and runtime binding remain pending. The verdict concerns synthetic implementation readiness only."
+    ],
+    "scope": "static_mechanism"
+  },
+  "launch_admitted": false
+}

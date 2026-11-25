@@ -1,0 +1,31 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 41.19539022445679,
+  "hashes": {
+    "plugin.py": "454eb9947d08a84d9322b00adeb8f5904d061ff2a173cc8b67651d2f6ec62fc1",
+    "test_plugin.py": "9b3e8546cd8147e23e1d364b7a6f6b1d4dbf834ec31a0a0c7b599855ada97657",
+    "protocol-draft.md": "5f84f8ffd6471768fe47890305d880e0d75f9d3b52866a6376cfb8a043d696d3",
+    "plugin-verification.json": "6becac3083bce0d57e6e8f39cbb6c4ff1076cf0a326a4cd9cdefc722a45f3a56",
+    "references.json": "b496fce452b46fbb87d4ba18fead1e7689ecc8ab427ee02bf93dab88df1c0e52",
+    "source-identities.json": "f80228869c37f31f632976c13f4ec3cb503bb386446cc9bfe39ac89e142914ff",
+    "adapter.py": "cbffa4a1528439ee842136873ba0bc9278c91112b181200d0b91bca1d9457ea4",
+    "design.json": "bba39a0d2b3bf5821a24c59a5d206963a1afc89f2bf03a6f1bbfa07f711579dd"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "must_fix": [
+      "Correct the frozen study description in design.json. The selection field says five fits, the gates field specifies four new controls plus nine retained rows and thirteen comparisons, and the hypothesis and rationale describe same-token deletion. The supplied modes, protocol and adapter specify three relation-frame fits and six strict all40 Macro-F1 comparisons. Record the relation-frame hypothesis, require all three fits to finish before assessment, and name the two new controls and four reused references. Update the precision field to include FP64/complex128 frame arithmetic and refresh the affected hashes."
+    ],
+    "limitations": [
+      "Both prior fixes are present. The diagonal branch promotes amplitudes before abs().square(), and the complex64 regression checks equality with the promote-first reference and distinguishes the square-first result. The synthetic model test requires each of the 40 query-row gradient norms to exceed 1e-12. The actual8 fixture requires each norm to be finite and positive before clipping.",
+      "The full-frame algebra matches the protocol. With queries stored as rows, q.T @ q.conj() sums phi_r phi_r\u2020. For u = S^(-1/2)k, the code computes |phi_r\u2020u|\u00b2 + EPS\u2016u\u2016\u00b2, which equals k\u2020E_r k for the original key. The R\u00b7EPS\u00b7I term in S is the sum of the R effect regularizers. Word normalization adds no further EPS.",
+      "The Hermitian inverse-square-root backward uses the correct divided difference, -1/[s_i s_j (s_i+s_j)], where s_i = sqrt(lambda_i). It remains finite at repeated positive eigenvalues and equals -1/(2s_i\u00b3) there. The supplied synthetic report records passing real and complex gradchecks and a maximum NumPy probability discrepancy of 3.33e-16. This review did not independently rerun those tests.",
+      "The diagonal control takes the diagonal of both the effects and their sum. The real12 control uses normalized real vectors. All three heads have 81,028 registered parameters in the supplied report. Their representations and arithmetic costs differ. The implementation promotes frame inputs to FP64/complex128 and casts probabilities back to the key's real dtype before pooling.",
+      "The adapter computes per-class F1 from the confusion matrix and takes the mean over all 40 classes. It uses strict greater-than against the two new controls and four supplied historical rows. Gaussian covariance is the strongest historical comparator at 0.512054050292468. Positive39 Macro-F1 is ancillary. Passing all six comparisons permits full-protocol design only.",
+      "The numeric design fields specify seed 13, 8,192 fit rows, 4,096 assessment rows and 1,024 fit updates per arm, totaling 3,072. The actual8 fixture takes a separate optimizer step on a disposable clone and checks that the original state is unchanged. Actual first-eight-row selection, cohort and initialization binding, and assessment timing remain pending runtime verification. The synthetic record establishes no task gain, new theory or transferred PGM guarantee."
+    ],
+    "scope": "static_mechanism"
+  },
+  "launch_admitted": false
+}

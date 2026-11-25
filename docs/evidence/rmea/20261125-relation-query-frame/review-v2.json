@@ -1,0 +1,27 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 25.52280330657959,
+  "hashes": {
+    "plugin.py": "454eb9947d08a84d9322b00adeb8f5904d061ff2a173cc8b67651d2f6ec62fc1",
+    "test_plugin.py": "9b3e8546cd8147e23e1d364b7a6f6b1d4dbf834ec31a0a0c7b599855ada97657",
+    "protocol-draft.md": "5f84f8ffd6471768fe47890305d880e0d75f9d3b52866a6376cfb8a043d696d3",
+    "plugin-verification.json": "6becac3083bce0d57e6e8f39cbb6c4ff1076cf0a326a4cd9cdefc722a45f3a56",
+    "references.json": "b496fce452b46fbb87d4ba18fead1e7689ecc8ab427ee02bf93dab88df1c0e52",
+    "source-identities.json": "f80228869c37f31f632976c13f4ec3cb503bb386446cc9bfe39ac89e142914ff"
+  },
+  "response": {
+    "verdict": "PASS",
+    "must_fix": [],
+    "limitations": [
+      "Both v1 fixes are present. The diagonal path promotes amplitudes before taking squared magnitudes. The complex64 regression requires exact agreement with the promoted reference and distinguishes the previous operation order. The model test requires each of the 40 query rows in each arm to have a finite gradient norm above 1e-12 on the synthetic fixture.",
+      "The full-frame path constructs S = \u03a3r \u03c6r\u03c6r\u2020 + R\u00b7EPS\u00b7I with `q.T @ q.conj()`. For u = S^(-1/2)k, it computes |\u03c6r\u2020u|\u00b2 + EPS\u00b7\u2016u\u2016\u00b2, which evaluates the specified effect on the original key k. The EPS term in S is the sum of the per-effect regularizers. Word normalization adds no further EPS. The diagonal arm takes the diagonal consistently in both the effects and their sum.",
+      "The Hermitian backward uses the divided difference \u22121/[s\u1d62s\u2c7c(s\u1d62+s\u2c7c)], where s\u1d62 = \u221a\u03bb\u1d62. At repeated positive eigenvalues this equals \u22121/(2\u03bb\u1d62^(3/2)). The supplied real and complex gradchecks cover exact repetition. Frame algebra uses float64 or complex128 and returns probabilities in the key\u2019s real precision. The protocol discloses the additional compute.",
+      "The supplied verification records 81,028 registered parameters in each new arm. The normalized real12 frame provides a classical control. Parameter counts alone establish neither equal effective capacity nor equal compute. Both archived Gaussian controls remain in the comparison.",
+      "The bounded screen specifies three fits of 1,024 updates each, seed 13, 8,192 fit examples and 4,096 assessment examples, with final assessment after all three fits finish. Q must strictly exceed both new controls and all four reused native references on all40_macro_f1. The highest archived gate is Gaussian covariance at 0.512054050292468. Positive39 Macro-F1 is ancillary. The protocol claims no expected gain, new T result or transfer of the PGM discrimination guarantee.",
+      "This verdict rests on static inspection and the supplied synthetic verification record. Independent execution, actual8 fixtures and runtime binding remain unverified. Launch admission and task efficacy remain open."
+    ],
+    "scope": "static_mechanism"
+  },
+  "launch_admitted": false
+}

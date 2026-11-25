@@ -1,0 +1,28 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 47.436617612838745,
+  "hashes": {
+    "plugin.py": "454eb9947d08a84d9322b00adeb8f5904d061ff2a173cc8b67651d2f6ec62fc1",
+    "test_plugin.py": "9b3e8546cd8147e23e1d364b7a6f6b1d4dbf834ec31a0a0c7b599855ada97657",
+    "protocol-draft.md": "5f84f8ffd6471768fe47890305d880e0d75f9d3b52866a6376cfb8a043d696d3",
+    "plugin-verification.json": "6becac3083bce0d57e6e8f39cbb6c4ff1076cf0a326a4cd9cdefc722a45f3a56",
+    "references.json": "b496fce452b46fbb87d4ba18fead1e7689ecc8ab427ee02bf93dab88df1c0e52",
+    "source-identities.json": "f80228869c37f31f632976c13f4ec3cb503bb386446cc9bfe39ac89e142914ff",
+    "adapter.py": "cbffa4a1528439ee842136873ba0bc9278c91112b181200d0b91bca1d9457ea4",
+    "design.json": "9aca077ab6149d336bb4eec279ac8af853cc20834918242691bd78d927fad368"
+  },
+  "response": {
+    "verdict": "PASS",
+    "must_fix": [],
+    "limitations": [
+      "The verdict covers static review and the supplied synthetic results. Both requested fixes are present. The diagonal path promotes amplitudes before squaring, and the complex64 regression detects early rounding. The synthetic test checks each of the 40 query-gradient row norms individually, as does the pending actual8 fixture.",
+      "With queries stored as rows, `q.T @ q.conj()` sums the correctly oriented outer products. For `u = S^(-1/2) k`, the full path computes `|phi_r\u2020 u|\u00b2 + EPS ||u||\u00b2`, which equals `k\u2020 E_r k` for the original key. The frame includes `40 * EPS * I`, and token normalization adds no further EPS. The diagonal arm consistently uses the diagonals of both the effects and their sum.",
+      "The Hermitian inverse-square-root backward uses the divided difference `-1 / (s_i s_j (s_i + s_j))`, where `s_i` is the square root of an eigenvalue. It remains finite at repeated positive eigenvalues. The supplied verification reports real and complex gradchecks, including repeated-eigenvalue cases. The design discloses FP64/complex128 frame arithmetic and the cast back to FP32 before pooling.",
+      "The design specifies three new 1,024-update fits on the shared 8,192/4,096 split with seed 13. The adapter computes all-40 macro-F1 from the confusion matrix and uses strict `>` for all six comparisons against the two new controls and four retained reference rows. The strongest historical threshold is Gaussian covariance at 0.512054050292468. Positive-39 macro-F1 is ancillary. The reported 81,028 parameters per new arm establish equal registered counts only.",
+      "The actual8 adapter updates a disposable clone per arm and checks the original state afterward. Execution on the first eight fit rows and binding to the pinned core, cohort, order, and reference artifacts remain pending. This PASS covers the mechanism only. Task efficacy is unmeasured, and even a future six-gate pass would authorize full-protocol design only."
+    ],
+    "scope": "static_mechanism"
+  },
+  "launch_admitted": false
+}
