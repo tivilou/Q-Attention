@@ -1,0 +1,35 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 68.15021467208862,
+  "hashes": {
+    "consistency.py": "d989195e8c952919f65ea54412a60c79598d6e6cc765d863977303f0bc989713",
+    "plugin.py": "ecd6019ad66da5f0fdf277dfcdf91bc1366af8ee9cfdc4ea391619cb2f2df74f",
+    "adapter.py": "0bc10548708fdddaf9a3077012f814dabb373fdf012aed99dcaf8344918d9e25",
+    "screen.diff": "94109c1f012db3f78b3d52612f520cba030b2ed34e71446edb05603ce606767d",
+    "test_consistency.py": "b83ce2d12fa8abd1491bd612302b080e771c13f6a3219c0a7a4cd010e42491d0",
+    "synthetic-verification.json": "9bc255099f45eaa56d34e4d99ad9e6e73421b2ff2b5efdbf5e6938b60cf5fce9",
+    "protocol-draft.md": "ae84154a465523a2cff176bbef73452f4201eb3b90ba5f0dec223f3bdaef64f2",
+    "gaussian_reference.py": "6174cb5aba15c106ed432dbe08c6f750dae6b70499a32be34797e9d744f0b131",
+    "design.json": "6a7a8dd8b45f0f986b7c3e4e56ee14c8a4b5d106a7e0ad60f8ab2dc846342826",
+    "screen.py": "04990ba5a1ddd4cbe7bfbe8eb7e03864833ca053a3e5afba9f86f4f1b70efa57",
+    "test_reporting.py": "44c9792682b48bbf4798e7ec63e200ee3ee094a9e75aff8f94ddd80ae778c2b7",
+    "reporting-verification.json": "9b0377af68dba966005910afdbd140619f425675cb58e53f0f316abe602a87e7"
+  },
+  "response": {
+    "verdict": "PASS",
+    "must_fix": [],
+    "limitations": [
+      "PASS admits the exact design to pre-fit qualification. The previous runtime BLOCK remains on record. The complete design contains 24 source_hashes entries and a 40-entry class_support for each of the four retained references, resolving both omissions in the earlier review packet. The real first-eight clone checks and paired CUDA draws are pending. screen.py runs both before starting either training lane, and a failed assertion prevents all four fits.",
+      "The directed objective implements one finite-difference VAT power step. It probes at 0.001 times each example\u2019s valid-token h norm, differentiates KL from the detached clean distribution with respect to the probe, masks and normalizes that gradient, then detaches the direction. The final loss is clean CE plus KL at relative radius 0.01 with alpha 1. Roles pass through unchanged and padding receives zero perturbation. autograd.grad requests only the probe gradient, leaving parameter .grad fields untouched and the clean CE graph available for backward.",
+      "The supplied CPU verification covers three distinct claims. An independent NumPy derivative checks the power direction. A frozen-target, frozen-direction finite difference checks the final parameter gradient, with reported maximum error 4.84e-11. For all four native arms, the alpha-zero test compares loss, every parameter gradient and the clipped AdamW update against the pinned dense CE callback, and checks that the generator state is preserved. These are supplied synthetic results.",
+      "Each campaign model creates its own device generator seeded with 13 and draws once per update. QVAT and Qrandom use the same quantum initializer, batch order, isotropic Gaussian starting-direction rule, radius and KL weight. Qrandom skips the probe entirely. Thread scheduling cannot advance another model\u2019s generator. The CUDA fixture checks exact cross-device draws for batch sizes 8, 128 and 8 at the fixture token length. Pairing across every training shape remains conditional on the allocated devices producing matching streams for those shapes.",
+      "Q and D delegate forward to their native heads. Gaussian VAT selects gaussian_base from the pinned gaussian_reference.py source identified by 6174cb5a, with the real12 initializer. The supplied synthetic checks report 81,028 parameters for each new arm. Directed VAT incurs an extra probe forward and input-gradient calculation relative to Qrandom, so parameter count establishes neither equal compute nor equal capacity.",
+      "With dispatch disabled, resolve_backward returns the selected baseline callable itself. With dispatch enabled, training history records the total objective and the component totals record CE and KL separately. Assessment uses clean logits and CE. The screen retains full dense batches of 128, four 1,024-update AdamW fits, the shared seed-13 order, final-checkpoint assessment after all fits, and the 600-second cumulative fit-plus-assessment limit per arm under the 2,400-second campaign alarm. The historical microbatch_size field is inactive.",
+      "The seven strict all-40 macro-F1 comparisons select dephased_vat, gaussian_vat, quantum_random_consistency and the four embedded references quantum (0.38930060257417304), dephased (0.47250108529286267), gaussian_base (0.48422894679998596) and gaussian_covariance (0.512054050292468). The reporting fixture exercises a seven-way win and rejection on a Qrandom tie. It validates the gate logic against the embedded rows. Independent provenance of those rows against the historical report is outside that fixture.",
+      "The 8,192-fit and 4,096-assessment examples form a single-seed TRAIN development screen. Seven wins would permit full-protocol design only. A miss defers the stated configuration without a parameter or seed sweep. Task efficacy, semantic preservation and new theory remain unestablished. L3 and L4-T remain NOT_ACCEPTED."
+    ],
+    "scope": "static_scientific_delta"
+  },
+  "launch_admitted": false
+}

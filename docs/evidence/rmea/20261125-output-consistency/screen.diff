@@ -1,0 +1,51 @@
+--- screen.original.py
++++ screen.py
+@@ -61,6 +61,10 @@
+     dtype=getattr(torch,dtype_name)
+     if cfg.get('dense_batches',False):
+         from baselines.retacred.rmea_fair_reference_runtime import backward,score_batch
++    from consistency import resolve_backward
++    scientific_loss = cfg.get('scientific_loss_callback', False)
++    training_backward = resolve_backward(plugin, backward, scientific_loss)
++    loss_name = 'objective' if scientific_loss else 'ce'
+     torch.set_num_threads(1); torch.use_deterministic_algorithms(True)
+     torch.backends.cuda.matmul.allow_tf32=False
+     assert torch.cuda.device_count() == 2
+@@ -172,14 +176,14 @@
+                 if hasattr(model, 'set_training_progress'):
+                     model.set_training_progress(step, cfg['updates'])
+                 model.train(); inputs, y = batch(ids, device); optimizer.zero_grad(set_to_none=True)
+-                loss = backward(model, inputs, y)
++                loss = training_backward(model, inputs, y)
+                 assert torch.isfinite(loss) and all(p.grad is not None and torch.isfinite(p.grad).all() for p in model.parameters())
+                 norms = {k: float(v.grad.norm()) for k, v in model.named_parameters()} if step == 1 else None
+                 torch.nn.utils.clip_grad_norm_(model.parameters(), cfg['clip_norm'], error_if_nonfinite=True)
+                 optimizer.step(); assert all(torch.isfinite(p).all() for p in model.parameters())
+                 losses.append(float(loss))
+                 if step == 1:
+-                    first = dict(ce=float(loss), finite_gradient_norms=norms,
++                    first = dict({loss_name:float(loss)}, finite_gradient_norms=norms,
+                         state_changed=state_identity(model.state_dict()) != arm_initial_sha)
+                     assert first['state_changed']
+                 # Existing atomic CPU-state serializer, no COS or resume claim.
+@@ -194,7 +198,9 @@
+             result = dict(updates=cfg['updates'], parameters=parameter_count, initial_sha256=arm_initial_sha,
+                 shared_value_sha256=shared_sha,
+                 order_sha256=order_sha, final_sha256=digest(folder/'final.pt'), first_update=first,
+-                train_ce_history=losses, training_finished_at=time.time())
++                **{'train_'+loss_name+'_history':losses}, training_finished_at=time.time())
++            if scientific_loss:
++                result['objective_components'] = dict(model.objective_totals)
+             result['train_seconds']=leave_budget(mode)
+             write(folder/'result.json', result)
+             return result
+@@ -262,6 +268,9 @@
+     rows = {k:{n:v[0][n] for n in ('ce','positive39_macro_f1','updates','parameters',
+         'initial_sha256','order_sha256','final_sha256','training_finished_at','assessment_started_at','compute_seconds')}
+         for k,v in results.items()}
++    if scientific_loss:
++        for mode in cfg['modes']:
++            rows[mode]['objective_components'] = results[mode][0]['objective_components']
+     checks['first_updates'] = {k:dict(finite_gradients=True, state_changed=v[0]['first_update']['state_changed']) for k,v in results.items()}
+     write(args.output/'fixtures.json', checks)
+     if hasattr(plugin, 'summarize'):
