@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-2609.13360v1原文25页解析/22页范围读，主比较报告训练内CV，但布局/重上传alpha-beta用测试集选择，尾长按测试误差相关选择；探索证据与独立机制确认分开。原生自由12角度槽位重排可被W-b逆行置换精确抵消，Q/D合成全前向0误差、全梯度5.42e-20；已知参数对称性非新T，0任务数据/训练/GPU/API。直接分组迁移NONE，下一步核2311.13552v1原始Pauli-Lego选择与旧measurement/frame排重；原L4/全部历史/gen98十三门STOP保持，新L3/L4T未接受/量子目标ACTIVE。
+2311.13552v1原文27页解析/22页范围读；Lego/H-body为PSD不保证attention非负，合法native端口H1=-1，直接归一化出现负alpha；Mercer rank1本征算符并非一个物理Pauli共轭，Q-D积分算符交换子平方1/1296。全部32key×40query、Q-D/S展开与独立稠密门/bit-Pauli/Fraction核PASS(1.78e-15)，已知工具非新T；0任务headforward-训练/GPU/API，直接迁移NONE。下一步两条固定top6官方查询，查真正任务结构/联合学习机制并与旧profile排重。原L4/全部历史/gen98STOP保持，新L3-L4T未接受/量子目标ACTIVE。
 
 ## 时间线
+
+- [2026-11-26｜Pauli-Lego核与非负路由适用边界](20261125T-165822Z-trace-kernel-audit.md)：22页范围读、负质量及Mercer物理基边界、独立稠密门/有理反例PASS，0新任务训练。
 
 - [2026-11-26｜结构量子核源协议与槽位重排审计](20261125T-164408Z-structured-kernel-audit.md)：22页范围读、关键消融测试集选择分级，原生latent重排为已知参数对称性，0新任务训练。
 

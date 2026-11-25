@@ -1,0 +1,54 @@
+{
+  "source_pdf_sha256": "c96126385a64b9352f1184aa2557f7313815529d96ad942f6073849b33b204bf",
+  "claims": [
+    {
+      "id": "Lego",
+      "locator": "p5 Eq25–29",
+      "source_fact": "Positive weighted sums of observable-expectation products form PSD kernels, including global and projected cases.",
+      "transfer_limit": "PSD is a Gram property and does not require each pairwise entry to be nonnegative. It is not enough for native attention mass."
+    },
+    {
+      "id": "H-versus-S",
+      "locator": "pp7–8 Eq42–43,AppendixC pp21–23",
+      "source_fact": "ExactH shells contain precisely H-body Pauli terms, while S-subsystem overlaps include lower-body terms and an identity component.",
+      "transfer_limit": "Raw exactH replacement may be signed; positive S completion changes offset/relative weights and is a separate model. No automatic native-EPS invariance."
+    },
+    {
+      "id": "weights-and-scale",
+      "locator": "p5 weight normalization;Eq23;AppendixC9",
+      "source_fact": "GTQK weights are constrained in l2; S-kernel sums use square-root partition normalization.",
+      "transfer_limit": "Overlapping Pauli terms mean sourceS coefficient l2 norm need not be1 without another global rescaling. For n3,S1 or2 it squares to3/2; keep scaling explicit, not a new theorem."
+    },
+    {
+      "id": "generalization",
+      "locator": "p6 Theorem1;pp13–15,20",
+      "source_fact": "Binary margin bounds and fixed base kernels with a bounded readout class appear in the derivation.",
+      "transfer_limit": "Do not apply p^(1/4) alone to jointly learned token embeddings,40effects,signed values and token denominators; no native CE/Macro guarantee or attribution."
+    },
+    {
+      "id": "Mercer",
+      "locator": "p6,pp23–27",
+      "source_fact": "Distribution-dependent covariance eigenoperators diagonalize the global kernel; weighting those operators rescales its eigenvalues.",
+      "transfer_limit": "An arbitrary operator-space orthogonal basis transformation is not automatically one physical Hilbert-space basis conjugation."
+    },
+    {
+      "id": "physical-locality",
+      "locator": "p7 Eq39–43",
+      "source_fact": "Mercer-local construction invokes one U0 mapping the Mercer operators into normalized Pauli operators.",
+      "transfer_limit": "Needs additional structure. Legal native orthogonal pure-state distribution with unequal weights has unique rank1 positive eigenoperators; all normalized3qubit Paulis have rank8, so no such common invertible conjugation exists in general. This does not refute the abstract Lego PSD construction or conditional Mercer spectral result."
+    },
+    {
+      "id": "actual-empirics",
+      "locator": "pp9–10 Fig4–5",
+      "source_fact": "8qubit PCA Fashion-MNIST binary SVM;100train20test,regularization10fold CV,10random feature selections; noisy global kernel vs shadow-estimated2body kernels.",
+      "transfer_limit": "Source mainly compares projected vs global quantum kernels, not native NLP with matched strong classical controls; no source-task reproduction or transferred L3 utility."
+    },
+    {
+      "id": "old-history",
+      "locator": "native-shared-measurement-20261123/analysis.md and current state",
+      "source_fact": "Previous uniform-shadow estimator failed fixed variance gates; prior frame/ansatz/bandwidth task profiles remain closed.",
+      "transfer_limit": "Changing a kernel is conceptually different from unbiased shadow estimation. Do not declare all local kernels closed because of that old estimator; the present transfer is NONE because needed task correspondence/guarantees are absent."
+    }
+  ],
+  "decision": "NONE_DIRECT_NATIVE_TRANSFER; no selected local kernel or training."
+}

@@ -1,0 +1,34 @@
+{
+  "schema": "trace-kernel-native-transfer-audit.v1",
+  "frozen_at": "2026-11-25T16:51:54.979282+00:00",
+  "seed": 231113552,
+  "dtype": "float64",
+  "random_keys": 24,
+  "random_queries": 40,
+  "exact_X_basis_keys": 8,
+  "qubits": 3,
+  "all_H": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "all_S": [
+    1,
+    2,
+    3
+  ],
+  "tolerance": 1e-11,
+  "rationale": "Three precise source-transfer questions: PSD vs nonnegative attention mass; reduced-state average vs exactH Pauli shell; Mercer operator-basis rotation vs a physical qubit basis transform. These decide whether source guarantees can transfer before task experiment.",
+  "native_source_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+  "amendment": "Source-only scope extended to fixed synthetic native circuit ports and finite linear algebra only. No native full-head forward, task feature/checkpoint, optimizer, candidate search, source change, GPU/server/COS/model API.",
+  "exact_witness": "Output X-basis +++ and --- prepared by legal last-layer RY angles +/-pi/2 through the existing CNOT ring; two-point input probabilities1/3 and2/3.",
+  "H_definition": "SourceH kernel=sum_{Pauli exactweightH}rP*sP/sqrt(C(3,H)*3^H). PSD does not imply entrywise nonnegative.",
+  "S_definition": "For probability-safe comparison only, arithmetic mean of S-subsystem HS overlaps. SourceS kernel is sqrt(C(3,S)) times this mean; no automatic rescaling/repair as a selected model.",
+  "gates": [
+    "All40 query/all32 key/allH/allS identities retained; negative ports are not task statistics.",
+    "Exact identity or elementary rank/commutator counterexample is known tool, not newT.",
+    "Failure blocks only direct transplantation and sourceguarantee, not all local/projected quantum models.",
+    "No architecture/threshold/seed/weight rescue and no automatic fit."
+  ]
+}
