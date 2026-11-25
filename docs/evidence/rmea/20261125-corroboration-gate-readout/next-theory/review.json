@@ -1,0 +1,26 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 46.435932636260986,
+  "hashes": {
+    "current-exact-plugin.py": "6174cb5aba15c106ed432dbe08c6f750dae6b70499a32be34797e9d744f0b131",
+    "structural-limits.md": "ef6755742ce98fa5b450724ba55dd7d59af4412793c465dec4a6bf76dc2d35a5"
+  },
+  "response": {
+    "recommendation": "NONE",
+    "bottleneck": "The current gate makes two decisions at once. It changes how much attention each relation gives the subject side, and it changes which tokens receive that attention. The 2,977 TRAIN repairs and 752 harms establish that the fitted head uses the gate. They leave open which decision accounts for its gain. A relation-specific token interaction would address only the second question directly.",
+    "lead": "Resolve one question before choosing a mechanism. At exactly the subject-side attention mass the fitted head assigns to each relation and input, does its choice among subject tokens improve all-40 macro F1 beyond the corresponding Gaussian effect?",
+    "exact_math": "For each input and relation r, let b_ri be the Gaussian base and g_i the fitted gate. For nonempty subject side S, set c_r = (\u03a3_{i\u2208S} b_ri g_i)/(\u03a3_{i\u2208S} b_ri). Replace every subject weight b_ri g_i + EPS by b_ri c_r + EPS and retain each object weight b_ri + EPS. The subject-weight sum is identical by construction, so the row denominator, every object attention weight, and total subject attention are identical, including EPS. Empty S needs no intervention. If S is a singleton or g is constant on S, the logits agree exactly in real arithmetic.",
+    "claimed_new_part": "The mass-matched comparison isolates the contribution of choosing among subject tokens at the observed side allocation. It is a diagnostic identity with no theory or novelty claim.",
+    "nearest_collision": "Cross-object density overlap and Hilbert\u2013Schmidt attention already appear in the supplied readings of ConQAR (arXiv:1912.11720) and QMSAN (arXiv:2403.02871). The closest empirical control is the completed Gaussian-pair corroboration head.",
+    "discriminating_prediction": "If side allocation accounts for the quantum head\u2019s TRAIN benefit, flattening its gate within the subject side should preserve all-40 macro F1 even though switching the gate off lost 0.107. If token selection contributes equally under Gaussian affinity, both heads can lose macro F1 under flattening. Only a larger quantum loss would motivate investigating what its token choices capture.",
+    "minimal_check": "Use all 58,465 TRAIN rows and the two existing seed-13 checkpoints. In one pass per head, score native and mass-matched logits from the same components. The fixed budget is four prediction vectors and zero fits. Define \u0394_H as native minus mass-matched all-40 macro F1. As a provisional decision threshold, pursue the token-selection question only if \u0394_Q \u2265 0.005 and \u0394_Q \u2212 \u0394_GaussianPair \u2265 0.005, both in absolute macro F1.",
+    "fair_control": "Apply the identical intervention to the independently trained Gaussian-pair head using its own keys, base weights, gates, values, and decoder. It learned both side allocation and token selection under the same full-study budget. The separately trained Gaussian base remains the observed TEST utility benchmark at 0.551058.",
+    "falsifier": "Stop this line if either threshold fails. A pass would justify examining which within-subject choices carry relation evidence. It would still leave the need for relation-specific learning open.",
+    "limits": [
+      "This comparison measures dependence at fitted TRAIN checkpoints. The TEST ordering supplies no causal explanation for the gap.",
+      "Each head conditions on its own learned side allocation. A difference between their losses cannot establish a phase-specific advantage.",
+      "The supplied results do not identify natural examples requiring different corroborators for different relations. Earlier entity-query, subject-channel, and pairwise failures therefore still weigh against selecting a new interaction now."
+    ]
+  }
+}

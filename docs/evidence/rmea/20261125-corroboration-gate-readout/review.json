@@ -1,0 +1,27 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "scope": "mechanism",
+  "seconds": 58.39593291282654,
+  "profile_echo_verified": true,
+  "hashes": {
+    "diagnose.py": "223f2017e6f3c0aebb68b8506fb57f7b11fbd41fbfc6ba4232f94643b2fd4107",
+    "plugin.py": "6174cb5aba15c106ed432dbe08c6f750dae6b70499a32be34797e9d744f0b131",
+    "design.json": "2b5fd187124395a41e7f32fb075be026aea4d5debbb81bd2220085090a376759",
+    "protocol.md": "40f7b9c7fd5f02be68b236b96ad5cde69a6c57de3560c712d25e699f01edd528"
+  },
+  "packet_sha256": "37bf29903f12655ac13512693c67f7a60bbe36fb3f1d1bcd8885f839d6ec3c82",
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "Gate-off uses the same checkpoint, projected values, decoder and bias. It takes the learned base from the gate-on components and normalizes (base + EPS) over valid tokens. The two workers take alternating whole batches from the original row order. The overlap and coverage checks together require every one of the 58,465 TRAIN rows exactly once.",
+      "The FP64 identities are correct. For each class, the logit change equals Cov(c,u)/E(c) under gate-off attention. For the gold margin, subtracting the nonnegative switch penalty accounts for a new strongest rival. The 1e-10 residual checks apply to that FP64 calculation. Scientific metrics use the actual FP32 on/off logits, with a separate 2e-5 scaled correspondence check. Near ties can yield different rival choices across precisions.",
+      "Native gate-on logits and their same-batch reconstruction must agree within tolerance and have identical argmaxes on every row, which also guarantees identical confusion matrices against the same labels. This establishes forward/component consistency. The evidence covers the selected checkpoint on exposed TRAIN only.",
+      "The summary retains both 40-class confusion matrices, macro-F1, cross-entropy, all four paired correctness counts and signed margin-change counts. Its null counts describe gold-to-prediction errors within each condition. Paired off-to-on null flips can be counted from the private FP32 argmaxes on the host, including flips where both predictions are wrong.",
+      "This is static admission. The declared launch relies on Python assertions being enabled for hash, coverage and numerical checks. Each GPU worker loads the pinned state strictly into its own model. The 600-second alarm bounds execution, while peak memory and elapsed time remain runtime observations. The accepted wrapper governs export of summary.json and RUN_COMPLETE, with the per-row archive kept on the GPU host."
+    ],
+    "admission": "one_bounded_TRAIN_forward"
+  }
+}
