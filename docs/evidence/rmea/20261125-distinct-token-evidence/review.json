@@ -1,0 +1,28 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "scope": "mechanism",
+  "seconds": 18.620123863220215,
+  "profile_echo_verified": true,
+  "hashes": {
+    "plugin.py": "14a80c89d3dffb8618a185fc920925cb61b323898fd0d942189b047bf09abc91",
+    "adapter.py": "382982923a4847e83ec1d8ebb1e73a6636a7bd628befd25511ba9961e7aa3a00",
+    "design.json": "3fd598fa266f2241089c38d148894b7fa897367eb29b6235677e5577816bd21d",
+    "protocol.md": "e8e3d728401c229643277245dd010257c3c025058945922a48183a5117921d1a",
+    "shared_query.py": "67837ba62195b2971f3445ad9e617ff445a41bac971fc80ebae11db2c56d83d8",
+    "moment_head.py": "7ff4ff2e422fcaa8aacf81c0a9f4cf102afa4107624e60f19a785e70cb1fbcab",
+    "label-codes.json": "b7622c7bf8c4076fa695bbe43f0c218b430dedf0f33cb9474a8cddf36c316e6f"
+  },
+  "packet_sha256": "b0d35414d4bfa1ee49390182d88f3b4e26f55c3253c0f8ce578071a449d8c7c5",
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "Static review resolves the prior finite-difference blocker. The fixture requires both query derivatives to be finite, requires each magnitude to exceed 1e-10, records both values, and requires absolute disagreement below 1e-7. Fixture execution and training results remain unverified.",
+      "The distinct-token and collision-mass implementations match their independent double-sum formulas. All five arms use the intended shared initial states and a zero-initialized moment decoder. The fixture checks the 81,924 trainables per arm.",
+      "Admission covers the fixed single-seed TRAIN screen. Passing all thirteen strict all-40-class macro-F1 comparisons permits full single-seed protocol design only. Any failed comparison defers this exact profile. Semantic binding, a quantum-specific advantage, and L3/T acceptance remain unestablished."
+    ],
+    "admission": "bounded_small_TRAIN_screen"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "scope": "mechanism",
+  "seconds": 26.624105215072632,
+  "profile_echo_verified": true,
+  "hashes": {
+    "plugin.py": "14a80c89d3dffb8618a185fc920925cb61b323898fd0d942189b047bf09abc91",
+    "adapter.py": "4725079c6a8fb0297052ea81c3687c70710eed7dd628edbb19fa2f7d4db8b433",
+    "design.json": "67f7c0f0a305762c3cd5726a280fb5f200faef1c8cae47bc8fd371054555ddbc",
+    "protocol.md": "e8e3d728401c229643277245dd010257c3c025058945922a48183a5117921d1a",
+    "shared_query.py": "67837ba62195b2971f3445ad9e617ff445a41bac971fc80ebae11db2c56d83d8",
+    "moment_head.py": "7ff4ff2e422fcaa8aacf81c0a9f4cf102afa4107624e60f19a785e70cb1fbcab",
+    "label-codes.json": "b7622c7bf8c4076fa695bbe43f0c218b430dedf0f33cb9474a8cddf36c316e6f"
+  },
+  "packet_sha256": "d726e275fffe958097aeebbd0ed8d3e64e877692107992436c85b0ab69106eb0",
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "mechanism",
+    "must_fix": [
+      "In adapter.py, the query finite-difference fixture can pass with both derivatives equal to zero. argmax selects an index even when every query gradient is zero, and AdamW weight decay can move query_weights in that case. For each arm, require the selected analytic derivative and its central difference to be finite and nonzero, then apply the existing 1e-7 agreement check."
+    ],
+    "limitations": [
+      "Static review only. The distinct-position and collision-mass formulas match their independent pair sums for normalized attention. The five initialization mappings and thirteen strict all-40 macro-F1 comparisons match the protocol. Fixture execution and screen outcomes remain unverified."
+    ],
+    "admission": "blocked"
+  }
+}
