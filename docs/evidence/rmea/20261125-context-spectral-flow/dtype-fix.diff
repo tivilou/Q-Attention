@@ -1,0 +1,11 @@
+--- plugin.py/v1
++++ plugin.py/v2
+@@ -34,7 +34,7 @@
+             raise ValueError('Invalid frozen-word inputs')
+         key, query = self.states(h, roles)
+         count = mask.sum(-1).to(h.dtype)
+-        mean = torch.einsum('bti,btj,bt->bij', key, key.conj(), mask.to(h.dtype)) / count[:, None, None]
++        mean = torch.einsum('bti,btj,bt->bij', key, key.conj(), mask.to(key.dtype)) / count[:, None, None]
+         unitary = exponential(-1j * self.time * mean)
+         moved = torch.einsum('bij,rj->bri', unitary, query)
+         p = torch.einsum('bri,bti->brt', moved.conj(), key).abs().square()

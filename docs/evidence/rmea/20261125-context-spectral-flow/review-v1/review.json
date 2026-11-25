@@ -1,0 +1,28 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "scope": "mechanism",
+  "seconds": 40.4901328086853,
+  "profile_echo_verified": true,
+  "hashes": {
+    "plugin.py": "2861e8c5e0df6f29ecbc1b4192843505ddaa391d8db4d53918961aa4aa513588",
+    "adapter.py": "aaa4c585a5a57abeae84323d9ecfd5012767147b71bfa6f4c2ea3c8c42ed343d",
+    "design.json": "0caa632223adafb3bd41d01902411fa61908b0f263b9daa7786b89f9a2b9023b",
+    "protocol.md": "db82b42aa3e249418680cdd7d55afda1a03c98ee49a0ef9e637cf084856cc87d"
+  },
+  "packet_sha256": "3ecbc5b6b8c560ccf9dfc1e83eb93bb15c2ff906209bc78ab808cf5d4f5b3af6",
+  "response": {
+    "verdict": "BLOCK",
+    "scope": "mechanism",
+    "must_fix": [
+      "In FlowHead.attention, change the third operand of the mean-state einsum from `mask.to(h.dtype)` to `mask.to(key.dtype)`. Both key operands are complex and the current mask operand is real. On PyTorch's left-to-right contraction path, the first two operands form complex token outer products. For multiple tokens, the final reduction then calls batched matrix multiplication with a complex tensor and a real tensor, which raises a dtype error. Casting the mask to the key dtype makes both flow arms independent of contraction order. The count can stay real."
+    ],
+    "limitations": [
+      "The algebra passes. With n valid tokens, the summed Born mass is n \u03c6\u2020U\u2020SU\u03c6 = n \u03c6\u2020S\u03c6 because U is unitary and commutes with S. Masking adds exactly n\u00b7EPS to each denominator. The signed value/decoder readout has derivative +i \u03c6\u2020[S,V_r]\u03c6 / D_r at time zero. Its sign depends on the states and utilities, so conservation implies no task gain.",
+      "real12_flow is a matched non-circuit feature control whose evolution can produce complex amplitudes. Native dephased supplies a static population control. Neither comparison uniquely isolates phase. The flow adds no registered parameter or additive residual.",
+      "Static review only. Native initialization followed by strict state-dict loading is consistent with the intended schema. The matrix exponential is differentiable at repeated eigenvalues. The Taylor fixture compares attention and parameter gradients on copied models, and the endpoint, padding, singleton and optimizer checks also use copies. Numerical fixture outcomes remain unverified.",
+      "The specified development gate requires the final-update quantum_flow all-40 macro-F1 to strictly exceed all six controls on the fixed TRAIN assessment. The supplied reused rows and accepted core are taken as given. A passing screen would admit full-protocol design only."
+    ],
+    "admission": "blocked"
+  }
+}
