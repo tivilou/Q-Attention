@@ -1,0 +1,89 @@
+{
+  "status": "HOLD_NO_NEIGHBOR_CLEARANCE",
+  "source_facts": [
+    {
+      "id": "FW-MEMORY",
+      "source": "conference",
+      "pages": [
+        3
+      ],
+      "fact": "Decayed outer-product hidden-state memory; matrix-vector application is dot-product attention over prior hidden states (Eq1-4)."
+    },
+    {
+      "id": "FW-UPDATE",
+      "source": "conference",
+      "pages": [
+        3,
+        4
+      ],
+      "fact": "Repeated query update has sustained slow/input boundary, nonlinearity and layer normalization (Eq2/5)."
+    },
+    {
+      "id": "FW-HYPER",
+      "source": "conference",
+      "pages": [
+        4
+      ],
+      "fact": "Default fast learning rate .5 and decay .95 unless stated; validation grid search; LN used for remaining experiments."
+    },
+    {
+      "id": "FW-APPENDIX",
+      "source": "arxiv_v1",
+      "pages": [
+        10,
+        11
+      ],
+      "fact": "Associative retrieval uses eta .5/lambda .9, ReLU and one fast update per time step; RL averages top5 random-search models. Sustained boundary and identity-memory variants are not exactly equivalent for nonzero memory."
+    }
+  ],
+  "own_algebra": {
+    "definitions": "Bt=rho_t+EPS I; B=sumBt; A=sumuBt; z0=(phi* A phi)/(phi* B phi); C=A-z0B fixed",
+    "decomposition": "C=sum_t (u_t-z0)rho_t + EPS sum_t(u_t-z0) I",
+    "normalized_exponential_identity": "exp(sC)phi/||exp(sC)phi|| = exp(s sum_t(u_t-z0)rho_t)phi/||exp(s sum_t(u_t-z0)rho_t)phi|| for finite real s",
+    "boundary": "Scalar-identity factor cancels only in normalized query. EPS still determines z0 and final original readout. No EPS or operator change.",
+    "interpretation": "class-dependent signed outer-product operator and spectral filter; known building blocks, not accepted new theory",
+    "conditional_linear_iteration": "For hypothetical f=identity, no LN, h0=b, and h_{k+1}=b+Mh_k: hS=sum_{k=0}^S M^k b. This is NOT the actual nonlinear Ba Eq5 or a proof of model inequivalence."
+  },
+  "distinctions": [
+    {
+      "field": "memory coefficients",
+      "candidate": "class utility minus fixed original class score; can be signed",
+      "audited_Ba_model": "positive fast learning/decay coefficients over temporal hidden-state history",
+      "limit": "No claim that signed/class-conditioned memories are novel in the literature."
+    },
+    {
+      "field": "query update",
+      "candidate": "normalized fixed-operator exponential",
+      "audited_Ba_model": "LN/nonlinearity with sustained boundary in a recurrent inner loop",
+      "limit": "These formulas differ; no expressivity separation or absent-predictor claim for general fast-weight models."
+    },
+    {
+      "field": "prior matched-alpha/value contrast",
+      "candidate": "0 versus .9640256520 on general pure-state fixture",
+      "audited_Ba_model": "context memory may also retain geometry beyond scalar attention",
+      "limit": "Prior contrast excludes only its pinned scalar/diagonal/old formulas; actual FastWeights model not excluded."
+    },
+    {
+      "field": "ordering",
+      "candidate": "sums are permutation-invariant conditional on fixed states/utilities",
+      "audited_Ba_model": "temporal decay and recurrent state history",
+      "limit": "Whole Q-RMEA NLP model is not permutation-invariant: contextual features/roles can encode order."
+    }
+  ],
+  "unresolved": [
+    "Knyazev original residual/preconditioner/trial-subspace update and fixed-exponential relation",
+    "Substantive distinctness beyond known residual sharpening and fast associative memory",
+    "Native ansatz joint construction of the matched phase fixture",
+    "Natural-task gold-versus-rival derivative alignment and protected-correct effects",
+    "Fair learned real/operator/scalar/diagonal/strong-Gaussian controls and independent task confirmation"
+  ],
+  "admission": {
+    "method_selected": false,
+    "new_theory": false,
+    "task_diagnostic": false,
+    "training": false,
+    "newL3": "NOT_ACCEPTED",
+    "newL4T": "NOT_ACCEPTED",
+    "goal": "ACTIVE"
+  }
+}

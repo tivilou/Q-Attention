@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-signed-value引导effect代数/历史前查完成：保证高于原分数但非随步长单调，40类反例CE .3133→1.3123；24context960行及12精确Fraction例核验。匹配原alpha/64values/populations的两context输出0/.9640，区别于指定旧统计与gen90等，但real8精确复现；仅功能区别，无任务/量子必要性/新T。Astrahigh一次独立静态PASS，文字澄清完成，无GPU准入；下一项Knyazev广义Rayleigh与Ba fastweights两近邻原文审计。0新任务-GPU/一次限定模型审核。原L4/全历史/gen98及gen102STOP保持，新L3-L4T未接受/量子目标ACTIVE。
+两近邻原文审计PARTIAL：FastWeights会议版机制/控制/表格与arXivv1附录已核；官网补充包错配并隔离。Knyazev官方身份已核但全文未取得，不归因其算法或作新颖性清关。实际FastWeights仍未被旧alpha/value构造排除；candidate HOLD。18普通请求+1公开浏览器429后停止，0任务/模型/GPU。下一步只做原生三比特合成构造CPU核验，文献缺口仍保留；原L4/全部历史/gen98-gen102STOP，新L3-L4T未接受/量子目标ACTIVE。
 
 ## 时间线
+
+- [2026-11-26｜FastWeights原文核验与仍未完成的近邻审计](20261125T-193735Z-residual-fastweights-source.md)：补充包错配隔离；Knyazev全文缺口保留/HOLD，下一步合成原生线路CPU核验。
 
 - [2026-11-26｜value引导effect的行为区别与分类边界](20261125T-190545Z-value-guided-effect-preflight.md)：960行/12精确例与反例；独立静态审核PASS，无GPU准入，下一步两近邻原文。
 

@@ -1,0 +1,76 @@
+{
+  "status": "TRANSCRIBED_SOURCE_RESULTS_NOT_REPRODUCED",
+  "source_sha256": "028b1b47b1d86d0e8e2340cbc07a290f9e477c0a5b1ed439437de6a4a1cecc63",
+  "table1": {
+    "page": 5,
+    "metric": "test error percent",
+    "columns_recurrent_units": [
+      20,
+      50,
+      100
+    ],
+    "IRNN": [
+      62.11,
+      60.23,
+      0.34
+    ],
+    "LSTM": [
+      60.81,
+      1.85,
+      0
+    ],
+    "A_LSTM": [
+      60.13,
+      1.62,
+      0
+    ],
+    "FastWeights": [
+      1.81,
+      0,
+      0
+    ]
+  },
+  "table2": {
+    "page": 6,
+    "metric": "MNIST test error percent",
+    "columns_features": [
+      50,
+      100,
+      200
+    ],
+    "IRNN": [
+      12.95,
+      1.95,
+      1.42
+    ],
+    "LSTM": [
+      12,
+      1.55,
+      1.1
+    ],
+    "ConvNet": [
+      1.81,
+      1.0,
+      0.9
+    ],
+    "FastWeights": [
+      7.21,
+      1.3,
+      0.85
+    ]
+  },
+  "table3": {
+    "page": 7,
+    "metric": "facial expression test accuracy percent",
+    "IRNN": 81.11,
+    "LSTM": 81.32,
+    "ConvNet": 88.23,
+    "FastWeights": 86.34
+  },
+  "fairness_limits": [
+    "Same hidden-size columns do not certify equal total temporary memory/compute/parameter budget.",
+    "Glimpse/store policies predetermined; no learned-glimpse-policy comparison.",
+    "arXiv RL top5 hyperparameter-search averages are not independent-seed confirmation.",
+    "Different tasks/metrics from Q-RMEA Macro; no numerical pooling or benefit transfer."
+  ]
+}

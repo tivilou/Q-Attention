@@ -1,0 +1,44 @@
+{
+  "decision": "HOLD_CANDIDATE; ALLOW_ONE_INDEPENDENT_SYNTHETIC_CPU_IMPLEMENTATION_CHECK",
+  "action": "Freeze then execute a constructive native three-qubit/two-layer phase contrast, independent of unresolved source novelty.",
+  "hypothesis": "The existing matched-alpha/all64value/population contrast is jointly realizable by the actual native preparation, query and value maps with explicit synthetic inputs/parameters.",
+  "source": {
+    "path": "D:\\CodexHome\\task-artifacts\\qattn-relation-frame-20261125\\source\\baselines\\retacred\\rmea.py",
+    "sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "inspected_lines": "14-33 circuit;36-68 head"
+  },
+  "minimum": {
+    "contexts": 2,
+    "words_per_context": 2,
+    "classes": 40,
+    "value_channels": 64,
+    "device": "CPU",
+    "dtype": "float64/complex128",
+    "parameters": "One explicit construction, no optimizer/random search. prepare raw angle0 selects h0; only first-layer wire0 RY nonzero, all RZ/other RY0; all effect angles0; value channels0/1 select h1/h2; class0 decoder selects channel0; other classes/bias0.",
+    "inputs": "h0=+atanh(.5) for both words in A; second word negated in B; h1=(-1,+1),h2=(2,-3), others0; role0 and both valid.",
+    "prospective_states": "(|0>+|2>)/sqrt2 and (|0>-|2>)/sqrt2 after native double CNOT ring; query|0>. Verify using independent matrix/basis construction.",
+    "finite_illustration": "s=1 solely repeats the earlier constructed algebra value; not a task hyperparameter selection.",
+    "budget": "at most8 native head forwards/16 circuit calls and10 CPU seconds measured inside computation; no task/checkpoint features, model inference or GPU. Freeze exact call accounting before execution."
+  },
+  "success_gate": "Native/independent states agree to1e-12 up to stated global phase, unit norms, both contexts native attention/all64values/populations match, native logits0, guided class0 A0/B tanh2/(1+2e-6) within1e-12; pinned source unchanged.",
+  "kill_gate": "Any mismatch stops the constructive claim, preserves trace and corrected interpretation; no strength/norm/EPS/rank/seed rescue or automatic task admission.",
+  "uncertainty": "Synthetic reachability only, not trained-checkpoint/natural-task frequency, utility, quantum necessity or substantive novelty. Knyazev fulltext remains prerequisite for neighbor clearance before task-method admission.",
+  "authorization": "Existing sustained research goal covers reversible bounded local synthetic verification; no additional confirmation required.",
+  "prohibited": [
+    "new task rows/features/checkpoint reads",
+    "optimizer updates",
+    "GPU/server/COS writes",
+    "new model consultations",
+    "new original-source network requests this audit",
+    "training admission"
+  ],
+  "preserved": [
+    "original limited L4 and all positive/negative history",
+    "gen98 STOP",
+    "gen102 STOP",
+    "original quantum target"
+  ],
+  "goal": "ACTIVE",
+  "newL3": "NOT_ACCEPTED",
+  "newL4T": "NOT_ACCEPTED"
+}
