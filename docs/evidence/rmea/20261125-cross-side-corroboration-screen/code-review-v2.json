@@ -1,0 +1,28 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 43.559850454330444,
+  "packet_sha256": "7d0b5a8ea179f55f6a5ef7a9042a487bf6b0b0165cdba92194147f36e874c34a",
+  "hashes": {
+    "plugin.py": "6174cb5aba15c106ed432dbe08c6f750dae6b70499a32be34797e9d744f0b131",
+    "adapter.py": "686cdba3c681ad53ea7eae5adb75cfebeb0e7a31f79c93ee4f172112b1c7145c",
+    "cohort.py": "f5dfb66f529e01b93e73036cc9dbc94d1049568acbeccb4c62c4a4dd5285f08c",
+    "screen.py": "50ce858f78938151b87ac18711efff388fb0456a06c21df90108a7edea6933ab",
+    "design.json": "8686dee887a30e48b7a79f6481e900c17c9638c378156ef1e093c4a4143fd9e4",
+    "protocol.md": "0fc72cdc906c403ca95e12961ff69e32402b3c648574ece9ca3b55b1c42f54bb",
+    "accepted-native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "must_fix": [
+      "Close the exact-byte check. The supplied `screen.py` digest and its `design.json` pin now agree at `50ce858f78938151b87ac18711efff388fb0456a06c21df90108a7edea6933ab`. The supplied digests for `plugin.py`, `adapter.py`, and `cohort.py` also agree with their design pins. I verified those comparisons only. Admission still needs a SHA-256 computation over the reviewed file bytes, preserving final newlines, to confirm the pins. No source edit is indicated by this finding."
+    ],
+    "limitations": [
+      "The cohort identity fix passes static review. Equal cardinality, unique cached `id_hash` values, and successful lookup of every ID establish a one-to-one mapping to source records. The prospective loader checks the live `metadata.json` digest before using frozen row indices, so a same-label reorder fails that check.",
+      "The gradient fix passes static review. The fixture splits by cumulative valid-word count and requires both sides in every fixture row. Both the density and direct-overlap paths request gradients for `key.weight` and `key.bias` explicitly. An unused parameter raises, each corresponding tensor is compared at a maximum absolute error below `1e-9`, and the density path must have at least one gradient component above `1e-12` in magnitude.",
+      "The private cohort and CUDA fixtures were not executed. No fits were started. The six strict all-40 macro-F1 wins would admit only the separately frozen TRAIN binding diagnostic."
+    ],
+    "admission": "blocked"
+  }
+}

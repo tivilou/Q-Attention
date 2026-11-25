@@ -1,0 +1,29 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "profile_echo_verified": true,
+  "seconds": 42.792827129364014,
+  "packet_sha256": "ce6eb4a067edc12bd56438f034cfe5a553b030d11764d08bcbc0752837f1ab67",
+  "hashes": {
+    "plugin.py": "6174cb5aba15c106ed432dbe08c6f750dae6b70499a32be34797e9d744f0b131",
+    "adapter.py": "dd9f043165c133779e6468c215328db1675dfc77a82f1d2d8a5c2652abf5712b",
+    "cohort.py": "e3dbf0660435a284d2b54f8f4352b333e0d7a4a0a73c1f300c6fe53ba4b798d8",
+    "screen.py": "e3e4028005b96524763f57e3e4e7e3f2413947a26b83587dceaab9be2334fbb4",
+    "design.json": "ef111996ad9c034cefa474bfdbbf99a7d94c5b6ccae2f054a5c535ef42e76cd8",
+    "protocol.md": "0fc72cdc906c403ca95e12961ff69e32402b3c648574ece9ca3b55b1c42f54bb",
+    "accepted-native-rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "response": {
+    "verdict": "BLOCK",
+    "must_fix": [
+      "The supplied `screen.py` digest starts with `e3e40280`, while `design.json` pins `43d5cead`. The runner checks its own digest and will stop before fixtures or training. Pin the final reviewed runner bytes in `code_hashes`.",
+      "Complete the cohort identity check. In `cohort.py`, require the cached metadata ID hashes to be unique. The current length and lookup checks accept a duplicated ID and an omitted ID when label and word count agree. In the prospective branch of `screen.py`, compare the live `metadata.json` digest with `cohort['metadata_sha256']`. A same-label row reorder preserves the target digest and class supports while attaching frozen group IDs to the wrong rows.",
+      "Make the cross-side gradient fixture reject a vacuous comparison. `adapter.py` assigns sides by padded column position, so both object halves can be fully masked and both implementations can return all-one gates with zero gradients. Require at least one fixture row with valid words on both sides. Compare the key weight and bias gradients explicitly and require both gradients to exist on both paths. The current filter silently drops a one-sided `None`."
+    ],
+    "limitations": [
+      "Static review only. The density contraction expands to the mean squared complex overlap, and the NumPy circuit order, masked normalization, empty-reference fallback, and two population controls agree with the specified formulas. The CUDA fixtures and private cohort were not executed.",
+      "The promotion rule requires all six strict all-40 macro-F1 wins. A win admits only the separately frozen TRAIN binding diagnostic."
+    ],
+    "admission": "blocked"
+  }
+}
