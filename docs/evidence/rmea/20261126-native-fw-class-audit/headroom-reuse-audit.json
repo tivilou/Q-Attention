@@ -1,0 +1,107 @@
+{
+  "schema": "qattn.headroom-reuse-audit.v1",
+  "role": "headroom_assessment",
+  "status": "BOUNDED_REUSE_WITH_UNRESOLVED_QUANTUM_ADDRESSABILITY",
+  "evidence_pins": [
+    {
+      "path": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\full-protocol-fair-reference-20261124\\owner-run\\result-analysis.json",
+      "sha256": "bcfb2c6f923e1f74c8edd47cda01d9300f33b17630f6a447cb963c51fc476c05"
+    },
+    {
+      "path": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\distinct-token-evidence-20261125\\summary.json",
+      "sha256": "dc3ed63bc46f15fb193b456eb302fc68435f48469d701e81677e34938262c2c7"
+    },
+    {
+      "path": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\native-error-headroom-20261123\\headroom-assessment.json",
+      "sha256": "f35135041bc45ff95ee582b7fc0fac7b9098bf0f5d3201a5b6ded211a8d1a54a"
+    },
+    {
+      "path": "E:\\Claude.Code\\Paper.Writing\\Q-Attention\\.codex-artifacts\\qattn-l5-round51-20261117\\qualification.json",
+      "sha256": "691c2b271f911d1e146bf80645e986f7412a61f9c13e81762ce78d1dbdfd6429"
+    },
+    {
+      "path": "D:\\CodexHome\\task-artifacts\\qattn-native-mechanism-discovery-20261125\\feature-strata.json",
+      "sha256": "e835ea8548ba00e0a0d6db1be8e83fc61dd2e1bd2006e5655dacd406fb88597e"
+    }
+  ],
+  "qualification": {
+    "status": "qualified_with_original_scope_preserved",
+    "scope": "Retrospective interpretation and reuse of the existing private fixed-cohort, frozen-feature40-label relation-extraction study. Conditional on the recorded source copy; not a new independent test, raw-data certification, public redistribution or new candidate experiment approval.",
+    "limit": "This audit does not extend the original qualification to a new source copy or certify latest rebuilt-cache provenance."
+  },
+  "full_reference": {
+    "task": "Re-TACRED frozen-word40class relation heads",
+    "population": "Original full reference test13418;20epochs9140updates/seed13 per mode; test already exposed",
+    "metric": "all40 Macro-F1 zero_division0",
+    "native_Q": 0.4953236416708159,
+    "strongest_in_fixed5": "real12",
+    "strongest_value": 0.5464475261833319,
+    "gap_to_constructively_attained_comparator": 0.05112388451251604,
+    "bound_status": "bounded",
+    "bound_type": "Constructively attained value for the common-input baseline cohort; not an attainable-value bound for the quantum parameter family",
+    "stronger_baseline_additional_headroom": "unresolved; nominal1 is not used as attainable",
+    "decision": "Retain comparison failure and historical exposure; no repeat seed/full run"
+  },
+  "gen98": {
+    "population": "Frozen TRAIN8192/4096 exposed development diagnostic",
+    "metric": "all40 Macro-F1",
+    "native_method": "quantum_distinct",
+    "Q": 0.5009251423088874,
+    "best_new_arm": "gaussian_distinct",
+    "best_new_value": 0.5109305397506733,
+    "strongest_declared_control": "earlier/native_gaussian_covariance",
+    "strongest_value": 0.512054050292468,
+    "gap_to_declared_control": 0.011128907983580572,
+    "comparator_limit": "Strongest declared reused control has different head parameter count/structure; retain this fairness limitation rather than silently dropping it.",
+    "bound_status": "bounded",
+    "bound_type": "Constructively observed control gap, not a promise of quantum repair",
+    "quantum_attainable_optimum": "unresolved",
+    "full_method_or_test_confirmation": false,
+    "stopped": true
+  },
+  "old_headroom_reuse": {
+    "checkpoint": "2da52b1ce826046a6f443269f47f49e4e9fa63e10f22f9ebdcde6f890e12ce51",
+    "current_native_teacher_checkpoint": "8ec179f4605a901ea1aeeeaefaacc20d78a0b202f236a2d41c1a37b06220cf3c",
+    "old_scope": {
+      "task": "Re-TACRED relation classification",
+      "population": "Previously exposed first8192TRAIN; primary4000assessment/exactsentence grouping4192calibration",
+      "input": "Pinned native checkpoint outputs and original targets only",
+      "label_reference": "same pinned TRAINtargets/40classes; class0no_relation",
+      "metrics": {
+        "primary_task_target": "positive39Macro-F1",
+        "diagnostic_bound": "fixed-poolaccuracy",
+        "direction": "higher is better",
+        "denominator": 4000
+      },
+      "independence": "in-sample exposed planning, not independent confirmation"
+    },
+    "old_top2_accuracy_oracle": 0.9755,
+    "old_global_offset_oracle": 0.8835,
+    "transfer_to_current_all40_cohort": false,
+    "reason": "Different checkpoint,4000assessment vs4096, positive39 task target and accuracy bound vsall40 Macro; preserve old evidence without relabeling it."
+  },
+  "planning_observation": {
+    "length_cut35_source": "Frozen8192FIT median, not tuned by outcomes",
+    "Q_minus_G_correctness_by_length": [
+      {
+        "name": "length_le_fit_median",
+        "rows": 2071,
+        "q_only": 120,
+        "g_only": 119,
+        "net": 1
+      },
+      {
+        "name": "length_gt_fit_median",
+        "rows": 2025,
+        "q_only": 99,
+        "g_only": 149,
+        "net": -50
+      }
+    ],
+    "causal_interpretation": "Not established; an input-computable quantum-encoding hypothesis may be brainstormed, but length mixture or ordinary variance may explain it."
+  },
+  "headroom_above_strongest_classical": "unresolved",
+  "quantum_family_addressable_gap": "unresolved",
+  "new_task_data_or_fit": 0,
+  "decision": "Supports only bounded exploratory hypothesis selection under the sustained goal, not another admitted method/full study. Do not veto quantum by classical simulability or require an exact optimum before all useful work."
+}

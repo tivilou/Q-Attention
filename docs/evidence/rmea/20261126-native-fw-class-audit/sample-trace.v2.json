@@ -1,0 +1,1841 @@
+{
+  "schema_version": "sample-trace.v2",
+  "trace_id": "source-bound-fastweights-equation-witness",
+  "trace_completeness": "complete",
+  "experiment": {
+    "run_id": "native-fastweights-class-audit-20261126",
+    "dataset": "Synthetic equation instantiation only",
+    "code_revision": "ebbef29e34e03643a2e337548bc316664eb972e8d53d23d908f3740da6b5b02e",
+    "config_sha256": "c3b2b7fa77c87f2a3af7f319f8bc23ed743b12d647ec1d4eb8e694e48daacaf9",
+    "model_identity": "Conference Eq1/Eq5 fixed parameters; no trained NLP model",
+    "seed": null
+  },
+  "sample_selection": {
+    "rule": "Both complete two-write/one-read sequences frozen before execution",
+    "population_scope": "Two synthetic sequences; not task population or trained-model comparison",
+    "selected_count": 2,
+    "selected_sample_ids": [
+      "distinct",
+      "repeated"
+    ]
+  },
+  "task_contract": {
+    "task_type": "FastWeights equation simulation with nonnegative self-consistent history",
+    "required_roles": [
+      "source_sample",
+      "protocol",
+      "output",
+      "provenance"
+    ],
+    "required_representations": [
+      "inputs",
+      "gamma",
+      "beta",
+      "initial_hidden",
+      "initial_memory",
+      "preliminary",
+      "memory_before",
+      "preLN",
+      "centered",
+      "variance",
+      "hidden",
+      "memory_after",
+      "final_readout"
+    ],
+    "required_value_representations": [
+      "inputs",
+      "gamma",
+      "beta",
+      "initial_hidden",
+      "initial_memory",
+      "preliminary",
+      "memory_before",
+      "preLN",
+      "centered",
+      "variance",
+      "hidden",
+      "memory_after",
+      "final_readout"
+    ],
+    "required_splits": [
+      "synthetic"
+    ],
+    "required_checkpoints": [
+      "fixed_equations"
+    ],
+    "required_lanes": [
+      "replay"
+    ],
+    "checkpoint_policy": "Fixed symbolic parameters; no fitting/training checkpoint stage"
+  },
+  "coverage": {
+    "data": "observed",
+    "preprocess": "not_applicable",
+    "training": "not_applicable",
+    "retrieval": "not_applicable",
+    "scoring": "observed",
+    "selection": "not_applicable",
+    "context": "not_applicable",
+    "generation": "observed",
+    "evaluation": "not_applicable",
+    "diagnosis": "observed"
+  },
+  "samples": [
+    {
+      "sample_id": "distinct",
+      "lane": "replay",
+      "split": "synthetic",
+      "checkpoint": "fixed_equations",
+      "roles": {
+        "source_sample": {
+          "sequence": "distinct",
+          "origin": "Frozen symbolic boundary vectors, not NLP data"
+        },
+        "protocol": {
+          "memory_eta": 0.5,
+          "memory_decay": 0.95,
+          "inner_steps": 1,
+          "layernorm_epsilon": 1e-05,
+          "W": "zero",
+          "C": "identity",
+          "gain": "sqrt(1+epsilon)/sqrt7",
+          "bias": 0
+        },
+        "output": {
+          "readout": "shared e2-e0",
+          "value": 0.014669139485407046
+        },
+        "provenance": {
+          "reader_source_sha256": "4a83808ee8c067d0a02a4d789d336535843b9153d6c5e3b0f28fc2cc01302f9f",
+          "source": "Conference SHA028b1b47 p3 Eq1/2/3/4 p4 Eq5; not original code or paper results"
+        }
+      },
+      "stages": [
+        {
+          "stage_id": "data",
+          "stage": "data",
+          "canonical_stage": "data",
+          "lane": "replay",
+          "status": "observed",
+          "step": 0,
+          "purpose": "data for declared synthetic equation instantiation",
+          "input_refs": [
+            "source:frozen_synthetic_sequence",
+            "external:conference_Eq1_Eq5"
+          ],
+          "output_refs": [
+            "inputs",
+            "gamma",
+            "beta",
+            "initial_hidden",
+            "initial_memory"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "data",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "target_access": "not_available"
+        },
+        {
+          "stage_id": "scoring",
+          "stage": "scoring",
+          "canonical_stage": "scoring",
+          "lane": "replay",
+          "status": "observed",
+          "step": 1,
+          "purpose": "scoring for declared synthetic equation instantiation",
+          "input_refs": [
+            "inputs",
+            "gamma",
+            "beta",
+            "initial_hidden",
+            "initial_memory"
+          ],
+          "output_refs": [
+            "preliminary",
+            "memory_before",
+            "preLN",
+            "centered",
+            "variance",
+            "memory_after"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "scoring",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "target_access": "not_available"
+        },
+        {
+          "stage_id": "generation",
+          "stage": "generation",
+          "canonical_stage": "generation",
+          "lane": "replay",
+          "status": "observed",
+          "step": 2,
+          "purpose": "generation for declared synthetic equation instantiation",
+          "input_refs": [
+            "preLN",
+            "centered",
+            "variance",
+            "gamma",
+            "beta"
+          ],
+          "output_refs": [
+            "hidden"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "generation",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "target_access": "not_available"
+        },
+        {
+          "stage_id": "diagnosis",
+          "stage": "diagnosis",
+          "canonical_stage": "diagnosis",
+          "lane": "replay",
+          "status": "observed",
+          "step": 3,
+          "purpose": "diagnosis for declared synthetic equation instantiation",
+          "input_refs": [
+            "hidden"
+          ],
+          "output_refs": [
+            "final_readout"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "diagnosis",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "target_access": "not_available"
+        }
+      ],
+      "representations": [
+        {
+          "id": "inputs",
+          "stage_id": "data",
+          "status": "observed",
+          "meaning": "inputs complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            3,
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "step",
+            "unit"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "inputs",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              3,
+              8
+            ],
+            "logical_element_count": 24,
+            "stored_element_count": 24,
+            "artifact_refs": [
+              {
+                "path": "distinct.values.json",
+                "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+                "bytes": 13508,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value distinct inputs",
+              "source_sha256": [
+                "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": "gamma",
+          "stage_id": "data",
+          "status": "observed",
+          "meaning": "gamma complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "unit"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "gamma",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              8
+            ],
+            "logical_element_count": 8,
+            "stored_element_count": 8,
+            "artifact_refs": [
+              {
+                "path": "distinct.values.json",
+                "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+                "bytes": 13508,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value distinct gamma",
+              "source_sha256": [
+                "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": "beta",
+          "stage_id": "data",
+          "status": "observed",
+          "meaning": "beta complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "unit"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "beta",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              8
+            ],
+            "logical_element_count": 8,
+            "stored_element_count": 8,
+            "artifact_refs": [
+              {
+                "path": "distinct.values.json",
+                "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+                "bytes": 13508,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value distinct beta",
+              "source_sha256": [
+                "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": "initial_hidden",
+          "stage_id": "data",
+          "status": "observed",
+          "meaning": "initial_hidden complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "unit"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "initial_hidden",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              8
+            ],
+            "logical_element_count": 8,
+            "stored_element_count": 8,
+            "artifact_refs": [
+              {
+                "path": "distinct.values.json",
+                "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+                "bytes": 13508,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value distinct initial_hidden",
+              "source_sha256": [
+                "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": "initial_memory",
+          "stage_id": "data",
+          "status": "observed",
+          "meaning": "initial_memory complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            8,
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "row",
+            "column"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "initial_memory",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              8,
+              8
+            ],
+            "logical_element_count": 64,
+            "stored_element_count": 64,
+            "artifact_refs": [
+              {
+                "path": "distinct.values.json",
+                "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+                "bytes": 13508,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value distinct initial_memory",
+              "source_sha256": [
+                "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": "preliminary",
+          "stage_id": "scoring",
+          "status": "observed",
+          "meaning": "preliminary complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            3,
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "step",
+            "unit"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "preliminary",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              3,
+              8
+            ],
+            "logical_element_count": 24,
+            "stored_element_count": 24,
+            "artifact_refs": [
+              {
+                "path": "distinct.values.json",
+                "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+                "bytes": 13508,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value distinct preliminary",
+              "source_sha256": [
+                "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": "memory_before",
+          "stage_id": "scoring",
+          "status": "observed",
+          "meaning": "memory_before complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            3,
+            8,
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "step",
+            "row",
+            "column"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "memory_before",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              3,
+              8,
+              8
+            ],
+            "logical_element_count": 192,
+            "stored_element_count": 192,
+            "artifact_refs": [
+              {
+                "path": "distinct.values.json",
+                "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+                "bytes": 13508,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value distinct memory_before",
+              "source_sha256": [
+                "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": "preLN",
+          "stage_id": "scoring",
+          "status": "observed",
+          "meaning": "preLN complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            3,
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "step",
+            "unit"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "preLN",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              3,
+              8
+            ],
+            "logical_element_count": 24,
+            "stored_element_count": 24,
+            "artifact_refs": [
+              {
+                "path": "distinct.values.json",
+                "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+                "bytes": 13508,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value distinct preLN",
+              "source_sha256": [
+                "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": "centered",
+          "stage_id": "scoring",
+          "status": "observed",
+          "meaning": "centered complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            3,
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "step",
+            "unit"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "centered",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              3,
+              8
+            ],
+            "logical_element_count": 24,
+            "stored_element_count": 24,
+            "artifact_refs": [
+              {
+                "path": "distinct.values.json",
+                "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+                "bytes": 13508,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value distinct centered",
+              "source_sha256": [
+                "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": "variance",
+          "stage_id": "scoring",
+          "status": "observed",
+          "meaning": "variance complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            3
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "step"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "variance",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              3
+            ],
+            "logical_element_count": 3,
+            "stored_element_count": 3,
+            "artifact_refs": [
+              {
+                "path": "distinct.values.json",
+                "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+                "bytes": 13508,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value distinct variance",
+              "source_sha256": [
+                "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": "hidden",
+          "stage_id": "generation",
+          "status": "observed",
+          "meaning": "hidden complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            3,
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "step",
+            "unit"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "hidden",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              3,
+              8
+            ],
+            "logical_element_count": 24,
+            "stored_element_count": 24,
+            "artifact_refs": [
+              {
+                "path": "distinct.values.json",
+                "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+                "bytes": 13508,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value distinct hidden",
+              "source_sha256": [
+                "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": "memory_after",
+          "stage_id": "scoring",
+          "status": "observed",
+          "meaning": "memory_after complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            3,
+            8,
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "step",
+            "row",
+            "column"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "memory_after",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              3,
+              8,
+              8
+            ],
+            "logical_element_count": 192,
+            "stored_element_count": 192,
+            "artifact_refs": [
+              {
+                "path": "distinct.values.json",
+                "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+                "bytes": 13508,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value distinct memory_after",
+              "source_sha256": [
+                "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": "final_readout",
+          "stage_id": "diagnosis",
+          "status": "observed",
+          "meaning": "final_readout complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            1
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "singleton"
+          ],
+          "artifact_refs": [
+            {
+              "path": "distinct.values.json",
+              "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+              "bytes": 13508,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "final_readout",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              1
+            ],
+            "logical_element_count": 1,
+            "stored_element_count": 1,
+            "artifact_refs": [
+              {
+                "path": "distinct.values.json",
+                "sha256": "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c",
+                "bytes": 13508,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value distinct final_readout",
+              "source_sha256": [
+                "4deca535ec091860e5e07e61e6b1c6ad4098489aa6844775dd467e94f8547f4c"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "sample_id": "repeated",
+      "lane": "replay",
+      "split": "synthetic",
+      "checkpoint": "fixed_equations",
+      "roles": {
+        "source_sample": {
+          "sequence": "repeated",
+          "origin": "Frozen symbolic boundary vectors, not NLP data"
+        },
+        "protocol": {
+          "memory_eta": 0.5,
+          "memory_decay": 0.95,
+          "inner_steps": 1,
+          "layernorm_epsilon": 1e-05,
+          "W": "zero",
+          "C": "identity",
+          "gain": "sqrt(1+epsilon)/sqrt7",
+          "bias": 0
+        },
+        "output": {
+          "readout": "shared e2-e0",
+          "value": -0.5350913740628033
+        },
+        "provenance": {
+          "reader_source_sha256": "4a83808ee8c067d0a02a4d789d336535843b9153d6c5e3b0f28fc2cc01302f9f",
+          "source": "Conference SHA028b1b47 p3 Eq1/2/3/4 p4 Eq5; not original code or paper results"
+        }
+      },
+      "stages": [
+        {
+          "stage_id": "data",
+          "stage": "data",
+          "canonical_stage": "data",
+          "lane": "replay",
+          "status": "observed",
+          "step": 0,
+          "purpose": "data for declared synthetic equation instantiation",
+          "input_refs": [
+            "source:frozen_synthetic_sequence",
+            "external:conference_Eq1_Eq5"
+          ],
+          "output_refs": [
+            "inputs",
+            "gamma",
+            "beta",
+            "initial_hidden",
+            "initial_memory"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "data",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "target_access": "not_available"
+        },
+        {
+          "stage_id": "scoring",
+          "stage": "scoring",
+          "canonical_stage": "scoring",
+          "lane": "replay",
+          "status": "observed",
+          "step": 1,
+          "purpose": "scoring for declared synthetic equation instantiation",
+          "input_refs": [
+            "inputs",
+            "gamma",
+            "beta",
+            "initial_hidden",
+            "initial_memory"
+          ],
+          "output_refs": [
+            "preliminary",
+            "memory_before",
+            "preLN",
+            "centered",
+            "variance",
+            "memory_after"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "scoring",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "target_access": "not_available"
+        },
+        {
+          "stage_id": "generation",
+          "stage": "generation",
+          "canonical_stage": "generation",
+          "lane": "replay",
+          "status": "observed",
+          "step": 2,
+          "purpose": "generation for declared synthetic equation instantiation",
+          "input_refs": [
+            "preLN",
+            "centered",
+            "variance",
+            "gamma",
+            "beta"
+          ],
+          "output_refs": [
+            "hidden"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "generation",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "target_access": "not_available"
+        },
+        {
+          "stage_id": "diagnosis",
+          "stage": "diagnosis",
+          "canonical_stage": "diagnosis",
+          "lane": "replay",
+          "status": "observed",
+          "step": 3,
+          "purpose": "diagnosis for declared synthetic equation instantiation",
+          "input_refs": [
+            "hidden"
+          ],
+          "output_refs": [
+            "final_readout"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "diagnosis",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "target_access": "not_available"
+        }
+      ],
+      "representations": [
+        {
+          "id": "inputs",
+          "stage_id": "data",
+          "status": "observed",
+          "meaning": "inputs complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            3,
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "step",
+            "unit"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "inputs",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              3,
+              8
+            ],
+            "logical_element_count": 24,
+            "stored_element_count": 24,
+            "artifact_refs": [
+              {
+                "path": "repeated.values.json",
+                "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+                "bytes": 13476,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value repeated inputs",
+              "source_sha256": [
+                "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232"
+              ]
+            }
+          }
+        },
+        {
+          "id": "gamma",
+          "stage_id": "data",
+          "status": "observed",
+          "meaning": "gamma complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "unit"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "gamma",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              8
+            ],
+            "logical_element_count": 8,
+            "stored_element_count": 8,
+            "artifact_refs": [
+              {
+                "path": "repeated.values.json",
+                "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+                "bytes": 13476,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value repeated gamma",
+              "source_sha256": [
+                "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232"
+              ]
+            }
+          }
+        },
+        {
+          "id": "beta",
+          "stage_id": "data",
+          "status": "observed",
+          "meaning": "beta complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "unit"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "beta",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              8
+            ],
+            "logical_element_count": 8,
+            "stored_element_count": 8,
+            "artifact_refs": [
+              {
+                "path": "repeated.values.json",
+                "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+                "bytes": 13476,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value repeated beta",
+              "source_sha256": [
+                "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232"
+              ]
+            }
+          }
+        },
+        {
+          "id": "initial_hidden",
+          "stage_id": "data",
+          "status": "observed",
+          "meaning": "initial_hidden complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "unit"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "initial_hidden",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              8
+            ],
+            "logical_element_count": 8,
+            "stored_element_count": 8,
+            "artifact_refs": [
+              {
+                "path": "repeated.values.json",
+                "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+                "bytes": 13476,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value repeated initial_hidden",
+              "source_sha256": [
+                "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232"
+              ]
+            }
+          }
+        },
+        {
+          "id": "initial_memory",
+          "stage_id": "data",
+          "status": "observed",
+          "meaning": "initial_memory complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            8,
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "row",
+            "column"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "initial_memory",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              8,
+              8
+            ],
+            "logical_element_count": 64,
+            "stored_element_count": 64,
+            "artifact_refs": [
+              {
+                "path": "repeated.values.json",
+                "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+                "bytes": 13476,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value repeated initial_memory",
+              "source_sha256": [
+                "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232"
+              ]
+            }
+          }
+        },
+        {
+          "id": "preliminary",
+          "stage_id": "scoring",
+          "status": "observed",
+          "meaning": "preliminary complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            3,
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "step",
+            "unit"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "preliminary",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              3,
+              8
+            ],
+            "logical_element_count": 24,
+            "stored_element_count": 24,
+            "artifact_refs": [
+              {
+                "path": "repeated.values.json",
+                "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+                "bytes": 13476,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value repeated preliminary",
+              "source_sha256": [
+                "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232"
+              ]
+            }
+          }
+        },
+        {
+          "id": "memory_before",
+          "stage_id": "scoring",
+          "status": "observed",
+          "meaning": "memory_before complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            3,
+            8,
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "step",
+            "row",
+            "column"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "memory_before",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              3,
+              8,
+              8
+            ],
+            "logical_element_count": 192,
+            "stored_element_count": 192,
+            "artifact_refs": [
+              {
+                "path": "repeated.values.json",
+                "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+                "bytes": 13476,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value repeated memory_before",
+              "source_sha256": [
+                "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232"
+              ]
+            }
+          }
+        },
+        {
+          "id": "preLN",
+          "stage_id": "scoring",
+          "status": "observed",
+          "meaning": "preLN complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            3,
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "step",
+            "unit"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "preLN",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              3,
+              8
+            ],
+            "logical_element_count": 24,
+            "stored_element_count": 24,
+            "artifact_refs": [
+              {
+                "path": "repeated.values.json",
+                "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+                "bytes": 13476,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value repeated preLN",
+              "source_sha256": [
+                "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232"
+              ]
+            }
+          }
+        },
+        {
+          "id": "centered",
+          "stage_id": "scoring",
+          "status": "observed",
+          "meaning": "centered complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            3,
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "step",
+            "unit"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "centered",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              3,
+              8
+            ],
+            "logical_element_count": 24,
+            "stored_element_count": 24,
+            "artifact_refs": [
+              {
+                "path": "repeated.values.json",
+                "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+                "bytes": 13476,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value repeated centered",
+              "source_sha256": [
+                "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232"
+              ]
+            }
+          }
+        },
+        {
+          "id": "variance",
+          "stage_id": "scoring",
+          "status": "observed",
+          "meaning": "variance complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            3
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "step"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "variance",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              3
+            ],
+            "logical_element_count": 3,
+            "stored_element_count": 3,
+            "artifact_refs": [
+              {
+                "path": "repeated.values.json",
+                "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+                "bytes": 13476,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value repeated variance",
+              "source_sha256": [
+                "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232"
+              ]
+            }
+          }
+        },
+        {
+          "id": "hidden",
+          "stage_id": "generation",
+          "status": "observed",
+          "meaning": "hidden complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            3,
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "step",
+            "unit"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "hidden",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              3,
+              8
+            ],
+            "logical_element_count": 24,
+            "stored_element_count": 24,
+            "artifact_refs": [
+              {
+                "path": "repeated.values.json",
+                "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+                "bytes": 13476,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value repeated hidden",
+              "source_sha256": [
+                "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232"
+              ]
+            }
+          }
+        },
+        {
+          "id": "memory_after",
+          "stage_id": "scoring",
+          "status": "observed",
+          "meaning": "memory_after complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            3,
+            8,
+            8
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "step",
+            "row",
+            "column"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "memory_after",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              3,
+              8,
+              8
+            ],
+            "logical_element_count": 192,
+            "stored_element_count": 192,
+            "artifact_refs": [
+              {
+                "path": "repeated.values.json",
+                "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+                "bytes": 13476,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value repeated memory_after",
+              "source_sha256": [
+                "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232"
+              ]
+            }
+          }
+        },
+        {
+          "id": "final_readout",
+          "stage_id": "diagnosis",
+          "status": "observed",
+          "meaning": "final_readout complete Eq1/Eq5 equation-simulation value",
+          "shape": [
+            1
+          ],
+          "dtype": "float64",
+          "axis_semantics": [
+            "singleton"
+          ],
+          "artifact_refs": [
+            {
+              "path": "repeated.values.json",
+              "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+              "bytes": 13476,
+              "visibility": "portal"
+            }
+          ],
+          "display": {
+            "summary": "final_readout",
+            "default_view": "human_summary",
+            "visible_fields": [],
+            "visualizations": []
+          },
+          "value_capture": {
+            "status": "complete",
+            "shape": [
+              1
+            ],
+            "logical_element_count": 1,
+            "stored_element_count": 1,
+            "artifact_refs": [
+              {
+                "path": "repeated.values.json",
+                "sha256": "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232",
+                "bytes": 13476,
+                "visibility": "portal"
+              }
+            ],
+            "reader_projection": {
+              "status": "available",
+              "kind": "coordinate_inspector",
+              "coordinate_access": "arbitrary",
+              "reader_ref": "fw_trace.py read_value repeated final_readout",
+              "source_sha256": [
+                "e5570ebfc120f97de3161fc5fdc0ad49d818c2b308c88337918e7bd1407cf232"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-真实TRAIN固定导数诊断COMPLETE且STOP：assessment247原错误，g正向139/247=56.2753%，最佳self141/247=57.0850%，差-0.8097个百分点，冻结+2pp门失败；数值/样本数/相对正确保护通过。8192/4096、192head/384批电路/0updates/17.1045秒，8条v2trace数值411179元素通过，原词串7/8缺失/上游轨迹未重放。gen103 metadata字段缺陷0forward失败保留；显式仅修长度检查的gen104完成，两分配均released。下一步原量子核心对实际FastWeights/real8/operator的源绑定函数类审计，未准入训练；原L4/全部历史/gen98/gen102STOP保留，新L3-L4T未接受/goalACTIVE。
+原Q与实际FastWeights函数类审计完成：完整非负hidden/LN/ReLU/持续边界的2写1读实例也区分旧native相位构造，共同读出+.0146691/-.5350914，分数1/40与-39/40符号证书；旧例不足排除FW，不是一般包含证明或任务增益。一般复8态real16双内积/Hermitian64精确，real8只限旧实态例；24组/4Fraction/2v2轨迹通过，raw迹比值消去误差失败保留并等价中心化修正。headroom旧checkpoint/accuracy不迁移当前all40，强基线额外可达空间未定。无合格新方法/新T；下一步仅排重长context编码混叠假设，0新task/head/GPU/网络/API。原L4/全部历史和gen98/102/104STOP保持，新L3-L4T未接受/goalACTIVE。
 
 ## 时间线
+
+- [2026-11-26｜实际FastWeights与原量子函数类审计](20261125T-205938Z-native-fw-class-audit.md)：完整FW也分开旧相位例；real16/Hermitian64核验，未选新方法，headroom口径分开。
 
 - [2026-11-26｜原量子导数真实标签诊断未过门](20261125T-204006Z-tangent-label-diagnostic.md)：固定8192/4096零更新，g56.28%低于self57.09%；数值/trace已核，停止该方向，两分配归还。
 
