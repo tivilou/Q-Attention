@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-两近邻原文审计PARTIAL：FastWeights会议版机制/控制/表格与arXivv1附录已核；官网补充包错配并隔离。Knyazev官方身份已核但全文未取得，不归因其算法或作新颖性清关。实际FastWeights仍未被旧alpha/value构造排除；candidate HOLD。18普通请求+1公开浏览器429后停止，0任务/模型/GPU。下一步只做原生三比特合成构造CPU核验，文献缺口仍保留；原L4/全部历史/gen98-gen102STOP，新L3-L4T未接受/量子目标ACTIVE。
+原生合成相位构造PASS：同一prepare/effect/value/decoder生成plus/plus与plus/minus，两context原alpha/全64value/populations相同、原Q/D全部40logits0；固定更新row0为0/.9640256520，最大误差4.44e-16。2head4批量circuit、CPU.03125s、0任务/训练/GPU，real8仍可精确复现；仅人工head输入与参数可达，不是自然任务效用或新T。Knyazev全文仍缺、FastWeights仍未被排除、候选HOLD。下一步沿现有精确DOI metadata中的ORCID作者链接限4请求找确切原文，不重试旧失败源。原L4/全部历史/gen98-gen102STOP，新L3-L4T未接受/量子目标ACTIVE。
 
 ## 时间线
+
+- [2026-11-26｜原生相位构造的实现可达性核验](20261125T-195236Z-native-phase-construction.md)：固定两context构造0/.9640，2head4circuit/独立实现误差4.44e-16；仅合成可达、HOLD，下一步精确作者源。
 
 - [2026-11-26｜FastWeights原文核验与仍未完成的近邻审计](20261125T-193735Z-residual-fastweights-source.md)：补充包错配隔离；Knyazev全文缺口保留/HOLD，下一步合成原生线路CPU核验。
 

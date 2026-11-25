@@ -1,0 +1,60 @@
+{
+  "decision": "HOLD_CANDIDATE; EXACT_ORCID_AUTHOR_CHANNEL_ONLY",
+  "action": "Resolve the author-profile route from the ORCID identifier already present in the exact-DOI OpenAlex record, then inspect at most its directly linked public official author/repository copy of this exact Knyazev paper.",
+  "reason": "Native synthetic joint construction is now verified; unresolved Knyazev original remains a scientific source gap before task-method admission.",
+  "metadata_pin": {
+    "path": "D:\\CodexHome\\task-artifacts\\qattn-residual-fastweights-source-20261126\\knyazev-openalex.json",
+    "sha256": "c7c3ba7913ace9950b1d546367445d38078a58b9d576ec1bf31b8be326c132b4",
+    "DOI": "10.1137/s1064827500366124",
+    "OpenAlex_author": "https://openalex.org/A5064449686",
+    "reported_ORCID": "https://orcid.org/0000-0002-1635-3711",
+    "identity_limit": "ORCID association is index-reported, not independently verified as self-authored or exact-paper author until the public record/name and linked source are matched."
+  },
+  "first_request": {
+    "method": "GET",
+    "url": "https://pub.orcid.org/v3.0/0000-0002-1635-3711/person",
+    "Accept": "application/json",
+    "fields_to_inspect": [
+      "name",
+      "researcher-urls"
+    ]
+  },
+  "collection": {
+    "max_ordinary_requests": 4,
+    "max_exact_PDF_transfers": 1,
+    "max_browser_navigations": 0,
+    "max_model_API_inference": 0,
+    "minimum_inter_request_seconds": 1.5,
+    "max_retries": 0,
+    "followups": "Only explicit public researcher-URL links from matched ORCID identity or exact-title/DOI links on that official profile. No path guessing.",
+    "stop": "Stop origin on403/429/challenge; no Google or closed SIAM retry; no repeat prior failed URLs or scheme-only variants. If name/link identity fails or budget ends, preserve UNRESOLVED.",
+    "already_failed_targets": [
+      "https://citeseerx.ist.psu.edu/viewdoc/download",
+      "https://clas.ucdenver.edu/mathematical-and-statistical-sciences/",
+      "https://epubs.siam.org/doi/pdf/10.1137/S1064827500366124",
+      "https://math.ucdenver.edu/~aknyazev/research/papers/36612.pdf",
+      "https://www-math.cudenver.edu/~aknyazev/research/papers/36612.pdf",
+      "https://www.math.ucdenver.edu/~aknyazev/research/papers/36612.pdf"
+    ],
+    "sensitive_fields": "No emails, addresses, browser profile or raw personal metadata in public report."
+  },
+  "success_gate": "Acquire exact original or explicitly identified author manuscript, verify title/author/version/hash, read actual generalized Rayleigh residual/preconditioner/trial-space update and fixed-exponential relation with page evidence. Metadata alone never clears this gate.",
+  "kill_gate": "No verified fresh source within budget: report exact gap, HOLD, and choose an independent evidence-grounded research action without inventing claims or repeating failed retrievals.",
+  "after_reading": "Reassess substantive distinction and task-relevant prediction; known residual/spectral/outer-product identities remain known tools. Original-native fixture pass does not admit task fitting.",
+  "resources": {
+    "task_rows": 0,
+    "feature_reads": 0,
+    "checkpoint_reads": 0,
+    "native_head_calls": 0,
+    "circuit_calls": 0,
+    "optimizer_updates": 0,
+    "GPU_allocations": 0,
+    "server_writes": 0,
+    "COS": 0,
+    "model_API": 0
+  },
+  "authorization": "Existing sustained research goal; bounded public read-only metadata/fulltext research.",
+  "goal": "ACTIVE",
+  "newL3": "NOT_ACCEPTED",
+  "newL4T": "NOT_ACCEPTED"
+}
