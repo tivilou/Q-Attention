@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-ORCID作者姓名匹配、arXiv作者索引已核，但Knyazev原文仍UNRESOLVED；3请求0PDF关闭该渠道，不作论文算法归因。新增固定C初始导数的tangent/Gram分解：0<=g<=2Gamma*Var，g_cross可正负；10数值例+2Fraction证书/max8.88e-16，knownlinearalgebra非新T/非任务证据。下一步重用同nativeQ checkpoint/cohort契约核输入映射/fresh共享资源，冻结无fit TRAIN导数标签对齐诊断；无自动训练准入。0任务/native重跑/GPU/模型API，原L4/全部历史/gen98-gen102STOP，新L3-L4T未接受/量子目标ACTIVE。
+真实TRAIN固定导数诊断COMPLETE且STOP：assessment247原错误，g正向139/247=56.2753%，最佳self141/247=57.0850%，差-0.8097个百分点，冻结+2pp门失败；数值/样本数/相对正确保护通过。8192/4096、192head/384批电路/0updates/17.1045秒，8条v2trace数值411179元素通过，原词串7/8缺失/上游轨迹未重放。gen103 metadata字段缺陷0forward失败保留；显式仅修长度检查的gen104完成，两分配均released。下一步原量子核心对实际FastWeights/real8/operator的源绑定函数类审计，未准入训练；原L4/全部历史/gen98/gen102STOP保留，新L3-L4T未接受/goalACTIVE。
 
 ## 时间线
+
+- [2026-11-26｜原量子导数真实标签诊断未过门](20261125T-204006Z-tangent-label-diagnostic.md)：固定8192/4096零更新，g56.28%低于self57.09%；数值/trace已核，停止该方向，两分配归还。
 
 - [2026-11-26｜作者原文缺口与导数的方差/几何控制](20261125T-201101Z-author-source-tangent-controls.md)：ORCID姓名匹配但无原文；tangent分解及界10例/2精确证书通过，下一步无fit诊断契约。
 

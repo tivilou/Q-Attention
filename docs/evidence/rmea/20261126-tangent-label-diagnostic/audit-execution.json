@@ -1,0 +1,59 @@
+{
+  "argv": [
+    "env",
+    "OMP_NUM_THREADS=1",
+    "OPENBLAS_NUM_THREADS=1",
+    "MKL_NUM_THREADS=1",
+    "/hy-tmp/Q-Attention/env/bin/python",
+    "-B",
+    "-c",
+    "\"\"\"CPU audit of already-produced private arrays; no task cache/head/checkpoint.\"\"\"\nfrom pathlib import Path\nimport hashlib,json,sys\nimport numpy as np\nroot=Path('/hy-tmp/Q-Attention/control/tangent-label-diagnostic-20261126-v2');out=root/'output'\nsummary=json.loads((out/'summary.json').read_bytes());trace=json.loads((out/'sample-trace.v2.private.json').read_bytes())\nexpected=json.load(sys.stdin)\nfor n,row in expected.items():assert hashlib.sha256((out/n).read_bytes()).hexdigest()==row['sha256']\nnames=['g','variance','self','upper'];audited={};eta={};case=[];trace_values=0\nwith np.load(out/'population.private.npz',allow_pickle=False) as z:\n    for split in ('fit','assessment'):\n        scores=z[split+'_scores'];logits=z[split+'_logits'];y=z[split+'_target'];n=len(y)\n        correct=logits.argmax(1)==y;delta=np.empty((n,4));tol=1e-10*np.maximum(1,np.abs(scores).max(1))\n        # Scalar loop provides an independent rival and per-row indexing check.\n        for i in range(n):\n            rival=max((c for c in range(40) if c!=y[i]),key=lambda c:(logits[i,c],-c))\n            assert rival==int(z[split+'_rival'][i]);delta[i]=scores[i,y[i]]-scores[i,rival]\n        np.testing.assert_allclose(delta,z[split+'_delta'],atol=0,rtol=0)\n        for k,name in enumerate(names):\n            row=summary['metrics'][split][name]\n            for label,take in [('all',np.ones(n,bool)),('error',~correct),('correct',correct)]:\n                expected_row=row[label];a=delta[take,k];t=tol[take,k]\n                assert int(take.sum())==expected_row['n']\n                assert int((a>t).sum())==expected_row['positive_count']\n                assert int((a<-t).sum())==expected_row['negative_count']\n            for c in range(40):\n                take=y==c;a=delta[take,k];t=tol[take,k];rowc=row['per_gold_class'][c]\n                assert int(take.sum())==rowc['n'] and int((a>t).sum())==rowc['positive_count'] and int((a<-t).sum())==rowc['negative_count']\n        upper=scores[:,:,3];g=scores[:,:,0];defined=upper>0;ratio=g[defined]/upper[defined]\n        assert not np.any(g[~defined]>1e-8) and ratio.min()>=0 and ratio.max()<=1+1e-8\n        eta[split]=dict(defined=int(defined.sum()),undefined=int((~defined).sum()),minimum=float(ratio.min()),maximum=float(ratio.max()),mean=float(ratio.mean()))\n        cm=np.bincount(40*y+logits.argmax(1),minlength=1600).reshape(40,40);den=cm.sum(0)+cm.sum(1)\n        f1=np.divide(2*np.diag(cm),den,out=np.zeros(40),where=den>0)\n        pair={}\n        for k,name in enumerate(names[1:],1):\n            both=2*(delta[:,0]>tol[:,0])+(delta[:,k]>tol[:,k])\n            pair[name]={g:np.bincount(both[take].astype(int),minlength=4).tolist() for g,take in [('error',~correct),('correct',correct)]}\n        audited[split]=dict(rows=n,errors=int((~correct).sum()),correct=int(correct.sum()),original_native_all40_macro_f1=float(f1.mean()),paired_positive_codes=pair)\n    for sample in trace['samples']:\n        split=sample['split'];index=sample['roles']['source_sample']['cache_index'];pos=np.flatnonzero(z[split+'_indices']==index);assert len(pos)==1;pos=int(pos[0])\n        ref=sample['representations'][0]['artifact_refs'][0]\n        with np.load(out/ref['path'],allow_pickle=False) as a:\n            assert int(a['target'][0])==z[split+'_target'][pos];np.testing.assert_array_equal(a['logits'],z[split+'_logits'][pos])\n            for k,name in enumerate(names):np.testing.assert_array_equal(a[name],z[split+'_scores'][pos,:,k])\n            psi,phi,u=a['psi'],a['phi'],a['utilities'];p=abs(phi.conj()@psi.T)**2;raw=p+1e-6;alpha=raw/raw.sum(1,keepdims=True)\n            np.testing.assert_allclose(p,a['probability'],atol=1e-12,rtol=1e-12);np.testing.assert_allclose(alpha,a['alpha'],atol=1e-12,rtol=1e-12)\n            np.testing.assert_allclose((alpha*u).sum(1)+a['bias'],a['logits'],atol=1e-10,rtol=1e-10)\n            np.testing.assert_allclose(a['values']@a['decoder'].T,u.T,atol=1e-10,rtol=1e-10)\n            assert a['h'].shape[0]==sample['roles']['source_sample']['metadata']['words']\n            trace_values+=sum(a[k].size for k in a.files)\n            gold=int(a['target'][0]);rival=int(z[split+'_rival'][pos]);pred=int(a['logits'].argmax());\n            case.append(dict(split=split,ordinal=int(sample['sample_id'].split(':')[-1]),words=len(psi),gold=gold,prediction=pred,rival=rival,\n                original_correct=bool(pred==gold),gold_minus_rival_slope={name:float(a[name][gold]-a[name][rival]) for name in names},\n                raw_tokens_available='tokens' in sample['roles']['source_sample']['metadata']))\ng=summary['metrics']['assessment']['g'];best=max(summary['metrics']['assessment'][k]['error']['positive_fraction'] for k in names[1:])\nadv=g['error']['positive_fraction']-best\nassert abs(adv-summary['error_advantage'])<1e-15 and adv<.02 and summary['decision']=='STOP_CURRENT_LABEL_DIRECTION'\nassert summary['native_head_forwards']==192 and summary['native_batched_circuit_calls']==384 and summary['optimizer_updates']==0\nprint(json.dumps(dict(status='PASS_SAVED_OUTPUT_AUDIT',audited=audited,eta=eta,cases=case,trace_elements=trace_values,\n    source_linked_trace_cases=len(case),error_advantage=adv,decision=summary['decision'],raw_tokens_available_cases=sum(c['raw_tokens_available'] for c in case),\n    new_native_calls=0,new_feature_or_checkpoint_reads=0,new_label_cache_reads=0,private_arrays_downloaded=False),allow_nan=False))\n"
+  ],
+  "stdin": {
+    "fit-0.private.npz": {
+      "bytes": 122059,
+      "sha256": "a580d533b1a20cdbf914abf4f30e01dfdf874eac2c9dc31164f78ef9c55ca083"
+    },
+    "fit-1.private.npz": {
+      "bytes": 155699,
+      "sha256": "d16f14207d9c1b3517f99531dbb0a57ffe35c1e92f2ce224161f884712320992"
+    },
+    "fit-2.private.npz": {
+      "bytes": 265024,
+      "sha256": "3de40f7447c21013fc2a69412cde9ea61ebfecf15cda1bf962ab3df8aaa4b139"
+    },
+    "fit-3.private.npz": {
+      "bytes": 155582,
+      "sha256": "1d36159f811a48bcda88d348636c83834bd4963d8cf437576edead918a80b036"
+    },
+    "assessment-0.private.npz": {
+      "bytes": 159896,
+      "sha256": "bcd6919dbbc453bd619870e590f83b60b880e17e4686bbfee341eba3078b90bb"
+    },
+    "assessment-1.private.npz": {
+      "bytes": 235580,
+      "sha256": "62d5b17b2c0c7dcb0586b8ddc24c30978b25b37d2f10bfd8522db64e39227bd0"
+    },
+    "assessment-2.private.npz": {
+      "bytes": 197710,
+      "sha256": "e908a984e593b76f746f2bd26e471af0d01b61196e0f57aa95337c0901c71f08"
+    },
+    "assessment-3.private.npz": {
+      "bytes": 269246,
+      "sha256": "237b81dbe9c2be602d1f3f6187723ee963eb94d6dd191a5e75278760b98d25a8"
+    },
+    "population.private.npz": {
+      "bytes": 19458301,
+      "sha256": "4ab89a204c1cff1ff599e9b4d613139434de0fc588d20041a108eb87ea044553"
+    },
+    "sample-trace.v2.private.json": {
+      "bytes": 402382,
+      "sha256": "003c0f49b7f3f9c096752cd6a8645ea29d870e45b8e6a31c6235de6f460f2cba"
+    }
+  },
+  "stdout": "{\"status\": \"PASS_SAVED_OUTPUT_AUDIT\", \"audited\": {\"fit\": {\"rows\": 8192, \"errors\": 500, \"correct\": 7692, \"original_native_all40_macro_f1\": 0.8853222505892877, \"paired_positive_codes\": {\"variance\": {\"error\": [211, 24, 28, 237], \"correct\": [3752, 425, 526, 2989]}, \"self\": {\"error\": [211, 24, 29, 236], \"correct\": [3781, 396, 549, 2966]}, \"upper\": {\"error\": [211, 24, 28, 237], \"correct\": [3751, 426, 523, 2992]}}}, \"assessment\": {\"rows\": 4096, \"errors\": 247, \"correct\": 3849, \"original_native_all40_macro_f1\": 0.8786159996310221, \"paired_positive_codes\": {\"variance\": {\"error\": [96, 12, 11, 128], \"correct\": [1927, 194, 283, 1445]}, \"self\": {\"error\": [95, 13, 11, 128], \"correct\": [1933, 188, 287, 1441]}, \"upper\": {\"error\": [96, 12, 11, 128], \"correct\": [1929, 192, 281, 1447]}}}}, \"eta\": {\"fit\": {\"defined\": 327680, \"undefined\": 0, \"minimum\": 0.0010218772026851551, \"maximum\": 0.5462583829296389, \"mean\": 0.040855087149506045}, \"assessment\": {\"defined\": 163840, \"undefined\": 0, \"minimum\": 0.001606084941183726, \"maximum\": 0.5459455329447825, \"mean\": 0.04029783495280707}}, \"cases\": [{\"split\": \"fit\", \"ordinal\": 0, \"words\": 21, \"gold\": 0, \"prediction\": 0, \"rival\": 26, \"original_correct\": true, \"gold_minus_rival_slope\": {\"g\": -11.092230557711147, \"variance\": -0.09575496224166002, \"self\": -2.4234092493443526, \"upper\": -5.125704455627215}, \"raw_tokens_available\": true}, {\"split\": \"fit\", \"ordinal\": 1, \"words\": 29, \"gold\": 0, \"prediction\": 0, \"rival\": 28, \"original_correct\": true, \"gold_minus_rival_slope\": {\"g\": 9.413289394937511, \"variance\": -4.995423800954253, \"self\": -17.137850264560516, \"upper\": -293.77919253206346}, \"raw_tokens_available\": false}, {\"split\": \"fit\", \"ordinal\": 2, \"words\": 55, \"gold\": 0, \"prediction\": 0, \"rival\": 7, \"original_correct\": true, \"gold_minus_rival_slope\": {\"g\": -62.02992430434564, \"variance\": -22.01669634948214, \"self\": -41.336230853459185, \"upper\": -2378.632591663169}, \"raw_tokens_available\": false}, {\"split\": \"fit\", \"ordinal\": 3, \"words\": 29, \"gold\": 28, \"prediction\": 28, \"rival\": 0, \"original_correct\": true, \"gold_minus_rival_slope\": {\"g\": 94.39240269147801, \"variance\": 20.648628352500094, \"self\": 39.23024142147518, \"upper\": 1175.5452683826986}, \"raw_tokens_available\": false}, {\"split\": \"assessment\", \"ordinal\": 0, \"words\": 30, \"gold\": 13, \"prediction\": 13, \"rival\": 0, \"original_correct\": true, \"gold_minus_rival_slope\": {\"g\": 258.8256113911738, \"variance\": 97.45895218032238, \"self\": 181.15577166440292, \"upper\": 5740.248458495144}, \"raw_tokens_available\": false}, {\"split\": \"assessment\", \"ordinal\": 1, \"words\": 48, \"gold\": 0, \"prediction\": 0, \"rival\": 3, \"original_correct\": true, \"gold_minus_rival_slope\": {\"g\": -48.57366707674365, \"variance\": -23.322619420981773, \"self\": -44.79479137089952, \"upper\": -2185.2626242833703}, \"raw_tokens_available\": false}, {\"split\": \"assessment\", \"ordinal\": 2, \"words\": 39, \"gold\": 0, \"prediction\": 0, \"rival\": 22, \"original_correct\": true, \"gold_minus_rival_slope\": {\"g\": -33.84297585971973, \"variance\": 11.325687810159984, \"self\": 23.069497089433177, \"upper\": 861.1364323045004}, \"raw_tokens_available\": false}, {\"split\": \"assessment\", \"ordinal\": 3, \"words\": 56, \"gold\": 0, \"prediction\": 0, \"rival\": 15, \"original_correct\": true, \"gold_minus_rival_slope\": {\"g\": -200.85036063691538, \"variance\": -31.57601527183727, \"self\": -43.65823267329467, \"upper\": -3461.681432225392}, \"raw_tokens_available\": false}], \"trace_elements\": 411179, \"source_linked_trace_cases\": 8, \"error_advantage\": -0.0080971659919028, \"decision\": \"STOP_CURRENT_LABEL_DIRECTION\", \"raw_tokens_available_cases\": 1, \"new_native_calls\": 0, \"new_feature_or_checkpoint_reads\": 0, \"new_label_cache_reads\": 0, \"private_arrays_downloaded\": false}\n",
+  "stderr": "",
+  "exit_status": 0,
+  "nonzero_transport_raises": true,
+  "code_sha256": "e74a15da02ce17111310823577deeb7cfd0e942af4da29ca974adc084968f5ca"
+}
