@@ -1,0 +1,31 @@
+# 可训练量子嵌入原文：真实训练路径与原生任务的差别
+
+本轮仍推进原Q-RMEA的L4-T，阶段是联合训练近邻证据审计。上轮唯一GBQC线索把可训练映射列为未来工作；这轮按既定动作读取旧文献库中仅摘要级的2105.02276v1。结果为 **已知KTA工具，未选新方法**。原限定L4、全部正负历史和gen98十三门STOP保持，新L3/L4-T未接受，持续目标ACTIVE。
+
+[已测事实] [官方原文](https://arxiv.org/abs/2105.02276v1)的题名、六作者、v1及PDF SHA72560b31已核。20页解析，实际读1–13/15/16/19/20共17页，视觉1/6/12；14/17/18及引用证明未逐项审核，作者代码未查或运行。MuPDF颜色空间与Poppler Symbol字体警告已记录，关键公式及表格以实际渲染核对；不宣称所有图像完美解析。左栏v1日期5May、内页日期May7原样保留。详见[阅读记录](../evidence/rmea/20261126-trained-kernel-audit/reading-record.json)和[来源边界](../evidence/rmea/20261126-trained-kernel-audit/source-claim-ledger.json)。
+
+[已测事实] 原文确实训练可参数化量子映射：先最大化与二元`yyᵀ`的**未中心化**Frobenius对齐，再单独训练SVM。旧q-kta提议的中心化多类one-hot目标属于适配，不能当作原文复现。原文处理不平衡二元样本的标签缩放，也不等于原生40类Macro保证或重开gen94的理由。附录A把未归一化分子对应到类平均态的Hilbert-Schmidt距离，与已读Lloyd度量学习相邻；已知对应不计新T。
+
+[已测事实] p10步骤先测试3或5个随机初始化，再选测试准确率最低者优化。对齐梯度本身使用训练标签，但起点选择已知测试结果，因此这一比较不构成独立确认。表I全部六行都保留：五个非ensemble设置相对最低随机值均提升；相对最高随机值则是3胜、1平、1负。原文p11脚注也明确承认对齐是启发式，并非保证提升。
+
+| 源设置 | 随机最低/最高 | 训练后 |
+|---|---|---|
+| Checkerboard | .52/.52 | .97 |
+| Zero vs not-zero | .90/.97 | .97 |
+| One vs not-one | .77/.77 | .97 |
+| Symmetric Donuts，3qubit | .58/.82 | .75 |
+| Symmetric Donuts，4qubit | .65/.70 | .85 |
+
+这些是显示舍入的源报告，不是本项目复现。另一个ensemble的1.0来自10张图、每张15个像素坐标的投票；附录还说明票差不足时重新采坐标，不能写成标准完整MNIST图像测试。实际硬件部分评估核矩阵对理想核的对齐改善，p13仍把分类影响列为待研究问题。[全表记录](../evidence/rmea/20261126-trained-kernel-audit/source-table1.json)和机械比较计数保留这一证据范围。
+
+[机制解释] 原生attention的已知导数是`∂f_c/∂p_ct=(u_ct−f_c)/A_c`，代码已经实现。它依赖当前signed value与该行汇总的差；CE还乘上40类竞争残差。样本对标签核目标没有这些变量，也没有给每个token合法标签。故不把“核更对齐”写成原生路由收益预测。[梯度对应](../evidence/rmea/20261126-trained-kernel-audit/derivation.md)只列已知链式法则，未创建新目标、detach路径、模型或理论贡献。
+
+[已测事实] 本地读取固定SHA的原生head与feature提取代码：head只接收h/roles/mask；缓存按原始词顺序保存h/roles/offsets/targets，禁止截断；当前这两个接口不传依存图。该观察不证明原始数据没有依存信息。已核旧多effect、条件query和value-phase/credit记录，避免把已关闭或仅已知工具的路线重命名重开。[接口预查](../evidence/rmea/20261126-trained-kernel-audit/native-interface-precheck.json)及[历史对应](../evidence/rmea/20261126-trained-kernel-audit/history-comparison.json)记录了范围。
+
+本轮0任务行/标签/文本/feature/checkpoint读取、0原生或合成headforward、0训练/GPU申请/服务器写入/COS/模型API。未启动旧尝试，也未提升证据级别。此轮不适用sample-trace.v2：没有任务推理或训练，不能补造语义案例。机械核验只检查身份回执、显示表格、固定代码和证据哈希，不代表独立科研内容审核。
+
+[尚未证明] 目前没有新方法、量子归因、自然任务改善或非平凡新理论；引用的泛化界未独立核读，也未迁移为40类Macro保证。这轮有效进展是把抽象“可训练量子嵌入”还原成真实两阶段目标及选择边界，关闭直接KTA替换这条捷径。
+
+下一步只推荐 **现有依存树元数据与原词索引的代码/来源资格审计**：先复用已有输入检查和固定adapter源，确认head/deprel是否保留、是否有可核对的来源与逐词映射。最小预算为本地只读代码与已有汇总，0新任务行/模型/GPU/API。若字段不存在或未固定、映射需猜测，或想法只是给旧transition/coherent-pool加句法mask，记NONE，不装parser、不重建图、不自动fit。只有可审计的真实任务图、实质不同的量子交互及Q/D/强经典图对照预测同时成立，才另冻实验。此时图机制未选中、收益未知；现有持续科研授权覆盖这一步只读审计。[冻结动作](../evidence/rmea/20261126-trained-kernel-audit/next-direction.json)。
+
+[阅读与来源](../evidence/rmea/20261126-trained-kernel-audit/source-receipt.json)；[来源与核验](../evidence/rmea/20261126-trained-kernel-audit/verification.json)；[目标与梯度对应](../evidence/rmea/20261126-trained-kernel-audit/derivation.md)。

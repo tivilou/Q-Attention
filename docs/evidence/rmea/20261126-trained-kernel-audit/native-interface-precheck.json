@@ -1,0 +1,21 @@
+{
+  "inputs": [
+    {
+      "path": "D:\\CodexHome\\task-artifacts\\qattn-relation-frame-20261125\\source\\baselines\\retacred\\rmea.py",
+      "sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+    },
+    {
+      "path": "D:\\CodexHome\\task-artifacts\\qattn-role-exchange-audit-20261125\\source\\rmea_run.py",
+      "sha256": "769173b9ab17f76229b0db79b4a7625ac1574427d2d40491be7d5b19d4d0ff25"
+    }
+  ],
+  "native_forward": "rmea.py:forward(h,roles,mask,details=False); independent binaryeffects, EPS-normalized token routing, learned signed utilities and CE",
+  "gradient_locator": "rmea.py:details sensitivity field already implements d(pooled_c)/d(p_ct)=(u_ct-pooled_c)/normalizer_c. Known derivative, no new T.",
+  "cache_locator": "rmea_run.py:extract and batch use h,roles,offsets,targets; wordpiece means preserve original fullword ordering; truncation raises rather than silently truncates.",
+  "graph_interface": "These head/extractor code paths do not carry a dependency adjacency/head-index tensor. This does not establish absence in original/raw canonical data.",
+  "observed_reads": "Local pinned code only; no task row/label/text/feature/checkpoint loaded.",
+  "task_rows": 0,
+  "model_forwards": 0,
+  "updates": 0,
+  "new_plugin_selected": false
+}
