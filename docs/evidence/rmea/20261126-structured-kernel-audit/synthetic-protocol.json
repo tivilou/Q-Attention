@@ -1,0 +1,46 @@
+{
+  "schema": "structured-source-native-assignment-audit.v1",
+  "frozen_at": "2026-11-25T16:40:01.410255+00:00",
+  "rationale": "Actual source assigns raw ordered time steps to slots. Native1028to12 free affine+tanh outputs may absorb any slot permutation. Resolve that exact transfer distinction before any task experiment; not a new theorem or a test of all structured encodings.",
+  "scope_amendment": "Previous source-only scope extended solely to two native random synthetic forwards and two local slot-routing forwards plus gradients; no task data/checkpoint/optimizer updates, no source modifications or circuit/architecture search.",
+  "seed": 260913360,
+  "permutation": [
+    8,
+    1,
+    10,
+    3,
+    0,
+    11,
+    6,
+    9,
+    4,
+    7,
+    2,
+    5
+  ],
+  "modes": [
+    "quantum",
+    "dephased"
+  ],
+  "synthetic_shape": [
+    3,
+    7,
+    1024
+  ],
+  "mask_lengths": [
+    7,
+    5,
+    1
+  ],
+  "registered_parameters": 81028,
+  "parameter_tensors": 7,
+  "dtype": "float64",
+  "tolerance": 1e-11,
+  "task_rows": 0,
+  "trained_head_forwards": 0,
+  "optimizer_updates": 0,
+  "gpu_allocations": 0,
+  "server_writes": 0,
+  "model_api_calls": 0,
+  "decision": "If assignment-only is function/gradient invariant with inverse row mapping, reject its promotion as an independent quantum mechanism. No claim that actual raw input grouping or gate-topology changes are equivalent."
+}

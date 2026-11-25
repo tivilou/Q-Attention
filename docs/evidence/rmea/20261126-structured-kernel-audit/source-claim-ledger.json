@@ -1,0 +1,59 @@
+{
+  "schema": "source-claim-ledger.v1",
+  "source_pdf_sha256": "962bf554c8cddc29c9fc59954380fa635316afde13a54b7285746b9bb91f0a6c",
+  "claims": [
+    {
+      "id": "encoding",
+      "locator": "pp3–4,Fig1",
+      "source_fact": "Raw16/32-step channel windows are amplitude encoded and contiguous blocks drive per-qubit RY/RZ sequences.",
+      "transfer_limit": "Different from native learned1028to12 token-angle map; no raw delay-window/Takens structure established for relation extraction."
+    },
+    {
+      "id": "main_comparisons",
+      "locator": "p4,AppendixB pp14–15",
+      "source_fact": "100 trajectory seeds,80train/30test per seed; nonoverlapping regions/window gap; bandwidth/alpha/beta selected by training inner CV for Q/RBF/Matern.",
+      "transfer_limit": "Retain as source-reported tuned fixed-window utility, not our L3; exact fold construction, full alpha grid, preprocessing scope and all code not independently audited."
+    },
+    {
+      "id": "architecture_ablation",
+      "locator": "AppendixL p23; Table15 p24",
+      "source_fact": "For layout/IsingXX sweeps, alpha and beta selected on test set;100 seeds do not change that selection protocol.",
+      "transfer_limit": "Exploratory architectural evidence, not independent confirmation that temporal grouping causally explains main comparison."
+    },
+    {
+      "id": "reupload_ablation",
+      "locator": "AppendixM p25",
+      "source_fact": "20-seed exploratory reupload sweep also selects alpha/beta to optimize test R2; table notes19to20seeds.",
+      "transfer_limit": "Not a predeclared completed independent confirmation and not a new native reupload design."
+    },
+    {
+      "id": "mechanism_diagnostic",
+      "locator": "p5;Table12 p21;pp7,22",
+      "source_fact": "Tail length selected from six values using prediction-error correlations on pooled test windows; deciles and subgroup plots reuse test errors.",
+      "transfer_limit": "Descriptive localization; no frozen independent regime predictor or causal isolation. 3000 windows nested within100 seeds, not3000 independent trajectory units."
+    },
+    {
+      "id": "broader_baseline",
+      "locator": "p10;Table14 p23",
+      "source_fact": "Recurrent ESN has access to full history and source reports stronger scores.",
+      "transfer_limit": "Fair to state the source claim is fixed-window KRR only; broader forecasting superiority not established, no relevance to our NLP metric."
+    },
+    {
+      "id": "classical_evaluation",
+      "locator": "pp8–9",
+      "source_fact": "Source explicitly evaluates its amplitude-plus-product-rotation kernel exactly classically.",
+      "transfer_limit": "Architectural origin remains legitimate; simulability is not a veto of the original quantum research goal."
+    },
+    {
+      "id": "theory",
+      "locator": "p4;pp5–10",
+      "source_fact": "Reported crossover is empirical; alignment, Gram distances and Jacobian/error correlations are diagnostics.",
+      "transfer_limit": "No theorem deriving native40-class CE/Macro advantage or source regime threshold. Nonzero distance at tuned kernels alone does not establish inequivalence of complete model families."
+    }
+  ],
+  "unresolved_reporting": [
+    "Tables9–10 label raw kernel variance yet report values above1/4; any omitted scaling/normalization is unresolved without author code, so do not use those numbers as quantitative raw-variance evidence.",
+    "AppendixB bandwidth grid and later Fig7 values do not directly match; source tuning parity is reported, not independently certified."
+  ],
+  "decision": "NONE_DIRECT_TRANSFER; preserve main source report separately from exploratory mechanism claims."
+}
