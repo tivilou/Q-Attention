@@ -1,0 +1,106 @@
+{
+  "schema": "bounded-primary-source-discovery.v1",
+  "profile_sha256": "3ac9156f13196bcd666f8a83d5271475cf09f2b78086c4db09e17b538ea370fa",
+  "queries": [
+    {
+      "query": "all:\"quantum attention\" AND (all:expressivity OR all:expressive)",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22quantum+attention%22+AND+%28all%3Aexpressivity+OR+all%3Aexpressive%29&start=0&max_results=6&sortBy=relevance&sortOrder=descending",
+      "requested_max_results": 6,
+      "retrieved_at": "2026-11-25T16:03:25.439710+00:00",
+      "status": "failed",
+      "error_type": "TimeoutError",
+      "error": "The read operation timed out",
+      "elapsed_seconds": 25.625,
+      "entries": []
+    },
+    {
+      "query": "all:\"quantum kernel\" AND all:\"inductive bias\"",
+      "url": "https://export.arxiv.org/api/query?search_query=all%3A%22quantum+kernel%22+AND+all%3A%22inductive+bias%22&start=0&max_results=6&sortBy=relevance&sortOrder=descending",
+      "requested_max_results": 6,
+      "retrieved_at": "2026-11-25T16:03:54.281797+00:00",
+      "http_status": 200,
+      "final_url": "https://export.arxiv.org/api/query?search_query=all%3A%22quantum+kernel%22+AND+all%3A%22inductive+bias%22&start=0&max_results=6&sortBy=relevance&sortOrder=descending",
+      "status": "retrieved",
+      "sha256": "c8a2e357c436b6a171e2ab0638f4e492c18b07bc21a3ecff4f4e0f34bb617585",
+      "elapsed_seconds": 18.5,
+      "entries": [
+        {
+          "id": "http://arxiv.org/abs/2106.03747v2",
+          "title": "The Inductive Bias of Quantum Kernels",
+          "published": "2021-06-07T16:14:32Z",
+          "updated": "2021-11-09T09:59:05Z",
+          "authors": [
+            "Jonas M. Kübler",
+            "Simon Buchholz",
+            "Bernhard Schölkopf"
+          ]
+        },
+        {
+          "id": "http://arxiv.org/abs/2503.20683v3",
+          "title": "New perspectives on quantum kernels through the lens of entangled tensor kernels",
+          "published": "2025-03-26T16:18:27Z",
+          "updated": "2026-05-20T01:07:23Z",
+          "authors": [
+            "Seongwook Shin",
+            "Ryan Sweke",
+            "Hyunseok Jeong"
+          ]
+        },
+        {
+          "id": "http://arxiv.org/abs/2311.13552v1",
+          "title": "A Unified Framework for Trace-induced Quantum Kernels",
+          "published": "2023-11-22T17:50:00Z",
+          "updated": "2023-11-22T17:50:00Z",
+          "authors": [
+            "Beng Yee Gan",
+            "Daniel Leykam",
+            "Supanut Thanasilp"
+          ]
+        },
+        {
+          "id": "http://arxiv.org/abs/2609.13360v1",
+          "title": "Structured Quantum Kernels for Chaotic Forecasting",
+          "published": "2026-09-11T17:50:40Z",
+          "updated": "2026-09-11T17:50:40Z",
+          "authors": [
+            "Zhihui Wang",
+            "Sujit Roy",
+            "Ata Akbari",
+            "Manil Maskey",
+            "Rahul Ramachandran"
+          ]
+        },
+        {
+          "id": "http://arxiv.org/abs/2206.06686v3",
+          "title": "Bandwidth Enables Generalization in Quantum Kernel Models",
+          "published": "2022-06-14T08:41:08Z",
+          "updated": "2023-06-18T17:21:58Z",
+          "authors": [
+            "Abdulkadir Canatar",
+            "Evan Peters",
+            "Cengiz Pehlevan",
+            "Stefan M. Wild",
+            "Ruslan Shaydulin"
+          ]
+        },
+        {
+          "id": "http://arxiv.org/abs/2610.00649v1",
+          "title": "On Evaluating Quantum Kernel Robustness for Low-Resource Cross-Corpus Audio Deepfake Detection",
+          "published": "2026-09-30T19:51:25Z",
+          "updated": "2026-09-30T19:51:25Z",
+          "authors": [
+            "Lisan Al Amin",
+            "Lei Zhang",
+            "Vandana P. Janeja"
+          ]
+        }
+      ]
+    }
+  ],
+  "fulltexts_read": 0,
+  "limitations": [
+    "Two fixed relevance-ranked top-six queries, not exhaustive novelty coverage.",
+    "Metadata/abstract leads only; not a selected mechanism or transfer proof."
+  ],
+  "bank_reuse": "2106.03747v2,2206.06686v3,2503.20683v3,2311.13552v1 already present as metadata/abstract in common-utility-router/literature-note.json. No newly read originals from these queries."
+}

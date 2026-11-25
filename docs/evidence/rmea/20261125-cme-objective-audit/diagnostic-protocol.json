@@ -1,0 +1,23 @@
+{
+  "schema": "q-rmea.existing-prediction-objective-diagnostic.v1",
+  "timing": "Frozen before new Brier/gradient summaries; existing gen98 outcomes and predictions are already exposed development evidence.",
+  "input_npz_sha256": "3677d55f2e6d3c64df6c9789c76f7113b66a79ee1efbee7531bc9bf2bf5d1307",
+  "cohort_sha256": "8fb8393bbe2241929748283f2bbaa219682696409857ec15678585bcd0b88ff0",
+  "models": ["quantum_distinct", "dephased_distinct", "gaussian_distinct", "quantum_permuted_distinct", "quantum_collision_mass"],
+  "rows": 4096,
+  "classes": 40,
+  "probabilities": "FP64 stable softmax of stored final logits, temperature1, no fitted calibration.",
+  "summaries": ["all-row and all40-class-average Brier", "CE", "truth probability", "sum of squared probabilities", "max probability", "entropy", "CE and Brier output-logit gradient norms"],
+  "class_table": "all40 labels, including FIT/assessment support and the same summaries",
+  "paired_groups": "Q/G correctness four cells crossed with gold positive/null; all4096 rows retained",
+  "paired_contrast": "Q minus G Brier = difference in probability-square sum minus2*difference in truth probability",
+  "high_confidence_wrong": "For each model separately, wrong argmax with maximum probability>=0.9; count and mean Brier-gradient/CE-gradient norm ratio. Different model-selected sets are not paired evidence.",
+  "verification": "Independent pure-Python stable probabilities/per-class/group sums and confusion hashes on the same server-side NPZ; compact aggregates only exported.",
+  "decisions": [
+    "Macro-F1 and all13 frozen gen98 gates retain their original decisions.",
+    "A Brier ranking reversal is a metric tradeoff, not quantum advantage or permission to promote.",
+    "Output-gradient saturation is a mathematical observation at frozen logits, not evidence of parameter-gradient cause or retraining benefit.",
+    "Known categorical CME/Brier equivalence alone is not a new mechanism or T; no fit follows automatically."
+  ],
+  "execution": "Read-only compact-result calculation via existing bound transport; no GPU, model/feature/text loading, server writes or training."
+}
