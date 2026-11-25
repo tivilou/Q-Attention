@@ -1,0 +1,67 @@
+{
+  "status": "READ_FOR_SCOPE",
+  "title": "Quantum embeddings for machine learning",
+  "arxiv_id": "2001.03622v2",
+  "pdf_sha256": "c7c5d66f2b34210856c35900561a89d6744d76f5bdf3cfa0ce384f0019e3aebc",
+  "receipt": "D:\\CodexHome\\task-artifacts\\qattn-embedding-transfer-20261125\\fulltexts\\f2fa1991d33d3ce3\\receipt.json",
+  "identity": "verified_against_Atom_and_p1_footer",
+  "pages_read": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "visually_checked_equation_pages": [
+    3,
+    10
+  ],
+  "scope": "Main I-III embedding/objective/measurement; mainIV-VI experiment and resource limitations; AppendixA definitions/B classification-v-state discrimination/C fidelity/D1-D3 Helstrom and pair averaging. Reference list read only as leads, not source verification of cited works.",
+  "findings": [
+    {
+      "kind": "source",
+      "locator": "p2-p3 SectionsI-II; p8 AppA; p9 AppC",
+      "claim": "Binary quantum data embedding has a linear-observable classifier; fidelity output uses difference of class-mean density operators. Its class-balanced linear-risk expression is negative HS separation under the source normalization convention; not a CE/Macro or generalization theorem."
+    },
+    {
+      "kind": "source",
+      "locator": "p4 SectionIII",
+      "claim": "HS separation is known kernel mean discrepancy for fidelity kernel. Merely adding class-separation/metric learning is not newT."
+    },
+    {
+      "kind": "source",
+      "locator": "p5 SectionIV final paragraph; p6 Conclusion",
+      "claim": "The numerical demonstration does not establish superiority over classical ML. Small-circuit simulation here cannot inherit classically inaccessible many-qubit claims."
+    },
+    {
+      "kind": "our_check",
+      "locator": "p10 AppD2 displayed pure-pair averaging equation, checked against AppD1 sign observable; transfer_audit.py",
+      "claim": "Literal interchange of taking matrix sign and averaging independently solved pure pairs fails. A one-qubit ensemble gives mixed-sign expectation +0.03701166, pure-pair-sign average -0.03133975. Does not contradict Helstrom theorem or independent mixed-ensemble-copy algorithms."
+    },
+    {
+      "kind": "our_transfer_check",
+      "locator": "Current original rmea.py forward; native counterexample in transfer_audit.py",
+      "claim": "Native logit is fractional signed-utility operator expectation. Identical unweighted token density can yield logits +/-0.999998; uniform-density MMD alone does not characterize that classifier."
+    },
+    {
+      "kind": "our_algebra",
+      "locator": "transfer_audit.py exact formula plus64 random state-port checks",
+      "claim": "Fractional and lifted pairwise margin identities are standard linear algebra, not newT or utility. Random state checks do not certify native circuit reachability."
+    }
+  ],
+  "limits": [
+    "No repository code/supplement replication or hardware complexity theorem validation.",
+    "The source has no Eq guaranteeing Macro-F1 for the40-class value-weighted normalized token model.",
+    "We reject the proposed naive transfer/proxy, not all metric learning, Helstrom classification or quantum methods."
+  ],
+  "decision": "NO_TRAINING_CANDIDATE_FROM_BARE_METRIC_LEARNING_OR_PAIR_HELSTROM_PROXY",
+  "new_task_rows": 0,
+  "updates": 0,
+  "gpu_allocations": 0
+}
