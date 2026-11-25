@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-等价折叠线性读出筛选完成：Q Macro 0.386360，Gaussian 0.404412，dephased 0.402286，固定六门0/6PASS，本确切配置暂缓，不晋级全量。三新fit/3072updates，各53828 trainables，数学函数类不增加但AdamW/衰减路径改变；两卡已归还。已知线性折叠不是新T，新L3/L4-T未接受，原限定L4及历史保留。
+原生三路类别先验训练修正筛选完成：Q Macro 0.369464，Gaussian 0.405525，dephased 0.385478，固定六门0/6PASS，本确切配置暂缓，不晋级全量。三新fit/3072updates，各81028 trainables，原生读出不变，三路均使用训练集prior修正；两卡已归还。已知Balanced Softmax不是新T或Macro最优保证，新L3/L4-T未接受，原限定L4及历史保留。
 
 ## 时间线
+
+- [2026-11-25｜原生三路的类别先验训练目标筛选](20261125T-072421Z-prior-adjusted-native-training.md)：8192fit/4096assessment，三新fit及四固定参照，完整七路保留；本确切配置暂缓，不晋级全量。
 
 - [2026-11-25｜等价单层词评分的三路小数据筛选](20261125T-065902Z-common-utility-router.md)：8192fit/4096assessment，三新fit及四固定参照，完整七路保留；本确切配置暂缓，不晋级全量。
 

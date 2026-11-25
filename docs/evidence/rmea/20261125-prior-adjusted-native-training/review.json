@@ -1,0 +1,25 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "scope": "mechanism",
+  "seconds": 24.910158395767212,
+  "profile_echo_verified": true,
+  "hashes": {
+    "plugin.py": "5fe073ce641dfe87ecd73ccd7969398635a51cb6cef0c8d1fde9f2ee5877dc04",
+    "adapter.py": "9a2762a15bbe93f1a626ccd4bca6a0a3a4f93a8feadb122677b26587f2571700",
+    "design.json": "1120402a005991c4ce23bfee5377768e4728e59ac0fc6c9c182e15d8e85b34f2",
+    "protocol.md": "9ab1a332cc27569638371775c8086b67e62c3197e7305779b6a73d4d307f12af"
+  },
+  "packet_sha256": "2ca434b574c4672bb7cea6440e09c60c2a81f9d8d4b8bfe0156045a1336c4e3c",
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "This is a static review. All three arms add log(fit_counts) with the correct positive sign during training and return raw logits in eval mode. The 40 positive counts sum to 8192. The persistent integer buffer moves with the model, is cast to the logits\u2019 device and dtype for the addition, and is included in full-state reconstruction.",
+      "The initialization mapping preserves the native factorized readouts. The supplied fixtures cover the independent NumPy loss, analytic logit gradient, parameter gradients from separate graphs, uniform-count parity, native inference, padding, and a finite-gradient AdamW update on each clone. Fixture execution, private cohort provenance, and reused endpoint alignment were not independently verified here.",
+      "Promotion requires six strict all-40 Macro-F1 wins against adjusted D/G and reused Q/D/G/Gcov. Gcov serves as a stronger practical reference. Balanced Softmax carries no Macro-F1 guarantee. A six-gate pass permits full-protocol design only. Any failed gate defers the frozen profile. L3 and L4-T remain unaccepted."
+    ],
+    "admission": "bounded_small_TRAIN_screen"
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "descriptive_macro_differences": {
+    "quantum_adjusted_minus_native": -0.01983700165346569,
+    "dephased_adjusted_minus_native": -0.08702326248134445,
+    "gaussian_base_adjusted_minus_native": -0.07870384748451864,
+    "Qadjusted_minus_Dadjusted": -0.016014221890810865,
+    "Qadjusted_minus_Gadjusted": -0.03606149839475997,
+    "Qadjusted_minus_Gcov_practical": -0.14259044937176063
+  },
+  "metrics": {
+    "adjusted/quantum": {
+      "macro": 0.36946360092070735,
+      "raw_ce": 1.5055274963378906,
+      "correct": 2516,
+      "null_f1": 0.7084381431511548,
+      "positive39_macro": 0.3607719459917215,
+      "positive_to_null": 93,
+      "null_false_positive": 1182,
+      "predicted_null": 1642
+    },
+    "adjusted/dephased": {
+      "macro": 0.3854778228115182,
+      "raw_ce": 1.795422077178955,
+      "correct": 2253,
+      "null_f1": 0.6202625712162497,
+      "positive39_macro": 0.3794577010575508,
+      "positive_to_null": 54,
+      "null_false_positive": 1479,
+      "predicted_null": 1306
+    },
+    "adjusted/gaussian_base": {
+      "macro": 0.4055250993154673,
+      "raw_ce": 1.5467281341552734,
+      "correct": 2430,
+      "null_f1": 0.666033705198196,
+      "positive39_macro": 0.3988453914723204,
+      "positive_to_null": 79,
+      "null_false_positive": 1328,
+      "predicted_null": 1482
+    },
+    "reused/quantum": {
+      "macro": 0.38930060257417304,
+      "raw_ce": 0.7501261830329895,
+      "correct": 3176,
+      "null_f1": 0.8596522674314393,
+      "positive39_macro": 0.3772403034752687,
+      "positive_to_null": 450,
+      "null_false_positive": 333,
+      "predicted_null": 2848
+    },
+    "reused/dephased": {
+      "macro": 0.47250108529286267,
+      "raw_ce": 0.7079744338989258,
+      "correct": 3228,
+      "null_f1": 0.8614545454545455,
+      "positive39_macro": 0.4625279196476912,
+      "positive_to_null": 400,
+      "null_false_positive": 362,
+      "predicted_null": 2769
+    },
+    "reused/gaussian_base": {
+      "macro": 0.48422894679998596,
+      "raw_ce": 0.7054392099380493,
+      "correct": 3238,
+      "null_f1": 0.8642245307089484,
+      "positive39_macro": 0.4744854702894998,
+      "positive_to_null": 385,
+      "null_false_positive": 360,
+      "predicted_null": 2756
+    },
+    "reused/gaussian_covariance": {
+      "macro": 0.512054050292468,
+      "raw_ce": 0.6950918436050415,
+      "correct": 3279,
+      "null_f1": 0.8712259003273918,
+      "positive39_macro": 0.5028445156761878,
+      "positive_to_null": 372,
+      "null_false_positive": 336,
+      "predicted_null": 2767
+    }
+  },
+  "gates": {
+    "macro_beats_dephased": false,
+    "macro_beats_gaussian_base": false,
+    "macro_beats_reused/quantum": false,
+    "macro_beats_reused/dephased": false,
+    "macro_beats_reused/gaussian_base": false,
+    "macro_beats_reused/gaussian_covariance": false
+  },
+  "stage_decision": "DEFER_EXACT_PRIOR_ADJUSTED_SCREEN",
+  "limitation": "Known prior-aware training is not a quantum novelty or a Macro-F1 consistency theorem; no family impossibility or causal diagnosis from this development screen."
+}
