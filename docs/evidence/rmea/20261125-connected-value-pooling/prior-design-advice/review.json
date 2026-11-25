@@ -1,0 +1,26 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "seconds": 100.21081566810608,
+  "hashes": {
+    "current-exact-plugin.py": "e0f1f4fe42d558f039b941a28321b6b2f377d63b18589f61072fc8d0f43f7a3e",
+    "current-mechanism.md": "be7596e16c8f21737be8902b843b0adf57a8b70ee360cbf1cb1f5b1e63fc2f63"
+  },
+  "response": {
+    "recommendation": "ONE",
+    "bottleneck": "At fixed attention, each class reads only the weighted mean of its value vectors. Two sentences can therefore give a relation the same pooled evidence even when two learned cues coincide at a word in one sentence and occur at different words in the other. This is a specific limitation of the readout shared by the compared routers. The flow result (.449927 versus .472501 dephased and .484229 Gaussian) leaves its task relevance open.",
+    "lead": "Give each relation access to the within-sentence covariance of paired value channels under its own attention. The task hypothesis is that a relation cue carries different evidence when the same contextual word also expresses compatibility with the marked arguments. The frozen encoder may already encode that conjunction in a single linearly readable feature, which would limit the benefit.",
+    "exact_math": "At the pooling step, let v_i be the existing k-dimensional value vector, \u03bc_r = \u03a3_i \u03b1_ri v_i, and m = floor(k/2). For j = 1,\u2026,m, compute C_rj = \u03a3_i \u03b1_ri v_i,2j\u22121 v_i,2j \u2212 \u03bc_r,2j\u22121 \u03bc_r,2j. Use z_r = b_r + d_r\u1d40\u03bc_r + c_r\u1d40C_r. The only added parameters are 40m decoder coefficients c, initialized to zero so each fit starts at its native logits. The existing value projection learns the paired directions. Computation needs one additional weighted pooling of m products.",
+    "claimed_new_part": "The project-level distinction is whether the two value measurements come from the same sampled word or from two independent draws under identical relation attention. Their expected-product difference is exactly C. This gives a testable change to what the classifier can read even when the attention weights agree.",
+    "nearest_collision": "Bilinear CNN Models for Fine-grained Visual Recognition, arXiv:1504.07889, pools products of local features for classification. The proposed statistic is a centered, relation-weighted instance of known second-order pooling. Its value here depends on the task comparison.",
+    "discriminating_prediction": "With uniform attention, the two-word value sets {(1,1),(\u22121,\u22121)} and {(1,\u22121),(\u22121,1)} both have mean zero and identical channel marginals. Their covariances are +1 and \u22121. A quadratic decoder acting only on the pooled mean gives identical logits on this pair. On real data, the prediction is that access to within-word products improves all-40 macro-F1 beyond an equally parameterized quadratic decoder acting on pooled means. A gain under Gaussian routing would support a classical explanation for that benefit.",
+    "minimal_check": "One TRAIN-only screen with four new fits: native Q and Gaussian-base routing, each crossed with covariance and the pooled-product control. Use the existing 8192 fit / 4096 assessment split, seed 13, 1024 updates, batch 128, original optimizer and matched native initialization within each router. Finish all fits before assessment. Use all-40 macro-F1 as primary.",
+    "fair_control": "In each control replace C_rj with \u03bc_r,2j\u22121 \u03bc_r,2j, keeping the linear path, paired channels, extra coefficients and initialization identical. Gaussian-plus-covariance also tests whether the entire mechanism transfers to the strongest classical router. The existing native dephased and Gaussian scores supply the absolute utility comparisons.",
+    "falsifier": "Stop the Q lead unless Q-plus-covariance beats its pooled-product control, native dephased (.472501), native Gaussian (.484229), and both newly fit Gaussian arms on the fixed primary metric. If Gaussian-plus-covariance wins and beats its own pooled-product control, credit the classical readout result. In the degenerate case of attention concentrated on one word, C is exactly zero for every channel pair.",
+    "limits": [
+      "The mathematical witness holds at fixed routing and values. An end-to-end first-moment model can distinguish some such inputs by learning different attention.",
+      "The confusion matrices do not establish how often cue coincidence matters, and the fixed-checkpoint TRAIN intervention does not explain the held-out gap.",
+      "A single-seed screen can reject this profile or justify further consideration. It cannot establish robust utility, novelty, or maturity."
+    ]
+  }
+}

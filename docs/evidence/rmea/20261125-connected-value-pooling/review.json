@@ -1,0 +1,28 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "scope": "mechanism",
+  "seconds": 21.888600826263428,
+  "profile_echo_verified": true,
+  "hashes": {
+    "plugin.py": "73ef2fb6e3016459d6a4df9629363e7dd4115533eff69fff8760f64aa67ffe1a",
+    "adapter.py": "95196806cbe1f3aa12d693f8af3f3917e9e22d2d90b2aca5363d5d23f57d5c2c",
+    "design.json": "fd3202a7de4377ba42d4dc3f81217bc8977dabad5ffc25358278ffabf5314631",
+    "protocol.md": "463f2a1142d59c3ee138224463e53312da6fd5104d9f5813c062b68012f28471"
+  },
+  "packet_sha256": "fa8d038661226fa72194d67f9221aae8172d8aa3ab10477044105723eeb01c26",
+  "response": {
+    "verdict": "PASS",
+    "scope": "mechanism",
+    "must_fix": [],
+    "limitations": [
+      "Static review of the supplied code. Fixture execution, the eight-row batch supplied by the caller, and training outcomes remain unverified.",
+      "For normalized attention, the half-weighted pair-difference sum expands to E[ab] \u2212 E[a]E[b]. The double-draw diagonal gives E[a]E[b]. The implementation preserves the covariance sign. The Gaussian branch masks before row normalization, and the other branches reuse native attention. The padding, singleton, and channel-shift checks match the covariance identities.",
+      "At nonzero coefficients, `got` comes from a fresh forward pass and `expected` comes from the earlier `components` call. The graphs share parameter leaves and can be differentiated separately without `retain_graph`. The fixture compares gradients for every parameter. Both the formula check and the optimizer step operate on model copies.",
+      "The zero-initialized 40 \u00d7 32 decoder adds 1,280 coefficients, bringing each new arm from 81,028 to 82,308 registered scalars. For finite statistics, zero coefficients recover the base logits exactly. The fixture checks that equality exactly, native Q/dephased parity to 1e-12, and the NumPy Gaussian endpoint to 1e-10. Equal parameter counts alone do not establish equal effective capacity.",
+      "Each arm extends one router\u2019s logits using its own attention and values. The added computation is classical second-order pooling. The synthetic witness distinguishes the readouts at fixed attention and values. It establishes neither an end-to-end model-class separation nor a quantum causal claim.",
+      "Promotion requires Q covariance to strictly exceed all four new controls and all three reused native controls on all-40 macro-F1. The Gaussian covariance-versus-product result is descriptive evidence about the classical readout. A passing result admits full protocol design only. A tie or loss defers the frozen profile under the stated stop rule."
+    ],
+    "admission": "bounded_small_TRAIN_screen"
+  }
+}
