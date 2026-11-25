@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-依存图输入资格审计COMPLETE/NONE：复用TRAIN58465汇总与source身份，metadata未列依存字段但非全顶层普查；历史转换器白名单且只保留标量，canary非完整数据producer回执，确切绑定未核实。固定native/extractor/inspection源码SHA、原词映射及无graph接口已核；0新任务行-forward-fit-GPU/API。不猜图或重开旧transition-memory-coherentpool。下一步同态attention-value的有限代数/历史排重，未选方法。原L4/全部历史/gen98STOP保持，新L3-L4T未接受/量子目标ACTIVE。
+同态attention/value代数前置检查COMPLETE：rank1投影后读值成为类常数，原EPS池化的未正则化weakvalue有极点；80组560词密度max1.75e-13及48精确分数事件核验。D同态observable读出仍非退化，有精确经典二阶矩控制，尚未选择任务方法或取得新T。下一项固定旧nativeQ checkpoint和TRAIN8192/4096的Hermitian-span信息诊断，输入metadata/cohort/source回执已预核，服务器可用性与执行尚未发生；0新任务行-nativeforward-fit-GPU/API。原L4/全部历史/gen98STOP保持，新L3-L4T未接受/量子目标ACTIVE。
 
 ## 时间线
+
+- [2026-11-26｜同态读值退化与信息必要条件](20261125T-181017Z-state-value-preflight.md)：两种指定读出停止，同态observable保留为未选组件；下一步固定表示的信息诊断，非任务训练晋级。
 
 - [2026-11-26｜依存图输入资格与来源边界](20261125T-175200Z-dependency-interface.md)：原词特征对齐有据，依存图资格未建立；不重建parse/不开训练，保留producer未绑定缺口。
 

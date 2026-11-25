@@ -1,0 +1,37 @@
+{
+  "schema": "qattn.state-value-preflight-scope.v1",
+  "parent_action": "D:/CodexHome/task-artifacts/qattn-dependency-interface-20261126/next-direction.json",
+  "purpose": "Check exact algebra and degeneracies before any task or native-circuit execution; no method selected.",
+  "dimensions": [2, 8],
+  "random_seed": 20261126,
+  "pure_cases_per_dimension": 32,
+  "mixed_cases_per_dimension": 8,
+  "tokens_per_case": 7,
+  "EPS": 0.000001,
+  "value_operator_norm_for_checks": 1,
+  "profiles": {
+    "A": "E=rho_phi rank one; after successful class effect read V on E rho E / p; pool with native alpha.",
+    "B": "Unregularized real weak-value n/p, n=Re Tr(E V rho); retain native alpha=(p+EPS)/sum(p+EPS).",
+    "C_identity_only": "Algebraic interpretation of n/(p+EPS) under the same alpha. This is a different function from B, not a retuning or recovery of B.",
+    "D": "Same-state expectation u=Tr(V rho), pooled with native alpha. Check density first/second moments and separate router/value dephasing."
+  },
+  "dense_checks": [
+    "Rank-one postselected-state collapse and pooled constant",
+    "Regularized signed-numerator pooling equals a first-density-moment ratio",
+    "Same-state observable pooling equals the two-copy second moment plus EPS first moment",
+    "Independent real Hermitian coordinates reproduce direct matrix traces",
+    "Observable range and Cauchy-Schwarz numerator bound"
+  ],
+  "edge_checks": {
+    "weak_value_rational_parameter_powers": [2, 4, 6, 8, 12],
+    "weak_value_anchor": "rho=|0><0|, E=|0><0|, V=X; anchor probability=1 and numerator=0",
+    "same_density_ensembles": "X plus/minus versus Z zero/one, E=|+><+|, V=X",
+    "independent_exact_checks": "Fraction matrix multiplication on fixed 2x2 rational states/effects; exact same-density contrast and singularity table"
+  },
+  "tolerance": {"dense_identity_absolute": 1e-11, "exact_fraction": 0},
+  "history_scope": ["Q-BAM sequential back-action decision", "gen97 shared-query classical-value covariance", "gen92 common frozen utility", "retained operator-valued conditional-POVM audit"],
+  "decision_gate": "Collapse or EPS pole rejects that specified profile. A nondegenerate D component is not a selected task method: task information, substantive novelty, fair controls and new theory remain unproved. Exact classical representation is a control, not a simulability veto.",
+  "resource": {"new_task_rows": 0, "feature_checkpoint_reads": 0, "native_head_forwards": 0, "native_circuit_executions": 0, "updates": 0, "GPU_allocations": 0, "server_writes": 0, "COS": 0, "model_API_calls": 0, "new_original_acquisitions": 0},
+  "scope_limit": "Random density matrices and explicit qubit examples are algebra checks, not task evidence or certified reachable ports of the native ansatz.",
+  "goal": "ACTIVE", "newL3": "NOT_ACCEPTED", "newL4T": "NOT_ACCEPTED"
+}
