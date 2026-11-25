@@ -1,0 +1,35 @@
+{
+  "status": "EXPLORATORY_ANALYSIS_FROZEN_BEFORE_NEW_STRATUM_READOUT",
+  "frozen_at": "2026-11-25T14:43:38.993792+00:00",
+  "source": "Existing gen98 sealed diagnostic, all5 predictions; no new model execution",
+  "diagnostic_sha256": "3677d55f2e6d3c64df6c9789c76f7113b66a79ee1efbee7531bc9bf2bf5d1307",
+  "models": [
+    "quantum_distinct",
+    "dephased_distinct",
+    "gaussian_distinct"
+  ],
+  "features": [
+    "original word count",
+    "nonoverlapping entity token gap",
+    "subject-before-object vs object-before-subject"
+  ],
+  "bins": "Length and gap each split by FIT8192 median, <= versus >; subject order categorical. One length/gap2x2 table also retained. No threshold optimization or additional-feature search.",
+  "population": "All existing4096assessment rows, all40classes; all bins retained, not fresh confirmation",
+  "outputs": [
+    "Overall and each bin all40Macro with fixed denominator40",
+    "Complete support and confusion matrices3models per bin",
+    "Paired quantum-v-gaussian correctness and D status",
+    "Sameclass additive balanced-accuracy-gap contributions; diagnostic only, primary Macro unchanged"
+  ],
+  "interpretation": "Posthoc descriptive localization, not a quantum-specific cause, semantic pattern, invariance proof or candidate-selection gate. Subgroup wins alone do not authorize rerunning a stopped configuration.",
+  "stop_rule": "One pass only; no adding features/quantiles after seeing outcomes. If no defensible new task mechanism, record unresolved gap and seek new source-led task mechanism without fitting.",
+  "resources": {
+    "new_head_forwards": 0,
+    "updates": 0,
+    "gpu": 0,
+    "max_seconds": 60,
+    "no_COS_write": true,
+    "no_dataset_VALID_TEST_read": true,
+    "no_Windows_arrays": true
+  }
+}

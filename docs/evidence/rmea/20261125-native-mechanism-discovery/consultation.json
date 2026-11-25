@@ -1,0 +1,37 @@
+{
+  "model": "gpt-6.2-astra",
+  "reasoning_effort": "high",
+  "seconds": 34.71915411949158,
+  "packet_sha256": "1c39b98685217d26c66f8a7d857ec9e6cf86d65876b33760739f0ee03b17b5e6",
+  "selection_sha256": "ea1cd5cae074ed2ec1fdcc6188b28872c3679983fd429374def1d1d87e741f8b",
+  "response": {
+    "disposition": "NONE",
+    "candidate": null,
+    "closest_closed_routes": [
+      "distinct-token-evidence-20261125",
+      "factorized-amplitude-phase-20261124",
+      "query-unitary-transport-20261124"
+    ],
+    "theory_statement": "One implementation constraint narrows the interpretation of the native circuit. Replacing its terminal CNOT ring with any fixed computational-basis permutation shared by token and effect preparation preserves every quantum and dephased logit. This is an equivalence check on a possible insertion point.",
+    "assumptions": [
+      "The replacement acts after all trainable gates on both branches. The angles, mask, EPS, utilities and biases are held fixed.",
+      "The equivalence concerns the supplied native forward function in exact arithmetic."
+    ],
+    "proof_or_unresolved_lemma": "Let a and b be the token and effect states immediately before the terminal ring, and let P be its permutation matrix. The quantum overlap is preserved because (Pb)†(Pa) = b†a. For the dephased score, the squared magnitudes of Pa and Pb undergo the same coordinate permutation, which preserves their dot product. Equality holds for each relation and token before EPS and mask application, so normalization and signed utility pooling preserve it through the logits. This argument applies specifically to the terminal ring. The first ring has trainable rotations downstream.",
+    "discriminating_prediction": "",
+    "minimal_decision_test": "No new test is warranted for this advisory. The terminal-ring equivalence is decidable from the supplied forward function. Replaying checkpoints to verify it would add no candidate-selection information.",
+    "source_leads": [],
+    "limitations": [
+      "This assessment uses the supplied source text and reported results. Source hashes, runs and primary literature were not independently verified.",
+      "The recent assessment cohort has been screened repeatedly. Its scores support comparisons of the reported configurations only.",
+      "The terminal-ring equivalence supplies neither a task-level theory nor a family-wide impossibility result."
+    ],
+    "why_not_closed_profile_rescue": "A common terminal permutation leaves the scores identical. Making the transformation relation-dependent to change the overlaps would require a substantive distinction from the closed query-transport route and a task hypothesis predicting when that distinction helps. I found neither in the supplied evidence.",
+    "why_no_candidate_if_NONE": "The strongest lead is the distinct-token result. At the reported precision, quantum gained 0.06427 all-40 Macro-F1 over dephased and 0.04702 over its permuted control, while the matched Gaussian router exceeded quantum by 0.01001 and achieved lower cross-entropy. Those comparisons leave open a concrete attribution question: on which task examples should phase-sensitive routing improve the correct relation’s signed logit margin beyond what the Gaussian router achieves? The native readout makes the direction depend on which token utilities gain normalized weight. The reported aggregate scores do not identify a task condition that predicts that direction. I therefore have no materially distinct mechanism with a defensible three-way prediction to advance."
+  },
+  "provenance": "external_model_hypothesis_not_primary_verified_fact",
+  "launch_admitted": false,
+  "newT": false,
+  "L3": "NOT_ACCEPTED",
+  "L4_T": "NOT_ACCEPTED"
+}
