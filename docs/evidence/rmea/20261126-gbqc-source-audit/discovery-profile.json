@@ -1,0 +1,42 @@
+{
+  "schema": "task-mechanism-primary-discovery.v1",
+  "frozen_at": "2026-11-25T17:02:19.266544+00:00",
+  "origin": "https://export.arxiv.org",
+  "purpose": "Fixed-kernel and Pauli projection guarantees have not supplied a task-supported constraint for native jointly learned signed attention. Return to task-specific mechanism discovery rather than automatically implementing a known weighted kernel.",
+  "queries": [
+    "all:\"quantum attention\" AND (all:\"relation extraction\" OR all:\"contextual\")",
+    "all:\"quantum kernel\" AND (all:\"feature learning\" OR all:\"trainable embedding\")"
+  ],
+  "max_results_per_query": 6,
+  "max_requests": 2,
+  "retries": 0,
+  "browser_escalations": 0,
+  "minimum_interval_seconds": 3.2,
+  "timeout_seconds": 25,
+  "max_response_bytes": 2097152,
+  "allowed_fields": [
+    "id",
+    "title",
+    "summary",
+    "authors",
+    "published",
+    "updated"
+  ],
+  "date_window": "All indexed dates, fixed relevance top6; no completeness claim.",
+  "freshness": "Fresh exact query response; retain raw response and hash; if already completed reuse receipt.",
+  "discovery_origins": [
+    "independent_search",
+    "cross_domain_search",
+    "paper_bank"
+  ],
+  "prior_filters": [
+    "Prioritize an actual structural NLP mechanism or jointly learned representation with clear prediction unit.",
+    "Deduplicate against existing originals and stopped role/order/sharedquery/alignment/frame/ansatz/bandwidth/VAT profiles before acquisition.",
+    "Source performance must include actual comparisons/ablations; abstract quantum claims are not task evidence.",
+    "No chosen plugin until a genuinely changed native interaction and task-supported Q/D/strong-classical prediction exist."
+  ],
+  "failure_action": "Record NONE with retained leads/failures; no new fit, no repeated Astra generic NONE question or optional seeds.",
+  "task_data_reads": 0,
+  "gpu_allocations": 0,
+  "model_api_calls": 0
+}

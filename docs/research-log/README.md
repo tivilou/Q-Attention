@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-2311.13552v1原文27页解析/22页范围读；Lego/H-body为PSD不保证attention非负，合法native端口H1=-1，直接归一化出现负alpha；Mercer rank1本征算符并非一个物理Pauli共轭，Q-D积分算符交换子平方1/1296。全部32key×40query、Q-D/S展开与独立稠密门/bit-Pauli/Fraction核PASS(1.78e-15)，已知工具非新T；0任务headforward-训练/GPU/API，直接迁移NONE。下一步两条固定top6官方查询，查真正任务结构/联合学习机制并与旧profile排重。原L4/全部历史/gen98STOP保持，新L3-L4T未接受/量子目标ACTIVE。
+两条固定top6官方查询返回0/1，唯一GBQC原文2609.06016v1解析31/范围读28/视觉1,8,9,31。实际固定product-RY，trainable map列未来；PCA/凝聚度源消融正面保留，完全相同解析核与流程对照未报告，native40token-unit迁移NONE。XML计数/哈希/表12全16行均值/旧L4和native源完整性机械核验PASS，不是独立科研评审。0任务forward-训练/GPU/API。下一步核读已有摘要级2105.02276v1训练嵌入近邻，不自动KTA fit/新方法。全部正负历史及gen98STOP保持，新L3-L4T未接受/量子目标ACTIVE。
 
 ## 时间线
+
+- [2026-11-26｜固定机制检索与GBQC原文边界](20261125T-171647Z-gbqc-source-audit.md)：0/1条命中、28页范围读；固定乘积核与流程控制资格审计，未选择新模型、0任务训练。
 
 - [2026-11-26｜Pauli-Lego核与非负路由适用边界](20261125T-165822Z-trace-kernel-audit.md)：22页范围读、负质量及Mercer物理基边界、独立稠密门/有理反例PASS，0新任务训练。
 
