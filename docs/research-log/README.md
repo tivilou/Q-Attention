@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-2105.02276v1原文20解析/17范围读/视觉1,6,12，实际未中心化二元KTA训练embedding再SVM，非旧中心化多类提议。源选最低test随机初始化再训练；全表5非ensemble对min全胜，对max3胜1平1负，源启发式/硬件核对齐非native40类signedCE收益保证。附录A已知metric-MMD近邻及native已实现梯度核清，不计新T/新方法；机械哈希全表PASS，0任务forward-fit-GPU/API。下一步现有依存元数据/原词索引的代码来源资格审计，非图模型选择或旧profile救援。oldL4/全部历史/gen98STOP保持，新L3-L4T未接受/量子目标ACTIVE。
+依存图输入资格审计COMPLETE/NONE：复用TRAIN58465汇总与source身份，metadata未列依存字段但非全顶层普查；历史转换器白名单且只保留标量，canary非完整数据producer回执，确切绑定未核实。固定native/extractor/inspection源码SHA、原词映射及无graph接口已核；0新任务行-forward-fit-GPU/API。不猜图或重开旧transition-memory-coherentpool。下一步同态attention-value的有限代数/历史排重，未选方法。原L4/全部历史/gen98STOP保持，新L3-L4T未接受/量子目标ACTIVE。
 
 ## 时间线
+
+- [2026-11-26｜依存图输入资格与来源边界](20261125T-175200Z-dependency-interface.md)：原词特征对齐有据，依存图资格未建立；不重建parse/不开训练，保留producer未绑定缺口。
 
 - [2026-11-26｜可训练量子嵌入目标与任务边界](20261125T-173055Z-trained-kernel-audit.md)：17页范围读、源完整表格及选择协议审计；KTA已知工具，未选新模型、0任务训练。
 
