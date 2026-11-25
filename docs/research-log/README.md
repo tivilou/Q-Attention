@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-原Q与实际FastWeights函数类审计完成：完整非负hidden/LN/ReLU/持续边界的2写1读实例也区分旧native相位构造，共同读出+.0146691/-.5350914，分数1/40与-39/40符号证书；旧例不足排除FW，不是一般包含证明或任务增益。一般复8态real16双内积/Hermitian64精确，real8只限旧实态例；24组/4Fraction/2v2轨迹通过，raw迹比值消去误差失败保留并等价中心化修正。headroom旧checkpoint/accuracy不迁移当前all40，强基线额外可达空间未定。无合格新方法/新T；下一步仅排重长context编码混叠假设，0新task/head/GPU/网络/API。原L4/全部历史和gen98/102/104STOP保持，新L3-L4T未接受/goalACTIVE。
+Q-RMEA六个旧定义源级排重完成，纠正词帧technical exit1非有效负筛选、native shared-query为零更新诊断。保留唯一暂定输入距离/词态相似pair关联S，不选方法；2人工native-structure例同纯度/长度/输入距离直方图/alpha/40输出，AQ=-1/3与1/6、差1/2，说明统计不是纯度改名但不足导致任务错误；Fraction正定下界23/50/独立标量核验误差2.23e-16。后续真实数据AUC>=.55且胜长度/纯度/同Q去相位最强者>=.02，失败STOP；尚未运行。0新task/circuit/fit/GPU/容量，原L4/全部历史/gen98-102-104STOP保持，新L3-L4T未接受/goalACTIVE。
 
 ## 时间线
+
+- [2026-11-26｜输入词态配对诊断与充分性反例](20261125T-211848Z-context-pair-alignment.md)：6源排重、精确1/2差与输出不变；仅暂定诊断，冻结AUC门槛未运行。
 
 - [2026-11-26｜实际FastWeights与原量子函数类审计](20261125T-205938Z-native-fw-class-audit.md)：完整FW也分开旧相位例；real16/Hermitian64核验，未选新方法，headroom口径分开。
 
