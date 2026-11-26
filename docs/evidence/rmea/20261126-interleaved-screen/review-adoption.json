@@ -1,0 +1,15 @@
+{
+  "status": "ADOPTED_CONDITIONALLY_FOR_AFFECTED_CHECKS",
+  "review_sha256": "37d997c602d65ce4c0b82b938d0595f3fd1b6f72ec9c6dba1118b29e3a12325a",
+  "plugin_unchanged_since_review": true,
+  "adapter_reviewed_sha256": "ecc4c395ca911c59a2aa19bed7bb21abf23e53cf8308e518b748812dfae8f4a0",
+  "adapter_after_sha256": "e2a15f59d5f2a372daa044972d2183bf2487dc45f820bb644f38f3452d9eead7",
+  "delta": "Verification only: assert exactly eight rows and actual FP32 parameter change. No change to formulas, model initialization, loss, optimizer or efficacy gates. Add missing source pins and explicit native placement comparability.",
+  "required": [
+    "FP64/FP32 independent operator parity, phase-restored complex amplitude, explicit density D, real8 ordered matrix oracle",
+    "Native initial identity/full tensor schema and eight old initializer identities/shared tensor equality",
+    "Eight actual TRAIN rows CPU clone updates in both precisions, originals unchanged",
+    "Fresh remote exact source/input/cohort/reference binding before fixed-screen admission"
+  ],
+  "training_admitted": false
+}

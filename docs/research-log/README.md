@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-关系操作插入词电路中间的单一假设PROVISIONAL：原末端Q†W2W1改为W2Q†W1，非旧gen76去相干/实体query输运/6q乘积式。A6API Astra/high一次机制审查PASS_WITH_RISK，仅数学检查；32固定人工角/原生Torch-dense-real16-vec-density一致，最大1.44e-15。两词最终rho相同但新row0精确-500000/500001、原0/all40 softmax差.0156553；Fraction密度64项/Markov独立核验，固定preparer+utility非自由family或任务收益。Q末词3RZ无效，D另失首3RZ，容量差公开。0GPU-taskforward-fit-新容量；原L4/全部旧STOP/历史保留，新L3L4T未接受/goalACTIVE。下一步只实现同一Q-D-real8科学plugin/紧凑1024配置，绑定强Gaussian-real-Gcov实际匹配身份并受影响审查验证，不自动训练。
+中间关系位置固定三臂小筛选完成：Q 0.350218485，D 0.444409337，real8 0.350500417；十门0/10，STOP_EXACT_MIDDLE_PLACEMENT_PROFILE。同一原公式插件/独立矩阵及真实8条clone更新核验通过，56输入源pin与八旧参考初始化/共同tensor验证，原nativeQ为完整状态相同的位置消融。gen106已归还、0旧参考重训/新容量。合成可分性不是任务归因或新T，容量null/gate几何差保留。原限定L4/全部正负历史保持，新L3/L4-T未接受/goalACTIVE。详见最新条目的唯一下一步。
 
 ## 时间线
+
+- [2026-11-26｜中间关系电路三臂固定小筛选](20261126T-004945Z-interleaved-screen.md)：十门0/10，保留全部结果及独立核验，gen106已归还。
 
 - [2026-11-26｜关系操作进入词态演化](20261126T-002021Z-interleaved-class-circuit.md)：固定preparer输出区别与数值对应通过；容量损失公开，候选PROVISIONAL/未训练。
 

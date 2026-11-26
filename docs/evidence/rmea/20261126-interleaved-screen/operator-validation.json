@@ -1,0 +1,95 @@
+{
+  "status": "PASS_INDEPENDENT_OPERATOR_AND_ANGLE_GRADIENT_CHECKS",
+  "maximum_errors": {
+    "torch.float64/quantum_middle": 1.1102230246251565e-15,
+    "torch.float64/dephased_middle": 6.661338147750939e-16,
+    "torch.float64/real8_middle": 6.661338147750939e-16,
+    "torch.float32/quantum_middle": 4.820026885954398e-07,
+    "torch.float32/dephased_middle": 4.131685554797926e-07,
+    "torch.float32/real8_middle": 5.779827247920366e-07
+  },
+  "angle_gradient_checks": [
+    {
+      "kind": "quantum_middle",
+      "coordinate": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "analytical": -0.04888534172667189,
+      "numerical": -0.048885341275006766,
+      "error": 4.5166512196992414e-10
+    },
+    {
+      "kind": "quantum_middle",
+      "coordinate": [
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "analytical": 0.0,
+      "numerical": 2.7755575615628914e-11,
+      "error": 2.7755575615628914e-11
+    },
+    {
+      "kind": "dephased_middle",
+      "coordinate": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "analytical": -0.011520522355941499,
+      "numerical": -0.011520522216756923,
+      "error": 1.3918457532346995e-10
+    },
+    {
+      "kind": "dephased_middle",
+      "coordinate": [
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "analytical": 0.0,
+      "numerical": 0.0,
+      "error": 0.0
+    },
+    {
+      "kind": "real8_middle",
+      "coordinate": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "analytical": 0.1787471478798382,
+      "numerical": 0.1787471479997027,
+      "error": 1.1986450720868902e-10
+    },
+    {
+      "kind": "real8_middle",
+      "coordinate": [
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "analytical": -0.20699415329273535,
+      "numerical": -0.20699415331781879,
+      "error": 2.5083435328809855e-11
+    }
+  ],
+  "complex_amplitude_restored_phase_max_error": 8.08254562088053e-16,
+  "explicit_density_dephase_max_error": 4.440892098500626e-16,
+  "torch_version": "2.4.1+cu121",
+  "native_initial_identity_still_required": true
+}

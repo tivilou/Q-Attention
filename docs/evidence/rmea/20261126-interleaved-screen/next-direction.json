@@ -1,0 +1,34 @@
+{
+  "status": "NEXT_FROZEN_SCREEN_ERROR_AUDIT_NO_NEW_FORWARD",
+  "action": "只审计gen106固定最终Q/D/real8三臂的逐类与配对错误：复用已存4096 TRAIN logits，0新模型前向/0训练/0容量；报告所有40类及Q独有修复/损害，检验此前合成路径可分性是否存在任务证据。不得改变插入位置、深度、初始化、温度、seed、数据或控制来恢复此已关闭profile；审计后再择至多一个实质不同的原量子核心假设或NONE。",
+  "exact_profile": "interleaved-class-circuit-TRAIN8192-seed13-v1",
+  "screen_gate": "STOP_EXACT_MIDDLE_PLACEMENT_PROFILE",
+  "source_pins": {
+    "plugin.py": "b4da28c87b72f10c40e4cf385849ddbf26b4cf8eb03e6f621cf6e845d5362298",
+    "adapter.py": "e2a15f59d5f2a372daa044972d2183bf2487dc45f820bb644f38f3452d9eead7",
+    "design.json": "c82c48c5648c1f3ea330ec9defa8819f8973e74e04f1bad3ba1855960f3f3664",
+    "summary.json": "1f8e3bd8075e962877658ab737f66011fd89477909e57820a0a5ff980500a571",
+    "verification.json": "2b892ad1466968f13f73060cde6be3b2c7658fc2a39368b253643acb8a7bdf58",
+    "validation.json": "3f45d8b2e417e07042fb8524f74fe1dd077b1a9020e17882187038f9b8d9536e",
+    "input-binding.json": "1ae5d548d6139fea168b3ea0511a9667ea1f9a1e77417711a2c138d0eae801ca"
+  },
+  "resources_next": {
+    "GPU": 0,
+    "new_task_forward": 0,
+    "fit": 0,
+    "new_capacity": 0
+  },
+  "stop_scope": "Exact middle-placement/ansatz/budget fixed profile; retain all earlier positive and negative history.",
+  "retained_stops": [
+    "gen98",
+    "gen102",
+    "gen104",
+    "gen105",
+    "gen106"
+  ],
+  "claim_ceiling": "Exposed TRAIN one-seed development screen; no independent task confirmation, free-family separation, new theory or L3/L4-T.",
+  "originalL4": "RETAINED",
+  "newL3": "NOT_ACCEPTED",
+  "newL4T": "NOT_ACCEPTED",
+  "goal": "ACTIVE"
+}

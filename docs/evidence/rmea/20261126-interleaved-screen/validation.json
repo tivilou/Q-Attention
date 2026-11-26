@@ -1,0 +1,361 @@
+{
+  "status": "PASS_IMPLEMENTATION_NUMERICAL_AND_GRADIENT_CHECKS",
+  "maximum_errors": {
+    "torch.float64/quantum_middle": 1.1102230246251565e-15,
+    "torch.float64/dephased_middle": 6.661338147750939e-16,
+    "torch.float64/real8_middle": 6.661338147750939e-16,
+    "torch.float32/quantum_middle": 4.820026885954398e-07,
+    "torch.float32/dephased_middle": 4.131685554797926e-07,
+    "torch.float32/real8_middle": 5.779827247920366e-07
+  },
+  "angle_gradient_checks": [
+    {
+      "kind": "quantum_middle",
+      "coordinate": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "analytical": -0.04888534172667189,
+      "numerical": -0.048885341275006766,
+      "error": 4.5166512196992414e-10
+    },
+    {
+      "kind": "quantum_middle",
+      "coordinate": [
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "analytical": 0.0,
+      "numerical": 2.7755575615628914e-11,
+      "error": 2.7755575615628914e-11
+    },
+    {
+      "kind": "dephased_middle",
+      "coordinate": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "analytical": -0.011520522355941499,
+      "numerical": -0.011520522216756923,
+      "error": 1.3918457532346995e-10
+    },
+    {
+      "kind": "dephased_middle",
+      "coordinate": [
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "analytical": 0.0,
+      "numerical": 0.0,
+      "error": 0.0
+    },
+    {
+      "kind": "real8_middle",
+      "coordinate": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "analytical": 0.1787471478798382,
+      "numerical": 0.1787471479997027,
+      "error": 1.1986450720868902e-10
+    },
+    {
+      "kind": "real8_middle",
+      "coordinate": [
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "analytical": -0.20699415329273535,
+      "numerical": -0.20699415331781879,
+      "error": 2.5083435328809855e-11
+    }
+  ],
+  "initial_identities": {
+    "quantum_middle": "9248260cf3c68fba44bba6647deeaf31840ccff81bd303e29708f047c2bf4722",
+    "dephased_middle": "9248260cf3c68fba44bba6647deeaf31840ccff81bd303e29708f047c2bf4722",
+    "real8_middle": "9248260cf3c68fba44bba6647deeaf31840ccff81bd303e29708f047c2bf4722"
+  },
+  "complex_amplitude_restored_phase_max_error": 8.08254562088053e-16,
+  "explicit_density_dephase_max_error": 4.440892098500626e-16,
+  "reconstructed_reference_initial_identities": {
+    "context-spectral-flow-20261125/quantum": "9248260cf3c68fba44bba6647deeaf31840ccff81bd303e29708f047c2bf4722",
+    "context-spectral-flow-20261125/dephased": "9248260cf3c68fba44bba6647deeaf31840ccff81bd303e29708f047c2bf4722",
+    "staged-bottleneck-design-20261125/real12": "70a76818bd729cd3a298102f901a1a655dcce3eac8e2779ed17470d8beb523e2",
+    "staged-bottleneck-design-20261125/gaussian_base": "70a76818bd729cd3a298102f901a1a655dcce3eac8e2779ed17470d8beb523e2",
+    "connected-value-pooling-20261125/gaussian_covariance": "e22693cf6e1946ba91e3150e8238f5819abdbffbf481316f3ff048366a24e188",
+    "connected-value-pooling-20261125/gaussian_mean_product": "e22693cf6e1946ba91e3150e8238f5819abdbffbf481316f3ff048366a24e188",
+    "semantic-connected-evidence-20261125/quantum_shared_mean_product": "a1a5f3077bc08e58c0aec9c92508ef6792b7f60fe70dc9a4768453a891e66e6c",
+    "distinct-token-evidence-20261125/gaussian_distinct": "34587b7f70fca3f629b2076e0515bae38cc724b40bb2a4a5b09f94d3ab91b151"
+  },
+  "artificial_head_fixtures": {
+    "status": "PASS_AFFECTED_HEAD_CHECKS",
+    "checks": {
+      "quantum_middle": {
+        "parameters": 81028,
+        "finite_gradient": true,
+        "finite_difference": {
+          "head.prepare.weight": {
+            "analytical": -5.28356104491796e-05,
+            "numerical": -5.283560255975316e-05,
+            "error": 7.889426437179044e-12
+          },
+          "head.effect": {
+            "analytical": 1.3364313601700324e-05,
+            "numerical": 1.336430965892532e-05,
+            "error": 3.942775003918297e-12
+          },
+          "head.value.weight": {
+            "analytical": -0.009816464177666238,
+            "numerical": -0.00981646417486104,
+            "error": 2.805198781596907e-12
+          },
+          "head.decoder": {
+            "analytical": 0.01994342840402475,
+            "numerical": 0.019943428397617424,
+            "error": 6.407326058610607e-12
+          }
+        },
+        "exact_zero_prepare_rows": [
+          7,
+          9,
+          11
+        ],
+        "cloned_real_label_updates": {
+          "float64": 1,
+          "float32": 1
+        },
+        "original_unchanged": true,
+        "padding": true,
+        "singleton": true,
+        "normalized": true
+      },
+      "dephased_middle": {
+        "parameters": 81028,
+        "finite_gradient": true,
+        "finite_difference": {
+          "head.prepare.weight": {
+            "analytical": -5.543382774153925e-05,
+            "numerical": -5.543381309536243e-05,
+            "error": 1.4646176815563596e-11
+          },
+          "head.effect": {
+            "analytical": 5.034219292354723e-06,
+            "numerical": 5.034239691781295e-06,
+            "error": 2.039942657170921e-11
+          },
+          "head.value.weight": {
+            "analytical": -0.009835989946498199,
+            "numerical": -0.009835989955853108,
+            "error": 9.354909208392215e-12
+          },
+          "head.decoder": {
+            "analytical": 0.019948512065073618,
+            "numerical": 0.019948512086642722,
+            "error": 2.1569104141638817e-11
+          }
+        },
+        "exact_zero_prepare_rows": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "cloned_real_label_updates": {
+          "float64": 1,
+          "float32": 1
+        },
+        "original_unchanged": true,
+        "padding": true,
+        "singleton": true,
+        "normalized": true
+      },
+      "real8_middle": {
+        "parameters": 81028,
+        "finite_gradient": true,
+        "finite_difference": {
+          "head.prepare.weight": {
+            "analytical": -4.896136275503022e-05,
+            "numerical": -4.8961346088560724e-05,
+            "error": 1.666646949437375e-11
+          },
+          "head.effect": {
+            "analytical": -5.375888019267388e-05,
+            "numerical": -5.3758886231491936e-05,
+            "error": 6.038818052653706e-12
+          },
+          "head.value.weight": {
+            "analytical": -0.009819038925291646,
+            "numerical": -0.009819038937486368,
+            "error": 1.2194722662228763e-11
+          },
+          "head.decoder": {
+            "analytical": 0.019888338747436996,
+            "numerical": 0.019888338753659696,
+            "error": 6.222699439062396e-12
+          }
+        },
+        "exact_zero_prepare_rows": [],
+        "cloned_real_label_updates": {
+          "float64": 1,
+          "float32": 1
+        },
+        "original_unchanged": true,
+        "padding": true,
+        "singleton": true,
+        "normalized": true
+      }
+    },
+    "limitations": "Eight TRAIN rows; clone updates discarded. No task efficacy or equal effective-capacity claim."
+  },
+  "real_head_fixtures": {
+    "status": "PASS_AFFECTED_HEAD_CHECKS",
+    "checks": {
+      "quantum_middle": {
+        "parameters": 81028,
+        "finite_gradient": true,
+        "finite_difference": {
+          "head.prepare.weight": {
+            "analytical": 0.007637085684868274,
+            "numerical": 0.007637085674971899,
+            "error": 9.89637538584276e-12
+          },
+          "head.effect": {
+            "analytical": 0.025159118443335078,
+            "numerical": 0.025159118610673655,
+            "error": 1.673385770228908e-10
+          },
+          "head.value.weight": {
+            "analytical": 0.004658974076918344,
+            "numerical": 0.004658974095406165,
+            "error": 1.8487821516754988e-11
+          },
+          "head.decoder": {
+            "analytical": -0.04587697069877744,
+            "numerical": -0.04587697071123386,
+            "error": 1.2456417841644196e-11
+          }
+        },
+        "exact_zero_prepare_rows": [
+          7,
+          9,
+          11
+        ],
+        "cloned_real_label_updates": {
+          "float64": 1,
+          "float32": 1
+        },
+        "original_unchanged": true,
+        "padding": true,
+        "singleton": true,
+        "normalized": true
+      },
+      "dephased_middle": {
+        "parameters": 81028,
+        "finite_gradient": true,
+        "finite_difference": {
+          "head.prepare.weight": {
+            "analytical": 0.0012236724626866814,
+            "numerical": 0.0012236724522551867,
+            "error": 1.0431494643775574e-11
+          },
+          "head.effect": {
+            "analytical": 0.0073192382429537114,
+            "numerical": 0.007319238237712965,
+            "error": 5.240746205059654e-12
+          },
+          "head.value.weight": {
+            "analytical": 0.002745055357978828,
+            "numerical": 0.0027450554274111023,
+            "error": 6.943227416622566e-11
+          },
+          "head.decoder": {
+            "analytical": -0.05211043371853846,
+            "numerical": -0.05211043365704881,
+            "error": 6.148965364660697e-11
+          }
+        },
+        "exact_zero_prepare_rows": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "cloned_real_label_updates": {
+          "float64": 1,
+          "float32": 1
+        },
+        "original_unchanged": true,
+        "padding": true,
+        "singleton": true,
+        "normalized": true
+      },
+      "real8_middle": {
+        "parameters": 81028,
+        "finite_gradient": true,
+        "finite_difference": {
+          "head.prepare.weight": {
+            "analytical": 0.010121399737341129,
+            "numerical": 0.010121399718343582,
+            "error": 1.8997546591403847e-11
+          },
+          "head.effect": {
+            "analytical": -0.06258667965678669,
+            "numerical": -0.06258667966108078,
+            "error": 4.294092859069565e-12
+          },
+          "head.value.weight": {
+            "analytical": 0.0014227735310247654,
+            "numerical": 0.0014227735434246822,
+            "error": 1.2399916813829459e-11
+          },
+          "head.decoder": {
+            "analytical": -0.05429327923474825,
+            "numerical": -0.05429327925021709,
+            "error": 1.5468841485510865e-11
+          }
+        },
+        "exact_zero_prepare_rows": [],
+        "cloned_real_label_updates": {
+          "float64": 1,
+          "float32": 1
+        },
+        "original_unchanged": true,
+        "padding": true,
+        "singleton": true,
+        "normalized": true
+      }
+    },
+    "limitations": "Eight TRAIN rows; clone updates discarded. No task efficacy or equal effective-capacity claim.",
+    "device": "cpu",
+    "designated_first8_fit_index_sha256": "7dd6e6a74dfdaed401d3691ae439123bff65d980071839cd321f6f6ca2af90d8",
+    "initialized_models_retained": true
+  },
+  "torch_version": "2.4.1+cu121",
+  "seconds": 7.793555751442909,
+  "real_task_rows": 8,
+  "task_fits": 0,
+  "GPU": 0,
+  "limitations": "Technical clone checks only, not efficacy, independent task confirmation, effective-capacity equality or L3/L4-T. Exact remote input binding required before screen."
+}

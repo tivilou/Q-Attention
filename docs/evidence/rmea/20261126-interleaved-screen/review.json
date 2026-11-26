@@ -1,0 +1,140 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "elapsed_seconds": 49.5760338306427,
+  "usage": {
+    "input_tokens": 26497,
+    "input_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "cache_write_tokens_details": {
+        "ttl_30m_tokens": 0,
+        "ttl_12h_tokens": 0
+      }
+    },
+    "output_tokens": 2203,
+    "output_tokens_details": {
+      "reasoning_tokens": 755
+    },
+    "total_tokens": 28700,
+    "attribution": {
+      "items": {
+        "msg_0b622c9a36ca1f5d016b077e3c3d1487d0a5f268db8de9964c": {
+          "input_tokens": 21132,
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "output_tokens": 0,
+          "content": [
+            {
+              "input_tokens": 21132,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          ]
+        },
+        "msg_0b622c9a36ca1f5d016b077e3c3d1487d0b5041b608f399cbf": {
+          "input_tokens": 5363,
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "output_tokens": 0,
+          "content": [
+            {
+              "input_tokens": 5363,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          ]
+        },
+        "msg_0b622c9a36ca1f5d016b077e4e07a887d0a9be5e6d41ef47dd": {
+          "input_tokens": 0,
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "output_tokens": 1448,
+          "content": [
+            {
+              "input_tokens": 0,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 1448
+            }
+          ]
+        },
+        "rs_0b622c9a36ca1f5d016b077e475e2c87d0959fef508d5af9bc": {
+          "input_tokens": 2,
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "output_tokens": 516
+        },
+        "rs_0b622c9a36ca1f5d016b077e4e07c487d0908782ca0e4f4274": {
+          "input_tokens": 0,
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "output_tokens": 239
+        }
+      }
+    }
+  },
+  "packet_sha256": "2ee71cde8c206711c64729356b5f2221a136a9398915bad83cb2e9e3da3dc73a",
+  "response": {
+    "verdict": "PASS_WITH_RISK",
+    "findings": [
+      {
+        "severity": "info",
+        "file": "implementation/plugin.py",
+        "location": "layer, layer_matrix, terminal_bra, probability",
+        "issue": "The Q path matches the native column-state convention. Wire 0 is most significant, each local gate applies RY then RZ, and the CNOTs act in order 0→1, 1→2, 2→0. layer_matrix evolves basis vectors stored as rows and transposes once to recover the operator. For Q = B₂B₁, the code takes the conjugate transpose of the complete product. The terminal ring fixes ⟨0|, so terminal_bra correctly retains the tensor product of (cos(y/2), −sin(y/2)) and drops only the common phase exp(−iΣz/2).",
+        "required_action": "Confirm the changed Torch path against the independent dense CPU calculation on the fixed noncommuting angles. Restore the known terminal phase when comparing complex amplitudes. Use the frozen 1e−11 bound for FP64 algebraic residuals."
+      },
+      {
+        "severity": "info",
+        "file": "implementation/plugin.py",
+        "location": "phase_free and probability, dephased_middle branch",
+        "issue": "Writing M(U)ᵢⱼ = |Uᵢⱼ|², the contraction computes [M(W₂) M(Q†) M(W₁)]₀₀. The first word block's RZ gates affect only output phases after permutation. The second query block's RZ gates likewise contribute row phases to Q, hence column phases to Q†. Both disappear under M. Forming the full query product before taking entrywise squared magnitudes preserves interference inside Q.",
+        "required_action": "Compare D against explicit computational-basis density dephasing at the declared boundaries, using the original nonzero phase angles in the oracle."
+      },
+      {
+        "severity": "info",
+        "file": "implementation/plugin.py",
+        "location": "ry_matrix and probability, real8_middle branch",
+        "issue": "The fixed map consumes word coordinates 0–5 and 6–11 as two successive three-wire RY-ring layers per segment. It consumes the twelve relation coordinates as four successive layers in stored order. ry_matrix returns the forward column-action matrix. The contraction uses row zero of W₂, the true transpose of the full relation matrix, and column zero of W₁.",
+        "required_action": "Check the scalar amplitude against an independently assembled ordered real matrix product at asymmetric angles. Orthogonality alone cannot detect a reversed layer order or a permuted coordinate map."
+      },
+      {
+        "severity": "info",
+        "file": "implementation/plugin.py",
+        "location": "MiddleHead.components, MiddleHead.forward, initialize",
+        "issue": "All three arms use the native quantum head schema with 81,028 registered parameters. The code preserves π tanh preparation from the 1,028 feature/role inputs, separate relation effects, masked token normalization with native EPS = 1e−6, the h-only linear64 value, and all forty decoder rows and biases. Strict loading copies the entire supplied state into each arm. Equality to that input establishes common initialization across arms, while the identity of the input itself is a separate admission check.",
+        "required_action": "Verify the supplied state against the declared native seed-13 FP32 digest and verify the initialized keys, shapes, dtypes and tensors before the cloned updates."
+      },
+      {
+        "severity": "risk",
+        "file": "implementation/adapter.py",
+        "location": "fixtures",
+        "issue": "The exact-zero assertions select the correct prepare weight and bias rows: 7, 9, 11 for Q and 1, 3, 5, 7, 9, 11 for D. D also checks effect[:,1,:,1]. These are task-gradient nulls before AdamW decay. The fixture checks padding, singleton utility, normalization, finite gradients and four sampled CE finite differences. Those differences use the same forward implementation on both sides and cannot establish operator parity. The fixture accepts the caller's device and row count, and its FP32 branch checks finiteness after step() without verifying that a parameter changed.",
+        "required_action": "Run the independent operator checks as well as the adapter checks. For the update fixture, verify CPU execution on the designated eight real TRAIN rows with their labels, record an actual parameter change on each FP32 and FP64 clone, and confirm the originals retain their initial tensors."
+      },
+      {
+        "severity": "risk",
+        "file": "implementation/design.json",
+        "location": "references and reference_pins, consumed by adapter.py::summarize",
+        "issue": "The all-40 F1 calculation retains all classes, and strict greater-than implements tie failure against both new controls and all eight listed references. For reused results, summarize checks order, update count and class support. Those checks cannot establish shared initial tensors across historical key schemas. The semantic-connected-evidence reference has a summary digest but lacks the design/plugin/screen pin entry supplied for the other source profiles. The generic comparability text also obscures the old native Q's status as the exact same-tensor placement ablation.",
+        "required_action": "Before screen admission, verify all eight results against their original artifacts and initializers, including the semantic-connected-evidence source identity. Verify full initial-state equality for old native Q. For differently parameterized references, resolve their original key mappings and compare the shared value, decoder and bias tensors directly. Verify the declared cohort, order, optimizer, budget and final metric. Preserve Gcov's distinct router and its 82,308 registered parameters versus 81,028 for the new arms."
+      }
+    ],
+    "permitted_next": [
+      "Proceed to affected CPU numerical and gradient checks and one discarded FP64 and FP32 cloned update per arm on the designated eight real TRAIN rows.",
+      "Admit the fixed screen only after the mechanism, gradient, clone-integrity, initialization and reference-reuse checks pass. The screen remains unadmitted at this review.",
+      "A substantive failure closes this exact placement, ansatz and budget profile under the declared stop rule. All required comparators and the strict final-1024 all-40 macro-F1 gate remain binding."
+    ],
+    "limits": [
+      "Static R2 review of the supplied implementation. No changed numerical code was executed, residual measured, update observed or historical initializer independently reproduced.",
+      "Historical scores are exposed-TRAIN development references. Equal registered counts do not establish equal effective capacity. The real8 arm changes ring count and gate geometry.",
+      "Task efficacy, reparameterized family separation and new L3 or L4-T acceptance remain unestablished."
+    ]
+  },
+  "review_scope": "mechanism",
+  "review_mode": "external",
+  "raw_sha256": "bbbbe4d0a000431863ddc9164a20ab2c57ad5f120dccf967ea632e76a23d158b"
+}

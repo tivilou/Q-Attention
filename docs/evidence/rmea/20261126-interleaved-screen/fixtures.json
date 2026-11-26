@@ -1,0 +1,136 @@
+{
+  "status": "PASS_AFFECTED_HEAD_CHECKS",
+  "checks": {
+    "quantum_middle": {
+      "parameters": 81028,
+      "finite_gradient": true,
+      "finite_difference": {
+        "head.prepare.weight": {
+          "analytical": 0.007637085684868263,
+          "numerical": 0.007637085674971899,
+          "error": 9.896364110140166e-12
+        },
+        "head.effect": {
+          "analytical": 0.025159118443334908,
+          "numerical": 0.025159118655082576,
+          "error": 2.117476680107977e-10
+        },
+        "head.value.weight": {
+          "analytical": 0.004658974076918345,
+          "numerical": 0.004658974139815086,
+          "error": 6.289674163439951e-11
+        },
+        "head.decoder": {
+          "analytical": -0.04587697069877747,
+          "numerical": -0.04587697071123386,
+          "error": 1.245639008606858e-11
+        }
+      },
+      "exact_zero_prepare_rows": [
+        7,
+        9,
+        11
+      ],
+      "cloned_real_label_updates": {
+        "float64": 1,
+        "float32": 1
+      },
+      "original_unchanged": true,
+      "padding": true,
+      "singleton": true,
+      "normalized": true
+    },
+    "dephased_middle": {
+      "parameters": 81028,
+      "finite_gradient": true,
+      "finite_difference": {
+        "head.prepare.weight": {
+          "analytical": 0.0012236724626866822,
+          "numerical": 0.0012236724966641077,
+          "error": 3.397742547386895e-11
+        },
+        "head.effect": {
+          "analytical": 0.007319238242953825,
+          "numerical": 0.007319238193304044,
+          "error": 4.964978081445359e-11
+        },
+        "head.value.weight": {
+          "analytical": 0.002745055357978833,
+          "numerical": 0.0027450553830021813,
+          "error": 2.502334841072984e-11
+        },
+        "head.decoder": {
+          "analytical": -0.05211043371853843,
+          "numerical": -0.05211043374586665,
+          "error": 2.7328223017875075e-11
+        }
+      },
+      "exact_zero_prepare_rows": [
+        1,
+        3,
+        5,
+        7,
+        9,
+        11
+      ],
+      "cloned_real_label_updates": {
+        "float64": 1,
+        "float32": 1
+      },
+      "original_unchanged": true,
+      "padding": true,
+      "singleton": true,
+      "normalized": true
+    },
+    "real8_middle": {
+      "parameters": 81028,
+      "finite_gradient": true,
+      "finite_difference": {
+        "head.prepare.weight": {
+          "analytical": 0.01012139973734111,
+          "numerical": 0.010121399718343582,
+          "error": 1.899752750944561e-11
+        },
+        "head.effect": {
+          "analytical": -0.06258667965678669,
+          "numerical": -0.06258667966108078,
+          "error": 4.294092859069565e-12
+        },
+        "head.value.weight": {
+          "analytical": 0.0014227735310247656,
+          "numerical": 0.0014227734990157612,
+          "error": 3.200900438801724e-11
+        },
+        "head.decoder": {
+          "analytical": -0.054293279234748276,
+          "numerical": -0.05429327920580817,
+          "error": 2.8940107255071013e-11
+        }
+      },
+      "exact_zero_prepare_rows": [],
+      "cloned_real_label_updates": {
+        "float64": 1,
+        "float32": 1
+      },
+      "original_unchanged": true,
+      "padding": true,
+      "singleton": true,
+      "normalized": true
+    }
+  },
+  "limitations": "Eight TRAIN rows; clone updates discarded. No task efficacy or equal effective-capacity claim.",
+  "first_updates": {
+    "quantum_middle": {
+      "finite_gradients": true,
+      "state_changed": true
+    },
+    "dephased_middle": {
+      "finite_gradients": true,
+      "state_changed": true
+    },
+    "real8_middle": {
+      "finite_gradients": true,
+      "state_changed": true
+    }
+  }
+}

@@ -1,0 +1,26 @@
+--- adapter-reviewed.py
++++ adapter.py
+@@ -7,6 +7,7 @@
+ 
+ 
+ def fixtures(models, inputs, labels):
++    assert len(inputs[0]) == len(labels) == 8
+     originals = {k: {n: t.detach().clone() for n, t in m.state_dict().items()} for k, m in models.items()}
+     checks = {}
+     for kind, original in models.items():
+@@ -62,6 +63,7 @@
+         assert any(not torch.equal(before[n], t) for n, t in model.state_dict().items())
+         # Also exercise the exact screen precision on the same eight real rows.
+         fp32 = copy.deepcopy(original).to(device=device, dtype=torch.float32)
++        before32 = {n: t.detach().clone() for n, t in fp32.state_dict().items()}
+         opt32 = torch.optim.AdamW(fp32.parameters(), lr=.001, weight_decay=.01, betas=(.9, .999), eps=1e-8)
+         z32 = fp32(inputs[0].float(), inputs[1].float(), mask)
+         F.cross_entropy(z32, labels).backward()
+@@ -69,6 +71,7 @@
+         torch.nn.utils.clip_grad_norm_(fp32.parameters(), 1., error_if_nonfinite=True)
+         opt32.step()
+         assert all(torch.isfinite(x).all() for x in fp32.parameters())
++        assert any(not torch.equal(before32[n], t) for n, t in fp32.state_dict().items())
+         checks[kind] = dict(parameters=sum(x.numel() for x in model.parameters()),
+                             finite_gradient=True, finite_difference=fd, exact_zero_prepare_rows=list(phase_rows),
+                             cloned_real_label_updates=dict(float64=1, float32=1), original_unchanged=True,
