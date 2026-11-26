@@ -2,9 +2,11 @@
 
 ## 当前研究总览
 
-共同词态/observable value只读排重完成：10本地源pins核验，QSANN官方2205.05625v2 PDF95561d54/13页中实际读1–7、视觉3/4/5/7。同态有界值和任务优化已有组件先例；原生完整共同训练未在指定记录执行，但D公式相同且尚无独立任务机制，本轮NONE_NEW_STRUCTURAL_CANDIDATE/不准入训练。0GPU-forward-circuit-fit-模型API-新容量；原Q-RMEA goal ACTIVE，新L3/L4T未接受。gen98/102/104/105及全部确切停止/原L4历史保留。下一步从既有结果设计至多一个实际信息路径不同的量子假设，给最强经典控制/预测/小筛选门，不重复建资格框架。
+关系操作插入词电路中间的单一假设PROVISIONAL：原末端Q†W2W1改为W2Q†W1，非旧gen76去相干/实体query输运/6q乘积式。A6API Astra/high一次机制审查PASS_WITH_RISK，仅数学检查；32固定人工角/原生Torch-dense-real16-vec-density一致，最大1.44e-15。两词最终rho相同但新row0精确-500000/500001、原0/all40 softmax差.0156553；Fraction密度64项/Markov独立核验，固定preparer+utility非自由family或任务收益。Q末词3RZ无效，D另失首3RZ，容量差公开。0GPU-taskforward-fit-新容量；原L4/全部旧STOP/历史保留，新L3L4T未接受/goalACTIVE。下一步只实现同一Q-D-real8科学plugin/紧凑1024配置，绑定强Gaussian-real-Gcov实际匹配身份并受影响审查验证，不自动训练。
 
 ## 时间线
+
+- [2026-11-26｜关系操作进入词态演化](20261126T-002021Z-interleaved-class-circuit.md)：固定preparer输出区别与数值对应通过；容量损失公开，候选PROVISIONAL/未训练。
 
 - [2026-11-26｜同态value原文排重](20261125T-235842Z-joint-state-value-source.md)：QSANN已含相关组件；原生共同学习仍未测，本轮无新结构候选，保持目标ACTIVE。
 

@@ -1,0 +1,130 @@
+{
+  "model": "gpt-6.2-astra",
+  "effort": "high",
+  "elapsed_seconds": 101.91608595848083,
+  "usage": {
+    "input_tokens": 34260,
+    "input_tokens_details": {
+      "cached_tokens": 5248,
+      "cache_write_tokens": 0,
+      "cache_write_tokens_details": {
+        "ttl_30m_tokens": 0,
+        "ttl_12h_tokens": 0
+      }
+    },
+    "output_tokens": 3390,
+    "output_tokens_details": {
+      "reasoning_tokens": 939
+    },
+    "total_tokens": 37650,
+    "attribution": {
+      "items": {
+        "msg_05ff8eae973b9752016b0778e360cc87d287f0305f6b4c3455": {
+          "input_tokens": 5363,
+          "cached_tokens": 5248,
+          "cache_write_tokens": 0,
+          "output_tokens": 0,
+          "content": [
+            {
+              "input_tokens": 5363,
+              "cached_tokens": 5248,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          ]
+        },
+        "msg_05ff8eae973b9752016b0778e360cc87d28dca3a5617a5db6c": {
+          "input_tokens": 28895,
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "output_tokens": 0,
+          "content": [
+            {
+              "input_tokens": 28895,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          ]
+        },
+        "msg_05ff8eae973b9752016b077904d70087d299f34ae740a25bd8": {
+          "input_tokens": 0,
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "output_tokens": 2451,
+          "content": [
+            {
+              "input_tokens": 0,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 2451
+            }
+          ]
+        },
+        "rs_05ff8eae973b9752016b0778f535f887d2ba7f52ef087bc073": {
+          "input_tokens": 2,
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "output_tokens": 516
+        },
+        "rs_05ff8eae973b9752016b077904d70487d28769e094931740d6": {
+          "input_tokens": 0,
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "output_tokens": 423
+        }
+      }
+    }
+  },
+  "packet_sha256": "7728c58014c8dd38de912a05b01bb893c9c7cb69fbcaea885c9836e46e23c9a1",
+  "response": {
+    "verdict": "PASS_WITH_RISK",
+    "substantive_candidate": "PROVISIONAL",
+    "correctness": [
+      "For the supplied native convention, write C for the ordered CNOT ring and L for the tensor product of RZ(z)RY(y). Each block is CL. Wire 0 is the most significant bit. Each individual CNOT permutation is its own inverse, so u[perm,:] correctly left-multiplies the running matrix, even though the complete ring need not be its own inverse.",
+      "With Q = B₂B₁, q.conj().T gives B₁†B₂†, including reversal of the rings and local gate order. The native overlap is (Q†W₂W₁)₀₀. The proposed overlap is (W₂Q†W₁)₀₀. Both dense expressions agree with their stated equations.",
+      "For a = W₂†|0⟩ and b = W₁|0⟩, √8 times vdot(vec_F(Q)/√8, vec_F(ba†)) equals Tr(Q†ba†) = a†Q†b. The probability is eight times the squared overlap of the two normalized vectors. The real16 readout also has the correct indexing for stacked real and imaginary components.",
+      "Writing M(U)ᵢⱼ = |Uᵢⱼ|², the proposed D score is [M(W₂) M(Q†) M(W₁)]₀₀. This is computational-basis dephasing at block boundaries. Final dephasing leaves the measured population unchanged. Interference inside the two-layer Q† block survives. The supplied native D instead takes a population overlap after completing each original circuit."
+    ],
+    "control_fairness": [
+      "Native Q is the placement comparison. Interleaved D tests boundary coherence under the same angle parameterization. Interleaved real8 tests a real circuit with the same registered angle count. Its four relation layers and four total word layers change the number of rings and the function geometry. A Q win over real8 alone would give limited evidence about the role of complex phase.",
+      "Use identical initial utility, decoder and bias tensors across the new arms, then let each arm train its own copy. Fix the angle-coordinate mapping for real8. A common integer seed alone does not specify either match. Separately trained utility rows support an end-to-end comparison only.",
+      "Native real12, Gaussian and the declared Gcov are relevant practical comparisons. The ledger reports Gcov at 0.512054050292 with a different parameter count. Bind each reused score to its actual architecture, initial tensors or declared initialization mapping, inputs, example order, optimizer, update budget and metric. A missing required match leaves the pilot gate unresolved.",
+      "The strict final all40Macro gate is suitable for triage on the exposed 8192/4096 TRAIN cohort. A tie fails. Retain zero-support classes and report CE alongside Macro. A pass supplies a single-seed development result. A failed required comparison closes this exact placement, ansatz and budget profile under the stated stop rule."
+    ],
+    "gradient_and_numerics": [
+      "There is an exact loss of three word-angle directions. Since ⟨0|C = ⟨0|, ⟨0|W₂ = exp(−iΣⱼz₂ⱼ/2) ⊗ⱼ ⟨0|RY(y₂ⱼ). Every final word RZ angle contributes only a common phase. Its probability derivative vanishes identically for interleaved Q and D. The corresponding preparer rows receive zero task gradient through routing, although AdamW decay can still move their parameters.",
+      "D also loses the first word block's RZ dependence because M(W₁)|0⟩ populations discard those phases. Equal registered parameter counts therefore conceal different effective capacities even between Q and D. Conversely, interleaved Q can use matrix elements beyond the native query's first column.",
+      "For a valid token j at fixed utilities, ∂logit/∂pⱼ = (uⱼ − Σₜαₜuₜ)/Σₜ(pₜ+EPS), with the denominator over valid tokens. A probability change can disappear under word normalization or utility weighting. The supplied pool helper implements one relation row on one-dimensional valid inputs. It omits bias and has no all40 or softmax implementation.",
+      "FP64 absolute error ≤ 1e−11 is reasonable for the proposed short dense identities. Compare complex amplitudes as well as probabilities to expose conjugation errors hidden by squaring. Check D against explicit density-matrix evolution with diagonal projection after each block. Forward parity alone gives no gradient or training-dtype verification."
+    ],
+    "theory_mapping": {
+      "native_family": "For a common W₂ = U, the native completed word Ub with effective query UQU†|0⟩ reproduces the middle score. For token-dependent W₂ the same construction gives a token-dependent query. The fixed-preparer collision below rules out absorption into any single terminal query in general. Whether a jointly reparameterized native preparer and native query family can reproduce the entire interleaved task family remains unproved.",
+      "gen76_and_transport": "Gen76 keeps φᵣ = Qᵣ|0⟩ terminal and mixes the coherent endpoint with a boundary-dephased score involving W₂†φᵣ. Here Qᵣ† acts on bₜ before W₂. Shared entity transport applies one sentence-conditioned unitary to every relation query for comparison with completed words. The effective query W₂(t)QᵣW₂(t)†|0⟩ depends on the individual token. The supplied formulas describe different operations.",
+      "six_qubit_profile": "The lifted token vec_F(ba†) = a* ⊗ b is closer to the old product construction than dimension counting suggests. Here a is a product state and b is a product state followed by one fixed ring, so a fixed permutation on the b half exposes six product factors. The decisive distinction is the query constraint. Normalized vec_F(Q) has eight equal Schmidt coefficients across the 3|3 split because Q is unitary. The old six-qubit query factors across all six wires and its score multiplies six one-qubit fidelities. The fixed token-side ring can be moved to the query and preserves its Schmidt rank across that split. This distinguishes the implemented representations while leaving general reparameterized family separation open.",
+      "other_neighbors": "The supplied subject-channel description uses an entity source, and the transition profile uses entity mixtures. This proposal uses the current token on both sides of the relation operator. The supplied QSANN receipt describes projected query/key expectations, a Gaussian kernel and observable values. None of these supplied definitions identifies an exact stopped recipe for this score. Data reuploading and process-feature kernels remain substantive prior-art neighbors. Literature novelty is unresolved.",
+      "classical_explanation": "A constrained classical bilinear scorer can exploit the joint dependence on the two word blocks, with a relation matrix between them and an exactly real final word test up to global phase. Its changed feature geometry, inactive coordinates and optimization behavior could explain a pilot gain. The vec lift and realification establish exact classical evaluations. Neither supplies new same-core theory."
+    },
+    "fidelity_gaps": [
+      "The dense reference takes post-transform angles. The actual head must map the 1028 input coordinates and relation parameters through π tanh, retain the independent h-linear64 values, and pool all forty rows with their own decoder and bias. The supplied reference provides no task implementation or real8 implementation.",
+      "The ledger's gen98, gen102, gen104 and gen105 outcomes motivate investigation but do not identify terminal placement as an error cause. Fixed synthetic angles can establish a routing difference. Reachability on actual cached encoder features, task benefit, independent confirmation and a nontrivial same-core theory remain open.",
+      "This review uses only the supplied text and analytic calculations. Source-pin identity, numerical residuals and implementation behavior have not been independently measured."
+    ],
+    "must_fix": [
+      "Record the exact final-word RZ null directions in the mechanism and capacity statement. Describe the second-stage response in terms of its effective RY-dependent test.",
+      "Specify the commuting fixture correctly. A native block with zero angles equals C, and a zero-angle query equals C². All-zero angles give a commuting case and unit return probability on |0⟩. A literal identity-matrix oracle needs a separate label. Zero raw features can also produce nonzero angles through preparer bias.",
+      "Before any task comparison, resolve the real8 transpose and layer order, control identities, initialization mapping and reuse eligibility. The supplied dense reference is sufficient for the bounded mathematical check only."
+    ],
+    "counterexamples": [
+      "A finite-angle two-token witness uses W₁ = C for both tokens. In W₂ vary only wire 0. Give token A (y,z) = (π/2,π/2) and token B (−π/2,−π/2), with all other angles zero. Both completed word states coincide up to global phase because their one-wire |1⟩/|0⟩ amplitude ratio before the common ring is i. Every terminal query therefore gives equal native probabilities to A and B.",
+      "For relation row 0 set only the first query layer's wire-0 RY angle to −π/2. Then Q†|0⟩ = |+⟩⊗|00⟩. The middle probabilities are 0 for A and 1 for B by direct projection of RY(±π/2)|+⟩. With utilities (+1,−1), zero bias, and zero utilities and biases on the other 39 rows, the native row-0 logit is 0 and the middle logit is −1/(1+2 EPS). The forty-class softmax changes. Interleaved D gives probability 1/2 to each token on this row. This witnesses a changed information path with a fixed preparer and fixed utilities, using angles strictly inside the π tanh range.",
+      "With either token alone, normalization yields α = 1 and its logit equals utility plus bias for every placement. Noncommutation alone also gives no lower bound on the probability or logit change."
+    ],
+    "useful_theory_route": "The same-core theoretical question is which token distinctions survive the jointly trainable 1028-to-12 preparer, the restricted relation matrices, EPS normalization and signed utility readout. The collision gives a fixed-preparer starting point. A substantive result would need to survive the allowed reparameterizations or yield a falsifiable task-linked prediction under explicit assumptions. That result is a later maturity requirement.",
+    "next_action": "The bounded mathematical check is eligible. Freeze the 32 deterministic finite-angle tuples and the analytic two-word fixture before evaluation. Compare native overlap, middle dense amplitude, normalized vec lift, real16 readout and explicit block-dephased density evolution. Include singleton, padding and the specified zero-angle commuting endpoint. Report the maximum residual against 1e−11 and the actual all40 logit and softmax difference. Original Q-RMEA idea-maturity1 L4-T remains active. This review grants no task-training admission or new L3/L4-T acceptance.",
+    "confidence": "High for the gate conventions, lift, null directions and fixed-preparer witness. Moderate for distinctness within the supplied historical descriptions. General family separation, literature novelty and empirical utility remain unresolved."
+  },
+  "review_scope": "mechanism",
+  "review_mode": "external",
+  "raw_sha256": "024d7b05cbe02208c20ddbcd3aed3977e122331b71e4ed74c4dbb553ccca2e3f"
+}
