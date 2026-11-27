@@ -1,0 +1,65 @@
+{
+  "verdict": "BLOCK",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "blocker",
+      "finding": "The runner pins fixed_order_fit.py to f63d3e0c4c5ce076abd67f97eab86c2f41ae35e423bc6e7247785534710658c. The supplied core is identified as 3cb11d689cac59a79f6b3e3099efb0bb8c737b52108339defea28e9851011d05. With assertions enabled, preflight rejects the supplied core. The hook ordering verified below applies to the supplied text. The differently pinned core requires its own identity reconciliation."
+    },
+    {
+      "id": "F2",
+      "severity": "blocker",
+      "finding": "Python optimization removes `assert not sys.flags.optimize` along with the admission, source-hash, checkpoint and completeness assertions it is intended to protect. The explicit time-exhaustion check survives, but an optimized invocation can bypass required evidence and integrity checks."
+    },
+    {
+      "id": "F3",
+      "severity": "blocker",
+      "finding": "Admission can accept a forecast that exceeds the usable science window. It tests predicted elapsed time against the campaign wall limit at science_request_at, then arms a shorter alarm using the allocation cap, max_science_elapsed_seconds, current time and closeout reserve. It never compares the forecast with that usable window. For example, at science_request_at, a 100-second science maximum and 40-second reserve can admit a 1,550-second forecast and return a 60-second alarm. The alarm provides a cutoff, but admission has already authorized a run forecast to exceed it."
+    },
+    {
+      "id": "F4",
+      "severity": "blocker_for_attempt_wide_one_time_use",
+      "finding": "An exclusive output-directory creation prevents reuse of the same path. It does not consume the admission for the attempt. The same spec, admission and attempt can be supplied with a fresh output path, including after partial qualification or concurrently with the first invocation. Within one invocation, a qualification-lane failure prevents summary publication. Across invocations, the supplied code does not prevent repeated qualification exposure."
+    },
+    {
+      "id": "F5",
+      "severity": "lineage_gap",
+      "finding": "Selection receipts bind the checkpoint digest, prediction digest, metrics, mode, step and contract. The winner's checkpoint digest is checked before loading. The terminal receipt hashes only summary.json and manifest.json. Neither records the admission digest or the digest of qualification.private.npz, so those terminal hashes cannot verify which admission was used or detect replacement or loss of the qualification logits. Native artifact proof remains pending."
+    }
+  ],
+  "required_fixes": [
+    "Reconcile the borrowed-core pin with the exact reviewed bytes before relying on the hook-order conclusion for launch. Preserve the unchanged core and task scope.",
+    "Reject optimized execution with an explicit executable check before admission or science work, so disabling assertions cannot disable the guard itself.",
+    "Require the measured remaining workload to fit the usable time and allocated-GPU budget at admission, including closeout and the charged device count. Reject an infeasible forecast before starting.",
+    "Bind each admission to one durable, atomically claimed attempt across output paths, or provide an equivalent enforced launcher guarantee. A partial or completed attempt must consume that claim.",
+    "Bind the admission digest and qualification artifact digest to the completion record and verify that chain in the pending artifact proof."
+  ],
+  "risks": [
+    "The integration fixture assigns the fake model's step before calling the hook. It exercises selection journaling and tie-breaking, but cannot establish which borrowed core is loaded. Its admission test also accepts an alarm duration without checking forecast feasibility against it.",
+    "Qualification checks the coupled stop event between 128-row batches. Selection calls evaluate_rows without the stop event, so an in-flight selection pass can continue after another lane fails. The all-arm barrier still prevents that failed fit stage from entering qualification.",
+    "With assertions enabled, missing required admission fields or non-PASS measurement and observability statuses block entry. Those fields attest to external reviews. The one-time native technical canary, native observability, artifact proof, actual all-cost forecasts and guarded launch review remain pending. The prior scientific-plugin PASS_WITH_RISK does not satisfy the runner's literal source_review_verdict == 'PASS' check."
+  ],
+  "lifecycle_correctness": {
+    "committed_progress": "Yes for the supplied core. fit performs opt.step(), checks parameter finiteness, advances done and records the loss before calling progress. All four selection steps are multiples of checkpoint_every=32, so latest.pt is also saved before each selection callback. External progress is published after the selection receipt commits.",
+    "best_checkpoint_and_barrier": "Correct on the fresh-run path with assertions enabled. Each arm snapshots its live post-update state before scoring, scores in eval mode, restores the training flag and checks state identity. The winner maximizes selection weighted macro-F1 over steps 160, 320, 480 and 640, with the earliest exact tie winning. The runner verifies and strictly loads each winner's snapshot independently of core best.pt, which tracks training loss. All four completed fits, receipt sets and winner loads precede the frozen barrier and opening of qualification.",
+    "repeat_partial_and_resume": "An exclusive selection BEGIN, snapshot existence check and BEGIN/receipt pairing reject repeated or interrupted selection at the same location. The runner does not request core resume and rejects an existing output directory. Qualification schedules each arm once per invocation and requires the complete lane result before metrics or a completion marker. A failure can still occur after some rows have been scored. Attempt-wide protection against repeating those rows is missing as described in F4.",
+    "weighting": "Correct for the specified estimand. Each row receives its TRAIN class prior divided by that class's role support. The confusion matrix uses those row weights, and macro-F1 averages all 40 class F1 values equally, including no_relation, with zero for a zero denominator. CE uses the same normalized weights and a numerically stable log-sum-exp calculation.",
+    "paired_group_bootstrap": "Correct for the specified grouped interval. Each of 500 seeded replicates samples whole sentence groups with replacement. Every arm uses the same group multiplicities and fixed row weights. The code takes the minimum of the three paired F1 deltas within each replicate before computing the 5th and 95th percentiles. It also reports label absence frequencies.",
+    "ablations": "The trained path-dephased control remains a separate selection and qualification arm. On the selected quantum checkpoint, path_D and terminal_D invoke distinct bound methods. The supplied score helper calls head(*x), which supports both methods. Their logits, weighted CE increases over the same quantum baseline and threshold gates remain separate.",
+    "gate_decision": "Promotion requires every qualification point margin to be at least 0.01, the paired minimum-delta lower quantile to be strictly positive, quantum selection F1 to equal or exceed every control at both 480 and 640, and each ablation CE gap to be at least 0.005. Failed final-checkpoint stability always defers, even when the upper quantile is below 0.01. With stability satisfied, an upper quantile strictly below 0.01 stops the exact configuration. Passing all point margins and the lower-bound gate while missing either ablation gap also stops it. Other mixed cases defer. The decision string neither launches another run nor grants L3 or L4_T acceptance.",
+    "evidence_scope": "The supplied native CPU read-only audit covers role sizes 4096/1024/2048, zero group overlap, reference feature-cache hashes, the four saved initial-state hashes and comparative storage. The length range 5–88 covers only the first 128 fit rows. That audit used zero model forwards, optimizer updates or CUDA. This review used source inspection only and did not re-review the plugin forward or certify scientific performance."
+  },
+  "confidence": "High for the stated source-level control flow, metric formulas, gate precedence and identified launch gaps. The core identity discrepancy limits transfer of the hook-order finding to the pinned launch configuration.",
+  "model": "gpt-6.2-astra",
+  "protocol": "responses",
+  "effort": "high",
+  "source_pins": {
+    "goal_aligned_runner.py": "6b5a604c062f6c4f7fd3a6341cc6d153f4b3de668e56625e5f221e5cd6f04e59",
+    "goal_aligned_stage.py": "67ea88a03ceb8aa92579c992ec933c27e641622e8cb5a1878e9ca21923a16a6b",
+    "fixed_order_fit.py": "3cb11d689cac59a79f6b3e3099efb0bb8c737b52108339defea28e9851011d05",
+    "test_integration.py": "88e73e03679f443673cc7abbc84be2d67d1afe14167b81711883c11365a56ca7",
+    "test_stage.py": "9ebb7cf58705c91b31014dcd9395d4aa6de09c92d593ba2ed22aa1e651140c9a"
+  },
+  "packet_sha256": "f4e7c4c166275bd35c1961c9037a84603d4d0ab868458c79ddd03c0b8407a5ca",
+  "review_scope": "stage/data and lifecycle supplied source, zero independent execution"
+}

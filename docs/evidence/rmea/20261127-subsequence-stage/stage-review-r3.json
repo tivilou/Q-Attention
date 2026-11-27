@@ -1,0 +1,34 @@
+{
+  "verdict": "PASS",
+  "findings": [
+    {
+      "id": "F3",
+      "status": "closed",
+      "before_claim": "require_admission requires the receipt's existing_gpu_count to be an integer in [1, 2], the spec's allocated_gpu_count to be an equal integer, and CUDA_VISIBLE_DEVICES to contain exactly that many distinct, nonempty entries. After preflight and before claim_once, main also requires torch.cuda.device_count() to equal the admitted count and rechecks the time and GPU budgets.",
+      "before_fit": "run_science enumerates CUDA again and compares the resulting lane-list length and the spec count with the count verified before the claim. That same list goes to core.lanes for fitting. A discrepancy at this second check raises before any fit starts.",
+      "regression_coverage": "By source inspection, test_integration.py expects ValueError for each requested case: a two-card receipt with a one-card spec and visibility ['0', '1'], duplicate visibility ['0', '0'], and a CUDA inventory of one against an admitted count of two. It also checks that matching counts of two are accepted. No tests were executed in this review."
+    }
+  ],
+  "required_fixes": [],
+  "risks": [
+    "Native technical canary, observability and artifact proof, measured all-cost forecasts, and guarded launch review remain pending."
+  ],
+  "lifecycle_correctness": {
+    "preclaim_failure": "A count mismatch detected in main leaves the one-time campaign claim available.",
+    "postclaim_failure": "A mismatch detected in run_science stops before fitting or qualification and leaves the campaign claim consumed.",
+    "gate_decision": "Neither failure reaches gate_decision or emits a promotion decision. The R3 source verdict does not authorize launch."
+  },
+  "confidence": "High for the narrow F3 source verdict.",
+  "model": "gpt-6.2-astra",
+  "protocol": "responses",
+  "effort": "high",
+  "source_pins": {
+    "goal_aligned_runner.py": "4c05286f5169cad582f83b7b56d4a5b9c7075c7bf2604fbec863e704f162e16a",
+    "goal_aligned_stage.py": "67ea88a03ceb8aa92579c992ec933c27e641622e8cb5a1878e9ca21923a16a6b",
+    "fixed_order_fit.py": "f63d3e0c4c5ce076abd67f97eab86c2f41ae35e4233bc6e7247785534710658c",
+    "test_integration.py": "5f6d6631174a73e1387722112131a7f80d7c1b34441a28e1804988e4bd0c49e8",
+    "test_stage.py": "9ebb7cf58705c91b31014dcd9395d4aa6de09c92d593ba2ed22aa1e651140c9a"
+  },
+  "packet_sha256": "89aadd60f58bf7e5aabb72dcf644da23fe1b5f1149b23f1fea8c209da4788c8a",
+  "review_scope": "stage/data and lifecycle supplied source, zero independent execution"
+}

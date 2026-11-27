@@ -1,0 +1,47 @@
+{
+  "status": "PASS_NATIVE_SOURCE_FACTORY_AND_FROZEN_COHORT",
+  "torch": "2.4.1+cu121",
+  "numpy": "1.24.3",
+  "source_hashes": {
+    "goal_aligned_runner.py": "6b5a604c062f6c4f7fd3a6341cc6d153f4b3de668e56625e5f221e5cd6f04e59",
+    "goal_aligned_stage.py": "67ea88a03ceb8aa92579c992ec933c27e641622e8cb5a1878e9ca21923a16a6b",
+    "rmea_ordered_subsequence.py": "e772d693707f95bed23c410b48a710b8fac23ae576386408b571155c191e941c",
+    "ordered_subsequence.py": "ef6a1ef42d39a67de7709fb915ca1634c6395e3285c74e77a04cc38fb4b30dea",
+    "rmea_plugin_registry.py": "2d5254d94490c865613684790ac479cc4d11a968363190809061bc6a7f196f0a",
+    "rmea_history_posterior.py": "35d748d2618c1a313622534eb8f87cd64e1a7bea2ae540d2fb9c0f10560df592"
+  },
+  "scorer_source": "def score_batch(head,inputs):\n    import torch\n    return torch.cat([head(*x) for _,x in chunks(inputs)],0)\n",
+  "cohort_sha256": "2f358dda3c74666ec98a1394a558709e14279e6fa868d224eaf79776acc70fb2",
+  "order_sha256": "34c767ff4705c834541efcf6046565d603f2fe78f4c1f53a08ea2f7a9bd6b8b2",
+  "first128_sha256": "7cd0eca997f7b46f122088685beb4860a4bcea8b41d495bd2f76ef8045085f84",
+  "initial_sha256": {
+    "quantum_subsequence": "f79575534288a8e57fef61deeba24ba568af7e683e4c1ebc984dcc7cfb6e0781",
+    "path_dephased_subsequence": "f79575534288a8e57fef61deeba24ba568af7e683e4c1ebc984dcc7cfb6e0781",
+    "signed_real16_subsequence": "64680c6564baa8f1c65c4020a6c1275fa1d92ba5438662546bfbde4ac687c2d6",
+    "gaussian_covariance": "144d742be216a15123c0c7545f9ae462a2be9827cf195ca8409769382e2773c3"
+  },
+  "gcov_complete_keys_equal": true,
+  "first128_valid_lengths": {
+    "min": 5,
+    "max": 88,
+    "eligible_n_gt_3": 128
+  },
+  "role_counts": {
+    "fit": 4096,
+    "qualification": 2048,
+    "selection": 1024
+  },
+  "distinct_groups_by_role": {
+    "fit": 3582,
+    "qualification": 1724,
+    "selection": 884
+  },
+  "tensor_bytes_verified": true,
+  "group_overlap": 0,
+  "new_forwards": 0,
+  "new_updates": 0,
+  "qualification_targets_indexed": false,
+  "valid_test_read": false,
+  "cuda_initialized": false,
+  "elapsed_seconds": 8.104938577860594
+}

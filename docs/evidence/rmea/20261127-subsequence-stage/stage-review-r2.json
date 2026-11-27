@@ -1,0 +1,60 @@
+{
+  "verdict": "BLOCK",
+  "findings": [
+    {
+      "id": "F1",
+      "status": "resolved",
+      "finding": "The runner's borrowed-core pin matches the supplied LF core digest, f63d3e0c4c5ce076abd67f97eab86c2f41ae35e4233bc6e7247785534710658c. Preflight checks the file, and run_science checks the imported module's directory and digest. The supplied newline reconciliation closes the R1 identity finding."
+    },
+    {
+      "id": "F2",
+      "status": "resolved",
+      "finding": "The module-level `if sys.flags.optimize: raise RuntimeError(...)` survives Python optimization and executes before main. The supplied subprocess regression exercises the actual entry point under `-O`."
+    },
+    {
+      "id": "F3",
+      "status": "partially_resolved_blocker",
+      "finding": "The revised arithmetic closes the original short-window bug for a consistent device count. Both checks charge elapsed queue time on every declared card, reserve closeout, and compare the larger of forecast elapsed time and forecast GPU-seconds per card against the remaining whole seconds. One device-count mismatch still passes. Admission compares `existing_gpu_count` with the number of comma-separated environment entries. Execution separately compares the CUDA device count with `cfg['allocated_gpu_count']`. Nothing requires those two counts to agree.",
+      "counterexample": "Use the supplied regression's 3,000 GPU-second forecast and 1,510-second usable window. With two environment entries and an admission declaring two cards, the forecast passes at 1,500 seconds. If the second entry names an unavailable device, CUDA can enumerate one card. A bound spec declaring one allocated card then passes the execution check, and the runner starts one lane for work requiring 3,000 seconds by its own GPU forecast. The alarm still supplies a cutoff. The defect is authorizing a run already forecast to miss it."
+    },
+    {
+      "id": "F4",
+      "status": "resolved_for_a_stable_one_host_claim_root",
+      "finding": "The exclusive filename is keyed by campaign. Changing the output path, attempt, or admission cannot obtain a second claim on the same retained filesystem. The claim is written and fsynced before science, its containing directory is fsynced on POSIX, and failures leave the claim consumed. A qualification failure can occur after some rows have been scored, but it cannot publish a successful partial result or authorize a repeat.",
+      "limit": "If claim_once creates CLAIM_ROOT itself, it does not fsync the parent directory containing that new root. Host-crash durability in that case depends on the filesystem. A durably provisioned claim root satisfies the stated stable-root assumption."
+    },
+    {
+      "id": "F5",
+      "status": "resolved_for_completion_digests",
+      "finding": "RUN_COMPLETE binds the admission and campaign-claim digests plus the digests of the summary, manifest, frozen-selection barrier, and qualification archive. Before publication, complete_chain checks the admission against both summary and manifest, the claim against the manifest, and the qualification bytes against the summary. The barrier digest identifies its bytes at completion. The helper does not independently validate the barrier's contents or compare them with a digest captured at freeze time."
+    }
+  ],
+  "required_fixes": [
+    "Close F3 by requiring the admission's existing_gpu_count, the spec's allocated_gpu_count, and the declared visible-device count to agree before consuming the claim. Before fitting, require CUDA's enumerated lane count to equal that same admitted count. Add a negative regression for a two-card receipt paired with a one-card spec and a two-entry visibility string, and cover rejection when CUDA enumerates fewer cards than admitted."
+  ],
+  "risks": [
+    "The supplied native read-only audit establishes the 4096/1024/2048 role sizes, zero group overlap, verified reference-cache hashes, and the saved initial-state and comparative-storage checks. The min 5 and max 88 lengths apply only to the first 128 fit rows. That audit performed zero model forwards, optimizer updates, or CUDA work.",
+    "The one-time native technical canary, native observability, native artifact proof, all-cost measurements and forecast, and guarded real-parent launch review remain pending. Admission consumes externally supplied evidence fields. Missing required fields or non-PASS evidence fail closed. The prior plugin PASS_WITH_RISK remains scoped to that review.",
+    "A deployment relying on crash-persistent one-time use must retain the same durable claim root across invocations. Completion verification likewise requires a trusted RUN_COMPLETE receipt against which to check the artifacts."
+  ],
+  "lifecycle_correctness": {
+    "committed_progress_and_selection": "At steps 160, 320, 480, and 640, core.fit has performed opt.step, checked updated parameters, advanced the committed step, and saved latest.pt before calling the hook. The hook snapshots that arm, scores it in evaluation mode, restores its training flag, and checks state identity. Each arm requires four receipts. Highest selection weighted macro-F1 wins, with the earliest exact tie. The runner verifies and loads the winning snapshot itself, including when the winner is an intermediate step.",
+    "barrier_resume_and_partial_failure": "All four fits must finish and all four winners must be loaded before the frozen barrier is published and qualification is opened. An incomplete selection BEGIN or duplicate snapshot fails closed. The science entry point exposes no resume path and rejects an existing output. A failed or incomplete qualification lane prevents the aggregate summary and RUN_COMPLETE.",
+    "metrics_and_pairing": "Each assessment row receives its training-class prior divided by its role-specific class support. F1 uses the resulting weighted confusion matrix and averages all 40 class F1 values, assigning zero to a zero denominator. CE uses the same normalized row weights and a max-shifted log-sum-exp. Each of the 500 seeded bootstrap replicates applies one sentence-group multiplicity draw to every arm, retains the fixed row weights, and takes the minimum of the three paired F1 deltas before computing quantiles.",
+    "ablations": "The selected quantum state supplies separate path_D and terminal_D callables to the stated chunked score helper. Their qualification logits are archived separately. Each gap is its own weighted CE minus the selected quantum model's weighted CE, and each must independently reach 0.005 for promotion.",
+    "gate_decision": "Promotion requires all three qualification point margins to reach 0.01, the paired minimum-delta fifth percentile to exceed zero, quantum selection F1 to tie or beat every control at both 480 and 640, and both ablation gaps to pass. Failed checkpoint stability takes precedence and always defers. With stability satisfied, a 95th percentile strictly below 0.01 stops the exact configuration. Passing all point margins and the positive lower bound while missing either ablation gap also stops it. Other mixed cases defer. The promotion label records a screen decision and grants no launch authorization."
+  },
+  "confidence": "High for the source-level control flow, metric definitions, and F3 counterexample. This review used the supplied text and reported read-only evidence, with no execution or source changes. It makes no native performance or scientific certification.",
+  "model": "gpt-6.2-astra",
+  "protocol": "responses",
+  "effort": "high",
+  "source_pins": {
+    "goal_aligned_runner.py": "bf156b8a22c16e7dc2fbf387081dadc009d56a33a68f6ce080d0d3f9e8d1cd93",
+    "goal_aligned_stage.py": "67ea88a03ceb8aa92579c992ec933c27e641622e8cb5a1878e9ca21923a16a6b",
+    "fixed_order_fit.py": "f63d3e0c4c5ce076abd67f97eab86c2f41ae35e4233bc6e7247785534710658c",
+    "test_integration.py": "c04012383672703ea6f9b7fb984c3cdf8519693725dbeb6bd12e7df8f0431e63",
+    "test_stage.py": "9ebb7cf58705c91b31014dcd9395d4aa6de09c92d593ba2ed22aa1e651140c9a"
+  },
+  "packet_sha256": "7d6a02ea58ae78b76f6975c2d80e21f8df36ae28a24140f6e20a56b0a27af2f9",
+  "review_scope": "stage/data and lifecycle supplied source, zero independent execution"
+}
