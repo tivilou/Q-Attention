@@ -1,0 +1,26 @@
+{
+  "scope": "One readonly aggregation of original unmodified paired 4096 dev scores in place.",
+  "audit_source_sha256": "9d74bb961d917979a7889d59742afb3cff67c9d62c2bd898cf522d9c14862741",
+  "input_sha256": {
+    "distinct": "3677d55f2e6d3c64df6c9789c76f7113b66a79ee1efbee7531bc9bf2bf5d1307",
+    "reference": "87e60431f0a5a76af415db3fdc0d6e206a04a8a23473560d0426d55b49eb6040",
+    "cohort": "8fb8393bbe2241929748283f2bbaa219682696409857ec15678585bcd0b88ff0",
+    "train_targets": "6ce409b586a421995f7d70906f062a7e91fe9d35a04be5359a2f58a3485ee604"
+  },
+  "original_gen98_summary_sha256": "dc3ed63bc46f15fb193b456eb302fc68435f48469d701e81677e34938262c2c7",
+  "original_gen105_source_pin_sha256": "319d09b72b98875b0c3e5c78aa1afec1b39f0734a4431c9f85d2d2accaed74a2",
+  "tie_rule": "Stable descending positive logits, ascending ID on ties; original all40 argmax unchanged.",
+  "error_categories": [
+    "positive correct",
+    "null ranks 1/2–3/4+",
+    "wrong positive ranks 2–3/4+",
+    "null status"
+  ],
+  "controls": [
+    "same distinct dephased",
+    "same distinct Gaussian",
+    "strong historical Gaussian covariance"
+  ],
+  "reread_scores_only": true,
+  "train_or_select_new_model": false
+}
