@@ -1,0 +1,28 @@
+{
+  "verdict": "PASS",
+  "scope": "R2 source review for one technical canary launch through the unchanged shared host runner. Both R1 accounting findings are closed for canary SHA-256 6b4d9b43c3e9be0593767d79148edce9386335301d86da7aa04f2ece617feffa.",
+  "findings": [
+    "Under the pinned sequential native backward, entry to the next forward proves the previous microbatch's backward call returned. Before invoking each forward, tracked_backward persists the confirmed count and an upper bound that includes the incoming microbatch. After the final backward returns, it commits 128 confirmed, 128 possible and full_backward_complete=true before task.check_gradients can raise.",
+    "The two requested failure fixtures reload the journal from disk. Failure in the second forward leaves 4 confirmed, 8 possible and backward_in_flight=true. Failure immediately after the full backward leaves 128 confirmed, 128 possible and backward_in_flight=false. The supplied successful fixture report identifies the revised canary and test SHA-256 36239c179bb52218a88b7e833460be7f02b191257deca1e6869c44fbfd7bf575.",
+    "Before the sole AdamW step in each arm, the canary commits update_attempted=true and optimizer_step_uncertain=true. It commits one confirmed update and clears uncertainty only after opt.step(), CUDA synchronization and state hashing return. Interruption between commits leaves the step explicitly uncertain. The exclusive output directory and absence of a retry path preserve fail-fast behavior.",
+    "The reviewed launch retains the shared-parent permit and exact output checks, source and data pins, and one frozen FIT128 batch reused across four independent arms. Only FIT targets enter loss computation. Integrity preflight hashes the full train-target file and reads train-source records for ID and token-group checks. Full success records four discardable updates and 512 training exposures.",
+    "The C gate runs before clipping and stepping. It requires at least 16 eligible rows, at least 0.8 of eligible rows at or above 10 EPS mean mass, median TV of at least 0.001, operator and terminal gradient norms each above 1e-10, and a route-to-all gradient norm ratio of at least 1e-8. Both fixed-Q ablations and legacy Gcov parity checks remain in place.",
+    "Normal completion and explicit C or cost stops emit terminal counters. On interruption, the last committed partial journal bounds the unresolved work. The projection includes 640 updates and 48 regular score batches per arm, 16 batches per fixed-Q ablation, and charges both allocated GPUs in the two-lane estimate."
+  ],
+  "required_fixes": [],
+  "risks": [
+    "The supplied fixtures exercised host call order and persisted counters with zero model forwards, optimizer updates or allocations. A confirmed microbatch denotes return of its native backward call. CUDA completion, parity, C health, memory and throughput remain unmeasured in this review.",
+    "The cost projection extrapolates from one FIT128 batch. Parent startup, queue, release and other costs outside the timed batch still require separate accounting."
+  ],
+  "model": "gpt-6.2-astra",
+  "protocol": "responses",
+  "effort": "high",
+  "source_pins": {
+    "native_canary.py": "6b4d9b43c3e9be0593767d79148edce9386335301d86da7aa04f2ece617feffa",
+    "test_canary.py": "36239c179bb52218a88b7e833460be7f02b191257deca1e6869c44fbfd7bf575",
+    "rmea_ordered_subsequence.py": "e772d693707f95bed23c410b48a710b8fac23ae576386408b571155c191e941c",
+    "goal_aligned_runner.py": "4c05286f5169cad582f83b7b56d4a5b9c7075c7bf2604fbec863e704f162e16a"
+  },
+  "packet_sha256": "40840dde2f98327a1aefd94365c9c42151bb1575266d89cba02ec270ca4d519a",
+  "review_scope": "stage/data and lifecycle supplied source, zero independent execution"
+}

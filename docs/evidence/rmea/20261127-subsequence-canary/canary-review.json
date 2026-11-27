@@ -1,0 +1,32 @@
+{
+  "verdict": "BLOCK",
+  "scope": "Source review of one technical canary launch at SHA-256 f2f6bc940bdfb9309113bb1d6e2cf903bd7987d0fe30a7e46687ceef9f2d4770. No native execution or empirical certification was performed.",
+  "findings": [
+    "The partial exposure counter can report zero after all 128 rows have contributed to backward. The arm journal starts with training_rows_seen=0. If task.backward returns and task.check_gradients raises, the process exits before copying seen into the record. A failure during a later microbatch likewise loses the count for earlier microbatches. This violates the requested partial accounting even on an ordinary Python exception.",
+    "The canary collates the pinned order[0] once, checks its 128 indices against FIT membership and assessment-role exclusion, and reuses the same inputs and targets for every arm. The supplied native backward calls the wrapper on chunks of four and divides each summed CE by 128. Each independently initialized arm has one reachable AdamW step. The success path totals four updates and 512 training exposures.",
+    "The C gate runs before clipping and stepping. It requires at least 16 eligible examples with length greater than three, at least 0.8 of them at or above 10 EPS mean mass, median TV at least 0.001, operator and terminal gradient norms each strictly above 1e-10, and route-to-all gradient norm ratio at least 1e-8. A failed C gate persists the 128 exposures and stops before the C update.",
+    "The Q probe checks coherent, path-dephased and terminal-dephased outputs against CPU float64 subset enumeration. Both ablations also score FIT128 on the same updated Q state. The Gcov probe strictly loads the mapped state into the legacy head and checks attention and centered logits.",
+    "Under the stated trusted shared-runner setup, the guard checks the permit digest, allocation identity fields, attempt, visible GPU, executable, script and exact resolved output and progress paths. Exclusive output-directory creation precedes model work, and there is no retry loop. Preflight checks the stage sources, binding, train cache, cohort, order and initial-state pins. The reported no-data fixture covers guard rejection and forecast arithmetic.",
+    "Only FIT indices are passed to data.batch. The shared integrity audit hashes the whole train-target file and parses full train-source records for IDs and token groups, including records assigned to assessment roles. The canary does not index assessment targets for training or scoring.",
+    "The forecast includes 640 updates and 48 regular score batches per arm, plus 16 batches for each fixed-Q ablation. It reports single-GPU time and charges both allocated GPUs in the two-lane projection. Normal completion and explicit cost or C gate stops produce terminal counters. Uncaught exceptions and the wall alarm can leave only partial artifacts."
+  ],
+  "required_fixes": [
+    "Make the partial journal distinguish confirmed row counts from in-flight work. Persist enough progress that a later microbatch failure preserves earlier completed work, and record completion of backward before calling task.check_gradients. For a hard interruption, represent any unresolved microbatch or attempted optimizer step explicitly as uncertain. Preserve the existing no-replay behavior.",
+    "Verify the corrected accounting with no-data failure injection after an early microbatch and immediately after a complete backward. Check the persisted artifact in each case, then pin the revised canary source."
+  ],
+  "risks": [
+    "The supplied fixture ran zero model forwards and zero optimizer updates. It provides no measurement of native parity, C health, peak memory or throughput.",
+    "The projection extrapolates from one frozen FIT128 batch. Parent startup, queue, release and other costs identified by the forecast still require separate accounting."
+  ],
+  "model": "gpt-6.2-astra",
+  "protocol": "responses",
+  "effort": "high",
+  "source_pins": {
+    "native_canary.py": "f2f6bc940bdfb9309113bb1d6e2cf903bd7987d0fe30a7e46687ceef9f2d4770",
+    "test_canary.py": "0e8dd315b085d36b760c34b7367fbafe1c36b3b5ee300db415b634be047fa4e2",
+    "rmea_ordered_subsequence.py": "e772d693707f95bed23c410b48a710b8fac23ae576386408b571155c191e941c",
+    "goal_aligned_runner.py": "4c05286f5169cad582f83b7b56d4a5b9c7075c7bf2604fbec863e704f162e16a"
+  },
+  "packet_sha256": "ed879988ab6d2f29d5c0cdfb9ca5a43f0f301112096e024b47fb1a3f1c5db99d",
+  "review_scope": "stage/data and lifecycle supplied source, zero independent execution"
+}

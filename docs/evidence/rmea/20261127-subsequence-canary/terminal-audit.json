@@ -1,0 +1,141 @@
+{
+  "status": "VERIFIED_SINGLE_TERMINAL_NATIVE_CANARY",
+  "classification": "DEFER_MEASURED_COST_ENVELOPE",
+  "generation": 129,
+  "attempt_id": "b3bc7783faea4ea1a4b44bc3c50d55f4",
+  "allocation": "released",
+  "wrapper_exit": 0,
+  "terminal_wrapper_seconds": 256.7362344264984,
+  "request_to_release_seconds": 281.5720455646515,
+  "charge_gpu_seconds": 281.573,
+  "prior_reserved_gpu_seconds": 62.322,
+  "cumulative_reserved_gpu_seconds": 343.895,
+  "remaining_candidate_gpu_seconds": 3256.105,
+  "remaining_candidate_wall_seconds": 2118.4279544353485,
+  "updates_confirmed": 4,
+  "updates_possible": 4,
+  "forward_backward_fit_exposures_confirmed": 512,
+  "forward_backward_fit_exposures_possible": 512,
+  "science_updates": 0,
+  "scientific_training_admitted": false,
+  "assessment_rows": 0,
+  "old_attempt_rerun": false,
+  "source_review": "PASS technical source only",
+  "paired_probe_results": {
+    "quantum_subsequence": {
+      "centered_logit_error": 1.830231399768678e-07,
+      "alpha_error": 8.452239234901793e-08,
+      "padding_error": [
+        1.7881393432617188e-07,
+        1.4901161193847656e-08
+      ],
+      "probe_comparisons": {
+        "coherent": {
+          "centered_logit_error": 1.8302314019891242e-07,
+          "alpha_error": 8.452239241840687e-08
+        },
+        "path_D": {
+          "centered_logit_error": 1.7926383222288678e-07,
+          "alpha_error": 4.669939574625248e-08
+        },
+        "terminal_D": {
+          "centered_logit_error": 1.6392651366881061e-07,
+          "alpha_error": 5.180876246763111e-08
+        }
+      },
+      "update_seconds": 43.19518087245524,
+      "peak_bytes": 129034752,
+      "training_rows_seen": 128,
+      "training_rows_possible": 128,
+      "updates": 1,
+      "optimizer_step_uncertain": false,
+      "discard_checkpoint_verified": true
+    },
+    "path_dephased_subsequence": {
+      "centered_logit_error": 1.7926383222288678e-07,
+      "alpha_error": 4.6699395753191375e-08,
+      "padding_error": [
+        1.7881393432617188e-07,
+        1.4901161193847656e-08
+      ],
+      "probe_comparisons": {},
+      "update_seconds": 71.57574910577387,
+      "peak_bytes": 154946560,
+      "training_rows_seen": 128,
+      "training_rows_possible": 128,
+      "updates": 1,
+      "optimizer_step_uncertain": false,
+      "discard_checkpoint_verified": true
+    },
+    "signed_real16_subsequence": {
+      "centered_logit_error": 1.105447697824502e-07,
+      "alpha_error": 2.155571894590924e-08,
+      "padding_error": [
+        1.1920928955078125e-07,
+        7.450580596923828e-09
+      ],
+      "probe_comparisons": {},
+      "classical_health": {
+        "eligible": 128,
+        "fraction_mass_at_least_10eps": 1.0,
+        "median_tv": 0.034494251012802124,
+        "operator_gradient_norm": 0.01902605090856858,
+        "terminal_gradient_norm": 0.0041891587898135185,
+        "route_gradient_fraction": 0.004825171132728663
+      },
+      "update_seconds": 39.28816584125161,
+      "peak_bytes": 133884928,
+      "training_rows_seen": 128,
+      "training_rows_possible": 128,
+      "updates": 1,
+      "optimizer_step_uncertain": false,
+      "discard_checkpoint_verified": true
+    },
+    "gaussian_covariance": {
+      "centered_logit_error": 1.2307526847665784e-07,
+      "alpha_error": 3.923477096684502e-08,
+      "padding_error": [
+        8.940696716308594e-08,
+        7.450580596923828e-09
+      ],
+      "probe_comparisons": {
+        "legacy_Gcov": {
+          "centered_logit_error": 1.2307526847665784e-07,
+          "alpha_error": 3.923477096684502e-08
+        }
+      },
+      "update_seconds": 0.4122087396681309,
+      "peak_bytes": 119114752,
+      "training_rows_seen": 128,
+      "training_rows_possible": 128,
+      "updates": 1,
+      "optimizer_step_uncertain": false,
+      "discard_checkpoint_verified": true
+    }
+  },
+  "projection": {
+    "per_arm_base_seconds": {
+      "quantum_subsequence": 28964.60592468083,
+      "path_dephased_subsequence": 46987.05830620229,
+      "signed_real16_subsequence": 25872.04518134892,
+      "gaussian_covariance": 315.19356989860535
+    },
+    "single_gpu_compute_seconds": 112352.79328034371,
+    "two_gpu_compute_seconds": 60320.31621663273,
+    "two_gpu_allocated_compute_gpu_seconds": 120640.63243326546,
+    "uncertainty_multiplier": 1.1,
+    "fit_updates_per_arm": 640,
+    "regular_score_batches_per_arm": 48,
+    "fixed_Q_batches_each": 16,
+    "cost_scope": "FIT128 timed batch rates only. Parent startup/queue/release, CPU bootstrap and I/O, full-prefix parent deadline and observed length distribution must still be charged; never an automatic PASS."
+  },
+  "independent_validation_or_utility": false,
+  "caveat": "Recorded training exposure counts exclude separate frozen FIT probes and timed evaluation forwards; all activity is included in allocated GPU-seconds. One technical FIT batch, no held-out or scientific estimates.",
+  "pinned_sha256": {
+    "canary": "6b4d9b43c3e9be0593767d79148edce9386335301d86da7aa04f2ece617feffa",
+    "spec": "fdaaa0e691d29df880829a1a9471e57512c6312e76227cae9609cd6c15d13b48",
+    "execution": "6d73c4e9c73935f0012f2a4710cd8e7a2c4575de5bb7293c19a14c59553518b4",
+    "reviewed": "5e9b558242580ad5f9927d5a392265623e3b8a80c10a85b1186c93a88d4a05a5",
+    "summary": "e74d7e397214a17c198023d9562722b3188bb3d618903da62034b26a0b6f2c43"
+  }
+}
