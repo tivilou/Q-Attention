@@ -1,0 +1,11 @@
+{
+  "scope": "One read-only exact join of the already frozen FIT/selection/qualification roster against retained canonical TRAIN metadata. No extra rows, role reallocation, pseudo-labels, inference model, task forward, train update, GPU, or remote persistence.",
+  "pair_rule": "Exact same token list and same two ordered spans reversed, both directions observed and both rows retained within the same role. No absent edge is a negative; no role swap of cached h. Genuine directional supervision requires different observed labels.",
+  "qualification": "Count span reciprocity only outside FIT. Do not extract or index selection/qualification label fields or use these roles to estimate the inverse map.",
+  "feasibility_only": {
+    "fit": "At least 2 distinct unordered observed label pairs, each in independent groups >=2; an absolute floor for comparing cross-label rather than one memorized relation type.",
+    "qualification": "At least 5 reciprocal sentence groups even under the optimistic assumption that all yield directional examples; 5 is the all-wins lower-limit illustration for a one-sided exact sign calculation at alpha .05, not a claimed power calculation or a new inferential gate.",
+    "must_add": "Any design still needs a distinguishable forward mechanism, qualifying independent controls and honest analysis of generalizability. Contrast applied to same logits alone is not a quantum contribution. Prior cohort and launch gates stay frozen."
+  },
+  "when_unqualified": "Return NONE for this route under the current profile. Do not collect/reallocate cases or add a pseudo-label inverse to bypass weak support."
+}
