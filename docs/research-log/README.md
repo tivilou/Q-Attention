@@ -110,3 +110,8 @@
 - [2026-10-26：前置检查](20261026-date-only-rmea-readiness.md)（条目时间精度仅日期；完整机制 trace 缺失）。
 - [历史条目 20261026T-022952Z-q-srm-bounded-screen.md](20261026T-022952Z-q-srm-bounded-screen.md)（时间及结论以原文为准）。
 - [历史条目 20261020T-073818Z-q-cfra-toy.md](20261020T-073818Z-q-cfra-toy.md)（时间及结论以原文为准）。
+
+
+## 2026-11-27 Born context-formation screen
+
+[五臂筛选：七门1PASS，停止确切结构](20261127T-091122Z-context-formation-screen-stop.md)。原限定L4与全部历史保留；新L3/L4-T未接受。

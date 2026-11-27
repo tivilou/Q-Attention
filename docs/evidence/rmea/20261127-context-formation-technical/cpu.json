@@ -1,0 +1,125 @@
+{
+  "status": "PASS_SYNTHETIC_CPU_IMPLEMENTATION_ONLY",
+  "native_torch": "2.4.1+cu121",
+  "local_torch": "2.8.0+cu126",
+  "native_seconds": 5.693674818612635,
+  "local_seconds": 7.547000000005937,
+  "native_initial_identity": "f79575534288a8e57fef61deeba24ba568af7e683e4c1ebc984dcc7cfb6e0781",
+  "spec_sha256": "56d80c89681c52124d7c7aa6f1a73419a2729430fe4da428ab2c64fa14958767",
+  "code_hashes": {
+    "rmea_context_formation.py": "51536b0c31cb11a1f6a23b7bfcf3c488909aaf0d0f4bcc3a446eb2c116c1d990",
+    "context_oracle.py": "51d2a34faa7a4487a32414a39610b99e6a64ccc9221ff6a46041ad17278fb094",
+    "check_context_cpu.py": "84dae0055b60f8aa9bbb104f250f1e074b82aacf8f00d065b7a073c0d0b9c805"
+  },
+  "q_d_exact_initial_state": true,
+  "shared_initial_tensors": [
+    "value.weight",
+    "value.bias",
+    "context.weight",
+    "context.bias",
+    "classifier.weight",
+    "classifier.bias"
+  ],
+  "results": {
+    "born_context": {
+      "parameters": 99616,
+      "independent_numpy_errors": {
+        "logits": 1.0130785099704553e-15,
+        "score": 3.4416913763379853e-15,
+        "alpha": 3.3306690738754696e-15,
+        "hidden": 4.0245584642661925e-15,
+        "q_state": 2.7423646438498505e-15,
+        "k_state": 2.9504581591051763e-15
+      },
+      "rowsum_error": 4.440892098500626e-16,
+      "padding_error": 0.0,
+      "batch_independence_error": 0.0,
+      "cached_pair_permutation_error": 1.1102230246251565e-16,
+      "finite_gradients": true,
+      "masked_input_gradients_exact_zero": true,
+      "state_optimizer_roundtrip_error": 0.0,
+      "max_parameter_fd_error": 9.494668246068372e-11,
+      "input_fd_error": 7.989472039678092e-12
+    },
+    "dephased_context": {
+      "parameters": 99616,
+      "independent_numpy_errors": {
+        "logits": 5.48172618408671e-16,
+        "score": 1.1934897514720433e-15,
+        "alpha": 1.0547118733938987e-15,
+        "hidden": 1.3322676295501878e-15,
+        "q_state": 2.7423646438498505e-15,
+        "k_state": 2.9504581591051763e-15
+      },
+      "rowsum_error": 2.220446049250313e-16,
+      "padding_error": 0.0,
+      "batch_independence_error": 0.0,
+      "cached_pair_permutation_error": 8.326672684688674e-17,
+      "finite_gradients": true,
+      "masked_input_gradients_exact_zero": true,
+      "state_optimizer_roundtrip_error": 0.0,
+      "max_parameter_fd_error": 4.395857983174878e-11,
+      "input_fd_error": 2.7130554096713166e-11
+    },
+    "dot_context": {
+      "parameters": 206568,
+      "independent_numpy_errors": {
+        "logits": 3.469446951953614e-16,
+        "score": 2.275957200481571e-15,
+        "alpha": 2.220446049250313e-16,
+        "hidden": 7.771561172376096e-16
+      },
+      "rowsum_error": 3.3306690738754696e-16,
+      "padding_error": 0.0,
+      "batch_independence_error": 0.0,
+      "cached_pair_permutation_error": 8.326672684688674e-17,
+      "finite_gradients": true,
+      "masked_input_gradients_exact_zero": true,
+      "state_optimizer_roundtrip_error": 0.0,
+      "max_parameter_fd_error": 1.578468388982457e-11,
+      "input_fd_error": 4.8564248868003534e-12
+    },
+    "rbf_context": {
+      "parameters": 206632,
+      "independent_numpy_errors": {
+        "logits": 3.608224830031759e-16,
+        "score": 5.551115123125783e-16,
+        "alpha": 1.1102230246251565e-16,
+        "hidden": 7.216449660063518e-16
+      },
+      "rowsum_error": 4.440892098500626e-16,
+      "padding_error": 0.0,
+      "batch_independence_error": 0.0,
+      "cached_pair_permutation_error": 6.938893903907228e-17,
+      "finite_gradients": true,
+      "masked_input_gradients_exact_zero": true,
+      "state_optimizer_roundtrip_error": 0.0,
+      "max_parameter_fd_error": 1.705160491971558e-11,
+      "input_fd_error": 1.859330837081577e-11
+    },
+    "pair_mlp_context": {
+      "parameters": 214952,
+      "independent_numpy_errors": {
+        "logits": 4.163336342344337e-16,
+        "score": 5.551115123125783e-16,
+        "alpha": 8.326672684688674e-17,
+        "hidden": 6.800116025829084e-16
+      },
+      "rowsum_error": 4.440892098500626e-16,
+      "padding_error": 0.0,
+      "batch_independence_error": 0.0,
+      "cached_pair_permutation_error": 1.1102230246251565e-16,
+      "finite_gradients": true,
+      "masked_input_gradients_exact_zero": true,
+      "state_optimizer_roundtrip_error": 0.0,
+      "max_parameter_fd_error": 4.731314699833039e-11,
+      "input_fd_error": 1.4271209268588297e-11
+    }
+  },
+  "task_updates": 0,
+  "task_arrays_loaded": 0,
+  "limitations": [
+    "synthetic CPU only; no task utility, novelty, new T or L3/L4-T acceptance",
+    "larger classical registered capacity is deliberate, not effective-capacity matching"
+  ]
+}

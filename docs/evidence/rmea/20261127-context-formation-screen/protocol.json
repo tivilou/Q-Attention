@@ -1,0 +1,64 @@
+{
+  "status": "FROZEN_AND_ADMITTED_ONE_SCIENTIFIC_SCREEN",
+  "candidate_id": "q-rmea-born-context-formation",
+  "attempt": "a79a9d84ed434ac6bbe2d4cb91501b9c",
+  "generation": 126,
+  "scientific_spec_sha256": "91c01d932e19c10790850c9a8155feb7dcba3cb95f4364a19a6cbe76ba3ae8bf",
+  "code_hashes": {
+    "rmea_plugin_screen.py": "02c81157d43dbb8cb56305e262105d48afee18124ffd026753227884e4bd2b3c",
+    "rmea_context_formation.py": "51536b0c31cb11a1f6a23b7bfcf3c488909aaf0d0f4bcc3a446eb2c116c1d990",
+    "rmea_plugin_registry.py": "ce4e2c12c396bf817731bb192d2b0d87062fb8e42e0f89caf88ca0425332475d"
+  },
+  "binding_sha256": "b6371212ad6bf91af2a0361a916e27eef48a724638200998834b0f837d7cde03",
+  "reference_audit_sha256": "0eb6ec15533084db9ccdcc9898f9882ee5c702b0ae25aa591c8e3089f0a10250",
+  "routing_review_sha256": "fbf3ebfa7209e53e34c945246921db95b6c181b2671aef65be0e302146c5b014",
+  "modes": [
+    "born_context",
+    "dephased_context",
+    "dot_context",
+    "rbf_context",
+    "pair_mlp_context"
+  ],
+  "parameters": {
+    "born_context": 99616,
+    "dephased_context": 99616,
+    "dot_context": 206568,
+    "rbf_context": 206632,
+    "pair_mlp_context": 214952
+  },
+  "seed": 13,
+  "fit_examples": 8192,
+  "assessment_examples": 4096,
+  "split": "already exposed TRAIN development",
+  "updates_per_arm": 1024,
+  "total_updates": 5120,
+  "logical_batch": 128,
+  "microbatch": 4,
+  "selection": "Final update1024 only, all five fits before assessment; no best/early selection or new seed, VALID or TEST.",
+  "minimum_macro_margin": 0.01,
+  "minimum_dephasing_ce_gap": 0.005,
+  "critical_gate_count": 7,
+  "critical_controls": [
+    "independent_terminal_dephased",
+    "same_readout_dot64",
+    "same_readout_rbf64",
+    "same_readout_pair_mlp64",
+    "verified_native_quantum",
+    "verified_strong_gaussian_covariance"
+  ],
+  "budget": {
+    "arm_active_seconds": 21600,
+    "campaign_seconds": 43200,
+    "existing_gpu_count": 2,
+    "max_peak_gpu_bytes": 4294967296
+  },
+  "budget_reason": "Prospective after gen125: Q5.048811645s,D3.824632006s,dot1.418995048s,RBF1.108547941s,pair1.512802046s per firstTRAIN128 clone on one existingGPU. Linear1024 estimates are not runtime bounds; quadratic word lengths and concurrent twoGPU execution can change costs. Freeze21600s active including assessment per arm,43200s campaign,at most2existingGPU,Torch4GiB each; miss is technical nonadmission with no budget rescue.",
+  "protection": "Pinned durable inputs and accepted local best/latest/final every32 updates or improvement. No new COS/cross-host resume guarantee; no automatic retry. Technical clones never warm-start science.",
+  "limits": [
+    "Already exposed TRAIN development screen, not independent confirmation or L3/L4-T acceptance.",
+    "Q/D99616 versus dot206568/RBF206632/pairMLP214952 registered real parameters; not effective-capacity matching.",
+    "D dephases both final states only; internal coherent gates remain and effective information/capacity decreases. TerminalRZ/translation/affine gauges disclosed.",
+    "Known generic Born attention/contextualization. Placement audit does not establish substantive novelty, new T or hardware advantage.",
+    "Scientific fail STOP exact architecture and widen parent; no width/depth/encoder/seed/LR/precision/microbatch/budget rescue. All priorSTOP/originalscopedL4 retained."
+  ]
+}

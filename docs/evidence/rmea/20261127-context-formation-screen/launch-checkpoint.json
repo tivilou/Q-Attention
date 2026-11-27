@@ -1,0 +1,77 @@
+{
+  "status": "VERIFIED_LIVE_FIVE_ARM_SCREEN",
+  "candidate_id": "q-rmea-born-context-formation",
+  "attempt": "a79a9d84ed434ac6bbe2d4cb91501b9c",
+  "generation": 126,
+  "observed_at": "2026-11-27T06:41:41.686560+00:00",
+  "scientific_spec_sha256": "91c01d932e19c10790850c9a8155feb7dcba3cb95f4364a19a6cbe76ba3ae8bf",
+  "protocol": "docs/evidence/rmea/20261127-context-formation-screen/protocol.json",
+  "progress": {
+    "attempt": "a79a9d84ed434ac6bbe2d4cb91501b9c",
+    "phase": "training",
+    "current": 26,
+    "total": 5120,
+    "unit": "optimizer_update"
+  },
+  "children": {
+    "born_context": {
+      "state": "training",
+      "step": 13
+    },
+    "dephased_context": {
+      "state": "training",
+      "step": 13
+    },
+    "dot_context": {
+      "state": "pending"
+    },
+    "rbf_context": {
+      "state": "pending"
+    },
+    "pair_mlp_context": {
+      "state": "pending"
+    }
+  },
+  "saved_checkpoints": {
+    "born_context": {
+      "checkpoint_present": true,
+      "checkpoint_update": 12,
+      "checkpoint_sha256": "eda6e93ad0ead3b20251829cd54b318e664392575773dd977797ce3f887f89a4",
+      "initial_sha256": "350e92f6a8e7d92ffda3fbfbc4bf3a777183dc6675bb19cba3f0b032458ce1e1",
+      "optimizer_steps": [
+        12
+      ],
+      "losses_finite": true
+    },
+    "dephased_context": {
+      "checkpoint_present": true,
+      "checkpoint_update": 12,
+      "checkpoint_sha256": "c396293ea4c233900734fca52bac48bcdd5167727204bb4010c0f39c7d2cba15",
+      "initial_sha256": "350e92f6a8e7d92ffda3fbfbc4bf3a777183dc6675bb19cba3f0b032458ce1e1",
+      "optimizer_steps": [
+        12
+      ],
+      "losses_finite": true
+    },
+    "dot_context": {
+      "checkpoint_present": false
+    },
+    "rbf_context": {
+      "checkpoint_present": false
+    },
+    "pair_mlp_context": {
+      "checkpoint_present": false
+    }
+  },
+  "owner_and_science_identity_verified": true,
+  "all_launch_files_match": true,
+  "assessment_started": false,
+  "allocation_state": "running",
+  "result_available": false,
+  "newL3": "NOT_ACCEPTED",
+  "newL4T": "NOT_ACCEPTED",
+  "original_scoped_L4_retained": true,
+  "prior_scientific_STOP_preserved": true,
+  "next_action": "只观察gen126现有attempt a79a9d84ed434ac6bbe2d4cb91501b9c的checkpoint与终态，不重复启动或分配；等待五臂各1024步/all-fitbarrier后原4096暴露TRAIN final-only七门结果，完整审计并据冻结门停止确切结构或准备完整单seed，终态资源可复用后按原规则归还。",
+  "observation_limit": "Snapshot at the stated time, not current liveness. Server clock is retained without correction; publication/read time are separate."
+}

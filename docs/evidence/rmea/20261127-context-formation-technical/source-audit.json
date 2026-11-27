@@ -1,0 +1,41 @@
+{
+  "status": "BOUNDED_SOURCE_INSERTION_AUDIT_NOT_NOVELTY_CLEARANCE",
+  "git_head": "99f4a45744305b14823c6869e1aa71af5f6f658e",
+  "inspected_files": {
+    "src/q_attention/projectors.py": "41bd3dfb498d618a50e0fa7efd09e2a0d6d0fb4889c27b2f3932fb73e0e580e5",
+    "src/q_attention/steering.py": "be592e13e46dbaef05479812d15653ff997d57cf594d5e21608ff2cf1665d622",
+    "src/q_attention/plugins/quantum_steering.py": "3392c7614fd8702f897385e7761904d405682c1a4635677c3a47ac5acf6ecc41",
+    "src/q_attention/plugins/attention_score_kernel.py": "fd714027143485a1b9901190e0cebb2ffecdb9af63c2320f6e0a5cdbafc6fa83",
+    "src/q_attention/experiments/relation_steering.py": "8c1205b680bce0c5f68a76a681ac6d732ff1bb88f111ae2db944213d4f3ac36d",
+    "experiments/train_relation_attention_score_kernel.py": "f00a9b2a1dbb8e99c508f46ce7d3c3b3eaddc74a2b3ff68bdd66a7e6dcd3d533",
+    "baselines/retacred/rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+    "baselines/retacred/frozen_feature_head.py": "f4e63a43994d2e241c9ae30497dcbcd4bc3a98f04ec6b16746b1e721371b6af9",
+    "baselines/__init__.py": "ea65b36d1bdac4079a902a7add7d8df6eb8866bb667de644290b9bce4c307fc5",
+    "baselines/retacred/__init__.py": "5fdf00dd06096541bac34b3ff9dd6245ccc5c88d1c8eef3b29109ae6d4224e18",
+    "src/q_attention/adapters/encoder.py": "a3b7863b75101f3d043494933748b9722e8764c783b6d4cdaad1d0a57271dd3a",
+    "src/q_attention/adapters/attention_scores.py": "b87e862ffdb5f6ea3d17ebd2dc21d401b65a0244db4d15f596f03b318747907c"
+  },
+  "findings": [
+    {
+      "path": "src/q_attention/steering.py",
+      "locator": "apply_key_steering",
+      "finding": "k_prime=k+gain*P*k inside backbone, selected-key mask; not a standalone40class contextualization head."
+    },
+    {
+      "path": "src/q_attention/adapters/attention_scores.py",
+      "locator": "attention hook, lines74-90",
+      "finding": "score_kernel output is checked against backbone score shape and added as output+residual."
+    },
+    {
+      "path": "src/q_attention/plugins/attention_score_kernel.py",
+      "locator": "forward, lines1173-1247",
+      "finding": "state/kernel readout becomes centered score residual, not terminal task logits."
+    },
+    {
+      "path": "experiments/train_relation_attention_score_kernel.py",
+      "locator": "adapter.steering training/evaluation blocks",
+      "finding": "existing backbone+classifier evaluated inside adapter context; cached standalone new block is a distinct insertion contract."
+    }
+  ],
+  "limit": "Generic quantum contextualization and Born-weighted attention known from QSANN/QVT; no substantive task contribution, full novelty clearance or new theorem established."
+}
