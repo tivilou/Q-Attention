@@ -1,0 +1,34 @@
+{
+  "status": "EXPLORATORY_HYPOTHESIS_NOT_SELECTED_FORMAL_METHOD",
+  "id": "ordered-coherent-marked-subsequence",
+  "title": "有序无重复子序列的相干词责任路由",
+  "changed_premise": "Multiple fixed-length evidence paths may interfere before assigning responsibility to individual words, rather than mixing histories classically or multiplying already formed marginal attention weights.",
+  "task_motivation": "Original same-input failures include positive relation confusions; multiple ordered evidence cues are a plausible hypothesis, not an observed quantum-specific causal bottleneck. No sample/cohort chosen from outcomes.",
+  "input": "Original one sentence h_t inR1024, roles_t inR4, validitymask; x_t=[h_t;roles_t] inR1028, all valid words retained in their order. No neighbor/gold/entitytype/parser/tokenID input.",
+  "quantum_dimensions": "q3,d8, native2layer RY/RZ/CNOT wordU_t(pi*tanh(Wx_t+b)), rho0=|000><000|.40 native queryphi_r; E_r=(phi_r phi_r†+I8/8)/2 are40 separate binary effects, not a joint40outcomePOVM.",
+  "fixed_degree": "k=min(3,n) for n valid words, not a searched hyperparameter. Empty sentences invalid; padding not a token.",
+  "formulas": [
+    "For S={i1<...<ik}, U_S=U_ik ... U_i1. C=choose(n-1,k-1).",
+    "For each marked word t, H_t=1/C sum_(S containingt,|S|k) U_S. ||H_t||<=1.",
+    "gQ_rt=Tr(E_r H_t rho0 H_t†); alphaQ_rt=(gQ_rt+eps)/sum_j(gQ_rj+eps), eps=1e-6.",
+    "v_t=Linear1024to64(h_t); z_r=sum_t alpha_rt v_t; logit_r=w_r^T z_r+b_r; standard40classsoftmax/taskloss. No classical logits bypass.",
+    "Exact physical path-dephased event: gD_rt=1/C^2 sum_(S containingt) Tr(E_r U_S rho0 U_S†). Same marked preparation, pathrecord dephased before erasure. ThisD removes interpath coherence, not all intrapath quantum memory coherence.",
+    "D-average notation differs by commonC; keep 1/C^2 when using fixedabsoluteeps. Do not silently change postselection/eps scale."
+  ],
+  "realization": "Prepare marked index t uniformly and, conditioned on t, uniformly choosek-subsets containingt. Controlled ordered word gates create U_S. Coherently unprepare subset register, postselect its zero state, retain wordindex and test binaryE_r. Jointwordmass is g_rt/n; conditionalindex samples giveg normalized. A fixed incoherent uniform success branch with weight eps realizes(g+eps) normalization. Requires explicit controlledunitary phase convention and complete stateprep/SELECT/readout accounting; no unspecified freeoracle.",
+  "postselection": "For the signal branch p_r=(sum_t g_rt)/n, can be0. Uniformfallback branch gives p_total=(mean_tg_rt+eps)/(1+eps), floor eps/(1+eps), up to ~1e6 expected attempts inworstcase before observable/value estimation. No useful worstcase speedup guarantee. D signal count1/C dilution is explicit, not ignored.",
+  "phase_contract": "Use actual canonical native gate order, relative phases of controlledU_t, not only projectorsrho_t. Independent branchphase changes model; source-level abstractwitness is not proof of native-parameter attainability.",
+  "classical_control": "Independently trained signed-real16 operator DP: A_t=MLP_C(x_t) inR16x16/max(1,Frobeniusnorm), basisinitialstate,40 realPSD queryeffects; same orderedmarkedsum, samefull64value+40readout. NonlinearM_C uses full1028 inputs, not a copied exactrealblock replay. Its parameter/cost/capacity envelope must be registered at eligibility; matching rawcounts alone is insufficient. Retain strongGcov as external same-information reference.",
+  "critical_ablations": [
+    "Independently fitted interpath-dephasedD under identical preparation/output/fit protocol",
+    "FixedQ interpathdephasing and explicit outputscale/eps diagnostic to distinguish interference shape from successmass/concentration",
+    "Within-path memory dephasing if a broader memory-coherence claim is made; no such claim is currently advanced",
+    "No omittedGcov/strongC, no separate selectedseed or outcomechosen cohort"
+  ],
+  "task_prediction": "On the complete predeclared qualification set, original40class priorweightedMacro forQ must beat independently fittedD, strongsameinformationC andGcov under existing utility gates, not just a phase toy, CE or a posthoc multicue cohort. Positive-label confusion and nullfalsepositive summaries are diagnostics, not substitute gates.",
+  "structural_prediction": "Withn<=3 there is one chosen subset, all markedH_t identical and attention is uniform for everyr (includingeps). For an abstractn4 fixture withU1=U3=U4=V,U2=-V, Q givesmarkedmasses e*(1/9,1,1/9,1/9), D gives(e/3)*ones, wheree=Tr(E V^3rho0V†^3)>0. Q attention distinguishes the phase whileD isuniform. This is analytic, not a run or a new phase theorem; actual nativeattainability remains pending.",
+  "DP": "PrefixP[j,a]=P[j-1,a]+U_j P[j-1,a-1]; suffixS[j,b]=S[j+1,b]+S[j+1,b-1] U_j. MarkedH_t=(sum_(a+b=k-1) S[t+1,b] U_t P[t-1,a])/C. D uses analogous completely-positive sums and prefixdensity/suffixeffect contractions; terms and normalization require independent enumeration verification.",
+  "resource_expression": "Classical Q DP O(n k d^3 + R n d^2), memory O(n k d^2), R40,d8,k<=3, excludingnativeinputprojection/backprop/fullvalues. D can use O(R n k d^3) CP recursion and bilinearprefix/suffix contractions. These are estimates, not executed/nativecost admission. ControlledLCU preparation and postselection samples count separately.",
+  "novelty": "Unresolved. Quixer is direct componentprior for coherentsummedoperator paths; conditionalmarking/value retention and increasingdistinctsubsets are proposed differences, not certified priority or substantive theory. KnownDP/LCU/coherence alone is not newT.",
+  "investment_limit": "One exact synthetic/source derivation only before further investment; no search ofk, rank, angles, widths, phase/scales, seeds, taskinputs or budgets. Failure/equivalence at this gate closes this exactproposal; no automatic neighboring repair."
+}
