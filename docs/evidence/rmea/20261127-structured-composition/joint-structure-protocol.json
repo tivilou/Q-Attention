@@ -1,0 +1,28 @@
+{
+  "purpose": "Qualify the historical P-INFER input premise after direct P-STRUCT transfer gives no eligible new mechanism.",
+  "input": "Pinned canonical TRAIN only; exact token-list sentence groups and annotated subject/object span identities. Entity identity is a span within one sentence, never cross-sentence linking.",
+  "regimes": [
+    "all historically exposed canonical TRAIN",
+    "original fixed8192 FIT only"
+  ],
+  "counts": [
+    "sentence and directed-edge multiplicity",
+    "shared-entity coedges",
+    "connected components with3+ entities",
+    "undirected cycles",
+    "reciprocal annotated target pairs",
+    "all40x40 observed reverse-label count matrix with ambiguous duplicated edge labels reported separately"
+  ],
+  "inverse_rule": "Count each unordered reciprocal span-pair once. If each directed edge has exactly one distinct label, emit both orientations to a symmetric count table. Ambiguous edge labels are counted separately, not silently resolved. No absent edge is treated as null.",
+  "access_boundary": "Existing single-pair deployed input does not expose the other annotated entity spans/queries. Finding graph structure in TRAIN cannot by itself qualify transductive inference or deterministic inverse constraints.",
+  "caps": {
+    "cpu_seconds": 45,
+    "new_fits": 0,
+    "new_model_forwards": 0,
+    "parser_runs": 0,
+    "gpu": 0,
+    "valid_test_reads": 0,
+    "remote_writes": 0
+  },
+  "interpretation": "Descriptive original-TRAIN availability only; no new task mechanism, empirical benefit, independent confirmation, label-oracle input or source-paper effect transfer."
+}
