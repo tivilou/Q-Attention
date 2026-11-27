@@ -1,0 +1,29 @@
+{
+  "scope": "Original exposed TRAIN assessment, all retained eleven models; no modified predictions",
+  "cohort_sha256": "8fb8393bbe2241929748283f2bbaa219682696409857ec15678585bcd0b88ff0",
+  "models": [
+    "quantum",
+    "dephased",
+    "gaussian_base",
+    "quantum_covariance",
+    "gaussian_covariance",
+    "quantum_mean_product",
+    "gaussian_mean_product",
+    "dephased_covariance",
+    "quantum_distinct",
+    "dephased_distinct",
+    "gaussian_distinct"
+  ],
+  "definition": "Class/type pair supported iff at least one FIT row has that ordered subject/object type pair and class. Null is always allowed. Unseen FIT type pairs are reported separately.",
+  "outputs": "All40 Macro identity, correct/error by empirical support of gold and predicted class; deployed gold-positive wrong-positive errors separately; all models and all40 class supports retained.",
+  "interpretation": "FIT absence is not semantic incompatibility; no executable mask, accuracy projection, rare-class rescue, confirmatory inference or claim of new input information.",
+  "caps": {
+    "cpu_seconds": 60,
+    "new_fits": 0,
+    "new_model_forwards": 0,
+    "gpu": 0,
+    "valid_test": 0,
+    "server_writes": 0
+  },
+  "source_protocol_sha256": "2f4c3aae187caa2cd8106777f83c94e247ac25b4e912d1000ce366349f8f78a4"
+}
