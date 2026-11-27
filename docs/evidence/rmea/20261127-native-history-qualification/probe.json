@@ -1,0 +1,201 @@
+{
+  "status": "PASS_SYNTHETIC_NATIVE3Q_HISTORY_EQUATIONS_NOT_METHOD_ADMISSION",
+  "seconds": 0.2114928999944823,
+  "protocol_sha256": "2a5701b4167539430dabf71f46721f7ffe2d72cb1fdb0953850b0f5e02d5c907",
+  "environment": {
+    "python": "3.11.10 | packaged by conda-forge | (main, Sep 30 2024, 17:50:51) [MSC v.1941 64 bit (AMD64)]",
+    "torch": "2.8.0+cu126",
+    "numpy": "1.26.4",
+    "device": "CPU",
+    "threads": 1,
+    "packages_installed": 0
+  },
+  "source_sha256": {
+    "D:\\CodexHome\\task-artifacts\\qattn-joint-computation-role-20261126\\comparison\\sequence_memory.py": "de82d4bd5bbcdfe9303e19b3706d70d3e29519d0afc5ee4201d3c059b0f25c5e",
+    "D:\\CodexHome\\task-artifacts\\qattn-relation-frame-20261125\\source\\baselines\\retacred\\rmea.py": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0"
+  },
+  "errors": {
+    "native_vs_independent_dense_unitary": 4.742874840267547e-16,
+    "native_zero_state_column": 0.0,
+    "unitarity": 8.881784197001252e-16,
+    "effect_independent": 4.440966769033874e-16,
+    "Q_all_coin_histories": 4.163336342344337e-16,
+    "D_all_coin_population_histories": 3.0531133177191805e-16,
+    "C_all_coin_state_histories": 4.163336342344337e-17,
+    "D_density_vs_population": 8.326672684688674e-17,
+    "marginal_selected_plus_skip": 4.996003610813204e-16,
+    "states_trace": 6.661928461980202e-16,
+    "maxmixed_uniform": 1.6653345369377348e-16,
+    "padding_logits_row0": 4.163336342344337e-17,
+    "padding_alpha_row0": 3.3306690738754696e-16,
+    "padding_logits_row1": 1.3877787807814457e-16,
+    "padding_alpha_row1": 7.771561172376096e-16,
+    "full_1024_value_40_logit_readout": 2.7755575615628914e-16
+  },
+  "finite_difference": [
+    {
+      "tensor": "h",
+      "index": [
+        0,
+        1,
+        7
+      ],
+      "autograd": 3.0043829979300965e-05,
+      "central_difference": 3.0043830704512553e-05,
+      "absolute_error": 7.252115879661462e-13
+    },
+    {
+      "tensor": "roles",
+      "index": [
+        0,
+        1,
+        2
+      ],
+      "autograd": -1.6994958388103104e-05,
+      "central_difference": -1.699495860880973e-05,
+      "absolute_error": 2.2070662490528484e-13
+    },
+    {
+      "tensor": "prepare_weight",
+      "index": [
+        0,
+        7
+      ],
+      "autograd": 0.00010583633399699893,
+      "central_difference": 0.00010583633405433779,
+      "absolute_error": 5.733885859605242e-14
+    },
+    {
+      "tensor": "prepare_bias",
+      "index": [
+        0
+      ],
+      "autograd": 0.000865545124356713,
+      "central_difference": 0.0008655451247223389,
+      "absolute_error": 3.6562593230815565e-13
+    },
+    {
+      "tensor": "effect",
+      "index": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "autograd": -2.436100975505294e-06,
+      "central_difference": -2.4361010170920183e-06,
+      "absolute_error": 4.158672451881813e-14
+    },
+    {
+      "tensor": "value_weight",
+      "index": [
+        0,
+        7
+      ],
+      "autograd": -0.00113858548536359,
+      "central_difference": -0.0011385854850089194,
+      "absolute_error": 3.5467050303605863e-13
+    },
+    {
+      "tensor": "value_bias",
+      "index": [
+        0
+      ],
+      "autograd": -0.010792853290794824,
+      "central_difference": -0.010792853290123375,
+      "absolute_error": 6.714490075054869e-13
+    },
+    {
+      "tensor": "decoder",
+      "index": [
+        0,
+        0
+      ],
+      "autograd": 0.002167102167209554,
+      "central_difference": 0.0021671021672043517,
+      "absolute_error": 5.2024357044544445e-15
+    },
+    {
+      "tensor": "bias",
+      "index": [
+        0
+      ],
+      "autograd": 0.021500271416551045,
+      "central_difference": 0.021500271416311986,
+      "absolute_error": 2.3905877277741183e-13
+    }
+  ],
+  "gradient_norms": {
+    "Q": {
+      "h": 0.004100570642096568,
+      "roles": 0.00010352882329718374,
+      "prepare_weight": 0.028631142800932086,
+      "prepare_bias": 0.0022302402794420768,
+      "effect": 0.0014141410350648788,
+      "value_weight": 0.1726134699457822,
+      "value_bias": 0.07077930146278376,
+      "decoder": 0.07998298936985625,
+      "bias": 0.10467266105124465
+    },
+    "D": {
+      "h": 0.004010452095637786,
+      "roles": 4.9565644198438534e-05,
+      "prepare_weight": 0.018501907132985218,
+      "prepare_bias": 0.001332038230479986,
+      "effect": 8.175529370715616e-05,
+      "value_weight": 0.1732775753718885,
+      "value_bias": 0.07077930146278376,
+      "decoder": 0.08026316729008436,
+      "bias": 0.10467266105124465
+    },
+    "C": {
+      "h": 0.004025624659189587,
+      "roles": 3.5737099937501323e-10,
+      "prepare_weight": 1.382440224917282e-06,
+      "prepare_bias": 5.261236497774151e-10,
+      "transition_weight": 1.8142381574313362e-07,
+      "transition_bias": 3.049840813559156e-10,
+      "terminal_classical": 1.5298280937997883e-07,
+      "value_weight": 0.1734028891419401,
+      "value_bias": 0.07077930146278376,
+      "decoder": 0.08027550967811577,
+      "bias": 0.10467266105124465
+    }
+  },
+  "future_ratio_witness": {
+    "class": 0,
+    "words": [
+      0,
+      1
+    ],
+    "changed_word": 3,
+    "before": 0.9757881821964213,
+    "after": 1.001271897545673,
+    "delta": 0.025483715349251645
+  },
+  "raw_parameters": {
+    "Q": 81028,
+    "D": 81028,
+    "classical_positive_smoother": 81700,
+    "equal_effective_capacity": false
+  },
+  "bounds": {
+    "minimum_joint_mass": 0.03125,
+    "maxalpha_by_valid_length": {
+      "4": 0.75,
+      "3": 0.8181818181818182
+    },
+    "matrix_dimension": 8
+  },
+  "task_rows": 0,
+  "task_forwards": 0,
+  "optimizer_updates": 0,
+  "GPU": 0,
+  "model_api": 0,
+  "limits": [
+    "Synthetic deterministic weights, not the saved remote native initialization or a real task minibatch.",
+    "No production plugin or runner adapter; independent classical/D training remains prospective, not performed.",
+    "Single fixture only: finite gradients and local finite differences do not establish long-sequence learnability or task utility.",
+    "No novel theorem, broad literature clearance, L3 or L4-T. Dataset-qualified reconciliation and actual cost remain prerequisites."
+  ]
+}
