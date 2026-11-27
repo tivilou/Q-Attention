@@ -1,0 +1,90 @@
+{
+  "status": "PASS_ONE_EXPLORATORY_SMOOTHING_ROLE_CHECK",
+  "seconds": 0.01680820000183303,
+  "protocol_sha256": "fcf7f2fa208ed097f97a145b28295e84eb13babda1b80658e8e66db099d4c18b",
+  "fixture": {
+    "d": 2,
+    "n": 4,
+    "input_gate_angles": [
+      [
+        0.7,
+        0.2
+      ],
+      [
+        -0.4,
+        1.1
+      ],
+      [
+        0.8,
+        -0.9
+      ],
+      [
+        0.3,
+        0.6
+      ]
+    ],
+    "last_word_replacement": [
+      -0.9,
+      1.4
+    ],
+    "class_effects": 40,
+    "phi_angles": "RY(.2+.013*r) then RZ(.1+.07*r), r=0..39",
+    "values": "arange(12).reshape(4,3)/10"
+  },
+  "prefix_suffix_vs_16history_error": 2.220446049250313e-16,
+  "independent_real4_history_error": 2.220446049250313e-16,
+  "terminal_probability_error": 3.3306690738754696e-16,
+  "minimum_g": 0.23577979162075935,
+  "minimum_bound": 0.125,
+  "max_alpha": 0.2821384449348414,
+  "max_alpha_bound": 0.5,
+  "future_ratio_witness": {
+    "class": 0,
+    "word_indices": [
+      0,
+      1
+    ],
+    "changed_word": 3,
+    "before": 0.9298689792915439,
+    "after": 1.0036271864882658,
+    "delta": 0.07375820719672188,
+    "scope": "Fixed local gates/effect, changes relative weights through future channel; not better task predictions or whole-model separation from contextual classical attention."
+  },
+  "maxmixed_uniform_alpha_error": 5.551115123125783e-17,
+  "source_printed_formula_counterexample": {
+    "numerator_each": "1/4",
+    "printed_denominator": "1",
+    "printed_probability_sum": "1/2",
+    "instrument_denominator": "1/2",
+    "correct_probability_each": "1/2"
+  },
+  "first_class_g": [
+    0.32831706358407947,
+    0.3530788432518959,
+    0.3223977070776263,
+    0.3386801083426825
+  ],
+  "first_class_alpha": [
+    0.2445612589215376,
+    0.2630061485736043,
+    0.24015196851359985,
+    0.2522806239912582
+  ],
+  "first_class_pooled_value": [
+    0.45004558727237365,
+    0.5500455872723735,
+    0.6500455872723736
+  ],
+  "operational_scope": "Classical fair skip/apply coins with coherent quantum memory and terminalbinaryeffect. No coherence between coin branches, no gold future observation, no physical40way measurement claim.",
+  "new_task_rows": 0,
+  "new_task_forwards": 0,
+  "new_fits": 0,
+  "GPU": 0,
+  "external_model_calls": 0,
+  "new_packages": 0,
+  "limits": [
+    "Synthetic qubit check; original native3qubit input-angle reachability, training gradients, source-neighbor novelty, production code and actual task cost unproved.",
+    "No independent researcher validation, empirical utility, newT, L3 or L4-T. Pauli/real replay is not an independently trained strong classical control.",
+    "Maxmixed collapse and bounded concentration are genuine restrictions; unitary-mixture memory can mix away context and has no guaranteed long-range benefit."
+  ]
+}
