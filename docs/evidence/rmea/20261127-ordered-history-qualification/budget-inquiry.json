@@ -1,0 +1,32 @@
+{
+  "status": "DEFER_NO_UNAMBIGUOUS_FROZEN_ALLOWANCE_FOR_FURTHER_CHANGED_IMPLEMENTATION_COST_QUALIFICATION",
+  "profile_sha256": "0b2da30bf1c0ca6b8809220c2fa72b598835c6e37c84b40c3c610ee4281e7e25",
+  "budget_clauses": {
+    "unique_fit_cap": 4096,
+    "selection_cap": 1024,
+    "qualification_cap": 2048,
+    "max_scientific_updates": 2560,
+    "max_technical_clone_updates": 4,
+    "max_total_updates": 2564,
+    "max_scientific_train_exposures": 327680,
+    "max_total_train_exposures": 328192,
+    "max_new_gpu_seconds_all_arms_and_evaluations": 3600,
+    "max_campaign_elapsed_seconds": 2400,
+    "max_existing_gpus": 2,
+    "max_torch_peak_bytes_per_gpu": 4294967296,
+    "max_selection_passes_per_arm": 4,
+    "max_qualification_passes_per_arm": 1,
+    "regular_assessment_row_forwards_max": 24576,
+    "additional_mechanism_forwards": "freeze per hypothesis before launch; included in the same3600 GPU-second/2400 elapsed cap",
+    "calibration_current_round_new_fits": 0,
+    "calibration_current_round_new_forwards": 0,
+    "calibration_cpu_elapsed_cap_seconds": 60,
+    "pre_admission": "use accepted unchanged costs or one change-scoped measured technical update to check feasibility; include any new technical measurement in the cap; spare GPUs do not expand budget",
+    "budget_exhaustion": "defer/non-admission with cost reason; not a full scientific negative; no on-the-fly extension or seed/width/encoding rescue",
+    "cost_claim": "smaller sample/update caps are verified; end-to-end speedup awaits measurement including extra selection passes"
+  },
+  "technical_updates_already_consumed": 4,
+  "additional_updates_allowed": 0,
+  "interpretation": "The profile permits accepted unchanged costs or one change-scoped measured technical update, caps total clones at4, and includes every new technical measurement in3600seconds. It does not explicitly grant a separate replacement qualification after all4 have been consumed. No task/GPU cost action admitted; mathematical zero-task check remains within existing SEARCH30 contract.",
+  "decision": "No task/GPU/cost qualification launched. Close this execution-form investment at synthetic math record; keep original candidate technical/cost history and all4 charged updates."
+}
