@@ -1,0 +1,21 @@
+{
+  "status": "SEARCH23_SUPPORTING_SOURCE_AND_ANCESTRY_CHECK_COMPLETE",
+  "scope": "Static pinned native-head source and directly relevant P-REP ancestry only; parent comparison remains active",
+  "source_sha256": "9f4bfc57a1a966c3383c1a2e82fe406ac3d115b653b062290fcf42d3c4683ee0",
+  "source_observation": "RMEAHead.forward composes trainable prepare/effect, circuit, probability, alpha and value/decoder into logits without a detach in this method. This is a structural differentiable path, not a measurement of nonzero gradients or successful task learning.",
+  "ancestry": {
+    "idea_id": "q-rmea-p-rep-gen116",
+    "source": "docs/idea-monitor/catalog.json",
+    "log": "docs/research-log/20261126T-062939Z-p-rep-six-condition-stop.md",
+    "observed": "P-REP already placed matched rank8 Q/V adaptation in the last backbone block and compared Q/D/Gcov plus frozen counterparts. Its exact six-arm screen is STOP."
+  },
+  "decision": "A new feedback-path hypothesis must identify information or learning feedback absent from these ancestors; 'unfreeze an upstream adapter' or 'quantum head has no learning path' alone does not qualify as a new idea.",
+  "next_action": "Finish the bounded SEARCH-23 parent comparison, preserving all exact STOPs and selecting one nonduplicate falsifiable lead or NONE before implementation.",
+  "new_model_forwards": 0,
+  "new_fits": 0,
+  "new_gpu_initializations": 0,
+  "valid_test_read": false,
+  "new_L3": "NOT_ACCEPTED",
+  "new_L4_T": "NOT_ACCEPTED",
+  "historical_scoped_L4": "PRESERVED"
+}
