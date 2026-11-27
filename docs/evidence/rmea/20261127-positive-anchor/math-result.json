@@ -1,0 +1,179 @@
+{
+  "status": "PASS_THREE_FROZEN_ANCHORS_NO_SAME_CORE_REOPEN",
+  "classification": "NONE_SAME_CORE_POSITIVE_ANCHOR",
+  "fresh5": {
+    "seeds": [
+      29,
+      53,
+      71,
+      97,
+      113
+    ],
+    "macro_pairs": {
+      "uniform": {
+        "delta": [
+          0.2896276204566955,
+          0.33635677958814497,
+          0.3133378754700413,
+          0.28921792522068385,
+          0.30066548689046896
+        ],
+        "mean": 0.3058411375252069,
+        "positive": 5,
+        "ci95": [
+          0.2813721472972543,
+          0.33031012775315954
+        ],
+        "exact_two_sided_sign_flip": 0.0625
+      },
+      "relation_softmax": {
+        "delta": [
+          0.012501963963829337,
+          0.02375996070341299,
+          -0.01682327494018975,
+          0.0006107335718504727,
+          -0.007677920066934897
+        ],
+        "mean": 0.0024742926463936304,
+        "positive": 3,
+        "ci95": [
+          -0.017475293779832726,
+          0.022423879072619984
+        ],
+        "exact_two_sided_sign_flip": 0.8125
+      },
+      "real_overlap": {
+        "delta": [
+          0.008806017464766133,
+          0.035457749069751736,
+          -0.015228084818000772,
+          -0.01982221374559404,
+          0.015395672693347935
+        ],
+        "mean": 0.004921828132854199,
+        "positive": 3,
+        "ci95": [
+          -0.023361941035259466,
+          0.033205597300967865
+        ],
+        "exact_two_sided_sign_flip": 0.625
+      },
+      "dephased": {
+        "delta": [
+          0.012975157991281315,
+          0.05204155029314433,
+          -0.013682229168132361,
+          -0.023100918726582854,
+          -0.01081489083016866
+        ],
+        "mean": 0.0034837339119083532,
+        "positive": 2,
+        "ci95": [
+          -0.03404356219844775,
+          0.04101103002226445
+        ],
+        "exact_two_sided_sign_flip": 0.875
+      }
+    },
+    "ce_frozen_alignment": {
+      "delta": [
+        0.18902182056644773,
+        0.1997478042741276,
+        0.2245895788306752,
+        0.21742540621903209,
+        0.17928451894025793
+      ],
+      "mean": 0.2020138257661081,
+      "positive": 5,
+      "ci95": [
+        0.17847348514455386,
+        0.22555416638766235
+      ],
+      "exact_two_sided_sign_flip": 0.0625
+    },
+    "q_minus_best_nonuniform_arm_by_seed": {
+      "29": 0.008806017464766133,
+      "53": 0.02375996070341299,
+      "71": -0.01682327494018975,
+      "97": -0.023100918726582854,
+      "113": -0.01081489083016866
+    },
+    "q_beats_all_three_nonuniform_same_seed": 2,
+    "attribution": "Original statistical claim is ordinary pooling utility plus matched permutation sensitivity, not Q-specific benefit."
+  },
+  "gen49": {
+    "macro": {
+      "uniform": 0.22116609369589763,
+      "quantum": 0.49532364167081594,
+      "dephased": 0.5047678876047106,
+      "softmax12": 0.5342961108617414,
+      "real12": 0.5464475261833317
+    },
+    "q_delta": {
+      "uniform": 0.2741575479749183,
+      "dephased": -0.009444245933894651,
+      "softmax12": -0.038972469190925514,
+      "real12": -0.05112388451251574
+    },
+    "qualification": "CLOSE_EXACT_QUALIFICATION_PROFILE",
+    "passed_required": 1,
+    "total_required": 4,
+    "no_single_class_reversal": {
+      "classical_minus_q_min_after_one_deletion": 0.043155144066560715,
+      "max_after_one_deletion": 0.05745147575419675,
+      "any_single_label_deletion_reverses": false,
+      "oracle_min_deletions_to_strictly_reverse": 12,
+      "scope": "Worst-case deletion arithmetic only. No labels removed from the frozen metric and no class selection for execution."
+    }
+  },
+  "gen98": {
+    "macro": {
+      "quantum_distinct": 0.5009251423088874,
+      "dephased_distinct": 0.43665490053696304,
+      "gaussian_distinct": 0.5109305397506733,
+      "reused/earlier/native_gaussian_covariance": 0.512054050292468,
+      "reused/previous/quantum_shared_mean_product": 0.5040456713501248
+    },
+    "q_delta": {
+      "dephased_distinct": 0.06427024177192431,
+      "gaussian_distinct": -0.010005397441785883,
+      "reused/earlier/native_gaussian_covariance": -0.011128907983580676,
+      "reused/previous/quantum_shared_mean_product": -0.003120529041237396
+    },
+    "failed_frozen_gates": [
+      "macro_beats_gaussian_distinct",
+      "macro_beats_reused/previous/quantum_shared_mean_product",
+      "macro_beats_reused/earlier/native_gaussian_covariance"
+    ],
+    "passed_required": 10,
+    "total_required": 13,
+    "full_data": "NOT_STARTED",
+    "versus_gcov_class_deletion": {
+      "classical_minus_q_min_after_one_deletion": 0.0020854091158426452,
+      "max_after_one_deletion": 0.01822796371993571,
+      "any_single_label_deletion_reverses": false,
+      "oracle_min_deletions_to_strictly_reverse": 2,
+      "scope": "Worst-case deletion arithmetic only. No labels removed from the frozen metric and no class selection for execution."
+    },
+    "versus_new_gaussian_class_deletion": {
+      "classical_minus_q_min_after_one_deletion": -0.00042181458962131625,
+      "max_after_one_deletion": 0.02491396074615402,
+      "any_single_label_deletion_reverses": true,
+      "oracle_min_deletions_to_strictly_reverse": 1,
+      "scope": "Worst-case deletion arithmetic only. No labels removed from the frozen metric and no class selection for execution."
+    }
+  },
+  "recomputed_confusion_matrices": 49,
+  "records_sha256": {
+    "accepted_card": "1f56b42caceaed6601a2e537f4afb1909fcc2c4f2e79f6a1b8a1ef6dedb33986",
+    "fresh5": "fad5c12213f6b8ea1e8fc1a724f5fa28e535c39035a8af8fc8653dc385d74522",
+    "gen49": "2c6388e4ddf0798277b7f07be204dc005f1759c4c680eef67ff1140bbd52b9a2",
+    "gen98": "dc3ed63bc46f15fb193b456eb302fc68435f48469d701e81677e34938262c2c7"
+  },
+  "interpretive_scope": "No pooled cross-study estimates. Leave-one-label arithmetic is descriptive, not class resampling, row pairing, or a changed evaluation.",
+  "task_rows": 0,
+  "task_forwards": 0,
+  "optimizer_updates": 0,
+  "gpu_allocations": 0,
+  "script_sha256": "499c13d7cb44bd3bc8415279caf04cfeb15ce844a46be85608d3b69ca4811278"
+}
