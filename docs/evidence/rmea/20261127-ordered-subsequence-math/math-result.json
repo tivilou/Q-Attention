@@ -1,0 +1,194 @@
+{
+  "status": "PASS_ORDERED_SUBSEQUENCE_SYNTHETIC_MATH_ONLY",
+  "compute_seconds": 0.26028190000215545,
+  "torch_version": "2.8.0+cu126",
+  "numpy_version": "1.26.4",
+  "python": "D:\\Software\\Dev\\Language\\Anaconda3\\envs\\QT\\python.exe",
+  "device": "CPU",
+  "new_packages": 0,
+  "seed": 13,
+  "source_sha256": "ef6a1ef42d39a67de7709fb915ca1634c6395e3285c74e77a04cc38fb4b30dea",
+  "checker_sha256": "a46aa8c2324dca0cc44161997f85fc6e8fd652f763c5b4d1175d4279715312b2",
+  "native_source_sha256": "35d748d2618c1a313622534eb8f87cd64e1a7bea2ae540d2fb9c0f10560df592",
+  "rows": {
+    "Q": {
+      "initial_sha256": "42e56240bc2ae640518df003ef8ff6262bcaa2a4f90afe132b0f5abfc56a7544",
+      "real_parameter_count": 81028,
+      "mass_error": 5.551115123125783e-17,
+      "alpha_error": 2.7755575615628914e-16,
+      "logit_error": 3.885780586188048e-16,
+      "all_input_parameter_gradient_error": 3.552713678800501e-15,
+      "finite_difference_parameter": "prepare.weight",
+      "finite_difference_index": [
+        0,
+        0
+      ],
+      "finite_difference_gradient": 1.1279368820691564,
+      "finite_difference_error": 3.254969627164428e-10,
+      "padding_input_gradient_zero": true,
+      "state_unchanged": true
+    },
+    "D": {
+      "initial_sha256": "42e56240bc2ae640518df003ef8ff6262bcaa2a4f90afe132b0f5abfc56a7544",
+      "real_parameter_count": 81028,
+      "mass_error": 3.8163916471489756e-17,
+      "alpha_error": 2.498001805406602e-16,
+      "logit_error": 3.0531133177191805e-16,
+      "all_input_parameter_gradient_error": 2.4424906541753444e-15,
+      "finite_difference_parameter": "prepare.weight",
+      "finite_difference_index": [
+        0,
+        0
+      ],
+      "finite_difference_gradient": 0.7991212476600608,
+      "finite_difference_error": 2.918342234536908e-10,
+      "padding_input_gradient_zero": true,
+      "state_unchanged": true
+    },
+    "C": {
+      "initial_sha256": "67ec96f5ba8539bf6603ae3deb836c80a9e73d4f89a6744fdc747c6cce7ee9af",
+      "real_parameter_count": 85748,
+      "mass_error": 2.0328790734103208e-20,
+      "alpha_error": 2.498001805406602e-16,
+      "logit_error": 2.7755575615628914e-16,
+      "all_input_parameter_gradient_error": 2.581268532253489e-15,
+      "finite_difference_parameter": "operator.2.weight",
+      "finite_difference_index": [
+        0,
+        0
+      ],
+      "finite_difference_gradient": 0.03174126100553256,
+      "finite_difference_error": 5.2577074638460175e-11,
+      "padding_input_gradient_zero": true,
+      "state_unchanged": true
+    }
+  },
+  "fullhead_shape": [
+    2,
+    7,
+    1024,
+    4,
+    64,
+    40
+  ],
+  "valid_word_counts": [
+    4,
+    6
+  ],
+  "trim_padding_errors": {
+    "Q": 1.1102230246251565e-16,
+    "D": 2.220446049250313e-16,
+    "C": 1.1102230246251565e-16
+  },
+  "native_circuit_first_column_error": 0.0,
+  "native_unitarity_error": 8.881784197001252e-16,
+  "native_Q_D_alpha_contrast": 0.17749305528553125,
+  "native_Q_D_logit_contrast": 0.1613119831984996,
+  "small_n_nulls": [
+    {
+      "words": 1,
+      "uniform_attention_error": 0.0,
+      "mass_Q_D_error": 0.0
+    },
+    {
+      "words": 2,
+      "uniform_attention_error": 2.220446049250313e-16,
+      "mass_Q_D_error": 1.6653345369377348e-16
+    },
+    {
+      "words": 3,
+      "uniform_attention_error": 2.7755575615628914e-16,
+      "mass_Q_D_error": 1.1102230246251565e-16
+    }
+  ],
+  "abstract_phase_case": {
+    "mass_error": 0.0,
+    "Q_masses": [
+      [
+        [
+          0.08333333333333333,
+          0.75,
+          0.08333333333333333,
+          0.08333333333333333
+        ]
+      ]
+    ],
+    "D_masses": [
+      [
+        [
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ]
+      ]
+    ],
+    "Q_alpha": [
+      [
+        [
+          0.08333399999733335,
+          0.7499980000080001,
+          0.08333399999733335,
+          0.08333399999733335
+        ]
+      ]
+    ],
+    "D_alpha": [
+      [
+        [
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ]
+      ]
+    ],
+    "native_parameter_attainability": false
+  },
+  "numpy_enumeration_errors": {
+    "Q": 3.469446951953614e-17,
+    "D": 1.214306433183765e-17
+  },
+  "nonzero_D_oracle_min": 0.009220196563813694,
+  "mutant_discrepancies": {
+    "reversed_word_order": 0.11300165502791605,
+    "missing_Born_conjugation": 0.04195681526495227,
+    "with_replacement_paths": 0.03612526087602436,
+    "D_wrong_C_inverse_not_squared": 0.13330182257598605,
+    "classical_wrong_transpose": 6.362994595720071e-05
+  },
+  "fixture_success_probabilities": {
+    "Q": {
+      "signal_probability_min": 0.008482481404802773,
+      "signal_probability_max": 0.10133226805520779,
+      "with_uniform_branch_min": 0.008483472921329852,
+      "max_expected_attempts_at_fixture": 117.87625295363613,
+      "min_word_mass": 0.005829821289089561,
+      "max_word_mass": 0.14593290634305212
+    },
+    "D": {
+      "signal_probability_min": 0.011165961448496095,
+      "signal_probability_max": 0.05833463878594509,
+      "with_uniform_branch_min": 0.011166950281545813,
+      "max_expected_attempts_at_fixture": 89.54996438486627,
+      "min_word_mass": 0.009220196563813699,
+      "max_word_mass": 0.06333622477577755
+    }
+  },
+  "original_Torch241_initial_identity_verified": false,
+  "new_task_forwards": 0,
+  "new_updates": 0,
+  "new_GPU": 0,
+  "production_plugin_installed": false,
+  "new_L3": "NOT_ACCEPTED",
+  "new_L4_T": "NOT_ACCEPTED",
+  "limits": [
+    "ArtificialQT initialstate, not savednativeTorch2.4.1trajectory.",
+    "Fullheadandallgradients on2x7positions only; no longsequence runtime or actualGPUcost.",
+    "One specifiedparameterFD perQ/D/C, not allparameter finite differences.",
+    "Dremoves subset-pathcoherence only, not all intrapath quantum coherence.",
+    "AbstractV/-Vnativeparameterattainability unproved; separate fixednativefixtureQ/Dcontrast actually checked.",
+    "IndependentclassicalC artificialformula checked, not independently fitted or capacitycertified. KnownLCU/DP/phasefacts not newT.",
+    "No task utility/screen/GPUadmission; four oldtechnicalupdates remainconsumed."
+  ]
+}
