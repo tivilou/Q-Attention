@@ -1,0 +1,28 @@
+{
+  "status": "PASS_WITH_RISK",
+  "required_fixes": [],
+  "fixed_findings": [
+    "The prior BLOCK stands as the decision on the earlier checker and Torch 2.8 result. Both required fixes are satisfied for the declared four-update technical launch.",
+    "The corrected C checker enumerates coin and state paths from state 0 using P[t,destination,source] and compares joint masses before normalization. On the four-word model fixture, the maximum absolute error was 3.469446951953614e-17. On the fixed three-word fixture with distinct asymmetric, non-doubly-stochastic transitions and nonuniform terminal effects, the error was 2.7755575615628914e-17. Transposing the transitions raised it to 0.003127942545861531, exceeding the required 1e-5 detection threshold.",
+    "The supplied CPU-only result records a pass under Torch 2.4.1+cu121 with the corrected checker hash. Q and D each matched the required native digest f79575534288a8e57fef61deeba24ba568af7e683e4c1ebc984dcc7cfb6e0781. C was sealed as d13021eb1873c5dc27fed9d0755ca230a4d64895841ab36a3b2dc3ca938c654e and Gcov as 144d742be216a15123c0c7545f9ae462a2be9827cf195ca8409769382e2773c3. All four identities match the technical spec, and the canary checks them before the first update.",
+    "The supplied pinned native EPS value of 1e-6 resolves the earlier Gcov constant question."
+  ],
+  "remaining_risks": [
+    "The synthetic run used zero private rows, optimizer updates and GPU time. The canary must still measure first-microbatch CPU64/GPU32 centered-logit error against 5e-4, update time against 120 seconds per arm and 600 seconds aggregate, and peak Torch allocation against 4 GiB. The 900-second wall limit also applies.",
+    "The same-Q dephasing comparison reuses D's implementation. Independent evidence for final-word dephasing comes from D's coin enumeration. The synthetic gradient checks establish finiteness and masked-input zeros, and the length-96 fixture covers forward finiteness only.",
+    "One cold update per arm can inform a cost forecast. Full-cohort runtime and fit within the frozen campaign budgets remain unmeasured."
+  ],
+  "claim_ceiling": "Launch clearance covers one update each for Q, D, C and Gcov on the original guarded private TRAIN128, solely for cost and identity checks. Use microbatch 4, logical batch 128 and the frozen AdamW configuration. Charge all four updates to the 2,564-update cap and discard the updated clones before any scientific profile. The frozen failure rule and all resource limits remain binding, including 3,600 GPU-seconds, 2,400 campaign-seconds and at most 2,560 scientific updates. Scientific-screen admission, qualification, cohort efficacy, novelty, quantum speedup, exclusivity, newT, L3 and L4T are outside this decision.",
+  "review_mode": "external_api_fix_confirmation_same_reviewer",
+  "consultant": "gpt-6.2-astra",
+  "reasoning_effort": "high",
+  "selection_basis": "owner_preference",
+  "reviewed_file_sha256": {
+    "rmea_history_posterior.py": "35d748d2618c1a313622534eb8f87cd64e1a7bea2ae540d2fb9c0f10560df592",
+    "check_cpu.py": "0ca0a741b566c8c52c879bdf1c144c04edf65845378c5f5a631c06bd2fff615a",
+    "cpu-native-result.json": "ded33e4d41ac8bad9005a6587177e4829018d08501a1ed538fb49661395b40a6",
+    "technical-spec.json": "02cdd4492cdd3eee8207de86628f8878352f208eefc5afa72547a9edd5da4760",
+    "rmea_plugin_registry.py": "1b401ca3be5920bd52dc96d0e9e8bf82e4e654d9f45d99b87fb6fdb657aeaacf",
+    "rmea_plugin_canary.py": "d1f3a0f7618ad6b2484bd3ff4ccb048a2451d2345d5f657a88890de884e59296"
+  }
+}

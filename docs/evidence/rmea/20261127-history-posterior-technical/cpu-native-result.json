@@ -1,0 +1,105 @@
+{
+  "status": "PASS_SYNTHETIC_HISTORY_PLUGIN_CPU",
+  "native_torch241_identity_verified": true,
+  "native_initial_identity": "f79575534288a8e57fef61deeba24ba568af7e683e4c1ebc984dcc7cfb6e0781",
+  "initial_model_identities": {
+    "quantum_history": "f79575534288a8e57fef61deeba24ba568af7e683e4c1ebc984dcc7cfb6e0781",
+    "dephased_history": "f79575534288a8e57fef61deeba24ba568af7e683e4c1ebc984dcc7cfb6e0781",
+    "classical_history": "d13021eb1873c5dc27fed9d0755ca230a4d64895841ab36a3b2dc3ca938c654e",
+    "gaussian_covariance": "144d742be216a15123c0c7545f9ae462a2be9827cf195ca8409769382e2773c3"
+  },
+  "results": {
+    "quantum_history": {
+      "parameters": 81028,
+      "initial_sha256": "f79575534288a8e57fef61deeba24ba568af7e683e4c1ebc984dcc7cfb6e0781",
+      "padding_error": 4.440892098500626e-16,
+      "independent_reference_error": 1.6653345369377348e-16,
+      "all_parameter_tensor_gradients_finite": true,
+      "nonzero_gradient_tensor_names": [
+        "decoder",
+        "bias",
+        "effect",
+        "value.weight",
+        "value.bias",
+        "prepare.weight",
+        "prepare.bias"
+      ]
+    },
+    "dephased_history": {
+      "parameters": 81028,
+      "initial_sha256": "f79575534288a8e57fef61deeba24ba568af7e683e4c1ebc984dcc7cfb6e0781",
+      "padding_error": 2.220446049250313e-16,
+      "independent_reference_error": 7.632783294297951e-17,
+      "all_parameter_tensor_gradients_finite": true,
+      "nonzero_gradient_tensor_names": [
+        "decoder",
+        "bias",
+        "effect",
+        "value.weight",
+        "value.bias",
+        "prepare.weight",
+        "prepare.bias"
+      ]
+    },
+    "classical_history": {
+      "parameters": 81700,
+      "initial_sha256": "d13021eb1873c5dc27fed9d0755ca230a4d64895841ab36a3b2dc3ca938c654e",
+      "padding_error": 2.220446049250313e-16,
+      "independent_reference_error": 3.469446951953614e-17,
+      "all_parameter_tensor_gradients_finite": true,
+      "nonzero_gradient_tensor_names": [
+        "decoder",
+        "bias",
+        "terminal",
+        "value.weight",
+        "value.bias",
+        "prepare.weight",
+        "prepare.bias",
+        "transition.weight",
+        "transition.bias"
+      ]
+    },
+    "gaussian_covariance": {
+      "parameters": 82308,
+      "initial_sha256": "144d742be216a15123c0c7545f9ae462a2be9827cf195ca8409769382e2773c3",
+      "padding_error": 1.1102230246251565e-16,
+      "independent_reference_error": 0.0,
+      "all_parameter_tensor_gradients_finite": true,
+      "nonzero_gradient_tensor_names": [
+        "decoder",
+        "bias",
+        "query",
+        "moment_decoder",
+        "value.weight",
+        "value.bias",
+        "key.weight",
+        "key.bias"
+      ]
+    }
+  },
+  "seconds": 0.4831936825066805,
+  "C_orientation_fixture": {
+    "raw_mass_error": 2.7755575615628914e-17,
+    "transposed_transition_error": 0.003127942545861531,
+    "n": 3,
+    "coins": 8,
+    "latent_state_paths": 512,
+    "column_sum_error": 2.220446049250313e-16,
+    "nondoubly_row_sum_deviation": 0.279345833376734
+  },
+  "torch": "2.4.1+cu121",
+  "numpy": "1.24.3",
+  "code_hashes": {
+    "rmea_history_posterior.py": "35d748d2618c1a313622534eb8f87cd64e1a7bea2ae540d2fb9c0f10560df592",
+    "check_cpu.py": "0ca0a741b566c8c52c879bdf1c144c04edf65845378c5f5a631c06bd2fff615a",
+    "legacy_moments.py": "73ef2fb6e3016459d6a4df9629363e7dd4115533eff69fff8760f64aa67ffe1a"
+  },
+  "task_rows": 0,
+  "task_forwards": 0,
+  "optimizer_updates": 0,
+  "GPU": 0,
+  "limits": [
+    "Synthetic plugin contract only. C uses8 classical states, not equal density degrees of freedom.",
+    "No efficacy/newT/L3/L4T; local Torch2.8 initialization is not production Torch2.4.1 unless native flag passed."
+  ]
+}

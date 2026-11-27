@@ -1,0 +1,123 @@
+{
+  "retained_guard_contract": {
+    "at": "2026-11-26T08:02:57.128762+00:00",
+    "name": "sequence-role-canary-20261126",
+    "argv": [
+      "/hy-tmp/Q-Attention/env/bin/python",
+      "-B",
+      "/hy-tmp/Q-Attention/control/sequence-role-canary-20261126/sequence_canary.py",
+      "--source",
+      "/hy-tmp/Q-Attention/owner/attempts/9a28320fd4174c8f95544c9ba96eb1ae/source",
+      "--cache",
+      "/hy-tmp/Q-Attention/inputs/native-baseline/discovery/cache",
+      "--cohort",
+      "/hy-tmp/Q-Attention/control/connected-value-pooling-20261125/cohort.private.json",
+      "--binding",
+      "/hy-tmp/Q-Attention/control/sequence-role-canary-20261126/binding.json",
+      "--admission",
+      "/hy-tmp/Q-Attention/control/sequence-role-canary-20261126/admission.json",
+      "--admission-sha256",
+      "f1279217e7a00341d76399fdaa7b54811b603b4b167b65d37a445aa2a09b938c",
+      "--output",
+      "/hy-tmp/Q-Attention/control/sequence-role-canary-20261126/output",
+      "--progress",
+      "/hy-tmp/Q-Attention/control/sequence-role-canary-20261126/progress.json",
+      "--attempt",
+      "42b7da1955874209bd61574a3900a22f"
+    ],
+    "cwd": "/hy-tmp/Q-Attention/source",
+    "request": {
+      "request_id": "sequence-role-canary-20261126-v1",
+      "project_id": "q-attention",
+      "run_id": "sequence-role-canary-20261126-v1",
+      "runner_attempt_id": "42b7da1955874209bd61574a3900a22f",
+      "preferred_host_ids": [
+        "gpushare-i2-38434-2080tix2"
+      ],
+      "require_preferred": true,
+      "resources": {
+        "gpus": 1,
+        "gpu_mb": 2048,
+        "cpu": 4,
+        "ram_mb": 8192,
+        "disk_mb": 256
+      }
+    },
+    "private_request": "C:\\Users\\14630\\AppData\\Local\\research-infrastructure\\qattn-2080ti2-38434-20261122\\sequence-role-canary-20261126\\request.json",
+    "host_directory": "/hy-tmp/Q-Attention/control/sequence-role-canary-20261126",
+    "admission_path": "D:\\CodexHome\\task-artifacts\\qattn-joint-computation-role-20261126\\comparison\\sequence-canary-admission.json",
+    "admission_sha256": "f1279217e7a00341d76399fdaa7b54811b603b4b167b65d37a445aa2a09b938c",
+    "binding_path": "D:\\CodexHome\\task-artifacts\\qattn-joint-computation-role-20261126\\comparison\\sequence-input-binding.json",
+    "binding_sha256": "b6371212ad6bf91af2a0361a916e27eef48a724638200998834b0f837d7cde03",
+    "environment": {
+      "CUDA_VISIBLE_DEVICES": "exact one UUID assigned by existing scheduler",
+      "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+      "PYTHONOPTIMIZE": "Must be absent/zero; explicit runtime check"
+    },
+    "status": "FROZEN_PLANNED_ARGV_NOT_SUBMITTED_NOT_ALLOCATED",
+    "code_hashes": {
+      "sequence_canary.py": "81c3f2a22c783b972cf427cea91ba8d1f2c979ecb57d87ad57a429eb34d58b8d",
+      "sequence_memory.py": "de82d4bd5bbcdfe9303e19b3706d70d3e29519d0afc5ee4201d3c059b0f25c5e",
+      "sequence_task.py": "6f6a2dc86284ee1c4a2412cab734bdfa8a4b8ffb0ad8c1567d7ccc071aeb6e3d"
+    }
+  },
+  "borrowed_directory": "/hy-tmp/Q-Attention/control/sequence-role-screen-20261126",
+  "borrowed_hashes": {
+    "sequence_task.py": "6f6a2dc86284ee1c4a2412cab734bdfa8a4b8ffb0ad8c1567d7ccc071aeb6e3d",
+    "fixed_order_fit.py": "f63d3e0c4c5ce076abd67f97eab86c2f41ae35e4233bc6e7247785534710658c"
+  },
+  "optimizer": {
+    "name": "AdamW",
+    "lr": 0.001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "weight_decay": 0.01,
+    "clip_norm": 1.0
+  },
+  "binding_sha256": "b6371212ad6bf91af2a0361a916e27eef48a724638200998834b0f837d7cde03",
+  "microbatch": 4,
+  "logical_batch": 128,
+  "protection": "Restartable technical check from pinned inputs; local initial/final per arm. No cloud writes or checkpoint continuation promised.",
+  "centered_logit_tolerance": 0.0005,
+  "max_one_update_seconds": 120,
+  "max_total_update_seconds": 600,
+  "wall_seconds": 900,
+  "max_peak_gpu_bytes": 4294967296,
+  "scope": "ONE_TRAIN128_PLUGIN_TECHNICAL_UPDATE_ONLY",
+  "plugin_id": "history_posterior",
+  "runner_attempt_id": "244c83c476004b338326f506fafc5d80",
+  "seed": 13,
+  "modes": [
+    "quantum_history",
+    "dephased_history",
+    "classical_history",
+    "gaussian_covariance"
+  ],
+  "real_parameters": {
+    "quantum_history": 81028,
+    "dephased_history": 81028,
+    "classical_history": 81700,
+    "gaussian_covariance": 82308
+  },
+  "initial_model_identities": {
+    "quantum_history": "f79575534288a8e57fef61deeba24ba568af7e683e4c1ebc984dcc7cfb6e0781",
+    "dephased_history": "f79575534288a8e57fef61deeba24ba568af7e683e4c1ebc984dcc7cfb6e0781",
+    "classical_history": "d13021eb1873c5dc27fed9d0755ca230a4d64895841ab36a3b2dc3ca938c654e",
+    "gaussian_covariance": "144d742be216a15123c0c7545f9ae462a2be9827cf195ca8409769382e2773c3"
+  },
+  "code_hashes": {
+    "rmea_history_posterior.py": "35d748d2618c1a313622534eb8f87cd64e1a7bea2ae540d2fb9c0f10560df592",
+    "rmea_plugin_registry.py": "1b401ca3be5920bd52dc96d0e9e8bf82e4e654d9f45d99b87fb6fdb657aeaacf",
+    "rmea_plugin_canary.py": "d1f3a0f7618ad6b2484bd3ff4ccb048a2451d2345d5f657a88890de884e59296"
+  },
+  "cpu_sha256": "ded33e4d41ac8bad9005a6587177e4829018d08501a1ed538fb49661395b40a6",
+  "small_screen_profile_sha256": "0b2da30bf1c0ca6b8809220c2fa72b598835c6e37c84b40c3c610ee4281e7e25",
+  "max_total_updates": 4,
+  "new_scientific_updates": 0,
+  "forecast": "After technical terminal only:688*sum(cold update_seconds)+technical GPU job wall; conservative lead not a full-cohort bound, must fit within3600 GPU seconds; actual scientific hardcap remains required.",
+  "technical_cohort_scope": "Reuse accepted originalTRAIN128 guard/cohort for source and cost only. No selection/qualification/VALID/TEST; discard all four updated clones before new scientific profile. Technical updates/exposures charged to profile cap.",
+  "failure": "Technical/cost nonadmission exact configuration; preserve partials, no retry/parameter/depth/background/seed/precision/microbatch/budget rescue."
+}
