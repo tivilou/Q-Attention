@@ -1,0 +1,32 @@
+{
+  "verdict": "PASS_WITH_RISK",
+  "findings": [
+    "The final CNOT ring updates the current bits in order 0→1, 1→2, 2→0, with wire 0 as the most significant bit. Original indices 0 through 7 map to [0, 5, 7, 2, 3, 6, 4, 1]. The resulting sector IDs in final-index order are [0, 1, 0, 1, 1, 0, 1, 0], which recover the pre-ring wire-0 partition.",
+    "All three presence heads share the same readout factorization. With null logit zero and positive logits g + log_softmax(u), total positive probability is sigmoid(g) and the conditional positive distribution is softmax(u). Identity masses sum squared sector-overlap magnitudes, so a common phase rotation within either sector preserves them. Q presence sums the two overlaps before squaring and can therefore depend on their relative phase.",
+    "Qualification computes block_D on the selected Q model with the same inputs and weights, changing only the presence mass. It checks finite outputs and exact elementwise equality of all 39 raw positive scores on every qualification row before computing the weighted CE gap. An equality failure aborts before promotion. The separately trained phase_presence_block_d arm has its own fit and selection and serves as a task comparator.",
+    "The value map and each pooled stream retain all 64 coordinates. Normal scoring requires 40 finite logits per row. Under the stated micro4 concatenation interface, each detailed Q path must return 79 finite values per row, comprising 40 logits and 39 raw scores. The real16 control receives the same hidden states, roles and mask, learns independent normalized 16-real-coordinate word and query maps, and computes both sector overlaps with real arithmetic. It can express coherent presence and shares Q's value and readout architecture.",
+    "Top-3 ranks the 39 emitted positive logits, breaking exact ties by ascending class ID. Each role's row weights must equal the pinned cohort weights indexed by gold class. The diagnostic code also verifies one weight per observed class and computes weighted event mass from class counts.",
+    "Initialization checks cover the full Gcov state. Every legacy real12 tensor must match the seed-13 initializer, the additional moment_decoder must be zero, and the complete state identity must match the spec. Q and trained block-D must each equal the full pinned native state. The runner checks distinct storage pointers across every state-dict tensor in the native initial state and all four arms.",
+    "Promotion requires a weighted all-40 Macro-F1 margin of at least 0.01 over each trained control, a strictly positive lower endpoint for the minimum paired delta from the stated 500-replicate sentence-group bootstrap, final-checkpoint stability, and weighted CE(fixed-Q block_D) minus weighted CE(Q) of at least 0.005. Against every trained control, Q must also have strictly lower weighted null false-positive mass, at least as much positive-correct mass, and at least as much positive top-3 mass. Exact raw-score invariance is an enforced prerequisite even though it is absent from the reported gates dictionary. No additional diagnostic can trigger promotion.",
+    "The runner binds the original 4096/1024/2048 train-derived cohort, checks source and cohort pins, reconstructs sentence groups, and passes the splits to group validation. Under the stated fit and barrier interfaces, all four arms finish ordered training and freeze their selection-chosen checkpoints before qualification scoring. Qualification supplies no checkpoint or tuning choice. The candidate has its own one-shot claim and no path reopening the gen98 STOP."
+  ],
+  "required_fixes": [],
+  "risks": [
+    "This is a static source verdict. The imported circuit's actual wire convention, pinned initialization identities, finite outputs, exact score equality and task outcomes were not independently exercised. No task data or checkpoint was supplied. The scorer, fit core and bootstrap were assessed at their stated interfaces.",
+    "The CE intervention isolates the selected Q model's dependence on cross-sector coherence in its presence readout. Real16 can represent the same overlap arithmetic, and a single-seed comparison also reflects optimization and parameterization. Even a promoting result would not establish quantum advantage, novelty or scientific efficacy.",
+    "Technical admission remains prospective. The retained prior cost is 8 technical updates, 1024 exposures and 343.895 GPU-seconds. The candidate cap is 3256.105 GPU-seconds, from which its own technical allocation and allocated-device queue time are deducted before the remaining-work check and closeout reserve. No technology canary or actual forecast was supplied, so budget fit and execution readiness remain unverified."
+  ],
+  "confidence": "High for the supplied source logic under the stated helper contracts. Runtime and empirical outcomes are unassessed.",
+  "model": "gpt-6.2-astra",
+  "protocol": "responses",
+  "effort": "high",
+  "source_pins": {
+    "presence_phase.py": "bd3c9e6798d0710ef9b09be9b4eb90706e78c633b28a6f0ff6d8f77a89672faa",
+    "rmea_phase_presence.py": "e1b456355bab0f7bfbf1246caddfa1d0530da7fec8df205fb284d5f0dfa1f873",
+    "presence_endpoints.py": "bc3574525f49d88f7da02b10967262d988f19dfe8986293ee62f8a082e103bf2",
+    "goal_aligned_runner.py": "a2390681ad5402dc60fa274d27eb47737befc0a659e9ff59b67ab36d0c226633",
+    "rmea_plugin_registry.py": "b4710e6b04400f2ba683804cdcfb38b59cdf4404a60768e71a08aa82eb1e1e5a"
+  },
+  "packet_sha256": "0e63daaf58ffc74482170f5ff09b934517a76f9e65e84c1fb31e75313443dd65",
+  "review_scope": "exact changed factory, scientific head, diagnostics and guarded stage source; no independent execution"
+}

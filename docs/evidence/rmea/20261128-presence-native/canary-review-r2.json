@@ -1,0 +1,28 @@
+{
+  "verdict": "PASS_WITH_RISK",
+  "findings": [
+    "R2 resolves the R1 backward-journal issue for the pinned micro4 runtime. Each backward completes its device synchronization before the canary confirms those rows. The supplied failure fixtures preserve 0 confirmed / 4 possible on the first sync failure, 4 / 8 on the second forward failure, and 124 / 128 on the final sync failure. The success path persists 128 / 128 before gradient validation.",
+    "The journal starts at 0 / 0. Before each forward, it durably raises the possible count by at most four. An interruption during forward, loss calculation, backward, synchronization, or before the next commit leaves the previous confirmed count conservative. After full backward, a gradient or C-health failure leaves zero updates. Before opt.step(), the canary commits optimizer_step_uncertain=true. An interruption through step, device sync, or state hashing leaves that uncertainty in force. Once the one-update commit lands, later validation or checkpoint failure leaves the update charged. The source contains no retry path.",
+    "The visible data path checks the first ordered 128 indices against the pinned digest, FIT membership, and selection/qualification disjointness. Collation, probes, backward, and logical scoring all use that batch or a subset. Each of Q, independently trained blockD, real16 C, and Gcov starts from its checked initial state and can take at most one optimizer step. Checkpoint reload verifies the discard artifact on CPU. No warmstart or assessment/inference endpoint appears in the canary.",
+    "The presence heads map two complementary presence channels plus 39 identity channels to 41 attention distributions and 40 logits. alpha_of converts their token-major attention to channel-major form. Gcov uses its separate legacy 40-channel reference with strict state-key loading, followed by attention and centered-logit comparisons. The canary also checks padding invariance and zero attention and input gradients at masked positions.",
+    "The dense Q reference selects sector indices [0, 2, 5, 7], consistent with the final CNOT ring. It evaluates coherent and block-dephased presence effects against explicit word density matrices and uses the same dephased effects for the 39 identities. On the fixed pre-update probe, the canary checks both attention and centered logits against the reference and requires bitwise-equal positive identity scores under the same-state intervention.",
+    "The C gate runs before its optimizer step. It requires at least 16 eligible rows with more than three tokens, mean identity mass of at least 10 epsilon on at least 80% of eligible rows, median attention total variation of at least 0.001, preparer and query gradient norms each above 1e-10, and route-gradient fraction of at least 1e-8.",
+    "The forecast charges 640 updates and 48 regular logical score batches per arm, plus 16 same-state blockD score batches on Q. It applies a 1.10 multiplier and charges both allocated cards for the projected two-lane duration. Parent startup, queue, and release delay remain outside that projection."
+  ],
+  "required_fixes": [],
+  "risks": [
+    "This verdict covers the supplied source and reported pinned synthetic fixture result. The fixtures inject control-flow failures without CUDA and do not inject optimizer interruptions. Optimizer interruption handling was assessed by source inspection. Numerical parity, C health, checkpoint round-trip, and timing remain unmeasured here.",
+    "The accepted owner allocator remains responsible for binding the reviewed source, dependencies, spec, checkpoint scope, and allocation. The child guard checks local launch and permit consistency. This review performed no allocation, actual-data access, real forward, or optimizer update.",
+    "Prior consumption remains 8 updates and 343.895 GPU-s. Any technical attempt is confined to the accepted owner allocator and the remaining scope cap of 3256.105 GPU-s. The FIT128 forecast supplies neither a measured full-run duration nor a parent-inclusive budget guarantee."
+  ],
+  "model": "gpt-6.2-astra",
+  "protocol": "responses",
+  "effort": "high",
+  "source_pins": {
+    "native_canary.py": "a175577b5baffac8de180b619a7f398c939840b65608b20d4591bf063c5bc663",
+    "test_canary.py": "f9792f98b8e4b25492bbb075e4620ab711ee28c174ece0de71701b5ba7482614",
+    "presence_phase.py": "bd3c9e6798d0710ef9b09be9b4eb90706e78c633b28a6f0ff6d8f77a89672faa"
+  },
+  "packet_sha256": "61c5cdbeb3ef49fd89d27c7ac536d9f8a90658ad54c81bc4902f36527fc0cf8f",
+  "review_scope": "exact changed factory, scientific head, diagnostics and guarded stage source; no independent execution"
+}

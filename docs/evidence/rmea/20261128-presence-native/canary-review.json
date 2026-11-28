@@ -1,0 +1,48 @@
+{
+  "verdict": "BLOCK",
+  "scope": "Independent review of the supplied canary source, pinned micro4 functions and reported synthetic fixture results. No user data, model execution, optimizer update or allocation was used for this review. The stage candidate retains its prior PASS_WITH_RISK verdict.",
+  "findings": [
+    {
+      "area": "Interrupted backward journal",
+      "severity": "blocking",
+      "finding": "The final four rows can be durably marked complete before their CUDA backward finishes. Between microbatches, chunks() converts a CUDA mask reduction to a Python int, which waits for preceding work on the same stream. After the last microbatch there is no next conversion. backward() queues the final backward and device-side loss accumulation, then tracked_backward() can commit 128 confirmed rows and full_backward_complete=true before either finishes. An interruption or asynchronous device error in that interval leaves a stronger completion claim than the code establishes. The post_backward_128_confirmed fixture uses a synchronous stub and misses this interval."
+    },
+    {
+      "area": "Other backward and optimizer boundaries",
+      "finding": "The journal records the possible microbatch before invoking its forward. The reported second-microbatch failure correctly leaves 4 confirmed and 8 possible. A C health rejection precedes any optimizer attempt. The optimizer journal sets optimizer_step_uncertain=true before opt.step() and clears it only after CUDA synchronization and state hashing. An interruption between the step and its durable confirmation therefore leaves the step uncertain and gives no basis for replay."
+    },
+    {
+      "area": "FIT and checkpoint scope",
+      "finding": "The canary checks the 128-index digest, FIT membership and disjointness from selection and qualification before batching. All visible training and score calls reuse those FIT inputs or a slice of them. Each arm starts from its checked initial identity and has one optimizer-step call site. The discard checkpoint is read back for verification and supplies no subsequent arm or warmstart."
+    },
+    {
+      "area": "Attention and references",
+      "finding": "The presence heads normalize 41 token-attention channels independently: presence, complement and 39 identity channels. They emit 40 logits. The dense reference uses the sector-zero projector on indices 0, 2, 5 and 7, consistent with sector_ids(). It dephases only the presence effect for the fixed-Q intervention and uses dephased effects for all 39 identities in both branches. The canary compares both attention and centered logits to that reference and requires exact equality of the native positive_scores on the probe. Gcov has a separate legacy comparison using strict state loading, centered logits and legacy attention. The legacy implementation itself was not included in the supplied source."
+    },
+    {
+      "area": "C health gates",
+      "finding": "Before clipping or stepping real16, the canary requires at least 16 rows with more than three valid tokens, at least 80% of eligible rows with mean identity mass at least 10 epsilon, median identity-attention TV at least 0.001, preparer and query gradient norms each above 1e-10, and a route-gradient fraction of at least 1e-8."
+    },
+    {
+      "area": "Timing and budget",
+      "finding": "The forecast charges 640 updates and 48 regular logical score batches per arm, plus 16 same-state block-D batches on Q. It applies a 1.10 multiplier and charges both allocated cards for the two-lane makespan. Parent startup, queue and release delay remain outside the projection. The prior 8 updates and 343.895 GPU-s remain booked, with at most 3256.105 GPU-s remaining under the accepted owner allocator."
+    }
+  ],
+  "required_fixes": [
+    "After the pinned backward returns, synchronize the training CUDA device before changing the final journal from 124 confirmed and 128 possible to 128 confirmed and complete. Preserve the in-flight record if synchronization fails. Add a synthetic completion-failure fixture that verifies the persisted 124/128 record, retain the successful 128/128 case, and re-pin the changed canary and fixture for source review."
+  ],
+  "risks": [
+    "The parity and fixed-Q identity assertions cover one deterministically chosen FIT example. The supplied fixture reports zero real model forwards and zero optimizer updates.",
+    "The timing projection extrapolates from one FIT128 batch. It establishes neither an end-to-end deadline nor available allocator budget after parent delay."
+  ],
+  "model": "gpt-6.2-astra",
+  "protocol": "responses",
+  "effort": "high",
+  "source_pins": {
+    "native_canary.py": "941023aff2cef0a3f2e1a23057072387d9d8810531b5051668af564304f1219b",
+    "test_canary.py": "53c4cb2daafbded666342eb9c35c8e7f2fb26c36115f7f09f9a0a57a0cb0ecba",
+    "presence_phase.py": "bd3c9e6798d0710ef9b09be9b4eb90706e78c633b28a6f0ff6d8f77a89672faa"
+  },
+  "packet_sha256": "0f8431a89d45a0020324afa6cb4bdca12f193eeb568605b09b1110e9dbbf53f9",
+  "review_scope": "exact changed factory, scientific head, diagnostics and guarded stage source; no independent execution"
+}

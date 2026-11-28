@@ -1,0 +1,137 @@
+{
+  "status": "VERIFIED_SINGLE_TERMINAL_NATIVE_CANARY",
+  "classification": "DEFER_MEASURED_COST_ENVELOPE",
+  "generation": 130,
+  "attempt_id": "1792289ed66144c4b6ce84911bc67b59",
+  "allocation": "released",
+  "wrapper_exit": 0,
+  "terminal_wrapper_seconds": 16.762073278427124,
+  "request_to_release_seconds": 207.56185245513916,
+  "charge_gpu_seconds": 207.562,
+  "prior_reserved_gpu_seconds": 343.895,
+  "cumulative_reserved_gpu_seconds": 551.457,
+  "remaining_candidate_gpu_seconds": 3048.543,
+  "remaining_candidate_wall_seconds": 2192.438147544861,
+  "updates_confirmed": 4,
+  "updates_possible": 4,
+  "forward_backward_fit_exposures_confirmed": 512,
+  "forward_backward_fit_exposures_possible": 512,
+  "science_updates": 0,
+  "scientific_training_admitted": false,
+  "assessment_rows": 0,
+  "old_attempt_rerun": false,
+  "source_review": "PASS_WITH_RISK technical source only",
+  "paired_probe_results": {
+    "phase_presence_q": {
+      "centered_logit_error": 3.8616125275225954e-07,
+      "alpha_error": 1.5659672836232374e-07,
+      "padding_error": [
+        4.76837158203125e-07,
+        5.960464477539063e-08
+      ],
+      "probe_comparisons": {
+        "coherent": {
+          "centered_logit_error": 3.8616125275225954e-07,
+          "alpha_error": 1.565967284039571e-07
+        },
+        "block_D": {
+          "centered_logit_error": 3.875580860679406e-07,
+          "alpha_error": 1.565967284039571e-07
+        }
+      },
+      "update_seconds": 2.017626645974815,
+      "peak_bytes": 119139840,
+      "training_rows_seen": 128,
+      "training_rows_possible": 128,
+      "updates": 1,
+      "optimizer_step_uncertain": false,
+      "discard_checkpoint_verified": true
+    },
+    "phase_presence_block_d": {
+      "centered_logit_error": 3.875580851797622e-07,
+      "alpha_error": 1.5659672836232374e-07,
+      "padding_error": [
+        4.76837158203125e-07,
+        5.960464477539063e-08
+      ],
+      "probe_comparisons": {},
+      "update_seconds": 1.7626501843333244,
+      "peak_bytes": 119156224,
+      "training_rows_seen": 128,
+      "training_rows_possible": 128,
+      "updates": 1,
+      "optimizer_step_uncertain": false,
+      "discard_checkpoint_verified": true
+    },
+    "phase_presence_real16": {
+      "centered_logit_error": 3.024411743268729e-07,
+      "alpha_error": 3.621358089095361e-08,
+      "padding_error": [
+        2.384185791015625e-07,
+        1.4901161193847656e-08
+      ],
+      "probe_comparisons": {},
+      "classical_health": {
+        "eligible": 128,
+        "fraction_mass_at_least_10eps": 1.0,
+        "median_tv": 0.06991112232208252,
+        "preparer_gradient_norm": 0.040287473622335764,
+        "query_gradient_norm": 0.003466254100203514,
+        "route_gradient_fraction": 0.011561793858930832
+      },
+      "update_seconds": 1.2666440717875957,
+      "peak_bytes": 121648128,
+      "training_rows_seen": 128,
+      "training_rows_possible": 128,
+      "updates": 1,
+      "optimizer_step_uncertain": false,
+      "discard_checkpoint_verified": true
+    },
+    "gaussian_covariance": {
+      "centered_logit_error": 1.2307526847665784e-07,
+      "alpha_error": 3.923477096684502e-08,
+      "padding_error": [
+        8.940696716308594e-08,
+        7.450580596923828e-09
+      ],
+      "probe_comparisons": {
+        "legacy_Gcov": {
+          "centered_logit_error": 1.2307526847665784e-07,
+          "alpha_error": 3.923477096684502e-08
+        }
+      },
+      "update_seconds": 0.2540323678404093,
+      "peak_bytes": 119118848,
+      "training_rows_seen": 128,
+      "training_rows_possible": 128,
+      "updates": 1,
+      "optimizer_step_uncertain": false,
+      "discard_checkpoint_verified": true
+    }
+  },
+  "projection": {
+    "per_arm_base_seconds": {
+      "phase_presence_q": 1358.168142452836,
+      "phase_presence_block_d": 1191.7228887975216,
+      "phase_presence_real16": 869.7646134495735,
+      "gaussian_covariance": 217.84428414702415
+    },
+    "single_gpu_compute_seconds": 4001.2499217316513,
+    "two_gpu_compute_seconds": 2267.6362524718047,
+    "two_gpu_allocated_compute_gpu_seconds": 4535.272504943609,
+    "uncertainty_multiplier": 1.1,
+    "fit_updates_per_arm": 640,
+    "regular_score_batches_per_arm": 48,
+    "fixed_Q_batches_each": 16,
+    "cost_scope": "FIT128 timed batch rates only. Parent startup/queue/release, CPU bootstrap and I/O, full-prefix parent deadline and observed length distribution must still be charged; never an automatic PASS."
+  },
+  "independent_validation_or_utility": false,
+  "caveat": "Recorded training exposure counts exclude separate frozen FIT probes and timed evaluation forwards; all activity is included in allocated GPU-seconds. One technical FIT batch, no held-out or scientific estimates.",
+  "pinned_sha256": {
+    "canary": "a175577b5baffac8de180b619a7f398c939840b65608b20d4591bf063c5bc663",
+    "spec": "3087809e2d83d450268c462d1f50074a34f88ca723e93c13e77fca5edf2ce197",
+    "execution": "b3f351166231994767f48ab6eab0d7f7181748974d3fbd47b36eca1f13a29cce",
+    "reviewed": "78c6debd9cd33d31ab17f36a94db7d5b475bfebcc96c4c0f6e8f7bb4575f9883",
+    "summary": "385bcdeb9b917943290a951278afe4f8225ba9408f123dfe01db5afd40840e0e"
+  }
+}
