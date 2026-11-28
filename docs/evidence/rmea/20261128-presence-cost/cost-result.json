@@ -1,0 +1,92 @@
+{
+  "status": "COST_DEFER_RETAINED_BY_SOURCE_AND_HOST_DIAGNOSTIC",
+  "arm_order": [
+    "phase_presence_q",
+    "phase_presence_block_d",
+    "phase_presence_real16",
+    "gaussian_covariance"
+  ],
+  "measured_seconds_for_timed_canary_update": {
+    "phase_presence_q": 2.017626645974815,
+    "phase_presence_block_d": 1.7626501843333244,
+    "phase_presence_real16": 1.2666440717875957,
+    "gaussian_covariance": 0.2540323678404093
+  },
+  "timed_canary_journal_calls_per_arm": 34,
+  "measured_joint_host_journal_delta_s": {
+    "all": [
+      0.1874227114021778,
+      0.2903299257159233,
+      0.28303537238389254,
+      0.20217469986528158,
+      0.19291164353489876,
+      0.21701013576239347,
+      0.2089025266468525
+    ],
+    "median": 0.2089025266468525,
+    "min": 0.1874227114021778,
+    "max": 0.2903299257159233
+  },
+  "arm_max_host_delta_s": {
+    "phase_presence_q": 0.07363176811486483,
+    "phase_presence_block_d": 0.07325022667646408,
+    "phase_presence_real16": 0.07431676518172026,
+    "gaussian_covariance": 0.07804014440625906
+  },
+  "fixed_proxy_s_per_step": 0.08218010142445564,
+  "budget": {
+    "gpu_s": 3048.543,
+    "wall_s": 2192.438147544861
+  },
+  "scale_if_entire_runtime_proportional_to_padding": {
+    "fit": 0.9413850650249032,
+    "selection": 0.9329690094078583,
+    "qualification": 0.9410971223021583
+  },
+  "scenarios": {
+    "sealed": {
+      "single_gpu_s": 4001.249921731651,
+      "fixed_two_gpu_allocated_s": 4535.272504943609,
+      "ideal_two_gpu_allocated_s": 4535.272504943609,
+      "ideal_two_gpu_wall_s": 2267.6362524718047,
+      "fixed_two_gpu_wall_s": 2267.6362524718047,
+      "single_passes": false,
+      "even_ideal_two_passes": false
+    },
+    "journal_delta_medians_only": {
+      "single_gpu_s": 3848.5091134235263,
+      "fixed_two_gpu_allocated_s": 4374.633816021681,
+      "ideal_two_gpu_allocated_s": 4374.633816021681,
+      "ideal_two_gpu_wall_s": 2187.3169080108405,
+      "fixed_two_gpu_wall_s": 2187.3169080108405,
+      "single_passes": false,
+      "even_ideal_two_passes": false
+    },
+    "largest_observed_journal_delta_each_arm_and_length_proportional": {
+      "single_gpu_s": 3581.770486747133,
+      "fixed_two_gpu_allocated_s": 4087.1864571753395,
+      "ideal_two_gpu_allocated_s": 4087.1864571753395,
+      "ideal_two_gpu_wall_s": 2043.5932285876697,
+      "fixed_two_gpu_wall_s": 2043.5932285876697,
+      "single_passes": false,
+      "even_ideal_two_passes": false
+    },
+    "same_optimistic_case_with_zero_collation_checkpoint_proxy": {
+      "single_gpu_s": 3350.3513211358645,
+      "fixed_two_gpu_allocated_s": 3855.7672915640715,
+      "ideal_two_gpu_allocated_s": 3855.7672915640715,
+      "ideal_two_gpu_wall_s": 1927.8836457820357,
+      "fixed_two_gpu_wall_s": 1927.8836457820357,
+      "single_passes": false,
+      "even_ideal_two_passes": false
+    }
+  },
+  "min_unexplained_serial_gap_even_optimistic": 301.8083211358644,
+  "min_unexplained_two_gpu_gap_even_optimistic": 807.2242915640713,
+  "scope": "Same-volume synthetic journal and padded sites only. Scenario subtraction and proportional scaling are generous sensitivity cases, not validated wall-time forecasts or lower bounds. CUDA wait, cold-start, overlap, and task performance remain unmeasured.",
+  "new_task_forwards": 0,
+  "new_optimizer_updates": 0,
+  "new_gpu_allocations": 0,
+  "old_charge_preserved": true,
+  "scientific_training_admitted": false
+}
