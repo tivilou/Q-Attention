@@ -1,0 +1,32 @@
+{
+  "verdict": "PASS",
+  "findings": [
+    {
+      "finding": "Frozen wire-0 sectors",
+      "disposition": "RESOLVED",
+      "basis": "The final ring applies the same permutation to word and query. Pulling both back makes indices 0–3 and 4–7 the frozen pre-ring sectors used by block-D and the same-state Q intervention. Real16 retains its original coordinates and selects the corresponding indices with the inverse gather. The regression witness distinguishes the two interpretations exactly: its pre-ring state has equal mass on |000> and |100>, and the ring maps |100> to |011>. The frozen-sector dephased presence is 0.50. Cutting on physical output wire 0 would give 0.75."
+    },
+    {
+      "finding": "Budget provenance and feasibility",
+      "disposition": "RESOLVED",
+      "basis": "The diagnostic pins the released cost-defer terminal, prior sensitivity and frozen profile by digest, and pins the summary through the terminal. It checks the four arm identities, 640 updates per arm, cohort sizes 4096/1024/2048, scoring counts and remaining charges. Its share is the fraction of Q and D runtime retained, with C and Gcov fixed. The serial bound uses the smaller of the remaining GPU and wall budgets. Under the stated simultaneous two-lane reservation model, each lane has a deadline equal to the smaller of half the GPU budget and the wall budget. The fixed assignment follows from 0 < Q−D < C, and the ideal comparison enumerates all assignments. A null share denotes infeasibility even with Q and D free. A zero share denotes feasibility exactly at that boundary."
+    }
+  ],
+  "required_fixes": [],
+  "risks": [
+    "Source review only. The imported native circuit and pinned budget artifacts were outside the packet. The sector result uses the supplied native gate order and wire convention. Numerical breakpoint outputs and digest matches were not independently reproduced.",
+    "The breakpoints are conditional estimates under the stated reservation and stage assumptions. Synthetic CPU timing supplies no GPU speed estimate. No launch, training or GPU execution was performed or reviewed, and this verdict grants no GPU or scientific authorization."
+  ],
+  "confidence": "High for closure of the two prior findings within the supplied source and stated assumptions.",
+  "model": "gpt-6.2-astra",
+  "protocol": "responses",
+  "effort": "high",
+  "source_pins": {
+    "sector_reformulation.py": "513178ab1ac984143f7edc23a81aaba7175902dae183eb82f8a80585062368ad",
+    "verify_reformulation.py": "b322a295525032bc8f4222e527f008273cbcdcd150f322ac2ea0aa6df9191964",
+    "presence_phase.py": "bd3c9e6798d0710ef9b09be9b4eb90706e78c633b28a6f0ff6d8f77a89672faa",
+    "required_reduction.py": "c72e6e7df01145ca9d697a7ece31fc80b429c8df0d9d56e4d48b3bca6cc697c1"
+  },
+  "packet_sha256": "3999655b12aa5f7799367dbf4effcadeb22c97c74519e8561ace78ae745b1ab6",
+  "review_scope": "exact reformulation, companion arithmetic and synthetic fixture source; no independent execution"
+}

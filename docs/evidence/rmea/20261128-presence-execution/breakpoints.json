@@ -1,0 +1,53 @@
+{
+  "status": "PASS_CANDIDATE_REQUIRED_GPU_REDUCTION_ONLY",
+  "sealed": {
+    "single_lane_max_share": 0.3551197600144198,
+    "fixed_two_lane_max_share": 0.43293349069378306,
+    "optimistic_two_lane_max_share": 0.5434355220100817,
+    "required_reductions_percent": [
+      64.48802399855802,
+      56.70665093062169,
+      45.65644779899183
+    ],
+    "scopes_feasible_even_if_qd_free": [
+      true,
+      true,
+      true
+    ]
+  },
+  "previous_optimistic_sensitivity": {
+    "single_lane_max_share": 0.5242880904070382,
+    "fixed_two_lane_max_share": 0.6431302165098666,
+    "optimistic_two_lane_max_share": 0.6431302165098666,
+    "required_reductions_percent": [
+      47.57119095929618,
+      35.686978349013344,
+      35.686978349013344
+    ],
+    "scopes_feasible_even_if_qd_free": [
+      true,
+      true,
+      true
+    ]
+  },
+  "pinned_sources": {
+    "terminal": "2b55e6c7e0aeea5da72a5520697e9ccfa775cbe641c4309ba5482d51debb5afa",
+    "sensitivity": "9f270c80ca95e873a28fc7e0c75c7cbc0dffcc73a9262b4b8ee488955b28748a",
+    "profile": "0b2da30bf1c0ca6b8809220c2fa72b598835c6e37c84b40c3c610ee4281e7e25"
+  },
+  "arm_order": [
+    "phase_presence_q",
+    "phase_presence_block_d",
+    "phase_presence_real16",
+    "gaussian_covariance"
+  ],
+  "cohort_sizes": {
+    "fit": 4096,
+    "selection": 1024,
+    "qualification": 2048
+  },
+  "updates_per_arm": 640,
+  "measured_new_gpu_time": false,
+  "scientific_training_admitted": false,
+  "scope": "Common Q/D reduction applied to entire estimated Q/D arm work. C and Gcov held fixed. Excludes further delay/charge; also optimistic about separate stage barriers. Diagnostics only."
+}

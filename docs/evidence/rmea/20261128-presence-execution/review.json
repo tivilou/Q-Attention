@@ -1,0 +1,64 @@
+{
+  "verdict": "BLOCK",
+  "summary": "SectorHead preserves the supplied PresenceHead over exact arithmetic, including its frozen block-D intervention. Both heads dephase by wire 0 immediately before the final CNOT ring. The requested physical output wire-0 dephasing is a different operation. The separable-state identity passes the source audit. The budget formulas can be checked conditionally, but the packet does not establish the provenance of their inputs.",
+  "findings": [
+    {
+      "area": "State construction",
+      "result": "PASS",
+      "detail": "From |000>, the first three RY gates give each basis amplitude the product of its selected cosine or signed sine factors. The combined RZ multiplier for bit string b is exp(i Σ_w (2b_w−1) z_w/2). The second layer preserves RY-before-RZ order on each wire. Moving each RZ past the other wires’ RY gates therefore gives the implemented three real rotations followed by the combined phase."
+    },
+    {
+      "area": "Ring gather and physical sectors",
+      "result": "BLOCK",
+      "detail": "The composed output-to-input gather is [0,7,3,4,6,1,5,2]. Applying the same final permutation to word and query cancels it in the full overlap. A sector overlap also requires pulling back its projector. Physical output indices 0–3 and 4–7 pull back to [0,7,3,4] and [6,1,5,2]. SectorHead instead slices pre-ring indices 0–3 and 4–7. Those slices reproduce PresenceHead.sector, whose final-index sets are {0,2,5,7} and {1,3,4,6}."
+    },
+    {
+      "area": "Frozen block-D control",
+      "result": "PASS_FOR_SUPPLIED_CONTROL",
+      "detail": "The frozen Q intervention uses the same word, query and parameters, changes presence to |z0|²+|z1|², and preserves all 39 identity scores. A reachable counterexample distinguishes it from physical output dephasing. Set all angles to zero except the second-layer wire-0 RY angle of π/2, with query equal to word. The final state is (|000>+|011>)/√2. Physical output wire 0 is certainly zero, giving dephased overlap mass 1. The supplied control gives 1/2. The corresponding scaled presence values are 0.75 and 0.50."
+    },
+    {
+      "area": "Packed real16",
+      "result": "PASS_FOR_SUPPLIED_CONTROL",
+      "detail": "The inverse gather selects [0,5,7,2] and [3,6,4,1] in the real embedding’s original coordinates. Word and query use the same within-sector order. For word u+iv and query a+ib, the packed product returns ua+vb and va−ub with the correct conjugation sign. This preserves the independent real16 baseline. The dense overlap MAC counts per token follow from the matrix dimensions: 640 to 320 complex MACs and 2560 to 1280 real MACs."
+    },
+    {
+      "area": "Mask, readout, gradients and checkpoints",
+      "result": "PASS_BY_SOURCE_INSPECTION",
+      "detail": "SectorHead inherits masking, epsilon placement, token normalization, both presence pools, all 39 identity pools and the 40-logit readout. Its added buffers are nonpersistent, preserving checkpoint keys. The verifier specifies strict loading, comparisons of every returned detail tensor, cross-entropy, h and role gradients, and every named parameter gradient in float64 and float32. Its masks include a singleton and an interior hole, with exact zero candidate input gradients required at masked positions. No execution results were supplied."
+    },
+    {
+      "area": "Separable alternative",
+      "result": "PASS",
+      "detail": "For each wire, D=(1+cos(y)cos(u))/2 and K=D+sin(y)sin(u)cos(z−v)/2. For the explicit product state, coherent presence mass is K0 K1 K2 for query 0, and each identity mass is D0 K1 K2 for its query. The classical reference uses exactly the same word and query angles, values, mask and decoder. The check covers all 41 masked 64-dimensional pools, all 40 logits and gradients of a weighted logit sum with respect to both angle tensors. This equal-parameter identity belongs to the separable hypothesis. It establishes no general classical sufficiency result for the original entangling circuit or the task."
+    },
+    {
+      "area": "Budget algebra and provenance",
+      "result": "CONDITIONAL",
+      "detail": "With common retained share s, serial work is s(Q+D)+C+Gcov. The saved fraction is 1−s. Under a two-GPU reservation charged for the entire makespan, each lane has cap min(wall_s,gpu_s/2). The fixed lanes carry sQ+Gcov and sD+C, and enumeration of all assignments gives the ideal static two-lane bound. The asserted 0<Q−D<C supports the stated dispatch order for positive s. Under active-device-time accounting the GPU constraint would instead apply to total work. The script uses historical JSON inputs and launches no task. It hardcodes 640 updates, but neither authenticates an old COST_DEFER terminal nor verifies the 4096/1024/2048 counts or arm ordering by name. No input JSON or numerical breakpoints were supplied."
+    }
+  ],
+  "required_fixes": [
+    "Resolve the sector specification explicitly. To preserve the original frozen control and checkpoints, document the observable as pre-final-ring wire 0 and remove the physical output wire-0 claim. If physical output wire 0 is required, use the two pulled-back gather sets for Q/D and contiguous final-coordinate sectors for the real16 control. Record that change as a different control. Add the counterexample above as a regression check against the intended observable.",
+    "Before accepting a same-task budget result, bind the historical inputs to the old COST_DEFER terminal, verify the unchanged 640/4096/1024/2048 counts and charging convention, and select Q, D, C and Gcov by explicit arm names. Distinguish infeasibility with Q/D work reduced to zero from a feasible breakpoint at exactly zero retained share. These checks require no new launch."
+  ],
+  "risks": [
+    "A full-state recovery test and agreement between both heads can pass while both heads use the wrong projector for a physical-output claim.",
+    "The two-lane result is an idealized bound subject to its reservation and stage-barrier assumptions. Synthetic single-thread CPU timings and overlap MAC counts provide no GPU runtime or budget estimate."
+  ],
+  "confidence": {
+    "level": "high for the algebra and source-level sector finding",
+    "scope": "Independent review of the supplied source text using the stipulated native gate order and wire indexing. Dataset, imported circuit implementation, historical budget artifacts, runtime outputs, training and GPU behavior were outside the reviewed evidence. No launch or scientific authorization is granted."
+  },
+  "model": "gpt-6.2-astra",
+  "protocol": "responses",
+  "effort": "high",
+  "source_pins": {
+    "sector_reformulation.py": "62acfd3860eee4547efe87799f15fe74bff48ad3f0f3e2178d5d487c36ee88c9",
+    "verify_reformulation.py": "400bbce3406266b36cef70a0d01e288d7dc49c791715228a6be0a32d8a80e00e",
+    "presence_phase.py": "bd3c9e6798d0710ef9b09be9b4eb90706e78c633b28a6f0ff6d8f77a89672faa",
+    "required_reduction.py": "ab4e8af18b170261ca78426a38651706bcc2748e4af2160571e08c5ab1e034ab"
+  },
+  "packet_sha256": "056c0ec9121dd32d8e2a10dc6cdc75c2c8ec5658f48f05409d6d26430fb0b1be",
+  "review_scope": "exact reformulation, companion arithmetic and synthetic fixture source; no independent execution"
+}
