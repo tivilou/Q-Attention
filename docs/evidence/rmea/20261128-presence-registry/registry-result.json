@@ -1,0 +1,123 @@
+{
+  "status": "PASS_NATIVE_REGISTRY_SCORE_AND_FROZEN_STATE_CPU",
+  "torch": "2.4.1+cu121",
+  "cuda_initialized": false,
+  "per_arm": {
+    "phase_presence_q": {
+      "count": 81028,
+      "error_logits": 4.76837158203125e-07,
+      "error_loss": 0.0,
+      "error_gradients": {
+        "effect": 2.9802322387695312e-08,
+        "decoder": 5.029141902923584e-08,
+        "bias": 3.725290298461914e-09,
+        "prepare.weight": 1.1920928955078125e-07,
+        "prepare.bias": 5.960464477539063e-08,
+        "value.weight": 4.470348358154297e-08,
+        "value.bias": 1.4901161193847656e-08
+      },
+      "min_original_top2_margin": 2.5670149326324463,
+      "details_errors": {
+        "presence_pool": 8.940696716308594e-08,
+        "identity_pool": 3.8743019104003906e-07,
+        "positive_scores": 2.384185791015625e-07,
+        "attention": 1.7881393432617188e-07,
+        "presence_logodds": 8.940696716308594e-08
+      }
+    },
+    "phase_presence_block_d": {
+      "count": 81028,
+      "error_logits": 4.76837158203125e-07,
+      "error_loss": 4.76837158203125e-07,
+      "error_gradients": {
+        "effect": 2.2351741790771484e-08,
+        "decoder": 5.029141902923584e-08,
+        "bias": 9.685754776000977e-08,
+        "prepare.weight": 1.9371509552001953e-07,
+        "prepare.bias": 7.078051567077637e-08,
+        "value.weight": 4.470348358154297e-08,
+        "value.bias": 1.862645149230957e-08
+      },
+      "min_original_top2_margin": 2.6330149173736572,
+      "details_errors": {
+        "presence_pool": 5.960464477539063e-08,
+        "identity_pool": 3.8743019104003906e-07,
+        "positive_scores": 2.384185791015625e-07,
+        "attention": 1.7881393432617188e-07,
+        "presence_logodds": 3.3527612686157227e-08
+      }
+    },
+    "phase_presence_real16": {
+      "count": 84235,
+      "error_logits": 4.76837158203125e-07,
+      "error_loss": 0.0,
+      "error_gradients": {
+        "effect": 2.2351741790771484e-08,
+        "decoder": 2.2351741790771484e-08,
+        "bias": 2.9802322387695312e-08,
+        "prepare.weight": 7.450580596923828e-08,
+        "prepare.bias": 1.0244548320770264e-08,
+        "value.weight": 2.2351741790771484e-08,
+        "value.bias": 1.4901161193847656e-08
+      },
+      "min_original_top2_margin": 2.6330149173736572,
+      "details_errors": {
+        "presence_pool": 5.960464477539063e-08,
+        "identity_pool": 1.7881393432617188e-07,
+        "positive_scores": 1.4901161193847656e-07,
+        "attention": 8.940696716308594e-08,
+        "presence_logodds": 2.9802322387695312e-08
+      }
+    },
+    "gaussian_covariance": {
+      "count": 82308,
+      "error_logits": 0.0,
+      "error_loss": 0.0,
+      "error_gradients": {
+        "decoder": 0.0,
+        "bias": 0.0,
+        "query": 0.0,
+        "moment_decoder": 0.0,
+        "value.weight": 0.0,
+        "value.bias": 0.0,
+        "key.weight": 0.0,
+        "key.bias": 0.0
+      },
+      "min_original_top2_margin": 0.013645172119140625,
+      "details_errors": {}
+    }
+  },
+  "initial_sha256": {
+    "phase_presence_q": "f79575534288a8e57fef61deeba24ba568af7e683e4c1ebc984dcc7cfb6e0781",
+    "phase_presence_block_d": "f79575534288a8e57fef61deeba24ba568af7e683e4c1ebc984dcc7cfb6e0781",
+    "phase_presence_real16": "c6f687a0d0cd2f64f940b39c6649fea6032e99b8495d51e3f6b5be085b073d73",
+    "gaussian_covariance": "144d742be216a15123c0c7545f9ae462a2be9827cf195ca8409769382e2773c3"
+  },
+  "frozen_qd_bitwise": true,
+  "real_task_forwards": 0,
+  "real_task_rows": 0,
+  "optimizer_updates": 0,
+  "gpu_allocations": 0,
+  "pins": {
+    "original": {
+      "goal_aligned_runner.py": "a2390681ad5402dc60fa274d27eb47737befc0a659e9ff59b67ab36d0c226633",
+      "goal_aligned_stage.py": "67ea88a03ceb8aa92579c992ec933c27e641622e8cb5a1878e9ca21923a16a6b",
+      "rmea_phase_presence.py": "e1b456355bab0f7bfbf1246caddfa1d0530da7fec8df205fb284d5f0dfa1f873",
+      "presence_phase.py": "bd3c9e6798d0710ef9b09be9b4eb90706e78c633b28a6f0ff6d8f77a89672faa",
+      "presence_endpoints.py": "bc3574525f49d88f7da02b10967262d988f19dfe8986293ee62f8a082e103bf2",
+      "rmea_plugin_registry.py": "b4710e6b04400f2ba683804cdcfb38b59cdf4404a60768e71a08aa82eb1e1e5a",
+      "rmea_history_posterior.py": "35d748d2618c1a313622534eb8f87cd64e1a7bea2ae540d2fb9c0f10560df592"
+    },
+    "modified": {
+      "goal_aligned_runner.py": "a2390681ad5402dc60fa274d27eb47737befc0a659e9ff59b67ab36d0c226633",
+      "goal_aligned_stage.py": "67ea88a03ceb8aa92579c992ec933c27e641622e8cb5a1878e9ca21923a16a6b",
+      "rmea_phase_presence.py": "fed020e762db9c7147a18532b9ce5002eaed808c8aeee539dabefb138b67e7fd",
+      "presence_phase.py": "1ff28069f79d7285bcb7d576a9fd4b1fe35da8f34cab858c2dd7fb352b66e573",
+      "presence_endpoints.py": "bc3574525f49d88f7da02b10967262d988f19dfe8986293ee62f8a082e103bf2",
+      "rmea_plugin_registry.py": "b4710e6b04400f2ba683804cdcfb38b59cdf4404a60768e71a08aa82eb1e1e5a",
+      "rmea_history_posterior.py": "35d748d2618c1a313622534eb8f87cd64e1a7bea2ae540d2fb9c0f10560df592",
+      "sector_reformulation.py": "513178ab1ac984143f7edc23a81aaba7175902dae183eb82f8a80585062368ad",
+      "registry_fixture.py": "67479867f6ce91da2e51f0ebbbdc911f319993f983c83f30458174e1959c0769"
+    }
+  }
+}
